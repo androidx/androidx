@@ -57,9 +57,9 @@ fun collectAndVerifyInput(
     roots.forEach { worldCollector.collect(it) }
     val observersInfo = worldCollector.observers
     val generatedAdapters = worldCollector.observers.keys
-            .mapNotNull { type ->
-                worldCollector.generatedAdapterInfoFor(type)?.let { type to it }
-            }.toMap()
+        .mapNotNull { type ->
+            worldCollector.generatedAdapterInfoFor(type)?.let { type to it }
+        }.toMap()
     return InputModel(roots, observersInfo, generatedAdapters)
 }
 
@@ -67,7 +67,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
     val typeUtils: Types = processingEnv.typeUtils
     val elementUtils: Elements = processingEnv.elementUtils
     val lifecycleObserverTypeMirror: TypeMirror =
-            elementUtils.getTypeElement(LifecycleObserver::class.java.canonicalName).asType()
+        elementUtils.getTypeElement(LifecycleObserver::class.java.canonicalName).asType()
     val validator = Validator(processingEnv)
     val observers: MutableMap<TypeElement, LifecycleObserverInfo> = mutableMapOf()
 
@@ -76,10 +76,10 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
             return observers[type]
         }
         val parents = (listOf(type.superclass) + type.interfaces)
-                .filter { typeUtils.isAssignable(it, lifecycleObserverTypeMirror) }
-                .filterNot { typeUtils.isSameType(it, lifecycleObserverTypeMirror) }
-                .map { collect(MoreTypes.asTypeElement(it)) }
-                .filterNotNull()
+            .filter { typeUtils.isAssignable(it, lifecycleObserverTypeMirror) }
+            .filterNot { typeUtils.isSameType(it, lifecycleObserverTypeMirror) }
+            .map { collect(MoreTypes.asTypeElement(it)) }
+            .filterNotNull()
         val info = createObserverInfo(type, parents)
         if (info != null) {
             observers[type] = info
@@ -91,7 +91,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
         val packageName = if (type.getPackageQName().isEmpty()) "" else "${type.getPackageQName()}."
         val adapterType = elementUtils.getTypeElement(packageName + getAdapterName(type))
         return adapterType?.methods()
-                ?.filter { executable -> isSyntheticMethod(executable) }
+            ?.filter { executable -> isSyntheticMethod(executable) }
     }
 
     private fun createObserverInfo(
@@ -149,14 +149,19 @@ class Validator(val processingEnv: ProcessingEnvironment) {
             return false
         }
 
-        if (params.size == 2 && !validateParam(params[1], Lifecycle.Event::class.java,
-                ErrorMessages.INVALID_SECOND_ARGUMENT)) {
+        if (params.size == 2 && !validateParam(
+                params[1], Lifecycle.Event::class.java,
+                ErrorMessages.INVALID_SECOND_ARGUMENT
+            )
+        ) {
             return false
         }
 
         if (params.size > 0) {
-            return validateParam(params[0], LifecycleOwner::class.java,
-                    ErrorMessages.INVALID_FIRST_ARGUMENT)
+            return validateParam(
+                params[0], LifecycleOwner::class.java,
+                ErrorMessages.INVALID_FIRST_ARGUMENT
+            )
         }
         return true
     }

@@ -21,12 +21,10 @@ import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -60,10 +58,6 @@ class ImageCaptureOrientationConfigChangesTest(
             }
         }
     }
-
-    @get:Rule
-    val mCameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     @Before
     fun before() {

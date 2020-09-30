@@ -37,9 +37,11 @@ class PackageMap(private val rules: List<PackageRule>) {
      * Creates reversed version of this map (from becomes to and vice versa).
      */
     fun reverse(): PackageMap {
-        return PackageMap(rules
-            .map { PackageRule(from = it.to, to = it.from) }
-            .toList())
+        return PackageMap(
+            rules
+                .map { PackageRule(from = it.to, to = it.from) }
+                .toList()
+        )
     }
 
     /**

@@ -133,12 +133,13 @@ public class FingerprintDialogFragment extends DialogFragment {
     /**
      * An icon shown on the dialog during authentication.
      */
-    private ImageView mFingerprintIcon;
+    @Nullable private ImageView mFingerprintIcon;
 
     /**
      * Help text shown below the fingerprint icon on the dialog.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable
     TextView mHelpMessageView;
 
     /**
@@ -179,22 +180,25 @@ public class FingerprintDialogFragment extends DialogFragment {
                 .inflate(R.layout.fingerprint_dialog_layout, null);
 
         final TextView subtitleView = layout.findViewById(R.id.fingerprint_subtitle);
-        final TextView descriptionView = layout.findViewById(R.id.fingerprint_description);
-
-        final CharSequence subtitle = mViewModel.getSubtitle();
-        if (TextUtils.isEmpty(subtitle)) {
-            subtitleView.setVisibility(View.GONE);
-        } else {
-            subtitleView.setVisibility(View.VISIBLE);
-            subtitleView.setText(subtitle);
+        if (subtitleView != null) {
+            final CharSequence subtitle = mViewModel.getSubtitle();
+            if (TextUtils.isEmpty(subtitle)) {
+                subtitleView.setVisibility(View.GONE);
+            } else {
+                subtitleView.setVisibility(View.VISIBLE);
+                subtitleView.setText(subtitle);
+            }
         }
 
-        final CharSequence description = mViewModel.getDescription();
-        if (TextUtils.isEmpty(description)) {
-            descriptionView.setVisibility(View.GONE);
-        } else {
-            descriptionView.setVisibility(View.VISIBLE);
-            descriptionView.setText(description);
+        final TextView descriptionView = layout.findViewById(R.id.fingerprint_description);
+        if (descriptionView != null) {
+            final CharSequence description = mViewModel.getDescription();
+            if (TextUtils.isEmpty(description)) {
+                descriptionView.setVisibility(View.GONE);
+            } else {
+                descriptionView.setVisibility(View.VISIBLE);
+                descriptionView.setText(description);
+            }
         }
 
         mFingerprintIcon = layout.findViewById(R.id.fingerprint_icon);
@@ -289,7 +293,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             @State final int previousState = mViewModel.getFingerprintDialogPreviousState();
 
-            Drawable icon = getAnimationForTransition(previousState, state);
+            Drawable icon = getAssetForTransition(previousState, state);
             if (icon == null) {
                 return;
             }
@@ -396,24 +400,24 @@ public class FingerprintDialogFragment extends DialogFragment {
      * @param state The new state for the fingerprint dialog.
      * @return A drawable asset to be used for the fingerprint icon.
      */
-    private Drawable getAnimationForTransition(@State int previousState, @State int state) {
+    private Drawable getAssetForTransition(@State int previousState, @State int state) {
         final Context context = getContext();
         if (context == null) {
-            Log.w(TAG, "Unable to get animation. Context is null.");
+            Log.w(TAG, "Unable to get asset. Context is null.");
             return null;
         }
 
         int iconRes;
         if (previousState == STATE_NONE && state == STATE_FINGERPRINT) {
-            iconRes = R.drawable.fingerprint_dialog_fp_to_error;
+            iconRes = R.drawable.fingerprint_dialog_fp_icon;
         } else if (previousState == STATE_FINGERPRINT && state == STATE_FINGERPRINT_ERROR) {
-            iconRes = R.drawable.fingerprint_dialog_fp_to_error;
+            iconRes = R.drawable.fingerprint_dialog_error;
         } else if (previousState == STATE_FINGERPRINT_ERROR && state == STATE_FINGERPRINT) {
-            iconRes = R.drawable.fingerprint_dialog_error_to_fp;
+            iconRes = R.drawable.fingerprint_dialog_fp_icon;
         } else if (previousState == STATE_FINGERPRINT
                 && state == STATE_FINGERPRINT_AUTHENTICATED) {
             // TODO(b/77328470): add animation when fingerprint is authenticated
-            iconRes = R.drawable.fingerprint_dialog_error_to_fp;
+            iconRes = R.drawable.fingerprint_dialog_fp_icon;
         } else {
             return null;
         }

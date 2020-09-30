@@ -53,7 +53,8 @@ class NightModeBaseContextThemeTestCase {
     fun testBaseContextResolveAttribute() {
         var baseContext = rule.activity.baseContext
         var resolved = baseContext.obtainStyledAttributes(
-            intArrayOf(android.R.attr.textColorLink))
+            intArrayOf(android.R.attr.textColorLink)
+        )
         assertNotNull("Resolved @attr/textColorLink", resolved.getColorStateList(0))
     }
 }

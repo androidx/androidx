@@ -2,7 +2,9 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DataClassFactoryRegistry;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
 import java.lang.Byte;
 import java.lang.Double;
@@ -19,231 +21,232 @@ import java.util.List;
 public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   private static final String SCHEMA_TYPE = "Gift";
 
-  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectLong")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectInteger")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectDouble")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectFloat")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectBoolean")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectByteArr")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectString")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGenDoc")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxLong")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxLong")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxInteger")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxInt")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxDouble")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxDouble")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxFloat")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxFloat")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxBoolean")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxBoolean")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxByteArr")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxByteArr")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrGenDoc")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("string")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxLong")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxLong")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxInteger")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxInt")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxDouble")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxDouble")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxFloat")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxFloat")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxBoolean")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxBoolean")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxByteArr")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("genDocument")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .build();
-
   @Override
   public String getSchemaType() {
     return SCHEMA_TYPE;
   }
 
   @Override
-  public AppSearchSchema getSchema() {
-    return SCHEMA;
+  public AppSearchSchema getSchema() throws AppSearchException {
+    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectLong")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectInteger")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectDouble")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectFloat")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectBoolean")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectByteArr")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectString")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxLong")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxLong")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxInteger")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxInt")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxDouble")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxDouble")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxFloat")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxFloat")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxBoolean")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxBoolean")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrUnboxByteArr")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxByteArr")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrGift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("string")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxLong")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxLong")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxInteger")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxInt")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxDouble")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxDouble")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxFloat")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxFloat")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxBoolean")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxBoolean")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BOOLEAN)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("unboxByteArr")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("gift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .build();
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) {
+  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     Collection<Long> collectLongCopy = dataClass.collectLong;
@@ -305,10 +308,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       String[] collectStringConv = collectStringCopy.toArray(new String[0]);
       builder.setProperty("collectString", collectStringConv);
     }
-    Collection<GenericDocument> collectGenDocCopy = dataClass.collectGenDoc;
-    if (collectGenDocCopy != null) {
-      GenericDocument[] collectGenDocConv = collectGenDocCopy.toArray(new GenericDocument[0]);
-      builder.setProperty("collectGenDoc", collectGenDocConv);
+    Collection<Gift> collectGiftCopy = dataClass.collectGift;
+    if (collectGiftCopy != null) {
+      GenericDocument[] collectGiftConv = new GenericDocument[collectGiftCopy.size()];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      int i = 0;
+      for (Gift item : collectGiftCopy) {
+        collectGiftConv[i++] = factory.toGenericDocument(item);
+      }
+      builder.setProperty("collectGift", collectGiftConv);
     }
     Long[] arrBoxLongCopy = dataClass.arrBoxLong;
     if (arrBoxLongCopy != null) {
@@ -394,9 +402,14 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrStringCopy != null) {
       builder.setProperty("arrString", arrStringCopy);
     }
-    GenericDocument[] arrGenDocCopy = dataClass.arrGenDoc;
-    if (arrGenDocCopy != null) {
-      builder.setProperty("arrGenDoc", arrGenDocCopy);
+    Gift[] arrGiftCopy = dataClass.arrGift;
+    if (arrGiftCopy != null) {
+      GenericDocument[] arrGiftConv = new GenericDocument[arrGiftCopy.length];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      for (int i = 0; i < arrGiftConv.length; i++) {
+        arrGiftConv[i] = factory.toGenericDocument(arrGiftCopy[i]);
+      }
+      builder.setProperty("arrGift", arrGiftConv);
     }
     String stringCopy = dataClass.string;
     if (stringCopy != null) {
@@ -431,22 +444,23 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (unboxByteArrCopy != null) {
       builder.setProperty("unboxByteArr", unboxByteArrCopy);
     }
-    GenericDocument genDocumentCopy = dataClass.genDocument;
-    if (genDocumentCopy != null) {
-      builder.setProperty("genDocument", genDocumentCopy);
+    Gift giftCopy = dataClass.gift;
+    if (giftCopy != null) {
+      GenericDocument giftConv = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).toGenericDocument(giftCopy);
+      builder.setProperty("gift", giftConv);
     }
     return builder.build();
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) {
+  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     long[] collectLongCopy = genericDoc.getPropertyLongArray("collectLong");
     List<Long> collectLongConv = null;
     if (collectLongCopy != null) {
       collectLongConv = new ArrayList<>(collectLongCopy.length);
       for (int i = 0; i < collectLongCopy.length; i++) {
-        collectLongConv.set(i, collectLongCopy[i]);
+        collectLongConv.add(collectLongCopy[i]);
       }
     }
     long[] collectIntegerCopy = genericDoc.getPropertyLongArray("collectInteger");
@@ -454,7 +468,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectIntegerCopy != null) {
       collectIntegerConv = new ArrayList<>(collectIntegerCopy.length);
       for (int i = 0; i < collectIntegerCopy.length; i++) {
-        collectIntegerConv.set(i, collectIntegerCopy[i]);
+        collectIntegerConv.add((int) collectIntegerCopy[i]);
       }
     }
     double[] collectDoubleCopy = genericDoc.getPropertyDoubleArray("collectDouble");
@@ -462,7 +476,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectDoubleCopy != null) {
       collectDoubleConv = new ArrayList<>(collectDoubleCopy.length);
       for (int i = 0; i < collectDoubleCopy.length; i++) {
-        collectDoubleConv.set(i, collectDoubleCopy[i]);
+        collectDoubleConv.add(collectDoubleCopy[i]);
       }
     }
     double[] collectFloatCopy = genericDoc.getPropertyDoubleArray("collectFloat");
@@ -470,7 +484,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectFloatCopy != null) {
       collectFloatConv = new ArrayList<>(collectFloatCopy.length);
       for (int i = 0; i < collectFloatCopy.length; i++) {
-        collectFloatConv.set(i, collectFloatCopy[i]);
+        collectFloatConv.add((float) collectFloatCopy[i]);
       }
     }
     boolean[] collectBooleanCopy = genericDoc.getPropertyBooleanArray("collectBoolean");
@@ -478,7 +492,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectBooleanCopy != null) {
       collectBooleanConv = new ArrayList<>(collectBooleanCopy.length);
       for (int i = 0; i < collectBooleanCopy.length; i++) {
-        collectBooleanConv.set(i, collectBooleanCopy[i]);
+        collectBooleanConv.add(collectBooleanCopy[i]);
       }
     }
     byte[][] collectByteArrCopy = genericDoc.getPropertyBytesArray("collectByteArr");
@@ -486,7 +500,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectByteArrCopy != null) {
       collectByteArrConv = new ArrayList<>(collectByteArrCopy.length);
       for (int i = 0; i < collectByteArrCopy.length; i++) {
-        collectByteArrConv.set(i, collectByteArrCopy[i]);
+        collectByteArrConv.add(collectByteArrCopy[i]);
       }
     }
     String[] collectStringCopy = genericDoc.getPropertyStringArray("collectString");
@@ -494,10 +508,14 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectStringCopy != null) {
       collectStringConv = Arrays.asList(collectStringCopy);
     }
-    GenericDocument[] collectGenDocCopy = genericDoc.getPropertyDocumentArray("collectGenDoc");
-    List<GenericDocument> collectGenDocConv = null;
-    if (collectGenDocCopy != null) {
-      collectGenDocConv = Arrays.asList(collectGenDocCopy);
+    GenericDocument[] collectGiftCopy = genericDoc.getPropertyDocumentArray("collectGift");
+    List<Gift> collectGiftConv = null;
+    if (collectGiftCopy != null) {
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      collectGiftConv = new ArrayList<>(collectGiftCopy.length);
+      for (int i = 0; i < collectGiftCopy.length; i++) {
+        collectGiftConv.add(factory.fromGenericDocument(collectGiftCopy[i]));
+      }
     }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
     Long[] arrBoxLongConv = null;
@@ -513,7 +531,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrBoxIntegerCopy != null) {
       arrBoxIntegerConv = new Integer[arrBoxIntegerCopy.length];
       for (int i = 0; i < arrBoxIntegerCopy.length; i++) {
-        arrBoxIntegerConv[i] = arrBoxIntegerCopy[i];
+        arrBoxIntegerConv[i] = (int) arrBoxIntegerCopy[i];
       }
     }
     long[] arrUnboxIntCopy = genericDoc.getPropertyLongArray("arrUnboxInt");
@@ -521,7 +539,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrUnboxIntCopy != null) {
       arrUnboxIntConv = new int[arrUnboxIntCopy.length];
       for (int i = 0; i < arrUnboxIntCopy.length; i++) {
-        arrUnboxIntConv[i] = arrUnboxIntCopy[i];
+        arrUnboxIntConv[i] = (int) arrUnboxIntCopy[i];
       }
     }
     double[] arrBoxDoubleCopy = genericDoc.getPropertyDoubleArray("arrBoxDouble");
@@ -538,7 +556,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrBoxFloatCopy != null) {
       arrBoxFloatConv = new Float[arrBoxFloatCopy.length];
       for (int i = 0; i < arrBoxFloatCopy.length; i++) {
-        arrBoxFloatConv[i] = arrBoxFloatCopy[i];
+        arrBoxFloatConv[i] = (float) arrBoxFloatCopy[i];
       }
     }
     double[] arrUnboxFloatCopy = genericDoc.getPropertyDoubleArray("arrUnboxFloat");
@@ -546,7 +564,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrUnboxFloatCopy != null) {
       arrUnboxFloatConv = new float[arrUnboxFloatCopy.length];
       for (int i = 0; i < arrUnboxFloatCopy.length; i++) {
-        arrUnboxFloatConv[i] = arrUnboxFloatCopy[i];
+        arrUnboxFloatConv[i] = (float) arrUnboxFloatCopy[i];
       }
     }
     boolean[] arrBoxBooleanCopy = genericDoc.getPropertyBooleanArray("arrBoxBoolean");
@@ -559,7 +577,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     }
     boolean[] arrUnboxBooleanConv = genericDoc.getPropertyBooleanArray("arrUnboxBoolean");
     byte[][] arrUnboxByteArrConv = genericDoc.getPropertyBytesArray("arrUnboxByteArr");
-    byte[][] boxByteArrCopy = genericDoc.getPropertyBytesArray("boxByteArr");
+    byte[] boxByteArrCopy = genericDoc.getPropertyBytes("boxByteArr");
     Byte[] boxByteArrConv = null;
     if (boxByteArrCopy != null) {
       boxByteArrConv = new Byte[boxByteArrCopy.length];
@@ -568,7 +586,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       }
     }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
-    GenericDocument[] arrGenDocConv = genericDoc.getPropertyDocumentArray("arrGenDoc");
+    GenericDocument[] arrGiftCopy = genericDoc.getPropertyDocumentArray("arrGift");
+    Gift[] arrGiftConv = null;
+    if (arrGiftCopy != null) {
+      arrGiftConv = new Gift[arrGiftCopy.length];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      for (int i = 0; i < arrGiftCopy.length; i++) {
+        arrGiftConv[i] = factory.fromGenericDocument(arrGiftCopy[i]);
+      }
+    }
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
     String stringConv = null;
     if (stringCopy != null && stringCopy.length != 0) {
@@ -583,9 +609,9 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     long[] boxIntegerCopy = genericDoc.getPropertyLongArray("boxInteger");
     Integer boxIntegerConv = null;
     if (boxIntegerCopy != null && boxIntegerCopy.length != 0) {
-      boxIntegerConv = boxIntegerCopy[0];
+      boxIntegerConv = (int) boxIntegerCopy[0];
     }
-    int unboxIntConv = genericDoc.getPropertyLong("unboxInt");
+    int unboxIntConv = (int) genericDoc.getPropertyLong("unboxInt");
     double[] boxDoubleCopy = genericDoc.getPropertyDoubleArray("boxDouble");
     Double boxDoubleConv = null;
     if (boxDoubleCopy != null && boxDoubleCopy.length != 0) {
@@ -595,9 +621,9 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     double[] boxFloatCopy = genericDoc.getPropertyDoubleArray("boxFloat");
     Float boxFloatConv = null;
     if (boxFloatCopy != null && boxFloatCopy.length != 0) {
-      boxFloatConv = boxFloatCopy[0];
+      boxFloatConv = (float) boxFloatCopy[0];
     }
-    float unboxFloatConv = genericDoc.getPropertyDouble("unboxFloat");
+    float unboxFloatConv = (float) genericDoc.getPropertyDouble("unboxFloat");
     boolean[] boxBooleanCopy = genericDoc.getPropertyBooleanArray("boxBoolean");
     Boolean boxBooleanConv = null;
     if (boxBooleanCopy != null && boxBooleanCopy.length != 0) {
@@ -609,10 +635,10 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (unboxByteArrCopy != null && unboxByteArrCopy.length != 0) {
       unboxByteArrConv = unboxByteArrCopy[0];
     }
-    GenericDocument[] genDocumentCopy = genericDoc.getPropertyDocumentArray("genDocument");
-    GenericDocument genDocumentConv = null;
-    if (genDocumentCopy != null && genDocumentCopy.length != 0) {
-      genDocumentConv = genDocumentCopy[0];
+    GenericDocument giftCopy = genericDoc.getPropertyDocument("gift");
+    Gift giftConv = null;
+    if (giftCopy != null) {
+      giftConv = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).fromGenericDocument(giftCopy);
     }
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
@@ -623,7 +649,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.collectBoolean = collectBooleanConv;
     dataClass.collectByteArr = collectByteArrConv;
     dataClass.collectString = collectStringConv;
-    dataClass.collectGenDoc = collectGenDocConv;
+    dataClass.collectGift = collectGiftConv;
     dataClass.arrBoxLong = arrBoxLongConv;
     dataClass.arrUnboxLong = arrUnboxLongConv;
     dataClass.arrBoxInteger = arrBoxIntegerConv;
@@ -637,7 +663,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.arrUnboxByteArr = arrUnboxByteArrConv;
     dataClass.boxByteArr = boxByteArrConv;
     dataClass.arrString = arrStringConv;
-    dataClass.arrGenDoc = arrGenDocConv;
+    dataClass.arrGift = arrGiftConv;
     dataClass.string = stringConv;
     dataClass.boxLong = boxLongConv;
     dataClass.unboxLong = unboxLongConv;
@@ -650,7 +676,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.boxBoolean = boxBooleanConv;
     dataClass.unboxBoolean = unboxBooleanConv;
     dataClass.unboxByteArr = unboxByteArrConv;
-    dataClass.genDocument = genDocumentConv;
+    dataClass.gift = giftConv;
     return dataClass;
   }
 }

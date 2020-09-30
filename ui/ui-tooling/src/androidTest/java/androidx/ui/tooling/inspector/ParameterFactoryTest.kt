@@ -193,8 +193,12 @@ class ParameterFactoryTest {
 
     @Test
     fun testCornerBasedShape() {
-        validate(factory.create(node, "corner",
-            RoundedCornerShape(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))!!) {
+        validate(
+            factory.create(
+                node, "corner",
+                RoundedCornerShape(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp)
+            )!!
+        ) {
             parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
                 parameter("topLeft", ParameterType.DimensionDp, 2.0f)
                 parameter("topRight", ParameterType.DimensionDp, 0.5f)
@@ -265,12 +269,14 @@ class ParameterFactoryTest {
 
     @Test
     fun testFontListFontFamily() {
-        val family = FontListFontFamily(listOf(
-            ResourceFont(1234, FontWeight.Normal, FontStyle.Italic),
-            ResourceFont(1235, FontWeight.Normal, FontStyle.Normal),
-            ResourceFont(1236, FontWeight.Bold, FontStyle.Italic),
-            ResourceFont(1237, FontWeight.Bold, FontStyle.Normal)
-        ))
+        val family = FontListFontFamily(
+            listOf(
+                ResourceFont(1234, FontWeight.Normal, FontStyle.Italic),
+                ResourceFont(1235, FontWeight.Normal, FontStyle.Normal),
+                ResourceFont(1236, FontWeight.Bold, FontStyle.Italic),
+                ResourceFont(1237, FontWeight.Bold, FontStyle.Normal)
+            )
+        )
         assertThat(lookup(family)).isEqualTo(ParameterType.Resource to 1235)
     }
 
@@ -332,16 +338,20 @@ class ParameterFactoryTest {
 
     @Test
     fun testModifier() {
-        validate(factory.create(node, "modifier",
-            Modifier
-                .background(Color.Blue)
-                // TODO(b/163494569) uncomment this and code below when bug is fixed
-                // .border(width = 5.dp, color = Color.Red)
-                .padding(2.0.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(Alignment.Bottom)
-                .preferredWidth(30.0.dp)
-                .paint(TestPainter(10f, 20f)))!!) {
+        validate(
+            factory.create(
+                node, "modifier",
+                Modifier
+                    .background(Color.Blue)
+                    // TODO(b/163494569) uncomment this and code below when bug is fixed
+                    // .border(width = 5.dp, color = Color.Red)
+                    .padding(2.0.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(Alignment.Bottom)
+                    .preferredWidth(30.0.dp)
+                    .paint(TestPainter(10f, 20f))
+            )!!
+        ) {
             parameter("modifier", ParameterType.String, "") {
                 parameter("background", ParameterType.Color, Color.Blue.toArgb()) {
                     parameter("color", ParameterType.Color, Color.Blue.toArgb())
@@ -457,8 +467,10 @@ class ParameterFactoryTest {
     @Test
     fun testTextGeometricTransform() {
         validate(factory.create(node, "transform", TextGeometricTransform(2.0f, 1.5f))!!) {
-            parameter("transform", ParameterType.String,
-                TextGeometricTransform::class.java.simpleName) {
+            parameter(
+                "transform", ParameterType.String,
+                TextGeometricTransform::class.java.simpleName
+            ) {
                 parameter("scaleX", ParameterType.Float, 2.0f)
                 parameter("skewX", ParameterType.Float, 1.5f)
             }

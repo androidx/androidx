@@ -55,6 +55,31 @@ public class ErrorUtilsTest {
     }
 
     @Test
+    public void testIsLockoutError_ReturnsTrue_ForLockoutErrors() {
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_LOCKOUT)).isTrue();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_LOCKOUT_PERMANENT)).isTrue();
+    }
+
+    @Test
+    public void testIsLockoutError_ReturnsFalse_ForNonLockoutErrors() {
+        assertThat(ErrorUtils.isLockoutError(-1)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(1337)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_HW_UNAVAILABLE)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_UNABLE_TO_PROCESS)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_TIMEOUT)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_NO_SPACE)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_CANCELED)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_VENDOR)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_USER_CANCELED)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_NO_BIOMETRICS)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_HW_NOT_PRESENT)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_NEGATIVE_BUTTON)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL)).isFalse();
+        assertThat(ErrorUtils.isLockoutError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED))
+                .isFalse();
+    }
+
+    @Test
     public void testGetFingerprintErrorString_ReturnsEmpty_ForNullContext() {
         assertThat(ErrorUtils.getFingerprintErrorString(
                 null /* context */, BiometricPrompt.ERROR_CANCELED)).isEmpty();

@@ -17,7 +17,8 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
 
 /**
  * A LongRangeUserStyleCategory represents a category with a {@link Long} value in the range
@@ -26,8 +27,28 @@ import android.os.Bundle
 class LongRangeUserStyleCategory : UserStyleCategory {
 
     internal companion object {
-        internal const val CATEGORY_TYPE = "LongRangeUserStyleCategory"
-        internal const val OPTION_TYPE = "LongRangeOption"
+        internal fun createOptionsList(
+            minimumValue: Long,
+            maximumValue: Long,
+            defaultValue: Long
+        ): List<LongRangeOption> {
+            require(minimumValue < maximumValue)
+            require(defaultValue >= minimumValue)
+            require(defaultValue <= maximumValue)
+
+            return if (defaultValue != minimumValue && defaultValue != maximumValue) {
+                listOf(
+                    LongRangeOption(minimumValue),
+                    LongRangeOption(defaultValue),
+                    LongRangeOption(maximumValue)
+                )
+            } else {
+                listOf(
+                    LongRangeOption(minimumValue),
+                    LongRangeOption(maximumValue)
+                )
+            }
+        }
     }
 
     constructor (
@@ -64,12 +85,29 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         displayName,
         description,
         icon,
-        listOf(LongRangeOption(minimumValue), LongRangeOption(maximumValue)),
-        LongRangeOption(defaultValue),
+        createOptionsList(minimumValue, maximumValue, defaultValue),
+        // The index of defaultValue can only ever be 0 or 1.
+        when (defaultValue) {
+            minimumValue -> 0
+            else -> 1
+        },
         layerFlags
     )
 
-    internal constructor(bundle: Bundle) : super(bundle)
+    internal constructor(wireFormat: LongRangeUserStyleCategoryWireFormat) : super(wireFormat)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun toWireFormat() =
+        LongRangeUserStyleCategoryWireFormat(
+            id,
+            displayName,
+            description,
+            icon,
+            getWireFormatOptionsList(),
+            defaultOptionIndex,
+            layerFlags
+        )
 
     /**
      * Represents an option a {@link Long} in the range [minimumValue .. maximumValue].
@@ -86,19 +124,17 @@ class LongRangeUserStyleCategory : UserStyleCategory {
             internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
         }
 
-        internal constructor(bundle: Bundle) : super(bundle) {
-            value = bundle.getLong(KEY_LONG_VALUE)
+        internal constructor(
+            wireFormat: LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat
+        ) : super(wireFormat.mId) {
+            value = wireFormat.mValue
         }
 
-        override fun writeToBundle(bundle: Bundle) {
-            super.writeToBundle(bundle)
-            bundle.putLong(KEY_LONG_VALUE, value)
-        }
-
-        override fun getOptionType() = OPTION_TYPE
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat() =
+            LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat(id, value)
     }
-
-    override fun getCategoryType() = CATEGORY_TYPE
 
     /**
      * Returns the minimum value.
@@ -113,7 +149,7 @@ class LongRangeUserStyleCategory : UserStyleCategory {
     /**
      * Returns the default value.
      */
-    fun getDefaultValue() = (defaultOption as LongRangeOption).value
+    fun getDefaultValue() = (options[defaultOptionIndex] as LongRangeOption).value
 
     /**
      * We support all values in the range [min ... max] not just min & max.
@@ -125,12 +161,12 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         return try {
             val value = optionId.toLong()
             if (value < getMinimumValue() || value > getMaximumValue()) {
-                defaultOption as LongRangeOption
+                options[defaultOptionIndex] as LongRangeOption
             } else {
                 LongRangeOption(value)
             }
         } catch (e: NumberFormatException) {
-            defaultOption as LongRangeOption
+            options[defaultOptionIndex] as LongRangeOption
         }
     }
 }

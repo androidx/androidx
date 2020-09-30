@@ -21,6 +21,9 @@ import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import android.support.wearable.watchface.IWatchFaceCommand;
 import android.support.wearable.watchface.WatchFaceStyle;
+import androidx.wear.watchface.data.ComplicationDetails;
+import androidx.wear.watchface.style.data.UserStyleWireFormat;
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
 /**
  * Interface of a service that allows the watch face to interact with the wearable.
@@ -39,28 +42,37 @@ interface IWatchFaceService {
 
     /**
      * Requests that the style for the provided watch face be set to the given style.
+     *
+     * @since API version 0.
      */
     void setStyle(in WatchFaceStyle style) = 0;
 
     /**
      * Sets which complications are currently active on the watch face.
+     *
+     * @since API version 0.
      */
     void setActiveComplications(in int[] ids, boolean updateAll) = 1;
 
     /**
      * Sets the default provider for a complication.
+     *
+     * @since API version 0.
      */
     void setDefaultComplicationProvider(
         int watchFaceComplicationId, in ComponentName provider, int type) = 2;
 
     /**
      * Sets a system provider as the default provider for a complication.
+     * @since API version 0.
      */
     void setDefaultSystemComplicationProvider(
         int watchFaceComplicationId, int systemProvider, int type) = 3;
 
     /**
      * Sets the labels to be read aloud by screen readers.
+     *
+     * @since API version 0.
      */
     void setContentDescriptionLabels(in ContentDescriptionLabel[] labels) = 4;
 
@@ -83,54 +95,58 @@ interface IWatchFaceService {
      * Returns the version number for this API which the client can use to
      * determine which methods are available. Note old implementations without
      * this method will return zero.
+     *
+     * @since API version 0.
      */
     int getApiVersion() = 7;
 
     /**
-      * Updates the bounds and slot type associated with a complication slot. Supported from API
-      * version 3.
+      * Updates the {@link ComplicationDetails}  associated with a complication slot.
       *
+      * @since API version 3.
       * @param id The complication id
-      * @param bounds The bounds of the complicaiton
-      * @param complicationSlotType The {@link ComplicationSlotType} of the complication
+      * @param complicationDetails The {@link ComplicationDetails} to set
       */
-    void setComplicationDetails(int id, in Rect bounds, in int complicationSlotType) = 8;
+    void setComplicationDetails(int id, in ComplicationDetails complicationDetails) = 8;
 
     /**
-     * Updates the supported types for a complication, required for remote configuration. Supported
-     * from API version 3
+     * Updates the supported types for a complication, required for remote configuration.
+     *
+     * @since API version 3.
      */
     void setComplicationSupportedTypes(in int id, in int[] types) = 9;
 
     /**
       * Registers the user style schema which the companion will use to construct the style
-      * configuration UI. Supported from API version 3.
+      * configuration UI.
       *
-      * @param styleSchema A list of {@link Bundle}s populated by
-      *    {@link UserStyleCategory#writeToBundle}
+      * @since API version 3.
+      * @param styleSchema A {@link StyleSchemaWireFormat}.
       */
-    void registerUserStyleSchema(in List<Bundle> styleSchema) = 10;
+    void registerUserStyleSchema(in UserStyleSchemaWireFormat styleSchema) = 10;
 
     /**
      * Called when the user selects the user style for the watch. For some types of UI widget,
      * (e.g a LIST_VIEW) the Option must be from the list associated with the UserStyleCategory in
-     * registerStyleSchema. Supported from API version 3.
+     * registerStyleSchema.
      *
-     * @param style A {@link Bundle} containing a mapping from {@link UserStyleCategory} to
-     *    {@link UserStyleCategory.Option}s.
+     * @since API version 3.
+     * @param style A {@link UserStyleWireFormat}.
      */
-    void setCurrentUserStyle(in Bundle style) = 11;
+    void setCurrentUserStyle(in UserStyleWireFormat style) = 11;
 
     /**
      * Returns the user style (set by {@link #setCurrentUserStyle} if there is one or null
-     * otherwise. See {@link androidx.wear.watchfacestyle.UserStyleCategory#styleMapToBundle}.
+     * otherwise.
+     *
+     * @since API version 3.
      */
-    Bundle getStoredUserStyle() = 12;
+    UserStyleWireFormat getStoredUserStyle() = 12;
 
     /**
-     * Registers whether the watch face is digital or analog with the system. Supported from API
-     * version 3.
+     * Registers whether the watch face is digital or analog with the system.
      *
+     * @since API version 3.
      * @param watchFaceType The {@link WatchFaceType} which describes whether the watch face is
      *     digital or analog
      */
@@ -138,7 +154,9 @@ interface IWatchFaceService {
 
     /**
      * Registers the {@link IWatchFaceCommand} with the system. This is a cleaner alternative to the
-     * deprecated wallpaper commands. Supported from API version 3.
+     * deprecated wallpaper commands.
+     *
+     * @since API version 3.
      */
     void registerIWatchFaceCommand(in Bundle bundle) = 14;
 }

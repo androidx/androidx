@@ -236,11 +236,11 @@ abstract class MediaRouteProviderProtocol {
     public static final int SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED = 7;
 
     /** (service v3) / (client v4)
-     * Request to release a route controller. (unsolicited event)
+     * Route controller released by the provider. (unsolicited event)
      * - arg1    : reserved(0)
      * - arg2    : controllerId
      */
-    public static final int SERVICE_MSG_RELEASE_CONTROLLER = 8;
+    public static final int SERVICE_MSG_CONTROLLER_RELEASED = 8;
 
     public static final String SERVICE_DATA_ERROR = "error";
 

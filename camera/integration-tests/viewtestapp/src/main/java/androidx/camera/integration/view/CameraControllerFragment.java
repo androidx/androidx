@@ -48,8 +48,8 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.SensorRotationListener;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -69,7 +69,8 @@ public class CameraControllerFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     LifecycleCameraController mCameraController;
 
-    private PreviewView mPreviewView;
+    @VisibleForTesting
+    PreviewView mPreviewView;
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
@@ -79,6 +80,7 @@ public class CameraControllerFragment extends Fragment {
     private ToggleButton mTapToFocusToggle;
     private TextView mZoomStateText;
     private TextView mTorchStateText;
+    private RotationListener mSensorRotationListener;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -92,7 +94,9 @@ public class CameraControllerFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mCameraController = new LifecycleCameraController(getContext());
+        mSensorRotationListener = new RotationListener(requireContext());
+        mSensorRotationListener.enable();
+        mCameraController = new LifecycleCameraController(requireContext());
         mCameraController.bindToLifecycle(getViewLifecycleOwner());
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
@@ -100,6 +104,7 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
+        mPreviewView.setOnClickListener(v -> toast("PreviewView clicked."));
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
@@ -270,6 +275,7 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
+        mSensorRotationListener.disable();
     }
 
     void logFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -351,6 +357,27 @@ public class CameraControllerFragment extends Fragment {
     // -----------------
 
     /**
+     * Listens to accelerometer rotation change and pass it to tests.
+     */
+    static class RotationListener extends SensorRotationListener {
+
+        private int mRotation;
+
+        RotationListener(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onRotationChanged(int rotation) {
+            mRotation = rotation;
+        }
+
+        int getRotation() {
+            return mRotation;
+        }
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -362,9 +389,16 @@ public class CameraControllerFragment extends Fragment {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    void observePreviewStreamState(Observer<PreviewView.StreamState> observer) {
-        mPreviewView.getPreviewStreamState().observe(CameraControllerFragment.this,
-                observer);
+    PreviewView getPreviewView() {
+        return mPreviewView;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    int getSensorRotation() {
+        return mSensorRotationListener.getRotation();
     }
 
     @VisibleForTesting

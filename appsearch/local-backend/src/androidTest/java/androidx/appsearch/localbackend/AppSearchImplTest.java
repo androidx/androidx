@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.test.core.app.ApplicationProvider;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
@@ -38,18 +37,21 @@ import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TermMatchType;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.util.Set;
 
 public class AppSearchImplTest {
+    @Rule
+    public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
 
     @Before
     public void setUp() throws Exception {
-        mAppSearchImpl = AppSearchImpl.getInstance();
-        mAppSearchImpl.initialize(ApplicationProvider.getApplicationContext());
-        mAppSearchImpl.reset();
+        mAppSearchImpl = new AppSearchImpl(mTemporaryFolder.newFolder());
+        mAppSearchImpl.initialize();
     }
 
     /**
@@ -226,7 +228,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testQueryEmptyDatabase() throws AppSearchException, InterruptedException {
+    public void testQueryEmptyDatabase() throws Exception {
         SearchResultProto searchResultProto = mAppSearchImpl.query("EmptyDatabase",
                 SearchSpecProto.getDefaultInstance(),
                 ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
@@ -235,8 +237,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRemoveEmptyDatabase_NoExceptionThrown()
-            throws AppSearchException, InterruptedException {
+    public void testRemoveEmptyDatabase_NoExceptionThrown() throws Exception {
         mAppSearchImpl.removeByType("EmptyDatabase", "FakeType");
         mAppSearchImpl.removeByNamespace("EmptyDatabase", "FakeNamespace");
         mAppSearchImpl.removeAll("EmptyDatabase");

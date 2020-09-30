@@ -17,9 +17,11 @@
 package androidx.appsearch.localbackend;
 
 import static androidx.appsearch.app.AppSearchResult.newFailedResult;
+import static androidx.appsearch.app.AppSearchResult.newSuccessfulResult;
 
 import android.content.Context;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -29,13 +31,13 @@ import androidx.appsearch.app.AppSearchManager;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GenericDocumentToProtoConverter;
-import androidx.appsearch.app.SchemaToProtoConverter;
-import androidx.appsearch.app.SearchResultToProtoConverter;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.app.SearchSpecToProtoConverter;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localbackend.converter.GenericDocumentToProtoConverter;
+import androidx.appsearch.localbackend.converter.SchemaToProtoConverter;
+import androidx.appsearch.localbackend.converter.SearchResultToProtoConverter;
+import androidx.appsearch.localbackend.converter.SearchSpecToProtoConverter;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -44,6 +46,7 @@ import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -54,35 +57,38 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LocalBackend implements AppSearchBackend {
-    private final Context mContext;
+    private static final String ICING_DIR = "icing";
+
+    private static volatile AppSearchResult<LocalBackend> sInstance;
+
     final AppSearchImpl mAppSearchImpl;
 
-    /** Builder class for {@link LocalBackend} objects. */
-    public static final class Builder {
-        private final Context mContext;
-        private boolean mBuilt = false;
-
-        /** Constructs a new Builder with default settings using the provided {@code context}. */
-        public Builder(@NonNull Context context) {
-            Preconditions.checkNotNull(context);
-            mContext = context;
+    /**
+     * Returns an instance of {@link LocalBackend}.
+     *
+     * <p>If no instance exists, one will be created using the provided {@code context}, but not
+     * initialized.
+     *
+     * <p>You must call {@link #initialize} before using it.
+     */
+    @AnyThread
+    @NonNull
+    public static AppSearchResult<LocalBackend> getInstance(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
+        if (sInstance == null) {
+            synchronized (LocalBackend.class) {
+                if (sInstance == null) {
+                    File icingDir = new File(context.getFilesDir(), ICING_DIR);
+                    sInstance = newSuccessfulResult(new LocalBackend(icingDir));
+                }
+            }
         }
-
-        /**
-         * Connects to the AppSearch database per this builder's configuration, and asynchronously
-         * returns the initialized instance.
-         */
-        @NonNull
-        public AppSearchResult<LocalBackend> build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBuilt = true;
-            return AppSearchResult.newSuccessfulResult(new LocalBackend(mContext));
-        }
+        return sInstance;
     }
 
-    LocalBackend(@NonNull Context context) {
-        mContext = context;
-        mAppSearchImpl = AppSearchImpl.getInstance();
+    @AnyThread
+    private LocalBackend(@NonNull File icingDir) {
+        mAppSearchImpl = new AppSearchImpl(icingDir);
     }
 
     @Override
@@ -95,7 +101,7 @@ public class LocalBackend implements AppSearchBackend {
     public AppSearchResult<Void> initialize() {
         if (!mAppSearchImpl.isInitialized()) {
             try {
-                mAppSearchImpl.initialize(mContext);
+                mAppSearchImpl.initialize();
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
@@ -146,8 +152,8 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, GenericDocument> getDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.GetDocumentsRequest request) {
+    public AppSearchBatchResult<String, GenericDocument> getByUri(
+            @NonNull String databaseName, @NonNull AppSearchManager.GetByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
@@ -188,9 +194,9 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> removeDocuments(
+    public AppSearchBatchResult<String, Void> removeByUri(
             @NonNull String databaseName,
-            @NonNull AppSearchManager.RemoveDocumentsRequest request) {
+            @NonNull AppSearchManager.RemoveByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, Void> resultBuilder =
@@ -347,7 +353,7 @@ public class LocalBackend implements AppSearchBackend {
         public void close() throws IOException {
             try {
                 mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
-            } catch (AppSearchException | InterruptedException e) {
+            } catch (InterruptedException e) {
                 throw new IOException(e);
             }
         }

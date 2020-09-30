@@ -256,7 +256,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                 endControlFlow()
                 return@map tempVal
             }
-            addStatement("return %T(${tempVariables.joinToString(", ") { it }})", className)
+            addStatement("return·%T(${tempVariables.joinToString(", ") { it }})", className)
         }.build()
 
         val typeSpec = TypeSpec.classBuilder(className)

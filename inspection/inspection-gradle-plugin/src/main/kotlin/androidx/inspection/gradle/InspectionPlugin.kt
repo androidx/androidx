@@ -92,8 +92,10 @@ class InspectionPlugin : Plugin<Project> {
                 )
             }
             if (!foundReleaseVariant) {
-                throw StopExecutionException("The androidx.inspection plugin requires " +
-                        "release build variant.")
+                throw StopExecutionException(
+                    "The androidx.inspection plugin requires " +
+                        "release build variant."
+                )
             }
         }
     }

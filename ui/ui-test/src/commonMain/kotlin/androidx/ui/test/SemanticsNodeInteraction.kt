@@ -105,12 +105,14 @@ class SemanticsNodeInteraction internal constructor(
     fun assertDoesNotExist() {
         val result = fetchSemanticsNodes("Failed: assertDoesNotExist.")
         if (result.selectedNodes.isNotEmpty()) {
-            throw AssertionError(buildErrorMessageForCountMismatch(
-                errorMessage = "Failed: assertDoesNotExist.",
-                selector = selector,
-                foundNodes = result.selectedNodes,
-                expectedCount = 0
-            ))
+            throw AssertionError(
+                buildErrorMessageForCountMismatch(
+                    errorMessage = "Failed: assertDoesNotExist.",
+                    selector = selector,
+                    foundNodes = result.selectedNodes,
+                    expectedCount = 0
+                )
+            )
         }
     }
 
@@ -140,23 +142,27 @@ class SemanticsNodeInteraction internal constructor(
         if (result.selectedNodes.count() != 1) {
             if (result.selectedNodes.isEmpty() && lastSeenSemantics != null) {
                 // This means that node we used to have is no longer in the tree.
-                throw AssertionError(buildErrorMessageForNodeMissingInTree(
-                    errorMessage = finalErrorMessage,
-                    selector = selector,
-                    lastSeenSemantics = lastSeenSemantics!!
-                ))
+                throw AssertionError(
+                    buildErrorMessageForNodeMissingInTree(
+                        errorMessage = finalErrorMessage,
+                        selector = selector,
+                        lastSeenSemantics = lastSeenSemantics!!
+                    )
+                )
             }
 
             if (result.customErrorOnNoMatch != null) {
                 throw AssertionError(finalErrorMessage + "\n" + result.customErrorOnNoMatch)
             }
 
-            throw AssertionError(buildErrorMessageForCountMismatch(
-                errorMessage = finalErrorMessage,
-                foundNodes = result.selectedNodes,
-                expectedCount = 1,
-                selector = selector
-            ))
+            throw AssertionError(
+                buildErrorMessageForCountMismatch(
+                    errorMessage = finalErrorMessage,
+                    foundNodes = result.selectedNodes,
+                    expectedCount = 1,
+                    selector = selector
+                )
+            )
         }
 
         lastSeenSemantics = result.selectedNodes.first().printToString()

@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.wrapper
 
+import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession
 import android.hardware.camera2.CaptureRequest
@@ -27,6 +28,7 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.impl.Log
 import kotlinx.atomicfu.atomic
 import java.io.Closeable
+import kotlin.jvm.Throws
 
 /**
  * Interface shim for [CameraCaptureSession] with minor modifications.
@@ -291,6 +293,7 @@ open class AndroidCameraCaptureSession(
     }
 
     override val isReprocessable: Boolean
+        @SuppressLint("UnsafeNewApiCall")
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return cameraCaptureSession.isReprocessable
@@ -300,6 +303,7 @@ open class AndroidCameraCaptureSession(
         }
 
     override val inputSurface: Surface?
+        @SuppressLint("UnsafeNewApiCall")
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return cameraCaptureSession.inputSurface
@@ -310,11 +314,12 @@ open class AndroidCameraCaptureSession(
         }
 
     @RequiresApi(26)
+    @SuppressLint("UnsafeNewApiCall")
     override fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>) {
         check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             "Attempting to call finalizeOutputConfigurations before O is not supported and may " +
-                    "lead to to unexpected behavior if an application is expects this call to " +
-                    "succeed."
+                "lead to to unexpected behavior if an application is expects this call to " +
+                "succeed."
         }
 
         rethrowCamera2Exceptions {
@@ -362,7 +367,7 @@ class AndroidCameraConstrainedHighSpeedCaptureSession internal constructor(
             // exception that can be ignored.
             Log.warn {
                 "Failed to createHighSpeedRequestList from $device because the output surface" +
-                        " was destroyed before calling createHighSpeedRequestList."
+                    " was destroyed before calling createHighSpeedRequestList."
             }
             throw ObjectUnavailableException(e)
         }

@@ -4,12 +4,12 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
-        errorLine1="/**"
-        errorLine2="^">
+        errorLine1="public class ViewModelProviders {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ViewModelProviders.java"
-            line="28"
-            column="1"/>
+            line="34"
+            column="14"/>
     </issue>
 
 </issues>

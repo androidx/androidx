@@ -101,19 +101,22 @@ class PreviewActivity : ComponentActivity() {
             setContent {
                 val index = remember { mutableStateOf(0) }
 
-                Scaffold(bodyContent = {
-                    invokeComposableViaReflection(
-                        className,
-                        methodName,
-                        currentComposer,
-                        previewParameters[index.value]
-                    )
-                }, floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = { Text("Next") },
-                        onClick = { index.value = (index.value + 1) % previewParameters.size }
-                    )
-                })
+                Scaffold(
+                    bodyContent = {
+                        invokeComposableViaReflection(
+                            className,
+                            methodName,
+                            currentComposer,
+                            previewParameters[index.value]
+                        )
+                    },
+                    floatingActionButton = {
+                        ExtendedFloatingActionButton(
+                            text = { Text("Next") },
+                            onClick = { index.value = (index.value + 1) % previewParameters.size }
+                        )
+                    }
+                )
             }
         } else {
             setContent {

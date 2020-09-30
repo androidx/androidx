@@ -26,28 +26,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraUseCaseAdapter getCameraUseCaseAdapter(@NonNull Context context,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="273"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static CameraUseCaseAdapter getCameraAndAttachUseCase(@NonNull Context context,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="299"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setAfMode(CameraCaptureMetaData.AfMode mode) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -118,7 +96,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraControl.java"
-            line="86"
+            line="85"
             column="53"/>
     </issue>
 

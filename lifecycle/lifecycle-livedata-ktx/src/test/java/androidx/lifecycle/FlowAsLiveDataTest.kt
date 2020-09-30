@@ -57,10 +57,10 @@ class FlowAsLiveDataTest {
     @Test
     fun removeObserverInBetween() {
         val ld = flow {
-                emit(1)
-                emit(2)
-                delay(1000)
-                emit(3)
+            emit(1)
+            emit(2)
+            delay(1000)
+            emit(3)
         }.asLiveData(timeoutInMs = 10)
 
         ld.addObserver().apply {

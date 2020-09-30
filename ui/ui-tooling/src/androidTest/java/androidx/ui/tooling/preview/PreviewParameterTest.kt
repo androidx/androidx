@@ -33,8 +33,8 @@ class PreviewParameterTest {
     @get:Rule
     val activityTestRule =
         androidx.test.rule.ActivityTestRule<ComposeViewAdapterTest.Companion.TestActivity>(
-        ComposeViewAdapterTest.Companion.TestActivity::class.java
-    )
+            ComposeViewAdapterTest.Companion.TestActivity::class.java
+        )
 
     private lateinit var composeViewAdapter: ComposeViewAdapter
 

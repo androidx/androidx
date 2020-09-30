@@ -70,6 +70,13 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 }
 
+kapt {
+    javacOptions {
+        option("-Adagger.fastInit=enabled")
+        option("-Adagger.fullBindingGraphValidation=ERROR")
+    }
+}
+
 // Create jarjar artifact for all variants (debug/release)
 android.libraryVariants.all { variant ->
     def variantName = variant.name

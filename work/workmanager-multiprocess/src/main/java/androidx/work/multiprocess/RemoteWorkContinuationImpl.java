@@ -19,6 +19,7 @@ package androidx.work.multiprocess;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 
@@ -29,7 +30,10 @@ import java.util.List;
 
 /**
  * An implementation of {@link RemoteWorkContinuation}.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkContinuationImpl extends RemoteWorkContinuation {
     private final RemoteWorkManagerClient mClient;
     private final WorkContinuation mContinuation;

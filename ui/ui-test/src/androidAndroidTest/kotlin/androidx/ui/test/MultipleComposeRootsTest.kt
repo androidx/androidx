@@ -113,7 +113,8 @@ class MultipleComposeRootsTest {
                                 state2.toggle()
                                 updateTitle1()
                                 updateTitle2()
-                            })
+                            }
+                        )
                     }
                 }
             }
@@ -129,7 +130,8 @@ class MultipleComposeRootsTest {
                                 state2.toggle()
                                 updateTitle1()
                                 updateTitle2()
-                            })
+                            }
+                        )
                     }
                 }
             }

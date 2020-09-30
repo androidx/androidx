@@ -57,7 +57,8 @@ fun isToggleable(): SemanticsMatcher =
  * @see FoundationSemanticsProperties.ToggleableState
  */
 fun isOn(): SemanticsMatcher = SemanticsMatcher.expectValue(
-    FoundationSemanticsProperties.ToggleableState, ToggleableState.On)
+    FoundationSemanticsProperties.ToggleableState, ToggleableState.On
+)
 
 /**
  * Returns whether the node is not toggled.
@@ -65,7 +66,8 @@ fun isOn(): SemanticsMatcher = SemanticsMatcher.expectValue(
  * @see FoundationSemanticsProperties.ToggleableState
  */
 fun isOff(): SemanticsMatcher = SemanticsMatcher.expectValue(
-    FoundationSemanticsProperties.ToggleableState, ToggleableState.Off)
+    FoundationSemanticsProperties.ToggleableState, ToggleableState.Off
+)
 
 /**
  * Return whether the node is selectable.
@@ -182,14 +184,14 @@ fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
  * @see SemanticsProperties.Text
  */
 fun hasSubstring(substring: String, ignoreCase: Boolean = false):
-        SemanticsMatcher {
-    return SemanticsMatcher(
-        "${SemanticsProperties.Text.name}.contains($substring, $ignoreCase)"
-    ) {
-        it.config.getOrNull(SemanticsProperties.Text)?.text?.contains(substring, ignoreCase)
-            ?: false
+    SemanticsMatcher {
+        return SemanticsMatcher(
+            "${SemanticsProperties.Text.name}.contains($substring, $ignoreCase)"
+        ) {
+            it.config.getOrNull(SemanticsProperties.Text)?.text?.contains(substring, ignoreCase)
+                ?: false
+        }
     }
-}
 
 /**
  * Returns whether the node's value matches exactly to the given accessibility value.
@@ -199,7 +201,8 @@ fun hasSubstring(substring: String, ignoreCase: Boolean = false):
  * @see SemanticsProperties.AccessibilityValue
  */
 fun hasValue(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(
-    SemanticsProperties.AccessibilityValue, value)
+    SemanticsProperties.AccessibilityValue, value
+)
 
 /**
  * Returns whether the node's range info matches exactly to the given accessibility range info.
@@ -331,7 +334,8 @@ fun hasAnyChild(matcher: SemanticsMatcher): SemanticsMatcher {
 fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
     //  in the error message or say that no siblings were found.
-    return SemanticsMatcher("hasAnySiblingThat(${matcher.description})"
+    return SemanticsMatcher(
+        "hasAnySiblingThat(${matcher.description})"
     ) {
         val node = it
         it.parent?.run { matcher.matchesAny(this.children.filter { child -> child.id != node.id }) }

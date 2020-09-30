@@ -38,6 +38,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
@@ -148,9 +149,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 init {
                     userStyleRepository.addUserStyleListener(
                         object : UserStyleRepository.UserStyleListener {
-                            override fun onUserStyleChanged(
-                                userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                            ) {
+                            override fun onUserStyleChanged(userStyle: UserStyle) {
                                 // `userStyle` will contain two userStyle categories with options
                                 // from the lists above. ...
                             }

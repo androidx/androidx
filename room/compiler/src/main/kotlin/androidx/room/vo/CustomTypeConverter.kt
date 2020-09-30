@@ -28,7 +28,8 @@ data class CustomTypeConverter(
     val isEnclosingClassKotlinObject: Boolean,
     val method: XMethodElement,
     val from: XType,
-    val to: XType
+    val to: XType,
+    val isProvidedConverter: Boolean
 ) {
     val typeName: TypeName by lazy { enclosingClass.typeName }
     val fromTypeName: TypeName by lazy { from.typeName }

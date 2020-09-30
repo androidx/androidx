@@ -88,8 +88,9 @@ internal object PreferencesSerializer : Serializer<Preferences> {
             Value.ValueCase.INTEGER -> mutablePreferences[preferencesKey(name)] = value.integer
             Value.ValueCase.LONG -> mutablePreferences[preferencesKey(name)] = value.long
             Value.ValueCase.STRING -> mutablePreferences[preferencesKey(name)] = value.string
-            Value.ValueCase.STRING_SET -> mutablePreferences[preferencesSetKey<String>(name)] =
-                value.stringSet.stringsList.toSet()
+            Value.ValueCase.STRING_SET ->
+                mutablePreferences[preferencesSetKey<String>(name)] =
+                    value.stringSet.stringsList.toSet()
             Value.ValueCase.VALUE_NOT_SET ->
                 throw CorruptionException("Value not set.")
             null -> throw CorruptionException("Value case is null.")

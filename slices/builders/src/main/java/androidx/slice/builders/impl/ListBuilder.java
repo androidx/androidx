@@ -19,6 +19,7 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
+import android.os.PersistableBundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
@@ -66,6 +68,11 @@ public interface ListBuilder {
      * may be shown on the template in large or small formats.
      */
     void addAction(@NonNull SliceAction action);
+
+    /**
+     * Add an star rating row to the list builder.
+     */
+    void addRating(@NonNull RatingBuilder builder);
 
     /**
      * Add an input range row to the list builder.
@@ -146,9 +153,9 @@ public interface ListBuilder {
     /**
      * Sets additional information to be passed to the host of the slice.
      *
-     * @param key The name of the extra data
-     * @param value The String data value
+     * @param extras The Bundle of extras to add to this slice.
      */
-    void setHostExtra(@NonNull String key, @NonNull String value);
+    @RequiresApi(21)
+    void setHostExtras(@NonNull PersistableBundle extras);
 }
 

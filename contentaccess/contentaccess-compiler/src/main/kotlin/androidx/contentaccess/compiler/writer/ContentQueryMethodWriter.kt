@@ -51,9 +51,13 @@ class ContentQueryMethodWriter(
     fun createContentQueryMethod(): FunSpec? {
         val uriTypePlaceHolder = ClassName("android.net", "Uri")
         val methodBuilder = funSpecOverriding(contentQuery.method, processingEnv)
-        methodBuilder.annotations.add(AnnotationSpec.builder(Suppress::class).addMember
-            ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember("%S",
-            "PLATFORM_CLASS_MAPPED_TO_KOTLIN").addMember("%S", "DEPRECATION").build())
+        methodBuilder.annotations.add(
+            AnnotationSpec.builder(Suppress::class).addMember
+            ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember(
+                "%S",
+                "PLATFORM_CLASS_MAPPED_TO_KOTLIN"
+            ).addMember("%S", "DEPRECATION").build()
+        )
         if (contentQuery.isSuspend) {
             val withContext = MemberName("kotlinx.coroutines", "withContext")
             methodBuilder.beginControlFlow(
@@ -62,17 +66,23 @@ class ContentQueryMethodWriter(
             )
         }
         if (contentQuery.uri.startsWith(":")) {
-            methodBuilder.addStatement("val _uri = %T.parse(%L)", uriTypePlaceHolder.copy(),
-                contentQuery.uri.removePrefix(":"))
+            methodBuilder.addStatement(
+                "val _uri = %T.parse(%L)", uriTypePlaceHolder.copy(),
+                contentQuery.uri.removePrefix(":")
+            )
         } else {
-            methodBuilder.addStatement("val _uri = %T.parse(%S)", uriTypePlaceHolder.copy(),
-                contentQuery.uri)
+            methodBuilder.addStatement(
+                "val _uri = %T.parse(%S)", uriTypePlaceHolder.copy(),
+                contentQuery.uri
+            )
         }
         methodBuilder.addStatement("val _projectionList = mutableListOf<String>()")
         for (column in contentQuery.toQueryFor) {
             if (column.requiresApi != null) {
-                methodBuilder.beginControlFlow("if (%T.VERSION.SDK_INT >= ${column.requiresApi})",
-                    buildClassPlaceHolder)
+                methodBuilder.beginControlFlow(
+                    "if (%T.VERSION.SDK_INT >= ${column.requiresApi})",
+                    buildClassPlaceHolder
+                )
                 methodBuilder.addStatement("_projectionList.add(%S)", column.columnName)
                 methodBuilder.endControlFlow()
             } else {
@@ -96,8 +106,10 @@ class ContentQueryMethodWriter(
         } else {
             methodBuilder.addStatement("val _selection = \"\"")
         }
-        callResolverAndFormulateReturn(methodBuilder, contentQuery.returnType,
-            noSelectionArgs)
+        callResolverAndFormulateReturn(
+            methodBuilder, contentQuery.returnType,
+            noSelectionArgs
+        )
 
         if (contentQuery.isSuspend) {
             methodBuilder.endControlFlow()
@@ -110,25 +122,36 @@ class ContentQueryMethodWriter(
         returnType: TypeMirror,
         noSelectionArgs: Boolean
     ) {
-        methodBuilder.addStatement("val _cursor = _contentResolver.query(_uri, _projection, " +
+        methodBuilder.addStatement(
+            "val _cursor = _contentResolver.query(_uri, _projection, " +
                 "_selection, ${if (noSelectionArgs) "null" else "_selectionArgs"}, %S)",
-            contentQuery.orderBy)
+            contentQuery.orderBy
+        )
         methodBuilder.beginControlFlow("if (_cursor == null)")
-        methodBuilder.addStatement("throw NullPointerException(%S)", "Cursor returned by the " +
-                "content provider was null!")
+        methodBuilder.addStatement(
+            "throw NullPointerException(%S)",
+            "Cursor returned by the " +
+                "content provider was null!"
+        )
         methodBuilder.endControlFlow()
         if (returnType.isSupportedGenericType()) {
             val realReturnType = returnType.extractIntendedReturnType()
             val returnTypeInKotlin = methodBuilder.build().returnType.toString()
             if (returnType.isOptional()) {
-                populateAndReturnOptionalFromCursor(methodBuilder, realReturnType,
-                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
+                populateAndReturnOptionalFromCursor(
+                    methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin)
+                )
             } else if (returnType.isList()) {
-                populateAndReturnListFromCursor(methodBuilder, realReturnType,
-                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
+                populateAndReturnListFromCursor(
+                    methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin)
+                )
             } else if (returnType.isSet()) {
-                populateAndReturnSetFromCursor(methodBuilder, realReturnType,
-                    checkIfTypeArgumentIsNullable(returnTypeInKotlin))
+                populateAndReturnSetFromCursor(
+                    methodBuilder, realReturnType,
+                    checkIfTypeArgumentIsNullable(returnTypeInKotlin)
+                )
             }
         } else {
             returnNonPojoTypeFromCursor(methodBuilder, returnType)
@@ -140,9 +163,13 @@ class ContentQueryMethodWriter(
         realReturnType: TypeMirror,
         typeArgumentIsNullable: Boolean
     ) {
-        methodBuilder.addStatement("val _returnList = %T()",
-            ClassName("kotlin.collections", "ArrayList").parameterizedBy(realReturnType
-                .toKotlinClassName().copy(typeArgumentIsNullable)))
+        methodBuilder.addStatement(
+            "val _returnList = %T()",
+            ClassName("kotlin.collections", "ArrayList").parameterizedBy(
+                realReturnType
+                    .toKotlinClassName().copy(typeArgumentIsNullable)
+            )
+        )
         methodBuilder.beginControlFlow("while (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
         // Check !realReturnType.isSupportedColumnType() because POJOs cannot be null, their
@@ -150,19 +177,25 @@ class ContentQueryMethodWriter(
         // type is a supported cursor type (long, int, String etc...) Same goes for other
         // collections.
         if (typeArgumentIsNullable || !realReturnType.isSupportedColumnType()) {
-            methodBuilder.addStatement("_returnList.add($RETURN_OBJECT_NAME as %T)",
+            methodBuilder.addStatement(
+                "_returnList.add($RETURN_OBJECT_NAME as %T)",
                 realReturnType
-                    .toKotlinClassName())
+                    .toKotlinClassName()
+            )
         } else {
             methodBuilder.beginControlFlow("if ($RETURN_OBJECT_NAME != null)")
-            methodBuilder.addStatement("_returnList.add($RETURN_OBJECT_NAME as %T)",
+            methodBuilder.addStatement(
+                "_returnList.add($RETURN_OBJECT_NAME as %T)",
                 realReturnType
-                    .toKotlinClassName())
+                    .toKotlinClassName()
+            )
             methodBuilder.endControlFlow()
         }
         methodBuilder.endControlFlow()
-        methodBuilder.addStatement("$returnOrSet _returnList.toList() as ${methodBuilder.build()
-            .returnType}")
+        methodBuilder.addStatement(
+            "$returnOrSet _returnList.toList() as ${methodBuilder.build()
+                .returnType}"
+        )
     }
 
     fun populateAndReturnSetFromCursor(
@@ -170,24 +203,34 @@ class ContentQueryMethodWriter(
         realReturnType: TypeMirror,
         typeArgumentIsNullable: Boolean
     ) {
-        methodBuilder.addStatement("val _returnSet = %T()",
-            ClassName("kotlin.collections", "HashSet").parameterizedBy(realReturnType
-                .toKotlinClassName().copy(typeArgumentIsNullable)).copy())
+        methodBuilder.addStatement(
+            "val _returnSet = %T()",
+            ClassName("kotlin.collections", "HashSet").parameterizedBy(
+                realReturnType
+                    .toKotlinClassName().copy(typeArgumentIsNullable)
+            ).copy()
+        )
         methodBuilder.beginControlFlow("while (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
         if (typeArgumentIsNullable || !realReturnType.isSupportedColumnType()) {
-            methodBuilder.addStatement("_returnSet.add($RETURN_OBJECT_NAME as %T)",
-                realReturnType.toKotlinClassName())
+            methodBuilder.addStatement(
+                "_returnSet.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType.toKotlinClassName()
+            )
         } else {
             methodBuilder.beginControlFlow("if ($RETURN_OBJECT_NAME != null)")
-            methodBuilder.addStatement("_returnSet.add($RETURN_OBJECT_NAME as %T)",
-                realReturnType.toKotlinClassName())
+            methodBuilder.addStatement(
+                "_returnSet.add($RETURN_OBJECT_NAME as %T)",
+                realReturnType.toKotlinClassName()
+            )
             methodBuilder.endControlFlow()
         }
 
         methodBuilder.endControlFlow()
-        methodBuilder.addStatement("$returnOrSet _returnSet.toSet() as ${methodBuilder.build()
-            .returnType}")
+        methodBuilder.addStatement(
+            "$returnOrSet _returnSet.toSet() as ${methodBuilder.build()
+                .returnType}"
+        )
     }
 
     fun populateAndReturnOptionalFromCursor(
@@ -196,19 +239,26 @@ class ContentQueryMethodWriter(
         typeArgumentIsNullable: Boolean
     ) {
         if (typeArgumentIsNullable) {
-            processingEnv.warn("Type argument $realReturnType of java.util.Optional is marked as " +
+            processingEnv.warn(
+                "Type argument $realReturnType of java.util.Optional is marked as " +
                     "nullable, an Optional cannot contain a null reference, instead it will be " +
-                    "empty.", contentQuery.method)
+                    "empty.",
+                contentQuery.method
+            )
         }
         methodBuilder.beginControlFlow("if (_cursor.moveToNext())")
         createReturnTypeFromCursor(realReturnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("$returnOrSet %T.ofNullable($RETURN_OBJECT_NAME as %T) as %L",
+        methodBuilder.addStatement(
+            "$returnOrSet %T.ofNullable($RETURN_OBJECT_NAME as %T) as %L",
             ClassName("java.util", "Optional").copy(), realReturnType.toKotlinClassName(),
-            methodBuilder.build().returnType.toString())
+            methodBuilder.build().returnType.toString()
+        )
         methodBuilder.nextControlFlow("else")
-            .addStatement("$returnOrSet Optional.empty<%T>() as %L",
+            .addStatement(
+                "$returnOrSet Optional.empty<%T>() as %L",
                 realReturnType.toKotlinClassName(),
-                methodBuilder.build().returnType.toString())
+                methodBuilder.build().returnType.toString()
+            )
             .endControlFlow()
     }
 
@@ -218,8 +268,10 @@ class ContentQueryMethodWriter(
     ) {
         methodBuilder.beginControlFlow("if (_cursor.moveToNext())")
         createReturnTypeFromCursor(returnType, methodBuilder, contentQuery.toQueryFor)
-        methodBuilder.addStatement("$returnOrSet $RETURN_OBJECT_NAME as ${methodBuilder.build()
-            .returnType}")
+        methodBuilder.addStatement(
+            "$returnOrSet $RETURN_OBJECT_NAME as ${methodBuilder.build()
+                .returnType}"
+        )
         methodBuilder.nextControlFlow("else")
             .addStatement("$returnOrSet null")
             .endControlFlow()
@@ -250,29 +302,42 @@ class ContentQueryMethodWriter(
             for (column in columns) {
                 if (column.isNullable) {
                     if (column.requiresApi != null) {
-                        methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
-                            .get(column.columnName)}_value = if (%T.VERSION.SDK_INT >= ${column
-                            .requiresApi})", buildClassPlaceHolder)
-                        methodBuilder.beginControlFlow("if (_cursor.isNull(_cursor" +
-                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.beginControlFlow(
+                            "val _${pojoColumnsToFieldNames
+                                .get(column.columnName)}_value = if (%T.VERSION.SDK_INT >= ${column
+                                .requiresApi})",
+                            buildClassPlaceHolder
+                        )
+                        methodBuilder.beginControlFlow(
+                            "if (_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))",
+                            column.columnName
+                        )
                         methodBuilder.addStatement("null")
                         methodBuilder.nextControlFlow("else")
-                        methodBuilder.addStatement("_cursor" +
+                        methodBuilder.addStatement(
+                            "_cursor" +
                                 ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
-                            column.columnName)
+                            column.columnName
+                        )
                         methodBuilder.endControlFlow()
                         methodBuilder.nextControlFlow("else")
                         methodBuilder.addStatement("null")
                         methodBuilder.endControlFlow()
                     } else {
-                        methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
-                            .get(column.columnName)}_value = if (_cursor.isNull(_cursor" +
-                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.beginControlFlow(
+                            "val _${pojoColumnsToFieldNames
+                                .get(column.columnName)}_value = if (_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))",
+                            column.columnName
+                        )
                         methodBuilder.addStatement("null")
                         methodBuilder.nextControlFlow("else")
-                        methodBuilder.addStatement("_cursor" +
+                        methodBuilder.addStatement(
+                            "_cursor" +
                                 ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
-                            column.columnName)
+                            column.columnName
+                        )
                         methodBuilder.endControlFlow()
                     }
                 } else {
@@ -280,21 +345,32 @@ class ContentQueryMethodWriter(
                     // fields that were added in a later API to the provider. If that ever happens
                     // the bug ought to be with the entity or if it's legitimate then weird but
                     // okay, warrants a special exception.
-                    methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
-                        .columnName)}_value" +
+                    methodBuilder.beginControlFlow(
+                        "val _${pojoColumnsToFieldNames.get(
+                            column
+                                .columnName
+                        )}_value" +
                             " = if (_cursor.isNull(_cursor.getColumnIndex(%S)))",
-                        column.columnName)
-                    methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
-                        .columnName} associated with field ${column.name} in $realReturnType " +
-                            "return null, however field ${column.name} is not nullable")
+                        column.columnName
+                    )
+                    methodBuilder.addStatement(
+                        "throw NullPointerException(%S)",
+                        "Column ${column
+                            .columnName} associated with field ${column.name} in $realReturnType " +
+                            "return null, however field ${column.name} is not nullable"
+                    )
                     methodBuilder.nextControlFlow("else")
-                    methodBuilder.addStatement("_cursor" +
+                    methodBuilder.addStatement(
+                        "_cursor" +
                             ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
-                        column.columnName)
+                        column.columnName
+                    )
                     methodBuilder.endControlFlow()
                 }
-                fieldNameValueMap.put(pojoColumnsToFieldNames.get(column.columnName)!!,
-                    "_${pojoColumnsToFieldNames.get(column.columnName)!!}_value")
+                fieldNameValueMap.put(
+                    pojoColumnsToFieldNames.get(column.columnName)!!,
+                    "_${pojoColumnsToFieldNames.get(column.columnName)!!}_value"
+                )
             }
             for (field in constructorFieldNames) {
                 if (field in fieldNameValueMap) {
@@ -304,8 +380,10 @@ class ContentQueryMethodWriter(
                 }
             }
 
-            methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", realReturnType,
-                constructorParams.joinToString(","))
+            methodBuilder.addStatement(
+                "val $RETURN_OBJECT_NAME = %T(%L)", realReturnType,
+                constructorParams.joinToString(",")
+            )
         } else {
             // We should instead assign to public fields directly.
             methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T()", realReturnType)
@@ -316,34 +394,54 @@ class ContentQueryMethodWriter(
                             "if (%T.VERSION.SDK_INT >= ${column.requiresApi})",
                             buildClassPlaceHolder
                         )
-                        methodBuilder.beginControlFlow("if (!_cursor.isNull(_cursor" +
-                                ".getColumnIndex(%S)))", column.columnName)
-                        methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
-                            .get(column.columnName)} =" +
+                        methodBuilder.beginControlFlow(
+                            "if (!_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))",
+                            column.columnName
+                        )
+                        methodBuilder.addStatement(
+                            "$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                                .get(column.columnName)} =" +
                                 " _cursor.${column.type.getCursorMethod()}" +
-                                "(_cursor.getColumnIndex(%S))", column.columnName)
+                                "(_cursor.getColumnIndex(%S))",
+                            column.columnName
+                        )
                         methodBuilder.endControlFlow()
                         methodBuilder.endControlFlow()
                     } else {
-                        methodBuilder.beginControlFlow("if (!_cursor.isNull(_cursor" +
-                                ".getColumnIndex(%S)))", column.columnName)
-                        methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
-                            .get(column.columnName)} =" +
+                        methodBuilder.beginControlFlow(
+                            "if (!_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))",
+                            column.columnName
+                        )
+                        methodBuilder.addStatement(
+                            "$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                                .get(column.columnName)} =" +
                                 " _cursor.${column.type.getCursorMethod()}" +
-                                "(_cursor.getColumnIndex(%S))", column.columnName)
+                                "(_cursor.getColumnIndex(%S))",
+                            column.columnName
+                        )
                         methodBuilder.endControlFlow()
                     }
                 } else {
-                    methodBuilder.beginControlFlow("if (_cursor.isNull(" +
-                            "_cursor.getColumnIndex(%S)))", column.columnName)
-                    methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
-                        .columnName} associated with field ${column.name} in $realReturnType " +
-                            "return null, however field ${column.name} is not nullable")
+                    methodBuilder.beginControlFlow(
+                        "if (_cursor.isNull(" +
+                            "_cursor.getColumnIndex(%S)))",
+                        column.columnName
+                    )
+                    methodBuilder.addStatement(
+                        "throw NullPointerException(%S)",
+                        "Column ${column
+                            .columnName} associated with field ${column.name} in $realReturnType " +
+                            "return null, however field ${column.name} is not nullable"
+                    )
                     methodBuilder.nextControlFlow("else")
-                    methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
-                        .get(column.columnName)} = " +
+                    methodBuilder.addStatement(
+                        "$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                            .get(column.columnName)} = " +
                             "_cursor.${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
-                        column.columnName)
+                        column.columnName
+                    )
                     methodBuilder.endControlFlow()
                 }
             }

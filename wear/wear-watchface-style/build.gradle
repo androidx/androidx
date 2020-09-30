@@ -30,6 +30,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api(project(":wear:wear-watchface-data"))
     api(KOTLIN_STDLIB)
 
     implementation("androidx.core:core:1.1.0")

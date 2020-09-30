@@ -41,6 +41,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import kotlin.math.cos
@@ -62,6 +63,11 @@ private const val SECOND_HAND_LENGTH_FRACTION = 0.37383f
 private const val SECOND_HAND_THICKNESS_FRACTION = 0.00934f
 
 private const val NUMBER_RADIUS_FRACTION = 0.45f
+
+val NO_COMPLICATIONS = "NO_COMPLICATIONS"
+val LEFT_COMPLICATION = "LEFT_COMPLICATION"
+val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
+val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 
 /** A simple example canvas based watch face. */
 class ExampleCanvasWatchFaceService : WatchFaceService() {
@@ -112,8 +118,42 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 0.75,
                 UserStyleCategory.LAYER_WATCH_FACE_UPPER
             )
+        val complicationsStyleCategory = ListUserStyleCategory(
+            "complications_style_category",
+            "Complications",
+            "Number and position",
+            icon = null,
+            options = listOf(
+                ListUserStyleCategory.ListOption(
+                    LEFT_AND_RIGHT_COMPLICATIONS,
+                    "Both",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    NO_COMPLICATIONS,
+                    "None",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    LEFT_COMPLICATION,
+                    "Left",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    RIGHT_COMPLICATION,
+                    "Right",
+                    null
+                )
+            ),
+            UserStyleCategory.LAYER_COMPLICATONS
+        )
         val userStyleRepository = UserStyleRepository(
-            listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
+            listOf(
+                colorStyleCategory,
+                drawHourPipsStyleCategory,
+                watchHandLengthStyleCategory,
+                complicationsStyleCategory
+            )
         )
         val complicationSlots = ComplicationsManager(
             listOf(
@@ -156,6 +196,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             colorStyleCategory,
             drawHourPipsStyleCategory,
             watchHandLengthStyleCategory,
+            complicationsStyleCategory,
             complicationSlots
         )
 
@@ -184,6 +225,7 @@ class ExampleCanvasRenderer(
     private val colorStyleCategory: ListUserStyleCategory,
     private val drawPipsStyleCategory: BooleanUserStyleCategory,
     private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
+    private val complicationsCategory: ListUserStyleCategory,
     private val complicationsManager: ComplicationsManager
 ) : CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
 
@@ -220,11 +262,12 @@ class ExampleCanvasRenderer(
         userStyleRepository.addUserStyleListener(
             object : UserStyleRepository.UserStyleListener {
                 @SuppressLint("SyntheticAccessor")
-                override fun onUserStyleChanged(
-                    userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                ) {
+                override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =
-                        WatchFaceColorStyle.create(context, userStyle[colorStyleCategory]!!.id)
+                        WatchFaceColorStyle.create(
+                            context,
+                            userStyle.options[colorStyleCategory]!!.id
+                        )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
                     // the styles are defined in XML so we need to replace the complication's
@@ -235,13 +278,40 @@ class ExampleCanvasRenderer(
                     }
 
                     val drawPipsOption =
-                        userStyle[drawPipsStyleCategory]!! as BooleanUserStyleCategory.BooleanOption
+                        userStyle.options[drawPipsStyleCategory]!! as BooleanUserStyleCategory
+                        .BooleanOption
                     val watchHandLengthOption =
-                        userStyle[watchHandLengthStyleCategoryDouble]!! as
+                        userStyle.options[watchHandLengthStyleCategoryDouble]!! as
                                 DoubleRangeUserStyleCategory.DoubleRangeOption
 
                     drawHourPips = drawPipsOption.value
                     watchHandScale = watchHandLengthOption.value.toFloat()
+
+                    val leftComplication =
+                        complicationsManager.complications[
+                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+                    val rightComplication =
+                        complicationsManager.complications[
+                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+
+                    when (userStyle.options[complicationsCategory]!!.id) {
+                        NO_COMPLICATIONS -> {
+                            leftComplication.enabled = false
+                            rightComplication.enabled = false
+                        }
+                        LEFT_COMPLICATION -> {
+                            leftComplication.enabled = true
+                            rightComplication.enabled = false
+                        }
+                        RIGHT_COMPLICATION -> {
+                            leftComplication.enabled = false
+                            rightComplication.enabled = true
+                        }
+                        LEFT_AND_RIGHT_COMPLICATIONS -> {
+                            leftComplication.enabled = true
+                            rightComplication.enabled = true
+                        }
+                    }
                 }
             }
         )
@@ -452,7 +522,9 @@ class ExampleCanvasRenderer(
 
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
         for ((_, complication) in complicationsManager.complications) {
-            complication.draw(canvas, calendar, drawMode)
+            if (complication.enabled) {
+                complication.draw(canvas, calendar, drawMode)
+            }
         }
     }
 

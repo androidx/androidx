@@ -86,6 +86,10 @@ import androidx.core.util.Preconditions;
  *
  * <p> The transformed Surface is how the PreviewView's inner view should behave, to make the
  * crop rect matches the PreviewView.
+ *
+ * <p> The class uses the vertices to represent a rectangle with arbitrary rotation and chirality.
+ * It could be otherwise represented by a triple of a {@link RectF}, a rotation degrees and a
+ * flag for the orientation of rotation (clockwise v.s. counter-clockwise).
  */
 final class PreviewTransformation {
 
@@ -103,6 +107,8 @@ final class PreviewTransformation {
     private int mPreviewRotationDegrees;
     // TransformationInfo.getTargetRotation.
     private int mTargetRotation;
+    // Whether the preview is using front camera.
+    private boolean mIsFrontCamera;
 
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
@@ -116,11 +122,14 @@ final class PreviewTransformation {
      */
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
-            Size resolution) {
+            Size resolution, boolean isFrontCamera) {
+        Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "
+                + isFrontCamera);
         mSurfaceCropRect = transformationInfo.getCropRect();
         mPreviewRotationDegrees = transformationInfo.getRotationDegrees();
         mTargetRotation = transformationInfo.getTargetRotation();
         mResolution = resolution;
+        mIsFrontCamera = isFrontCamera;
     }
 
     /**
@@ -138,10 +147,10 @@ final class PreviewTransformation {
     Matrix getTextureViewCorrectionMatrix() {
         Preconditions.checkState(isTransformationInfoReady());
         Matrix matrix = new Matrix();
-        float[] surfaceVertexes = sizeToVertexes(mResolution);
-        float[] rotatedSurfaceVertexes = createRotatedVertexes(surfaceVertexes,
+        float[] surfaceVertices = sizeToVertices(mResolution);
+        float[] rotatedSurfaceVertices = createRotatedVertices(surfaceVertices,
                 -rotationValueToRotationDegrees(mTargetRotation));
-        matrix.setPolyToPoly(surfaceVertexes, 0, rotatedSurfaceVertexes, 0, 4);
+        matrix.setPolyToPoly(surfaceVertices, 0, rotatedSurfaceVertices, 0, 4);
         return matrix;
     }
 
@@ -204,9 +213,9 @@ final class PreviewTransformation {
         Matrix surfaceToPreviewView =
                 getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection);
 
-        float[] surfaceVertexes = sizeToVertexes(mResolution);
-        surfaceToPreviewView.mapPoints(surfaceVertexes);
-        return vertexesToRect(surfaceVertexes);
+        float[] surfaceVertices = sizeToVertices(mResolution);
+        surfaceToPreviewView.mapPoints(surfaceVertices);
+        return verticesToRect(surfaceVertices);
     }
 
     /**
@@ -220,28 +229,47 @@ final class PreviewTransformation {
         Preconditions.checkState(isTransformationInfoReady());
         Matrix matrix = new Matrix();
 
-        // Get the target of the mapping, the vertexes of the crop rect in PreviewView.
-        float[] previewViewCropRectVertexes;
+        // Get the target of the mapping, the vertices of the crop rect in PreviewView.
+        float[] previewViewCropRectVertices;
         if (isCropRectAspectRatioMatchPreviewView(previewViewSize)) {
             // If crop rect has the same aspect ratio as PreviewView, scale the crop rect to fill
             // the entire PreviewView. This happens if the scale type is FILL_* AND a
             // PreviewView-based viewport is used.
-            previewViewCropRectVertexes = sizeToVertexes(previewViewSize);
+            previewViewCropRectVertices = sizeToVertices(previewViewSize);
         } else {
             // If the aspect ratios don't match, it could be 1) scale type is FIT_*, 2) the
             // Viewport is not based on the PreviewView or 3) both.
             RectF previewViewCropRect = getPreviewViewCropRectForMismatchedAspectRatios(
                     previewViewSize, layoutDirection);
-            previewViewCropRectVertexes = rectToVertexes(previewViewCropRect);
+            previewViewCropRectVertices = rectToVertices(previewViewCropRect);
         }
-        float[] rotatedPreviewViewCropRectVertexes = createRotatedVertexes(
-                previewViewCropRectVertexes, mPreviewRotationDegrees);
+        float[] rotatedPreviewViewCropRectVertices = createRotatedVertices(
+                previewViewCropRectVertices, mPreviewRotationDegrees);
 
-        // Get the source of the mapping, the vertexes of the crop rect in Surface.
-        float[] surfaceCropRectVertexes = rectToVertexes(new RectF(mSurfaceCropRect));
+        // Get the source of the mapping, the vertices of the crop rect in Surface.
+        float[] surfaceCropRectVertices = rectToVertices(new RectF(mSurfaceCropRect));
 
         // Map source to target.
-        matrix.setPolyToPoly(surfaceCropRectVertexes, 0, rotatedPreviewViewCropRectVertexes, 0, 4);
+        matrix.setPolyToPoly(surfaceCropRectVertices, 0, rotatedPreviewViewCropRectVertices, 0, 4);
+
+        if (mIsFrontCamera) {
+            // SurfaceView/TextureView automatically mirrors the Surface for front camera, which
+            // needs to be compensated by mirroring the Surface around the upright direction of the
+            // output image.
+            if (is90or270(mPreviewRotationDegrees)) {
+                // If the rotation is 90/270, the Surface should be flipped vertically.
+                //   +---+     90 +---+  270 +---+
+                //   | ^ | -->    | < |      | > |
+                //   +---+        +---+      +---+
+                matrix.preScale(1F, -1F, mSurfaceCropRect.centerX(), mSurfaceCropRect.centerY());
+            } else {
+                // If the rotation is 0/180, the Surface should be flipped horizontally.
+                //   +---+      0 +---+  180 +---+
+                //   | ^ | -->    | ^ |      | v |
+                //   +---+        +---+      +---+
+                matrix.preScale(-1F, 1F, mSurfaceCropRect.centerX(), mSurfaceCropRect.centerY());
+            }
+        }
         return matrix;
     }
 
@@ -325,7 +353,7 @@ final class PreviewTransformation {
      */
     private SizeF getRotatedCropRectSize() {
         Preconditions.checkNotNull(mSurfaceCropRect);
-        if (mPreviewRotationDegrees % 180 == 90) {
+        if (is90or270(mPreviewRotationDegrees)) {
             return new SizeF(mSurfaceCropRect.height(), mSurfaceCropRect.width());
         }
         return new SizeF(mSurfaceCropRect.width(), mSurfaceCropRect.height());
@@ -397,32 +425,42 @@ final class PreviewTransformation {
         }
     }
 
+    private static boolean is90or270(int rotationDegrees) {
+        if (rotationDegrees == 90 || rotationDegrees == 270) {
+            return true;
+        }
+        if (rotationDegrees == 0 || rotationDegrees == 180) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid rotation degrees: " + rotationDegrees);
+    }
+
     /**
-     * Converts a {@link Size} to an float array of vertexes.
+     * Converts a {@link Size} to an float array of vertices.
      */
     @VisibleForTesting
-    static float[] sizeToVertexes(Size size) {
+    static float[] sizeToVertices(Size size) {
         return new float[]{0, 0, size.getWidth(), 0, size.getWidth(), size.getHeight(), 0,
                 size.getHeight()};
     }
 
     /**
-     * Converts a {@link Rect} defined by left, top right and bottom to an array of vertexes.
+     * Converts a {@link Rect} defined by left, top right and bottom to an array of vertices.
      */
-    private static float[] rectToVertexes(RectF rectF) {
+    private static float[] rectToVertices(RectF rectF) {
         return new float[]{rectF.left, rectF.top, rectF.right, rectF.top, rectF.right, rectF.bottom,
                 rectF.left, rectF.bottom};
     }
 
     /**
-     * Converts an array of vertexes to a {@link Rect}.
+     * Converts an array of vertices to a {@link Rect}.
      */
-    private static RectF vertexesToRect(float[] vertexes) {
+    private static RectF verticesToRect(float[] vertices) {
         return new RectF(
-                min(vertexes[0], vertexes[2], vertexes[4], vertexes[6]),
-                min(vertexes[1], vertexes[3], vertexes[5], vertexes[7]),
-                max(vertexes[0], vertexes[2], vertexes[4], vertexes[6]),
-                max(vertexes[1], vertexes[3], vertexes[5], vertexes[7])
+                min(vertices[0], vertices[2], vertices[4], vertices[6]),
+                min(vertices[1], vertices[3], vertices[5], vertices[7]),
+                max(vertices[0], vertices[2], vertices[4], vertices[6]),
+                max(vertices[1], vertices[3], vertices[5], vertices[7])
         );
     }
 
@@ -439,21 +477,21 @@ final class PreviewTransformation {
     }
 
     /**
-     * Creates a new quad that the vertexes are rotated clockwise with the given degrees.
+     * Creates a new quad that the vertices are rotated clockwise with the given degrees.
      *
      * <pre>
      *  a----b
      *  |    |
-     *  d----c  vertexes = {a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y}
+     *  d----c  vertices = {a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y}
      *
      * After 90° rotation:
      *
      *  d----a
      *  |    |
-     *  c----b  vertexes = {d.x, d.y, a.x, a.y, b.x, b.y, c.x, c.y}
+     *  c----b  vertices = {d.x, d.y, a.x, a.y, b.x, b.y, c.x, c.y}
      * </pre>
      */
-    private static float[] createRotatedVertexes(float[] original, int rotationDegrees) {
+    private static float[] createRotatedVertices(float[] original, int rotationDegrees) {
         float[] rotated = new float[original.length];
         int offset = -rotationDegrees / 90 * FLOAT_NUMBER_PER_VERTEX;
         for (int originalIndex = 0; originalIndex < original.length; originalIndex++) {

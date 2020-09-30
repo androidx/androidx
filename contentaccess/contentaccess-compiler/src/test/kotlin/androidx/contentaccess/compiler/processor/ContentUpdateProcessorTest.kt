@@ -36,8 +36,10 @@ class ContentUpdateProcessorTest {
     val entityName = "androidx.contentaccess.compiler.processor.test.Entity"
 
     fun generateMainSourceFile(accessorBody: String, entityWithoutUri: Boolean = false):
-            SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        SourceFile {
+            return SourceFile.kotlin(
+                "MyClass.kt",
+                """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -69,17 +71,18 @@ class ContentUpdateProcessorTest {
         )
 
         @ContentAccessObject(${if (entityWithoutUri) "EntityWithoutUri::class" else
-            "Entity::class"})
+                    "Entity::class"})
         interface ContentAccessor {
             $accessorBody
         }
         """
-        )
-    }
+            )
+        }
 
     @Test
     fun validUpdates() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate
         fun updateDescription(@ContentColumn("description") desc: String): Int
 
@@ -90,7 +93,8 @@ class ContentUpdateProcessorTest {
             id: Long,
             uri: String
         ): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -99,7 +103,8 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun validUpdatesWithUriLessEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate(where = "_id = 123", uri = ":uri")
         fun updateDescriptionWithUri(
             @ContentColumn("description") desc: String,
@@ -110,7 +115,9 @@ class ContentUpdateProcessorTest {
         fun updateDescription(
             @ContentColumn("description") desc: String
         ): Int
-        """.trimIndent(), entityWithoutUri = true)
+            """.trimIndent(),
+            entityWithoutUri = true
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -119,40 +126,52 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun checkColumnsExist() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate(where = "_id = :id")
         fun updateDescription(@ContentColumn("nonexistent") desc: String, id: Long): Int
-        """.trimIndent())
-
-        val result = runCompilation(listOf(sourceFile))
-
-        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(columnInContentUpdateParametersNotInEntity("desc",
-            "nonexistent", entityName))
-    }
-
-    @Test
-    fun ensureTypesMatch() {
-        val sourceFile = generateMainSourceFile("""
-        @ContentUpdate
-        fun updateDescription(@ContentColumn("description") desc: Long): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            mismatchedColumnTypeForColumnToBeUpdated("desc",
-            "description", "long", entityName, "java.lang.String")
+            columnInContentUpdateParametersNotInEntity(
+                "desc",
+                "nonexistent", entityName
+            )
+        )
+    }
+
+    @Test
+    fun ensureTypesMatch() {
+        val sourceFile = generateMainSourceFile(
+            """
+        @ContentUpdate
+        fun updateDescription(@ContentColumn("description") desc: Long): Int
+            """.trimIndent()
+        )
+
+        val result = runCompilation(listOf(sourceFile))
+
+        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
+        assertThat(result.messages).contains(
+            mismatchedColumnTypeForColumnToBeUpdated(
+                "desc",
+                "description", "long", entityName, "java.lang.String"
+            )
         )
     }
 
     @Test
     fun ensureNoWhereClauseWhenUpdatingEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate(where = "_id = 123")
         fun updateDescription(entityParam: Entity): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -164,10 +183,12 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun ensureOnlyOneEntityIsUpdatedAtTheSameTime() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate
         fun updateDescription(entityParam1: Entity, entityParam2: Entity): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -179,10 +200,12 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun ensureContentUpdateMethodReturnsAnInteger() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate
         fun updateDescription(entityParam1: Entity): Long
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -192,10 +215,12 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun ensureSomethingIsBeingUpdated() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate
         fun updateDescription(entities: List<Entity>): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -205,15 +230,19 @@ class ContentUpdateProcessorTest {
 
     @Test
     fun ensureNonNullableUpdateParametersForNonNullablEntityColumn() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentUpdate
         fun updateDescription(@ContentColumn("dtend") newEndTime: Long?): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(nullableUpdateParamForNonNullableEntityColumn
-            ("newEndTime", "dtend", entityName))
+        assertThat(result.messages).contains(
+            nullableUpdateParamForNonNullableEntityColumn
+            ("newEndTime", "dtend", entityName)
+        )
     }
 }

@@ -16,6 +16,8 @@
 
 package androidx.ui.test
 
-@RequiresOptIn("This testing API is experimental and is likely to be changed or removed" +
-        " entirely")
+@RequiresOptIn(
+    "This testing API is experimental and is likely to be changed or removed" +
+        " entirely"
+)
 annotation class ExperimentalTesting

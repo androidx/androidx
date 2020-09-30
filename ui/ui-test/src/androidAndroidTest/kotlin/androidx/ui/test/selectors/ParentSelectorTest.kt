@@ -67,7 +67,8 @@ class ParentSelectorTest {
             BoundaryNode(testTag = "Node")
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Node').parent).parent)"

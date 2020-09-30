@@ -88,7 +88,8 @@ internal class ViewModelGenerator(
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
                     .addMember("value", "$T.class", ClassNames.ACTIVITY_RETAINED_COMPONENT)
-                    .build())
+                    .build()
+            )
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)
                     .addMember(
@@ -106,14 +107,18 @@ internal class ViewModelGenerator(
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
                             .addMember("value", S, injectedViewModel.className.reflectionName())
-                            .build())
+                            .build()
+                    )
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
                         ParameterizedTypeName.get(
                             ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.VIEW_MODEL)))
+                            WildcardTypeName.subtypeOf(ClassNames.VIEW_MODEL)
+                        )
+                    )
                     .addParameter(injectedViewModel.factoryClassName, "factory")
-                    .build())
+                    .build()
+            )
             .build()
         JavaFile.builder(injectedViewModel.moduleClassName.packageName(), hiltModuleTypeSpec)
             .build()

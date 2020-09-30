@@ -44,12 +44,14 @@ class SwitchUsageCodeDetectorTest {
             customSwitchClass
         ).issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomSwitch.kt:6: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialCode]
 class CustomSwitch(context: Context): Switch(context)
                                       ~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -80,12 +82,14 @@ class CustomSwitch(context: Context): Switch(context)
             customSwitchClass
         ).issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:9: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialCode]
         val mySwitch = Switch(this)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

@@ -21,15 +21,18 @@ import android.os.Build
 import android.os.Environment
 import android.view.View
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraX
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -51,7 +54,11 @@ import java.util.concurrent.TimeUnit
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    val mCameraActivityRules: GrantPermissionRule =
+        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     protected val mDevice: UiDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -76,6 +83,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
     }
 
     protected fun tearDown() {
+        CameraX.shutdown().get()
         mDevice.unfreezeRotation()
     }
 
@@ -135,7 +143,13 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
             }
             val areResolutionsEqual = expectedResolution == imageSize
 
-            assertThat(areRotationsEqual || areResolutionsEqual).isTrue()
+            assertWithMessage(
+                "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
+                        "equal to [$sensorToTargetRotation], or the captured image's resolution " +
+                        "[$imageSize] was expected to be equal to [$expectedResolution]"
+            )
+                .that(areRotationsEqual || areResolutionsEqual)
+                .isTrue()
 
             // Delete captured image
             scenario.withActivity { mCaptureResult?.delete() ?: Unit }
@@ -158,7 +172,9 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
-        assertThat(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS)).isTrue()
+        assertWithMessage("Timed out waiting on image analysis frames")
+            .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
+            .isTrue()
     }
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.resetFramesCount() {

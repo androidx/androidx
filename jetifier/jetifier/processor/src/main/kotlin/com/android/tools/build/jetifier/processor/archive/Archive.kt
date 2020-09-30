@@ -169,8 +169,10 @@ class Archive(
 
             val inputStream = FileInputStream(archiveFile)
             inputStream.use {
-                return extractArchive(it, archiveFile.toPath(), recursive,
-                    originalModifiedTime = null)
+                return extractArchive(
+                    it, archiveFile.toPath(), recursive,
+                    originalModifiedTime = null
+                )
             }
         }
 

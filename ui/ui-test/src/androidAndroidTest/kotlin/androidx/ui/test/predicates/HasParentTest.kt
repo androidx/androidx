@@ -90,8 +90,10 @@ class HasParentTest {
             }
         }
 
-        rule.onNode(hasParent(hasTestTag("Parent"))
-                and hasTestTag("Child"))
+        rule.onNode(
+            hasParent(hasTestTag("Parent"))
+                and hasTestTag("Child")
+        )
             .assertDoesNotExist()
     }
 

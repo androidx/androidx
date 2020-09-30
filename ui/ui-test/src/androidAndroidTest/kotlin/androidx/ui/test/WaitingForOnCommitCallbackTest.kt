@@ -22,12 +22,17 @@ import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.setValue
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -108,5 +113,71 @@ class WaitingForOnCommitCallbackTest {
 
         // And check if all was in the right order
         assertThat(values).containsExactly(1, 2, 3, 4, 5, 6).inOrder()
+    }
+
+    @Test
+    fun cascadingOnCommits_suspendedWait_defaultDispatcher() = cascadingOnCommits_suspendedWait(
+        EmptyCoroutineContext
+    )
+
+    @Test
+    @OptIn(ExperimentalTesting::class)
+    fun cascadingOnCommits_suspendedWait_mainDispatcher() = cascadingOnCommits_suspendedWait(
+        TestUiDispatcher.Main
+    )
+
+    @OptIn(ExperimentalTesting::class)
+    fun cascadingOnCommits_suspendedWait(context: CoroutineContext) = runBlocking(context) {
+        // Collect unique values (markers) at each step during the process and
+        // at the end verify that they were collected in the right order
+        val values = mutableListOf<Int>()
+
+        // Use a latch to make sure all collection events have occurred, to avoid
+        // concurrent modification exceptions when checking the collected values,
+        // in case some values still need to be collected due to a bug.
+        // Start locked so we can reliably await the first composition.
+        val mutex = Mutex(locked = true)
+
+        var switch1 by mutableStateOf(true)
+        var switch2 by mutableStateOf(true)
+        var switch3 by mutableStateOf(true)
+        var switch4 by mutableStateOf(true)
+        rule.setContent {
+            onCommit(switch1) {
+                values.add(2)
+                switch2 = switch1
+            }
+            onCommit(switch2) {
+                values.add(3)
+                switch3 = switch2
+            }
+            onCommit(switch3) {
+                values.add(4)
+                switch4 = switch3
+            }
+            onCommit(switch4) {
+                values.add(5)
+                mutex.unlock()
+            }
+        }
+
+        // Await the first composition and reset all values
+        rule.awaitIdle()
+        mutex.lock()
+        values.clear()
+
+        // Kick off the cascade
+        values.add(1)
+        switch1 = false
+
+        rule.awaitIdle()
+        // Mark the end
+        values.add(6)
+
+        // Make sure all writes into the list are complete
+        mutex.withLock {
+            // And check if all was in the right order
+            assertThat(values).containsExactly(1, 2, 3, 4, 5, 6).inOrder()
+        }
     }
 }

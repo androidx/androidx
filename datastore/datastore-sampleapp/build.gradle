@@ -16,7 +16,6 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import static androidx.build.dependencies.DependenciesKt.CONSTRAINT_LAYOUT
-import static androidx.build.dependencies.DependenciesKt.MATERIAL
 import static androidx.build.dependencies.DependenciesKt.PROTOBUF_COMPILER
 import static androidx.build.dependencies.DependenciesKt.PROTOBUF_LITE
 import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
@@ -39,7 +38,6 @@ dependencies {
     implementation(PROTOBUF_LITE)
     implementation(KOTLIN_STDLIB)
 
-    implementation(MATERIAL)
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(project(":fragment:fragment-ktx"))
     implementation project(":annotation:annotation-sampled")

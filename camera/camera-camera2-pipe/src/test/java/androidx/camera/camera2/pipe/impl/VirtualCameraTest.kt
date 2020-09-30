@@ -83,11 +83,14 @@ class VirtualCameraStateTest {
         // additional events from being passed to the virtual camera instance.
         val virtualCamera = VirtualCameraState(cameraId)
         val cameraState = flowOf(CameraStateOpen(testCamera.cameraDeviceWrapper))
-        virtualCamera.connect(cameraState, object : Token {
-            override fun release(): Boolean {
-                return true
+        virtualCamera.connect(
+            cameraState,
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
             }
-        })
+        )
 
         virtualCamera.state.first { it !is CameraStateUnopened }
 
@@ -122,11 +125,14 @@ class VirtualCameraStateTest {
             }
         }
 
-        virtualCamera.connect(states.asFlow(), object : Token {
-            override fun release(): Boolean {
-                return true
+        virtualCamera.connect(
+            states.asFlow(),
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
             }
-        })
+        )
 
         // Suspend until the state is closed
         virtualCamera.state.first { it is CameraStateClosed }

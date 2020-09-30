@@ -17,6 +17,10 @@
 package android.support.wearable.watchface;
 
 import android.support.wearable.complications.ComplicationData;
+import androidx.wear.watchface.data.ImmutableSystemState;
+import androidx.wear.watchface.data.IndicatorState;
+import androidx.wear.watchface.data.SystemState;
+import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
 /**
  * Interface for controlling the watchface from the wearable device.
@@ -35,62 +39,64 @@ interface IWatchFaceCommand {
     const int WATCHFACE_COMMAND_API_VERSION = 1;
 
     /**
-     * Returns the version number for this API which the client can use to
-     * determine which methods are available.
+     * Returns the version number for this API which the client can use to determine which methods
+     * are available.
+     *
+     * @since API version 1.
      */
     int getApiVersion() = 1;
 
     /**
      * Called periodically when the watch is in ambient mode to update the watchface.
+     *
+     * @since API version 1.
      */
     void ambientUpdate() = 2;
 
     /**
      * Sends the current system state to the Watch Face.
+     *
+     * @since API version 1.
      */
-    void setSystemState(
-        in boolean inAmbientMode,
-        in int interruptionFilter,
-        in int unreadCount,
-        in int notificationCount
-    ) = 3;
+    void setSystemState(in SystemState systemState) = 3;
 
     /**
-     * Sends the current system state to the Watch Face, only called if
+     * Sends the current watch indicator state to the Watch Face, only called if
      * {@link WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @since API version 1.
      */
-    void setIndicatorState(
-        in boolean isCharging,
-        in boolean inAirplaneMode,
-        in boolean isConnectedToCompanion,
-        in boolean inTheaterMode,
-        in boolean isGpsActive,
-        in boolean isKeyguardLocked
-    ) = 4;
+    void setIndicatorState(in IndicatorState indicatorState) = 4;
 
     /**
      * Sends the immutable system state to the Watch Face.
+     *
+     * @since API version 1.
      */
-    void setImmutableSystemState(in boolean hasLowBitAmbient, in boolean hasBurnInProtection) = 5;
+    void setImmutableSystemState(in ImmutableSystemState immutableSystemState) = 5;
 
     /**
      * Sends new complication data for the specified complicationId.
+     *
+     * @since API version 1.
      */
     void setComplicationData(in int complicationId, in ComplicationData data) = 6;
 
     /**
      * Request for a call to {@link IWatchFaceService#setStyle} with the {@link WatchFaceStyle}.
-     *
      * Not to be confused with {@link androidx.wear.watchfacestyle.UserStyleCategory}.
+     *
+     * @since API version 1.
      */
     void requestWatchFaceStyle() = 7;
 
     /**
-     * Sets the user style which is a {@link Bundle} containing a map of style category id to
-     * option id, see {@link androidx.wear.watchfacestyle.UserStyleCategory#bundleToStyleMap} for
-     * details.
+     * Sets the user style ({@link UserStyleWireFormat}) which contains a map of style category id
+     * to option id.
+     *
+     * @since API version 1.
      */
-    void setUserStyle(in Bundle userStyle) = 8;
+    void setUserStyle(in UserStyleWireFormat userStyle) = 8;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}
@@ -98,15 +104,18 @@ interface IWatchFaceCommand {
      * Watch Face with the specified DrawMode (see {@link androidx.wear.watchface.DrawMode}) and
      * calendarTimeMillis.
      *
+     * @since API version 1.
      * @param drawMode The {@link androidx.wear.watchface.DrawMode} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
+     * @param style A {@link StyleMapWireFormat}. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
      */
     Bundle takeWatchfaceScreenshot(in int drawMode,
                                    in int compressionQuality,
-                                   in long calendarTimeMillis) = 9;
+                                   in long calendarTimeMillis,
+                                   in UserStyleWireFormat style) = 9;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}
@@ -114,12 +123,14 @@ interface IWatchFaceCommand {
      * complication with the specified {@link androidx.wear.watchface.DrawMode}, calendarTimeMillis
      * and {@link ComplicationData}.
      *
+     * @since API version 1.
      * @param complicationId The watchface's ID of the complication to render
      * @param drawMode The {@link androidx.wear.watchface.DrawMode} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
      * @param complicationData The {@link ComplicationData} to render the complication with, if
      *     null then the last ComplicationData sent to the watch face if any is used
+     * @param style A {@link StyleMapWireFormat}. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the
      *     complication with the requested settings
      */
@@ -127,10 +138,13 @@ interface IWatchFaceCommand {
                                       in int drawMode,
                                       in int compressionQuality,
                                       in long calendarTimeMillis,
-                                      in ComplicationData complicationData) = 10;
+                                      in ComplicationData complicationData,
+                                      in UserStyleWireFormat style) = 10;
 
     /**
      * Forwards a touch event for the WatchFace to process.
+     *
+     * @since API version 1.
      */
     void sendTouchEvent(in int xPos, in int yPos, in int tapType) = 11;
 }

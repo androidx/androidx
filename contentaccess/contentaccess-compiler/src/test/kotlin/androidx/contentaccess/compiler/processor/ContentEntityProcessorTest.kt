@@ -38,7 +38,9 @@ class ContentEntityProcessorTest {
     val entityName = "androidx.contentaccess.compiler.processor.test.Entity"
 
     fun generateMainSourceFile(entityCode: String = ""): SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        return SourceFile.kotlin(
+            "MyClass.kt",
+            """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -54,11 +56,14 @@ class ContentEntityProcessorTest {
         }
 
         $entityCode
-        """)
+        """
+        )
     }
 
     fun generateJavaEntity(entityBody: String): SourceFile {
-        return SourceFile.java("Entity.java", """
+        return SourceFile.java(
+            "Entity.java",
+            """
         package androidx.contentaccess.compiler.processor.test;
 
         import org.jetbrains.annotations.Nullable;
@@ -71,18 +76,21 @@ class ContentEntityProcessorTest {
         public class Entity {
             $entityBody
         }
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
     fun validContentEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             @ContentPrimaryKey("_id") val id: Int,
             @ContentColumn("a_random_long") val randomLong: Long
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -92,7 +100,8 @@ class ContentEntityProcessorTest {
     @Test
     fun validJavaContentEntity() {
         val mainSourceFile = generateMainSourceFile()
-        val javaEntityFile = generateJavaEntity("""
+        val javaEntityFile = generateJavaEntity(
+            """
             @ContentPrimaryKey(columnName = "_id")
             public long eventId;
 
@@ -102,7 +111,8 @@ class ContentEntityProcessorTest {
             @ContentColumn(columnName = "dtend")
             @Nullable
             public Long endTime;
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(mainSourceFile, javaEntityFile))
 
@@ -111,13 +121,15 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureExistingContentPrimaryKey() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             @ContentColumn("_id") val id: Int,
             @ContentColumn("a_random_long") val randomLong: Long
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -127,10 +139,12 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureEntityContainsFields() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity()
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -140,12 +154,14 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureAllFieldsAreAnnotated() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             val id: Int
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -156,7 +172,8 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureOnlyOneAnnotation() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             @ContentPrimaryKey("_id")
@@ -164,7 +181,8 @@ class ContentEntityProcessorTest {
             val id: Int,
             @ContentColumn("a_random_long") val randomLong: Long
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -175,13 +193,15 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureSupportedColumnType() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             @ContentPrimaryKey("_id") val id: List<Long>,
             @ContentColumn("a_random_long") val randomLong: Long
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -192,7 +212,8 @@ class ContentEntityProcessorTest {
 
     @Test
     fun ensureSingleNonPrivateNonIgnoredConstructor() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentEntity("example.uri")
         data class Entity(
             @ContentPrimaryKey("_id") val id: Long,
@@ -200,7 +221,8 @@ class ContentEntityProcessorTest {
         ) {
             constructor(@ContentPrimaryKey("_id") id: Long) : this(id, null)
         }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -211,7 +233,8 @@ class ContentEntityProcessorTest {
     @Test
     fun ensureInstantiableEntity() {
         val mainSourceFile = generateMainSourceFile()
-        val javaEntitySourceFile = generateJavaEntity("""
+        val javaEntitySourceFile = generateJavaEntity(
+            """
             @ContentColumn(columnName = "_id")
             public long eventId;
 
@@ -224,7 +247,8 @@ class ContentEntityProcessorTest {
             public Entity(int randomParameter) {}
 
             private Entity() {}
-        """.trimIndent())
+            """.trimIndent()
+        )
         val result = runCompilation(listOf(mainSourceFile, javaEntitySourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
@@ -234,19 +258,25 @@ class ContentEntityProcessorTest {
     @Test
     fun ensureNonNullablePrimitives() {
         val mainSourceFile = generateMainSourceFile()
-        val javaEntitySourceFile = generateJavaEntity("""
+        val javaEntitySourceFile = generateJavaEntity(
+            """
             @ContentPrimaryKey(columnName = "_id")
             public long eventId;
 
             @ContentColumn(columnName = "dtstart")
             @Nullable
             public long startTime;
-        """.trimIndent())
+            """.trimIndent()
+        )
         val result = runCompilation(listOf(mainSourceFile, javaEntitySourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(entityWithNullablePrimitiveType("startTime",
-            entityName))
+        assertThat(result.messages).contains(
+            entityWithNullablePrimitiveType(
+                "startTime",
+                entityName
+            )
+        )
     }
 }
 

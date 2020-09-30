@@ -291,4 +291,62 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
             )
         }
     }
+
+    internal fun currentPagingState(viewportHint: ViewportHint?) = PagingState<Key, Value>(
+        pages = pages.toList(),
+        anchorPosition = viewportHint?.let { hint ->
+            // Translate viewportHint to anchorPosition based on fetcher state (pre-transformation),
+            // so start with fetcher count of placeholdersBefore.
+            var anchorPosition = placeholdersBefore
+
+            // Compute fetcher state pageOffsets.
+            val fetcherPageOffsetFirst = -initialPageIndex
+            val fetcherPageOffsetLast = pages.lastIndex - initialPageIndex
+
+            // ViewportHint is based off of presenter state, which may race with fetcher state.
+            // Since computing anchorPosition relies on hint.indexInPage, which accounts for
+            // placeholders in presenter state, we need iterate through pages to incrementally
+            // build anchorPosition and adjust the value we use for placeholdersBefore accordingly.
+            for (pageOffset in fetcherPageOffsetFirst until hint.pageOffset) {
+                // Aside from incrementing anchorPosition normally using the loaded page's
+                // size, there are 4 race-cases to consider:
+                //   - Fetcher has extra PREPEND pages
+                //     - Simply add the size of the loaded page to anchorPosition to sync with
+                //       presenter; don't need to do anything special to handle this.
+                //   - Fetcher is missing PREPEND pages
+                //     - Already accounted for in placeholdersBefore; so don't need to do anything.
+                //   - Fetcher has extra APPEND pages
+                //     - Already accounted for in hint.indexInPage (value can be greater than
+                //     page size to denote placeholders access).
+                //   - Fetcher is missing APPEND pages
+                //     - Increment anchorPosition using config.pageSize to estimate size of the
+                //     missing page.
+                anchorPosition += when {
+                    // Fetcher is missing APPEND pages, i.e., viewportHint points to an item
+                    // after a page that was dropped. Estimate how much to increment anchorPosition
+                    // by using PagingConfig.pageSize.
+                    pageOffset > fetcherPageOffsetLast -> config.pageSize
+                    // pageOffset refers to a loaded page; increment anchorPosition with data.size.
+                    else -> pages[pageOffset + initialPageIndex].data.size
+                }
+            }
+
+            // Handle the page referenced by hint.pageOffset. Increment anchorPosition by
+            // hint.indexInPage, which accounts for placeholders and may not be within the bounds
+            // of page.data.indices.
+            anchorPosition += hint.indexInPage
+
+            // In the special case where viewportHint references a missing PREPEND page, we need
+            // to decrement anchorPosition using config.pageSize as an estimate, otherwise we
+            // would be double counting it since it's accounted for in both indexInPage and
+            // placeholdersBefore.
+            if (hint.pageOffset < fetcherPageOffsetFirst) {
+                anchorPosition -= config.pageSize
+            }
+
+            return@let anchorPosition
+        },
+        config = config,
+        leadingPlaceholderCount = placeholdersBefore
+    )
 }

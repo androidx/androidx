@@ -49,34 +49,48 @@ class CameraGraphImpl @Inject constructor(
         get() = streamMap.streamConfigMap
 
     override fun start() {
+        Debug.traceStart { "$this#start" }
         Log.info { "Starting $this" }
         graphState.start()
+        Debug.traceStop()
     }
 
     override fun stop() {
+        Debug.traceStart { "$this#stop" }
         Log.info { "Stopping $this" }
         graphState.stop()
+        Debug.traceStop()
     }
 
     override suspend fun acquireSession(): CameraGraph.Session {
+        Debug.traceStart { "$this#acquireSession" }
         val token = sessionLock.acquire(1)
-        return CameraGraphSessionImpl(token, graphProcessor)
+        val session = CameraGraphSessionImpl(token, graphProcessor)
+        Debug.traceStop()
+        return session
     }
 
     override fun acquireSessionOrNull(): CameraGraph.Session? {
+        Debug.traceStart { "$this#acquireSessionOrNull" }
         val token = sessionLock.acquireOrNull(1) ?: return null
-        return CameraGraphSessionImpl(token, graphProcessor)
+        val session = CameraGraphSessionImpl(token, graphProcessor)
+        Debug.traceStop()
+        return session
     }
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
+        Debug.traceStart { "$stream#setSurface" }
         streamMap[stream] = surface
+        Debug.traceStop()
     }
 
     override fun close() {
+        Debug.traceStart { "$this#close" }
         Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
         graphState.stop()
+        Debug.traceStop()
     }
 
     override fun toString(): String = "CameraGraph-$debugId"

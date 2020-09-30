@@ -41,16 +41,23 @@ class ContentAccess {
                     ContentResolver::class.java,
                     CoroutineDispatcher::class.java
                 )
-                return constructor.newInstance(contentResolver, queryExecutor
-                    .asCoroutineDispatcher()) as T
+                return constructor.newInstance(
+                    contentResolver,
+                    queryExecutor
+                        .asCoroutineDispatcher()
+                ) as T
             } catch (e: ClassNotFoundException) {
-                error("Cannot find generated class for content accessor ${contentAccessObject
-                    .qualifiedName}, this is most likely because the class is not annotated " +
+                error(
+                    "Cannot find generated class for content accessor ${contentAccessObject
+                        .qualifiedName}, this is most likely because the class is not annotated " +
                         "with @ContentAccessObject or because the contentaccess-compiler " +
-                        "annotation processor was not ran properly.")
+                        "annotation processor was not ran properly."
+                )
             } catch (e: InstantiationException) {
-                error("Unable to instantiate implementation $packageName.$generatedClassName of " +
-                        "${contentAccessObject.qualifiedName}.")
+                error(
+                    "Unable to instantiate implementation $packageName.$generatedClassName of " +
+                        "${contentAccessObject.qualifiedName}."
+                )
             }
         }
     }

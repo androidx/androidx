@@ -80,7 +80,6 @@ class Constants {
 
         @SuppressWarnings("IntentName")
         const val COMMAND_SET_PROPERTIES = "com.google.android.wearable.action.SET_PROPERTIES"
-        const val COMMAND_SET_USER_STYLE = "com.google.android.wearable.action.SET_USER_STYLE"
 
         const val COMMAND_TAP = WallpaperManager.COMMAND_TAP
         const val COMMAND_TOUCH = "android.wallpaper.touch"

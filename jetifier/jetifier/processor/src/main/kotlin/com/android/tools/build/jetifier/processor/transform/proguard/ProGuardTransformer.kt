@@ -28,13 +28,15 @@ import java.nio.charset.StandardCharsets
 class ProGuardTransformer internal constructor(context: TransformationContext) : Transformer {
 
     private val mapper = ProGuardTypesMapper(
-        context)
+        context
+    )
 
     val replacer = ReplacersRunner(
         listOf(
             ProGuardClassSpecParser(mapper).replacer,
             ProGuardClassFilterParser(mapper).replacer
-        ))
+        )
+    )
 
     override fun canTransform(file: ArchiveFile): Boolean {
         // Does not support single proguard file transformation, file has to be within archive.

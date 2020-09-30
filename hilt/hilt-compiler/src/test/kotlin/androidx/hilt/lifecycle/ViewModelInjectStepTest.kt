@@ -42,7 +42,8 @@ class ViewModelInjectStepTest {
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
         val compilation = compiler()
-            .compile(myViewModel,
+            .compile(
+                myViewModel,
                 Sources.VIEW_MODEL,
                 Sources.SAVED_STATE_HANDLE
             )
@@ -67,8 +68,10 @@ class ViewModelInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@ViewModelInject is only supported on types that subclass " +
-                        "androidx.lifecycle.ViewModel.")
+            hadErrorContainingMatch(
+                "@ViewModelInject is only supported on types that subclass " +
+                    "androidx.lifecycle.ViewModel."
+            )
         }
     }
 
@@ -117,8 +120,10 @@ class ViewModelInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@ViewModelInject annotated constructors must not be " +
-                        "private.")
+            hadErrorContainingMatch(
+                "@ViewModelInject annotated constructors must not be " +
+                    "private."
+            )
         }
     }
 
@@ -143,8 +148,10 @@ class ViewModelInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@ViewModelInject may only be used on inner classes " +
-                        "if they are static.")
+            hadErrorContainingMatch(
+                "@ViewModelInject may only be used on inner classes " +
+                    "if they are static."
+            )
         }
     }
 
@@ -166,15 +173,18 @@ class ViewModelInjectStepTest {
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
         val compilation = compiler()
-            .compile(myViewModel,
+            .compile(
+                myViewModel,
                 Sources.VIEW_MODEL,
                 Sources.SAVED_STATE_HANDLE
             )
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("Expected zero or one constructor argument of type " +
-                        "androidx.lifecycle.SavedStateHandle, found 2")
+            hadErrorContainingMatch(
+                "Expected zero or one constructor argument of type " +
+                    "androidx.lifecycle.SavedStateHandle, found 2"
+            )
         }
     }
 
@@ -194,7 +204,8 @@ class ViewModelInjectStepTest {
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
         val compilation = compiler()
-            .compile(myViewModel,
+            .compile(
+                myViewModel,
                 Sources.VIEW_MODEL,
                 Sources.SAVED_STATE_HANDLE
             )

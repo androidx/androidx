@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -283,7 +284,7 @@ public final class CameraUtil {
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
-                    cameraX.getCameraDeviceSurfaceManager());
+                    cameraX.getCameraDeviceSurfaceManager(), cameraX.getDefaultConfigFactory());
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException("Unable to retrieve CameraX instance");
         }
@@ -577,7 +578,7 @@ public final class CameraUtil {
                         base.evaluate();
                     }
                 }).around(
-                new CameraUtil.PreTestCamera(Logger.isDebugEnabled(PRETEST_CAMERA_TAG)));
+                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
     }
 
     /**

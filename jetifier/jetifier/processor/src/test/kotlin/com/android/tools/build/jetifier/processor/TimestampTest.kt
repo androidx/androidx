@@ -51,8 +51,10 @@ class TimestampTest {
 
     @Test
     fun expectNowTimestamps() {
-        val times = rewriteArchiveAndRetrieveTimestamps(prefRewriteConfig,
-            TimestampsPolicy.NOW)
+        val times = rewriteArchiveAndRetrieveTimestamps(
+            prefRewriteConfig,
+            TimestampsPolicy.NOW
+        )
 
         assertThat(times).isNotEmpty()
         val nowSinceEpochInMs = Instant.now().toEpochMilli()
@@ -64,8 +66,10 @@ class TimestampTest {
 
     @Test
     fun expectEpochTimestamps() {
-        val times = rewriteArchiveAndRetrieveTimestamps(prefRewriteConfig,
-            TimestampsPolicy.EPOCH)
+        val times = rewriteArchiveAndRetrieveTimestamps(
+            prefRewriteConfig,
+            TimestampsPolicy.EPOCH
+        )
 
         assertThat(times).isNotEmpty()
         times.forEach {
@@ -77,8 +81,10 @@ class TimestampTest {
     fun keepPreviousTimestamps() {
         val fakePreviousTime = Instant.ofEpochSecond(1_000_000)
 
-        val times = rewriteArchiveAndRetrieveTimestamps(prefRewriteConfig,
-            TimestampsPolicy.KEEP_PREVIOUS, FileTime.from(fakePreviousTime))
+        val times = rewriteArchiveAndRetrieveTimestamps(
+            prefRewriteConfig,
+            TimestampsPolicy.KEEP_PREVIOUS, FileTime.from(fakePreviousTime)
+        )
 
         assertThat(times).isNotEmpty()
         times.forEach {
@@ -90,14 +96,18 @@ class TimestampTest {
     fun determinismTest_keepPreviousTimestamps() {
         val sourceArchive = createSourceArchive()
 
-        val firstArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.KEEP_PREVIOUS)
+        val firstArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.KEEP_PREVIOUS
+        )
 
         // We need a delay to have a time diff > 1 sec in-between the two archives
         Thread.sleep(1000)
 
-        val secondArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.KEEP_PREVIOUS)
+        val secondArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.KEEP_PREVIOUS
+        )
 
         assertThat(firstArchive.toMd5()).isEqualTo(secondArchive.toMd5())
     }
@@ -106,14 +116,18 @@ class TimestampTest {
     fun determinismTest_epochTimestamps() {
         val sourceArchive = createSourceArchive()
 
-        val firstArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.EPOCH)
+        val firstArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.EPOCH
+        )
 
         // We need a delay to have a time diff > 1 sec in-between the two archives
         Thread.sleep(1000)
 
-        val secondArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.EPOCH)
+        val secondArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.EPOCH
+        )
 
         assertThat(firstArchive.toMd5()).isEqualTo(secondArchive.toMd5())
     }
@@ -122,14 +136,18 @@ class TimestampTest {
     fun determinismTest_nowTimestamps_shouldNotMatch() {
         val sourceArchive = createSourceArchive()
 
-        val firstArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.NOW)
+        val firstArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.NOW
+        )
 
         // We need a delay to have a time diff > 1 sec in-between the two archives
         Thread.sleep(1000)
 
-        val secondArchive = processArchive(prefRewriteConfig, sourceArchive,
-            TimestampsPolicy.NOW)
+        val secondArchive = processArchive(
+            prefRewriteConfig, sourceArchive,
+            TimestampsPolicy.NOW
+        )
 
         assertThat(firstArchive.toMd5()).isNotEqualTo(secondArchive.toMd5())
     }
@@ -149,7 +167,7 @@ class TimestampTest {
     ): File {
         val fileName = "test.xml"
         val fileContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<android.support.v7.preference.Preference/>"
+            "<android.support.v7.preference.Preference/>"
 
         val files = listOf(
             ArchiveFile(Paths.get("/", fileName), fileContent.toByteArray(), customTimeToPreset),
@@ -157,8 +175,10 @@ class TimestampTest {
         )
 
         val archive = Archive(Paths.get("some/path"), files)
-        return archive.writeSelfToFile(Files.createTempFile("test", ".zip"),
-            TimestampsPolicy.KEEP_PREVIOUS)
+        return archive.writeSelfToFile(
+            Files.createTempFile("test", ".zip"),
+            TimestampsPolicy.KEEP_PREVIOUS
+        )
     }
 
     private fun processArchive(

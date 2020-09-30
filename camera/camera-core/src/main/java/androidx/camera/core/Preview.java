@@ -64,6 +64,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -75,6 +76,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
@@ -377,7 +379,7 @@ public final class Preview extends UseCase {
                 // Either way, try updating session config and let createPipeline() sends a
                 // new SurfaceRequest.
                 if (getAttachedSurfaceResolution() != null) {
-                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
+                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                             getAttachedSurfaceResolution());
                     notifyReset();
                 }
@@ -446,16 +448,23 @@ public final class Preview extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class);
-        if (defaults != null) {
-            return Builder.fromConfig(defaults);
-        }
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return factory.getConfig(PreviewConfig.class);
+    }
 
-        return null;
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return Preview.Builder.fromConfig(config);
     }
 
     /**
@@ -467,7 +476,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Preview.Builder.fromConfig((PreviewConfig) getUseCaseConfig());
+        return Preview.Builder.fromConfig((PreviewConfig) getCurrentConfig());
     }
 
     /**
@@ -501,7 +510,7 @@ public final class Preview extends UseCase {
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         mSurfaceSize = suggestedResolution;
-        updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
+        updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
                 suggestedResolution);
         return suggestedResolution;
     }
@@ -597,8 +606,6 @@ public final class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
-        private static final Size DEFAULT_MAX_RESOLUTION =
-                CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
 
         private static final PreviewConfig DEFAULT_CONFIG;
@@ -606,7 +613,6 @@ public final class Preview extends UseCase {
         static {
             Builder builder =
                     new Builder()
-                            .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -645,6 +651,18 @@ public final class Preview extends UseCase {
             }
 
             setTargetClass(Preview.class);
+        }
+
+        /**
+         * Generates a Builder from another Config object
+         * @return
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Builder fromConfig(@NonNull Config configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
         }
 
         /**

@@ -16,8 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
@@ -51,10 +50,12 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         rule.setContent {
-            Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                parentCoordinates = coordinates
-                latch.countDown()
-            }) {
+            Column(
+                Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                    parentCoordinates = coordinates
+                    latch.countDown()
+                }
+            ) {
                 Box(
                     Modifier.preferredSize(10.dp)
                         .align(Alignment.Start)
@@ -80,7 +81,7 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         rule.setContent {
             with(DensityAmbient.current) {
-                Box(Modifier.preferredWidth(40.toDp()), gravity = ContentGravity.Center) {
+                Box(Modifier.preferredWidth(40.toDp()), alignment = Alignment.Center) {
                     Column(
                         Modifier.preferredWidth(20.toDp())
                             .onPositioned { coordinates: LayoutCoordinates ->

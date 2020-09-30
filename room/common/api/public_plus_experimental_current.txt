@@ -60,7 +60,7 @@ package androidx.room {
     method public abstract String tableName() default "";
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ForeignKey {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({}) public @interface ForeignKey {
     method public abstract String[] childColumns();
     method public abstract boolean deferred() default false;
     method public abstract Class<?> entity();
@@ -140,6 +140,9 @@ package androidx.room {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface PrimaryKey {
     method public abstract boolean autoGenerate() default false;
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface ProvidedTypeConverter {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Query {

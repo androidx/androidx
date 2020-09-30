@@ -26,7 +26,8 @@ class LoremIpsumTest {
         assertEquals("", LoremIpsum(0).values.single())
         assertEquals(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sodales\n" +
-                    "laoreet", LoremIpsum(10).values.single()
+                "laoreet",
+            LoremIpsum(10).values.single()
         )
         assertEquals(
             2000, LoremIpsum(2000).values.single().split(" ").size

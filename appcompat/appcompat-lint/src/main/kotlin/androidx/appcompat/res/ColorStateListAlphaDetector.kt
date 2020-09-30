@@ -60,8 +60,10 @@ class ColorStateListAlphaDetector : Detector(), XmlScanner {
                     item,
                     context.getLocation(item.getAttributeNodeNS(SdkConstants.AUTO_URI, "alpha")),
                     "Must use `android:alpha` if `app:alpha` is used",
-                    LintFix.create().set(SdkConstants.ANDROID_URI, "alpha",
-                        item.getAttributeNS(SdkConstants.AUTO_URI, "alpha")).build()
+                    LintFix.create().set(
+                        SdkConstants.ANDROID_URI, "alpha",
+                        item.getAttributeNS(SdkConstants.AUTO_URI, "alpha")
+                    ).build()
                 )
             }
         }

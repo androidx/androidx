@@ -63,8 +63,10 @@ class CameraMetadataImpl constructor(
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                @Suppress("UselessCallOnNotNull")
-                characteristics.keys.orEmpty().toSet()
+                Debug.trace("Camera-${camera.value}#keys") {
+                    @Suppress("UselessCallOnNotNull")
+                    characteristics.keys.orEmpty().toSet()
+                }
             } catch (ignored: AssertionError) {
                 emptySet<CameraCharacteristics.Key<*>>()
             }
@@ -73,8 +75,10 @@ class CameraMetadataImpl constructor(
     private val _requestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                @Suppress("UselessCallOnNotNull")
-                characteristics.availableCaptureRequestKeys.orEmpty().toSet()
+                Debug.trace("Camera-${camera.value}#availableCaptureRequestKeys") {
+                    @Suppress("UselessCallOnNotNull")
+                    characteristics.availableCaptureRequestKeys.orEmpty().toSet()
+                }
             } catch (ignored: AssertionError) {
                 emptySet<CaptureRequest.Key<*>>()
             }
@@ -83,8 +87,10 @@ class CameraMetadataImpl constructor(
     private val _resultKeys: Lazy<Set<CaptureResult.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                @Suppress("UselessCallOnNotNull")
-                characteristics.availableCaptureResultKeys.orEmpty().toSet()
+                Debug.trace("Camera-${camera.value}#availableCaptureResultKeys") {
+                    @Suppress("UselessCallOnNotNull")
+                    characteristics.availableCaptureResultKeys.orEmpty().toSet()
+                }
             } catch (ignored: AssertionError) {
                 emptySet<CaptureResult.Key<*>>()
             }
@@ -96,8 +102,10 @@ class CameraMetadataImpl constructor(
                 emptySet()
             } else {
                 try {
-                    @Suppress("UselessCallOnNotNull")
-                    characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()
+                    Debug.trace("Camera-${camera.value}#physicalCameraIds") {
+                        @Suppress("UselessCallOnNotNull")
+                        characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()
+                    }
                 } catch (ignored: AssertionError) {
                     emptySet<CameraId>()
                 }
@@ -110,8 +118,10 @@ class CameraMetadataImpl constructor(
                 emptySet()
             } else {
                 try {
-                    @Suppress("UselessCallOnNotNull")
-                    characteristics.availablePhysicalCameraRequestKeys.orEmpty().toSet()
+                    Debug.trace("Camera-${camera.value}#availablePhysicalCameraRequestKeys") {
+                        @Suppress("UselessCallOnNotNull")
+                        characteristics.availablePhysicalCameraRequestKeys.orEmpty().toSet()
+                    }
                 } catch (ignored: AssertionError) {
                     emptySet<CaptureRequest.Key<*>>()
                 }
@@ -124,8 +134,10 @@ class CameraMetadataImpl constructor(
                 emptySet()
             } else {
                 try {
-                    @Suppress("UselessCallOnNotNull")
-                    characteristics.availableSessionKeys.orEmpty().toSet()
+                    Debug.trace("Camera-${camera.value}#availableSessionKeys") {
+                        @Suppress("UselessCallOnNotNull")
+                        characteristics.availableSessionKeys.orEmpty().toSet()
+                    }
                 } catch (ignored: AssertionError) {
                     emptySet<CaptureRequest.Key<*>>()
                 }
@@ -135,7 +147,10 @@ class CameraMetadataImpl constructor(
     private val _streamMap: Lazy<StreamConfigurationMap> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             val start = Metrics.monotonicNanos()
-            val result = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            val result =
+                Debug.trace("Camera-${camera.value}#SCALER_STREAM_CONFIGURATION_MAP") {
+                    get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                }
             val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
             Log.info { "Loaded stream map for ($camera) in ${duration.formatMilliTime()}" }
 

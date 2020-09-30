@@ -38,8 +38,9 @@ class CameraPipeCameraFactory(context: Context, threadConfig: CameraThreadConfig
     init {
         if (DEBUG) {
             Log.d(
-                TAG, "Initialized CameraFactory [Context: $context, " +
-                        "ThreadConfig: $threadConfig, CameraPipe: $cameraPipe]"
+                TAG,
+                "Initialized CameraFactory [Context: $context, " +
+                    "ThreadConfig: $threadConfig, CameraPipe: $cameraPipe]"
             )
         }
     }

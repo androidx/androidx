@@ -480,8 +480,9 @@ private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group
     // Calculate bounding box
     val box = when (node) {
         is LayoutNode -> boundsOfLayoutNode(node)
-        else -> if (children.isEmpty()) emptyBox else
-            children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
+        else ->
+            if (children.isEmpty()) emptyBox else
+                children.map { g -> g.box }.reduce { acc, box -> box.union(acc) }
     }
     return if (nodeGroup) NodeGroup(
         key,
@@ -544,8 +545,9 @@ internal fun IntBounds.union(other: IntBounds): IntBounds {
 
 private fun keyPosition(key: Any?): String? = when (key) {
     is String -> key
-    is JoinedKey -> keyPosition(key.left)
-        ?: keyPosition(key.right)
+    is JoinedKey ->
+        keyPosition(key.left)
+            ?: keyPosition(key.right)
     else -> null
 }
 
@@ -580,8 +582,8 @@ private fun extractParameterInfo(
                             val fields = blockClass.declaredFields
                                 .filter {
                                     it.name.startsWith(parameterPrefix) &&
-                                            !it.name.startsWith(internalFieldPrefix) &&
-                                            !it.name.startsWith(jacocoDataField)
+                                        !it.name.startsWith(internalFieldPrefix) &&
+                                        !it.name.startsWith(jacocoDataField)
                                 }.sortedBy { it.name }
                             val parameters = mutableListOf<ParameterInformation>()
                             val parametersMetadata = context?.parameters ?: emptyList()

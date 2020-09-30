@@ -83,7 +83,8 @@ class AndroidXRefScanner(
             reader.accept(classRemapper, 0 /* flags */)
         } catch (e: ArrayIndexOutOfBoundsException) {
             throw InvalidByteCodeException(
-                "Error processing '${archiveFile.relativePath}' bytecode.", e)
+                "Error processing '${archiveFile.relativePath}' bytecode.", e
+            )
         }
 
         if (androidXTrackingRemapper.androidXRefExample != null) {

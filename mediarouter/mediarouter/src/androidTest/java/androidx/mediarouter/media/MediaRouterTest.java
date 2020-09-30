@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouterActiveScanThrottlingHelper.MAX_ACTIVE_SCAN_DURATION_MS;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
@@ -32,12 +33,16 @@ import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test {@link MediaRouter}.
@@ -57,15 +62,20 @@ public class MediaRouterTest {
     private MediaRouter mRouter;
     private MediaSessionCompat mSession;
     private MediaSessionCallback mSessionCallback = new MediaSessionCallback();
+    private MediaRouteProviderImpl mProvider;
+    private CountDownLatch mActiveScanCountDownLatch;
+    private CountDownLatch mPassiveScanCountDownLatch;
 
     @Before
     public void setUp() throws Exception {
+        resetActiveAndPassiveScanCountDownLatches();
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mContext = getApplicationContext();
                 mRouter = MediaRouter.getInstance(mContext);
                 mSession = new MediaSessionCompat(mContext, SESSION_TAG);
+                mProvider = new MediaRouteProviderImpl(mContext);
             }
         });
     }
@@ -168,6 +178,91 @@ public class MediaRouterTest {
         assertEquals(expectedParams, actualParams);
     }
 
+    @Test
+    @LargeTest
+    public void testRegisterActiveScanCallback_suppressActiveScanAfter30Seconds() throws Exception {
+        MediaRouteSelector selector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO).build();
+        MediaRouterCallbackImpl callback = new MediaRouterCallbackImpl();
+
+        // Add the provider and callback.
+        resetActiveAndPassiveScanCountDownLatches();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRouter.addProvider(mProvider);
+                mRouter.addCallback(selector, callback,
+                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            }
+        });
+
+        // Active scan should be true.
+        assertTrue(mActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        // After active scan duration, active scan should be false.
+        resetActiveAndPassiveScanCountDownLatches();
+        assertTrue(mPassiveScanCountDownLatch.await(
+                MAX_ACTIVE_SCAN_DURATION_MS + TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        // Add the same callback again.
+        resetActiveAndPassiveScanCountDownLatches();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRouter.addCallback(selector, callback,
+                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            }
+        });
+
+        // Active scan should be true.
+        assertTrue(mActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        // After active scan duration, active scan should be false.
+        resetActiveAndPassiveScanCountDownLatches();
+        assertTrue(mPassiveScanCountDownLatch.await(
+                MAX_ACTIVE_SCAN_DURATION_MS + TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void testRegisterMultipleActiveScanCallbacks_suppressActiveScanAfter30Seconds()
+            throws Exception {
+        MediaRouteSelector selector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO).build();
+        MediaRouterCallbackImpl callback1 = new MediaRouterCallbackImpl();
+        MediaRouterCallbackImpl callback2 = new MediaRouterCallbackImpl();
+
+        // Add the provider and the first callback.
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRouter.addProvider(mProvider);
+                mRouter.addCallback(selector, callback1,
+                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            }
+        });
+
+        // Wait for 5 seconds, add the second callback.
+        Thread.sleep(5000);
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mRouter.addCallback(selector, callback2,
+                        MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+            }
+        });
+
+        resetActiveAndPassiveScanCountDownLatches();
+        // Wait for active scan duration to nearly end, active scan flag should be true.
+        assertFalse(mPassiveScanCountDownLatch.await(MAX_ACTIVE_SCAN_DURATION_MS - 1000,
+                TimeUnit.MILLISECONDS));
+
+        // Wait until active scan duration ends, active scan flag should be false.
+        assertTrue(mPassiveScanCountDownLatch.await(1000 + TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     /**
      * Asserts that two Bundles are equal.
      */
@@ -206,4 +301,32 @@ public class MediaRouterTest {
             }
         }
     }
+
+    private class MediaRouteProviderImpl extends MediaRouteProvider {
+        private boolean mIsActiveScan;
+
+        MediaRouteProviderImpl(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onDiscoveryRequestChanged(MediaRouteDiscoveryRequest discoveryRequest) {
+            if (mIsActiveScan != discoveryRequest.isActiveScan()) {
+                mIsActiveScan = discoveryRequest.isActiveScan();
+                if (mIsActiveScan) {
+                    mActiveScanCountDownLatch.countDown();
+                } else {
+                    mPassiveScanCountDownLatch.countDown();
+                }
+            }
+        }
+
+    }
+
+    private void resetActiveAndPassiveScanCountDownLatches() {
+        mActiveScanCountDownLatch = new CountDownLatch(1);
+        mPassiveScanCountDownLatch = new CountDownLatch(1);
+    }
+
+    private static class MediaRouterCallbackImpl extends MediaRouter.Callback {}
 }

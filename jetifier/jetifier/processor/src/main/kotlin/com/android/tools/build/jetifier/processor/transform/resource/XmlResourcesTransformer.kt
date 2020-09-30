@@ -39,7 +39,7 @@ import javax.xml.stream.XMLStreamException
  * using the available mappings from [TypesMap].
  */
 class XmlResourcesTransformer internal constructor(private val context: TransformationContext) :
-        Transformer {
+    Transformer {
 
     companion object {
         const val TAG = "XmlResourcesTransformer"
@@ -94,8 +94,9 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
         // If we are dealing with linter annotations we need to move the xml files also
         if (context.isInReversedMode &&
-                changesDone &&
-                file.relativePath.toString().endsWith("annotations.xml")) {
+            changesDone &&
+            file.relativePath.toString().endsWith("annotations.xml")
+        ) {
             file.updateRelativePath(rewriteAnnotationsXmlPath(file.relativePath))
         }
     }
@@ -118,8 +119,12 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
             // Workaround for b/111814958. A subset of the android.jar xml files has a header that
             // causes our encoding detection to crash. However these files are otherwise valid UTF-8
             // files so we at least try to recover by defaulting to UTF-8.
-            Log.w(TAG, "Received malformed sequence exception when trying to detect the encoding " +
-                "for '%s'. Defaulting to UTF-8.", file.fileName)
+            Log.w(
+                TAG,
+                "Received malformed sequence exception when trying to detect the encoding " +
+                    "for '%s'. Defaulting to UTF-8.",
+                file.fileName
+            )
             val tracePrinter = StringWriter()
             e.printStackTrace(PrintWriter(tracePrinter))
             Log.w(TAG, tracePrinter.toString())
@@ -165,8 +170,9 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
 
                 // Try if we are rewriting annotations file and replace symbols there
                 if (context.isInReversedMode &&
-                        replacement == toReplace &&
-                        filePath.toString().endsWith("annotations.xml")) {
+                    replacement == toReplace &&
+                    filePath.toString().endsWith("annotations.xml")
+                ) {
                     replacement = tryToRewriteTypesInAnnotationFile(toReplace)
                 }
 
@@ -178,7 +184,8 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
                 val result = matched.replaceRange(
                     startIndex = localStart,
                     endIndex = localEnd,
-                    replacement = replacement)
+                    replacement = replacement
+                )
 
                 sb.append(result)
                 lastSeenChar = matcher.end()

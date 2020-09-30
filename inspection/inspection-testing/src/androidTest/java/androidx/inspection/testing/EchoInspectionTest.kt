@@ -89,16 +89,19 @@ class EchoInspectionTest {
     fun testInspectorTesterDisposeStopsHandlerThread() {
         lateinit var escapedEnvironment: InspectorEnvironment
         runBlocking {
-            val inspectorTester = InspectorTester(ECHO_INSPECTION_ID, factoryOverride = object :
-                InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
-                override fun createInspector(
-                    connection: Connection,
-                    environment: InspectorEnvironment
-                ): EchoInspector {
-                    escapedEnvironment = environment
-                    return EchoInspector(connection)
+            val inspectorTester = InspectorTester(
+                ECHO_INSPECTION_ID,
+                factoryOverride = object :
+                    InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
+                    override fun createInspector(
+                        connection: Connection,
+                        environment: InspectorEnvironment
+                    ): EchoInspector {
+                        escapedEnvironment = environment
+                        return EchoInspector(connection)
+                    }
                 }
-            })
+            )
             inspectorTester.dispose()
         }
         try {

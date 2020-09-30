@@ -21,7 +21,7 @@ import androidx.compose.runtime.SlotTable
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawBehind
-import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
@@ -54,9 +54,11 @@ class InspectableTests : ToolingTest() {
         show {
             Inspectable(slotTableRecord) {
                 Column {
-                    Box(Modifier.preferredSize(100.dp).drawBehind {
-                        drawRect(Color(0xFF))
-                    })
+                    Box(
+                        Modifier.preferredSize(100.dp).drawBehind {
+                            drawRect(Color(0xFF))
+                        }
+                    )
                 }
             }
         }
@@ -354,9 +356,11 @@ class InspectableTests : ToolingTest() {
             ModalDrawerLayout(
                 drawerContent = { Text("Something") },
                 bodyContent = {
-                    Column(Modifier.onPositioned {
-                        positioned.countDown()
-                    }) {
+                    Column(
+                        Modifier.onPositioned {
+                            positioned.countDown()
+                        }
+                    ) {
                         Text(text = "Hello World", color = Color.Green)
                         Button(onClick = {}) { Text(text = "OK") }
                     }

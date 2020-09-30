@@ -18,12 +18,11 @@ package androidx.ui.test
 
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
@@ -158,8 +157,8 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun capturePopup_shouldFail() {
         // Test that we throw an error when trying to capture a popup.
         rule.setContent {
-            Stack {
-                Popup() {
+            Box {
+                Popup {
                     Text("Hello")
                 }
             }
@@ -193,8 +192,8 @@ class BitmapCapturingTest(val config: TestConfig) {
     private fun composeCheckerboard() {
         with(rule.density) {
             rule.setContent {
-                Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
-                    Box(Modifier.padding(top = 20.toDp()), backgroundColor = colorBg) {
+                Box(Modifier.fillMaxSize().background(colorBg)) {
+                    Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(
@@ -203,22 +202,25 @@ class BitmapCapturingTest(val config: TestConfig) {
                                         .preferredSize(100.toDp(), 50.toDp())
                                         .background(color = color11)
                                 )
-                                Box(Modifier
-                                    .testTag(tag12)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color12)
+                                Box(
+                                    Modifier
+                                        .testTag(tag12)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color12)
                                 )
                             }
                             Row {
-                                Box(Modifier
-                                    .testTag(tag21)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color21)
+                                Box(
+                                    Modifier
+                                        .testTag(tag21)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color21)
                                 )
-                                Box(Modifier
-                                    .testTag(tag22)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color22)
+                                Box(
+                                    Modifier
+                                        .testTag(tag22)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color22)
                                 )
                             }
                         }

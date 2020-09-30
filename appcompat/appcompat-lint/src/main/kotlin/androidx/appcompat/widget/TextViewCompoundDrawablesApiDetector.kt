@@ -32,15 +32,19 @@ class TextViewCompoundDrawablesApiDetector : BaseMethodDeprecationDetector(
     // Suggest using TextViewCompat.setCompoundDrawableTintList instead of
     // TextView.setCompoundDrawableTintList
     DeprecationCondition(
-        MethodLocation("android.widget.TextView", "setCompoundDrawableTintList",
-            "android.content.res.ColorStateList"),
+        MethodLocation(
+            "android.widget.TextView", "setCompoundDrawableTintList",
+            "android.content.res.ColorStateList"
+        ),
         "Use `TextViewCompat.setCompoundDrawableTintList()`"
     ),
     // Suggest using TextViewCompat.setCompoundDrawableTintMode instead of
     // TextView.setCompoundDrawableTintMode
     DeprecationCondition(
-        MethodLocation("android.widget.TextView", "setCompoundDrawableTintMode",
-            "android.graphics.PorterDuff.Mode"),
+        MethodLocation(
+            "android.widget.TextView", "setCompoundDrawableTintMode",
+            "android.graphics.PorterDuff.Mode"
+        ),
         "Use `TextViewCompat.setCompoundDrawableTintMode()`"
     )
 ) {
@@ -48,7 +52,7 @@ class TextViewCompoundDrawablesApiDetector : BaseMethodDeprecationDetector(
         internal val NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS: Issue = Issue.create(
             "UseCompatTextViewDrawableApis",
             "Should not call `TextView.setCompoundDrawableTintList` or" +
-                    " `TextView.setCompoundDrawableTintMode` directly",
+                " `TextView.setCompoundDrawableTintMode` directly",
             "Use Compat loading of compound text view drawables",
             Category.CORRECTNESS,
             1,

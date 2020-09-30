@@ -44,34 +44,28 @@ object Debug {
      */
     inline fun <T> trace(label: String, crossinline block: () -> T): T {
         try {
-            if (ENABLE_TRACING) {
-                Trace.beginSection(label)
-            }
+            traceStart { label }
             return block()
         } finally {
-            if (ENABLE_TRACING) {
-                Trace.endSection()
-            }
+            traceStop()
         }
     }
 
     /**
-     * Asserts that the provided value *is* null.
+     * Forwarding call to [Trace.beginSection] that can be statically disabled at compile time.
      */
-    inline fun checkNull(value: Any?) {
-        if (value != null) {
-            throw IllegalArgumentException("Expected null, but got $value!")
+    inline fun traceStart(crossinline label: () -> String) {
+        if (ENABLE_TRACING) {
+            Trace.beginSection(label())
         }
     }
 
     /**
-     * Asserts that the provided value *is* null with an optional message.
-     *
-     * Syntax: checkNull(nullableValue) { "nullableValue should be null, but is $nullableValue }
+     * Forwarding call to [Trace.endSection] that can be statically disabled at compile time.
      */
-    inline fun checkNull(value: Any?, crossinline msg: () -> String) {
-        if (value != null) {
-            throw IllegalArgumentException(msg())
+    inline fun traceStop() {
+        if (ENABLE_TRACING) {
+            Trace.endSection()
         }
     }
 
@@ -97,8 +91,8 @@ object Debug {
             val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
             val cameraType = if (capabilities != null &&
                 capabilities.contains(
-                    REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
-                )
+                        REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+                    )
             ) {
                 "Logical"
             } else {
@@ -123,9 +117,11 @@ object Debug {
                     append("Default Parameters: (None)")
                 } else {
                     append("Default Parameters:\n")
-                    for (parameter in graphConfig.defaultParameters.filter {
-                        it is CaptureRequest.Key<*>
-                    }) {
+                    for (
+                        parameter in graphConfig.defaultParameters.filter {
+                            it is CaptureRequest.Key<*>
+                        }
+                    ) {
                         append("  ")
                         append((parameter.key as CaptureRequest.Key<*>).name.padEnd(50, ' '))
                         append(parameter.value)

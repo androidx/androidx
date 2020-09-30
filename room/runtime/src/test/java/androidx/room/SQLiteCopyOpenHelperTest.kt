@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.AssetManager
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -116,6 +117,7 @@ class SQLiteCopyOpenHelperTest {
         assertEquals(1, getAndIncrementAccessCount(copyFile))
     }
 
+    @Ignore("b/166632825 test is flaky")
     @Test
     fun singleCopy_multiProcess() {
         val copyFile = tempDirectory.newFile("toCopy.db")

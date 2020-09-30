@@ -26,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.util.Size;
 
@@ -34,8 +35,10 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -47,10 +50,12 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class UseCaseTest {
     private CameraInternal mMockCameraInternal;
+    private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
     public void setup() {
         mMockCameraInternal = mock(CameraInternal.class);
+        mUseCaseConfigFactory = new FakeUseCaseConfigFactory();
     }
 
     @Test
@@ -72,7 +77,7 @@ public class UseCaseTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
 
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
         testUseCase.onDetach(mMockCameraInternal);
 
         testUseCase.activate();
@@ -85,7 +90,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
 
         testUseCase.activate();
         verify(mMockCameraInternal, times(1)).onUseCaseActive(testUseCase);
@@ -96,7 +101,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
 
         testUseCase.deactivate();
         verify(mMockCameraInternal, times(1)).onUseCaseInactive(testUseCase);
@@ -107,7 +112,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
 
         testUseCase.update();
         verify(mMockCameraInternal, times(1)).onUseCaseUpdated(testUseCase);
@@ -118,38 +123,10 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
 
         testUseCase.notifyReset();
         verify(mMockCameraInternal, times(1)).onUseCaseReset(testUseCase);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void updateUseCaseConfig_beforeUseCaseIsAttached_throwException() {
-        FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
-        TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig());
-        testUseCase.updateUseCaseConfig(configBuilder.getUseCaseConfig());
-    }
-
-    @Test
-    public void updateUseCaseConfig_afterUseCaseIsAttached() {
-        String originalName = "UseCase";
-        FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder().setTargetName(originalName);
-
-        TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig());
-        String originalRetrievedName = testUseCase.getUseCaseConfig().getTargetName();
-
-        // NOTE: Updating the use case name is probably a very bad idea in most cases. However,
-        // we'll do it here for the sake of this test.
-        String newName = "UseCase-New";
-        configBuilder.setTargetName(newName);
-        testUseCase.onAttach(mMockCameraInternal);
-        testUseCase.updateUseCaseConfig(configBuilder.getUseCaseConfig());
-        String newRetrievedName = testUseCase.getUseCaseConfig().getTargetName();
-
-        assertThat(originalRetrievedName).isEqualTo(originalName);
-        assertThat(newRetrievedName).isEqualTo(newName);
     }
 
     @Test
@@ -159,7 +136,7 @@ public class UseCaseTest {
         builder.getMutableConfig().insertOption(opt, ALWAYS_OVERRIDE, 1);
 
         FakeUseCase fakeUseCase = builder.build();
-        UseCaseConfig<?> useCaseConfig = fakeUseCase.getUseCaseConfig();
+        UseCaseConfig<?> useCaseConfig = fakeUseCase.getCurrentConfig();
 
         assertThat(useCaseConfig.getOptionPriority(opt)).isEqualTo(ALWAYS_OVERRIDE);
     }
@@ -173,7 +150,7 @@ public class UseCaseTest {
         testUseCase.updateSuggestedResolution(new Size(640, 480));
         assertThat(testUseCase.getAttachedSurfaceResolution()).isNotNull();
 
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
         testUseCase.onDetach(mMockCameraInternal);
 
         assertThat(testUseCase.getAttachedSurfaceResolution()).isNull();
@@ -188,10 +165,36 @@ public class UseCaseTest {
         testUseCase.setViewPortCropRect(new Rect());
         assertThat(testUseCase.getViewPortCropRect()).isNotNull();
 
-        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
         testUseCase.onDetach(mMockCameraInternal);
 
         assertThat(testUseCase.getViewPortCropRect()).isNull();
+    }
+
+    @Test
+    public void mergeConfigs() {
+        int cameraDefaultPriority = 4;
+        FakeUseCaseConfig defaultConfig = new FakeUseCaseConfig.Builder()
+                .setTargetName("UseCase-camera")
+                .setBufferFormat(ImageFormat.RAW10)
+                .setSurfaceOccupancyPriority(cameraDefaultPriority).getUseCaseConfig();
+
+        int useCaseImageFormat = ImageFormat.YUV_420_888;
+        FakeUseCaseConfig useCaseConfig = new FakeUseCaseConfig.Builder()
+                .setTargetName("UseCase-useCase")
+                .setBufferFormat(useCaseImageFormat).getUseCaseConfig();
+
+        String extendedTargetName = "UseCase-extended";
+        FakeUseCaseConfig extendedConfig = new FakeUseCaseConfig.Builder()
+                .setTargetName(extendedTargetName).getUseCaseConfig();
+
+        TestUseCase testUseCase = new TestUseCase(useCaseConfig);
+
+        UseCaseConfig<?> mergedConfig = testUseCase.mergeConfigs(extendedConfig, defaultConfig);
+
+        assertThat(mergedConfig.getSurfaceOccupancyPriority()).isEqualTo(cameraDefaultPriority);
+        assertThat(mergedConfig.getInputFormat()).isEqualTo(useCaseImageFormat);
+        assertThat(mergedConfig.getTargetName()).isEqualTo(extendedTargetName);
     }
 
     static class TestUseCase extends FakeUseCase {

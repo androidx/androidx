@@ -36,48 +36,49 @@ import java.util.List;
 
 /**
  * Holds style information shared between child views of a slice
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
 public class SliceStyle {
     private int mTintColor = -1;
-    private int mTitleColor;
-    private int mSubtitleColor;
-    private int mHeaderTitleSize;
-    private int mHeaderSubtitleSize;
-    private int mVerticalHeaderTextPadding;
-    private int mTitleSize;
-    private int mSubtitleSize;
-    private int mVerticalTextPadding;
-    private int mGridTitleSize;
-    private int mGridSubtitleSize;
-    private int mVerticalGridTextPadding;
-    private int mGridTopPadding;
-    private int mGridBottomPadding;
+    private final int mTitleColor;
+    private final int mSubtitleColor;
+    private final int mHeaderTitleSize;
+    private final int mHeaderSubtitleSize;
+    private final int mVerticalHeaderTextPadding;
+    private final int mTitleSize;
+    private final int mSubtitleSize;
+    private final int mVerticalTextPadding;
+    private final int mGridTitleSize;
+    private final int mGridSubtitleSize;
+    private final int mVerticalGridTextPadding;
+    private final int mGridTopPadding;
+    private final int mGridBottomPadding;
 
-    private int mRowMaxHeight;
-    private int mRowTextWithRangeHeight;
-    private int mRowSingleTextWithRangeHeight;
-    private int mRowMinHeight;
-    private int mRowRangeHeight;
-    private int mRowSelectionHeight;
-    private int mRowTextWithSelectionHeight;
-    private int mRowSingleTextWithSelectionHeight;
-    private int mRowInlineRangeHeight;
+    private final int mRowMaxHeight;
+    private final int mRowTextWithRangeHeight;
+    private final int mRowSingleTextWithRangeHeight;
+    private final int mRowMinHeight;
+    private final int mRowRangeHeight;
+    private final int mRowSelectionHeight;
+    private final int mRowTextWithSelectionHeight;
+    private final int mRowSingleTextWithSelectionHeight;
+    private final int mRowInlineRangeHeight;
 
-    private int mGridBigPicMinHeight;
-    private int mGridBigPicMaxHeight;
-    private int mGridAllImagesHeight;
-    private int mGridImageTextHeight;
-    private int mGridMaxHeight;
-    private int mGridMinHeight;
+    private final int mGridBigPicMinHeight;
+    private final int mGridBigPicMaxHeight;
+    private final int mGridAllImagesHeight;
+    private final int mGridImageTextHeight;
+    private final int mGridMaxHeight;
+    private final int mGridMinHeight;
 
-    private int mListMinScrollHeight;
-    private int mListLargeHeight;
+    private final int mListMinScrollHeight;
+    private final int mListLargeHeight;
 
-    private boolean mExpandToAvailableHeight;
-    private boolean mHideHeaderRow;
+    private final boolean mExpandToAvailableHeight;
+    private final boolean mHideHeaderRow;
 
     private RowStyle mRowStyle;
 
@@ -279,9 +280,13 @@ public class SliceStyle {
             // If no StartItem, keep to use original layout.
             if (row.getStartItem() == null) {
                 // Range element always has set height and then the height of the text
-                // area on the row will vary depending on if 1 or 2 lines of text.
-                int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
-                        : mRowSingleTextWithRangeHeight;
+                // area on the row will vary depending on 0,1 or 2 lines of text.
+                int textAreaHeight =
+                        row.getLineCount() == 0
+                                ? 0
+                                : (row.getLineCount() > 1
+                                        ? mRowTextWithRangeHeight
+                                        : mRowSingleTextWithRangeHeight);
                 return textAreaHeight + mRowRangeHeight;
             } else {
                 // If has StartItem then Range element is inline, the row height should be more to

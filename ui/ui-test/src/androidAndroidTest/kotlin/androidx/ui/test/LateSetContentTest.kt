@@ -40,9 +40,12 @@ class LateSetContentTest {
         private val handler = Handler(Looper.getMainLooper())
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            handler.postDelayed({
-                setContent { BoundaryNode("Node") }
-            }, 500)
+            handler.postDelayed(
+                {
+                    setContent { BoundaryNode("Node") }
+                },
+                500
+            )
         }
     }
 }

@@ -121,7 +121,8 @@ class XmlUtils {
                 type = type,
                 scope = scope,
                 systemPath = systemPath,
-                optional = optional)
+                optional = optional
+            )
         }
     }
 }

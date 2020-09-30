@@ -26,13 +26,13 @@ class ClassSpecTest_MethodInitSelector {
             .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  <methods>; \n" +
-                "}"
+                    "  <methods>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  <methods>; \n" +
-                "}"
+                    "  <methods>; \n" +
+                    "}"
             )
     }
 
@@ -42,19 +42,19 @@ class ClassSpecTest_MethodInitSelector {
             .forGivenTypesMap()
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  public <methods>; \n" +
-                "  public static <methods>; \n" +
-                "  public !static <methods>; \n" +
-                "  !private static <methods>; \n" +
-                "}"
+                    "  public <methods>; \n" +
+                    "  public static <methods>; \n" +
+                    "  public !static <methods>; \n" +
+                    "  !private static <methods>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  public <methods>; \n" +
-                "  public static <methods>; \n" +
-                "  public !static <methods>; \n" +
-                "  !private static <methods>; \n" +
-                "}"
+                    "  public <methods>; \n" +
+                    "  public static <methods>; \n" +
+                    "  public !static <methods>; \n" +
+                    "  !private static <methods>; \n" +
+                    "}"
             )
     }
 
@@ -68,19 +68,19 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation public <methods>; \n" +
-                "  @support.Annotation public static <methods>; \n" +
-                "  @support.Annotation public !static <methods>; \n" +
-                "  @support.Annotation !private static <methods>; \n" +
-                "}"
+                    "  @support.Annotation public <methods>; \n" +
+                    "  @support.Annotation public static <methods>; \n" +
+                    "  @support.Annotation public !static <methods>; \n" +
+                    "  @support.Annotation !private static <methods>; \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation public <methods>; \n" +
-                "  @test.Annotation public static <methods>; \n" +
-                "  @test.Annotation public !static <methods>; \n" +
-                "  @test.Annotation !private static <methods>; \n" +
-                "}"
+                    "  @test.Annotation public <methods>; \n" +
+                    "  @test.Annotation public static <methods>; \n" +
+                    "  @test.Annotation public !static <methods>; \n" +
+                    "  @test.Annotation !private static <methods>; \n" +
+                    "}"
             )
     }
 
@@ -95,21 +95,21 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  <init>(); \n" +
-                "  <init>(*); \n" +
-                "  <init>(...); \n" +
-                "  <init>(support.Activity); \n" +
-                "  <init>(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  <init>(); \n" +
+                    "  <init>(*); \n" +
+                    "  <init>(...); \n" +
+                    "  <init>(support.Activity); \n" +
+                    "  <init>(support.Activity, support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  <init>(); \n" +
-                "  <init>(*); \n" +
-                "  <init>(...); \n" +
-                "  <init>(test.Activity); \n" +
-                "  <init>(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  <init>(); \n" +
+                    "  <init>(*); \n" +
+                    "  <init>(...); \n" +
+                    "  <init>(test.Activity); \n" +
+                    "  <init>(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -124,21 +124,23 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  public <init>(); \n" +
-                "  public static <init>(*); \n" +
-                "  !public !static <init>(...); \n" +
-                "  !private static <init>(support.Activity); \n" +
-                "  public !abstract <init>(support.Activity, support.Fragment, keep.Please); \n" +
-                "}"
+                    "  public <init>(); \n" +
+                    "  public static <init>(*); \n" +
+                    "  !public !static <init>(...); \n" +
+                    "  !private static <init>(support.Activity); \n" +
+                    "  public !abstract <init>(support.Activity, support.Fragment, " +
+                    " keep.Please);" +
+                    " \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  public <init>(); \n" +
-                "  public static <init>(*); \n" +
-                "  !public !static <init>(...); \n" +
-                "  !private static <init>(test.Activity); \n" +
-                "  public !abstract <init>(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  public <init>(); \n" +
+                    "  public static <init>(*); \n" +
+                    "  !public !static <init>(...); \n" +
+                    "  !private static <init>(test.Activity); \n" +
+                    "  public !abstract <init>(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -154,22 +156,22 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation <init>(); \n" +
-                "  @support.Annotation <init>(*); \n" +
-                "  @support.Annotation <init>(...); \n" +
-                "  @keep.Me <init>(support.Activity); \n" +
-                "  @support.Annotation <init>(support.Activity, support.Fragment, keep.Please);" +
-                " \n" +
-                "}"
+                    "  @support.Annotation <init>(); \n" +
+                    "  @support.Annotation <init>(*); \n" +
+                    "  @support.Annotation <init>(...); \n" +
+                    "  @keep.Me <init>(support.Activity); \n" +
+                    "  @support.Annotation <init>(support.Activity, support.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation <init>(); \n" +
-                "  @test.Annotation <init>(*); \n" +
-                "  @test.Annotation <init>(...); \n" +
-                "  @keep.Me <init>(test.Activity); \n" +
-                "  @test.Annotation <init>(test.Activity, test.Fragment, keep.Please); \n" +
-                "}"
+                    "  @test.Annotation <init>(); \n" +
+                    "  @test.Annotation <init>(*); \n" +
+                    "  @test.Annotation <init>(...); \n" +
+                    "  @keep.Me <init>(test.Activity); \n" +
+                    "  @test.Annotation <init>(test.Activity, test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -185,23 +187,23 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation public <init>(); \n" +
-                "  @support.Annotation public static <init>(*); \n" +
-                "  @support.Annotation !public !static <init>(...); \n" +
-                "  @support.Annotation !private static <init>(support.Activity); \n" +
-                "  @support.Annotation public !abstract <init>(support.Activity, support.Fragment" +
-                ", keep.Please); \n" +
-                "}"
+                    "  @support.Annotation public <init>(); \n" +
+                    "  @support.Annotation public static <init>(*); \n" +
+                    "  @support.Annotation !public !static <init>(...); \n" +
+                    "  @support.Annotation !private static <init>(support.Activity); \n" +
+                    "  @support.Annotation public !abstract <init>(support.Activity, " +
+                    " support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation public <init>(); \n" +
-                "  @test.Annotation public static <init>(*); \n" +
-                "  @test.Annotation !public !static <init>(...); \n" +
-                "  @test.Annotation !private static <init>(test.Activity); \n" +
-                "  @test.Annotation public !abstract <init>(test.Activity, test.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  @test.Annotation public <init>(); \n" +
+                    "  @test.Annotation public static <init>(*); \n" +
+                    "  @test.Annotation !public !static <init>(...); \n" +
+                    "  @test.Annotation !private static <init>(test.Activity); \n" +
+                    "  @test.Annotation public !abstract <init>(test.Activity, test.Fragment, " +
+                    "keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -217,15 +219,15 @@ class ClassSpecTest_MethodInitSelector {
             )
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  @support.Annotation  public  !abstract \t <init> ( support.Activity , " +
-                "support.Fragment, keep.Please); \n" +
-                "}"
+                    "  @support.Annotation  public  !abstract \t <init> ( support.Activity , " +
+                    "support.Fragment, keep.Please); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  @test.Annotation  public  !abstract \t <init> (test.Activity, test.Fragment, " +
-                "keep.Please); \n" +
-                "}"
+                    "  @test.Annotation  public  !abstract \t <init> (test.Activity, " +
+                    "test.Fragment, keep.Please); \n" +
+                    "}"
             )
     }
 
@@ -237,22 +239,22 @@ class ClassSpecTest_MethodInitSelector {
             .forGivenProGuardMapSet("support.**" to setOf("support.**", "androidx.**"))
             .testThatGivenProGuard(
                 "-keep public class * { \n" +
-                "  <init>(support.**, support.**); \n" +
-                "}"
+                    "  <init>(support.**, support.**); \n" +
+                    "}"
             )
             .rewritesTo(
                 "-keep public class * { \n" +
-                "  <init>(support.**, support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  <init>(androidx.**, support.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  <init>(support.**, androidx.**); \n" +
-                "}\n" +
-                "-keep public class * { \n" +
-                "  <init>(androidx.**, androidx.**); \n" +
-                "}"
+                    "  <init>(support.**, support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  <init>(androidx.**, support.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  <init>(support.**, androidx.**); \n" +
+                    "}\n" +
+                    "-keep public class * { \n" +
+                    "  <init>(androidx.**, androidx.**); \n" +
+                    "}"
             )
     }
 }

@@ -38,7 +38,7 @@ import androidx.compose.runtime.Composable
  * @param heightDp Max height in DP the annotated @[Composable] will be rendered in. Use this to
  * restrict the size of the rendering viewport.
  * @param locale Current user preference for the locale, corresponding to
- * [locale]({@docRoot}guide/topics/resources/providing-resources.html#LocaleQualifier) resource
+ * [locale](https://d.android.com/guide/topics/resources/providing-resources.html#LocaleQualifier) resource
  * qualifier. By default, the `default` folder will be used.
  * @param fontScale User preference for the scaling factor for fonts, relative to the base
  * density scaling.
@@ -46,7 +46,7 @@ import androidx.compose.runtime.Composable
  * The @[Composable] will be render in the context of a full activity.
  * @param showBackground If true, the @[Composable] will use a default background color.
  * @param backgroundColor The 32-bit ARGB color int for the background or 0 if not set
- * @param uiMode Bit mask of the ui mode as per [android.content.res.Configuration#uiMode]
+ * @param uiMode Bit mask of the ui mode as per [android.content.res.Configuration.uiMode]
  * @param device Device string indicating the device to use in the preview. See the available
  * devices in [Devices].
  */

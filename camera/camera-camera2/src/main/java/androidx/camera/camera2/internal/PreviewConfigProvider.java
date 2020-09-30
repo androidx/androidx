@@ -59,6 +59,8 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
         captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder.setDefaultCaptureConfig(captureBuilder.build());
         builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
+
+        builder.setMaxResolution(SupportedSurfaceCombination.getPreviewSize(mWindowManager));
         builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
 
         // TODO(b/160477756): Make UseCase default config providers only provider static configs

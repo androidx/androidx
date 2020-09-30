@@ -44,7 +44,6 @@ import androidx.lifecycle.ViewModelProvider;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -120,11 +119,6 @@ public class BiometricFragment extends Fragment {
      * Request code used when launching the confirm device credential Settings activity.
      */
     private static final int REQUEST_CONFIRM_CREDENTIAL = 1;
-
-    /**
-     * Force the fingerprint dialog to appear for debugging. Must NOT be checked in as {@code true}.
-     */
-    private static final boolean DEBUG_FORCE_FINGERPRINT = false;
 
     /**
      * An executor used by {@link android.hardware.biometrics.BiometricPrompt} to run framework
@@ -244,7 +238,7 @@ public class BiometricFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
                 && !mViewModel.isConfirmingDeviceCredential()
                 && !isChangingConfigurations()) {
             cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
@@ -441,7 +435,7 @@ public class BiometricFragment extends Fragment {
         androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
                 androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(context);
         final int errorCode = checkForFingerprintPreAuthenticationErrors(fingerprintManagerCompat);
-        if (errorCode != 0) {
+        if (errorCode != BiometricPrompt.BIOMETRIC_SUCCESS) {
             sendErrorAndDismiss(
                     errorCode, ErrorUtils.getFingerprintErrorString(context, errorCode));
             return;
@@ -526,14 +520,13 @@ public class BiometricFragment extends Fragment {
         final Executor executor = new PromptExecutor();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
-        BiometricPrompt.CryptoObject crypto = mViewModel.getCryptoObject();
+        android.hardware.biometrics.BiometricPrompt.CryptoObject crypto =
+                CryptoObjectUtils.wrapForBiometricPrompt(mViewModel.getCryptoObject());
         if (crypto == null) {
             Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
         } else {
-            android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
-                    Objects.requireNonNull(CryptoObjectUtils.wrapForBiometricPrompt(crypto));
             Api28Impl.authenticate(
-                    biometricPrompt, wrappedCrypto, cancellationSignal, executor, callback);
+                    biometricPrompt, crypto, cancellationSignal, executor, callback);
         }
     }
 
@@ -618,24 +611,36 @@ public class BiometricFragment extends Fragment {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @VisibleForTesting
-    void onAuthenticationError(final int errorCode, @Nullable CharSequence errorMessage) {
+    void onAuthenticationError(int errorCode, @Nullable CharSequence errorMessage) {
         // Ensure we're only sending publicly defined errors.
         final int knownErrorCode = ErrorUtils.isKnownError(errorCode)
                 ? errorCode
                 : BiometricPrompt.ERROR_VENDOR;
 
+        final Context context = getContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                && ErrorUtils.isLockoutError(knownErrorCode)
+                && context != null
+                && KeyguardUtils.isDeviceSecuredWithCredential(context)
+                && AuthenticatorUtils.isDeviceCredentialAllowed(
+                        mViewModel.getAllowedAuthenticators())) {
+            launchConfirmCredentialActivity();
+            return;
+        }
+
         if (isUsingFingerprintDialog()) {
             // Avoid passing a null error string to the client callback.
             final CharSequence errorString = errorMessage != null
                     ? errorMessage
-                    : ErrorUtils.getFingerprintErrorString(getContext(), errorCode);
+                    : ErrorUtils.getFingerprintErrorString(getContext(), knownErrorCode);
 
-            if (errorCode == BiometricPrompt.ERROR_CANCELED) {
+            if (knownErrorCode == BiometricPrompt.ERROR_CANCELED) {
                 // User-initiated cancellation errors should already be handled.
                 @CanceledFrom final int canceledFrom = mViewModel.getCanceledFrom();
                 if (canceledFrom == CANCELED_FROM_INTERNAL
                         || canceledFrom == CANCELED_FROM_CLIENT) {
-                    sendErrorToClient(errorCode, errorString);
+                    sendErrorToClient(knownErrorCode, errorString);
                 }
 
                 dismiss();
@@ -648,7 +653,7 @@ public class BiometricFragment extends Fragment {
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    sendErrorAndDismiss(errorCode, errorString);
+                                    sendErrorAndDismiss(knownErrorCode, errorString);
                                 }
                             },
                             getDismissDialogDelay());
@@ -661,9 +666,7 @@ public class BiometricFragment extends Fragment {
         } else {
             final CharSequence errorString = errorMessage != null
                     ? errorMessage
-                    : getString(R.string.default_error_msg)
-                            + " "
-                            + errorCode;
+                    : getString(R.string.default_error_msg) + " " + knownErrorCode;
             sendErrorAndDismiss(knownErrorCode, errorString);
         }
     }
@@ -915,7 +918,7 @@ public class BiometricFragment extends Fragment {
         } else if (!fingerprintManager.hasEnrolledFingerprints()) {
             return BiometricPrompt.ERROR_NO_BIOMETRICS;
         }
-        return 0;
+        return BiometricPrompt.BIOMETRIC_SUCCESS;
     }
 
     /**
@@ -938,23 +941,40 @@ public class BiometricFragment extends Fragment {
      * @return Whether this fragment should display the fingerprint dialog UI.
      */
     private boolean isUsingFingerprintDialog() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.P || shouldForceFingerprint();
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                || isFingerprintDialogNeededForCrypto()
+                || isFingerprintDialogNeededForErrorHandling();
     }
 
     /**
-     * Checks if this fragment should always display the fingerprint dialog authentication UI,
-     * regardless of Android version.
+     * Checks if this fragment should display the fingerprint dialog authentication UI for an
+     * ongoing crypto-based authentication attempt.
      *
-     * <p>This is needed to force some devices to fall back to fingerprint in order to support
-     * strong (crypto-based) authentication.
+     * @return Whether this fragment should display the fingerprint dialog UI.
      *
      * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
      */
-    private boolean shouldForceFingerprint() {
+    private boolean isFingerprintDialogNeededForCrypto() {
         final FragmentActivity activity = getActivity();
-        return DEBUG_FORCE_FINGERPRINT || (activity != null && mViewModel.getCryptoObject() != null
+        return activity != null
+                && mViewModel.getCryptoObject() != null
                 && DeviceUtils.shouldUseFingerprintForCrypto(
-                        activity, Build.MANUFACTURER, Build.MODEL));
+                        activity, Build.MANUFACTURER, Build.MODEL);
+    }
+
+    /**
+     * Checks if this fragment should invoke the fingerprint dialog, rather than the framework
+     * biometric prompt, to handle an authentication error.
+     *
+     * @return Whether this fragment should invoke the fingerprint dialog.
+     *
+     * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
+     */
+    private boolean isFingerprintDialogNeededForErrorHandling() {
+        // On API 28, BiometricPrompt internally calls FingerprintManager#getErrorString(), which
+        // requires fingerprint hardware to be present (b/151443237).
+        return Build.VERSION.SDK_INT == Build.VERSION_CODES.P
+                && !PackageUtils.hasSystemFeatureFingerprint(getContext());
     }
 
     /**

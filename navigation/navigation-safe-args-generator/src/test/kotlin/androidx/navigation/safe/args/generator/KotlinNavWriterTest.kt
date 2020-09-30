@@ -164,4 +164,16 @@ class KotlinNavWriterTest {
         val actual = generateArgsCodeFile(dest, false)
         assertThat(actual.toString()).parsesAs("a.b.MainFragmentArgs")
     }
+
+    @Test
+    fun testArgumentClassGeneration_longArgumentName() {
+        val dest = Destination(null, ClassName.get("a.b",
+            "ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReally" +
+                    "LongNameFragment"), "fragment",
+            listOf(), listOf())
+
+        val actual = generateArgsCodeFile(dest, false)
+        assertThat(actual.toString()).parsesAs("a.b.ReallyReallyReallyReallyReally" +
+                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs")
+    }
 }

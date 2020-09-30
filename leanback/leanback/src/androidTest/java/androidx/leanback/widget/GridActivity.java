@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.leanback.test.R;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_LAYOUT_RESOURCE_ID = "layoutResourceId";
     public static final String EXTRA_NUM_ITEMS = "numItems";
     public static final String EXTRA_ITEMS = "items";
+    public static final String EXTRA_CONCAT_ADAPTER = "concatAdapter";
     public static final String EXTRA_ITEMS_FOCUSABLE = "itemsFocusable";
     public static final String EXTRA_STAGGERED = "staggered";
     public static final String EXTRA_REQUEST_LAYOUT_ONFOCUS = "requestLayoutOnFocus";
@@ -102,6 +104,7 @@ public class GridActivity extends Activity {
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
     int[] mItemLengths;
+    boolean mConcatAdapter;
     boolean[] mItemFocusables;
     int[] mLayoutMargins;
     int mNinePatchShadow;
@@ -144,6 +147,7 @@ public class GridActivity extends Activity {
         mUpdateSizeSecondary = intent.getBooleanExtra(EXTRA_UPDATE_SIZE_SECONDARY, false);
         mSecondarySizeZero = intent.getBooleanExtra(EXTRA_SECONDARY_SIZE_ZERO, false);
         mItemLengths = intent.getIntArrayExtra(EXTRA_ITEMS);
+        mConcatAdapter = intent.getBooleanExtra(EXTRA_CONCAT_ADAPTER, false);
         mHasStableIds = intent.getBooleanExtra(EXTRA_HAS_STABLE_IDS, false);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
         mLayoutMargins = intent.getIntArrayExtra(EXTRA_LAYOUT_MARGINS);
@@ -177,10 +181,6 @@ public class GridActivity extends Activity {
 
         if (DEBUG) Log.v(TAG, "onCreate " + this);
 
-        RecyclerView.Adapter adapter = new MyAdapter();
-        adapter.setHasStableIds(mHasStableIds);
-
-        View view = createView();
         if (mItemLengths == null) {
             mNumItems = intent.getIntExtra(EXTRA_NUM_ITEMS, DEFAULT_NUM_ITEMS);
             mItemLengths = new int[mNumItems];
@@ -195,6 +195,16 @@ public class GridActivity extends Activity {
             mNumItems = mItemLengths.length;
         }
 
+        RecyclerView.Adapter adapter;
+        if (mConcatAdapter) {
+            adapter = new ConcatAdapter(new MyAdapter(), new MyAdapter());
+        } else {
+            adapter = new MyAdapter();
+            adapter.setHasStableIds(mHasStableIds);
+
+        }
+
+        View view = createView();
         mGridView.setAdapter(adapter);
         setContentView(view);
 
