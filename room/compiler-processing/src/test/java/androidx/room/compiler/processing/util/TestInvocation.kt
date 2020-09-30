@@ -38,6 +38,7 @@ class TestInvocation(
                 objectOrAny = KotlinTypeNames.ANY_CLASS_NAME,
                 boxedInt = KotlinTypeNames.INT_CLASS_NAME,
                 int = KotlinTypeNames.INT_CLASS_NAME,
+                long = KotlinTypeNames.LONG_CLASS_NAME,
                 list = KotlinTypeNames.LIST_CLASS_NAME
             )
         } else {
@@ -47,6 +48,7 @@ class TestInvocation(
                 objectOrAny = TypeName.OBJECT,
                 boxedInt = TypeName.INT.box(),
                 int = TypeName.INT,
+                long = TypeName.LONG,
                 list = ClassName.get("java.util", "List")
             )
         }
@@ -62,6 +64,7 @@ class TestInvocation(
         val objectOrAny: ClassName,
         val boxedInt: TypeName,
         val int: TypeName,
+        val long: TypeName,
         val list: ClassName
     )
 }

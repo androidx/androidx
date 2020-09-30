@@ -22,6 +22,7 @@ internal object KotlinTypeNames {
     val ANY_CLASS_NAME = ClassName.get("kotlin", "Any")
     val UNIT_CLASS_NAME = ClassName.get("kotlin", "Unit")
     val INT_CLASS_NAME = ClassName.get("kotlin", "Int")
+    val LONG_CLASS_NAME = ClassName.get("kotlin", "Long")
     val STRING_CLASS_NAME = ClassName.get("kotlin", "String")
     val LIST_CLASS_NAME = ClassName.get("kotlin.collections", "List")
     val MUTABLELIST_CLASS_NAME = ClassName.get("kotlin.collections", "MutableList")

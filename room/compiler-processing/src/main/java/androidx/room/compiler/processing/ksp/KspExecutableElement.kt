@@ -16,10 +16,12 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 
 internal abstract class KspExecutableElement(
@@ -29,7 +31,13 @@ internal abstract class KspExecutableElement(
 ) : KspElement(
     env = env,
     declaration = declaration
-), XExecutableElement, XHasModifiers by KspHasModifiers(declaration) {
+), XExecutableElement,
+    XHasModifiers by KspHasModifiers(declaration),
+    XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = declaration,
+        filter = NO_USE_SITE
+    ) {
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(containing, declaration)

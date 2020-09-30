@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing
 
 import kotlin.contracts.contract
-import kotlin.reflect.KClass
 
 /**
  * Represents an element declared in code.
@@ -27,39 +26,11 @@ import kotlin.reflect.KClass
  * @see XVariableElement
  * @see XTypeElement
  */
-interface XElement {
+interface XElement : XAnnotated {
     /**
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
-
-    /**
-     * If the current element has an annotation with the given [annotation] class, a boxed instance
-     * of it will be returned where fields can be read. Otherwise, `null` value is returned.
-     *
-     * @see [hasAnnotation]
-     * @see [hasAnnotationWithPackage]
-     */
-    fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>?
-
-    /**
-     * Returns `true` if this element has an annotation that is declared in the given package.
-     */
-    // a very sad method but helps avoid abstraction annotation
-    fun hasAnnotationWithPackage(pkg: String): Boolean
-
-    /**
-     * Returns `true` if this element is annotated with the given [annotation].
-     *
-     * @see [toAnnotationBox]
-     * @see [hasAnyOf]
-     */
-    fun hasAnnotation(annotation: KClass<out Annotation>): Boolean
-
-    /**
-     * Returns `true` if this element has one of the [annotations].
-     */
-    fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
 
     /**
      * Casts current element to [XTypeElement].

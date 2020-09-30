@@ -16,19 +16,21 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
 import org.jetbrains.kotlin.ksp.symbol.KSVariableParameter
-import kotlin.reflect.KClass
 
 internal class KspExecutableParameterElement(
     val env: KspProcessingEnv,
     val method: KspExecutableElement,
     val parameter: KSVariableParameter
-) : XExecutableParameterElement, XEquality {
+) : XExecutableParameterElement,
+    XEquality,
+    XAnnotated by KspAnnotated.create(env, parameter, METHOD_PARAMETER) {
 
     override val equalityItems: Array<out Any?>
         get() = arrayOf(method, parameter)
@@ -58,18 +60,6 @@ internal class KspExecutableParameterElement(
 
     override fun kindName(): String {
         return "function parameter"
-    }
-
-    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
-        TODO("Not yet implemented")
-    }
-
-    override fun hasAnnotationWithPackage(pkg: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
-        TODO("Not yet implemented")
     }
 
     override fun equals(other: Any?): Boolean {

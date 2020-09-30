@@ -16,11 +16,13 @@
 
 package androidx.room.compiler.processing.ksp.synthetic
 
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.ksp.KspAnnotated
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.KspExecutableElement
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
@@ -28,7 +30,6 @@ import androidx.room.compiler.processing.ksp.requireContinuationClass
 import androidx.room.compiler.processing.ksp.returnTypeAsMemberOf
 import androidx.room.compiler.processing.ksp.swapResolvedType
 import org.jetbrains.kotlin.ksp.symbol.Variance
-import kotlin.reflect.KClass
 
 /**
  * XProcessing adds an additional argument to each suspend function for the continiuation because
@@ -37,7 +38,13 @@ import kotlin.reflect.KClass
 internal class KspSyntheticContinuationParameterElement(
     private val env: KspProcessingEnv,
     private val containing: KspExecutableElement
-) : XExecutableParameterElement, XEquality {
+) : XExecutableParameterElement,
+    XEquality,
+    XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = null, // does not matter, this is synthetic and has no annotations.
+        filter = NO_USE_SITE
+    ) {
 
     override val name: String
         get() = "_syntheticContinuation"
@@ -81,18 +88,6 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun kindName(): String {
         return "synthetic continuation parameter"
-    }
-
-    override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
-        TODO("Not yet implemented")
-    }
-
-    override fun hasAnnotationWithPackage(pkg: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
-        TODO("Not yet implemented")
     }
 
     override fun equals(other: Any?): Boolean {
