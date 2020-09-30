@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions;
 
+import android.hardware.camera2.CameraCharacteristics;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
@@ -65,21 +67,22 @@ public final class ExtensionCameraFilter implements CameraFilter {
         for (Camera camera : cameras) {
             Preconditions.checkState(camera instanceof CameraInternal,
                     "The camera doesn't contain internal implementation.");
-            String cameraId = ((CameraInternal) camera).getCameraInfoInternal().getCameraId();
             CameraInfo cameraInfo = camera.getCameraInfo();
+            String cameraId = Camera2CameraInfo.fromCameraInfo(cameraInfo).getCameraId();
+            CameraCharacteristics cameraCharacteristics =
+                    Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
 
             boolean available = true;
 
             // If preview extender impl isn't null, check if the camera id is supported.
             if (mPreviewExtenderImpl != null) {
                 available =
-                        mPreviewExtenderImpl.isExtensionAvailable(cameraId,
-                                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo));
+                        mPreviewExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
             }
             // If image capture extender impl isn't null, check if the camera id is supported.
             if (mImageCaptureExtenderImpl != null) {
                 available = mImageCaptureExtenderImpl.isExtensionAvailable(cameraId,
-                        Camera2CameraInfo.extractCameraCharacteristics(cameraInfo));
+                        cameraCharacteristics);
             }
 
             if (available) {

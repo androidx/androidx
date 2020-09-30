@@ -283,7 +283,7 @@ public final class CameraUtil {
             CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
-            return new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
+            return new CameraUseCaseAdapter(cameras,
                     cameraX.getCameraDeviceSurfaceManager(), cameraX.getDefaultConfigFactory());
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException("Unable to retrieve CameraX instance");

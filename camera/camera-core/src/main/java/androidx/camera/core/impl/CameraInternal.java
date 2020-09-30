@@ -17,15 +17,18 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 
 /**
  * The camera interface. It is controlled by the change of state in use cases.
@@ -174,7 +177,19 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      */
     @NonNull
     @Override
-    default Collection<CameraInternal> getCameraInternals() {
-        return Collections.singleton(this);
+    default LinkedHashSet<CameraInternal> getCameraInternals() {
+        return new LinkedHashSet<>(Collections.singleton(this));
+    }
+
+    @NonNull
+    @Override
+    default CameraConfig getExtendedConfig() {
+        return CameraConfigs.emptyConfig();
+    }
+
+    @Override
+    default void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
+            CameraUseCaseAdapter.CameraException {
+        // Ignore the config since CameraInternal won't use the config
     }
 }

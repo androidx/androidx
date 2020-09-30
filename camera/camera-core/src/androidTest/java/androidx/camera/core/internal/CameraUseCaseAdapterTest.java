@@ -18,6 +18,9 @@ package androidx.camera.core.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -64,8 +67,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void attachUseCases() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -77,8 +79,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void detachUseCases() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -90,8 +91,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void closeCameraUseCaseAdapter() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -104,8 +104,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void cameraIdEquals() {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -117,13 +116,11 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void cameraEquivalent() {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
-        CameraUseCaseAdapter otherCameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter otherCameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         assertThat(cameraUseCaseAdapter.isEquivalent(otherCameraUseCaseAdapter)).isTrue();
@@ -132,22 +129,20 @@ public class CameraUseCaseAdapterTest {
     @Test
     @MediumTest
     public void useCase_onAttach() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
         FakeUseCase fakeUseCase = spy(new FakeUseCase());
         cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
 
-        verify(fakeUseCase).onAttach(mFakeCamera, mUseCaseConfigFactory);
+        verify(fakeUseCase).onAttach(eq(mFakeCamera), isNull(), any(FakeUseCaseConfig.class));
     }
 
     @Test
     @MediumTest
     public void useCase_onDetach() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -161,8 +156,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void eventCallbackOnBind() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -172,13 +166,12 @@ public class CameraUseCaseAdapterTest {
 
         cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
 
-        verify(callback).onBind(mFakeCamera.getCameraInfoInternal().getCameraId());
+        verify(callback).onAttach(mFakeCamera.getCameraInfoInternal());
     }
 
     @Test
     public void eventCallbackOnUnbind() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -190,7 +183,7 @@ public class CameraUseCaseAdapterTest {
 
         cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
 
-        verify(callback).onUnbind();
+        verify(callback).onDetach();
     }
 
     @Test
@@ -201,8 +194,7 @@ public class CameraUseCaseAdapterTest {
         Rational aspectRatio2 = new Rational(2, 1);
 
         // Arrange: set up adapter with aspect ratio 1.
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         cameraUseCaseAdapter.setViewPort(

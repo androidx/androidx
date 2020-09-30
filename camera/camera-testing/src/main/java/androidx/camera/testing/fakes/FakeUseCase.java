@@ -68,9 +68,7 @@ public class FakeUseCase extends UseCase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return new FakeUseCaseConfig.Builder(getCurrentConfig())
-                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
-                }).getUseCaseConfig();
+        return factory.getConfig(FakeUseCaseConfig.class);
     }
 
     @Override

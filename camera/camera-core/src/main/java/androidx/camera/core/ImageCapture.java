@@ -447,6 +447,41 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        // Update the input format base on the other options set (mainly whether processing
+        // is done)
+        Integer bufferFormat = builder.getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT,
+                null);
+        if (bufferFormat != null) {
+            Preconditions.checkArgument(
+                    builder.getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null)
+                            == null,
+                    "Cannot set buffer format with CaptureProcessor defined.");
+            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
+        } else {
+            if (builder.getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
+                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                        ImageFormat.YUV_420_888);
+            } else {
+                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+            }
+        }
+
+        Preconditions.checkArgument(
+                builder.getMutableConfig().retrieveOption(OPTION_MAX_CAPTURE_STAGES, MAX_IMAGES)
+                        >= 1,
+                "Maximum outstanding image count must be at least 1");
+        return builder.getUseCaseConfig();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -1152,7 +1187,6 @@ public final class ImageCapture extends UseCase {
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
-
         return suggestedResolution;
     }
 

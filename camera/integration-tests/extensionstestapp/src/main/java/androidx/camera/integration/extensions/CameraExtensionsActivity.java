@@ -15,12 +15,12 @@
  */
 package androidx.camera.integration.extensions;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.hardware.camera2.CameraCaptureSession;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +28,6 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -36,23 +35,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
-import androidx.camera.core.UseCase;
-import androidx.camera.extensions.AutoImageCaptureExtender;
-import androidx.camera.extensions.AutoPreviewExtender;
-import androidx.camera.extensions.BeautyImageCaptureExtender;
-import androidx.camera.extensions.BeautyPreviewExtender;
-import androidx.camera.extensions.BokehImageCaptureExtender;
-import androidx.camera.extensions.BokehPreviewExtender;
+import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.ExtensionsManager;
-import androidx.camera.extensions.HdrImageCaptureExtender;
-import androidx.camera.extensions.HdrPreviewExtender;
-import androidx.camera.extensions.NightImageCaptureExtender;
-import androidx.camera.extensions.NightPreviewExtender;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -68,12 +57,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
@@ -82,7 +67,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
     private static final CameraSelector CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
+            new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_BACK).build();
 
     boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
@@ -94,199 +80,106 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private ImageCapture mImageCapture;
 
     @NonNull
-    private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
+    private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT;
 
     // Espresso testing variables
     @VisibleForTesting
     CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
-    @Nullable
-    private CountDownLatch mPreviewCaptureSessionConfigured = new CountDownLatch(1);
 
     private PreviewView mPreviewView;
 
     ProcessCameraProvider mCameraProvider;
 
-    /**
-     * Creates a preview use case.
-     *
-     * <p>This use case uses a {@link PreviewView} to display a camera preview.
-     */
-    private void createPreview() {
-        enablePreview();
-        Log.i(TAG, "Got UseCase: " + mPreview);
-    }
-
-    void enablePreview() {
-        if (mPreview != null) {
-            mCameraProvider.unbind(mPreview);
-        }
-
-        Preview.Builder builder = new Preview.Builder()
-                .setTargetName("Preview");
-
-        Log.d(TAG, "Enabling the extended preview");
-        if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
-            Log.d(TAG, "Enabling the extended preview in bokeh mode.");
-
-            BokehPreviewExtender extender = BokehPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                extender.enableExtension(CAMERA_SELECTOR);
-            }
-        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
-            Log.d(TAG, "Enabling the extended preview in HDR mode.");
-
-            HdrPreviewExtender extender = HdrPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                extender.enableExtension(CAMERA_SELECTOR);
-            }
-        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT) {
-            Log.d(TAG, "Enabling the extended preview in night mode.");
-
-            NightPreviewExtender extender = NightPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                extender.enableExtension(CAMERA_SELECTOR);
-            }
-        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY) {
-            Log.d(TAG, "Enabling the extended preview in beauty mode.");
-
-            BeautyPreviewExtender extender = BeautyPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                extender.enableExtension(CAMERA_SELECTOR);
-            }
-        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO) {
-            Log.d(TAG, "Enabling the extended preview in auto mode.");
-
-            AutoPreviewExtender extender = AutoPreviewExtender.create(builder);
-            if (extender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                extender.enableExtension(CAMERA_SELECTOR);
-            }
-        }
-        // Recreate the CountDown before create the Preview.
-        mPreviewCaptureSessionConfigured = new CountDownLatch(1);
-        new Camera2Interop.Extender<>(builder).setSessionStateCallback(
-                new CameraCaptureSession.StateCallback() {
-                    @Override
-                    public void onConfigured(@NonNull CameraCaptureSession session) {
-                        mPreviewCaptureSessionConfigured.countDown();
-                    }
-
-                    @Override
-                    public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-
-                    }
-                });
-        mPreview = builder.build();
-        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-    }
+    Camera mCamera;
+    Extensions mExtensions;
 
     enum ImageCaptureType {
-        IMAGE_CAPTURE_TYPE_HDR,
-        IMAGE_CAPTURE_TYPE_BOKEH,
-        IMAGE_CAPTURE_TYPE_NIGHT,
-        IMAGE_CAPTURE_TYPE_BEAUTY,
-        IMAGE_CAPTURE_TYPE_AUTO,
-        IMAGE_CAPTURE_TYPE_DEFAULT,
-        IMAGE_CAPTURE_TYPE_NONE,
+
+        IMAGE_CAPTURE_TYPE_HDR(0),
+        IMAGE_CAPTURE_TYPE_BOKEH(1),
+        IMAGE_CAPTURE_TYPE_NIGHT(2),
+        IMAGE_CAPTURE_TYPE_BEAUTY(3),
+        IMAGE_CAPTURE_TYPE_AUTO(4),
+        IMAGE_CAPTURE_TYPE_DEFAULT(5);
+
+        private final int mOrdinal;
+        private static final ImageCaptureType[] sTypes = ImageCaptureType.values();
+
+        ImageCaptureType(int i) {
+            this.mOrdinal = i;
+        }
+
+        ImageCaptureType getNextType() {
+            return sTypes[(mOrdinal + 1) % sTypes.length];
+        }
     }
 
     /**
-     * Creates an image capture use case.
-     *
-     * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
+     * Sets up the appropriate UseCases.
      */
-    private void createImageCapture() {
+    private void setupUseCases() {
         Button button = findViewById(R.id.PhotoToggle);
-        enableImageCapture(mCurrentImageCaptureType);
-        button.setOnClickListener(
-                (view) -> {
-                    disableImageCapture();
-                    // Toggle to next capture type and enable it and set it as current
-                    switch (mCurrentImageCaptureType) {
-                        case IMAGE_CAPTURE_TYPE_HDR:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_BOKEH:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_NIGHT:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_BEAUTY:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_AUTO:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_DEFAULT:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
-                            enablePreview();
-                            break;
-                        case IMAGE_CAPTURE_TYPE_NONE:
-                            enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
-                            enablePreview();
-                            break;
-                    }
-                    bindUseCases();
-                    showTakePictureButton();
-                });
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
+                "ImageCapture");
 
-        Log.i(TAG, "Got UseCase: " + mImageCapture);
+        mImageCapture = imageCaptureBuilder.build();
+
+        Preview.Builder previewBuilder = new Preview.Builder().setTargetName("Preview");
+
+        mPreview = previewBuilder.build();
+        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+
+        mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR, mImageCapture, mPreview);
+
+        enableNextExtension();
+        button.setOnClickListener((view) -> enableNextExtension());
     }
 
-    void enableImageCapture(ImageCaptureType imageCaptureType) {
-        mCurrentImageCaptureType = imageCaptureType;
-        ImageCapture.Builder builder = new ImageCapture.Builder().setTargetName("ImageCapture");
-        Button toggleButton = findViewById(R.id.PhotoToggle);
-        toggleButton.setText(mCurrentImageCaptureType.toString());
-
+    @Extensions.ExtensionMode
+    int extensionModeFrom(ImageCaptureType imageCaptureType) {
         switch (imageCaptureType) {
             case IMAGE_CAPTURE_TYPE_HDR:
-                HdrImageCaptureExtender hdrImageCaptureExtender = HdrImageCaptureExtender.create(
-                        builder);
-                if (hdrImageCaptureExtender.isExtensionAvailable(CAMERA_SELECTOR)) {
-                    hdrImageCaptureExtender.enableExtension(CAMERA_SELECTOR);
-                }
-                break;
+                return Extensions.EXTENSION_MODE_HDR;
             case IMAGE_CAPTURE_TYPE_BOKEH:
-                BokehImageCaptureExtender bokehImageCapture = BokehImageCaptureExtender.create(
-                        builder);
-                if (bokehImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
-                    bokehImageCapture.enableExtension(CAMERA_SELECTOR);
-                }
-                break;
+                return Extensions.EXTENSION_MODE_BOKEH;
             case IMAGE_CAPTURE_TYPE_NIGHT:
-                NightImageCaptureExtender nightImageCapture = NightImageCaptureExtender.create(
-                        builder);
-                if (nightImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
-                    nightImageCapture.enableExtension(CAMERA_SELECTOR);
-                }
-                break;
+                return Extensions.EXTENSION_MODE_NIGHT;
             case IMAGE_CAPTURE_TYPE_BEAUTY:
-                BeautyImageCaptureExtender beautyImageCapture = BeautyImageCaptureExtender.create(
-                        builder);
-                if (beautyImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
-                    beautyImageCapture.enableExtension(CAMERA_SELECTOR);
-                }
-                break;
+                return Extensions.EXTENSION_MODE_BEAUTY;
             case IMAGE_CAPTURE_TYPE_AUTO:
-                AutoImageCaptureExtender autoImageCapture = AutoImageCaptureExtender.create(
-                        builder);
-                if (autoImageCapture.isExtensionAvailable(CAMERA_SELECTOR)) {
-                    autoImageCapture.enableExtension(CAMERA_SELECTOR);
-                }
-                break;
+                return Extensions.EXTENSION_MODE_AUTO;
             case IMAGE_CAPTURE_TYPE_DEFAULT:
-                break;
-            case IMAGE_CAPTURE_TYPE_NONE:
-                return;
+                return Extensions.EXTENSION_MODE_NONE;
+            default:
+                throw new IllegalArgumentException(
+                        "ImageCaptureType does not exist: " + imageCaptureType);
+        }
+    }
+
+    void enableNextExtension() {
+        do {
+            mCurrentImageCaptureType = mCurrentImageCaptureType.getNextType();
+        } while (!enableExtension(mCurrentImageCaptureType));
+    }
+
+    // TODO(b/162875208) Suppress until new extensions API made public
+    @SuppressLint("RestrictedAPI")
+    boolean enableExtension(ImageCaptureType imageCaptureType) {
+        // Check that extension can be enabled and if so enable it
+        @Extensions.ExtensionMode
+        int extensionMode = extensionModeFrom(imageCaptureType);
+        boolean extensionAvailable = mExtensions.isExtensionAvailable(mCamera, extensionMode);
+        if (extensionAvailable) {
+            Log.d(TAG, "Enabling extension mode: " + imageCaptureType.name());
+            mExtensions.setExtension(mCamera, extensionMode);
+        } else {
+            Log.d(TAG, "Unable to enable extension mode, skipping: " + imageCaptureType.name());
+            return false;
         }
 
-        mImageCapture = builder.build();
+        // Update the UI and save location for ImageCapture
+        Button toggleButton = findViewById(R.id.PhotoToggle);
+        toggleButton.setText(mCurrentImageCaptureType.toString());
 
         Button captureButton = findViewById(R.id.Picture);
 
@@ -352,46 +245,15 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         }
                     });
         });
-    }
 
-    void disableImageCapture() {
-        if (mImageCapture != null) {
-            mCameraProvider.unbind(mImageCapture);
-            mImageCapture = null;
-        }
-
-        Button button = findViewById(R.id.Picture);
-        button.setVisibility(View.INVISIBLE);
-        button.setOnClickListener(null);
+        return true;
     }
 
     /** Creates all the use cases. */
-    private void createUseCases() {
+    void createUseCases() {
         ExtensionsManager.setExtensionsErrorListener((errorCode) ->
                 Log.d(TAG, "Extensions error in error code: " + errorCode));
-        createImageCapture();
-        createPreview();
-        bindUseCases();
-        showTakePictureButton();
-    }
-
-    private void bindUseCases() {
-        List<UseCase> useCases = new ArrayList<>();
-        // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCapture won't be null.
-        if (mImageCapture != null) {
-            useCases.add(mImageCapture);
-        }
-        useCases.add(mPreview);
-        mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR,
-                useCases.toArray(new UseCase[useCases.size()]));
-    }
-
-    private void showTakePictureButton() {
-        if (mImageCapture != null) {
-            // Set the TakePicture button visible after bindToLifeCycle.
-            Button captureButton = findViewById(R.id.Picture);
-            captureButton.setVisibility(View.VISIBLE);
-        }
+        setupUseCases();
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -433,12 +295,15 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }, ContextCompat.getMainExecutor(this));
     }
 
+    // TODO(b/162875208) Suppress until new extensions API made public
+    @SuppressLint("RestrictedAPI")
     void setupCamera() {
         if (!mPermissionsGranted) {
             Log.d(TAG, "Permissions denied.");
             return;
         }
 
+        mCamera = mCameraProvider.bindToLifecycle(this, CAMERA_SELECTOR);
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
                 ExtensionsManager.init(getApplicationContext());
 
@@ -448,7 +313,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     public void onSuccess(
                             @Nullable ExtensionsManager.ExtensionsAvailability availability) {
                         // Run this on the UI thread to manipulate the Textures & Views.
-                        createUseCases();
+                        switch (availability) {
+                            case LIBRARY_AVAILABLE:
+                            case NONE:
+                                mExtensions = ExtensionsManager.getExtensions(
+                                        getApplicationContext());
+                                createUseCases();
+                                break;
+                            case LIBRARY_UNAVAILABLE_ERROR_LOADING:
+                            case LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION:
+                                throw new RuntimeException("Failed to load up extensions "
+                                        + "implementation");
+                        }
                     }
 
                     @Override
@@ -515,11 +391,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         return mImageCapture;
     }
 
-    @NonNull
-    public ImageCaptureType getCurrentImageCaptureType() {
-        return mCurrentImageCaptureType;
-    }
-
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -538,19 +409,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
             default:
                 // No-op
-        }
-    }
-
-    /**
-     * Waiting for preview capture session configured. Returns true if the capture session of
-     * the preview is configured successfully, otherwise return false after timeout.
-     */
-    @VisibleForTesting
-    public boolean waitForPreviewConfigured(long timeOutInMs) {
-        try {
-            return mPreviewCaptureSessionConfigured.await(timeOutInMs, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            return false;
         }
     }
 }

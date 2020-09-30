@@ -123,11 +123,16 @@ public final class ExtensionsManager {
             }
             sDeinitFuture = null;
 
+            // Will be initialized, with an empty implementation which will report all extensions
+            // as unavailable
             if (ExtensionVersion.getRuntimeVersion() == null) {
+                setInitialized(true);
                 return Futures.immediateFuture(ExtensionsAvailability.NONE);
             }
 
+            // Prior to 1.1 no additional initialization logic required
             if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+                setInitialized(true);
                 return Futures.immediateFuture(
                         ExtensionsAvailability.LIBRARY_AVAILABLE);
             }
