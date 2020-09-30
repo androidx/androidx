@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ArrayReturn: androidx.serialization.Reserved#idRanges():
-    Method should return Collection<IdRange> (or subclass) instead of raw array; was `androidx.serialization.Reserved.IdRange[]`

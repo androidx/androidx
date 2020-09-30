@@ -25,6 +25,7 @@ package androidx.datastore.preferences {
 
   public static final class Preferences.Key<T> {
     method public String getName();
+    property public final String name;
   }
 
   public static final class Preferences.Pair<T> {
