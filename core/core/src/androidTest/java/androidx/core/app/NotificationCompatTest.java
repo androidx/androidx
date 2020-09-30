@@ -1855,7 +1855,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    public void setBubbleMetadata() {
+    public void setBubbleMetadataIntent() {
         IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
                 mContext.getResources(),
                 R.drawable.notification_bg_normal));
@@ -1867,12 +1867,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 PendingIntent.getActivity(mContext, 1, new Intent(), 0);
 
         NotificationCompat.BubbleMetadata originalBubble =
-                new NotificationCompat.BubbleMetadata.Builder()
+                new NotificationCompat.BubbleMetadata.Builder(intent, icon)
                         .setAutoExpandBubble(true)
                         .setDeleteIntent(deleteIntent)
                         .setDesiredHeight(600)
-                        .setIcon(icon)
-                        .setIntent(intent)
                         .setSuppressNotification(true)
                         .build();
 
@@ -1889,16 +1887,56 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             return;
         }
 
-        // TODO: Check notification itself.
-
         assertNotNull(roundtripBubble);
+        assertEquals(originalBubble.getIntent(), roundtripBubble.getIntent());
+        assertNotNull(originalBubble.getIcon());
+        assertEquals(originalBubble.getIcon().getType(), roundtripBubble.getIcon().getType());
 
         assertEquals(originalBubble.getAutoExpandBubble(), roundtripBubble.getAutoExpandBubble());
         assertEquals(originalBubble.getDeleteIntent(), roundtripBubble.getDeleteIntent());
         assertEquals(originalBubble.getDesiredHeight(), roundtripBubble.getDesiredHeight());
-        // TODO: Check getIcon().
-        /* assertEquals(originalBubble.getIcon().toIcon(), roundtripBubble.getIcon().toIcon()); */
-        assertEquals(originalBubble.getIntent(), roundtripBubble.getIntent());
+        assertEquals(
+                originalBubble.isNotificationSuppressed(),
+                roundtripBubble.isNotificationSuppressed());
+    }
+
+    @Test
+    public void setBubbleMetadataShortcut() {
+        String shortcutId = "someShortcut";
+        PendingIntent deleteIntent =
+                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+
+        NotificationCompat.BubbleMetadata originalBubble =
+                new NotificationCompat.BubbleMetadata.Builder(shortcutId)
+                        .setAutoExpandBubble(true)
+                        .setDeleteIntent(deleteIntent)
+                        .setDesiredHeight(600)
+                        .setSuppressNotification(true)
+                        .build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(originalBubble)
+                .build();
+
+        NotificationCompat.BubbleMetadata roundtripBubble =
+                NotificationCompat.getBubbleMetadata(notification);
+
+        if (Build.VERSION.SDK_INT < 30) {
+            // Shortcut bubbles are only supported on 30+ so it's null on earlier SDKs.
+            assertNull(roundtripBubble);
+            return;
+        }
+
+        assertNotNull(roundtripBubble);
+
+        assertEquals(shortcutId, roundtripBubble.getShortcutId());
+        // These should be null if it's a shortcut
+        assertEquals(null, roundtripBubble.getIntent());
+        assertEquals(null, roundtripBubble.getIcon());
+
+        assertEquals(originalBubble.getAutoExpandBubble(), roundtripBubble.getAutoExpandBubble());
+        assertEquals(originalBubble.getDeleteIntent(), roundtripBubble.getDeleteIntent());
+        assertEquals(originalBubble.getDesiredHeight(), roundtripBubble.getDesiredHeight());
         assertEquals(
                 originalBubble.isNotificationSuppressed(),
                 roundtripBubble.isNotificationSuppressed());
