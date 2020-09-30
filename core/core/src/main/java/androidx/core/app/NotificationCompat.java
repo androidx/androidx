@@ -6497,7 +6497,6 @@ public class NotificationCompat {
         }
     }
 
-
     /**
      * Encapsulates the information needed to display a notification as a bubble.
      *
@@ -6518,9 +6517,9 @@ public class NotificationCompat {
         private PendingIntent mDeleteIntent;
         private IconCompat mIcon;
         private int mDesiredHeight;
-        @DimenRes
-        private int mDesiredHeightResId;
+        @DimenRes private int mDesiredHeightResId;
         private int mFlags;
+        private String mShortcutId;
 
         /**
          * If set and the app creating the bubble is in the foreground, the bubble will be posted
@@ -6534,33 +6533,57 @@ public class NotificationCompat {
         private static final int FLAG_AUTO_EXPAND_BUBBLE = 0x00000001;
 
         /**
-         * If set and the app creating the bubble is in the foreground, the bubble will be posted
-         * <b>without</b> the associated notification in the notification shade.
+         * Indicates whether the notification associated with the bubble is being visually
+         * suppressed from the notification shade. When <code>true</code> the notification is
+         * hidden, when <code>false</code> the notification shows as normal.
          *
-         * <p>If the app posting the bubble is not in the foreground this flag has no effect.</p>
+         * <p>Apps sending bubbles may set this flag so that the bubble is posted <b>without</b>
+         * the associated notification in the notification shade.</p>
          *
-         * <p>Generally this flag should only be set if the user has performed an action to request
-         * or create a bubble, or if the user has seen the content in the notification and the
-         * notification is no longer relevant.</p>
+         * <p>Apps sending bubbles can only apply this flag when the app is in the foreground,
+         * otherwise the flag is not respected. The app is considered foreground if it is visible
+         * and on the screen, note that a foreground service does not qualify.</p>
+         *
+         * <p>Generally this flag should only be set by the app if the user has performed an
+         * action to request or create a bubble, or if the user has seen the content in the
+         * notification and the notification is no longer relevant. </p>
+         *
+         * <p>The system will also update this flag with <code>true</code> to hide the notification
+         * from the user once the bubble has been expanded. </p>
          */
         private static final int FLAG_SUPPRESS_NOTIFICATION = 0x00000002;
 
-        private BubbleMetadata(PendingIntent expandIntent, PendingIntent deleteIntent,
-                IconCompat icon, int height, @DimenRes int heightResId, int flags) {
+        private BubbleMetadata(@Nullable PendingIntent expandIntent,
+                @Nullable PendingIntent deleteIntent,
+                @Nullable IconCompat icon, int height, @DimenRes int heightResId, int flags,
+                @Nullable String shortcutId) {
             mPendingIntent = expandIntent;
             mIcon = icon;
             mDesiredHeight = height;
             mDesiredHeightResId = heightResId;
             mDeleteIntent = deleteIntent;
             mFlags = flags;
+            mShortcutId = shortcutId;
         }
 
         /**
-         * @return the pending intent used to populate the floating window for this bubble.
+         * @return the pending intent used to populate the floating window for this bubble, or
+         * null if this bubble is created via {@link Builder#Builder(String)}.
          */
-        @NonNull
+        @SuppressLint("InvalidNullConversion")
+        @Nullable
         public PendingIntent getIntent() {
             return mPendingIntent;
+        }
+
+        /**
+         * @return the shortcut id used for this bubble if created via
+         * {@link Builder#Builder(String)} or null if created via
+         * {@link Builder#Builder(PendingIntent, IconCompat)}.
+         */
+        @Nullable
+        public String getShortcutId() {
+            return mShortcutId;
         }
 
         /**
@@ -6572,9 +6595,11 @@ public class NotificationCompat {
         }
 
         /**
-         * @return the icon that will be displayed for this bubble when it is collapsed.
+         * @return the icon that will be displayed for this bubble when it is collapsed, or null
+         * if the bubble is created via {@link Builder#Builder(String)}.
          */
-        @NonNull
+        @SuppressLint("InvalidNullConversion")
+        @Nullable
         public IconCompat getIcon() {
             return mIcon;
         }
@@ -6617,6 +6642,12 @@ public class NotificationCompat {
             return (mFlags & FLAG_SUPPRESS_NOTIFICATION) != 0;
         }
 
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public void setFlags(int flags) {
+            mFlags = flags;
+        }
+
         /**
          * Converts a {@link NotificationCompat.BubbleMetadata} to a platform-level
          * {@link Notification.BubbleMetadata}.
@@ -6625,32 +6656,17 @@ public class NotificationCompat {
          * @return a {@link Notification.BubbleMetadata} containing the same data if compatMetadata
          * is non-null, otherwise null.
          */
-        @RequiresApi(29)
         public static @Nullable android.app.Notification.BubbleMetadata toPlatform(
                 @Nullable BubbleMetadata compatMetadata) {
             if (compatMetadata == null) {
                 return null;
             }
-
-            android.app.Notification.BubbleMetadata.Builder platformMetadataBuilder =
-                    new android.app.Notification.BubbleMetadata.Builder()
-                            .setAutoExpandBubble(compatMetadata.getAutoExpandBubble())
-                            .setDeleteIntent(compatMetadata.getDeleteIntent())
-                            .setIcon(compatMetadata.getIcon().toIcon())
-                            .setIntent(compatMetadata.getIntent())
-                            .setSuppressNotification(
-                                    compatMetadata.isNotificationSuppressed());
-
-            if (compatMetadata.getDesiredHeight() != 0) {
-                platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());
+            if (Build.VERSION.SDK_INT >= 30) {
+                return Api30Impl.toPlatform(compatMetadata);
+            } else if (Build.VERSION.SDK_INT == 29) {
+                return Api29Impl.toPlatform(compatMetadata);
             }
-
-            if (compatMetadata.getDesiredHeightResId() != 0) {
-                platformMetadataBuilder.setDesiredHeightResId(
-                        compatMetadata.getDesiredHeightResId());
-            }
-
-            return platformMetadataBuilder.build();
+            return null;
         }
 
         /**
@@ -6661,30 +6677,17 @@ public class NotificationCompat {
          * @return a {@link NotificationCompat.BubbleMetadata} containing the same data if
          * platformMetadata is non-null, otherwise null.
          */
-        @RequiresApi(29)
         public static @Nullable BubbleMetadata fromPlatform(
                 @Nullable android.app.Notification.BubbleMetadata platformMetadata) {
             if (platformMetadata == null) {
                 return null;
             }
-
-            BubbleMetadata.Builder compatBuilder = new BubbleMetadata.Builder()
-                    .setAutoExpandBubble(platformMetadata.getAutoExpandBubble())
-                    .setDeleteIntent(platformMetadata.getDeleteIntent())
-                    .setIcon(IconCompat.createFromIcon(platformMetadata.getIcon()))
-                    .setIntent(platformMetadata.getIntent())
-                    .setSuppressNotification(
-                            platformMetadata.isNotificationSuppressed());
-
-            if (platformMetadata.getDesiredHeight() != 0) {
-                compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());
+            if (Build.VERSION.SDK_INT >= 30) {
+                return Api30Impl.fromPlatform(platformMetadata);
+            } else if (Build.VERSION.SDK_INT == 29) {
+                return Api29Impl.fromPlatform(platformMetadata);
             }
-
-            if (platformMetadata.getDesiredHeightResId() != 0) {
-                compatBuilder.setDesiredHeightResId(platformMetadata.getDesiredHeightResId());
-            }
-
-            return compatBuilder.build();
+            return null;
         }
 
         /**
@@ -6698,50 +6701,116 @@ public class NotificationCompat {
             @DimenRes private int mDesiredHeightResId;
             private int mFlags;
             private PendingIntent mDeleteIntent;
+            private String mShortcutId;
 
             /**
-             * Constructs a new builder object.
+             * @deprecated use {@link #Builder(String)} for a bubble created via a
+             * {@link ShortcutInfoCompat} or {@link #Builder(PendingIntent, IconCompat)}
+             * for a bubble created via a {@link PendingIntent}.
              */
+            @Deprecated
             public Builder() {
+            }
+
+            /**
+             * Creates a {@link BubbleMetadata.Builder} based on a {@link ShortcutInfoCompat}. To
+             * create a shortcut bubble, ensure that the shortcut associated with the provided
+             * {@param shortcutId} is published as a dynamic shortcut that was built with
+             * {@link ShortcutInfoCompat.Builder#setLongLived(boolean)} being true, otherwise your
+             * notification will not be able to bubble.
+             *
+             * <p>The shortcut icon will be used to represent the bubble when it is collapsed.</p>
+             *
+             * <p>The shortcut activity will be used when the bubble is expanded. This will display
+             * the shortcut activity in a floating window over the existing foreground activity.</p>
+             *
+             * <p>If the shortcut has not been published when the bubble notification is sent,
+             * no bubble will be produced. If the shortcut is deleted while the bubble is active,
+             * the bubble will be removed.</p>
+             *
+             * @throws NullPointerException if shortcutId is null.
+             * @see ShortcutInfoCompat
+             * @see ShortcutInfoCompat.Builder#setLongLived(boolean)
+             * @see android.content.pm.ShortcutManager#addDynamicShortcuts(List)
+             */
+            @RequiresApi(30)
+            public Builder(@NonNull String shortcutId) {
+                if (TextUtils.isEmpty(shortcutId)) {
+                    throw new NullPointerException("Bubble requires a non-null shortcut id");
+                }
+                mShortcutId = shortcutId;
+            }
+
+            /**
+             * Creates a {@link BubbleMetadata.Builder} based on the provided intent and icon.
+             *
+             * <p>The icon will be used to represent the bubble when it is collapsed. An icon
+             * should be representative of the content within the bubble. If your app produces
+             * multiple bubbles, the icon should be unique for each of them.</p>
+             *
+             * <p>The intent that will be used when the bubble is expanded. This will display the
+             * app content in a floating window over the existing foreground activity. The intent
+             * should point to a resizable activity. </p>
+             *
+             * @throws NullPointerException if intent is null.
+             * @throws NullPointerException if icon is null.
+             */
+            public Builder(@NonNull PendingIntent intent, @NonNull IconCompat icon) {
+                if (intent == null) {
+                    throw new NullPointerException("Bubble requires non-null pending intent");
+                }
+                if (icon == null) {
+                    throw new NullPointerException("Bubbles require non-null icon");
+                }
+                mPendingIntent = intent;
+                mIcon = icon;
             }
 
             /**
              * Sets the intent that will be used when the bubble is expanded. This will display the
              * app content in a floating window over the existing foreground activity.
+             *
+             * @throws NullPointerException  if intent is null.
+             * @throws IllegalStateException if this builder was created via
+             *                               {@link #Builder(String)}.
              */
             @NonNull
             public BubbleMetadata.Builder setIntent(@NonNull PendingIntent intent) {
+                if (mShortcutId != null) {
+                    throw new IllegalStateException("Created as a shortcut bubble, cannot set a "
+                            + "PendingIntent. Consider using "
+                            + "BubbleMetadata.Builder(PendingIntent,Icon) instead.");
+                }
                 if (intent == null) {
-                    throw new IllegalArgumentException("Bubble requires non-null pending intent");
+                    throw new NullPointerException("Bubble requires non-null pending intent");
                 }
                 mPendingIntent = intent;
                 return this;
             }
             /**
-             * Sets the icon that will represent the bubble when it is collapsed.
+             * Sets the icon for the bubble. Can only be used if the bubble was created
+             * via {@link #Builder(PendingIntent, IconCompat)}.
              *
-             * <p>An icon is required and should be representative of the content within the bubble.
-             * If your app produces multiple bubbles, the image should be unique for each of them.
-             * </p>
+             * <p>The icon will be used to represent the bubble when it is collapsed. An icon
+             * should be representative of the content within the bubble. If your app produces
+             * multiple bubbles, the icon should be unique for each of them.</p>
              *
-             * <p>The shape of a bubble icon is adaptive and can match the device theme.
+             * <p>It is recommended to use an {@link Icon} of type {@link Icon#TYPE_URI}
+             * or {@link Icon#TYPE_URI_ADAPTIVE_BITMAP}</p>
              *
-             * If your icon is bitmap-based, you should create it using
-             * {@link IconCompat#createWithAdaptiveBitmap(Bitmap)}, otherwise this method will
-             * throw.
-             *
-             * If your icon is not bitmap-based, you should expect that the icon will be tinted.
-             * </p>
+             * @throws NullPointerException  if icon is null.
+             * @throws IllegalStateException if this builder was created via
+             *                               {@link #Builder(String)}.
              */
             @NonNull
             public BubbleMetadata.Builder setIcon(@NonNull IconCompat icon) {
-                if (icon == null) {
-                    throw new IllegalArgumentException("Bubbles require non-null icon");
+                if (mShortcutId != null) {
+                    throw new IllegalStateException("Created as a shortcut bubble, cannot set an "
+                            + "Icon. Consider using "
+                            + "BubbleMetadata.Builder(PendingIntent,Icon) instead.");
                 }
-                if (icon.getType() == IconCompat.TYPE_BITMAP) {
-                    throw new IllegalArgumentException("When using bitmap based icons, Bubbles "
-                            + "require TYPE_ADAPTIVE_BITMAP, please use"
-                            + " IconCompat#createWithAdaptiveBitmap instead");
+                if (icon == null) {
+                    throw new NullPointerException("Bubbles require non-null icon");
                 }
                 mIcon = icon;
                 return this;
@@ -6762,7 +6831,6 @@ public class NotificationCompat {
                 mDesiredHeightResId = 0;
                 return this;
             }
-
 
             /**
              * Sets the desired height via resId for the app content defined by
@@ -6826,20 +6894,23 @@ public class NotificationCompat {
 
             /**
              * Creates the {@link BubbleMetadata} defined by this builder.
-             * <p>Will throw {@link IllegalStateException} if required fields have not been set
+             * <p>Will throw {@link NullPointerException} if required fields have not been set
              * on this builder.</p>
              */
             @NonNull
             @SuppressLint("SyntheticAccessor")
             public BubbleMetadata build() {
-                if (mPendingIntent == null) {
-                    throw new IllegalStateException("Must supply pending intent to bubble");
+                if (mShortcutId == null && mPendingIntent == null) {
+                    throw new NullPointerException(
+                            "Must supply pending intent or shortcut to bubble");
                 }
-                if (mIcon == null) {
-                    throw new IllegalStateException("Must supply an icon for the bubble");
+                if (mShortcutId == null && mIcon == null) {
+                    throw new NullPointerException(
+                            "Must supply an icon or shortcut for the bubble");
                 }
                 BubbleMetadata data = new BubbleMetadata(mPendingIntent, mDeleteIntent,
-                        mIcon, mDesiredHeight, mDesiredHeightResId, mFlags);
+                        mIcon, mDesiredHeight, mDesiredHeightResId, mFlags, mShortcutId);
+                data.setFlags(mFlags);
                 return data;
             }
 
@@ -6853,8 +6924,177 @@ public class NotificationCompat {
                 return this;
             }
         }
-    }
 
+        @RequiresApi(29)
+        private static class Api29Impl {
+
+            private Api29Impl() {
+            }
+
+            /**
+             * Converts a {@link NotificationCompat.BubbleMetadata} to a platform-level
+             * {@link Notification.BubbleMetadata}.
+             *
+             * @param compatMetadata the NotificationCompat.BubbleMetadata to convert
+             * @return a {@link Notification.BubbleMetadata} containing the same data if
+             * compatMetadata is non-null, otherwise null.
+             */
+            @RequiresApi(29)
+            @Nullable static android.app.Notification.BubbleMetadata toPlatform(
+                    @Nullable BubbleMetadata compatMetadata) {
+                if (compatMetadata == null) {
+                    return null;
+                }
+                if (compatMetadata.getIntent() == null) {
+                    // If intent is null, it is shortcut bubble which is not supported in API 29
+                    return null;
+                }
+
+                android.app.Notification.BubbleMetadata.Builder platformMetadataBuilder =
+                        new android.app.Notification.BubbleMetadata.Builder()
+                                .setIcon(compatMetadata.getIcon().toIcon())
+                                .setIntent(compatMetadata.getIntent())
+                                .setDeleteIntent(compatMetadata.getDeleteIntent())
+                                .setAutoExpandBubble(compatMetadata.getAutoExpandBubble())
+                                .setSuppressNotification(compatMetadata.isNotificationSuppressed());
+
+                if (compatMetadata.getDesiredHeight() != 0) {
+                    platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());
+                }
+
+                if (compatMetadata.getDesiredHeightResId() != 0) {
+                    platformMetadataBuilder.setDesiredHeightResId(
+                            compatMetadata.getDesiredHeightResId());
+                }
+
+                return platformMetadataBuilder.build();
+            }
+
+            /**
+             * Converts a platform-level {@link Notification.BubbleMetadata} to a
+             * {@link NotificationCompat.BubbleMetadata}.
+             *
+             * @param platformMetadata the {@link Notification.BubbleMetadata} to convert
+             * @return a {@link NotificationCompat.BubbleMetadata} containing the same data if
+             * platformMetadata is non-null, otherwise null.
+             */
+            @RequiresApi(29)
+            @Nullable static BubbleMetadata fromPlatform(
+                    @Nullable android.app.Notification.BubbleMetadata platformMetadata) {
+                if (platformMetadata == null) {
+                    return null;
+                }
+                if (platformMetadata.getIntent() == null) {
+                    // If intent is null, it is shortcut bubble which is not supported in API 29
+                    return null;
+                }
+                BubbleMetadata.Builder compatBuilder =
+                        new BubbleMetadata.Builder(platformMetadata.getIntent(),
+                                IconCompat.createFromIcon(platformMetadata.getIcon()))
+                                .setAutoExpandBubble(platformMetadata.getAutoExpandBubble())
+                                .setDeleteIntent(platformMetadata.getDeleteIntent())
+                                .setSuppressNotification(
+                                        platformMetadata.isNotificationSuppressed());
+
+                if (platformMetadata.getDesiredHeight() != 0) {
+                    compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());
+                }
+
+                if (platformMetadata.getDesiredHeightResId() != 0) {
+                    compatBuilder.setDesiredHeightResId(platformMetadata.getDesiredHeightResId());
+                }
+
+                return compatBuilder.build();
+            }
+        }
+
+        @RequiresApi(30)
+        private static class Api30Impl {
+
+            private Api30Impl() {
+            }
+
+            /**
+             * Converts a {@link NotificationCompat.BubbleMetadata} to a platform-level
+             * {@link Notification.BubbleMetadata}.
+             *
+             * @param compatMetadata the NotificationCompat.BubbleMetadata to convert
+             * @return a {@link Notification.BubbleMetadata} containing the same data if
+             * compatMetadata is non-null, otherwise null.
+             */
+            @RequiresApi(30)
+            @Nullable static android.app.Notification.BubbleMetadata toPlatform(
+                    @Nullable BubbleMetadata compatMetadata) {
+                if (compatMetadata == null) {
+                    return null;
+                }
+
+                android.app.Notification.BubbleMetadata.Builder platformMetadataBuilder = null;
+                if (compatMetadata.getShortcutId() != null) {
+                    platformMetadataBuilder = new android.app.Notification.BubbleMetadata.Builder(
+                            compatMetadata.getShortcutId());
+                } else {
+                    platformMetadataBuilder =
+                            new android.app.Notification.BubbleMetadata.Builder(
+                                    compatMetadata.getIntent(), compatMetadata.getIcon().toIcon());
+                }
+                platformMetadataBuilder
+                        .setDeleteIntent(compatMetadata.getDeleteIntent())
+                        .setAutoExpandBubble(compatMetadata.getAutoExpandBubble())
+                        .setSuppressNotification(compatMetadata.isNotificationSuppressed());
+
+                if (compatMetadata.getDesiredHeight() != 0) {
+                    platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());
+                }
+
+                if (compatMetadata.getDesiredHeightResId() != 0) {
+                    platformMetadataBuilder.setDesiredHeightResId(
+                            compatMetadata.getDesiredHeightResId());
+                }
+
+                return platformMetadataBuilder.build();
+            }
+
+            /**
+             * Converts a platform-level {@link Notification.BubbleMetadata} to a
+             * {@link NotificationCompat.BubbleMetadata}.
+             *
+             * @param platformMetadata the {@link Notification.BubbleMetadata} to convert
+             * @return a {@link NotificationCompat.BubbleMetadata} containing the same data if
+             * platformMetadata is non-null, otherwise null.
+             */
+            @RequiresApi(30)
+            @Nullable static BubbleMetadata fromPlatform(
+                    @Nullable android.app.Notification.BubbleMetadata platformMetadata) {
+                if (platformMetadata == null) {
+                    return null;
+                }
+
+                BubbleMetadata.Builder compatBuilder = null;
+                if (platformMetadata.getShortcutId() != null) {
+                    compatBuilder = new BubbleMetadata.Builder(platformMetadata.getShortcutId());
+                } else {
+                    compatBuilder = new BubbleMetadata.Builder(platformMetadata.getIntent(),
+                            IconCompat.createFromIcon(platformMetadata.getIcon()));
+                }
+                compatBuilder
+                        .setAutoExpandBubble(platformMetadata.getAutoExpandBubble())
+                        .setDeleteIntent(platformMetadata.getDeleteIntent())
+                        .setSuppressNotification(
+                                platformMetadata.isNotificationSuppressed());
+
+                if (platformMetadata.getDesiredHeight() != 0) {
+                    compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());
+                }
+
+                if (platformMetadata.getDesiredHeightResId() != 0) {
+                    compatBuilder.setDesiredHeightResId(platformMetadata.getDesiredHeightResId());
+                }
+
+                return compatBuilder.build();
+            }
+        }
+    }
 
     /**
      * Get an array of Notification objects from a parcelable array bundle field.
