@@ -26,10 +26,12 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
@@ -60,7 +62,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
-import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -99,6 +100,7 @@ import java.util.concurrent.TimeoutException;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class SupportedSurfaceCombinationTest {
     private static final String CAMERA_ID = "0";
+    private static final String CAMERA_ID_EXTERNAL = "0-external";
     private static final int SENSOR_ORIENTATION_0 = 0;
     private static final int SENSOR_ORIENTATION_90 = 90;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
@@ -2062,6 +2064,20 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(resultList).isEqualTo(expectedList);
     }
 
+    @Test
+    public void determineRecordSizeFromStreamConfigurationMap() throws CameraUnavailableException {
+        // Setup camera with non-integer camera Id
+        setupCamera(CAMERA_ID_EXTERNAL, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE, mSupportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID_EXTERNAL, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        // Checks the determined RECORD size
+        assertThat(
+                supportedSurfaceCombination.getSurfaceSizeDefinition().getRecordSize()).isEqualTo(
+                mMaximumVideoSize);
+    }
+
     private void setupCamera(int hardwareLevel) {
         setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
                 mSupportedSizes, null);
@@ -2079,6 +2095,12 @@ public final class SupportedSurfaceCombinationTest {
 
     private void setupCamera(int hardwareLevel, int sensorOrientation, Size pixelArraySize,
             Size[] supportedSizes, int[] capabilities) {
+        setupCamera(CAMERA_ID, hardwareLevel, sensorOrientation, pixelArraySize, supportedSizes,
+                capabilities);
+    }
+
+    private void setupCamera(String cameraId, int hardwareLevel, int sensorOrientation,
+            Size pixelArraySize, Size[] supportedSizes, int[] capabilities) {
         mCameraFactory = new FakeCameraFactory();
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -2103,35 +2125,25 @@ public final class SupportedSurfaceCombinationTest {
                 .getSystemService(Context.CAMERA_SERVICE);
 
         ((ShadowCameraManager) Shadow.extract(cameraManager))
-                .addCamera(CAMERA_ID, characteristics);
+                .addCamera(cameraId, characteristics);
 
-        int[] supportedFormats = isRawSupported(capabilities)
-                ? mSupportedFormatsWithRaw : mSupportedFormats;
-
-        // Current robolectric can support to directly mock a StreamConfigurationMap object if
-        // the testing platform target is equal to or newer than API level 23. For API level 21
-        // or 22 testing platform target, keep the original method to create a
-        // StreamConfigurationMap object via reflection.
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            shadowCharacteristics.set(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                    StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
-                            supportedSizes));
-        } else {
-            StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
-            when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
-            shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                    mockMap);
-        }
+        StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+        when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
+        // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
+        // output sizes need to be retrieved via SurfaceTexture.class.
+        when(mockMap.getOutputSizes(SurfaceTexture.class)).thenReturn(supportedSizes);
+        // This is setup for the test to determine RECORD size from StreamConfigurationMap
+        when(mockMap.getOutputSizes(MediaRecorder.class)).thenReturn(supportedSizes);
+        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap);
 
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 CameraCharacteristics.LENS_FACING_BACK);
 
         mCameraManagerCompat = CameraManagerCompat.from(mContext);
 
-        mCameraFactory.insertCamera(lensFacingEnum, CAMERA_ID, () -> new FakeCamera(CAMERA_ID, null,
-                new Camera2CameraInfoImpl(CAMERA_ID,
-                        mCameraManagerCompat.getCameraCharacteristicsCompat(CAMERA_ID),
+        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
+                new Camera2CameraInfoImpl(cameraId,
+                        mCameraManagerCompat.getCameraCharacteristicsCompat(cameraId),
                         mock(Camera2CameraControlImpl.class))));
 
         initCameraX();
