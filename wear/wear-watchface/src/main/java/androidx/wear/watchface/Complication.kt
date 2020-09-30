@@ -25,7 +25,6 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
-import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -143,9 +142,9 @@ open class CanvasComplicationDrawableRenderer(
     /** {@inheritDoc} */
     override fun onAttach(complication: Complication) {
         attachedComplication = complication
-        watchState.isAmbient.observe(isAmbientObserver)
-        watchState.hasLowBitAmbient.observe(lowBitAmbientObserver)
-        watchState.hasBurnInProtection.observe(burnInProtectionObserver)
+        watchState.isAmbient.addObserver(isAmbientObserver)
+        watchState.hasLowBitAmbient.addObserver(lowBitAmbientObserver)
+        watchState.hasBurnInProtection.addObserver(burnInProtectionObserver)
     }
 
     /** {@inheritDoc} */
