@@ -38,7 +38,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyle
@@ -548,9 +547,9 @@ class WatchFace private constructor(
 
         watchFaceHostApi.registerWatchFaceType(watchFaceType)
         watchFaceHostApi.registerUserStyleSchema(userStyleRepository.toSchemaWireFormat())
-        watchState.isAmbient.observe(ambientObserver)
-        watchState.interruptionFilter.observe(interruptionFilterObserver)
-        watchState.isVisible.observe(visibilityObserver)
+        watchState.isAmbient.addObserver(ambientObserver)
+        watchState.interruptionFilter.addObserver(interruptionFilterObserver)
+        watchState.isVisible.addObserver(visibilityObserver)
         userStyleRepository.addUserStyleListener(styleListener)
         sendCurrentUserStyle(userStyleRepository.userStyle)
 
