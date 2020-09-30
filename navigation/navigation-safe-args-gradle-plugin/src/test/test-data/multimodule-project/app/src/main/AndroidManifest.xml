@@ -14,5 +14,13 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="safe.gradle.test.app.safe.app" />
+<manifest xmlns:dist="http://schemas.android.com/apk/distribution"
+    package="safe.gradle.test.app.safe.app" >
+
+    <dist:module
+        dist:instant="false"
+        dist:onDemand="false">
+        <dist:fusing dist:include="true" />
+    </dist:module>
+
+</manifest>
