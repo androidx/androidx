@@ -26,6 +26,7 @@ package androidx.datastore.preferences {
   public static final class Preferences.Key<T> {
     ctor @kotlin.PublishedApi internal Preferences.Key(String name);
     method public String getName();
+    property public final String name;
   }
 
   public static final class Preferences.Pair<T> {
