@@ -210,6 +210,7 @@ class Complication internal constructor(
     internal val defaultProviderPolicy: DefaultComplicationProviderPolicy,
     internal val defaultProviderType: Int
 ) {
+    /** @hide */
     private companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
     }

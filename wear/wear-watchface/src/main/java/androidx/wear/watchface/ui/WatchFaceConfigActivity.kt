@@ -91,6 +91,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         private val sComponentNameToIWatchFaceConfig =
             HashMap<ComponentName, WatchFaceConfigDelegate>()
 
+        /** @hide */
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
         fun registerWatchFace(

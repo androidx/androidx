@@ -95,6 +95,7 @@ internal class ConfigView(
     val watchFaceConfigActivity: WatchFaceConfigActivity
 ) : SwipeDismissFrameLayout(context) {
 
+    /** @hide */
     private companion object {
         // Dashed lines are used for complication selection.
         private val DASH_WIDTH = 10.0f
