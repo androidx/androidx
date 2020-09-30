@@ -412,8 +412,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
         if (lifecycleCameraToBind == null) {
             lifecycleCameraToBind =
                     mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
-                            new CameraUseCaseAdapter(cameraInternals.iterator().next(),
-                                    cameraInternals,
+                            new CameraUseCaseAdapter(cameraInternals,
                                     mCameraX.getCameraDeviceSurfaceManager(),
                                     mCameraX.getDefaultConfigFactory()));
         }

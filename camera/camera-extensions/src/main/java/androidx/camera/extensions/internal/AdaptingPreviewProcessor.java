@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -22,6 +22,7 @@ import android.media.Image;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
@@ -31,6 +32,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.ImageProxyBundle;
+import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.core.util.Preconditions;
 
@@ -39,19 +41,21 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-/** A {@link CaptureProcessor} that calls a vendor provided preview processing implementation. */
-final class AdaptingPreviewProcessor implements CaptureProcessor,
+/**
+ * A {@link CaptureProcessor} that calls a vendor provided preview processing implementation.
+ */
+public final class AdaptingPreviewProcessor implements CaptureProcessor,
         PreviewExtender.CloseableProcessor {
     private static final String TAG = "AdaptingPreviewProcesso";
     private final PreviewImageProcessorImpl mImpl;
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
-    AdaptingPreviewProcessor(PreviewImageProcessorImpl impl) {
+    public AdaptingPreviewProcessor(@NonNull PreviewImageProcessorImpl impl) {
         mImpl = impl;
     }
 
     @Override
-    public void onOutputSurface(Surface surface, int imageFormat) {
+    public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
         if (!mAccessCounter.tryIncrement()) {
             return;
         }
@@ -66,7 +70,7 @@ final class AdaptingPreviewProcessor implements CaptureProcessor,
 
     @Override
     @ExperimentalGetImage
-    public void process(ImageProxyBundle bundle) {
+    public void process(@NonNull ImageProxyBundle bundle) {
         List<Integer> ids = bundle.getCaptureIds();
         Preconditions.checkArgument(ids.size() == 1,
                 "Processing preview bundle must be 1, but found " + ids.size());
@@ -113,7 +117,7 @@ final class AdaptingPreviewProcessor implements CaptureProcessor,
     }
 
     @Override
-    public void onResolutionUpdate(Size size) {
+    public void onResolutionUpdate(@NonNull Size size) {
         if (!mAccessCounter.tryIncrement()) {
             return;
         }

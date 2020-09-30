@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 
 /** A {@link CaptureStage} that calls a vendor provided implementation. */
-final class AdaptingCaptureStage implements CaptureStage {
+public final class AdaptingCaptureStage implements CaptureStage {
 
     private final CaptureConfig mCaptureRequestConfiguration;
     private final int mId;
 
     @SuppressWarnings("unchecked")
-    AdaptingCaptureStage(CaptureStageImpl impl) {
+    public AdaptingCaptureStage(@NonNull CaptureStageImpl impl) {
         mId = impl.getId();
 
         Camera2ImplConfig.Builder camera2ConfigurationBuilder = new Camera2ImplConfig.Builder();
@@ -52,6 +53,7 @@ final class AdaptingCaptureStage implements CaptureStage {
     }
 
     @Override
+    @NonNull
     public CaptureConfig getCaptureConfig() {
         return mCaptureRequestConfiguration;
     }

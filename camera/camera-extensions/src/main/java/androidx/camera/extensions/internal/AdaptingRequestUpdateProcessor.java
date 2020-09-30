@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -27,19 +27,22 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageInfoProcessor;
+import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.core.util.Preconditions;
 
-/** A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation. */
-final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
+/**
+ * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
+ */
+public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
         PreviewExtender.CloseableProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final RequestUpdateProcessorImpl mProcessorImpl;
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
-    AdaptingRequestUpdateProcessor(PreviewExtenderImpl previewExtenderImpl) {
+    public AdaptingRequestUpdateProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl) {
         Preconditions.checkArgument(previewExtenderImpl.getProcessorType()
                         == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY,
                 "AdaptingRequestUpdateProcess can only adapt extender with "

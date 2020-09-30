@@ -47,7 +47,7 @@ public class LifecycleCameraTest {
     public void setUp() {
         mLifecycleOwner = new FakeLifecycleOwner();
         mFakeCamera = new FakeCamera();
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -23,6 +23,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
@@ -42,23 +43,25 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/** A {@link CaptureProcessor} that calls a vendor provided implementation. */
-final class AdaptingCaptureProcessor implements CaptureProcessor {
+/**
+ * A {@link CaptureProcessor} that calls a vendor provided implementation.
+ */
+public final class AdaptingCaptureProcessor implements CaptureProcessor {
     private final CaptureProcessorImpl mImpl;
 
-    AdaptingCaptureProcessor(CaptureProcessorImpl impl) {
+    public AdaptingCaptureProcessor(@NonNull CaptureProcessorImpl impl) {
         mImpl = impl;
     }
 
     @Override
-    public void onOutputSurface(Surface surface, int imageFormat) {
+    public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
         mImpl.onOutputSurface(surface, imageFormat);
         mImpl.onImageFormatUpdate(imageFormat);
     }
 
     @Override
     @ExperimentalGetImage
-    public void process(ImageProxyBundle bundle) {
+    public void process(@NonNull ImageProxyBundle bundle) {
         List<Integer> ids = bundle.getCaptureIds();
 
         Map<Integer, Pair<Image, TotalCaptureResult>> bundleMap = new HashMap<>();
@@ -103,7 +106,7 @@ final class AdaptingCaptureProcessor implements CaptureProcessor {
     }
 
     @Override
-    public void onResolutionUpdate(Size size) {
+    public void onResolutionUpdate(@NonNull Size size) {
         mImpl.onResolutionUpdate(size);
     }
 }

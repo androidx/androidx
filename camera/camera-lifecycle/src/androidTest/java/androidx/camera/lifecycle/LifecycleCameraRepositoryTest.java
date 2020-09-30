@@ -55,8 +55,7 @@ public final class LifecycleCameraRepositoryTest {
         mRepository = new LifecycleCameraRepository();
         CameraInternal camera = new FakeCamera(String.valueOf(mCameraId));
         mCameraSet = new LinkedHashSet<>(Collections.singleton(camera));
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(camera,
-                mCameraSet,
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCameraSet,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
     }
@@ -442,8 +441,7 @@ public final class LifecycleCameraRepositoryTest {
     private CameraUseCaseAdapter createNewCameraUseCaseAdapter() {
         String cameraId = String.valueOf(++mCameraId);
         CameraInternal fakeCamera = new FakeCamera(cameraId);
-        return new CameraUseCaseAdapter(fakeCamera,
-                new LinkedHashSet<>(Collections.singleton(fakeCamera)),
+        return new CameraUseCaseAdapter(new LinkedHashSet<>(Collections.singleton(fakeCamera)),
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
     }
