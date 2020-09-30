@@ -31,6 +31,8 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -69,6 +71,9 @@ public class FakeCamera implements CameraInternal {
     SessionConfig mCameraControlSessionConfig;
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
+
+    @NonNull
+    private final List<Quirk> mCameraQuirks = Collections.emptyList();
 
     public FakeCamera() {
         this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,
@@ -293,6 +298,17 @@ public class FakeCamera implements CameraInternal {
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
         return mCameraInfoInternal;
+    }
+
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return new Quirks(mCameraQuirks);
+    }
+
+    /** Adds a quirk to the list of this camera's quirks. */
+    public void addCameraQuirk(@NonNull final Quirk quirk) {
+        mCameraQuirks.add(quirk);
     }
 
     private void checkNotReleased() {
