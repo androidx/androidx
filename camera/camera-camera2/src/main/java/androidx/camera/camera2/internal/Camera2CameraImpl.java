@@ -204,7 +204,8 @@ final class Camera2CameraImpl implements CameraInternal {
                     mCameraManager.getCameraCharacteristicsCompat(cameraId);
             mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
             mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
-                    executorScheduler, mExecutor, new ControlUpdateListenerInternal());
+                    executorScheduler, mExecutor, new ControlUpdateListenerInternal(),
+                    mCameraQuirks);
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
                     cameraCharacteristicsCompat,

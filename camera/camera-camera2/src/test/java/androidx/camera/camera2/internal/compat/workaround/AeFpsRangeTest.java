@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal;
+package androidx.camera.camera2.internal.compat.workaround;
+
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,6 +26,8 @@ import android.util.Range;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
+import androidx.camera.core.impl.Quirks;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -40,6 +43,9 @@ import org.robolectric.shadows.ShadowCameraCharacteristics;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class AeFpsRangeTest {
+
+    private static final String ANY_CAMERA_ID = "0";
+
     @Test
     public void validEntryExists_correctRangeIsSelected() {
         Range<Integer>[] availableFpsRanges = new Range[]{
@@ -131,16 +137,15 @@ public class AeFpsRangeTest {
                 ShadowCameraCharacteristics.newCameraCharacteristics();
 
         ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
-
         shadowCharacteristics.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
                 hardwareLevel);
-
         shadowCharacteristics.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
                 availableFpsRanges);
 
         CameraCharacteristicsCompat characteristicsCompat =
                 CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
-        return new AeFpsRange(characteristicsCompat);
+        final Quirks quirks = CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat);
+        return new AeFpsRange(quirks);
     }
 
     private Range<Integer> getAeFpsRange(AeFpsRange aeFpsRange) {
@@ -149,5 +154,4 @@ public class AeFpsRangeTest {
         return builder.build().getCaptureRequestOption(
                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, null);
     }
-
 }
