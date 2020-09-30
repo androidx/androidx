@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
  *
  * @param <T> The type of the parameter
  */
+@SuppressWarnings("CallbackName")
 public interface Observer<T> {
     /**
      * Called when the data is changed.
