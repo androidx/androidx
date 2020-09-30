@@ -549,7 +549,7 @@ class FragmentAnimationTest {
             .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
 
         fm1.beginTransaction()
-            .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
+            .setCustomAnimations(0, 0, 0, R.anim.long_fade_out)
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
             .setReorderingAllowed(true)
