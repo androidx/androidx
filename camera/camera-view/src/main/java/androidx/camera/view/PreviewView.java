@@ -410,16 +410,11 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Returns a {@link Bitmap} representation of the content displayed on the preview
-     * {@link Surface}, or {@code null} if the camera preview hasn't started yet.
+     * Returns a {@link Bitmap} representation of the content displayed on the
+     * {@link PreviewView}, or {@code null} if the camera preview hasn't started yet.
      * <p>
-     * The returned {@link Bitmap} uses the {@link Bitmap.Config#ARGB_8888} pixel format, and its
-     * dimensions depend on the {@link PreviewView}'s {@link ScaleType}. When the
-     * {@link ScaleType} is {@link ScaleType#FILL_START}, {@link ScaleType#FILL_CENTER} or
-     * {@link ScaleType#FILL_END}, the returned {@link Bitmap} has the same size as the
-     * {@link PreviewView}. However, when the {@link ScaleType} is {@link ScaleType#FIT_START},
-     * {@link ScaleType#FIT_CENTER} or {@link ScaleType#FIT_END}, the returned {@link Bitmap}
-     * might be smaller than the {@link PreviewView}, since it doesn't also include its background.
+     * The returned {@link Bitmap} uses the {@link Bitmap.Config#ARGB_8888} pixel format and its
+     * dimensions are the same as this view's.
      * <p>
      * <strong>Do not</strong> invoke this method from a drawing method
      * ({@link View#onDraw(Canvas)} for instance).
@@ -427,7 +422,7 @@ public class PreviewView extends FrameLayout {
      * If an error occurs during the copy, an empty {@link Bitmap} will be returned.
      *
      * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
-     * displayed on the preview {@link Surface}, or null if the camera preview hasn't started yet.
+     * displayed on the {@link PreviewView}, or null if the camera preview hasn't started yet.
      */
     @UiThread
     @Nullable
