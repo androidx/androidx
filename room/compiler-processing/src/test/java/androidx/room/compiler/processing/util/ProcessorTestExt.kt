@@ -118,6 +118,20 @@ fun runProcessorTest(
     runKaptTest(sources = sources, handler = handler, succeed = true)
 }
 
+/**
+ * This method is oddly named instead of being an overload on runProcessorTest to easily track
+ * which tests started to support KSP.
+ *
+ * Eventually, it will be merged with runProcessorTest when all tests pass with KSP.
+ */
+fun runProcessorTestIncludingKsp(
+    sources: List<Source> = emptyList(),
+    handler: (TestInvocation) -> Unit
+) {
+    runProcessorTest(sources = sources, handler = handler)
+    runKspTest(sources = sources, succeed = true, handler = handler)
+}
+
 fun runProcessorTestForFailedCompilation(
     sources: List<Source>,
     handler: (TestInvocation) -> Unit
