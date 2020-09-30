@@ -44,6 +44,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,6 +142,23 @@ public abstract class RoomDatabase {
         return mBackingFieldMap;
     }
 
+    // Updated later to an unmodifiable map when init is called.
+    private final Map<Class<?>, Object> mTypeConverters;
+
+
+    /**
+     * Gets the instance of the given Type Converter.
+     *
+     * @param klass The Type Converter class.
+     * @param <T> The type of the expected Type Converter subclass.
+     * @return An instance of T if it is provided in the builder.
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public <T> T getTypeConverter(@NonNull Class<T> klass) {
+        return (T) mTypeConverters.get(klass);
+    }
+
     /**
      * Creates a RoomDatabase.
      * <p>
@@ -150,6 +168,7 @@ public abstract class RoomDatabase {
      */
     public RoomDatabase() {
         mInvalidationTracker = createInvalidationTracker();
+        mTypeConverters = new HashMap<>();
     }
 
     /**
@@ -177,6 +196,45 @@ public abstract class RoomDatabase {
         if (configuration.multiInstanceInvalidation) {
             mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
                     configuration.name);
+        }
+
+        Map<Class<?>, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
+        // indices for each converter on whether it is used or not so that we can throw an exception
+        // if developer provides an unused converter. It is not necessarily an error but likely
+        // to be because why would developer add a converter if it won't be used?
+        BitSet used = new BitSet();
+        for (Map.Entry<Class<?>, List<Class<?>>> entry : requiredFactories.entrySet()) {
+            Class<?> daoName = entry.getKey();
+            for (Class<?> converter : entry.getValue()) {
+                int foundIndex = -1;
+                // traverse provided converters in reverse so that newer one overrides
+                for (int providedIndex = configuration.typeConverters.size() - 1;
+                        providedIndex >= 0; providedIndex--) {
+                    Object provided = configuration.typeConverters.get(providedIndex);
+                    if (converter.isAssignableFrom(provided.getClass())) {
+                        foundIndex = providedIndex;
+                        used.set(foundIndex);
+                        break;
+                    }
+                }
+                if (foundIndex < 0) {
+                    throw new IllegalArgumentException(
+                            "A required type converter (" + converter + ") for"
+                                    + " " + daoName.getCanonicalName()
+                                    + " is missing in the database configuration.");
+                }
+                mTypeConverters.put(converter, configuration.typeConverters.get(foundIndex));
+            }
+        }
+        // now, make sure all provided factories are used
+        for (int providedIndex = configuration.typeConverters.size() - 1;
+                providedIndex >= 0; providedIndex--) {
+            if (!used.get(providedIndex)) {
+                Object converter = configuration.typeConverters.get(providedIndex);
+                throw new IllegalArgumentException("Unexpected type converter " + converter + ". "
+                        + "Annotate TypeConverter class with @ProvidedTypeConverter annotation "
+                        + "or remove this converter from the builder.");
+            }
         }
     }
 
@@ -210,6 +268,21 @@ public abstract class RoomDatabase {
      */
     @NonNull
     protected abstract InvalidationTracker createInvalidationTracker();
+
+    /**
+     * Returns a Map of String -> List&lt;Class&gt; where each entry has the `key` as the DAO name
+     * and `value` as the list of type converter classes that are necessary for the database to
+     * function.
+     * <p>
+     * This is implemented by the generated code.
+     *
+     * @return Creates a map that will include all required type converters for this database.
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
+        return Collections.emptyMap();
+    }
 
     /**
      * Deletes all rows from all the tables that are registered to this database as
@@ -542,6 +615,7 @@ public abstract class RoomDatabase {
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
         private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
+        private List<Object> mTypeConverters;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -1013,6 +1087,22 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Adds a type converter instance to this database.
+         *
+         * @param typeConverter The converter. It must be an instance of a class annotated with
+         * {@link ProvidedTypeConverter} otherwise Room will throw an exception.
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        public Builder<T> addTypeConverter(@NonNull Object typeConverter) {
+            if (mTypeConverters == null) {
+                mTypeConverters = new ArrayList<>();
+            }
+            mTypeConverters.add(typeConverter);
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1096,7 +1186,8 @@ public abstract class RoomDatabase {
                             mCopyFromAssetPath,
                             mCopyFromFile,
                             mCopyFromInputStream,
-                            mPrepackagedDatabaseCallback);
+                            mPrepackagedDatabaseCallback,
+                            mTypeConverters);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;

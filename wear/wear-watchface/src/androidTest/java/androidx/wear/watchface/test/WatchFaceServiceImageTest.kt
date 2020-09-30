@@ -41,10 +41,13 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.ComplicationBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,13 +73,13 @@ private class WatchFaceServiceStub(
     override fun setStyle(style: WatchFaceStyle) {
     }
 
-    override fun registerUserStyleSchema(styleSchema: MutableList<Bundle>?) {
+    override fun registerUserStyleSchema(styleSchema: UserStyleSchemaWireFormat) {
     }
 
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
     }
 
-    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationBoundsType type: Int) {
+    override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
     }
 
     override fun setDefaultComplicationProvider(
@@ -115,11 +118,11 @@ private class WatchFaceServiceStub(
         setComplication(watchFaceComplicationId, complicationProviders[fallbackSystemProvider]!!)
     }
 
-    override fun getStoredUserStyle(): Bundle? {
+    override fun getStoredUserStyle(): UserStyleWireFormat? {
         return null
     }
 
-    override fun setCurrentUserStyle(style: Bundle?) {
+    override fun setCurrentUserStyle(style: UserStyleWireFormat?) {
     }
 
     override fun getApiVersion() = apiVersion
@@ -247,10 +250,12 @@ class WatchFaceServiceImageTest {
 
     private fun setAmbient(ambient: Boolean) {
         watchFaceServiceStub.iWatchFaceCommand!!.setSystemState(
-            ambient,
-            0,
-            0,
-            0
+            SystemState(
+                ambient,
+                0,
+                0,
+                0
+            )
         )
     }
 
@@ -287,10 +292,9 @@ class WatchFaceServiceImageTest {
             bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.AMBIENT,
                 100,
-                123456789
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+                123456789,
+                null
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -313,10 +317,9 @@ class WatchFaceServiceImageTest {
                 DrawMode.AMBIENT,
                 100,
                 123456789,
+                null,
                 null
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -337,7 +340,8 @@ class WatchFaceServiceImageTest {
             bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.INTERACTIVE,
                 100,
-                123456789
+                123456789,
+                null
             ).ashmemCompressedImageBundleToBitmap()!!
             latch.countDown()
         }
@@ -364,10 +368,9 @@ class WatchFaceServiceImageTest {
                 ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                     .setShortTitle(ComplicationText.plainText("Title"))
                     .setShortText(ComplicationText.plainText("Text"))
-                    .build()
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+                    .build(),
+                null
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -388,6 +391,7 @@ class WatchFaceServiceImageTest {
                 DrawMode.INTERACTIVE,
                 100,
                 123456789,
+                null,
                 null
             ).ashmemCompressedImageBundleToBitmap()
             latch2.countDown()
@@ -404,15 +408,8 @@ class WatchFaceServiceImageTest {
     fun testSetGreenStyle() {
         handler.post {
             initCanvasWatchFace()
-            engineWrapper.onCommand(
-                Constants.COMMAND_SET_USER_STYLE,
-                0,
-                0,
-                0,
-                Bundle().apply {
-                    putString("color_style_category", "green_style")
-                },
-                false
+            watchFaceServiceStub.iWatchFaceCommand!!.setUserStyle(
+                UserStyleWireFormat(mapOf("color_style_category" to "green_style"))
             )
             engineWrapper.draw()
         }

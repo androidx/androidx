@@ -22,7 +22,7 @@ import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.animation.FlingConfig
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -79,7 +79,7 @@ class SendSwipeTest {
 
     @Composable
     fun Ui(alignment: Alignment) {
-        Stack(Modifier.fillMaxSize().wrapContentSize(alignment)) {
+        Box(Modifier.fillMaxSize().wrapContentSize(alignment)) {
             ClickableTestBox(modifier = recorder, tag = tag)
         }
     }

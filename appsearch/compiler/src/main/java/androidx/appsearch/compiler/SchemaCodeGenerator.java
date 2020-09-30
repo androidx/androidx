@@ -65,12 +65,6 @@ class SchemaCodeGenerator {
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
-        classBuilder.addField(
-                FieldSpec.builder(mHelper.getAppSearchClass("AppSearchSchema"), "SCHEMA")
-                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                        .initializer(createSchemaInitializer())
-                        .build());
-
         classBuilder.addMethod(
                 MethodSpec.methodBuilder("getSchemaType")
                         .addModifiers(Modifier.PUBLIC)
@@ -84,7 +78,8 @@ class SchemaCodeGenerator {
                         .addModifiers(Modifier.PUBLIC)
                         .returns(mHelper.getAppSearchClass("AppSearchSchema"))
                         .addAnnotation(Override.class)
-                        .addStatement("return SCHEMA")
+                        .addException(mHelper.getAppSearchExceptionClass())
+                        .addStatement("return $L", createSchemaInitializer())
                         .build());
     }
 
@@ -172,6 +167,11 @@ class SchemaCodeGenerator {
         }
         codeBlock.add("\n.setDataType($T)", propertyTypeEnum);
 
+        if (isPropertyDocument) {
+            codeBlock.add("\n.setSchemaType($T.getInstance()"
+                    + ".getOrCreateFactory($T.class).getSchemaType())",
+                    mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+        }
         // Find property cardinality
         ClassName cardinalityEnum;
         if (repeated) {

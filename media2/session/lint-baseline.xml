@@ -63,7 +63,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="219"
+            line="222"
             column="52"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="314"
+            line="317"
             column="62"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
-            line="378"
+            line="382"
             column="36"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1311"
+            line="1313"
             column="29"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="421"
+            line="437"
             column="19"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="422"
+            line="438"
             column="13"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="                                         ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="442"
+            line="458"
             column="42"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="442"
+            line="458"
             column="75"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="537"
+            line="553"
             column="19"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="537"
+            line="553"
             column="56"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="554"
+            line="570"
             column="19"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="554"
+            line="570"
             column="68"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="589"
+            line="605"
             column="19"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="589"
+            line="605"
             column="42"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="625"
+            line="641"
             column="19"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="625"
+            line="641"
             column="54"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="655"
+            line="671"
             column="19"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="656"
+            line="672"
             column="13"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="671"
+            line="687"
             column="19"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="672"
+            line="688"
             column="13"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="713"
+            line="729"
             column="44"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="757"
+            line="773"
             column="19"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="758"
+            line="774"
             column="13"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="768"
+            line="784"
             column="48"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="784"
+            line="800"
             column="58"/>
     </issue>
 

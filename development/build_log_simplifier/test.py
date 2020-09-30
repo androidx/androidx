@@ -19,6 +19,7 @@ from build_log_simplifier import collapse_tasks_having_no_output
 from build_log_simplifier import generate_suggested_exemptions
 from build_log_simplifier import normalize_paths
 from build_log_simplifier import regexes_matcher
+from build_log_simplifier import remove_control_characters
 import re
 
 def fail(message):
@@ -54,7 +55,7 @@ def test_normalize_paths():
     actual = normalize_paths(lines)
     if expected_normalized != actual:
         fail("test_normalize_paths returned incorrect response.\n" +
-            "Input: " + str(lines) + "\n" + 
+            "Input: " + str(lines) + "\n" +
             "Output: " + str(actual) + "\n" +
             "Expected output: " + str(expected_normalized)
         )
@@ -287,6 +288,26 @@ def test_collapse_tasks_having_no_output():
     if (actual != expected):
         fail("collapse_tasks_having_no_output gave incorrect error. Expected: " + str(expected) + ", actual = " + str(actual))
 
+def test_remove_control_characters():
+    print("test_remove_control_characters")
+    given = [
+        # a line starting with several color codes in it
+        "[1msrc/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: [33mwarning: [0mMethod androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [HiddenTypeParameter]",
+        # a line with a variety of characters, none of which are color codes
+        "space tab\tCAPITAL underscore_ slash/ colon: number 1 newline\n",
+    ]
+    expected = [
+        "src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: warning: Method androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [HiddenTypeParameter]",
+        "space tab\tCAPITAL underscore_ slash/ colon: number 1 newline\n",
+    ]
+    actual = [remove_control_characters(line) for line in given]
+    if actual != expected:
+        fail("remove_control_charactres gave incorrect response.\n\n" +
+            "Input          : " + str(given) + ".\n\n" +
+            "Expected output: " + str(expected) + ".\n\n" +
+            "Actual output  : " + str(actual) + ".")
+
+
 def main():
     test_collapse_consecutive_blank_lines()
     test_collapse_tasks_having_no_output()
@@ -294,6 +315,7 @@ def main():
     test_normalize_paths()
     test_regexes_matcher_get_matching_regexes()
     test_regexes_matcher_index_first_matching_regex()
+    test_remove_control_characters()
 
 if __name__ == "__main__":
     main()

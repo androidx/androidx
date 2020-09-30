@@ -184,13 +184,8 @@ object FakeCameras {
     /**
      * Utility module for testing the Dagger generated graph with a a reasonable default config.
      */
-    @Module(
-        includes = [
-            CameraPipeModules::class,
-            CameraGraphModules::class
-        ]
-    )
-    class FakeCameraGraphModule(
+    @Module(includes = [CameraPipeModules::class])
+    class FakeCameraPipeModule(
         private val context: Context,
         private val fakeCamera: FakeCamera
     ) {
@@ -213,4 +208,7 @@ object FakeCameras {
             template = RequestTemplate(0)
         )
     }
+
+    @Module(includes = [CameraGraphModules::class])
+    class FakeCameraGraphModule
 }

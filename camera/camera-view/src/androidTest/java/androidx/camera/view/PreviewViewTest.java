@@ -18,9 +18,6 @@ package androidx.camera.view;
 
 import static androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE;
 import static androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -35,10 +32,8 @@ import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
-import android.graphics.SurfaceTexture;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
@@ -74,10 +69,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -130,34 +129,6 @@ public class PreviewViewTest {
         return surfaceRequest;
     }
 
-    private CountDownLatch mCountDownLatch = new CountDownLatch(1);
-
-    private final TextureView.SurfaceTextureListener mSurfaceTextureListener =
-            new TextureView.SurfaceTextureListener() {
-                @Override
-                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width,
-                        int height) {
-
-                    mCountDownLatch.countDown();
-                }
-
-                @Override
-                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width,
-                        int height) {
-
-                }
-
-                @Override
-                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
-                    return false;
-                }
-
-                @Override
-                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
-
-                }
-            };
-
     @After
     public void tearDown() {
         for (SurfaceRequest surfaceRequest : mSurfaceRequestList) {
@@ -173,13 +144,6 @@ public class PreviewViewTest {
         return cameraInfoInternal;
     }
 
-    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType) {
-        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
-                CameraSelector.LENS_FACING_BACK);
-        cameraInfoInternal.setImplementationType(implementationType);
-        return cameraInfoInternal;
-    }
-
     private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
             @CameraSelector.LensFacing int lensFacing) {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
@@ -189,25 +153,96 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void previewView_OnClickListenerWorks() {
+    public void previewViewPinched_pinchToZoomInvokedOnController()
+            throws InterruptedException, UiObjectNotFoundException {
+        // TODO(b/169058735): investigate and enable on Cuttlefish.
+        Assume.assumeFalse("Skip Cuttlefish until further investigation.",
+                android.os.Build.MODEL.contains("Cuttlefish"));
+
         // Arrange.
-        AtomicReference<Boolean> clicked = new AtomicReference<>(false);
         AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
-        int previewViewId = View.generateViewId();
+        Semaphore semaphore = new Semaphore(0);
+        CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
+            @Override
+            void onPinchToZoom(float pinchToZoomScale) {
+                semaphore.release();
+            }
+
+            @Nullable
+            @Override
+            Camera startCamera() {
+                return null;
+            }
+        };
         mInstrumentation.runOnMainSync(() -> {
             PreviewView previewView = new PreviewView(mContext);
-            previewView.setId(previewViewId);
-            previewView.setOnClickListener(view -> clicked.set(true));
+            previewView.setController(fakeController);
+            previewView.setImplementationMode(COMPATIBLE);
             previewViewReference.set(previewView);
+            setContentView(previewView);
         });
-        mActivityRule.launchActivity(new Intent());
-        mInstrumentation.runOnMainSync(() -> setContentView(previewViewReference.get()));
+        waitForLayoutReady(previewViewReference.get());
 
-        // Act.
-        onView(withId(previewViewId)).perform(click());
+        // Act: pinch-in 50% in 20 steps.
+        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0))
+                .pinchIn(50, 20);
+
+        // Assert: pinch-to-zoom is called.
+        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void previewViewClicked_tapToFocusInvokedOnController()
+            throws InterruptedException, UiObjectNotFoundException {
+        // Arrange.
+        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        Semaphore semaphore = new Semaphore(0);
+        CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
+            @Override
+            void onTapToFocus(MeteringPointFactory meteringPointFactory, float x, float y) {
+                semaphore.release();
+            }
+
+            @Nullable
+            @Override
+            Camera startCamera() {
+                return null;
+            }
+        };
+        mInstrumentation.runOnMainSync(() -> {
+            PreviewView previewView = new PreviewView(mContext);
+            previewView.setController(fakeController);
+            previewViewReference.set(previewView);
+            setContentView(previewView);
+        });
+        waitForLayoutReady(previewViewReference.get());
+
+        // Act: click on PreviewView
+        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
+
+        // Assert: tap-to-focus is invoked.
+        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void previewView_onClickListenerWorks()
+            throws InterruptedException, UiObjectNotFoundException {
+        // Arrange.
+        Semaphore semaphore = new Semaphore(0);
+        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        mInstrumentation.runOnMainSync(() -> {
+            PreviewView previewView = new PreviewView(mContext);
+            previewView.setOnClickListener(view -> semaphore.release());
+            previewViewReference.set(previewView);
+            setContentView(previewView);
+        });
+        waitForLayoutReady(previewViewReference.get());
+
+        // Act: click on PreviewView.
+        UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
 
         // Assert: view is clicked.
-        assertThat(clicked.get()).isTrue();
+        assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test

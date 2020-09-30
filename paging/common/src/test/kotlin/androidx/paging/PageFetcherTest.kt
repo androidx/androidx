@@ -23,12 +23,14 @@ import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
@@ -394,6 +396,41 @@ class PageFetcherTest {
 
             assertTrue { job.isCompleted }
         }
+    }
+
+    @ExperimentalStdlibApi
+    @Test
+    fun pagingSourceInvalidBeforeCallbackAdded() = testScope.runBlockingTest {
+        var invalidatesFromAdapter = 0
+        var i = 0
+        var pagingSource: TestPagingSource? = null
+        val pager = Pager(PagingConfig(10)) {
+            i++
+            TestPagingSource().also {
+                if (i == 1) {
+                    it.invalidate()
+                }
+
+                advanceUntilIdle()
+                it.registerInvalidatedCallback { invalidatesFromAdapter++ }
+                pagingSource = it
+            }
+        }
+
+        val job = launch {
+            pager.flow.collectLatest { pagingData ->
+                TestPagingDataDiffer<Int>(
+                    testScope.coroutineContext[CoroutineDispatcher.Key]!!
+                ).collectFrom(pagingData)
+            }
+        }
+
+        advanceUntilIdle()
+        pagingSource!!.invalidate()
+        advanceUntilIdle()
+
+        assertEquals(1, invalidatesFromAdapter)
+        job.cancel()
     }
 }
 

@@ -20,17 +20,20 @@ import android.app.Application
 import android.os.Build
 import android.os.Process
 import android.os.SystemClock
+import android.os.Trace
 import android.util.Log
 import androidx.camera.camera2.pipe.CameraPipe
 import kotlin.system.measureNanoTime
 
 class CameraPipeApplication : Application() {
     private val _cameraPipe = lazy {
+        Trace.beginSection("CXCP-App#cameraPipe")
         var result: CameraPipe?
         val time = measureNanoTime {
             result = CameraPipe(CameraPipe.Config(appContext = this))
         }
         Log.i("CXCP-App", "Configured CameraPipe in ${time.formatNanoTime()}")
+        Trace.endSection()
         return@lazy result!!
     }
     val cameraPipe: CameraPipe

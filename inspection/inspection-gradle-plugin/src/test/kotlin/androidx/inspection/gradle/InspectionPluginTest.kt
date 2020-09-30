@@ -71,8 +71,10 @@ class InspectionPluginTest {
 
         val output = gradleRunner.withArguments("dexInspectorRelease").build()
         assertEquals(output.task(":dexInspectorRelease")!!.outcome, TaskOutcome.SUCCESS)
-        val artifact = File(projectSetup.rootDir,
-            "build/androidx_inspection/dexedInspector/release/test-inspector.jar")
+        val artifact = File(
+            projectSetup.rootDir,
+            "build/androidx_inspection/dexedInspector/release/test-inspector.jar"
+        )
         assertTrue { artifact.exists() }
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspector;")
         assertDeclaredInDex(artifact, "Ltest/inspector/TestInspectorProtocol;")

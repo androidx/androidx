@@ -183,13 +183,14 @@ class ViewTest {
     @Test
     fun toBitmapScrolls() {
         val scrollView = LayoutInflater.from(context)!!
-                .inflate(R.layout.test_bitmap_scrolls, null, false)
+            .inflate(R.layout.test_bitmap_scrolls, null, false)
 
         val size = 100
 
         scrollView.measure(
-                View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY))
+            View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY)
+        )
         scrollView.layout(0, 0, size, size)
 
         val noScroll = scrollView.drawToBitmap()

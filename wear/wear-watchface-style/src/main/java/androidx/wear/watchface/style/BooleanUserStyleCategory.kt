@@ -17,16 +17,11 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
 
 /** A BooleanUserStyleCategory represents a category with a true and a false setting. */
-class BooleanUserStyleCategory :
-    UserStyleCategory {
-
-    internal companion object {
-        internal const val CATEGORY_TYPE = "BooleanUserStyleCategory"
-        internal const val OPTION_TYPE = "BooleanOption"
-    }
+class BooleanUserStyleCategory : UserStyleCategory {
 
     constructor (
         /** Identifier for the element, must be unique. */
@@ -57,31 +52,50 @@ class BooleanUserStyleCategory :
         description,
         icon,
         listOf(BooleanOption(true), BooleanOption(false)),
-        BooleanOption(defaultValue),
+        when (defaultValue) {
+            true -> 0
+            false -> 1
+        },
         layerFlags
     )
 
-    internal constructor(bundle: Bundle) : super(bundle)
+    internal constructor(wireFormat: BooleanUserStyleCategoryWireFormat) : super(wireFormat)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun toWireFormat() =
+        BooleanUserStyleCategoryWireFormat(
+            id,
+            displayName,
+            description,
+            icon,
+            getWireFormatOptionsList(),
+            defaultOptionIndex,
+            layerFlags
+        )
+
+    /**
+     * Returns the default value.
+     */
+    fun getDefaultValue() = (options[defaultOptionIndex] as BooleanOption).value
 
     /** Represents a true or false option in the {@link BooleanUserStyleCategory}. */
-    open class BooleanOption :
-        Option {
+    open class BooleanOption : Option {
         val value: Boolean
 
         constructor(value: Boolean) : super(value.toString()) {
             this.value = value
         }
 
-        internal constructor(bundle: Bundle) : super(bundle) {
-            value = id.toBoolean()
+        internal constructor(
+            wireFormat: BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat
+        ) : super(wireFormat.mId) {
+            value = wireFormat.mValue
         }
 
-        final override fun writeToBundle(bundle: Bundle) {
-            super.writeToBundle(bundle)
-        }
-
-        override fun getOptionType() = OPTION_TYPE
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat() =
+            BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat(id, value)
     }
-
-    override fun getCategoryType() = CATEGORY_TYPE
 }

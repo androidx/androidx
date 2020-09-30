@@ -4,12 +4,12 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
-        errorLine1="    /**"
-        errorLine2="    ^">
+        errorLine1="    private static final class CodepointIndexFinder {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="662"
-            column="5"/>
+            line="665"
+            column="32"/>
     </issue>
 
     <issue

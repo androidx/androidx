@@ -2085,6 +2085,18 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun pageFetcherSnapshot_currentPagingState() = testScope.runBlockingTest {
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = TestPagingSource(loadDelay = 100),
+            config = config,
+            retryFlow = retryCh.asFlow()
+        )
+
+        assertEquals(null, pager.refreshKeyInfo())
+    }
+
+    @Test
     fun retry_ignoresNewSignalsWhileProcessing() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
         val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())

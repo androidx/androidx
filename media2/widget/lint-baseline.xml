@@ -60,11 +60,11 @@
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
         errorLine1="    static class MediaFormatUtil {"
-        errorLine2="    ^">
+        errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/SubtitleController.java"
             line="275"
-            column="5"/>
+            column="18"/>
     </issue>
 
     <issue

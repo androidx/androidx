@@ -55,6 +55,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -73,6 +74,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -92,6 +94,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -111,6 +114,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -130,7 +134,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.DEVICE_CREDENTIAL;
@@ -149,6 +154,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -166,7 +172,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         assertThat(biometricManager.canAuthenticate(0)).isEqualTo(BIOMETRIC_ERROR_NO_HARDWARE);
@@ -183,6 +190,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 false /* isDeviceSecurable */,
                 false /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -202,7 +210,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 false /* isDeviceSecurable */,
-                false /* isDeviceSecuredWithCredential */);
+                false /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_WEAK;
@@ -221,6 +230,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 false /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -240,7 +250,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                false /* isDeviceSecuredWithCredential */);
+                false /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_WEAK;
@@ -259,6 +270,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                false /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -277,7 +289,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL;
@@ -295,6 +308,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 true /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -313,6 +327,7 @@ public class BiometricManagerTest {
                 frameworkBiometricManager,
                 true /* isDeviceSecurable */,
                 true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */,
                 false /* isStrongBiometricGuaranteed */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
@@ -332,7 +347,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_STRONG;
@@ -350,12 +366,33 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_STRONG;
         assertThat(biometricManager.canAuthenticate(authenticators))
                 .isEqualTo(BIOMETRIC_STATUS_UNKNOWN);
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P, maxSdk = Build.VERSION_CODES.P)
+    public void testCanAuthenticate_ReturnsError_WhenNoFingerprintHardware_OnApi28() {
+        final androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManager =
+                mock(androidx.core.hardware.fingerprint.FingerprintManagerCompat.class);
+        when(fingerprintManager.isHardwareDetected()).thenReturn(false);
+        when(fingerprintManager.hasEnrolledFingerprints()).thenReturn(false);
+
+        final BiometricManager.Injector injector = createInjector(
+                fingerprintManager,
+                true /* isDeviceSecurable */,
+                true /* isDeviceSecuredWithCredential */,
+                false /* isFingerprintHardwarePresent */);
+
+        final BiometricManager biometricManager = new BiometricManager(injector);
+        final int authenticators = Authenticators.BIOMETRIC_STRONG;
+        assertThat(biometricManager.canAuthenticate(authenticators))
+                .isEqualTo(BIOMETRIC_ERROR_NO_HARDWARE);
     }
 
     @Test
@@ -369,7 +406,8 @@ public class BiometricManagerTest {
         final BiometricManager.Injector injector = createInjector(
                 fingerprintManager,
                 true /* isDeviceSecurable */,
-                true /* isDeviceSecuredWithCredential */);
+                true /* isDeviceSecuredWithCredential */,
+                true /* isFingerprintHardwarePresent */);
 
         final BiometricManager biometricManager = new BiometricManager(injector);
         final int authenticators = Authenticators.BIOMETRIC_STRONG;
@@ -381,6 +419,7 @@ public class BiometricManagerTest {
             @Nullable final android.hardware.biometrics.BiometricManager biometricManager,
             final boolean isDeviceSecurable,
             final boolean isDeviceSecuredWithCredential,
+            final boolean isFingerprintHardwarePresent,
             final boolean isStrongBiometricGuaranteed) {
 
         return new BiometricManager.Injector() {
@@ -408,6 +447,11 @@ public class BiometricManagerTest {
             }
 
             @Override
+            public boolean isFingerprintHardwarePresent() {
+                return isFingerprintHardwarePresent;
+            }
+
+            @Override
             public boolean isStrongBiometricGuaranteed() {
                 return isStrongBiometricGuaranteed;
             }
@@ -418,7 +462,8 @@ public class BiometricManagerTest {
             @Nullable final androidx.core.hardware.fingerprint.FingerprintManagerCompat
                     fingerprintManager,
             final boolean isDeviceSecurable,
-            final boolean isDeviceSecuredWithCredential) {
+            final boolean isDeviceSecuredWithCredential,
+            final boolean isFingerprintHardwarePresent) {
 
         return new BiometricManager.Injector() {
             @Override
@@ -442,6 +487,11 @@ public class BiometricManagerTest {
             @Override
             public boolean isDeviceSecuredWithCredential() {
                 return isDeviceSecuredWithCredential;
+            }
+
+            @Override
+            public boolean isFingerprintHardwarePresent() {
+                return isFingerprintHardwarePresent;
             }
 
             @Override

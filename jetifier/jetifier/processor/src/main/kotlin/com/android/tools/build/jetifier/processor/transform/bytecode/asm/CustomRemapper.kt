@@ -64,10 +64,10 @@ class CustomRemapper(private val remapper: CoreRemapper) : Remapper() {
             if (typeDeclaration.contains(";L")) {
                 // We have array of constants
                 return "L" +
-                            typeDeclaration
-                                .split(";L")
-                                .joinToString(";L") { mapPoolReferenceType(it) } +
-                        ";"
+                    typeDeclaration
+                        .split(";L")
+                        .joinToString(";L") { mapPoolReferenceType(it) } +
+                    ";"
             }
 
             return "L" + mapPoolReferenceType(typeDeclaration) + ";"

@@ -69,8 +69,8 @@ public class RowContent extends SliceContent {
     private SliceItem mTitleItem;
     private SliceItem mSubtitleItem;
     private SliceItem mSummaryItem;
-    private ArrayList<SliceItem> mEndItems = new ArrayList<>();
-    private ArrayList<SliceAction> mToggleItems = new ArrayList<>();
+    private final ArrayList<SliceItem> mEndItems = new ArrayList<>();
+    private final ArrayList<SliceAction> mToggleItems = new ArrayList<>();
     private SliceItem mRange;
     private SliceItem mSelection;
     private boolean mIsHeader;
@@ -113,7 +113,7 @@ public class RowContent extends SliceContent {
             }
         }
         if (SUBTYPE_RANGE.equals(rowSlice.getSubType())) {
-            // It must be a Range or InputRange without StartItem/EndItem.
+            // It must be a Range, InputRange, or StarRating without StartItem/EndItem.
             if (SliceQuery.findSubtype(rowSlice, FORMAT_ACTION, SUBTYPE_RANGE) == null
                     || isOneItem) {
                 mRange = rowSlice;

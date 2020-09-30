@@ -778,7 +778,7 @@ public final class ImageCaptureTest {
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         ImageCapture useCase = new ImageCapture.Builder().build();
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
-        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
+        ImageOutputConfig config = (ImageOutputConfig) useCase.getCurrentConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
 
@@ -788,12 +788,12 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).build();
 
-        assertThat(useCase.getUseCaseConfig().containsOption(
+        assertThat(useCase.getCurrentConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
-        assertThat(useCase.getUseCaseConfig().containsOption(
+        assertThat(useCase.getCurrentConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
     }
 
@@ -815,7 +815,7 @@ public final class ImageCaptureTest {
         // Updates target rotation from ROTATION_0 to ROTATION_90.
         imageCapture.setTargetRotation(Surface.ROTATION_90);
 
-        ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getUseCaseConfig();
+        ImageOutputConfig newConfig = (ImageOutputConfig) imageCapture.getCurrentConfig();
         Size expectedTargetResolution = new Size(DEFAULT_RESOLUTION.getHeight(),
                 DEFAULT_RESOLUTION.getWidth());
 
@@ -1003,7 +1003,7 @@ public final class ImageCaptureTest {
     @Test
     public void useCaseConfigCanBeReset_afterUnbind() {
         final ImageCapture useCase = mDefaultBuilder.build();
-        UseCaseConfig<?> initialConfig = useCase.getUseCaseConfig();
+        UseCaseConfig<?> initialConfig = useCase.getCurrentConfig();
 
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
@@ -1011,7 +1011,7 @@ public final class ImageCaptureTest {
             mCamera.removeUseCases(Collections.singleton(useCase));
         });
 
-        UseCaseConfig<?> configAfterUnbinding = useCase.getUseCaseConfig();
+        UseCaseConfig<?> configAfterUnbinding = useCase.getCurrentConfig();
         assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
     }
 

@@ -61,7 +61,8 @@ class SharedPreferencesMigrationTest {
         val sharedPrefsMigration = SharedPreferencesMigration<Byte>(
             context = context,
             sharedPreferencesName = sharedPrefsName,
-            shouldRunMigration = { false }) { _: SharedPreferencesView, _: Byte ->
+            shouldRunMigration = { false }
+        ) { _: SharedPreferencesView, _: Byte ->
             throw IllegalStateException("Migration should've been skipped.")
         }
 

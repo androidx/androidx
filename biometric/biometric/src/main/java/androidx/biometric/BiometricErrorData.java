@@ -28,12 +28,12 @@ class BiometricErrorData {
     /**
      * An integer ID associated with this error.
      */
-    @BiometricPrompt.AuthenticationError private int mErrorCode;
+    @BiometricPrompt.AuthenticationError private final int mErrorCode;
 
     /**
      * A human-readable message that describes the error.
      */
-    @Nullable private CharSequence mErrorMessage;
+    @Nullable private final CharSequence mErrorMessage;
 
     BiometricErrorData(int errorCode, @Nullable CharSequence errorMessage) {
         mErrorCode = errorCode;

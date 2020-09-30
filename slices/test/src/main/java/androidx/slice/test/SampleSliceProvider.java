@@ -31,7 +31,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -53,6 +55,7 @@ import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SelectionBuilder;
@@ -82,6 +85,7 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String ACTION_TOAST_RANGE_VALUE =
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
     public static final String ACTION_PLAY_TTS = "com.example.androidx.slice.action.PLAY_TTS";
+    public static int STAR_RATING = 0;
 
     public static final String[] URI_PATHS = {
             "message",
@@ -106,6 +110,8 @@ public class SampleSliceProvider extends SliceProvider {
             "reservation",
             "loadlist",
             "loadgrid",
+            "starrating",
+            "starrating2",
             "inputrange",
             "richinputrange",
             "range",
@@ -122,6 +128,13 @@ public class SampleSliceProvider extends SliceProvider {
             "notification",
             "tts"
     };
+
+    @SuppressWarnings("deprecation")
+    private final Handler mHandler = new Handler();
+    private final SparseArray<String> mListSummaries = new SparseArray<>();
+    private final SparseArray<String> mGridSummaries = new SparseArray<>();
+    long mListLastUpdate;
+    long mGridLastUpdate;
 
     /**
      * @return Uri with the provided path
@@ -204,8 +217,12 @@ public class SampleSliceProvider extends SliceProvider {
                 return createLoadingListSlice(sliceUri);
             case "/loadgrid":
                 return createLoadingGridSlice(sliceUri);
+            case "/starrating":
+                return createStarRating(sliceUri);
+            case "/starrating2":
+                return createStarRating2(sliceUri);
             case "/inputrange":
-                return createStarRatingInputRange(sliceUri);
+                return createInputRange(sliceUri);
             case "/richinputrange":
                 return createRichInputRange(sliceUri);
             case "/range":
@@ -880,25 +897,23 @@ public class SampleSliceProvider extends SliceProvider {
         return lb.build();
     }
 
-    public static int sStarRating = 8;
-
-    private Slice createStarRatingInputRange(Uri sliceUri) {
+    private Slice createInputRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         SliceAction primaryAction = SliceAction.create(
-                getBroadcastIntent(ACTION_TOAST, "open star rating"), icon, ICON_IMAGE, "Rate");
-        String subtitle = "Rated " + sStarRating;
+                getBroadcastIntent(ACTION_TOAST, "open input rating"), icon, ICON_IMAGE, "Rate");
+        String subtitle = "Rated " + STAR_RATING;
         return new ListBuilder(getContext(), sliceUri, INFINITY)
                 .setAccentColor(0xffff4081)
                 .addInputRange(new InputRangeBuilder()
-                        .setTitle("Star rating")
+                        .setTitle("Input rating")
                         .setSubtitle(subtitle)
-                        .setMin(5)
+                        .setMin(0)
                         .setThumb(icon)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(100)
-                        .setValue(sStarRating)
+                        .setValue(STAR_RATING)
                         .setPrimaryAction(primaryAction)
-                        .setContentDescription("Slider for star ratings"))
+                        .setContentDescription("Slider for input ratings"))
                 .build();
     }
 
@@ -919,12 +934,12 @@ public class SampleSliceProvider extends SliceProvider {
                         .addEndItem(SliceAction.createToggle(
                                 getBroadcastIntent(ACTION_TOAST, "click checkbox"), checkBoxIcon,
                                 "checkbox", false))
-                        .setTitle("Rich star rating")
-                        .setMin(5)
+                        .setTitle("Rich input rating")
+                        .setMin(0)
                         .setThumb(thumbIcon)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(100)
-                        .setValue(sStarRating)
+                        .setValue(STAR_RATING)
                         .setPrimaryAction(primaryAction)
                         .setContentDescription("Slider for star ratings"))
                 .build();
@@ -933,7 +948,7 @@ public class SampleSliceProvider extends SliceProvider {
     private Slice createDownloadProgressRange(Uri sliceUri) {
         IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
         SliceAction primaryAction = SliceAction.create(
-                getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE,  "Download");
+                getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE, "Download");
         int progress = PROGRESS.next();
         if (progress != 100) {
             mHandler.postDelayed(() -> getContext().getContentResolver().notifyChange(sliceUri,
@@ -1000,11 +1015,11 @@ public class SampleSliceProvider extends SliceProvider {
                                 getBroadcastIntent(ACTION_TOAST, "click checkbox"), checkBoxIcon,
                                 "checkbox", false))
                         .setTitle("Rich star rating")
-                        .setMin(5)
+                        .setMin(0)
                         .setThumb(thumbIcon)
                         .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
                         .setMax(100)
-                        .setValue(sStarRating)
+                        .setValue(STAR_RATING)
                         .setPrimaryAction(primaryAction)
                         .setContentDescription("Slider for star ratings"))
                 .addRange(new RangeBuilder()
@@ -1012,6 +1027,45 @@ public class SampleSliceProvider extends SliceProvider {
                         .setMode(ListBuilder.RANGE_MODE_INDETERMINATE)
                         .setTitle("Indeterminate progress")
                         .setPrimaryAction(progressPrimaryAction))
+                .build();
+    }
+
+    private Slice createStarRating(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open input rating"), icon, ICON_IMAGE, "Rate");
+        String subtitle = "Rated " + STAR_RATING;
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xFFE7711B) // GOLD
+                .addRow(new RowBuilder()
+                        .setTitle("Star rating")
+                        .setSubtitle(subtitle)
+                        .setPrimaryAction(primaryAction))
+                .addRating(new RatingBuilder()
+                        .setMin(0)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setMax(5)
+                        .setValue(STAR_RATING)
+                        .setContentDescription("Slider for star ratings"))
+                .build();
+    }
+
+    private Slice createStarRating2(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open input rating"), icon, ICON_IMAGE, "Rate");
+        String subtitle = "Rated " + STAR_RATING;
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xFFE7711B) // GOLD
+                .addRating(new RatingBuilder()
+                        .setTitle("Star rating")
+                        .setSubtitle(subtitle)
+                        .setPrimaryAction(primaryAction)
+                        .setMin(0)
+                        .setInputAction(getBroadcastIntent(ACTION_TOAST_RANGE_VALUE, null))
+                        .setMax(5)
+                        .setValue(STAR_RATING)
+                        .setContentDescription("Slider for star ratings"))
                 .build();
     }
 
@@ -1218,13 +1272,6 @@ public class SampleSliceProvider extends SliceProvider {
                 .setHeader(new HeaderBuilder().setTitle("Some loading title", true)).build();
     }
 
-    @SuppressWarnings("deprecation")
-    private Handler mHandler = new Handler();
-    private SparseArray<String> mListSummaries = new SparseArray<>();
-    long mListLastUpdate;
-    private SparseArray<String> mGridSummaries = new SparseArray<>();
-    long mGridLastUpdate;
-
     private void update(long delay, final SparseArray<String> summaries, final int id,
             final String s, final Uri uri, final Runnable r) {
         mHandler.postDelayed(new Runnable() {
@@ -1397,11 +1444,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createTtsSlice(Uri sliceUri) {
-        Slice slice = new ListBuilder(getContext(), sliceUri, INFINITY)
-                // Attach additional information for host. Depending on the host apps, this
-                // information might or might not be used.
-                // In this case, SliceBrowser is customized to play TTS when binding the slice.
-                .setHostExtra("tts", "hello world")
+        ListBuilder slice = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .addRow(
                         new RowBuilder().setPrimaryAction(
                                 SliceAction.create(
@@ -1410,8 +1453,25 @@ public class SampleSliceProvider extends SliceProvider {
                                                 R.drawable.message),
                                         ICON_IMAGE, "TTS"
                                 )
-                        ).setTitle("Text to speech").setSubtitle("Play")).build();
-        return slice;
+                        ).setTitle("Text to speech").setSubtitle("Play"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SetHostExtraApi21Impl.setHostExtra(slice, "tts", "hello world");
+        }
+
+        return slice.build();
+    }
+
+    @RequiresApi(21)
+    private static class SetHostExtraApi21Impl {
+        private SetHostExtraApi21Impl() {}
+        static void setHostExtra(ListBuilder listBuilder, String key, String value) {
+            PersistableBundle extras = new PersistableBundle();
+            extras.putString("tts", "hello world");
+            // Attach additional information for host. Depending on the host apps, this
+            // information might or might not be used.
+            // In this case, SliceBrowser is customized to play TTS when binding the slice.
+            listBuilder.setHostExtras(extras);
+        }
     }
 
     private PendingIntent getIntent(String action) {
@@ -1435,8 +1495,8 @@ public class SampleSliceProvider extends SliceProvider {
 
     static final class RandomProgressGenerator {
         private int mProgress = 0;
-        private int mEnd = 100;
-        private int mInterval = 5;
+        private final int mEnd = 100;
+        private final int mInterval = 5;
 
         int next() {
             if (mProgress >= mEnd) return mEnd;

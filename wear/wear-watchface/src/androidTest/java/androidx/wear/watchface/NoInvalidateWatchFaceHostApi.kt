@@ -19,7 +19,8 @@ package androidx.wear.watchface
 import android.content.ComponentName
 import android.graphics.Rect
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /**
  * This test harness wraps {@link WatchFaceHost} and makes invalidate do nothing giving the test
@@ -43,19 +44,19 @@ class NoInvalidateWatchFaceHostApi(val api: WatchFaceHostApi) : WatchFaceHostApi
         api.registerWatchFaceType(watchFaceType)
     }
 
-    override fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>) {
-        api.registerUserStyleSchema(styleSchema)
+    override fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat) {
+        api.registerUserStyleSchema(userStyleSchema)
     }
 
-    override fun setCurrentUserStyle(userStyle: Map<UserStyleCategory, UserStyleCategory.Option>) {
+    override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
         api.setCurrentUserStyle(userStyle)
     }
 
-    override fun getStoredUserStyle(schema: List<UserStyleCategory>) =
-        api.getStoredUserStyle(schema)
+    override fun getStoredUserStyle() =
+        api.getStoredUserStyle()
 
-    override fun setComplicationDetails(complicationId: Int, bounds: Rect, type: Int) {
-        api.setComplicationDetails(complicationId, bounds, type)
+    override fun setComplicationDetails(complicationId: Int, bounds: Rect, boundsType: Int) {
+        api.setComplicationDetails(complicationId, bounds, boundsType)
     }
 
     override fun setComplicationSupportedTypes(complicationId: Int, types: IntArray) {

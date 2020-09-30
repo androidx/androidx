@@ -357,7 +357,7 @@ public final class PreviewTest {
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         Preview useCase = new Preview.Builder().build();
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
-        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
+        ImageOutputConfig config = (ImageOutputConfig) useCase.getCurrentConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
 
@@ -366,20 +366,20 @@ public final class PreviewTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
         Preview useCase = new Preview.Builder().setTargetResolution(GUARANTEED_RESOLUTION).build();
 
-        assertThat(useCase.getUseCaseConfig().containsOption(
+        assertThat(useCase.getCurrentConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
-        assertThat(useCase.getUseCaseConfig().containsOption(
+        assertThat(useCase.getCurrentConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
     }
 
     @Test
     public void useCaseConfigCanBeReset_afterUnbind() {
         final Preview preview = mDefaultBuilder.build();
-        UseCaseConfig<?> initialConfig = preview.getUseCaseConfig();
+        UseCaseConfig<?> initialConfig = preview.getCurrentConfig();
 
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
@@ -387,7 +387,7 @@ public final class PreviewTest {
             mCamera.removeUseCases(Collections.singleton(preview));
         });
 
-        UseCaseConfig<?> configAfterUnbinding = preview.getUseCaseConfig();
+        UseCaseConfig<?> configAfterUnbinding = preview.getCurrentConfig();
         assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
     }
 

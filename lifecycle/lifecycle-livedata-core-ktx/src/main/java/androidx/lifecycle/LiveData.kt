@@ -40,8 +40,10 @@ import androidx.annotation.MainThread
  * If the given owner is already in [Lifecycle.State.DESTROYED] state, LiveData
  * ignores the call.
  */
-@Deprecated("This extension method is not required when using Kotlin 1.4. " +
-        "You should remove \"import androidx.lifecycle.observe\"")
+@Deprecated(
+    "This extension method is not required when using Kotlin 1.4. " +
+        "You should remove \"import androidx.lifecycle.observe\""
+)
 @MainThread inline fun <T> LiveData<T>.observe(
     owner: LifecycleOwner,
     crossinline onChanged: (T) -> Unit

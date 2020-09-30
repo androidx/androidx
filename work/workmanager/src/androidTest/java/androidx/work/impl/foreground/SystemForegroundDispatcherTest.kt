@@ -40,6 +40,7 @@ import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
+import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.utils.StopWorkRunnable
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
@@ -54,6 +55,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -141,7 +143,7 @@ class SystemForegroundDispatcherTest {
     fun testStopForeground() {
         // The Foreground Service now calls handleStop() directly without the need for an
         // additional startService().
-        dispatcher.handleStop()
+        dispatcher.handleStop(createStopForegroundIntent(context))
         verify(dispatcherCallback, times(1)).stop()
     }
 
@@ -200,7 +202,7 @@ class SystemForegroundDispatcherTest {
         verify(dispatcherCallback, times(1))
             .cancelNotification(secondId)
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(1))
-
+        reset(dispatcherCallback)
         dispatcher.onExecuted(secondWorkSpecId, false)
         verify(dispatcherCallback, times(1))
             .cancelNotification(secondId)

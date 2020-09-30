@@ -54,9 +54,11 @@ class ContentAccessMediaStore {
         public var _id: Int? = null
 
         @JvmField
-        @Deprecated("Apps may not have filesystem permissions to directly access this path. " +
+        @Deprecated(
+            "Apps may not have filesystem permissions to directly access this path. " +
                 "Instead of trying to open this path directly, apps should use " +
-                "ContentResolver#openFileDescriptor(Uri, String) to gain access.")
+                "ContentResolver#openFileDescriptor(Uri, String) to gain access."
+        )
         @ContentColumn(android.provider.MediaStore.MediaColumns.DATA)
         public var data: String? = null
 
@@ -137,28 +139,36 @@ class ContentAccessMediaStore {
 
     open class ImageColumns : MediaColumns() {
         @JvmField
-        @Deprecated("As of API 29, this value was only relevant for images hosted on Picasa, " +
-                "which are no longer supported.")
+        @Deprecated(
+            "As of API 29, this value was only relevant for images hosted on Picasa, " +
+                "which are no longer supported."
+        )
         @ContentColumn(android.provider.MediaStore.Images.ImageColumns.PICASA_ID)
         public var picasaId: String? = null
 
         @JvmField
-        @Deprecated("As of API 29, location details are no longer indexed for privacy reasons, " +
+        @Deprecated(
+            "As of API 29, location details are no longer indexed for privacy reasons, " +
                 "and this value is now always null. You can still manually obtain location " +
-                "metadata using ExifInterface#getLatLong(float[]).")
+                "metadata using ExifInterface#getLatLong(float[])."
+        )
         @ContentColumn(android.provider.MediaStore.Images.ImageColumns.LATITUDE)
         public var latitude: Float? = null
 
         @JvmField
-        @Deprecated("As of API 29, location details are no longer indexed for privacy reasons, " +
+        @Deprecated(
+            "As of API 29, location details are no longer indexed for privacy reasons, " +
                 "and this value is now always null. You can still manually obtain location " +
-                "metadata using ExifInterface#getLatLong(float[]).")
+                "metadata using ExifInterface#getLatLong(float[])."
+        )
         @ContentColumn(android.provider.MediaStore.Images.ImageColumns.LONGITUDE)
         public var longitude: Float? = null
 
         @JvmField
-        @Deprecated("As of API 29, all thumbnails should be obtained via MediaStore.Images" +
-                ".Thumbnails#getThumbnail, as this value is no longer supported.")
+        @Deprecated(
+            "As of API 29, all thumbnails should be obtained via MediaStore.Images" +
+                ".Thumbnails#getThumbnail, as this value is no longer supported."
+        )
         @ContentColumn(android.provider.MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC)
         public var miniThumbMagic: Int? = null
 
@@ -252,9 +262,11 @@ class ContentAccessMediaStore {
         public var _id: Int? = null
 
         @JvmField
-        @Deprecated("Deprecated in API 29. Apps may not have filesystem permissions to directly " +
+        @Deprecated(
+            "Deprecated in API 29. Apps may not have filesystem permissions to directly " +
                 "access this path. Instead of trying to open this path directly, apps should use " +
-                "ContentResolver#loadThumbnail to gain access.")
+                "ContentResolver#loadThumbnail to gain access."
+        )
         @ContentColumn(android.provider.MediaStore.Images.Thumbnails.DATA)
         public var data: String? = null
 
@@ -275,8 +287,10 @@ class ContentAccessMediaStore {
         public var height: Int? = null
     }
 
-    @Deprecated("Callers should migrate to using ContentResolver#loadThumbnail, since it offers " +
-            "richer control over requested thumbnail sizes and cancellationbehavior.")
+    @Deprecated(
+        "Callers should migrate to using ContentResolver#loadThumbnail, since it offers " +
+            "richer control over requested thumbnail sizes and cancellationbehavior."
+    )
     @ContentEntity("content://media/external/images/thumbnails")
     class ImageThumbnail : ImageThumbnailColumns()
 
@@ -287,9 +301,11 @@ class ContentAccessMediaStore {
         public var _id: Int? = null
 
         @JvmField
-        @Deprecated("Deprecated in API 29. Apps may not have filesystem permissions to directly " +
+        @Deprecated(
+            "Deprecated in API 29. Apps may not have filesystem permissions to directly " +
                 "access this path. Instead of trying to open this path directly, apps should use " +
-                "ContentResolver#loadThumbnail to gain access.")
+                "ContentResolver#loadThumbnail to gain access."
+        )
         @ContentColumn(android.provider.MediaStore.Video.Thumbnails.DATA)
         public var data: String? = null
 
@@ -310,23 +326,29 @@ class ContentAccessMediaStore {
         public var height: Int? = null
     }
 
-    @Deprecated("Callers should migrate to using ContentResolver#loadThumbnail, since it offers " +
-            "richer control over requested thumbnail sizes and cancellationbehavior.")
+    @Deprecated(
+        "Callers should migrate to using ContentResolver#loadThumbnail, since it offers " +
+            "richer control over requested thumbnail sizes and cancellationbehavior."
+    )
     @ContentEntity("content://media/external/video/thumbnails")
     class VideoThumbnail : VideoThumbnailColumns()
 
     open class VideoColumns : MediaColumns() {
         @JvmField
-        @Deprecated("As of API 29, location details are no longer indexed for privacy reasons, " +
+        @Deprecated(
+            "As of API 29, location details are no longer indexed for privacy reasons, " +
                 "and this value is now always null. You can still manually obtain location " +
-                "metadata using ExifInterface#getLatLong(float[]).")
+                "metadata using ExifInterface#getLatLong(float[])."
+        )
         @ContentColumn(android.provider.MediaStore.Video.VideoColumns.LATITUDE)
         public var latitude: Float? = null
 
         @JvmField
-        @Deprecated("As of API 29, location details are no longer indexed for privacy reasons, " +
+        @Deprecated(
+            "As of API 29, location details are no longer indexed for privacy reasons, " +
                 "and this value is now always null. You can still manually obtain location " +
-                "metadata using ExifInterface#getLatLong(float[]).")
+                "metadata using ExifInterface#getLatLong(float[])."
+        )
         @ContentColumn(android.provider.MediaStore.Video.VideoColumns.LONGITUDE)
         public var longitude: Float? = null
 
@@ -351,8 +373,10 @@ class ContentAccessMediaStore {
         public var language: String? = null
 
         @JvmField
-        @Deprecated("As for API 29, all thumbnails should be obtained via MediaStore.Images" +
-                ".Thumbnails#getThumbnail, as this value is no longer supported.")
+        @Deprecated(
+            "As for API 29, all thumbnails should be obtained via MediaStore.Images" +
+                ".Thumbnails#getThumbnail, as this value is no longer supported."
+        )
         @ContentColumn(android.provider.MediaStore.Video.VideoColumns.MINI_THUMB_MAGIC)
         public var miniThumbMagic: Int? = null
 
@@ -429,11 +453,13 @@ class ContentAccessMediaStore {
 
     open class AudioColumns : MediaColumns() {
         @JvmField
-        @Deprecated("Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
+        @Deprecated(
+            "Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
                 "means they don't reflect locale-specific sorting preferences. To apply " +
                 "locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE. ")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE. "
+        )
         @ContentColumn(android.provider.MediaStore.Audio.AudioColumns.TITLE_KEY)
         public var titleKey: String? = null
 
@@ -446,11 +472,13 @@ class ContentAccessMediaStore {
         public var artistId: Int? = null
 
         @JvmField
-        @Deprecated("Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
+        @Deprecated(
+            "Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
                 "means they don't reflect locale-specific sorting preferences. To apply " +
                 "locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE. ")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE. "
+        )
         @ContentColumn(android.provider.MediaStore.Audio.AudioColumns.ARTIST_KEY)
         public var artistKey: String? = null
 
@@ -459,11 +487,13 @@ class ContentAccessMediaStore {
         public var albumId: Int? = null
 
         @JvmField
-        @Deprecated("Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
+        @Deprecated(
+            "Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
                 "means they don't reflect locale-specific sorting preferences. To apply " +
                 "locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE. ")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE. "
+        )
         @ContentColumn(android.provider.MediaStore.Audio.AudioColumns.ALBUM_KEY)
         public var albumKey: String? = null
 
@@ -506,11 +536,13 @@ class ContentAccessMediaStore {
         public var genreId: Int? = null
 
         @JvmField
-        @Deprecated("Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
+        @Deprecated(
+            "Deprecated in API 30, These keys are generated using Locale.ROOT, which " +
                 "means they don't reflect locale-specific sorting preferences. To apply " +
                 "locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE. ")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE. "
+        )
         @RequiresApi(30)
         @ContentColumn(android.provider.MediaStore.Audio.AudioColumns.GENRE_KEY)
         public var genreKey: String? = null
@@ -581,9 +613,11 @@ class ContentAccessMediaStore {
         public var album: String? = null
 
         @JvmField
-        @Deprecated("This constant was deprecated in API level 29. Apps may not have filesystem " +
+        @Deprecated(
+            "This constant was deprecated in API level 29. Apps may not have filesystem " +
                 "permissions to directly access this path. Instead of trying to open this path " +
-                "directly, apps should use ContentResolver#loadThumbnail to gain access.")
+                "directly, apps should use ContentResolver#loadThumbnail to gain access."
+        )
         @ContentColumn(android.provider.MediaStore.Audio.AlbumColumns.ALBUM_ART)
         public var albumArt: String? = null
 
@@ -593,11 +627,13 @@ class ContentAccessMediaStore {
         public var albumId: Int? = null
 
         @JvmField
-        @Deprecated("This constant was deprecated in API level 30. These keys are generated using" +
+        @Deprecated(
+            "This constant was deprecated in API level 30. These keys are generated using" +
                 " Locale.ROOT, which means they don't reflect locale-specific sorting preferences" +
                 ". To apply locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE.")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE."
+        )
         @ContentColumn(android.provider.MediaStore.Audio.AlbumColumns.ALBUM_KEY)
         public var albumKey: String? = null
 
@@ -611,11 +647,13 @@ class ContentAccessMediaStore {
         public var artistId: Int? = null
 
         @JvmField
-        @Deprecated("This constant was deprecated in API level 30. These keys are generated using" +
+        @Deprecated(
+            "This constant was deprecated in API level 30. These keys are generated using" +
                 " Locale.ROOT, which means they don't reflect locale-specific sorting preferences" +
                 ". To apply locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE.")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE."
+        )
         @RequiresApi(30)
         @ContentColumn(android.provider.MediaStore.Audio.AlbumColumns.ARTIST_KEY)
         public var artistKey: String? = null
@@ -648,11 +686,13 @@ class ContentAccessMediaStore {
         public var _id: Int? = null
 
         @JvmField
-        @Deprecated("This constant was deprecated in API level 30. These keys are generated using" +
+        @Deprecated(
+            "This constant was deprecated in API level 30. These keys are generated using" +
                 " Locale.ROOT, which means they don't reflect locale-specific sorting preferences" +
                 ". To apply locale-specific sorting preferences, use " +
                 "ContentResolver#QUERY_ARG_SQL_SORT_ORDER with COLLATE LOCALIZED, or " +
-                "ContentResolver#QUERY_ARG_SORT_LOCALE.")
+                "ContentResolver#QUERY_ARG_SORT_LOCALE."
+        )
         @ContentColumn(android.provider.MediaStore.Audio.ArtistColumns.ARTIST_KEY)
         public var artistKey: String? = null
 
@@ -693,10 +733,12 @@ class ContentAccessMediaStore {
         public var _id: Int? = null
 
         @JvmField
-        @Deprecated("This constant was deprecated in API level 29. Apps may not have filesystem " +
+        @Deprecated(
+            "This constant was deprecated in API level 29. Apps may not have filesystem " +
                 "permissions to directly access this path. Instead of trying to open this path " +
                 "directly, apps should use ContentResolver#openFileDescriptor(Uri, String) to " +
-                "gain access.")
+                "gain access."
+        )
         @ContentColumn(android.provider.MediaStore.Audio.PlaylistsColumns.DATA)
         public var data: String? = null
 

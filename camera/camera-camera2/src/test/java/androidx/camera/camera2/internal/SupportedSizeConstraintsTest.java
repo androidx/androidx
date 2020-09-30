@@ -147,7 +147,7 @@ public class SupportedSizeConstraintsTest {
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setBufferFormat(
                 ImageFormat.JPEG).build();
         List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
-                useCase.getUseCaseConfig());
+                useCase.getCurrentConfig());
 
         for (Size size : excludedSizes) {
             assertThat(resultList.contains(size)).isFalse();
@@ -178,7 +178,7 @@ public class SupportedSizeConstraintsTest {
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setBufferFormat(
                 ImageFormat.JPEG).build();
         List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
-                useCase.getUseCaseConfig());
+                useCase.getCurrentConfig());
 
         for (Size size : excludedSizes) {
             assertThat(resultList.contains(size)).isFalse();

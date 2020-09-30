@@ -52,18 +52,21 @@ fun TypeMirror.isSupportedGenericType(): Boolean {
 }
 
 fun TypeMirror.extractImmediateTypeParameter():
-        TypeMirror {
-    val asDeclared = MoreTypes.asDeclared(this)
-    return asDeclared.typeArguments.first()
-}
+    TypeMirror {
+        val asDeclared = MoreTypes.asDeclared(this)
+        return asDeclared.typeArguments.first()
+    }
 
 fun TypeMirror.extractIntendedReturnType(): TypeMirror {
     if (!this.isSupportedGenericType()) {
         return this
     }
     val firstWrappedType = extractImmediateTypeParameter()
-    if (isFlowable() && (firstWrappedType.isSupportedCollection() ||
-                firstWrappedType.isOptional())) {
+    if (isFlowable() && (
+        firstWrappedType.isSupportedCollection() ||
+            firstWrappedType.isOptional()
+        )
+    ) {
         return firstWrappedType.extractImmediateTypeParameter()
     }
     return firstWrappedType
@@ -138,22 +141,31 @@ fun TypeMirror.isBoxedDouble() =
 
 fun TypeMirror.isDouble() = isPrimitiveDouble() || isBoxedDouble()
 
-fun TypeMirror.isString() = MoreTypes.isType(this) && MoreTypes.isTypeOf(String::class
-    .java, this)
+fun TypeMirror.isString() = MoreTypes.isType(this) && MoreTypes.isTypeOf(
+    String::class
+        .java,
+    this
+)
 
-fun TypeMirror.isPrimitiveBlob() = MoreTypes.isType(this) && MoreTypes.isTypeOf(ByteArray::class
-    .java, this)
+fun TypeMirror.isPrimitiveBlob() = MoreTypes.isType(this) && MoreTypes.isTypeOf(
+    ByteArray::class
+        .java,
+    this
+)
 
-fun TypeMirror.isBoxedBlob() = MoreTypes.isType(this) && MoreTypes.isTypeOf(Array<Byte>::class
-    .java, this)
+fun TypeMirror.isBoxedBlob() = MoreTypes.isType(this) && MoreTypes.isTypeOf(
+    Array<Byte>::class
+        .java,
+    this
+)
 
 fun TypeMirror.isBlob() = isPrimitiveBlob() || isBoxedBlob()
 
 fun TypeMirror.isSupportedColumnType() = isBlob() || isInt() || isString() || isFloat() ||
-        isDouble() || isShort() || isLong()
+    isDouble() || isShort() || isLong()
 
 fun TypeMirror.isPrimitive(): Boolean = isPrimitiveLong() || isPrimitiveShort() ||
-        isPrimitiveBlob() || isPrimitiveDouble() || isPrimitiveFloat() || isPrimitiveInt()
+    isPrimitiveBlob() || isPrimitiveDouble() || isPrimitiveFloat() || isPrimitiveInt()
 
 fun TypeMirror.getCursorMethod(): String {
     if (isShort()) {

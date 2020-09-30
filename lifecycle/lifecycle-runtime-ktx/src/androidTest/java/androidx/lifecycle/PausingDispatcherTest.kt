@@ -99,12 +99,14 @@ class PausingDispatcherTest {
             val testJob = testingScope.coroutineContext[Job]!!
             do {
                 val children = testJob.children.toList()
-                assertThat(children.all {
-                    withTimeoutOrNull(10_000) {
-                        it.join()
-                        true
-                    } ?: false
-                })
+                assertThat(
+                    children.all {
+                        withTimeoutOrNull(10_000) {
+                            it.join()
+                            true
+                        } ?: false
+                    }
+                )
             } while (children.isNotEmpty())
             assertThat(testJob.isActive)
             assertThat(testError).isNull()

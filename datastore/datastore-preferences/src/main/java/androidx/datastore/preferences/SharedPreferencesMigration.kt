@@ -81,7 +81,8 @@ fun SharedPreferencesMigration(
             }
 
             mutablePreferences.toPreferences()
-        })
+        }
+    )
 }
 
 internal val MIGRATE_ALL_KEYS = null

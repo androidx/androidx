@@ -48,8 +48,7 @@ public class BiometricManager {
     /**
      * The user can successfully authenticate.
      */
-    public static final int BIOMETRIC_SUCCESS =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS;
+    public static final int BIOMETRIC_SUCCESS = 0;
 
     /**
      * Unable to determine whether the user can authenticate.
@@ -70,29 +69,25 @@ public class BiometricManager {
     /**
      * The user can't authenticate because the hardware is unavailable. Try again later.
      */
-    public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE;
+    public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1;
 
     /**
      * The user can't authenticate because no biometric or device credential is enrolled.
      */
-    public static final int BIOMETRIC_ERROR_NONE_ENROLLED =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+    public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11;
 
     /**
      * The user can't authenticate because there is no suitable hardware (e.g. no biometric sensor
      * or no keyguard).
      */
-    public static final int BIOMETRIC_ERROR_NO_HARDWARE =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE;
+    public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12;
 
     /**
      * The user can't authenticate because a security vulnerability has been discovered with one or
      * more hardware sensors. The affected sensor(s) are unavailable until a security update has
      * addressed the issue.
      */
-    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED;
+    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
      * A status code that may be returned when checking for biometric authentication.
@@ -195,6 +190,14 @@ public class BiometricManager {
         boolean isDeviceSecuredWithCredential();
 
         /**
+         * Checks if the current device has a hardware sensor that may be used for fingerprint
+         * authentication.
+         *
+         * @return Whether the device has a fingerprint sensor.
+         */
+        boolean isFingerprintHardwarePresent();
+
+        /**
          * Checks if all biometric sensors on the device are known to meet or exceed the security
          * requirements for <strong>Class 3</strong> (formerly <strong>Strong</strong>).
          *
@@ -239,6 +242,11 @@ public class BiometricManager {
         @Override
         public boolean isDeviceSecuredWithCredential() {
             return KeyguardUtils.isDeviceSecuredWithCredential(mContext);
+        }
+
+        @Override
+        public boolean isFingerprintHardwarePresent() {
+            return PackageUtils.hasSystemFeatureFingerprint(mContext);
         }
 
         @Override
@@ -383,7 +391,11 @@ public class BiometricManager {
 
         // Non-fingerprint biometrics may be invoked but can't be checked on API 28.
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-            return canAuthenticateWithFingerprintOrUnknown();
+            // Having fingerprint hardware is a prerequisite, since BiometricPrompt internally
+            // calls FingerprintManager#getErrorString() on API 28 (b/151443237).
+            return mInjector.isFingerprintHardwarePresent()
+                    ? canAuthenticateWithFingerprintOrUnknown()
+                    : BIOMETRIC_ERROR_NO_HARDWARE;
         }
 
         // No non-fingerprint biometric APIs exist prior to API 28.

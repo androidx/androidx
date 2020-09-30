@@ -458,11 +458,15 @@ class ViewModelGeneratorTest {
             .compile(viewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test" +
-                        ".Outer_InnerViewModel_AssistedFactory")
+            generatedSourceFile(
+                "androidx.hilt.lifecycle.test" +
+                    ".Outer_InnerViewModel_AssistedFactory"
+            )
                 .hasSourceEquivalentTo(expectedFactory)
-            generatedSourceFile("androidx.hilt.lifecycle.test" +
-                        ".Outer_InnerViewModel_HiltModule")
+            generatedSourceFile(
+                "androidx.hilt.lifecycle.test" +
+                    ".Outer_InnerViewModel_HiltModule"
+            )
                 .hasSourceEquivalentTo(expectedModule)
         }
     }

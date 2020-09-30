@@ -42,6 +42,8 @@ import javax.lang.model.util.Types;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IntrospectionHelper {
     static final String APPSEARCH_PKG = "androidx.appsearch.app";
+    static final String APPSEARCH_EXCEPTION_PKG = "androidx.appsearch.exceptions";
+    static final String APPSEARCH_EXCEPTION_SIMPLE_NAME = "AppSearchException";
     static final String APP_SEARCH_DOCUMENT_CLASS =
             "androidx.appsearch.annotation.AppSearchDocument";
     static final String URI_CLASS =
@@ -60,7 +62,6 @@ class IntrospectionHelper {
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
     final TypeMirror mStringType;
-    final TypeMirror mGenericDocumentType;
     final TypeMirror mIntegerBoxType;
     final TypeMirror mIntPrimitiveType;
     final TypeMirror mLongBoxType;
@@ -85,8 +86,6 @@ class IntrospectionHelper {
         mCollectionType = elementUtil.getTypeElement(Collection.class.getName()).asType();
         mListType = elementUtil.getTypeElement(List.class.getName()).asType();
         mStringType = elementUtil.getTypeElement(String.class.getName()).asType();
-        mGenericDocumentType = elementUtil.getTypeElement(
-                getAppSearchClass("GenericDocument").toString()).asType();
         mIntegerBoxType = elementUtil.getTypeElement(Integer.class.getName()).asType();
         mIntPrimitiveType = typeUtil.unboxedType(mIntegerBoxType);
         mLongBoxType = elementUtil.getTypeElement(Long.class.getName()).asType();
@@ -127,5 +126,9 @@ class IntrospectionHelper {
 
     public ClassName getAppSearchClass(String clazz, String... nested) {
         return ClassName.get(APPSEARCH_PKG, clazz, nested);
+    }
+
+    public ClassName getAppSearchExceptionClass() {
+        return ClassName.get(APPSEARCH_EXCEPTION_PKG, APPSEARCH_EXCEPTION_SIMPLE_NAME);
     }
 }

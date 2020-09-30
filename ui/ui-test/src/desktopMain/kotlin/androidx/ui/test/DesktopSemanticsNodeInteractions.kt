@@ -21,5 +21,6 @@ import androidx.compose.ui.semantics.getAllSemanticsNodes
 
 internal actual fun getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> {
     return DesktopComposeTestRule.current!!.owners!!.list.flatMap {
-        it.semanticsOwner.getAllSemanticsNodes(mergingEnabled) }
+        it.semanticsOwner.getAllSemanticsNodes(mergingEnabled)
+    }
 }

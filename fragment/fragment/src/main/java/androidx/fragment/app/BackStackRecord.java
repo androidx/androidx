@@ -443,14 +443,12 @@ final class BackStackRecord extends FragmentTransaction implements
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
             }
             if (!mReorderingAllowed && op.mCmd != OP_ADD && f != null) {
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    mManager.createOrGetFragmentStateManager(f).moveToExpectedState();
-                } else {
+                if (!FragmentManager.USE_STATE_MANAGER) {
                     mManager.moveFragmentToExpectedState(f);
                 }
             }
         }
-        if (!mReorderingAllowed) {
+        if (!mReorderingAllowed && !FragmentManager.USE_STATE_MANAGER) {
             // Added fragments are added at the end to comply with prior behavior.
             mManager.moveToState(mManager.mCurState, true);
         }
@@ -513,14 +511,12 @@ final class BackStackRecord extends FragmentTransaction implements
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
             }
             if (!mReorderingAllowed && op.mCmd != OP_REMOVE && f != null) {
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    mManager.createOrGetFragmentStateManager(f).moveToExpectedState();
-                } else {
+                if (!FragmentManager.USE_STATE_MANAGER) {
                     mManager.moveFragmentToExpectedState(f);
                 }
             }
         }
-        if (!mReorderingAllowed && moveToState) {
+        if (!mReorderingAllowed && moveToState && !FragmentManager.USE_STATE_MANAGER) {
             mManager.moveToState(mManager.mCurState, true);
         }
     }

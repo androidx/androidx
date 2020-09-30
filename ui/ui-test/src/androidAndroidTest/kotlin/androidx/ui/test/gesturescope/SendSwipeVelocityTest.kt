@@ -16,7 +16,7 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
@@ -130,7 +130,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     @Test
     fun swipeWithVelocity() {
         rule.setContent {
-            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+            Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                 ClickableTestBox(recorder, boxSize, boxSize, tag = tag)
             }
         }

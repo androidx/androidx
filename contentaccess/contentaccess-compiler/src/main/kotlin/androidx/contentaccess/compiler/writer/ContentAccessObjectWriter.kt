@@ -38,22 +38,36 @@ class ContentAccessObjectWriter(
         val generatedClassName =
             "${contentAccessObject.interfaceName.removePrefix(contentAccessObject.packageName)
                 .replace(".", "_")}Impl"
-        val fileSpecBuilder = FileSpec.builder(contentAccessObject.packageName,
-            generatedClassName)
+        val fileSpecBuilder = FileSpec.builder(
+            contentAccessObject.packageName,
+            generatedClassName
+        )
         val contentResolverTypePlaceholder = ClassName("android.content", "ContentResolver")
-        val coroutineDispatcherTypePlaceholder = ClassName("kotlinx.coroutines",
-            "CoroutineDispatcher")
+        val coroutineDispatcherTypePlaceholder = ClassName(
+            "kotlinx.coroutines",
+            "CoroutineDispatcher"
+        )
         val generatedClassBuilder = TypeSpec.classBuilder(generatedClassName)
             .addSuperinterface(ClassName.bestGuess(contentAccessObject.interfaceName))
-            .primaryConstructor(FunSpec.constructorBuilder()
-                .addParameter("contentResolver", contentResolverTypePlaceholder)
-                .addParameter("coroutineDispatcher", coroutineDispatcherTypePlaceholder)
-                .build())
-            .addProperty(PropertySpec.builder("_contentResolver",
-                contentResolverTypePlaceholder).initializer("contentResolver").build())
-            .addProperty(PropertySpec.builder("_coroutineDispatcher",
-                coroutineDispatcherTypePlaceholder)
-                .initializer("coroutineDispatcher").build())
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter("contentResolver", contentResolverTypePlaceholder)
+                    .addParameter("coroutineDispatcher", coroutineDispatcherTypePlaceholder)
+                    .build()
+            )
+            .addProperty(
+                PropertySpec.builder(
+                    "_contentResolver",
+                    contentResolverTypePlaceholder
+                ).initializer("contentResolver").build()
+            )
+            .addProperty(
+                PropertySpec.builder(
+                    "_coroutineDispatcher",
+                    coroutineDispatcherTypePlaceholder
+                )
+                    .initializer("coroutineDispatcher").build()
+            )
 
         for (contentQuery in contentAccessObject.queries) {
             generatedClassBuilder.addFunction(
@@ -82,18 +96,20 @@ class ContentAccessObjectWriter(
             )
         }
 
-        val accessorFile = fileSpecBuilder.addType(generatedClassBuilder.addOriginatingElement
-            (contentAccessObject.interfaceElement).build()).build()
+        val accessorFile = fileSpecBuilder.addType(
+            generatedClassBuilder.addOriginatingElement
+            (contentAccessObject.interfaceElement).build()
+        ).build()
         accessorFile.writeTo(processingEnv.filer)
     }
 }
 
 @KotlinPoetMetadataPreview
 fun funSpecOverriding(element: ExecutableElement, processingEnv: ProcessingEnvironment):
-        FunSpec.Builder {
-    val builder = element.getKotlinFunspec(processingEnv).toBuilder()
-    builder.modifiers.remove(KModifier.ABSTRACT)
-    builder.annotations.removeAll { true }
-    builder.addModifiers(KModifier.OVERRIDE)
-    return builder
-}
+    FunSpec.Builder {
+        val builder = element.getKotlinFunspec(processingEnv).toBuilder()
+        builder.modifiers.remove(KModifier.ABSTRACT)
+        builder.annotations.removeAll { true }
+        builder.addModifiers(KModifier.OVERRIDE)
+        return builder
+    }

@@ -32,6 +32,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -47,6 +48,7 @@ import androidx.slice.builders.GridRowBuilder.CellBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
@@ -149,6 +151,19 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     }
 
     @Override
+    public void addRating(@NonNull RatingBuilder builder) {
+        if (mTitle == null && builder.getTitle() != null) {
+            mTitle = builder.getTitle();
+        }
+        if (mSubtitle == null && builder.getSubtitle() != null) {
+            mSubtitle = builder.getSubtitle();
+        }
+        if (mSliceAction == null && builder.getPrimaryAction() != null) {
+            mSliceAction = builder.getPrimaryAction();
+        }
+    }
+
+    @Override
     public void addInputRange(@NonNull InputRangeBuilder builder) {
         if (mTitle == null && builder.getTitle() != null) {
             mTitle = builder.getTitle();
@@ -243,11 +258,17 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     }
 
     @Override
-    public void setHostExtra(@NonNull String key, @NonNull String value) {
-        if (mHostExtras == null) {
-            mHostExtras = new Bundle();
+    @RequiresApi(21)
+    public void setHostExtras(@NonNull PersistableBundle extras) {
+        mHostExtras = ConvertPersistableBundleApi21Impl.toBundle(extras);
+    }
+
+    @RequiresApi(21)
+    private static class ConvertPersistableBundleApi21Impl {
+        private ConvertPersistableBundleApi21Impl() {}
+        static Bundle toBundle(@NonNull PersistableBundle extras) {
+            return new Bundle(extras);
         }
-        mHostExtras.putString(key, value);
     }
 
     /**
@@ -282,7 +303,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         }
 
         if (mIconCompat != null) {
-            builder.addIcon(mIconCompat, null, new String[] { HINT_TITLE });
+            builder.addIcon(mIconCompat, null, HINT_TITLE);
         }
 
         if (mHostExtras != null) {

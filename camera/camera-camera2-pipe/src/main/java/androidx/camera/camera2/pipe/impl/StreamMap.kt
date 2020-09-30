@@ -58,11 +58,13 @@ class StreamMap @Inject constructor(
 
         val hardwareLevel = cameraMetadata[INFO_SUPPORTED_HARDWARE_LEVEL]
         val deferredStreamsSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                graphConfig.operatingMode == CameraGraph.OperatingMode.NORMAL &&
-                hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-                hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED &&
-                (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
-                        hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL)
+            graphConfig.operatingMode == CameraGraph.OperatingMode.NORMAL &&
+            hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
+            hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED &&
+            (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
+                    hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
+                )
 
         for (streamConfig in graphConfig.streams) {
             // Using an inline class generates a synthetic constructor
@@ -79,8 +81,10 @@ class StreamMap @Inject constructor(
 
             if (deferredStreamsSupported &&
                 streamConfig.deferrable &&
-                (streamConfig.type == StreamType.SURFACE_TEXTURE ||
-                        streamConfig.type == StreamType.SURFACE_VIEW)
+                (
+                    streamConfig.type == StreamType.SURFACE_TEXTURE ||
+                        streamConfig.type == StreamType.SURFACE_VIEW
+                    )
             ) {
                 deferrableStreamBuilder.add(stream.id)
             }

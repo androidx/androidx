@@ -58,9 +58,11 @@ class DataStoreFactoryTest {
 
         val expectedByte = 123.toByte()
 
-        assertThat(store.updateData {
-            expectedByte
-        }).isEqualTo(expectedByte)
+        assertThat(
+            store.updateData {
+                expectedByte
+            }
+        ).isEqualTo(expectedByte)
         assertThat(store.data.first()).isEqualTo(expectedByte)
     }
 
@@ -130,7 +132,8 @@ class DataStoreFactoryTest {
         store = DataStoreFactory.create(
             produceFile = {
                 File(context.filesDir, "datastore/my_settings.byte")
-            }, serializer = TestingSerializer(),
+            },
+            serializer = TestingSerializer(),
             scope = dataStoreScope
         )
         assertThat(store.data.first()).isEqualTo(byte)

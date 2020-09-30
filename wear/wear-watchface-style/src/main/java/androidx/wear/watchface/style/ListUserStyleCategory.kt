@@ -17,16 +17,11 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
 
 /** A ListStyleCategory represents a category with options selected from a List. */
-open class ListUserStyleCategory :
-    UserStyleCategory {
-
-    internal companion object {
-        internal const val CATEGORY_TYPE = "ListUserStyleCategory"
-        internal const val OPTION_TYPE = "ListOption"
-    }
+open class ListUserStyleCategory : UserStyleCategory {
 
     @JvmOverloads
     constructor (
@@ -55,20 +50,39 @@ open class ListUserStyleCategory :
 
         /** The default option, used when data isn't persisted. */
         defaultOption: ListOption = options.first()
-    ) : super(id, displayName, description, icon, options, defaultOption, layerFlags)
+    ) : super(
+        id,
+        displayName,
+        description,
+        icon,
+        options,
+        options.indexOf(defaultOption),
+        layerFlags
+    )
 
-    internal constructor(bundle: Bundle) : super(bundle)
+    internal constructor(wireFormat: ListUserStyleCategoryWireFormat) : super(wireFormat)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun toWireFormat() =
+        ListUserStyleCategoryWireFormat(
+            id,
+            displayName,
+            description,
+            icon,
+            getWireFormatOptionsList(),
+            defaultOptionIndex,
+            layerFlags
+        )
 
     /**
      * Represents choice within a {@link ListUserStyleCategory}, these must be enumerated up front.
      */
     open class ListOption : Option {
-        /** Localized human readable name for the setting, used in the userStyle selection UI. */
+        /** Localized human readable name for the setting, used in the style selection UI. */
         val displayName: String
 
-        /**
-         * Icon for use in the userStyle selection UI.
-         */
+        /** Icon for use in the style selection UI. */
         val icon: Icon?
 
         constructor(id: String, displayName: String, icon: Icon?) : super(id) {
@@ -76,26 +90,16 @@ open class ListUserStyleCategory :
             this.icon = icon
         }
 
-        internal companion object {
-            internal const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
-            internal const val KEY_ICON = "KEY_ICON"
+        internal constructor(
+            wireFormat: ListUserStyleCategoryWireFormat.ListOptionWireFormat
+        ) : super(wireFormat.mId) {
+            displayName = wireFormat.mDisplayName
+            icon = wireFormat.mIcon
         }
 
-        internal constructor(bundle: Bundle) : super(bundle) {
-            displayName = bundle.getString(KEY_DISPLAY_NAME)!!
-            icon = bundle.getParcelable(KEY_ICON)
-        }
-
-        final override fun writeToBundle(bundle: Bundle) {
-            super.writeToBundle(bundle)
-            bundle.putString(KEY_DISPLAY_NAME, displayName)
-            bundle.putParcelable(KEY_ICON, icon)
-        }
-
-        override fun getOptionType() =
-            OPTION_TYPE
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat() =
+            ListUserStyleCategoryWireFormat.ListOptionWireFormat(id, displayName, icon)
     }
-
-    override fun getCategoryType() =
-        CATEGORY_TYPE
 }

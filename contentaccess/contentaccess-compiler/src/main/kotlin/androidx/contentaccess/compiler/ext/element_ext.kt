@@ -64,36 +64,36 @@ fun TypeElement.hasMoreThanOneNonPrivateNonIgnoredConstructor() =
 fun TypeElement.isFilledThroughConstructor() = this.getNonPrivateNonIgnoreConstructors().size == 1
 
 fun TypeElement.isNotInstantiable():
-        Boolean {
-    // No constructors means we can't instantiate it to fill its public fields, user might have
-    // made the default constructor private or simply ignored it.
-    return this.getNonPrivateNonIgnoreConstructors().isEmpty()
-}
+    Boolean {
+        // No constructors means we can't instantiate it to fill its public fields, user might have
+        // made the default constructor private or simply ignored it.
+        return this.getNonPrivateNonIgnoreConstructors().isEmpty()
+    }
 
 /**
  * Gets either all the parameters of the single public constructor if they exist, otherwise returns
  * a list of all public fields, even if empty.
  */
 fun TypeElement.getAllConstructorParamsOrPublicFields():
-        List<VariableElement> {
-    val constructors = this.getNonPrivateNonIgnoreConstructors()
+    List<VariableElement> {
+        val constructors = this.getNonPrivateNonIgnoreConstructors()
 
-    if (constructors.size == 1) {
-        val parameters = MoreElements.asExecutable(constructors.first()).parameters
-        if (parameters.isNotEmpty()) {
-            return parameters.map { it as VariableElement }
+        if (constructors.size == 1) {
+            val parameters = MoreElements.asExecutable(constructors.first()).parameters
+            if (parameters.isNotEmpty()) {
+                return parameters.map { it as VariableElement }
+            }
+        } else if (constructors.isEmpty()) {
+            error("${this.qualifiedName} has no non private and non ignored constructors!")
+        } else {
+            error("${this.qualifiedName} has more than non private non ignored constructor")
         }
-    } else if (constructors.isEmpty()) {
-        error("${this.qualifiedName} has no non private and non ignored constructors!")
-    } else {
-        error("${this.qualifiedName} has more than non private non ignored constructor")
+        // TODO(obenabde): explore ways to warn users if they're unknowingly doing something wrong
+        //  e.g if there is a possibility they think we are filling fields instead of constructors
+        //  or both etc...
+        // This is a class with an empty or no public constructor, check public fields.
+        return getAllNonPrivateFieldsIncludingSuperclassOnes()
     }
-    // TODO(obenabde): explore ways to warn users if they're unknowingly doing something wrong
-    //  e.g if there is a possibility they think we are filling fields instead of constructors
-    //  or both etc...
-    // This is a class with an empty or no public constructor, check public fields.
-    return getAllNonPrivateFieldsIncludingSuperclassOnes()
-}
 
 fun TypeElement.getAllNonPrivateFieldsIncludingSuperclassOnes(): List<VariableElement> {
     var nonPrivateFields = ElementFilter.fieldsIn(this.enclosedElements)
@@ -117,11 +117,14 @@ fun TypeElement.hasNonEmptyNonPrivateNonIgnoredConstructor(): Boolean {
 }
 
 fun TypeMirror.extendsBound(): TypeMirror? {
-    return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
-        override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
-            return type.extendsBound ?: type.superBound
-        }
-    }, null)
+    return this.accept(
+        object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
+            override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
+                return type.extendsBound ?: type.superBound
+            }
+        },
+        null
+    )
 }
 
 @KotlinPoetMetadataPreview
@@ -130,25 +133,28 @@ fun ExecutableElement.isSuspendFunction(processingEnv: ProcessingEnvironment) =
 
 @KotlinPoetMetadataPreview
 fun ExecutableElement.getSuspendFunctionReturnType():
-        TypeMirror {
-    val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
-    return typeParam.extendsBound() ?: typeParam
-}
+    TypeMirror {
+        val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
+        return typeParam.extendsBound() ?: typeParam
+    }
 
 @KotlinPoetMetadataPreview
 fun ExecutableElement.getKotlinFunspec(processingEnv: ProcessingEnvironment):
-        FunSpec {
-    val classInspector = ElementsClassInspector.create(processingEnv.elementUtils, processingEnv
-        .typeUtils)
-    val enclosingClass = this.enclosingElement as TypeElement
+    FunSpec {
+        val classInspector = ElementsClassInspector.create(
+            processingEnv.elementUtils,
+            processingEnv
+                .typeUtils
+        )
+        val enclosingClass = this.enclosingElement as TypeElement
 
-    val kotlinApi = enclosingClass.toTypeSpec(classInspector)
-    val jvmSignature = JvmSignatureUtil.getMethodDescriptor(this)
-    val funSpec = kotlinApi.funSpecs.find {
-        it.tag<ImmutableKmFunction>()?.signature?.asString() == jvmSignature
-    } ?: error("No matching funSpec found for $jvmSignature.")
-    return funSpec
-}
+        val kotlinApi = enclosingClass.toTypeSpec(classInspector)
+        val jvmSignature = JvmSignatureUtil.getMethodDescriptor(this)
+        val funSpec = kotlinApi.funSpecs.find {
+            it.tag<ImmutableKmFunction>()?.signature?.asString() == jvmSignature
+        } ?: error("No matching funSpec found for $jvmSignature.")
+        return funSpec
+    }
 
 fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
     val myMethods = ElementFilter.methodsIn(this.enclosedElements).toSet()
@@ -217,20 +223,24 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
         }
         method.name to result
     }
-    return AnnotationBox(Proxy.newProxyInstance(ClassGetter::class.java.classLoader,
-            arrayOf(cl, ClassGetter::class.java)) { _, method, args ->
-        when (method.name) {
-            ClassGetter::getAsTypeMirror.name -> map[args[0]]
-            ClassGetter::getAsTypeMirrorList.name -> map[args[0]]
-            "getAsAnnotationBox" -> map[args[0]]
-            "getAsAnnotationBoxArray" -> map[args[0]]
-            else -> map[method.name]
+    return AnnotationBox(
+        Proxy.newProxyInstance(
+            ClassGetter::class.java.classLoader,
+            arrayOf(cl, ClassGetter::class.java)
+        ) { _, method, args ->
+            when (method.name) {
+                ClassGetter::getAsTypeMirror.name -> map[args[0]]
+                ClassGetter::getAsTypeMirrorList.name -> map[args[0]]
+                "getAsAnnotationBox" -> map[args[0]]
+                "getAsAnnotationBoxArray" -> map[args[0]]
+                else -> map[method.name]
+            }
         }
-    })
+    )
 }
 
 fun <T : Annotation> Element.toAnnotationBox(cl: KClass<T>) =
-        MoreElements.getAnnotationMirror(this, cl.java).orNull()?.box(cl.java)
+    MoreElements.getAnnotationMirror(this, cl.java).orNull()?.box(cl.java)
 
 @Suppress("DEPRECATION")
 private class ListVisitor<T : Annotation>(private val annotationClass: Class<T>) :
@@ -355,7 +365,7 @@ private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor6<T, Void>() {
         override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
             return enumClass.getDeclaredMethod("valueOf", String::class.java)
-                    .invoke(null, value!!.simpleName.toString()) as T
+                .invoke(null, value!!.simpleName.toString()) as T
         }
     }.visit(this)
 }

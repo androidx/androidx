@@ -29,9 +29,9 @@ internal class DataMigrationInitializer<T>() {
          * functions.
          */
         fun <T> getInitializer(migrations: List<DataMigration<T>>):
-                suspend (api: InitializerApi<T>) -> Unit = { api ->
-            runMigrations(migrations, api)
-        }
+            suspend (api: InitializerApi<T>) -> Unit = { api ->
+                runMigrations(migrations, api)
+            }
 
         private suspend fun <T> runMigrations(
             migrations: List<DataMigration<T>>,

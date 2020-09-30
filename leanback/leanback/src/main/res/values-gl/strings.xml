@@ -29,8 +29,8 @@ limitations under the License.
     <string name="lb_playback_controls_pause" msgid="917331776961802657">"Pausar"</string>
     <string name="lb_playback_controls_fast_forward" msgid="740570111678243493">"Avance rápido"</string>
     <string name="lb_playback_controls_fast_forward_multiplier" msgid="5734614175721471329">"Avance rápido %1$dX"</string>
-    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"Rebobinar"</string>
-    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"Rebobinado %1$dX"</string>
+    <string name="lb_playback_controls_rewind" msgid="2866333981131020771">"Retroceder"</string>
+    <string name="lb_playback_controls_rewind_multiplier" msgid="6038956370475252734">"Retroceso %1$dX"</string>
     <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"Saltar ao seguinte"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"Saltar ao anterior"</string>
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"Máis accións"</string>

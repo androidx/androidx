@@ -40,7 +40,7 @@
     <string name="mcv2_cc_is_off" msgid="6888583680833967030">"As legendas estão desativadas. Clique para as mostrar."</string>
     <string name="mcv2_replay_button_desc" msgid="3498082316888662782">"Repetir"</string>
     <string name="mcv2_play_button_desc" msgid="1994649551115596877">"Reproduzir"</string>
-    <string name="mcv2_pause_button_desc" msgid="997297527148989963">"Colocar em pausa"</string>
+    <string name="mcv2_pause_button_desc" msgid="997297527148989963">"Pausar"</string>
     <string name="mcv2_previous_button_desc" msgid="5367141424871007842">"Conteúdo multimédia anterior"</string>
     <string name="mcv2_next_button_desc" msgid="4799850472802157220">"Conteúdo multimédia seguinte"</string>
     <string name="mcv2_rewind_button_desc" msgid="5725552141091554735">"Recuar 10 segundos"</string>

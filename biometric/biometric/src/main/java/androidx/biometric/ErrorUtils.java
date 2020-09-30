@@ -58,6 +58,18 @@ class ErrorUtils {
     }
 
     /**
+     * Checks if the given error code indicates that the user has been (temporarily or permanently)
+     * locked out from using biometric authentication, likely due to too many attempts.
+     *
+     * @param errorCode An integer ID associated with the error.
+     * @return Whether the error code indicates that the user has been locked out.
+     */
+    static boolean isLockoutError(int errorCode) {
+        return errorCode == BiometricPrompt.ERROR_LOCKOUT
+                || errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT;
+    }
+
+    /**
      * Only needs to provide a subset of the fingerprint error strings since the rest are translated
      * in FingerprintManager
      */

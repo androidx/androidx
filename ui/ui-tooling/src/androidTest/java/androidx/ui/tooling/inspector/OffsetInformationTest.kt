@@ -44,7 +44,7 @@ class OffsetInformationTest : ToolingTest() {
         val tree = table.asTree()
         val offsets = tree.all().filter {
             it.location?.sourceFile == "OffsetData.kt" &&
-                    it.name != null && it.name != "remember"
+                it.name != null && it.name != "remember"
         }.map {
             it.name!! to it.location!!.offset
         }

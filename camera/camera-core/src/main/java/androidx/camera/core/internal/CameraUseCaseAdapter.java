@@ -26,6 +26,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -56,6 +58,7 @@ public final class CameraUseCaseAdapter implements Camera {
     private final CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
+    private final UseCaseConfigFactory mUseCaseConfigFactory;
 
     private static final String TAG = "CameraUseCaseAdapter";
 
@@ -85,11 +88,13 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public CameraUseCaseAdapter(@NonNull CameraInternal cameraInternal,
             @NonNull LinkedHashSet<CameraInternal> cameras,
-            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager) {
+            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
+            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         mCameraInternal = cameraInternal;
         mCameraInternals = new LinkedHashSet<>(cameras);
         mId = new CameraId(mCameraInternals);
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
+        mUseCaseConfigFactory = useCaseConfigFactory;
     }
 
     /**
@@ -130,12 +135,6 @@ public final class CameraUseCaseAdapter implements Camera {
      * <p> This does not take into account UseCases which are already attached to the camera.
      */
     public void checkAttachUseCases(@NonNull List<UseCase> useCases) throws CameraException {
-        // Only do resolution calculation if UseCases were bound
-        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(useCases)) {
-            throw new CameraException("Attempting to bind too many ImageCapture or "
-                    + "VideoCapture instances");
-        }
-
         // If the UseCases exceed the resolutions then it will throw an exception
         try {
             calculateSuggestedResolutions(useCases, Collections.emptyList());
@@ -153,22 +152,14 @@ public final class CameraUseCaseAdapter implements Camera {
     @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
-            List<UseCase> useCaseListAfterUpdate = new ArrayList<>(mUseCases);
             List<UseCase> newUseCases = new ArrayList<>();
 
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     Logger.d(TAG, "Attempting to attach already attached UseCase");
                 } else {
-                    useCaseListAfterUpdate.add(useCase);
                     newUseCases.add(useCase);
                 }
-            }
-
-            // Only do resolution calculation if UseCases were bound
-            if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(useCaseListAfterUpdate)) {
-                throw new CameraException("Attempting to bind too many ImageCapture or "
-                        + "VideoCapture instances");
             }
 
             Map<UseCase, Size> suggestedResolutionsMap;
@@ -181,8 +172,11 @@ public final class CameraUseCaseAdapter implements Camera {
 
             if (mViewPort != null) {
                 // Calculate crop rect if view port is provided.
+                boolean isFrontCamera = mCameraInternal.getCameraInfoInternal().getLensFacing()
+                        == CameraSelector.LENS_FACING_FRONT;
                 Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
                         mCameraInternal.getCameraControlInternal().getSensorRect(),
+                        isFrontCamera,
                         mViewPort.getAspectRatio(),
                         mCameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
                                 mViewPort.getRotation()),
@@ -198,7 +192,7 @@ public final class CameraUseCaseAdapter implements Camera {
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {
-                useCase.onAttach(mCameraInternal);
+                useCase.onAttach(mCameraInternal, mUseCaseConfigFactory);
                 useCase.updateSuggestedResolution(
                         Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
@@ -303,12 +297,11 @@ public final class CameraUseCaseAdapter implements Camera {
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             for (UseCase useCase : newUseCases) {
-                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder();
+                UseCaseConfig<?> defaultConfig =
+                        useCase.getDefaultConfig(mUseCaseConfigFactory);
 
                 // Combine with default configuration.
-                UseCaseConfig<?> combinedUseCaseConfig =
-                        useCase.applyDefaults(useCase.getUseCaseConfig(),
-                                defaultBuilder);
+                UseCaseConfig<?> combinedUseCaseConfig = useCase.mergeConfigs(null, defaultConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 

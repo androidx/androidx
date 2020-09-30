@@ -185,7 +185,7 @@ public abstract class PreviewExtender {
         }
 
         for (UseCase useCase : activeUseCases) {
-            EffectMode imageCaptureExtenderMode = useCase.getUseCaseConfig().retrieveOption(
+            EffectMode imageCaptureExtenderMode = useCase.getCurrentConfig().retrieveOption(
                     ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE, null);
 
             if (effectMode == imageCaptureExtenderMode) {

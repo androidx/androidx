@@ -171,8 +171,10 @@ class TextActionsTest {
     fun sendImeAction_search() {
         var actionPerformed: ImeAction = ImeAction.Unspecified
         rule.setContent {
-            TextFieldUi(imeAction = ImeAction.Search,
-                onImeActionPerformed = { actionPerformed = it })
+            TextFieldUi(
+                imeAction = ImeAction.Search,
+                onImeActionPerformed = { actionPerformed = it }
+            )
         }
         assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
 
@@ -188,12 +190,15 @@ class TextActionsTest {
     fun sendImeAction_actionNotDefined_shouldFail() {
         var actionPerformed: ImeAction = ImeAction.Unspecified
         rule.setContent {
-            TextFieldUi(imeAction = ImeAction.Unspecified,
-                onImeActionPerformed = { actionPerformed = it })
+            TextFieldUi(
+                imeAction = ImeAction.Unspecified,
+                onImeActionPerformed = { actionPerformed = it }
+            )
         }
         assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to perform IME action as current node does not specify any.\n" +
                 "Semantics of the node:"
         ) {
@@ -208,7 +213,8 @@ class TextActionsTest {
             BoundaryNode(testTag = "node")
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to perform IME action.\n" +
                 "Failed to assert the following: (SupportsInputMethods is defined)\n" +
                 "Semantics of the node:"

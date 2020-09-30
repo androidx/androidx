@@ -172,6 +172,11 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         SynchronizedTreeCollector.waitForIdle()
     }
 
+    @ExperimentalTesting
+    override suspend fun awaitIdle() {
+        SynchronizedTreeCollector.awaitIdle()
+    }
+
     @SuppressLint("DocumentExceptions")
     override fun <T> runOnUiThread(action: () -> T): T {
         if (isOnUiThread()) {

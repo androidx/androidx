@@ -77,6 +77,7 @@ object Devices {
         Devices.PIXEL_4,
         Devices.PIXEL_4_XL,
 
-        Devices.AUTOMOTIVE_1024p]
+        Devices.AUTOMOTIVE_1024p
+    ]
 )
 annotation class Device

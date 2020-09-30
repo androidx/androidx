@@ -98,8 +98,7 @@ public class AppSearchManager {
         }
 
         /**
-         * Connects to the AppSearch database per this builder's configuration, and asynchronously
-         * returns the initialized instance.
+         * Asynchronously connects to the AppSearch backend and returns the initialized instance.
          */
         @NonNull
         public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
@@ -418,13 +417,13 @@ public class AppSearchManager {
     /**
      * Encapsulates a request to retrieve documents by namespace and URI.
      *
-     * @see AppSearchManager#getDocuments
+     * @see AppSearchManager#getByUri
      */
-    public static final class GetDocumentsRequest {
+    public static final class GetByUriRequest {
         private final String mNamespace;
         private final Set<String> mUris;
 
-        GetDocumentsRequest(@NonNull String namespace, @NonNull Set<String> uris) {
+        GetByUriRequest(@NonNull String namespace, @NonNull Set<String> uris) {
             mNamespace = namespace;
             mUris = uris;
         }
@@ -443,7 +442,7 @@ public class AppSearchManager {
             return mUris;
         }
 
-        /** Builder for {@link GetDocumentsRequest} objects. */
+        /** Builder for {@link GetByUriRequest} objects. */
         public static final class Builder {
             private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
             private final Set<String> mUris = new ArraySet<>();
@@ -478,12 +477,12 @@ public class AppSearchManager {
                 return this;
             }
 
-            /** Builds a new {@link GetDocumentsRequest}. */
+            /** Builds a new {@link GetByUriRequest}. */
             @NonNull
-            public GetDocumentsRequest build() {
+            public GetByUriRequest build() {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mBuilt = true;
-                return new GetDocumentsRequest(mNamespace, mUris);
+                return new GetByUriRequest(mNamespace, mUris);
             }
         }
     }
@@ -491,7 +490,7 @@ public class AppSearchManager {
     /**
      * Retrieves {@link GenericDocument}s by URI.
      *
-     * @param request {@link GetDocumentsRequest} containing URIs to be retrieved.
+     * @param request {@link GetByUriRequest} containing URIs to be retrieved.
      * @return The pending result of performing this operation. The keys of the returned
      * {@link AppSearchBatchResult} are the input URIs. The values are the returned
      * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
@@ -499,12 +498,12 @@ public class AppSearchManager {
      * of {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
-            @NonNull GetDocumentsRequest request) {
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
+            @NonNull GetByUriRequest request) {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.getDocuments(mDatabaseName, request));
+        return execute(() -> mBackend.getByUri(mDatabaseName, request));
     }
 
     /**
@@ -564,14 +563,13 @@ public class AppSearchManager {
     /**
      * Encapsulates a request to remove documents by namespace and URI.
      *
-     * @see AppSearchManager#removeDocuments
-     * @hide
+     * @see AppSearchManager#removeByUri
      */
-    public static final class RemoveDocumentsRequest {
+    public static final class RemoveByUriRequest {
         private final String mNamespace;
         private final Set<String> mUris;
 
-        RemoveDocumentsRequest(String namespace, Set<String> uris) {
+        RemoveByUriRequest(String namespace, Set<String> uris) {
             mNamespace = namespace;
             mUris = uris;
         }
@@ -590,7 +588,7 @@ public class AppSearchManager {
             return mUris;
         }
 
-        /** Builder for {@link RemoveDocumentsRequest} objects. */
+        /** Builder for {@link RemoveByUriRequest} objects. */
         public static final class Builder {
             private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
             private final Set<String> mUris = new ArraySet<>();
@@ -625,12 +623,12 @@ public class AppSearchManager {
                 return this;
             }
 
-            /** Builds a new {@link RemoveDocumentsRequest}. */
+            /** Builds a new {@link RemoveByUriRequest}. */
             @NonNull
-            public RemoveDocumentsRequest build() {
+            public RemoveByUriRequest build() {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
                 mBuilt = true;
-                return new RemoveDocumentsRequest(mNamespace, mUris);
+                return new RemoveByUriRequest(mNamespace, mUris);
             }
         }
     }
@@ -644,13 +642,12 @@ public class AppSearchManager {
      * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
      * failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
-            @NonNull RemoveDocumentsRequest request) {
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
+            @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.removeDocuments(mDatabaseName, request));
+        return execute(() -> mBackend.removeByUri(mDatabaseName, request));
     }
 
     /**

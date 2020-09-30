@@ -81,7 +81,7 @@ private const val MAX_IMAGES = 3
 @MediumTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureTest {
 
     private lateinit var callbackHandler: Handler
@@ -102,11 +102,13 @@ class ImageCaptureTest {
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
+        val camera = FakeCamera()
+
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
                 val cameraFactory = FakeCameraFactory()
-                cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID) {
-                    FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID)
+                cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
+                    camera
                 }
                 cameraFactory
             }
@@ -171,7 +173,8 @@ class ImageCaptureTest {
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         flushHandler(callbackHandler)
         cameraUseCaseAdapter.removeUseCases(
-            Collections.singleton(imageCapture) as Collection<UseCase>)
+            Collections.singleton(imageCapture) as Collection<UseCase>
+        )
 
         // Assert.
         // The captured image should still be valid even if the ImageCapture has been unbound. It
@@ -361,8 +364,11 @@ class ImageCaptureTest {
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
 
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(ApplicationProvider
-            .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA)
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider
+                .getApplicationContext<Context>(),
+            CameraSelector.DEFAULT_BACK_CAMERA
+        )
 
         cameraUseCaseAdapter.setViewPort(viewPort)
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))

@@ -24,6 +24,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -56,7 +57,8 @@ public final class LifecycleCameraRepositoryTest {
         mCameraSet = new LinkedHashSet<>(Collections.singleton(camera));
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(camera,
                 mCameraSet,
-                new FakeCameraDeviceSurfaceManager());
+                new FakeCameraDeviceSurfaceManager(),
+                new FakeUseCaseConfigFactory());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -442,6 +444,7 @@ public final class LifecycleCameraRepositoryTest {
         CameraInternal fakeCamera = new FakeCamera(cameraId);
         return new CameraUseCaseAdapter(fakeCamera,
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
-                new FakeCameraDeviceSurfaceManager());
+                new FakeCameraDeviceSurfaceManager(),
+                new FakeUseCaseConfigFactory());
     }
 }

@@ -40,6 +40,8 @@ internal data class ViewportHint(
      * Zero indicates access at boundary
      * Positive -> Within loaded range or in placeholders if greater than size of last page.
      * Negative -> placeholder access.
+     *
+     * Note: Does not include placeholders.
      */
     val presentedItemsBefore: Int,
     /**
@@ -48,8 +50,18 @@ internal data class ViewportHint(
      * Zero indicates access at boundary
      * Positive -> Within loaded range or in placeholders if greater than size of last page.
      * Negative -> placeholder access.
+     *
+     * Note: Does not include placeholders.
      */
     val presentedItemsAfter: Int,
+    /**
+     * [hintOriginalPageOffset][TransformablePage.hintOriginalPageOffset] of the first presented
+     * [TransformablePage] when this [ViewportHint] was created.
+     */
     val originalPageOffsetFirst: Int,
+    /**
+     * [hintOriginalPageOffset][TransformablePage.hintOriginalPageOffset] of the last presented
+     * [TransformablePage] when this [ViewportHint] was created.
+     */
     val originalPageOffsetLast: Int
 )

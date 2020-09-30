@@ -88,7 +88,8 @@ internal class WorkerGenerator(
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
                     .addMember("value", "$T.class", ClassNames.SINGLETON_COMPONENT)
-                    .build())
+                    .build()
+            )
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)
                     .addMember(
@@ -106,14 +107,18 @@ internal class WorkerGenerator(
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
                             .addMember("value", S, injectedWorker.className.reflectionName())
-                            .build())
+                            .build()
+                    )
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
                         ParameterizedTypeName.get(
                             ClassNames.WORKER_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)))
+                            WildcardTypeName.subtypeOf(ClassNames.LISTENABLE_WORKER)
+                        )
+                    )
                     .addParameter(injectedWorker.factoryClassName, "factory")
-                    .build())
+                    .build()
+            )
             .build()
         JavaFile.builder(injectedWorker.moduleClassName.packageName(), hiltModuleTypeSpec)
             .build()

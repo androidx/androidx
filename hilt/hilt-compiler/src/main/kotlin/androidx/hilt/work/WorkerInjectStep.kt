@@ -68,15 +68,22 @@ class WorkerInjectStep(
         var valid = true
 
         if (elements.getTypeElement(ClassNames.WORKER_ASSISTED_FACTORY.toString()) == null) {
-            error("To use @WorkerInject you must add the 'work' artifact. " +
-                    "androidx.hilt:hilt-work:<version>")
+            error(
+                "To use @WorkerInject you must add the 'work' artifact. " +
+                    "androidx.hilt:hilt-work:<version>"
+            )
             valid = false
         }
 
-        if (!types.isSubtype(typeElement.asType(),
-                elements.getTypeElement(ClassNames.LISTENABLE_WORKER.toString()).asType())) {
-            error("@WorkerInject is only supported on types that subclass " +
-                    "${ClassNames.LISTENABLE_WORKER}.")
+        if (!types.isSubtype(
+                typeElement.asType(),
+                elements.getTypeElement(ClassNames.LISTENABLE_WORKER.toString()).asType()
+            )
+        ) {
+            error(
+                "@WorkerInject is only supported on types that subclass " +
+                    "${ClassNames.LISTENABLE_WORKER}."
+            )
             valid = false
         }
 
@@ -94,9 +101,12 @@ class WorkerInjectStep(
         }
 
         if (typeElement.nestingKind == NestingKind.MEMBER &&
-            !typeElement.modifiers.contains(Modifier.STATIC)) {
-            error("@WorkerInject may only be used on inner classes if they are static.",
-                typeElement)
+            !typeElement.modifiers.contains(Modifier.STATIC)
+        ) {
+            error(
+                "@WorkerInject may only be used on inner classes if they are static.",
+                typeElement
+            )
             valid = false
         }
 
@@ -104,8 +114,11 @@ class WorkerInjectStep(
             TypeName.get(it.asType()) == ClassNames.CONTEXT
         }.apply {
             if (size != 1) {
-                error("Expected exactly one constructor argument of type " +
-                        "${ClassNames.CONTEXT}, found $size", constructorElement)
+                error(
+                    "Expected exactly one constructor argument of type " +
+                        "${ClassNames.CONTEXT}, found $size",
+                    constructorElement
+                )
                 valid = false
             }
             firstOrNull()?.let {
@@ -120,8 +133,11 @@ class WorkerInjectStep(
             TypeName.get(it.asType()) == ClassNames.WORKER_PARAMETERS
         }.apply {
             if (size != 1) {
-                error("Expected exactly one constructor argument of type " +
-                        "${ClassNames.WORKER_PARAMETERS}, found $size", constructorElement)
+                error(
+                    "Expected exactly one constructor argument of type " +
+                        "${ClassNames.WORKER_PARAMETERS}, found $size",
+                    constructorElement
+                )
                 valid = false
             }
             firstOrNull()?.let {

@@ -42,7 +42,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -104,7 +103,6 @@ public final class HeifWriter implements AutoCloseable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mOutputIndex;
     private boolean mStarted;
-    private final CountDownLatch mStoppedLatch;
 
     private final List<Pair<Integer, ByteBuffer>> mExifList = new ArrayList<>();
 
@@ -353,8 +351,6 @@ public final class HeifWriter implements AutoCloseable {
 
         mHeifEncoder = new HeifEncoder(width, height, gridEnabled, quality,
                 mInputMode, mHandler, new HeifCallback());
-
-        mStoppedLatch = new CountDownLatch(1);
     }
 
     /**
@@ -537,21 +533,28 @@ public final class HeifWriter implements AutoCloseable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void closeInternal() {
         if (DEBUG) Log.d(TAG, "closeInternal");
-
-        if (mMuxer != null) {
-            mMuxer.stop();
-            mMuxer.release();
+        // We don't want to crash when closing, catch all exceptions.
+        try {
+            // Muxer could throw exceptions if stop is called without samples.
+            // Don't crash in that case.
+            if (mMuxer != null) {
+                mMuxer.stop();
+                mMuxer.release();
+            }
+        } catch (Exception e) {
+        } finally {
             mMuxer = null;
         }
-
-        if (mHeifEncoder != null) {
-            mHeifEncoder.close();
+        try {
+            if (mHeifEncoder != null) {
+                mHeifEncoder.close();
+            }
+        } catch (Exception e) {
+        } finally {
             synchronized (this) {
                 mHeifEncoder = null;
             }
         }
-
-        mStoppedLatch.countDown();
     }
 
     /**
@@ -712,8 +715,5 @@ public final class HeifWriter implements AutoCloseable {
                 }
             }
         });
-        try {
-            mStoppedLatch.await();
-        } catch (InterruptedException e) {}
     }
 }

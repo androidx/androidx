@@ -36,10 +36,13 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
@@ -741,10 +744,10 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = mapOf(
+        userStyleRepository.userStyle = UserStyle(hashMapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
-        )
+        ))
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -767,17 +770,17 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
 
-        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
 
     @Test
     fun getStoredUserStyleSupported_userStyle_isPersisted() {
-        var persistedStyle = Bundle()
+        var persistedStyle: UserStyleWireFormat? = null
 
         // Mock the behavior of Home/SysUI which should persist the style.
         doAnswer {
@@ -785,7 +788,7 @@ class WatchFaceServiceTest {
         }.`when`(iWatchFaceService).getStoredUserStyle()
 
         `when`(iWatchFaceService.setCurrentUserStyle(any())).then {
-            persistedStyle = it.arguments[0] as Bundle
+            persistedStyle = it.arguments[0] as UserStyleWireFormat
             Unit
         }
 
@@ -797,10 +800,10 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = mapOf(
+        userStyleRepository.userStyle = UserStyle(hashMapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
-        )
+        ))
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -823,10 +826,10 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 3)
 
-        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
@@ -834,7 +837,7 @@ class WatchFaceServiceTest {
     @Test
     fun persistedStyleOptionMismatchIgnored() {
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            StyleUtils.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
+            UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat()
         )
 
         initEngine(
@@ -844,7 +847,7 @@ class WatchFaceServiceTest {
             3
         )
 
-        assertThat(testWatchFaceService.lastUserStyle!![watchHandStyleCategory])
+        assertThat(testWatchFaceService.lastUserStyle!!.options[watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -990,13 +993,63 @@ class WatchFaceServiceTest {
         backgroundComplication.enabled = false
         runPostedTasksFor(0)
 
+        verify(iWatchFaceService).setActiveComplications(
+            intArrayOf(rightComplication.id),
+            true
+        )
+
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
         val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
         verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
         assertThat(argument.value.size).isEqualTo(2)
         assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
-        assertThat(argument.value[1].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complicaiton.
+        assertThat(argument.value[1].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
+    }
+
+    @Test
+    fun moveComplications() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            emptyList(),
+            4
+        )
+
+        // Ignore initial setContentDescriptionLabels call.
+        reset(iWatchFaceService)
+
+        leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
+        rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
+
+        runPostedTasksFor(0)
+
+        val complicationId = ArgumentCaptor.forClass(Int::class.java)
+        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
+        verify(iWatchFaceService, times(2)).setComplicationDetails(
+            complicationId.capture(), complicationDetails.capture()
+        )
+
+        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+            Rect(30, 30, 50, 50))
+
+        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+            Rect(70, 75, 90, 95))
+
+        // Despite disabling the background complication we should still get a
+        // ContentDescriptionLabel for the main clock element.
+        val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
+        assertThat(argument.value.size).isEqualTo(3)
+        assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(argument.value[1].bounds).isEqualTo(Rect(30, 30, 50, 50)) // Left complication.
+        assertThat(argument.value[2].bounds).isEqualTo(Rect(70, 75, 90, 95)) // Right complication.
     }
 
     @Test
@@ -1129,6 +1182,36 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun setComplicationDetails_called() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            emptyList(),
+            apiVersion = 4
+        )
+
+        runPostedTasksFor(0)
+
+        val complicationId = ArgumentCaptor.forClass(Int::class.java)
+        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
+        verify(iWatchFaceService, times(2)).setComplicationDetails(
+            complicationId.capture(), complicationDetails.capture()
+        )
+
+        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+            Rect(20, 40, 40, 60))
+
+        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+            Rect(60, 40, 80, 60))
+    }
+
+    @Test
     fun shouldAnimateOverrideControlsEnteringAmbientMode() {
         var userStyleRepository = UserStyleRepository(emptyList())
         var testRenderer = object :
@@ -1164,5 +1247,42 @@ class WatchFaceServiceTest {
         testRenderer.animate = false
         watchFace.maybeUpdateDrawMode()
         assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+    }
+
+    @Test
+    fun setComplicationSupportedTypes_called() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication, backgroundComplication),
+            emptyList(),
+            apiVersion = 4
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            LEFT_COMPLICATION_ID,
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            RIGHT_COMPLICATION_ID,
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            BACKGROUND_COMPLICATION_ID,
+            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
+        )
     }
 }

@@ -261,7 +261,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/PreviewViewFragment.java"
-            line="240"
+            line="305"
             column="46"/>
     </issue>
 

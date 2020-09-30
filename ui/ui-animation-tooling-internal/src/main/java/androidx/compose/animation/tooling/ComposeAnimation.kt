@@ -51,9 +51,9 @@ interface ComposeAnimation {
     val states: Set<Any>
         @Suppress("DocumentExceptions")
         get() =
-        throw UnsupportedOperationException(
-            "Only available when getType() is TRANSITION_ANIMATION"
-        )
+            throw UnsupportedOperationException(
+                "Only available when getType() is TRANSITION_ANIMATION"
+            )
 
     /**
      * A label which can be used to represent the animation as text in Android Studio.

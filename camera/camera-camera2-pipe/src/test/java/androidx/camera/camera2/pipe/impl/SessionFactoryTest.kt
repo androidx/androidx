@@ -43,7 +43,8 @@ import javax.inject.Singleton
 @CameraGraphScope
 @Component(
     modules = [
-        FakeCameras.FakeCameraGraphModule::class
+        FakeCameras.FakeCameraGraphModule::class,
+        FakeCameras.FakeCameraPipeModule::class
     ]
 )
 interface CameraSessionTestComponent {
@@ -71,8 +72,8 @@ class SessionFactoryTest {
     @Test
     fun canCreateSessionFactoryTestComponent() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraGraphModule(
-                FakeCameras.FakeCameraGraphModule(context, testCamera)
+            .fakeCameraPipeModule(
+                FakeCameras.FakeCameraPipeModule(context, testCamera)
             )
             .build()
 
@@ -83,8 +84,8 @@ class SessionFactoryTest {
     @Test
     fun createCameraCaptureSession() = runBlockingTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
-            .fakeCameraGraphModule(
-                FakeCameras.FakeCameraGraphModule(context, testCamera)
+            .fakeCameraPipeModule(
+                FakeCameras.FakeCameraPipeModule(context, testCamera)
             )
             .build()
 

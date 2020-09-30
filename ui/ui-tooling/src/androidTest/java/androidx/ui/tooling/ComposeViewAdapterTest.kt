@@ -114,12 +114,14 @@ class ComposeViewAdapterTest {
 
         activityTestRule.runOnUiThread {
             // Verify all calls, generate the correct line number information
-            assertArrayEquals(arrayOf(36, 37, 38, 40, 43, 44, 45),
+            assertArrayEquals(
+                arrayOf(36, 37, 38, 40, 43, 44, 45),
                 viewInfos
                     .map { it.lineNumber }
                     .sorted()
                     .distinct()
-                    .toTypedArray())
+                    .toTypedArray()
+            )
         }
     }
 

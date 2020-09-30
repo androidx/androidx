@@ -45,8 +45,10 @@ class LifecycleRegistryTest {
     fun observerCount() {
         lifecycleOwner.currentState = Lifecycle.State.STARTED
         assertThat(lifecycleOwner.observerCount).isEqualTo(0)
-        lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, _ ->
-        })
+        lifecycleOwner.lifecycle.addObserver(
+            LifecycleEventObserver { _, _ ->
+            }
+        )
         assertThat(lifecycleOwner.observerCount).isEqualTo(1)
     }
 }

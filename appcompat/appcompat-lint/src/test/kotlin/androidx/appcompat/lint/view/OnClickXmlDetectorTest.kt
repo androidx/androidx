@@ -117,12 +117,14 @@ class OnClickXmlDetectorTest {
             activityWithClick
         ).issues(OnClickXmlDetector.USING_ON_CLICK_IN_XML)
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring of click listener in code [UsingOnClickInXml]
         android:onClick="myButtonClick"
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 

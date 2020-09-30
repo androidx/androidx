@@ -61,7 +61,8 @@ class SkijaTestAlbum(val config: GoldenConfig) {
         if (!id.matches("^[A-Za-z0-9_-]+$".toRegex())) {
             throw IllegalArgumentException(
                 "The given golden identifier '$id' does not satisfy the naming " +
-                        "requirement. Allowed characters are: '[A-Za-z0-9_-]'")
+                    "requirement. Allowed characters are: '[A-Za-z0-9_-]'"
+            )
         }
 
         val actual = surface.makeImageSnapshot().encodeToData().bytes
@@ -117,8 +118,8 @@ class SkijaTestAlbum(val config: GoldenConfig) {
 
     private fun calcHash(input: ByteArray): ByteArray {
         return MessageDigest
-                .getInstance("SHA-256")
-                .digest(input)
+            .getInstance("SHA-256")
+            .digest(input)
     }
 
     // TODO: switch to androidx.test.screenshot.matchers.BitmapMatcher#compareBitmaps
@@ -177,7 +178,8 @@ private object ComposeInit {
     }
 }
 
-class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRule,
+class ScreenshotTestRule internal constructor(val config: GoldenConfig) :
+    TestRule,
     EmbeddingContext {
     private lateinit var testIdentifier: String
     private lateinit var album: SkijaTestAlbum
@@ -195,8 +197,11 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRu
             override fun evaluate() {
                 EmbeddingContextFactory = fun() = this@ScreenshotTestRule
                 album = SkijaTestAlbum(config)
-                testIdentifier = "${description!!.className}_${description.methodName}".replace("" +
-                        ".", "_")
+                testIdentifier = "${description!!.className}_${description.methodName}".replace(
+                    "" +
+                        ".",
+                    "_"
+                )
                 base.evaluate()
                 runExecutionQueue()
                 handleReport(album.check())
@@ -224,13 +229,16 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRu
                 ScreenshotResultProto.Status.MISSING_GOLDEN ->
                     throw AssertionError(
                         "Missing golden image " +
-                                "'${sReport.locationOfGoldenInRepo}'. " +
-                                "Did you mean to check in a new image?"
+                            "'${sReport.locationOfGoldenInRepo}'. " +
+                            "Did you mean to check in a new image?"
                     )
                 else ->
-                    throw AssertionError("Image mismatch! Expected image ${sReport
-                        .expectedImageFileName}, actual: ${sReport.currentScreenshotFileName}. FS" +
-                            " location: ${config.fsGoldenPath}")
+                    throw AssertionError(
+                        "Image mismatch! Expected image ${sReport
+                            .expectedImageFileName}," +
+                            " actual: ${sReport.currentScreenshotFileName}. FS" +
+                            " location: ${config.fsGoldenPath}"
+                    )
             }
         }
     }

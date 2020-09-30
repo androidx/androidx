@@ -87,9 +87,12 @@ internal class DispatchQueue {
     fun runOrEnqueue(runnable: Runnable) {
         with(Dispatchers.Main.immediate) {
             if (isDispatchNeeded(EmptyCoroutineContext)) {
-                dispatch(EmptyCoroutineContext, Runnable {
-                    enqueue(runnable)
-                })
+                dispatch(
+                    EmptyCoroutineContext,
+                    Runnable {
+                        enqueue(runnable)
+                    }
+                )
             } else {
                 enqueue(runnable)
             }

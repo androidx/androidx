@@ -31,8 +31,11 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
@@ -50,14 +53,12 @@ internal class TestWatchFaceService(
     var complicationDoubleTapped: Int? = null
     var complicationSelected: Int? = null
     var mockSystemTimeMillis = 0L
-    var lastUserStyle: Map<UserStyleCategory, UserStyleCategory.Option>? = null
+    var lastUserStyle: UserStyle? = null
 
     init {
         userStyleRepository.addUserStyleListener(
             object : UserStyleRepository.UserStyleListener {
-                override fun onUserStyleChanged(
-                    userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                ) {
+                override fun onUserStyleChanged(userStyle: UserStyle) {
                     lastUserStyle = userStyle
                 }
             }
@@ -129,16 +130,16 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setStyle(style)
     }
 
-    override fun registerUserStyleSchema(styleSchema: MutableList<Bundle>?) {
-        iWatchFaceService.registerUserStyleSchema(styleSchema)
+    override fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat) {
+        iWatchFaceService.registerUserStyleSchema(userStyleSchema)
     }
 
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
         iWatchFaceService.setActiveComplications(ids, updateAll)
     }
 
-    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationBoundsType type: Int) {
-        iWatchFaceService.setComplicationDetails(id, bounds, type)
+    override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
+        iWatchFaceService.setComplicationDetails(id, complicationDetails)
     }
 
     override fun setDefaultComplicationProvider(
@@ -180,12 +181,10 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         )
     }
 
-    override fun getStoredUserStyle(): Bundle? {
-        return iWatchFaceService.getStoredUserStyle()
-    }
+    override fun getStoredUserStyle() = iWatchFaceService.getStoredUserStyle()
 
-    override fun setCurrentUserStyle(style: Bundle?) {
-        iWatchFaceService.setCurrentUserStyle(style)
+    override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
+        iWatchFaceService.setCurrentUserStyle(userStyle)
     }
 
     override fun getApiVersion() = iWatchFaceService.apiVersion

@@ -44,7 +44,7 @@ class TopOfTreeBuilder {
 
         // Find archives
         val archivesFilter = FileFilter({
-                return@FileFilter it.fileName.endsWith(".aar") || it.fileName.endsWith("jar")
+            return@FileFilter it.fileName.endsWith(".aar") || it.fileName.endsWith("jar")
         })
         archive.accept(archivesFilter)
         val libFiles = archivesFilter.files
@@ -52,7 +52,8 @@ class TopOfTreeBuilder {
         // Process
         val newFiles = mutableSetOf<ArchiveFile>()
         pomFiles.forEach {
-            pomFile -> run {
+            pomFile ->
+            run {
                 val name = pomFile.relativePath.toFile().nameWithoutExtension
                 val nameAar = name + ".aar"
                 val nameJar = name + ".jar"
@@ -110,8 +111,12 @@ class TopOfTreeBuilder {
     private fun getHashFileOf(file: ArchiveFile, hashType: String): ArchiveFile {
         val md = MessageDigest.getInstance(hashType)
         val result = md.digest(file.data)
-        return ArchiveFile(Paths.get(
-            file.relativePath.toString() + "." + hashType.toLowerCase()), result)
+        return ArchiveFile(
+            Paths.get(
+                file.relativePath.toString() + "." + hashType.toLowerCase()
+            ),
+            result
+        )
     }
 
     private class FileFilter(private val filter: (ArchiveFile) -> Boolean) : ArchiveItemVisitor {

@@ -141,18 +141,6 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
     }
 
     @Test
-    fun badForeignKey() {
-        singleEntity("""
-                @PrimaryKey
-                public int rowid;
-                @ForeignKey(entity = MyEntity.class, parentColumns = {}, childColumns = {})
-                public int fkId;
-                """) { _, _ -> }
-                .failsToCompile()
-                .withErrorContaining(ProcessorErrors.INVALID_FOREIGN_KEY_IN_FTS_ENTITY)
-    }
-
-    @Test
     fun nonDefaultTokenizer() {
         singleEntity("""
                 @PrimaryKey

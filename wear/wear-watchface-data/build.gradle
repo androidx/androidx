@@ -29,10 +29,12 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api(project(":wear:wear-complications-data"))
     api(KOTLIN_STDLIB)
 
     implementation("androidx.core:core:1.1.0")
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 }
 
 android {

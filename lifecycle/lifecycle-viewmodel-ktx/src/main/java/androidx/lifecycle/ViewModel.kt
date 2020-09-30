@@ -33,14 +33,16 @@ private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  */
 val ViewModel.viewModelScope: CoroutineScope
-        get() {
-            val scope: CoroutineScope? = this.getTag(JOB_KEY)
-            if (scope != null) {
-                return scope
-            }
-            return setTagIfAbsent(JOB_KEY,
-                CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate))
+    get() {
+        val scope: CoroutineScope? = this.getTag(JOB_KEY)
+        if (scope != null) {
+            return scope
         }
+        return setTagIfAbsent(
+            JOB_KEY,
+            CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        )
+    }
 
 internal class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
     override val coroutineContext: CoroutineContext = context

@@ -95,7 +95,7 @@ public class BiometricFragmentTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.M, maxSdk = Build.VERSION_CODES.O_MR1)
     public void testOnFingerprintError_DoesShowErrorAndDismiss_WhenHardwareUnavailable() {
-        final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
+        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
 
         mViewModel.setClientExecutor(EXECUTOR);

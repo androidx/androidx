@@ -88,10 +88,12 @@ class CoreRemapperImpl(
 
         // Verify that we did not make an ambiguous mapping, see b/116745353
         if (!context.allowAmbiguousPackages && AMBIGUOUS_STRINGS.contains(type)) {
-            throw AmbiguousStringJetifierException("The given artifact contains a string literal " +
-                "with a package reference '$value' that cannot be safely rewritten. Libraries " +
-                "using reflection such as annotation processors need to be updated manually " +
-                "to add support for androidx.")
+            throw AmbiguousStringJetifierException(
+                "The given artifact contains a string literal " +
+                    "with a package reference '$value' that cannot be safely rewritten. " +
+                    "Libraries using reflection such as annotation processors need to be " +
+                    "updated manually to add support for androidx."
+            )
         }
 
         // Strings map has a priority over types map

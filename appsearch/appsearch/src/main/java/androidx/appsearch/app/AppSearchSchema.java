@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -37,12 +38,19 @@ import java.util.Set;
  * <p>The schema consists of type information, properties, and config (like tokenization type).
  */
 public final class AppSearchSchema {
-    static final String SCHEMA_TYPE_FIELD = "schemaType";
-    static final String PROPERTIES_FIELD = "properties";
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SCHEMA_TYPE_FIELD = "schemaType";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PROPERTIES_FIELD = "properties";
 
     private final Bundle mBundle;
 
-    AppSearchSchema(@NonNull Bundle bundle) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public AppSearchSchema(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
     }
@@ -51,8 +59,9 @@ public final class AppSearchSchema {
      * Returns the {@link Bundle} populated by this builder.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    Bundle getBundle() {
+    public Bundle getBundle() {
         return mBundle;
     }
 
@@ -110,12 +119,29 @@ public final class AppSearchSchema {
      * a property.
      */
     public static final class PropertyConfig {
-        static final String NAME_FIELD = "name";
-        static final String DATA_TYPE_FIELD = "dataType";
-        static final String SCHEMA_TYPE_FIELD = "schemaType";
-        static final String CARDINALITY_FIELD = "cardinality";
-        static final String INDEXING_TYPE_FIELD = "indexingType";
-        static final String TOKENIZER_TYPE_FIELD = "tokenizerType";
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String NAME_FIELD = "name";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String DATA_TYPE_FIELD = "dataType";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String SCHEMA_TYPE_FIELD = "schemaType";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String CARDINALITY_FIELD = "cardinality";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String INDEXING_TYPE_FIELD = "indexingType";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String TOKENIZER_TYPE_FIELD = "tokenizerType";
 
         /**
          * Physical data-types of the contents of the property.

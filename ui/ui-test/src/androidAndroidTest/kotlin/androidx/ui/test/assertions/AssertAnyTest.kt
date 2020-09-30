@@ -63,10 +63,12 @@ class AssertAnyTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to assertAny(TestTag = 'Child3')\n" +
                 "None of the following nodes match:\n" +
-                "1) ") {
+                "1) "
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAny(hasTestTag("Child3"))
@@ -79,10 +81,12 @@ class AssertAnyTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to assertAny(TestTag = 'Child')\n" +
                 "Assert needs to receive at least 1 node but 0 nodes were found for selector: " +
-                "'(TestTag = 'Parent').children'") {
+                "'(TestTag = 'Parent').children'"
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAny(hasTestTag("Child"))

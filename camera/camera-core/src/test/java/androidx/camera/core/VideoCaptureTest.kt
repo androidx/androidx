@@ -46,18 +46,18 @@ import java.io.File
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(
-    minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class]
+    minSdk = Build.VERSION_CODES.LOLLIPOP
 )
 class VideoCaptureTest {
     @Before
     fun setUp() {
+        val camera = FakeCamera()
+
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
                 val cameraFactory = FakeCameraFactory()
-                cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID) {
-                    FakeCamera(
-                        ShadowCameraX.DEFAULT_CAMERA_ID
-                    )
+                cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
+                    camera
                 }
                 cameraFactory
             }
