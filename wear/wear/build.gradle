@@ -6,6 +6,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -14,6 +15,7 @@ dependencies {
     api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.1.0")
     api("androidx.core:core:1.3.0")
+    api(KOTLIN_STDLIB)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
