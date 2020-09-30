@@ -282,13 +282,17 @@ class FragmentStateManager {
                         case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mView != null && mFragment.mContainer != null) {
                                 // If a fragment started its exit animation, but was re-added
-                                // before the exit animation completed, the view will removed
-                                // from the container but not destroyed, so we need to add the
-                                // view back to the container in the proper position.
+                                // before the exit animation completed we have to set it up for the
+                                // enter animation by:
+                                // 1. Calling endViewTransition on the view
+                                mFragment.mContainer.endViewTransition(mFragment.mView);
                                 if (mFragment.mView.getParent() == null) {
                                     int index = mFragmentStore
                                             .findFragmentIndexInContainer(mFragment);
+                                    // 2. Add the view back to the container in the proper position.
                                     mFragment.mContainer.addView(mFragment.mView, index);
+                                    // 3. Set the view alpha to 0
+                                    mFragment.mView.setAlpha(0f);
                                 }
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
