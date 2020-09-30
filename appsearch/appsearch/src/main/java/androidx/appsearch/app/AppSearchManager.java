@@ -17,19 +17,13 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
-import androidx.appsearch.exceptions.AppSearchException;
-import androidx.collection.ArraySet;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -136,117 +130,6 @@ public class AppSearchManager {
     }
 
     /**
-     * Encapsulates a request to update the schema of an {@link AppSearchManager} database.
-     *
-     * @see AppSearchManager#setSchema
-     */
-    public static final class SetSchemaRequest {
-        private final Set<AppSearchSchema> mSchemas;
-        private final boolean mForceOverride;
-
-        SetSchemaRequest(Set<AppSearchSchema> schemas, boolean forceOverride) {
-            mSchemas = schemas;
-            mForceOverride = forceOverride;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Set<AppSearchSchema> getSchemas() {
-            return mSchemas;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public boolean isForceOverride() {
-            return mForceOverride;
-        }
-
-        /** Builder for {@link SetSchemaRequest} objects. */
-        public static final class Builder {
-            private final Set<AppSearchSchema> mSchemas = new ArraySet<>();
-            private boolean mForceOverride = false;
-            private boolean mBuilt = false;
-
-            /** Adds one or more types to the schema. */
-            @NonNull
-            public Builder addSchema(@NonNull AppSearchSchema... schemas) {
-                Preconditions.checkNotNull(schemas);
-                return addSchema(Arrays.asList(schemas));
-            }
-
-            /** Adds one or more types to the schema. */
-            @NonNull
-            public Builder addSchema(@NonNull Collection<AppSearchSchema> schemas) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(schemas);
-                mSchemas.addAll(schemas);
-                return this;
-            }
-
-            /**
-             * Adds one or more types to the schema.
-             *
-             * @param dataClasses non-inner classes annotated with
-             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-             * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
-             *                            has not generated a schema for the given data classes.
-             */
-            @NonNull
-            public Builder addDataClass(@NonNull Class<?>... dataClasses)
-                    throws AppSearchException {
-                Preconditions.checkNotNull(dataClasses);
-                return addDataClass(Arrays.asList(dataClasses));
-            }
-
-            /**
-             * Adds one or more types to the schema.
-             *
-             * @param dataClasses non-inner classes annotated with
-             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-             * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
-             *                            has not generated a schema for the given data classes.
-             */
-            @NonNull
-            public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
-                    throws AppSearchException {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(dataClasses);
-                List<AppSearchSchema> schemas = new ArrayList<>(dataClasses.size());
-                DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-                for (Class<?> dataClass : dataClasses) {
-                    DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
-                    schemas.add(factory.getSchema());
-                }
-                return addSchema(schemas);
-            }
-
-            /**
-             * Configures the {@link SetSchemaRequest} to delete any existing documents that don't
-             * follow the new schema.
-             *
-             * <p>By default, this is {@code false} and schema incompatibility causes the
-             * {@link #setSchema} call to fail.
-             *
-             * @see #setSchema
-             */
-            @NonNull
-            public Builder setForceOverride(boolean forceOverride) {
-                mForceOverride = forceOverride;
-                return this;
-            }
-
-            /** Builds a new {@link SetSchemaRequest}. */
-            @NonNull
-            public SetSchemaRequest build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new SetSchemaRequest(mSchemas, mForceOverride);
-            }
-        }
-    }
-
-    /**
      * Sets the schema being used by documents provided to the {@link #putDocuments} method.
      *
      * <p>The schema provided here is compared to the stored copy of the schema previously supplied
@@ -301,99 +184,6 @@ public class AppSearchManager {
     }
 
     /**
-     * Encapsulates a request to index a document into an {@link AppSearchManager} database.
-     *
-     * @see AppSearchManager#putDocuments
-     */
-    public static final class PutDocumentsRequest {
-        private final List<GenericDocument> mDocuments;
-
-        PutDocumentsRequest(List<GenericDocument> documents) {
-            mDocuments = documents;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public List<GenericDocument> getDocuments() {
-            return mDocuments;
-        }
-
-        /** Builder for {@link PutDocumentsRequest} objects. */
-        public static final class Builder {
-            private final List<GenericDocument> mDocuments = new ArrayList<>();
-            private boolean mBuilt = false;
-
-            /** Adds one or more documents to the request. */
-            @NonNull
-            public Builder addGenericDocument(@NonNull GenericDocument... documents) {
-                Preconditions.checkNotNull(documents);
-                return addGenericDocument(Arrays.asList(documents));
-            }
-
-            /** Adds one or more documents to the request. */
-            @NonNull
-            public Builder addGenericDocument(@NonNull Collection<GenericDocument> documents) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(documents);
-                mDocuments.addAll(documents);
-                return this;
-            }
-
-            /**
-             * Adds one or more documents to the request.
-             *
-             * @param dataClasses non-inner classes annotated with
-             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-             * @throws AppSearchException if an error occurs converting a data class into a
-             *                            {@link GenericDocument}.
-             */
-            @NonNull
-            public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
-                Preconditions.checkNotNull(dataClasses);
-                return addDataClass(Arrays.asList(dataClasses));
-            }
-
-            /**
-             * Adds one or more documents to the request.
-             *
-             * @param dataClasses non-inner classes annotated with
-             *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-             * @throws AppSearchException if an error occurs converting a data class into a
-             *                            {@link GenericDocument}.
-             */
-            @NonNull
-            public Builder addDataClass(@NonNull Collection<Object> dataClasses)
-                    throws AppSearchException {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(dataClasses);
-                List<GenericDocument> genericDocuments = new ArrayList<>(dataClasses.size());
-                for (Object dataClass : dataClasses) {
-                    GenericDocument genericDocument = toGenericDocument(dataClass);
-                    genericDocuments.add(genericDocument);
-                }
-                return addGenericDocument(genericDocuments);
-            }
-
-            @NonNull
-            private static <T> GenericDocument toGenericDocument(@NonNull T dataClass)
-                    throws AppSearchException {
-                DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
-                DataClassFactory<T> factory = registry.getOrCreateFactory(dataClass);
-                return factory.toGenericDocument(dataClass);
-            }
-
-            /** Builds a new {@link PutDocumentsRequest}. */
-            @NonNull
-            public PutDocumentsRequest build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new PutDocumentsRequest(mDocuments);
-            }
-        }
-    }
-
-    /**
      * Indexes documents into AppSearch.
      *
      * <p>Each {@link GenericDocument}'s {@code schemaType} field must be set to the name of a
@@ -412,79 +202,6 @@ public class AppSearchManager {
         // one big list.
         Preconditions.checkNotNull(request);
         return execute(() -> mBackend.putDocuments(mDatabaseName, request));
-    }
-
-    /**
-     * Encapsulates a request to retrieve documents by namespace and URI.
-     *
-     * @see AppSearchManager#getByUri
-     */
-    public static final class GetByUriRequest {
-        private final String mNamespace;
-        private final Set<String> mUris;
-
-        GetByUriRequest(@NonNull String namespace, @NonNull Set<String> uris) {
-            mNamespace = namespace;
-            mUris = uris;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public String getNamespace() {
-            return mNamespace;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Set<String> getUris() {
-            return mUris;
-        }
-
-        /** Builder for {@link GetByUriRequest} objects. */
-        public static final class Builder {
-            private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
-            private final Set<String> mUris = new ArraySet<>();
-            private boolean mBuilt = false;
-
-            /**
-             * Sets which namespace these documents will be retrieved from.
-             *
-             * <p>If this is not set, it defaults to {@link GenericDocument#DEFAULT_NAMESPACE}.
-             */
-            @NonNull
-            public Builder setNamespace(@NonNull String namespace) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(namespace);
-                mNamespace = namespace;
-                return this;
-            }
-
-            /** Adds one or more URIs to the request. */
-            @NonNull
-            public Builder addUris(@NonNull String... uris) {
-                Preconditions.checkNotNull(uris);
-                return addUris(Arrays.asList(uris));
-            }
-
-            /** Adds one or more URIs to the request. */
-            @NonNull
-            public Builder addUris(@NonNull Collection<String> uris) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(uris);
-                mUris.addAll(uris);
-                return this;
-            }
-
-            /** Builds a new {@link GetByUriRequest}. */
-            @NonNull
-            public GetByUriRequest build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new GetByUriRequest(mNamespace, mUris);
-            }
-        }
     }
 
     /**
@@ -558,79 +275,6 @@ public class AppSearchManager {
         AppSearchBackend.BackendSearchResults backendSearchResults =
                 mBackend.query(mDatabaseName, queryExpression, searchSpec);
         return new SearchResults(mExecutorService, backendSearchResults);
-    }
-
-    /**
-     * Encapsulates a request to remove documents by namespace and URI.
-     *
-     * @see AppSearchManager#removeByUri
-     */
-    public static final class RemoveByUriRequest {
-        private final String mNamespace;
-        private final Set<String> mUris;
-
-        RemoveByUriRequest(String namespace, Set<String> uris) {
-            mNamespace = namespace;
-            mUris = uris;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public String getNamespace() {
-            return mNamespace;
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @NonNull
-        public Set<String> getUris() {
-            return mUris;
-        }
-
-        /** Builder for {@link RemoveByUriRequest} objects. */
-        public static final class Builder {
-            private String mNamespace = GenericDocument.DEFAULT_NAMESPACE;
-            private final Set<String> mUris = new ArraySet<>();
-            private boolean mBuilt = false;
-
-            /**
-             * Sets which namespace these documents will be removed from.
-             *
-             * <p>If this is not set, it defaults to {@link GenericDocument#DEFAULT_NAMESPACE}.
-             */
-            @NonNull
-            public Builder setNamespace(@NonNull String namespace) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(namespace);
-                mNamespace = namespace;
-                return this;
-            }
-
-            /** Adds one or more URIs to the request. */
-            @NonNull
-            public Builder addUris(@NonNull String... uris) {
-                Preconditions.checkNotNull(uris);
-                return addUris(Arrays.asList(uris));
-            }
-
-            /** Adds one or more URIs to the request. */
-            @NonNull
-            public Builder addUris(@NonNull Collection<String> uris) {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                Preconditions.checkNotNull(uris);
-                mUris.addAll(uris);
-                return this;
-            }
-
-            /** Builds a new {@link RemoveByUriRequest}. */
-            @NonNull
-            public RemoveByUriRequest build() {
-                Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mBuilt = true;
-                return new RemoveByUriRequest(mNamespace, mUris);
-            }
-        }
     }
 
     /**
