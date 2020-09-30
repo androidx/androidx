@@ -67,11 +67,11 @@ class JavaPluginTest : BasePluginTest() {
     fun generateForFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-            ":feature:assembleFooDebugFeature",
-            ":feature:assembleNotfooDebugFeature"
+            ":feature:assembleFooDebug",
+            ":feature:assembleNotfooDebug"
         )
-            .assertSuccessfulTask("feature:assembleNotfooDebugFeature")
-            .assertSuccessfulTask("feature:assembleFooDebugFeature")
+            .assertSuccessfulTask("feature:assembleNotfooDebug")
+            .assertSuccessfulTask("feature:assembleFooDebug")
 
         assertGenerated("foo/debug/$FEATURE_DIRECTIONS.java", "feature/")
         assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS.java", "feature/")
@@ -95,11 +95,11 @@ class JavaPluginTest : BasePluginTest() {
     fun generateForBaseFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-            ":base:assembleFooDebugFeature",
-            ":base:assembleNotfooDebugFeature"
+            ":base:assembleFooDebug",
+            ":base:assembleNotfooDebug"
         )
-            .assertSuccessfulTask("base:assembleNotfooDebugFeature")
-            .assertSuccessfulTask("base:assembleFooDebugFeature")
+            .assertSuccessfulTask("base:assembleNotfooDebug")
+            .assertSuccessfulTask("base:assembleFooDebug")
 
         assertGenerated("foo/debug/$MAIN_DIRECTIONS.java", "base/")
         assertGenerated("notfoo/debug/$MAIN_DIRECTIONS.java", "base/")
