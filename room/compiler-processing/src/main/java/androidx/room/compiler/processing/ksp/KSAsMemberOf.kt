@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
 import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 import org.jetbrains.kotlin.ksp.symbol.Nullability
 
 /**
@@ -123,18 +122,4 @@ private fun KSTypeArgument.makeNullable(resolver: Resolver): KSTypeArgument {
         return this
     }
     return resolver.getTypeArgument(myType.swapResolvedType(resolved.makeNullable()), variance)
-}
-
-private fun KSTypeReference.swapResolvedType(replacement: KSType): KSTypeReference {
-    return DelegatingTypeReference(
-        original = this,
-        resolved = replacement
-    )
-}
-
-private class DelegatingTypeReference(
-    val original: KSTypeReference,
-    val resolved: KSType
-) : KSTypeReference by original {
-    override fun resolve(): KSType? = resolved
 }

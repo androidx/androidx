@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
@@ -26,7 +27,7 @@ import org.junit.Test
 
 class XArrayTypeTest {
     @Test
-    fun xArrayType() {
+    fun java() {
         val source = Source.java(
             "foo.bar.Baz", """
             package foo.bar;
@@ -35,21 +36,27 @@ class XArrayTypeTest {
             }
         """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             sources = listOf(source)
-        ) {
-            val type = it.processingEnv
+        ) { invocation ->
+            val type = invocation.processingEnv
                 .requireTypeElement("foo.bar.Baz")
                 .getField("param")
                 .type
             assertThat(type.isArray()).isTrue()
             assertThat(type.typeName).isEqualTo(
-                ArrayTypeName.of(TypeName.get(String::class.java))
+                ArrayTypeName.of(invocation.types.string)
             )
-            assertThat(type.asArray().componentType.typeName).isEqualTo(
-                TypeName.get(String::class.java)
-            )
+            type.asArray().componentType.let { component ->
+                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.nullability).isEqualTo(XNullability.UNKNOWN)
+            }
+        }
+    }
 
+    @Test
+    fun synthetic() {
+        runProcessorTestIncludingKsp {
             val objArray = it.processingEnv.getArrayType(
                 TypeName.OBJECT
             )
@@ -60,6 +67,41 @@ class XArrayTypeTest {
             assertThat(objArray.typeName).isEqualTo(
                 ArrayTypeName.of(TypeName.OBJECT)
             )
+        }
+    }
+
+    @Test
+    fun kotlin() {
+        val source = Source.kotlin(
+            "Foo.kt", """
+            package foo.bar
+            class Baz {
+                val nonNull:Array<String> = TODO()
+                val nullable:Array<String?> = TODO()
+            }
+        """.trimIndent()
+        )
+        runProcessorTestIncludingKsp(
+            sources = listOf(source)
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            val nonNull = element.getField("nonNull").type
+            val nullable = element.getField("nullable").type
+            listOf(nonNull, nullable).forEach {
+                assertThat(nonNull.isArray()).isTrue()
+                assertThat(nonNull.typeName).isEqualTo(
+                    ArrayTypeName.of(invocation.types.string)
+                )
+            }
+
+            nonNull.asArray().componentType.let { component ->
+                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.nullability).isEqualTo(XNullability.NONNULL)
+            }
+            nullable.asArray().componentType.let { component ->
+                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.nullability).isEqualTo(XNullability.NULLABLE)
+            }
         }
     }
 
