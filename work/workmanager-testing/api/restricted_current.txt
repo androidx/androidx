@@ -14,18 +14,18 @@ package androidx.work.testing {
 
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
-    method public static androidx.work.testing.TestListenableWorkerBuilder from(android.content.Context, androidx.work.WorkRequest);
+    method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker> from(android.content.Context, androidx.work.WorkRequest);
     method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
-    method public androidx.work.testing.TestListenableWorkerBuilder setForegroundUpdater(androidx.work.ForegroundUpdater);
-    method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
-    method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
-    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
-    method public androidx.work.testing.TestListenableWorkerBuilder setProgressUpdater(androidx.work.ProgressUpdater);
-    method public androidx.work.testing.TestListenableWorkerBuilder setRunAttemptCount(int);
-    method public androidx.work.testing.TestListenableWorkerBuilder setTags(java.util.List<java.lang.String!>);
-    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
-    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentUris(java.util.List<android.net.Uri!>);
-    method public androidx.work.testing.TestListenableWorkerBuilder setWorkerFactory(androidx.work.WorkerFactory);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setForegroundUpdater(androidx.work.ForegroundUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setId(java.util.UUID);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setInputData(androidx.work.Data);
+    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder<W!> setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setProgressUpdater(androidx.work.ProgressUpdater);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setRunAttemptCount(int);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setTags(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder<W!> setTriggeredContentUris(java.util.List<android.net.Uri!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder<W!> setWorkerFactory(androidx.work.WorkerFactory);
   }
 
   public final class TestListenableWorkerBuilderKt {
