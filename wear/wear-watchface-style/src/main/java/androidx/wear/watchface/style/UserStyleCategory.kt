@@ -57,7 +57,8 @@ abstract class UserStyleCategory(
     /**
      * Used by the style configuration UI. Describes which rendering layer this style affects. Must
      * be either 0 (for a style change with no visual effect, e.g. sound controls) or a combination
-     * of [LAYER_WATCH_FACE_BASE], [LAYER_COMPLICATONS], [LAYER_WATCH_FACE_UPPER].
+     * (logical OR) of [LAYER_FLAG_WATCH_FACE_BASE], [LAYER_FLAG_COMPLICATONS],
+     * [LAYER_FLAG_WATCH_FACE_UPPER].
      */
     val layerFlags: Int
 ) {
@@ -66,16 +67,17 @@ abstract class UserStyleCategory(
          * The base watch face without complications or watch hands (or any other elements that
          * could occlude complications).
          */
-        const val LAYER_WATCH_FACE_BASE = 1 shl 0
+        const val LAYER_FLAG_WATCH_FACE_BASE = 1 shl 0
 
         /** The complications layer. */
-        const val LAYER_COMPLICATONS = 1 shl 1
+        const val LAYER_FLAG_COMPLICATONS = 1 shl 1
 
         /** Anything that could occlude complications, typically watch hands. */
-        const val LAYER_WATCH_FACE_UPPER = 1 shl 2
+        const val LAYER_FLAG_WATCH_FACE_UPPER = 1 shl 2
 
         internal const val INVALID_LAYER_MASK =
-            (LAYER_WATCH_FACE_BASE or LAYER_COMPLICATONS or LAYER_WATCH_FACE_UPPER).inv()
+            (LAYER_FLAG_WATCH_FACE_BASE or LAYER_FLAG_COMPLICATONS or LAYER_FLAG_WATCH_FACE_UPPER)
+                .inv()
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

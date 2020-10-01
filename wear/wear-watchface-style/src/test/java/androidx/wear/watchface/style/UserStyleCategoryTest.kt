@@ -35,7 +35,7 @@ class UserStyleCategoryTest {
                 0.0,
                 1.0,
                 defaultValue,
-                UserStyleCategory.LAYER_WATCH_FACE_BASE
+                UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
             )
 
         assertThat(rangedUserStyleCategory.getOptionForId("not a number").id)
@@ -60,7 +60,7 @@ class UserStyleCategoryTest {
                 0.0,
                 1.0,
                 defaultValue,
-                UserStyleCategory.LAYER_WATCH_FACE_BASE
+                UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
             )
 
         assertThat(rangedUserStyleCategory.getOptionForId("0").id)

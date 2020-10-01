@@ -75,9 +75,9 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_WATCH_FACE_BASE or
-                                UserStyleCategory.LAYER_COMPLICATONS or
-                                UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                        UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
+                                UserStyleCategory.LAYER_FLAG_COMPLICATONS or
+                                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
                     ),
                     ListUserStyleCategory(
                         "hand_style_category",
@@ -97,7 +97,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                        UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
                     )
                 )
             )

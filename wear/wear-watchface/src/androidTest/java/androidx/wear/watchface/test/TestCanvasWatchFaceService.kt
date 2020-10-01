@@ -88,9 +88,9 @@ internal class TestCanvasWatchFaceService(
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_WATCH_FACE_BASE or
-                    UserStyleCategory.LAYER_COMPLICATONS or
-                    UserStyleCategory.LAYER_WATCH_FACE_UPPER
+            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
+                    UserStyleCategory.LAYER_FLAG_COMPLICATONS or
+                    UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -99,7 +99,7 @@ internal class TestCanvasWatchFaceService(
                 "Whether or not hour pips should be drawn",
                 null,
                 true,
-                UserStyleCategory.LAYER_WATCH_FACE_BASE
+                UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -110,7 +110,7 @@ internal class TestCanvasWatchFaceService(
                 0.25,
                 1.0,
                 1.0,
-                UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
             )
         val complicationsStyleCategory = ListUserStyleCategory(
             "complications_style_category",
@@ -139,7 +139,7 @@ internal class TestCanvasWatchFaceService(
                     null
                 )
             ),
-            UserStyleCategory.LAYER_COMPLICATONS
+            UserStyleCategory.LAYER_FLAG_COMPLICATONS
         )
         val userStyleRepository = UserStyleRepository(
             listOf(
