@@ -21,11 +21,16 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * This class represents the specification logic for AppSearch. It can be used to set the type of
@@ -39,7 +44,7 @@ public final class SearchSpec {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SCHEMA_TYPES_FIELD = "schemaType";
+    public static final String SCHEMA_TYPE_FIELD = "schemaType";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -164,6 +169,8 @@ public final class SearchSpec {
     public static final class Builder {
 
         private final Bundle mBundle;
+        private final ArrayList<String> mSchemaTypes = new ArrayList<>();
+        private final ArrayList<String> mNamespaces = new ArrayList<>();
         private boolean mBuilt = false;
 
         /** Creates a new {@link SearchSpec.Builder}. */
@@ -187,14 +194,68 @@ public final class SearchSpec {
         /**
          * Adds a Schema type filter to {@link SearchSpec} Entry. Only search for documents that
          * have the specified schema types.
+         *
          * <p>If unset, the query will search over all schema types.
          */
         @NonNull
-        public Builder setSchemaTypes(@NonNull String... schemaTypes) {
+        public Builder addSchema(@NonNull String... schemaTypes) {
             Preconditions.checkNotNull(schemaTypes);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putStringArray(SCHEMA_TYPES_FIELD, schemaTypes);
+            return addSchema(Arrays.asList(schemaTypes));
+        }
+
+        /**
+         * Adds a Schema type filter to {@link SearchSpec} Entry. Only search for documents that
+         * have the specified schema types.
+         *
+         * <p>If unset, the query will search over all schema types.
+         */
+        @NonNull
+        public Builder addSchema(@NonNull Collection<String> schemaTypes) {
+            Preconditions.checkNotNull(schemaTypes);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mSchemaTypes.addAll(schemaTypes);
             return this;
+        }
+
+        /**
+         * Adds the Schema type of given data classes to the Schema type filter of
+         * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
+         *
+         * <p>If unset, the query will search over all schema types.
+         *
+         * @param dataClasses classes annotated with
+         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         */
+        @NonNull
+        public Builder addSchemaByDataClass(@NonNull Collection<Class<?>> dataClasses)
+                throws AppSearchException {
+            Preconditions.checkNotNull(dataClasses);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            List<String> schemaTypes = new ArrayList<>(dataClasses.size());
+            DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
+            for (Class<?> dataClass : dataClasses) {
+                DataClassFactory<?> factory = registry.getOrCreateFactory(dataClass);
+                schemaTypes.add(factory.getSchemaType());
+            }
+            addSchema(schemaTypes);
+            return this;
+        }
+
+        /**
+         * Adds the Schema type of given data classes to the Schema type filter of
+         * {@link SearchSpec} Entry. Only search for documents that have the specified schema types.
+         *
+         * <p>If unset, the query will search over all schema types.
+         *
+         * @param dataClasses classes annotated with
+         *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+         */
+        @NonNull
+        public Builder addSchemaByDataClass(@NonNull Class<?>... dataClasses)
+                throws AppSearchException {
+            Preconditions.checkNotNull(dataClasses);
+            return addSchemaByDataClass(Arrays.asList(dataClasses));
         }
 
         /**
@@ -203,10 +264,22 @@ public final class SearchSpec {
          * <p>If unset, the query will search over all namespaces.
          */
         @NonNull
-        public Builder setNamespaces(@NonNull String... namespaces) {
+        public Builder addNamespace(@NonNull String... namespaces) {
             Preconditions.checkNotNull(namespaces);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putStringArray(NAMESPACE_FIELD, namespaces);
+            return addNamespace(Arrays.asList(namespaces));
+        }
+
+        /**
+         * Adds a namespace filter to {@link SearchSpec} Entry. Only search for documents that
+         * have the specified namespaces.
+         * <p>If unset, the query will search over all namespaces.
+         */
+        @NonNull
+        public Builder addNamespace(@NonNull Collection<String> namespaces) {
+            Preconditions.checkNotNull(namespaces);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mNamespaces.addAll(namespaces);
             return this;
         }
 
@@ -316,6 +389,8 @@ public final class SearchSpec {
             if (!mBundle.containsKey(TERM_MATCH_TYPE_FIELD)) {
                 throw new IllegalSearchSpecException("Missing termMatchType field.");
             }
+            mBundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
+            mBundle.putStringArrayList(SCHEMA_TYPE_FIELD, mSchemaTypes);
             mBuilt = true;
             return new SearchSpec(mBundle);
         }
