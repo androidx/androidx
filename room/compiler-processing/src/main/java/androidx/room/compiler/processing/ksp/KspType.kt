@@ -36,15 +36,10 @@ import kotlin.reflect.KClass
  * We don't necessarily have a [KSTypeReference] (e.g. if we are getting it from an element).
  * Similarly, we may not be able to get a [KSType] (e.g. if it resolves to error).
  */
-internal class KspType(
+internal open class KspType(
     private val env: KspProcessingEnv,
     val ksType: KSType
 ) : XDeclaredType, XEquality {
-    constructor(env: KspProcessingEnv, ksTypeReference: KSTypeReference) : this(
-        env = env,
-        ksType = ksTypeReference.requireType()
-    )
-
     override val rawType by lazy {
         KspRawType(this)
     }
