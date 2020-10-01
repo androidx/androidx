@@ -34,7 +34,7 @@ dependencies {
 }
 
 tasks.withType(Jar) {
-    destinationDir = BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(rootProject))
 }
 
 protobuf {
