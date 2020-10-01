@@ -24,6 +24,12 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 17
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
