@@ -97,8 +97,8 @@ package androidx.browser.customtabs {
   }
 
   public class CustomTabsClient {
-    method public static boolean bindCustomTabServicePreservePriority(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
     method public static boolean bindCustomTabsService(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
+    method public static boolean bindCustomTabsServicePreservePriority(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
     method public static boolean connectAndInitialize(android.content.Context, String);
     method public android.os.Bundle? extraCommand(String, android.os.Bundle?);
     method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?);
