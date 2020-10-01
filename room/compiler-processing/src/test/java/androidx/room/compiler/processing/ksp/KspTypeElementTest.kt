@@ -26,6 +26,8 @@ import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -460,6 +462,7 @@ class KspTypeElementTest {
         val src = Source.kotlin(
             "Foo.kt", """
             interface MyInterface
+            class NoExplicitConstructor
             open class Base(x:Int)
             open class ExplicitConstructor {
                 constructor(x:Int)
@@ -472,23 +475,50 @@ class KspTypeElementTest {
                 constructor(list:List<String>): this()
                 constructor(list:List<String>, x:Int): this()
             }
+            abstract class AbstractNoExplicit
+            abstract class AbstractExplicit(x:Int)
         """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
-            val constructorCounts = listOf(
-                "MyInterface", "Base", "ExplicitConstructor", "BaseWithSecondary", "Sub",
-                "SubWith3Constructors"
-            ).map {
+        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+            val subjects = listOf(
+                "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
+                "BaseWithSecondary", "Sub", "SubWith3Constructors",
+                "AbstractNoExplicit", "AbstractExplicit"
+            )
+            val constructorCounts = subjects.map {
                 it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
             }
             assertThat(constructorCounts)
                 .containsExactly(
                     "MyInterface" to 0,
+                    "NoExplicitConstructor" to 1,
                     "Base" to 1,
                     "ExplicitConstructor" to 1,
                     "BaseWithSecondary" to 2,
                     "Sub" to 1,
-                    "SubWith3Constructors" to 3
+                    "SubWith3Constructors" to 3,
+                    "AbstractNoExplicit" to 1,
+                    "AbstractExplicit" to 1
+                )
+
+            val primaryConstructorParameterNames = subjects.map {
+                it to invocation.processingEnv.requireTypeElement(it)
+                    .findPrimaryConstructor()
+                    ?.parameters?.map {
+                        it.name
+                    }
+            }
+            assertThat(primaryConstructorParameterNames)
+                .containsExactly(
+                    "MyInterface" to null,
+                    "NoExplicitConstructor" to emptyList<String>(),
+                    "Base" to listOf("x"),
+                    "ExplicitConstructor" to null,
+                    "BaseWithSecondary" to listOf("x"),
+                    "Sub" to listOf("x"),
+                    "SubWith3Constructors" to emptyList<String>(),
+                    "AbstractNoExplicit" to emptyList<String>(),
+                    "AbstractExplicit" to listOf("x")
                 )
         }
     }
@@ -506,6 +536,75 @@ class KspTypeElementTest {
             val subject = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(subject.getMethod("notJvmDefault").isJavaDefault()).isFalse()
             assertThat(subject.getMethod("jvmDefault").isJavaDefault()).isTrue()
+        }
+    }
+
+    @Test
+    fun constructors_java() {
+        val src = Source.java(
+            "Source", """
+            import java.util.List;
+            interface MyInterface {}
+            class NoExplicitConstructor{}
+            class Base {
+                Base(int x){}
+            }
+            class ExplicitConstructor {
+                ExplicitConstructor(int x){}
+            }
+            class BaseWithSecondary {
+                BaseWithSecondary(int x){}
+                BaseWithSecondary(String y){}
+            }
+            class Sub extends Base {
+                Sub(int x) {
+                    super(x);
+                }
+            }
+            class SubWith3Constructors extends BaseWithSecondary {
+                SubWith3Constructors() {
+                    super(3);
+                }
+                SubWith3Constructors(List<String> list) {
+                    super(3);
+                }
+                SubWith3Constructors(List<String> list, int x) {
+                    super(3);
+                }
+            }
+            abstract class AbstractNoExplicit {}
+            abstract class AbstractExplicit {
+                AbstractExplicit(int x) {}
+            }
+        """.trimIndent()
+        )
+        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
+            val subjects = listOf(
+                "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
+                "BaseWithSecondary", "Sub", "SubWith3Constructors",
+                "AbstractNoExplicit", "AbstractExplicit"
+            )
+            val constructorCounts = subjects.map {
+                it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
+            }
+            assertThat(constructorCounts)
+                .containsExactly(
+                    "MyInterface" to 0,
+                    "NoExplicitConstructor" to 1,
+                    "Base" to 1,
+                    "ExplicitConstructor" to 1,
+                    "BaseWithSecondary" to 2,
+                    "Sub" to 1,
+                    "SubWith3Constructors" to 3,
+                    "AbstractNoExplicit" to 1,
+                    "AbstractExplicit" to 1
+                )
+
+            subjects.forEach {
+                Truth.assertWithMessage(it)
+                    .that(invocation.processingEnv.requireTypeElement(it).findPrimaryConstructor())
+                    .isNull()
+            }
         }
     }
 
