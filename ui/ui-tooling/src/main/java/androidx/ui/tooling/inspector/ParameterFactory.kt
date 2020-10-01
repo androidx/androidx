@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -60,6 +61,7 @@ private const val MAX_ITERABLE = 25
  *
  * Each parameter value is converted to a user readable value.
  */
+@ExperimentalLayoutNodeApi
 internal class ParameterFactory {
     /**
      * A map from known values to a user readable string representation.
