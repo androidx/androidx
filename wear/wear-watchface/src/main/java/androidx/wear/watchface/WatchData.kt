@@ -23,7 +23,7 @@ import androidx.annotation.UiThread
  *
  * @param <T> The type of data hold by this instance
  */
-open class WatchData<T : Any> protected constructor(protected var _value: T?) {
+open class WatchData<T : Any> protected constructor(internal var _value: T?) {
 
     private var iterating = false
     private val observers = ArrayList<Observer<T>>()
