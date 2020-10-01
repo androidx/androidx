@@ -353,8 +353,14 @@ class KspTypeElementTest {
     @Test
     fun gettersSetters() {
         val src = Source.kotlin("Foo.kt", """
-            open class JustGetter(val x:Int)
-            class GetterSetter(var y:Int) : JustGetter(y)
+            open class JustGetter(val x:Int) {
+                private val invisible:Int = TODO()
+                private var invisibleMutable:Int = TODO()
+            }
+            class GetterSetter(var y:Int) : JustGetter(y) {
+                private val subInvisible:Int = TODO()
+                private var subInvisibleMutable:Int = TODO()
+            }
         """.trimIndent())
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
@@ -410,6 +416,42 @@ class KspTypeElementTest {
             assertThat(subClass.getAllMethods().names()).containsExactly(
                 "getMutableStatic", "setMutableStatic", "getImmutableStatic"
             )
+        }
+    }
+
+    @Test
+    fun gettersSetters_interface() {
+        val src = Source.kotlin("Foo.kt", """
+            interface JustGetter {
+                val x:Int
+            }
+            interface GetterSetter : JustGetter {
+                var y:Int
+            }
+        """.trimIndent())
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
+                assertThat(base.getDeclaredMethods().names()).containsExactly(
+                    "getX"
+                )
+                assertThat(base.getAllMethods().names()).containsExactly(
+                    "getX"
+                )
+                assertThat(base.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                    "getX"
+                )
+            }
+            invocation.processingEnv.requireTypeElement("GetterSetter").let { sub ->
+                assertThat(sub.getDeclaredMethods().names()).containsExactly(
+                    "getY", "setY"
+                )
+                assertThat(sub.getAllMethods().names()).containsExactly(
+                    "getX", "getY", "setY"
+                )
+                assertThat(sub.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                    "getX", "getY", "setY"
+                )
+            }
         }
     }
 
