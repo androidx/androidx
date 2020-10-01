@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.datastore.preferences
+package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.preferences.PreferencesProto.PreferenceMap
 import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
 import androidx.datastore.core.Serializer
+import androidx.datastore.preferences.PreferencesMapCompat
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.jvm.Throws
 
 /**
  * Proto based serializer for Preferences.

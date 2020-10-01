@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-MissingJvmstatic: androidx.datastore.preferences.PreferenceDataStoreFactory#create(kotlin.jvm.functions.Function0<? extends java.io.File>, androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>, java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.Preferences>>, kotlinx.coroutines.CoroutineScope):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
-
-
-MissingNullability: androidx.datastore.preferences.PreferencesKt#preferencesKey(String):
-    Missing nullability on method `preferencesKey` return
-MissingNullability: androidx.datastore.preferences.PreferencesKt#preferencesSetKey(String):
-    Missing nullability on method `preferencesSetKey` return

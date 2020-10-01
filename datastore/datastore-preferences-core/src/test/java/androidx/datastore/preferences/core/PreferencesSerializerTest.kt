@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.preferences
+package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
 import org.junit.Before
@@ -62,7 +62,8 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadStringSet() {
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
         val prefs = preferencesOf(
             stringSetKey to setOf("string1", "string2", "string3")

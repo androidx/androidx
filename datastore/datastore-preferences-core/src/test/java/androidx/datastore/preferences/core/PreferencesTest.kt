@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.preferences
+package androidx.datastore.preferences.core
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -117,9 +117,16 @@ class PreferencesTest {
 
     @Test
     fun testStringSet() {
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
-        val prefs = preferencesOf(stringSetKey to setOf("string1", "string2", "string3"))
+        val prefs = preferencesOf(
+            stringSetKey to setOf(
+                "string1",
+                "string2",
+                "string3"
+            )
+        )
 
         assertTrue { prefs.contains(stringSetKey) }
         assertEquals(
@@ -129,14 +136,16 @@ class PreferencesTest {
 
     @Test
     fun testStringSetNotSet() {
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
         assertNull(emptyPreferences()[stringSetKey])
     }
 
     @Test
     fun testModifyingStringSetDoesntModifyInternalState() {
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
         val stringSet = mutableSetOf("1", "2", "3")
 
@@ -162,7 +171,8 @@ class PreferencesTest {
     @Suppress("UNUSED_VARIABLE")
     fun testWrongTypeThrowsClassCastException() {
         val stringKey = preferencesKey<String>("string_key")
-        val intKey = preferencesKey<Int>("string_key") // long key of the same name as stringKey!
+        val intKey =
+            preferencesKey<Int>("string_key") // long key of the same name as stringKey!
         val longKey = preferencesKey<Long>("string_key")
 
         val prefs = preferencesOf(intKey to 123456)
@@ -186,9 +196,13 @@ class PreferencesTest {
     @Test
     fun testGetAll() {
         val intKey = preferencesKey<Int>("int_key")
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
-        val prefs = preferencesOf(intKey to 123, stringSetKey to setOf("1", "2", "3"))
+        val prefs = preferencesOf(
+            intKey to 123,
+            stringSetKey to setOf("1", "2", "3")
+        )
 
         val allPreferences: Map<Preferences.Key<*>, Any> = prefs.asMap()
         assertEquals(2, allPreferences.size)
@@ -201,9 +215,13 @@ class PreferencesTest {
     @Suppress("UNCHECKED_CAST")
     fun testGetAllCantMutateInternalState() {
         val intKey = preferencesKey<Int>("int_key")
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
 
-        val prefs = preferencesOf(intKey to 123, stringSetKey to setOf("1", "2", "3"))
+        val prefs = preferencesOf(
+            intKey to 123,
+            stringSetKey to setOf("1", "2", "3")
+        )
 
         val mutableAllPreferences = prefs.asMap() as MutableMap
         assertFailsWith<UnsupportedOperationException> {
@@ -285,7 +303,8 @@ class PreferencesTest {
 
     @Test
     fun testNotEqualsDifferentStringSets() {
-        val stringSetKey = preferencesSetKey<String>("string_set")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set")
 
         val prefs1 = preferencesOf(stringSetKey to setOf("1"))
         val prefs2 = preferencesOf(stringSetKey to setOf())
@@ -295,18 +314,50 @@ class PreferencesTest {
 
     @Test
     fun testCreateUnsupportedKeyType_failsWithIllegalStateException() {
-        assertFailsWith<IllegalArgumentException> { preferencesKey<Set<String>>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesKey<Set<*>>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesKey<Double>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesKey<Any>("test") }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesKey<Set<String>>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesKey<Set<*>>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesKey<Double>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesKey<Any>(
+                "test"
+            )
+        }
     }
 
     @Test
     fun testCreateUnsupportedSetKeyType_failsWithIllegalStateException() {
-        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Set<String>>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Set<*>>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Double>("test") }
-        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Any>("test") }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesSetKey<Set<String>>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesSetKey<Set<*>>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesSetKey<Double>(
+                "test"
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            preferencesSetKey<Any>(
+                "test"
+            )
+        }
     }
 
     @Test
@@ -319,7 +370,8 @@ class PreferencesTest {
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
 
-        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutablePreferences =
+            preferencesOf(intKey1 to 1, intKey2 to 2)
         val mutableToPrefs = mutablePreferences.toPreferences()
         assertEquals(2, mutableToPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
@@ -336,7 +388,8 @@ class PreferencesTest {
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
 
-        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutablePreferences =
+            preferencesOf(intKey1 to 1, intKey2 to 2)
         val mutableToPrefs = mutablePreferences.toMutablePreferences()
         assertEquals(2, mutableToPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
@@ -347,12 +400,14 @@ class PreferencesTest {
     fun testToMutablePreferences_doesntMutateOriginal() {
         val intKey1 = preferencesKey<Int>("int_key1")
         val intKey2 = preferencesKey<Int>("int_key2")
-        val prefs = mutablePreferencesOf(intKey1 to 1, intKey2 to 2)
+        val prefs =
+            mutablePreferencesOf(intKey1 to 1, intKey2 to 2)
         val toPrefs = prefs.toMutablePreferences()
         toPrefs[intKey1] = 12903819
         assertEquals(1, prefs[intKey1])
 
-        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutablePreferences =
+            preferencesOf(intKey1 to 1, intKey2 to 2)
         val mutableToPrefs = mutablePreferences.toMutablePreferences()
         mutableToPrefs[intKey1] = 12903819
         assertEquals(1, prefs[intKey1])
@@ -364,7 +419,8 @@ class PreferencesTest {
         val booleanKey = preferencesKey<Boolean>("boolean_key")
         val floatKey = preferencesKey<Float>("float_key")
         val stringKey = preferencesKey<String>("string_key")
-        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val stringSetKey =
+            preferencesSetKey<String>("string_set_key")
         val longKey = preferencesKey<Long>("long_key")
 
         val prefs = preferencesOf(
