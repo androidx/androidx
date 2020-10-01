@@ -53,7 +53,7 @@ public interface AppSearchBackend {
      */
     @NonNull
     AppSearchResult<Void> setSchema(
-            @NonNull String databaseName, @NonNull AppSearchManager.SetSchemaRequest request);
+            @NonNull String databaseName, @NonNull SetSchemaRequest request);
 
     /**
      * Indexes documents into AppSearch.
@@ -62,7 +62,7 @@ public interface AppSearchBackend {
      */
     @NonNull
     AppSearchBatchResult<String, Void> putDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.PutDocumentsRequest request);
+            @NonNull String databaseName, @NonNull PutDocumentsRequest request);
 
     /**
      * Retrieves {@link GenericDocument}s by URI.
@@ -71,7 +71,7 @@ public interface AppSearchBackend {
      */
     @NonNull
     AppSearchBatchResult<String, GenericDocument> getByUri(
-            @NonNull String databaseName, @NonNull AppSearchManager.GetByUriRequest request);
+            @NonNull String databaseName, @NonNull GetByUriRequest request);
 
     /**
      * Searches a document based on a given query string.
@@ -92,7 +92,7 @@ public interface AppSearchBackend {
      */
     @NonNull
     AppSearchBatchResult<String, Void> removeByUri(
-            @NonNull String databaseName, @NonNull AppSearchManager.RemoveByUriRequest request);
+            @NonNull String databaseName, @NonNull RemoveByUriRequest request);
 
     /**
      * Removes {@link GenericDocument}s from the index by schema type.

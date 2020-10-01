@@ -37,8 +37,9 @@ public class AppSearchTestUtils {
     public static List<GenericDocument> doGet(
             AppSearchManager instance, String namespace, String... uris) throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                instance.getByUri(new AppSearchManager.GetByUriRequest.Builder()
-                        .setNamespace(namespace).addUris(uris).build()));
+                instance.getByUri(
+                        new GetByUriRequest.Builder()
+                                .setNamespace(namespace).addUris(uris).build()));
         assertThat(result.getSuccesses()).hasSize(uris.length);
         assertThat(result.getFailures()).isEmpty();
         List<GenericDocument> list = new ArrayList<>(uris.length);

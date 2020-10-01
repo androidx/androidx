@@ -27,12 +27,15 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchBackend;
 import androidx.appsearch.app.AppSearchBatchResult;
-import androidx.appsearch.app.AppSearchManager;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localbackend.converter.GenericDocumentToProtoConverter;
 import androidx.appsearch.localbackend.converter.SchemaToProtoConverter;
@@ -112,7 +115,7 @@ public class LocalBackend implements AppSearchBackend {
     @Override
     @NonNull
     public AppSearchResult<Void> setSchema(
-            @NonNull String databaseName, @NonNull AppSearchManager.SetSchemaRequest request) {
+            @NonNull String databaseName, @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
@@ -132,7 +135,7 @@ public class LocalBackend implements AppSearchBackend {
     @Override
     @NonNull
     public AppSearchBatchResult<String, Void> putDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.PutDocumentsRequest request) {
+            @NonNull String databaseName, @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, Void> resultBuilder =
@@ -153,7 +156,7 @@ public class LocalBackend implements AppSearchBackend {
     @Override
     @NonNull
     public AppSearchBatchResult<String, GenericDocument> getByUri(
-            @NonNull String databaseName, @NonNull AppSearchManager.GetByUriRequest request) {
+            @NonNull String databaseName, @NonNull GetByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
@@ -196,7 +199,7 @@ public class LocalBackend implements AppSearchBackend {
     @NonNull
     public AppSearchBatchResult<String, Void> removeByUri(
             @NonNull String databaseName,
-            @NonNull AppSearchManager.RemoveByUriRequest request) {
+            @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, Void> resultBuilder =
