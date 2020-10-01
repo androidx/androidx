@@ -468,6 +468,7 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                     addFile("${id.name}-${id.version}.jar")
                     addFile("${id.name}-${id.version}.aar")
                     addFile("${id.name}-${id.version}-sources.jar")
+                    addFile("${id.name}-${id.version}.klib")
                 }
             }
         }
