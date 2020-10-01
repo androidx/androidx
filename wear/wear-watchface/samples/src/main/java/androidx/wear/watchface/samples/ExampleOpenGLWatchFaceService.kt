@@ -93,7 +93,8 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_WATCH_FACE_BASE or UserStyleCategory.LAYER_WATCH_FACE_UPPER
+            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
+                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsManager(
@@ -217,27 +218,27 @@ class ExampleOpenGLRenderer(
         // Create triangles for the hands.
         secondHandTriangleMap = mapOf(
             "red_style" to
-                    createHand(
-                        coloredTriangleProgram,
-                        0.02f /* width */,
-                        1.0f /* height */, floatArrayOf(
-                            1.0f /* red */,
-                            0.0f /* green */,
-                            0.0f /* blue */,
-                            1.0f /* alpha */
-                        )
-                    ),
-            "greenstyle" to
-                    createHand(
-                        coloredTriangleProgram,
-                        0.02f /* width */,
-                        1.0f /* height */, floatArrayOf(
-                            0.0f /* red */,
-                            1.0f /* green */,
-                            0.0f /* blue */,
-                            1.0f /* alpha */
-                        )
+                createHand(
+                    coloredTriangleProgram,
+                    0.02f /* width */,
+                    1.0f /* height */, floatArrayOf(
+                        1.0f /* red */,
+                        0.0f /* green */,
+                        0.0f /* blue */,
+                        1.0f /* alpha */
                     )
+                ),
+            "greenstyle" to
+                createHand(
+                    coloredTriangleProgram,
+                    0.02f /* width */,
+                    1.0f /* height */, floatArrayOf(
+                        0.0f /* red */,
+                        1.0f /* green */,
+                        0.0f /* blue */,
+                        1.0f /* alpha */
+                    )
+                )
         )
         minuteHandTriangle = createHand(
             coloredTriangleProgram,
@@ -687,19 +688,19 @@ class Gles2ColoredTriangleList(
         companion object {
             /** Trivial vertex shader that transforms the input vertex by the MVP matrix.  */
             private const val VERTEX_SHADER_CODE = "" +
-                    "uniform mat4 uMvpMatrix;\n" +
-                    "attribute vec4 aPosition;\n" +
-                    "void main() {\n" +
-                    "    gl_Position = uMvpMatrix * aPosition;\n" +
-                    "}\n"
+                "uniform mat4 uMvpMatrix;\n" +
+                "attribute vec4 aPosition;\n" +
+                "void main() {\n" +
+                "    gl_Position = uMvpMatrix * aPosition;\n" +
+                "}\n"
 
             /** Trivial fragment shader that draws with a fixed color.  */
             private const val FRAGMENT_SHADER_CODE = "" +
-                    "precision mediump float;\n" +
-                    "uniform vec4 uColor;\n" +
-                    "void main() {\n" +
-                    "    gl_FragColor = uColor;\n" +
-                    "}\n"
+                "precision mediump float;\n" +
+                "uniform vec4 uColor;\n" +
+                "void main() {\n" +
+                "    gl_FragColor = uColor;\n" +
+                "}\n"
         }
 
         /**
@@ -876,7 +877,7 @@ class Gles2ColoredTriangleList(
                 }
                 val message =
                     glOperation + " caused GL error 0x" + Integer.toHexString(error) +
-                            ": " + errorString
+                        ": " + errorString
                 Log.e(TAG, message)
                 throw RuntimeException(message)
             }
@@ -925,7 +926,7 @@ class Gles2TexturedTriangleList(
         }
         require(textureCoords.size % (VERTICE_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
             ("must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
-                    "coordinates")
+                "coordinates")
         }
     }
 
@@ -983,22 +984,22 @@ class Gles2TexturedTriangleList(
         companion object {
             /** Trivial vertex shader that transforms the input vertex by the MVP matrix.  */
             private const val VERTEX_SHADER_CODE = "" +
-                    "uniform mat4 uMvpMatrix;\n" +
-                    "attribute vec4 aPosition;\n" +
-                    "attribute vec4 aTextureCoordinate;\n" +
-                    "varying vec2 textureCoordinate;\n" +
-                    "void main() {\n" +
-                    "    gl_Position = uMvpMatrix * aPosition;\n" +
-                    "    textureCoordinate = aTextureCoordinate.xy;" +
-                    "}\n"
+                "uniform mat4 uMvpMatrix;\n" +
+                "attribute vec4 aPosition;\n" +
+                "attribute vec4 aTextureCoordinate;\n" +
+                "varying vec2 textureCoordinate;\n" +
+                "void main() {\n" +
+                "    gl_Position = uMvpMatrix * aPosition;\n" +
+                "    textureCoordinate = aTextureCoordinate.xy;" +
+                "}\n"
 
             /** Trivial fragment shader that draws with a texture.  */
             private const val FRAGMENT_SHADER_CODE = "" +
-                    "varying highp vec2 textureCoordinate;\n" +
-                    "uniform sampler2D texture;\n" +
-                    "void main() {\n" +
-                    "    gl_FragColor = texture2D(texture, textureCoordinate);\n" +
-                    "}\n"
+                "varying highp vec2 textureCoordinate;\n" +
+                "uniform sampler2D texture;\n" +
+                "void main() {\n" +
+                "    gl_FragColor = texture2D(texture, textureCoordinate);\n" +
+                "}\n"
         }
 
         /**
@@ -1193,7 +1194,7 @@ class Gles2TexturedTriangleList(
                 }
                 val message =
                     glOperation + " caused GL error 0x" + Integer.toHexString(error) +
-                            ": " + errorString
+                        ": " + errorString
                 Log.e(TAG, message)
                 throw RuntimeException(message)
             }
