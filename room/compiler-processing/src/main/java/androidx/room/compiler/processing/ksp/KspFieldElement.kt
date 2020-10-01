@@ -53,4 +53,10 @@ internal class KspFieldElement(
         val asMember = declaration.typeAsMemberOf(env.resolver, other.ksType)
         return env.wrap(asMember)
     }
+
+    fun copyTo(newContaining: KspTypeElement) = KspFieldElement(
+        env = env,
+        declaration = declaration,
+        containing = newContaining
+    )
 }
