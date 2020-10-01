@@ -63,12 +63,11 @@ private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
 private const val TIMEOUT_MS = 800L
 
-private class WatchFaceServiceStub(
+internal class WatchFaceServiceStub(
     private val apiVersion: Int,
-    private val engineWrapper: WatchFaceService.EngineWrapper,
     private val complicationProviders: Map<Int, ComplicationData>
 ) : IWatchFaceService.Stub() {
-    var iWatchFaceCommand: IWatchFaceCommand? = null
+    var watchFaceCommand: IWatchFaceCommand? = null
 
     override fun setStyle(style: WatchFaceStyle) {
     }
@@ -97,7 +96,7 @@ private class WatchFaceServiceStub(
     }
 
     override fun registerIWatchFaceCommand(iWatchFaceCommandBundle: Bundle?) {
-        this.iWatchFaceCommand = IWatchFaceCommand.Stub.asInterface(
+        watchFaceCommand = IWatchFaceCommand.Stub.asInterface(
             iWatchFaceCommandBundle
                 ?.getBinder(Constants.EXTRA_WATCH_FACE_COMMAND_BINDER)
         )
@@ -115,7 +114,10 @@ private class WatchFaceServiceStub(
         fallbackSystemProvider: Int,
         type: Int
     ) {
-        setComplication(watchFaceComplicationId, complicationProviders[fallbackSystemProvider]!!)
+        watchFaceCommand!!.setComplicationData(
+            watchFaceComplicationId,
+            complicationProviders[fallbackSystemProvider]
+        )
     }
 
     override fun getStoredUserStyle(): UserStyleWireFormat? {
@@ -126,20 +128,6 @@ private class WatchFaceServiceStub(
     }
 
     override fun getApiVersion() = apiVersion
-
-    private fun setComplication(complicationId: Int, complicationData: ComplicationData) {
-        engineWrapper.onCommand(
-            Constants.COMMAND_COMPLICATION_DATA,
-            0,
-            0,
-            0,
-            Bundle().apply {
-                putInt(Constants.EXTRA_COMPLICATION_ID, complicationId)
-                putParcelable(Constants.EXTRA_COMPLICATION_DATA, complicationData)
-            },
-            false
-        )
-    }
 
     override fun registerWatchFaceType(watchFaceType: Int) {
     }
@@ -226,7 +214,6 @@ class WatchFaceServiceImageTest {
     private fun setBinder() {
         watchFaceServiceStub = WatchFaceServiceStub(
             API_VERSION,
-            engineWrapper,
             complicationProviders
         )
 
@@ -246,7 +233,7 @@ class WatchFaceServiceImageTest {
     }
 
     private fun setAmbient(ambient: Boolean) {
-        watchFaceServiceStub.iWatchFaceCommand!!.setSystemState(
+        watchFaceServiceStub.watchFaceCommand!!.setSystemState(
             SystemState(
                 ambient,
                 0,
@@ -286,7 +273,7 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.AMBIENT,
                 100,
                 123456789,
@@ -309,7 +296,7 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                 DrawMode.AMBIENT,
                 100,
@@ -334,7 +321,7 @@ class WatchFaceServiceImageTest {
         handler.post(this::initGles2WatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.INTERACTIVE,
                 100,
                 123456789,
@@ -357,7 +344,7 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                 DrawMode.INTERACTIVE,
                 100,
@@ -383,7 +370,7 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap2: Bitmap? = null
         handler.post {
-            bitmap2 = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+            bitmap2 = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                 DrawMode.INTERACTIVE,
                 100,
@@ -405,7 +392,7 @@ class WatchFaceServiceImageTest {
     fun testSetGreenStyle() {
         handler.post {
             initCanvasWatchFace()
-            watchFaceServiceStub.iWatchFaceCommand!!.setUserStyle(
+            watchFaceServiceStub.watchFaceCommand!!.setUserStyle(
                 UserStyleWireFormat(mapOf("color_style_category" to "green_style"))
             )
             engineWrapper.draw()
