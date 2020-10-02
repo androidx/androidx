@@ -34,6 +34,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.InitializationException;
@@ -100,6 +101,18 @@ abstract class CameraController {
     // ImageCapture is enabled by default.
     private boolean mImageCaptureEnabled = true;
 
+    // ImageAnalysis is enabled by default.
+    private boolean mImageAnalysisEnabled = true;
+
+    @Nullable
+    private Executor mAnalysisExecutor;
+
+    @Nullable
+    private ImageAnalysis.Analyzer mAnalysisAnalyzer;
+
+    @NonNull
+    private ImageAnalysis mImageAnalysis;
+
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @NonNull
@@ -123,7 +136,6 @@ abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @Nullable
     ProcessCameraProvider mCameraProvider;
-
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -163,6 +175,7 @@ abstract class CameraController {
         mAppContext = context.getApplicationContext();
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
+        mImageAnalysis = new ImageAnalysis.Builder().build();
         mVideoCapture = new VideoCapture.Builder().build();
 
         // Wait for camera to be initialized before binding use cases.
@@ -406,6 +419,161 @@ abstract class CameraController {
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
 
         mImageCapture.takePicture(executor, callback);
+    }
+
+    // -----------------
+    // Image analysis
+    // -----------------
+
+    /**
+     * Checks if {@link ImageAnalysis} is enabled.
+     *
+     * @see ImageAnalysis
+     */
+    @MainThread
+    public boolean isImageAnalysisEnabled() {
+        Threads.checkMainThread();
+        return mImageAnalysisEnabled;
+    }
+
+    /**
+     * Enables or disables {@link ImageAnalysis} use case.
+     *
+     * @see ImageAnalysis
+     */
+    @MainThread
+    public void setImageAnalysisEnabled(boolean imageAnalysisEnabled) {
+        Threads.checkMainThread();
+        mImageAnalysisEnabled = imageAnalysisEnabled;
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Sets an analyzer to receive and analyze images.
+     *
+     * <p>Applications can process or copy the image by implementing the
+     * {@link ImageAnalysis.Analyzer}. The image needs to be closed by calling
+     * {@link ImageProxy#close()} when the analyzing is done.
+     *
+     * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
+     * set at any time.
+     *
+     * @param executor The executor in which the
+     *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} will be run.
+     * @param analyzer of the images.
+     * @see ImageAnalysis#setAnalyzer(Executor, ImageAnalysis.Analyzer)
+     */
+    @MainThread
+    public void setImageAnalysisAnalyzer(@NonNull Executor executor,
+            @NonNull ImageAnalysis.Analyzer analyzer) {
+        Threads.checkMainThread();
+        if (mAnalysisAnalyzer == analyzer && mAnalysisExecutor == executor) {
+            return;
+        }
+        mAnalysisExecutor = executor;
+        mAnalysisAnalyzer = analyzer;
+        mImageAnalysis.setAnalyzer(executor, analyzer);
+    }
+
+    /**
+     * Removes a previously set analyzer.
+     *
+     * <p>This will stop data from streaming to the {@link ImageAnalysis}.
+     *
+     * @see ImageAnalysis#clearAnalyzer().
+     */
+    @MainThread
+    public void clearImageAnalysisAnalyzer() {
+        Threads.checkMainThread();
+        mAnalysisExecutor = null;
+        mAnalysisAnalyzer = null;
+        mImageAnalysis.clearAnalyzer();
+    }
+
+    /**
+     * Returns the mode with which images are acquired.
+     *
+     * <p> If not set, it defaults to {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     *
+     * @return The backpressure strategy applied to the image producer.
+     * @see ImageAnalysis.Builder#getBackpressureStrategy()
+     * @see ImageAnalysis.BackpressureStrategy
+     */
+    @MainThread
+    @ImageAnalysis.BackpressureStrategy
+    public int getImageAnalysisBackpressureStrategy() {
+        Threads.checkMainThread();
+        return mImageAnalysis.getBackpressureStrategy();
+    }
+
+    /**
+     * Sets the backpressure strategy to apply to the image producer to deal with scenarios
+     * where images may be produced faster than they can be analyzed.
+     *
+     * <p>The available values are {@link ImageAnalysis#STRATEGY_BLOCK_PRODUCER} and
+     * {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}. If not set, the backpressure strategy
+     * will default to {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     *
+     * @param strategy The strategy to use.
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     * @see ImageAnalysis.BackpressureStrategy
+     */
+    @MainThread
+    public void setImageAnalysisBackpressureStrategy(
+            @ImageAnalysis.BackpressureStrategy int strategy) {
+        Threads.checkMainThread();
+        if (mImageAnalysis.getBackpressureStrategy() == strategy) {
+            return;
+        }
+
+        unbindImageAnalysisAndRecreate(strategy, mImageAnalysis.getImageQueueDepth());
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Sets the number of images available to the camera pipeline.
+     *
+     * @param depth The total number of images available to the camera.
+     * @see ImageAnalysis.Builder#setImageQueueDepth(int)
+     */
+    @MainThread
+    public void setImageAnalysisImageQueueDepth(int depth) {
+        Threads.checkMainThread();
+        if (mImageAnalysis.getImageQueueDepth() == depth) {
+            return;
+        }
+        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(), depth);
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the number of images available to the camera pipeline.
+     *
+     * @see ImageAnalysis#getImageQueueDepth()
+     */
+    @MainThread
+    public int getImageAnalysisImageQueueDepth() {
+        Threads.checkMainThread();
+        return mImageAnalysis.getImageQueueDepth();
+    }
+
+    /**
+     * Unbinds {@link ImageAnalysis} and recreates with the given parameters.
+     *
+     * <p> This is necessary because unlike other use cases, {@link ImageAnalysis}'s parameters
+     * cannot be updated without recreating the use case.
+     */
+    private void unbindImageAnalysisAndRecreate(int strategy, int imageQueueDepth) {
+        if (isCameraInitialized()) {
+            mCameraProvider.unbind(mImageAnalysis);
+        }
+        mImageAnalysis = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(strategy)
+                .setImageQueueDepth(imageQueueDepth)
+                .build();
+        if (mAnalysisExecutor != null && mAnalysisAnalyzer != null) {
+            mImageAnalysis.setAnalyzer(mAnalysisExecutor, mAnalysisAnalyzer);
+        }
     }
 
     // -----------------
@@ -779,6 +947,12 @@ abstract class CameraController {
             builder.addUseCase(mImageCapture);
         } else {
             mCameraProvider.unbind(mImageCapture);
+        }
+
+        if (mImageAnalysisEnabled) {
+            builder.addUseCase(mImageAnalysis);
+        } else {
+            mCameraProvider.unbind(mImageAnalysis);
         }
 
         if (mVideoCaptureEnabled) {
