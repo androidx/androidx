@@ -35,8 +35,8 @@ import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WatchFaceColorStyle
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
@@ -80,8 +80,7 @@ internal class TestGlesWatchFaceService(
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsManager(

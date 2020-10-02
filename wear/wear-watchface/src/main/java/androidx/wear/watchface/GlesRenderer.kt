@@ -56,7 +56,7 @@ private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * class.
  */
 abstract class GlesRenderer (
-    /** The [SurfaceHolder] that [onDraw] will draw into. */
+    /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
@@ -251,14 +251,16 @@ abstract class GlesRenderer (
     /** {@inheritDoc} */
     internal override fun takeScreenshot(
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ): Bitmap {
         val width = screenBounds.width()
         val height = screenBounds.height()
         val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)
         makeContextCurrent()
-        this.drawMode = drawMode
+        val prevRenderParameters = this.renderParameters
+        this.renderParameters = renderParameters
         render(calendar)
+        this.renderParameters = prevRenderParameters
         GLES20.glFinish()
         GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuf)
         // The image is flipped when using read pixels because the first pixel in the OpenGL buffer

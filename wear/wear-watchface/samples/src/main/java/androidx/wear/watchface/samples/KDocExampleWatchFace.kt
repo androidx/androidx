@@ -37,9 +37,9 @@ import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 @Sampled
@@ -75,9 +75,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
-                                UserStyleCategory.LAYER_FLAG_COMPLICATONS or
-                                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+                        listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
                     ),
                     ListUserStyleCategory(
                         "hand_style_category",
@@ -97,7 +95,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+                        listOf(Layer.TOP_LAYER)
                     )
                 )
             )

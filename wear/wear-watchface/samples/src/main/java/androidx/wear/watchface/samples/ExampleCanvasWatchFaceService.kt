@@ -33,6 +33,7 @@ import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
+import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
@@ -40,9 +41,9 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import kotlin.math.cos
 import kotlin.math.sin
@@ -94,9 +95,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
-                    UserStyleCategory.LAYER_FLAG_COMPLICATONS or
-                    UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -105,7 +104,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 "Whether to draw or not",
                 null,
                 true,
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+                listOf(Layer.BASE_LAYER)
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -116,7 +115,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 0.25,
                 1.0,
                 0.75,
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+                listOf(Layer.TOP_LAYER)
             )
         val complicationsStyleCategory = ListUserStyleCategory(
             "complications_style_category",
@@ -145,7 +144,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                     null
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_COMPLICATONS
+            listOf(Layer.COMPLICATIONS)
         )
         val userStyleRepository = UserStyleRepository(
             listOf(
@@ -318,7 +317,7 @@ class ExampleCanvasRenderer(
     }
 
     override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-        val style = if (drawMode == DrawMode.AMBIENT) {
+        val style = if (renderParameters.drawMode == DrawMode.AMBIENT) {
             watchFaceColorStyle.ambientStyle
         } else {
             watchFaceColorStyle.activeStyle
@@ -326,15 +325,16 @@ class ExampleCanvasRenderer(
 
         canvas.drawColor(style.backgroundColor)
 
-        if (drawMode != DrawMode.BASE_WATCHFACE && drawMode != DrawMode.UPPER_LAYER) {
-            drawComplications(canvas, calendar)
-        }
+        // CanvasComplicationDrawableRenderer already obeys rendererParameters.
+        drawComplications(canvas, calendar)
 
-        if (drawMode != DrawMode.BASE_WATCHFACE) {
+        if (renderParameters.layerParameters[Layer.TOP_LAYER] != LayerMode.HIDE) {
             drawClockHands(canvas, bounds, calendar, style)
         }
 
-        if (drawMode != DrawMode.AMBIENT && drawMode != DrawMode.UPPER_LAYER && drawHourPips) {
+        if (renderParameters.drawMode != DrawMode.AMBIENT &&
+            renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE &&
+            drawHourPips) {
             drawNumberStyleOuterElement(canvas, bounds, style)
         }
     }
@@ -358,7 +358,7 @@ class ExampleCanvasRenderer(
 
         recalculateClockHands(bounds)
 
-        if (drawMode == DrawMode.AMBIENT) {
+        if (renderParameters.drawMode == DrawMode.AMBIENT) {
             clockHandPaint.style = Paint.Style.STROKE
             clockHandPaint.color = style.hourHandColor
             canvas.scale(
@@ -528,7 +528,7 @@ class ExampleCanvasRenderer(
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
         for ((_, complication) in complicationsManager.complications) {
             if (complication.enabled) {
-                complication.render(canvas, calendar, drawMode)
+                complication.render(canvas, calendar, renderParameters)
             }
         }
     }

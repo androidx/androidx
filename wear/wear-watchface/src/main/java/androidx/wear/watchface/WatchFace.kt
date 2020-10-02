@@ -23,7 +23,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
@@ -39,8 +38,9 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import androidx.wear.watchface.ui.WatchFaceConfigDelegate
@@ -189,7 +189,7 @@ class WatchFace private constructor(
             ) {
                 throw IllegalArgumentException(
                     "View protection must be combination " +
-                            "PROTECT_STATUS_BAR, PROTECT_HOTWORD_INDICATOR or PROTECT_WHOLE_SCREEN"
+                        "PROTECT_STATUS_BAR, PROTECT_HOTWORD_INDICATOR or PROTECT_WHOLE_SCREEN"
                 )
             }
             this.viewProtectionMode = viewProtectionMode
@@ -532,17 +532,8 @@ class WatchFace private constructor(
             override fun takeScreenshot(
                 drawRect: Rect,
                 calendar: Calendar,
-                drawMode: Int
-            ): Bitmap {
-                val oldDrawMode = renderer.drawMode
-                renderer.drawMode = drawMode
-                val bitmap = renderer.takeScreenshot(
-                    calendar,
-                    DrawMode.INTERACTIVE
-                )
-                renderer.drawMode = oldDrawMode
-                return bitmap
-            }
+                renderParameters: RenderParametersWireFormat
+            ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
         })
 
         watchFaceHostApi.registerWatchFaceType(watchFaceType)
@@ -672,7 +663,8 @@ class WatchFace private constructor(
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
         }
-        renderer.drawMode = newDrawMode
+        renderer.renderParameters =
+            RenderParameters(newDrawMode, RenderParameters.DRAW_ALL_LAYERS)
     }
 
     /** @hide */
@@ -700,7 +692,7 @@ class WatchFace private constructor(
     /** @hide */
     @UiThread
     internal fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long):
-            Long {
+        Long {
         // Limit update rate to conserve power when the battery is low and not charging.
         val updateRateMillis =
             if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {

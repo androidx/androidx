@@ -22,6 +22,7 @@ import android.icu.util.Calendar
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.wear.watchface.Complication
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
@@ -68,6 +69,6 @@ interface WatchFaceConfigDelegate {
     fun takeScreenshot(
         drawRect: Rect,
         calendar: Calendar,
-        drawMode: Int
+        renderParameters: RenderParametersWireFormat
     ): Bitmap
 }

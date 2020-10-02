@@ -51,7 +51,7 @@ annotation class CanvasType {
  * class.
  */
 abstract class CanvasRenderer(
-    /** The [SurfaceHolder] that [onDraw] will draw into. */
+    /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
@@ -86,17 +86,17 @@ abstract class CanvasRenderer(
     /** {@inheritDoc} */
     internal override fun takeScreenshot(
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(
             screenBounds.width(),
             screenBounds.height(),
             Bitmap.Config.ARGB_8888
         )
-        val prevDrawMode = drawMode
-        this.drawMode = drawMode
+        val prevRenderParameters = this.renderParameters
+        this.renderParameters = renderParameters
         render(Canvas(bitmap), screenBounds, calendar)
-        this.drawMode = prevDrawMode
+        this.renderParameters = prevRenderParameters
         return bitmap
     }
 
