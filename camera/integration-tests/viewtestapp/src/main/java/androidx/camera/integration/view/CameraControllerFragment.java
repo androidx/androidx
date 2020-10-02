@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
@@ -81,6 +82,29 @@ public class CameraControllerFragment extends Fragment {
     private TextView mZoomStateText;
     private TextView mTorchStateText;
     private RotationListener mSensorRotationListener;
+    private TextView mLuminance;
+    private boolean mIsAnalyzerSet = true;
+
+    // Wrapped analyzer for tests to receive callbacks.
+    @Nullable
+    private ImageAnalysis.Analyzer mWrappedAnalyzer;
+
+    private final ImageAnalysis.Analyzer mAnalyzer = image -> {
+        byte[] bytes = new byte[image.getPlanes()[0].getBuffer().remaining()];
+        image.getPlanes()[0].getBuffer().get(bytes);
+        int total = 0;
+        for (byte value : bytes) {
+            total += value & 0xFF;
+        }
+        final int luminance = total / bytes.length;
+        mLuminance.post(
+                () -> mLuminance.setText(String.valueOf(luminance)));
+        // Forward the call to wrapped analyzer if set.
+        if (mWrappedAnalyzer != null) {
+            mWrappedAnalyzer.analyze(image);
+        }
+        image.close();
+    };
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -176,6 +200,23 @@ public class CameraControllerFragment extends Fragment {
                         toast("Failed to take picture: " + exception.getMessage());
                     }
                 });
+
+        // Set up analysis UI.
+        ToggleButton analysisEnabled = view.findViewById(R.id.analysis_enabled);
+        analysisEnabled.setOnCheckedChangeListener(
+                (compoundButton, value) -> mCameraController.setImageAnalysisEnabled(value));
+        analysisEnabled.setChecked(mCameraController.isImageAnalysisEnabled());
+
+        ToggleButton analyzerSet = view.findViewById(R.id.analyzer_set);
+        analyzerSet.setOnCheckedChangeListener(
+                (compoundButton, value) -> {
+                    mIsAnalyzerSet = value;
+                    updateControllerAnalyzer();
+                });
+        analyzerSet.setChecked(mIsAnalyzerSet);
+        updateControllerAnalyzer();
+
+        mLuminance = view.findViewById(R.id.luminance);
 
         // Set up video UI.
         mVideoEnabledToggle = view.findViewById(R.id.video_enabled);
@@ -352,6 +393,17 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets or clears analyzer based on current state.
+     */
+    private void updateControllerAnalyzer() {
+        if (mIsAnalyzerSet) {
+            mCameraController.setImageAnalysisAnalyzer(mExecutorService, mAnalyzer);
+        } else {
+            mCameraController.clearImageAnalysisAnalyzer();
+        }
+    }
+
     // -----------------
     // For testing
     // -----------------
@@ -383,6 +435,14 @@ public class CameraControllerFragment extends Fragment {
     @RestrictTo(RestrictTo.Scope.TESTS)
     LifecycleCameraController getCameraController() {
         return mCameraController;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    void setWrappedAnalyzer(@Nullable ImageAnalysis.Analyzer analyzer) {
+        mWrappedAnalyzer = analyzer;
     }
 
     /**
