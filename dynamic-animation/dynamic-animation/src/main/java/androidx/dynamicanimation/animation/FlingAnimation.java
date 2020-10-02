@@ -215,8 +215,7 @@ public final class FlingAnimation extends DynamicAnimation<FlingAnimation> {
 
         MassState updateValueAndVelocity(float value, float velocity, long deltaT) {
             mMassState.mVelocity = (float) (velocity * Math.exp((deltaT / 1000f) * mFriction));
-            mMassState.mValue = (float) (value - velocity / mFriction
-                    + velocity / mFriction * Math.exp(mFriction * deltaT / 1000f));
+            mMassState.mValue = (float) (value + (mMassState.mVelocity - velocity) / mFriction);
             if (isAtEquilibrium(mMassState.mValue, mMassState.mVelocity)) {
                 mMassState.mVelocity = 0f;
             }
