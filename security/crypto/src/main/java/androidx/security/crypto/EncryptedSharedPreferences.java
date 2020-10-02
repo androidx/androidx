@@ -77,7 +77,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     private static final String NULL_VALUE = "__NULL__";
 
     final SharedPreferences mSharedPreferences;
-    final List<OnSharedPreferenceChangeListener> mListeners;
+    final CopyOnWriteArrayList<OnSharedPreferenceChangeListener> mListeners;
     final String mFileName;
     final String mMasterKeyAlias;
 
@@ -94,7 +94,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         mMasterKeyAlias = masterKeyAlias;
         mValueAead = aead;
         mKeyDeterministicAead = deterministicAead;
-        mListeners = new ArrayList<>();
+        mListeners = new CopyOnWriteArrayList<>();
     }
 
     /**

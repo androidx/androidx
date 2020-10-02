@@ -408,4 +408,32 @@ public class EncryptedSharedPreferencesTest {
                 testValue);
     }
 
+    @Test
+    public void testReentrantCallbackCalls() throws Exception {
+        SharedPreferences encryptedSharedPreferences = EncryptedSharedPreferences
+                .create(mContext,
+                        PREFS_FILE,
+                        mMasterKey,
+                        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+
+        encryptedSharedPreferences.registerOnSharedPreferenceChangeListener(
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                            String key) {
+                        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+                    }
+                });
+
+        encryptedSharedPreferences.registerOnSharedPreferenceChangeListener(
+                (sharedPreferences, key) -> {
+                    // No-op
+                });
+
+        SharedPreferences.Editor editor = encryptedSharedPreferences.edit();
+        editor.putString("someKey", "someValue");
+        editor.apply();
+    }
+
 }
