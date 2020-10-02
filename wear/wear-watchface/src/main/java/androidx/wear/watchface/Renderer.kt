@@ -26,7 +26,7 @@ import androidx.wear.watchface.style.UserStyleRepository
 
 /** The base class for [CanvasRenderer] and [GlesRenderer]. */
 abstract class Renderer(
-    /** The [SurfaceHolder] that [onDraw] will draw into. */
+    /** The [SurfaceHolder] that [renderInternal] will draw into. */
     _surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
@@ -47,17 +47,15 @@ abstract class Renderer(
     var centerY: Float = screenBounds.exactCenterY()
         private set
 
-    @DrawMode
-    private var _drawMode: Int? = null
+    private var _renderParameters: RenderParameters? = null
 
     /** The current DrawMode. Updated before every onDraw call. */
-    @DrawMode
-    var drawMode: Int
-        get() = _drawMode ?: DrawMode.INTERACTIVE
+    var renderParameters: RenderParameters
+        get() = _renderParameters ?: RenderParameters.DEFAULT_INTERACTIVE
         internal set(value) {
-            if (value != _drawMode) {
-                _drawMode = value
-                onDrawModeChanged(value)
+            if (value != _renderParameters) {
+                _renderParameters = value
+                onRenderParametersChanged(value)
             }
         }
 
@@ -69,7 +67,7 @@ abstract class Renderer(
     open fun onSurfaceDestroyed(holder: SurfaceHolder) {}
 
     /**
-     * Renders the watch face into the [surfaceHolder] using the current [drawMode]
+     * Renders the watch face into the [surfaceHolder] using the current [renderParameters]
      * with the user style specified by the [userStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
@@ -83,13 +81,13 @@ abstract class Renderer(
      * [userStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
-     * @param drawMode The [DrawMode] to use when rendering the watch face
+     * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
     @UiThread
     internal abstract fun takeScreenshot(
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ): Bitmap
 
     /**
@@ -97,7 +95,7 @@ abstract class Renderer(
      * call to onDraw().
      */
     @UiThread
-    protected open fun onDrawModeChanged(@DrawMode drawMode: Int) {}
+    protected open fun onRenderParametersChanged(renderParameters: RenderParameters) {}
 
     /**
      * This method is used for accessibility support to describe the portion of the screen

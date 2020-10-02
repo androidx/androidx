@@ -68,14 +68,11 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
     public int mDefaultOptionIndex;
 
     /**
-     * Used by the style configuration UI. Describes which rendering layer this style affects. Must
-     * be either 0 (for a style change with no visual effect, e.g. sound controls) or a combination
-     * of {@link UserStyleCategory#LAYER_WATCH_FACE_BASE},
-     * {@link UserStyleCategory#LAYER_COMPLICATONS},
-     * {@link UserStyleCategory#LAYER_WATCH_FACE_UPPER}.
+     * Used by the style configuration UI. Describes which rendering layers this style affects.
      */
     @ParcelField(6)
-    public int mLayerFlags;
+    @NonNull
+    public List<Integer> mAffectsLayers;
 
     /**
      * List of options for this UserStyleCategory. Depending on the type of UserStyleCategory this
@@ -99,14 +96,14 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
-            int layerFlags) {
+            @NonNull List<Integer> affectsLayers) {
         mId = id;
         mDisplayName = displayName;
         mDescription = description;
         mIcon = icon;
         mOptions = options;
         mDefaultOptionIndex = defaultOptionIndex;
-        mLayerFlags = layerFlags;
+        mAffectsLayers = affectsLayers;
     }
 
     /** Serializes this UserStyleCategoryWireFormat to the specified {@link Parcel}. */

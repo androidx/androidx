@@ -42,8 +42,8 @@ import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple canvas test watch face for integration tests. */
@@ -87,9 +87,7 @@ internal class TestCanvasWatchFaceService(
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
-                    UserStyleCategory.LAYER_FLAG_COMPLICATONS or
-                    UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -98,7 +96,7 @@ internal class TestCanvasWatchFaceService(
                 "Whether or not hour pips should be drawn",
                 null,
                 true,
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+                listOf(Layer.BASE_LAYER)
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -109,7 +107,7 @@ internal class TestCanvasWatchFaceService(
                 0.25,
                 1.0,
                 1.0,
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+                listOf(Layer.TOP_LAYER)
             )
         val complicationsStyleCategory = ListUserStyleCategory(
             "complications_style_category",
@@ -138,7 +136,7 @@ internal class TestCanvasWatchFaceService(
                     null
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_COMPLICATONS
+            listOf(Layer.COMPLICATIONS)
         )
         val userStyleRepository = UserStyleRepository(
             listOf(
