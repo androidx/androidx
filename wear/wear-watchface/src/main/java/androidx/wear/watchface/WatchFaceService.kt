@@ -51,8 +51,8 @@ import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -154,6 +154,8 @@ annotation class TapType {
         const val TAP = 2
     }
 }
+
+private class PendingComplicationData(val complicationId: Int, val data: ComplicationData)
 
 /**
  * WatchFaceService and [WatchFace] are a pair of base classes intended to handle much of
@@ -267,8 +269,15 @@ abstract class WatchFaceService : WallpaperService() {
     // This is open to allow mocking.
     internal open fun getMutableWatchState() = MutableWatchState()
 
+    // This is open for use by tests.
+    internal open fun allowWatchFaceToAnimate() = true
+
+    internal fun setContext(context: Context) {
+        attachBaseContext(context)
+    }
+
     internal inner class EngineWrapper(
-        private val _handler: Handler
+        private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
         private val _context = this@WatchFaceService as Context
 
@@ -291,6 +300,12 @@ abstract class WatchFaceService : WallpaperService() {
                 watchFace.invalidate()
             }
         }
+
+        /**
+         * Whether or not we allow watchfaces to animate. In some tests or for headless
+         * rendering (for remote config) we don't want this.
+         */
+        internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
 
         private var destroyed = false
 
@@ -327,43 +342,29 @@ abstract class WatchFaceService : WallpaperService() {
             addAction(Intent.ACTION_TIME_TICK)
         }
 
-        /**
-         * Runs the supplied task on the UI thread.  If we're not on the UI thread a task is posted
-         * and we block until it's been processed.
-         *
-         * AIDL calls are dispatched from a thread pool, but for simplicity WatchFace code is
-         * largely single threaded so we need to post tasks to the UI thread and wait for them to
-         * execute.
-         */
-        internal fun <R> runOnUiThread(task: () -> R) =
-            if (_handler.looper == Looper.myLooper()) {
-                task.invoke()
-            } else {
-                val latch = CountDownLatch(1)
-                var returnVal: R? = null
-                var exception: Exception? = null
-                if (_handler.post {
-                        try {
-                            returnVal = task.invoke()
-                        } catch (e: Exception) {
-                            // Will rethrow on the calling thread.
-                            exception = e
-                        }
-                        latch.countDown()
-                    }) {
-                    latch.await()
-                    if (exception != null) {
-                        throw exception as Exception
-                    }
-                }
-                returnVal!!
-            }
+        // TODO(alexclarke): Migrate all pending logic to operate inside watchFaceCommand.
+        private var pendingBackgroundAction: Bundle? = null
+        private var pendingProperties: Bundle? = null
+        private var pendingSetWatchFaceStyle = false
+        private var pendingVisibilityChanged: Boolean? = null
+        private var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
+        private var complicationsActivated = false
+
+        // Only valid after onSetBinder has been called.
+        private var systemApiVersion = -1
+
+        internal var firstSetSystemState = true
+        internal var firstIndicatorState = true
+        internal var immutableSystemStateDone = false
+
+        internal var lastActiveComplications: IntArray? = null
+        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
 
         private val watchFaceCommand = object : IWatchFaceCommand.Stub() {
             override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
 
             override fun ambientUpdate() {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (mutableWatchState.isAmbient.value) {
                         ambientUpdateWakelock.acquire()
                         watchFace.invalidate()
@@ -373,7 +374,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setSystemState(systemState: SystemState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (firstSetSystemState ||
                         systemState.inAmbientMode != mutableWatchState.isAmbient.value
                     ) {
@@ -404,7 +405,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setIndicatorState(indicatorState: IndicatorState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (firstIndicatorState ||
                         indicatorState.isCharging != mutableWatchState.isCharging.value
                     ) {
@@ -448,7 +449,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     watchFace.onSetStyleInternal(
                         UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
                     )
@@ -456,7 +457,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setImmutableSystemState(immutableSystemState: ImmutableSystemState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     // These properties never change so set them once only.
                     if (!immutableSystemStateDone) {
                         mutableWatchState.hasLowBitAmbient.value =
@@ -469,14 +470,21 @@ abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+            @SuppressLint("SyntheticAccessor")
             override fun setComplicationData(complicationId: Int, data: ComplicationData) {
-                runOnUiThread {
-                    watchFace.onComplicationDataUpdate(complicationId, data)
+                uiThreadHandler.runOnHandler {
+                    if (watchFaceCreated()) {
+                        watchFace.onComplicationDataUpdate(complicationId, data)
+                    } else {
+                        pendingComplicationDataUpdates.add(
+                            PendingComplicationData(complicationId, data)
+                        )
+                    }
                 }
             }
 
             override fun requestWatchFaceStyle() {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     try {
                         iWatchFaceService.setStyle(watchFace.watchFaceStyle)
                     } catch (e: RemoteException) {
@@ -501,7 +509,7 @@ abstract class WatchFaceService : WallpaperService() {
                 calendarTimeMillis: Long,
                 userStyle: UserStyleWireFormat?
             ): Bundle {
-                return runOnUiThread {
+                return uiThreadHandler.runOnHandler {
                     val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
                     if (userStyle != null) {
                         watchFace.onSetStyleInternal(
@@ -535,7 +543,7 @@ abstract class WatchFaceService : WallpaperService() {
                 complicationData: ComplicationData?,
                 userStyle: UserStyleWireFormat?
             ): Bundle? {
-                return runOnUiThread {
+                return uiThreadHandler.runOnHandler {
                     val calendar = Calendar.getInstance().apply {
                         timeInMillis = calendarTimeMillis
                     }
@@ -590,7 +598,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (watchFaceCreated()) {
                         watchFace.onTapCommand(tapType, xPos, yPos)
                     }
@@ -598,26 +606,9 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        // Only valid after onSetBinder has been called.
-        private var systemApiVersion = -1
-
-        internal var firstSetSystemState = true
-        internal var firstIndicatorState = true
-        internal var immutableSystemStateDone = false
-
-        internal var lastActiveComplications: IntArray? = null
-        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
-
-        private var pendingBackgroundAction: Bundle? = null
-        private var pendingProperties: Bundle? = null
-        private var pendingSetWatchFaceStyle = false
-        private var pendingVisibilityChanged: Boolean? = null
-        private var pendingComplicationDataUpdates = ArrayList<Bundle>()
-        private var complicationsActivated = false
-
         override fun getContext() = _context
 
-        override fun getHandler() = _handler
+        override fun getHandler() = uiThreadHandler
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
@@ -632,7 +623,7 @@ abstract class WatchFaceService : WallpaperService() {
 
         override fun onDestroy() {
             destroyed = true
-            _handler.removeCallbacks(invalidateRunnable)
+            uiThreadHandler.removeCallbacks(invalidateRunnable)
             choreographer.removeFrameCallback(frameCallback)
 
             if (timeTickRegistered) {
@@ -817,7 +808,10 @@ abstract class WatchFaceService : WallpaperService() {
                     pendingProperties = null
                 }
                 for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    onComplicationDataUpdate(complicationDataUpdate)
+                    watchFaceCommand.setComplicationData(
+                        complicationDataUpdate.complicationId,
+                        complicationDataUpdate.data
+                    )
                 }
             }
         }
@@ -893,6 +887,9 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun invalidate() {
+            if (!allowWatchfaceToAnimate) {
+                return
+            }
             if (!frameCallbackPending) {
                 if (LOG_VERBOSE) {
                     Log.v(TAG, "invalidate: requesting draw")
@@ -923,10 +920,6 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun onComplicationDataUpdate(extras: Bundle) {
-            if (!watchFaceCreated()) {
-                pendingComplicationDataUpdates.add(extras)
-                return
-            }
             extras.classLoader = ComplicationData::class.java.classLoader
             watchFaceCommand.setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
@@ -1051,3 +1044,35 @@ abstract class WatchFaceService : WallpaperService() {
         }
     }
 }
+
+/**
+ * Runs the supplied task on the handler thread. If we're not on the handler thread a task is posted
+ * and we block until it's been processed.
+ *
+ * AIDL calls are dispatched from a thread pool, but for simplicity WatchFace code is
+ * largely single threaded so we need to post tasks to the UI thread and wait for them to
+ * execute.
+ */
+internal fun <R> Handler.runOnHandler(task: () -> R) =
+    if (looper == Looper.myLooper()) {
+        task.invoke()
+    } else {
+        val latch = CountDownLatch(1)
+        var returnVal: R? = null
+        var exception: Exception? = null
+        if (post {
+                try {
+                    returnVal = task.invoke()
+                } catch (e: Exception) {
+                    // Will rethrow on the calling thread.
+                    exception = e
+                }
+                latch.countDown()
+            }) {
+            latch.await()
+            if (exception != null) {
+                throw exception as Exception
+            }
+        }
+        returnVal!!
+    }
