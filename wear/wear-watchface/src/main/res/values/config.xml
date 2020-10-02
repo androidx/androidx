@@ -14,16 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="androidx.wear.watchface">
-  <application>
-    <uses-library android:name="com.google.android.wearable" android:required="false" />
-    <service
-        android:name="androidx.wear.watchface.control.WatchFaceControlService"
-        android:enabled="@bool/watch_face_instance_service_enabled"
-        android:permission="com.google.android.wearable.permission.BIND_WATCH_FACE_CONTROL">
-      <intent-filter>
-        <action android:name="com.google.android.wearable.action.WATCH_FACE_CONTROL"/>
-      </intent-filter>
-    </service>
-  </application>
-</manifest>
+
+<resources>
+    <bool name="watch_face_instance_service_enabled">false</bool>
+</resources>

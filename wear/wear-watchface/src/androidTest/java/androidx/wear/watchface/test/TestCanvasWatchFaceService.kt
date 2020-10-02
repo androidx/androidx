@@ -26,7 +26,6 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
@@ -200,8 +199,7 @@ internal class TestCanvasWatchFaceService(
             userStyleRepository,
             complicationSlots,
             renderer,
-            // We want full control over when frames are produced.
-            NoInvalidateWatchFaceHostApi.create(watchFaceHost),
+            watchFaceHost,
             watchState
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
@@ -213,4 +211,7 @@ internal class TestCanvasWatchFaceService(
     override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
+
+    // We want full control over when frames are produced.
+    override fun allowWatchFaceToAnimate() = false
 }
