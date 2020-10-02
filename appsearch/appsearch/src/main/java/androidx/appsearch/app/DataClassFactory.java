@@ -17,16 +17,13 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 
 /**
  * An interface for factories which can convert between data classes and {@link GenericDocument}.
  *
  * @param <T> The type of data class this factory converts to and from {@link GenericDocument}.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DataClassFactory<T> {
     /**
      * Returns the name of this schema type, e.g. {@code Email}.
