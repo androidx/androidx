@@ -18,13 +18,18 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import androidx.compose.runtime.SlotTable
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.unit.Density
 import androidx.ui.tooling.Group
+import androidx.ui.tooling.NodeGroup
 import androidx.ui.tooling.ParameterInformation
 import androidx.ui.tooling.R
 import androidx.ui.tooling.asTree
-import androidx.compose.ui.unit.Density
 import java.util.ArrayDeque
+import java.util.Collections
+import java.util.IdentityHashMap
 import kotlin.math.absoluteValue
 
 private val unwantedPackages = setOf(
@@ -52,12 +57,21 @@ private fun packageNameHash(packageName: String) =
 /**
  * Generator of a tree for the Layout Inspector.
  */
+@OptIn(ExperimentalLayoutNodeApi::class)
 class LayoutInspectorTree {
-    // TODO: Give a warning when the kotlin metadata library is not available
     private val inlineClassConverter = InlineClassConverter()
     private val parameterFactory = ParameterFactory()
     private val cache = ArrayDeque<MutableInspectorNode>()
     private var generatedId = -1L
+    /** Map from [LayoutNode] to the nearest [InspectorNode] that contains it */
+    private val claimedNodes = IdentityHashMap<LayoutNode, InspectorNode>()
+    /** Map from parent tree to child trees that are about to be stitched together */
+    private val treeMap = IdentityHashMap<MutableInspectorNode, MutableList<MutableInspectorNode>>()
+    /** Map from owner node to child trees that are about to be stitched to this owner */
+    private val ownerMap = IdentityHashMap<InspectorNode, MutableList<MutableInspectorNode>>()
+    /** Set of tree nodes that were stitched into another tree */
+    private val stitched =
+        Collections.newSetFromMap(IdentityHashMap<MutableInspectorNode, Boolean>())
 
     /**
      * Converts the [SlotTable] set held by [view] into a list of root nodes.
@@ -77,17 +91,110 @@ class LayoutInspectorTree {
         cache.clear()
         inlineClassConverter.clear()
         generatedId = -1L
+        claimedNodes.clear()
+        treeMap.clear()
+        ownerMap.clear()
+        stitched.clear()
     }
 
     private fun convert(tables: Set<SlotTable>): List<InspectorNode> {
-        return buildToList(null, tables.map { convert(it.asTree()) }, mutableListOf())
+        val trees = tables.map { convert(it) }
+        return when (trees.size) {
+            0 -> listOf()
+            1 -> trees.first().children
+            else -> stitchTreesByLayoutNode(trees)
+        }
+    }
+
+    /**
+     * Stitch separate trees together using the [LayoutNode]s found in the [SlotTable]s.
+     *
+     * Some constructs in Compose (e.g. ModalDrawerLayout) will result is multiple [SlotTable]s.
+     * This code will attempt to stitch the resulting [InspectorNode] trees together by looking
+     * at the parent of each [LayoutNode].
+     * If this algorithm is successful the result of this function will be a list with a single
+     * tree.
+     */
+    private fun stitchTreesByLayoutNode(trees: List<MutableInspectorNode>): List<InspectorNode> {
+        val layoutToTreeMap = IdentityHashMap<LayoutNode, MutableInspectorNode>()
+        trees.forEach { tree -> tree.layoutNodes.forEach { layoutToTreeMap[it] = tree } }
+        trees.forEach { tree ->
+            val layout = tree.layoutNodes.lastOrNull()
+            val parentLayout = generateSequence(layout) { it.parent }.firstOrNull {
+                val otherTree = layoutToTreeMap[it]
+                otherTree != null && otherTree != tree
+            }
+            if (parentLayout != null) {
+                val ownerNode = claimedNodes[parentLayout]
+                val ownerTree = layoutToTreeMap[parentLayout]
+                if (ownerNode != null && ownerTree != null) {
+                    ownerMap.getOrPut(ownerNode) { mutableListOf() }.add(tree)
+                    treeMap.getOrPut(ownerTree) { mutableListOf() }.add(tree)
+                }
+            }
+        }
+        var parentTree = findDeepParentTree()
+        while (parentTree != null) {
+            addSubTrees(parentTree)
+            treeMap.remove(parentTree)
+            parentTree = findDeepParentTree()
+        }
+        return trees.asSequence().filter { !stitched.contains(it) }.flatMap { it.children }.toList()
+    }
+
+    /**
+     * Return a parent tree where the children trees (to be stitched under the parent) are not
+     * a parent themselves. Do this to avoid rebuilding the same tree more than once.
+     */
+    private fun findDeepParentTree(): MutableInspectorNode? =
+        treeMap.entries.asSequence()
+            .filter { (_, children) -> children.none { treeMap.containsKey(it) } }
+            .firstOrNull()?.key
+
+    private fun addSubTrees(tree: MutableInspectorNode) {
+        for ((index, child) in tree.children.withIndex()) {
+            tree.children[index] = addSubTrees(child) ?: child
+        }
+    }
+
+    /**
+     * Rebuild [node] with any possible sub trees added (stitched in).
+     * Return the rebuild node, or null if no changes were found in this node or its children.
+     * Lazily allocate the new node to avoid unnecessary allocations.
+     */
+    private fun addSubTrees(node: InspectorNode): InspectorNode? {
+        var newNode: MutableInspectorNode? = null
+        for ((index, child) in node.children.withIndex()) {
+            val newChild = addSubTrees(child)
+            if (newChild != null) {
+                val newCopy = newNode ?: newNode(node)
+                newCopy.children[index] = newChild
+                newNode = newCopy
+            }
+        }
+        val trees = ownerMap[node]
+        if (trees == null && newNode == null) {
+            return null
+        }
+        val newCopy = newNode ?: newNode(node)
+        if (trees != null) {
+            trees.flatMapTo(newCopy.children) { it.children }
+            stitched.addAll(trees)
+        }
+        return buildAndRelease(newCopy)
+    }
+
+    private fun convert(table: SlotTable): MutableInspectorNode {
+        val fakeParent = newNode()
+        addToParent(fakeParent, listOf(convert(table.asTree())))
+        return fakeParent
     }
 
     private fun convert(group: Group): MutableInspectorNode {
         val children = convertChildren(group)
-        val node = parse(group)
-        buildToList(node, children, node.children)
-        return node
+        val parent = parse(group)
+        addToParent(parent, children)
+        return parent
     }
 
     private fun convertChildren(group: Group): List<MutableInspectorNode> {
@@ -97,7 +204,9 @@ class LayoutInspectorTree {
         val result = mutableListOf<MutableInspectorNode>()
         for (child in group.children) {
             val node = convert(child)
-            if (node.name.isNotEmpty() || node.children.isNotEmpty() || node.id != 0L) {
+            if (node.name.isNotEmpty() || node.children.isNotEmpty() ||
+                node.id != 0L || node.layoutNodes.isNotEmpty()
+            ) {
                 result.add(node)
             } else {
                 release(node)
@@ -107,39 +216,38 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Adds the nodes in [input] to the [result] list.
+     * Adds the nodes in [input] to the children of [parentNode].
      * Nodes without a reference to a Composable are skipped.
-     * If a [parentNode] is specified then a single skipped render id will be added here.
+     * A single skipped render id and layoutNode will be added to [parentNode].
      */
-    private fun buildToList(
-        parentNode: MutableInspectorNode?,
-        input: List<MutableInspectorNode>,
-        result: MutableList<InspectorNode>
-    ): List<InspectorNode> {
+    private fun addToParent(parentNode: MutableInspectorNode, input: List<MutableInspectorNode>) {
         var id: Long? = null
-        input.forEach {
-            if (it.name.isEmpty()) {
-                result.addAll(it.children)
-                if (it.id != 0L) {
+        input.forEach { node ->
+            if (node.name.isEmpty()) {
+                parentNode.children.addAll(node.children)
+                if (node.id != 0L) {
                     // If multiple siblings with a render ids are dropped:
                     // Ignore them all. And delegate the drawing to a parent in the inspector.
-                    id = if (id == null) it.id else 0L
+                    id = if (id == null) node.id else 0L
                 }
             } else {
-                it.id = if (it.id != 0L) it.id else --generatedId
-                result.add(it.build())
+                node.id = if (node.id != 0L) node.id else --generatedId
+                val resultNode = node.build()
+                // TODO: replace getOrPut with putIfAbsent which requires API level 24
+                node.layoutNodes.forEach { claimedNodes.getOrPut(it) { resultNode } }
+                parentNode.children.add(resultNode)
             }
-            release(it)
+            parentNode.layoutNodes.addAll(node.layoutNodes)
+            release(node)
         }
-        if (parentNode?.id == 0L) {
-            id?.let { parentNode.id = it }
-        }
-        return result
+        val nodeId = id
+        parentNode.id = if (parentNode.id != 0L && nodeId != null) nodeId else parentNode.id
     }
 
     private fun parse(group: Group): MutableInspectorNode {
         val node = newNode()
         node.id = getRenderNode(group)
+        ((group as? NodeGroup)?.node as? LayoutNode)?.let { node.layoutNodes.add(it) }
         if (!parseCallLocation(group, node) && group.name.isNullOrEmpty()) {
             return markUnwanted(node)
         }
@@ -160,7 +268,7 @@ class LayoutInspectorTree {
     }
 
     private fun markUnwanted(node: MutableInspectorNode): MutableInspectorNode {
-        node.resetExceptIdAndChildren()
+        node.resetExceptIdLayoutNodesAndChildren()
         return node
     }
 
@@ -199,12 +307,20 @@ class LayoutInspectorTree {
     private fun unwantedGroup(node: MutableInspectorNode): Boolean =
         (node.packageHash in unwantedPackages && node.name in unwantedCalls)
 
-    private fun newNode(): MutableInspectorNode {
-        return if (cache.isNotEmpty()) cache.pop() else MutableInspectorNode()
-    }
+    private fun newNode(): MutableInspectorNode =
+        if (cache.isNotEmpty()) cache.pop() else MutableInspectorNode()
+
+    private fun newNode(copyFrom: InspectorNode): MutableInspectorNode =
+        newNode().shallowCopy(copyFrom)
 
     private fun release(node: MutableInspectorNode) {
         node.reset()
         cache.add(node)
+    }
+
+    private fun buildAndRelease(node: MutableInspectorNode): InspectorNode {
+        val result = node.build()
+        release(node)
+        return result
     }
 }
