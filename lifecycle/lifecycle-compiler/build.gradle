@@ -27,17 +27,21 @@ dependencies {
     testImplementation(JSR250)
 }
 
-// we actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
-task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
+// The following tasks are used to regenerate src/test/test-data/lib/src/test-library.jar
+// and is run manually when these jars need updating.
+// We actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
+tasks.register("compileTestLibrarySource", JavaCompile).configure {
+    dependsOn(compileJava)
     source "src/test/test-data/lib/src"
     classpath = project.compileJava.classpath
     destinationDir = new File(project.buildDir, 'test-data/lib/classes')
 }
 
-task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
+tasks.register("jarTestLibrarySource", Jar).configure {
+    dependsOn("compileTestLibrarySource")
     from compileTestLibrarySource.destinationDir
-    archiveName = "test-library.jar"
-    destinationDir = file("src/test/test-data/lib/")
+    archiveFileName.set("test-library.jar")
+    destinationDirectory.set(file("src/test/test-data/lib/"))
 }
 
 androidx {

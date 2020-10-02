@@ -34,5 +34,5 @@ task dist {
 }
 
 tasks["distZip"].configure {
-    destinationDir = BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(rootProject))
 }
