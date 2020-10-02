@@ -39,6 +39,10 @@ class PagingConfig @JvmOverloads constructor(
      * a screen, and your database isn't a bottleneck, 10-20 may make sense. If you're
      * displaying dozens of items in a tiled grid, which can present items during a scroll
      * much more quickly, consider closer to 100.
+     *
+     * Note: [pageSize] is used to inform [PagingSource.LoadParams.loadSize], but is not enforced.
+     * A [PagingSource] may completely ignore this value and still return a valid
+     * [Page][PagingSource.LoadResult.Page].
      */
     @JvmField
     val pageSize: Int,
@@ -78,6 +82,10 @@ class PagingConfig @JvmOverloads constructor(
      * Defines requested load size for initial load from [PagingSource], typically larger than
      * [pageSize], so on first load data there's a large enough range of content loaded to cover
      * small scrolls.
+     *
+     * Note: [initialLoadSize] is used to inform [PagingSource.LoadParams.loadSize], but is not
+     * enforced. A [PagingSource] may completely ignore this value and still return a valid initial
+     * [Page][PagingSource.LoadResult.Page].
      */
     @JvmField
     @IntRange(from = 1)
@@ -110,9 +118,14 @@ class PagingConfig @JvmOverloads constructor(
     val maxSize: Int = MAX_SIZE_UNBOUNDED,
 
     /**
-     * Threshold for number of items scrolled outside the bounds of loaded items to trigger
-     * invalidate. Defaults to [COUNT_UNDEFINED], which disables invalidation due to scrolling
-     * large distances.
+     * Defines a threshold for the number of items scrolled outside the bounds of loaded items
+     * before Paging should give up on loading pages incrementally, and instead jump to the
+     * user's position by triggering REFRESH via invalidate.
+     *
+     * Defaults to [COUNT_UNDEFINED], which disables invalidation due to scrolling large distances.
+     *
+     * Note: In order to allow [PagingSource] to resume from the user's current scroll position
+     * after invalidation, [PagingSource.getRefreshKey] must be implemented.
      *
      * @see PagingSource.getRefreshKey
      * @see PagingSource.jumpingSupported
