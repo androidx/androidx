@@ -18,8 +18,8 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
+import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.app.AppSearchTestUtils.doGet;
-import static androidx.appsearch.app.AppSearchTestUtils.doQuery;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -412,14 +412,20 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        List<GenericDocument> results = doQuery(mDb1, "body");
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0)).isEqualTo(inEmail);
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(inEmail);
 
         // Multi-term query
-        results = doQuery(mDb1, "body email");
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0)).isEqualTo(inEmail);
+        searchResults = mDb1.query("body email", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents.get(0)).isEqualTo(inEmail);
     }
 
     @Test
@@ -499,17 +505,21 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
 
         // Query for the documents
-        List<GenericDocument> results = doQuery(mDb1, "body");
-        assertThat(results).hasSize(2);
-        assertThat(results).containsExactly(inEmail, inDoc);
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents).containsExactly(inEmail, inDoc);
 
         // Query only for Document
-        results = doQuery(mDb1, "body", new SearchSpec.Builder()
+        searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setSchemaTypes("Generic")
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
-        assertThat(results).hasSize(1);
-        assertThat(results).containsExactly(inDoc);
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(inDoc);
     }
 
     @Test
@@ -542,18 +552,22 @@ public class AppSearchManagerTest {
                         .addGenericDocument(expectedEmail, unexpectedEmail).build()));
 
         // Query for all namespaces
-        List<GenericDocument> results = doQuery(mDb1, "body");
-        assertThat(results).hasSize(2);
-        assertThat(results).containsExactly(expectedEmail, unexpectedEmail);
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        assertThat(documents).containsExactly(expectedEmail, unexpectedEmail);
 
         // Query only for expectedNamespace
-        results = doQuery(mDb1, "body",
+        searchResults = mDb1.query("body",
                 new SearchSpec.Builder()
                         .setNamespaces("expectedNamespace")
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
-        assertThat(results).hasSize(1);
-        assertThat(results).containsExactly(expectedEmail);
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(expectedEmail);
     }
 
     @Test
@@ -587,14 +601,20 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query for instance 1.
-        List<GenericDocument> results = doQuery(mDb1, "body");
-        assertThat(results).hasSize(1);
-        assertThat(results).containsExactly(inEmail1);
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(inEmail1);
 
         // Query for instance 2.
-        results = doQuery(mDb2, "body");
-        assertThat(results).hasSize(1);
-        assertThat(results).containsExactly(inEmail2);
+        searchResults = mDb2.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        assertThat(documents).containsExactly(inEmail2);
     }
 
     @Test

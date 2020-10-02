@@ -74,6 +74,17 @@ public interface AppSearchBackend {
             @NonNull SearchSpec searchSpec);
 
     /**
+     * Searches for all documents in the backend based on a given query string.
+     * <p> This method is lightweight. The heavy work will be done in
+     * {@link AppSearchBackend.BackendSearchResults#getNextPage}.
+     * @see GlobalAppSearchManager#globalQuery
+     */
+    @NonNull
+    AppSearchBackend.BackendSearchResults globalQuery(
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec);
+
+    /**
      * Removes {@link GenericDocument}s from the index by URI.
      *
      * @see AppSearchManager#removeByUri

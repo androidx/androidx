@@ -35,12 +35,14 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TermMatchType;
+import com.google.common.collect.ImmutableSet;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class AppSearchImplTest {
@@ -93,7 +95,7 @@ public class AppSearchImplTest {
 
         SchemaProto expectedSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                    .setSchemaType("databaseName/Foo").build())
+                        .setSchemaType("databaseName/Foo").build())
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("databaseName/TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
@@ -120,7 +122,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRewriteDocumentProto() {
+    public void testAddDocumentTypePrefix() {
         DocumentProto insideDocument = DocumentProto.newBuilder()
                 .setUri("inside-uri")
                 .setSchema("type")
@@ -146,10 +148,40 @@ public class AppSearchImplTest {
                 .build();
 
         DocumentProto.Builder actualDocument = documentProto.toBuilder();
-        mAppSearchImpl.rewriteDocumentTypes("databaseName/", actualDocument, /*add=*/true);
+        mAppSearchImpl.addPrefixToDocument(actualDocument, "databaseName/");
         assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
-        mAppSearchImpl.rewriteDocumentTypes("databaseName/", actualDocument, /*add=*/false);
-        assertThat(actualDocument.build()).isEqualTo(documentProto);
+    }
+
+    @Test
+    public void testRemoveDocumentTypePrefixes() {
+        DocumentProto insideDocument = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("databaseName1/type")
+                .setNamespace("databaseName2/namespace")
+                .build();
+        DocumentProto documentProto = DocumentProto.newBuilder()
+                .setUri("uri")
+                .setSchema("databaseName2/type")
+                .setNamespace("databaseName3/namespace")
+                .addProperties(PropertyProto.newBuilder().addDocumentValues(insideDocument))
+                .build();
+
+        DocumentProto expectedInsideDocument = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("type")
+                .setNamespace("namespace")
+                .build();
+        // Since we don't pass in "databaseName3/" as a prefix to remove, it stays on the Document.
+        DocumentProto expectedDocumentProto = DocumentProto.newBuilder()
+                .setUri("uri")
+                .setSchema("type")
+                .setNamespace("namespace")
+                .addProperties(PropertyProto.newBuilder().addDocumentValues(expectedInsideDocument))
+                .build();
+
+        DocumentProto.Builder actualDocument = documentProto.toBuilder();
+        mAppSearchImpl.removeDatabasesFromDocument(actualDocument);
+        assertThat(actualDocument.build()).isEqualTo(expectedDocumentProto);
     }
 
     @Test
@@ -201,7 +233,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRewriteSearchSpec() throws Exception {
+    public void testRewriteSearchSpec_OneInstance() throws Exception {
         SearchSpecProto.Builder searchSpecProto =
                 SearchSpecProto.newBuilder().setQuery("");
 
@@ -212,23 +244,71 @@ public class AppSearchImplTest {
                 .build();
         mAppSearchImpl.setSchema("database", schema, /*forceOverride=*/false);
         // Insert document
-        DocumentProto insideDocument = DocumentProto.newBuilder()
+        DocumentProto document = DocumentProto.newBuilder()
                 .setUri("inside-uri")
                 .setSchema("type")
                 .setNamespace("namespace")
                 .build();
-        mAppSearchImpl.putDocument("database", insideDocument);
+        mAppSearchImpl.putDocument("database", document);
 
         // Rewrite SearchSpec
-        mAppSearchImpl.rewriteSearchSpecForNonEmptyDatabase(
-                "database", searchSpecProto);
+        mAppSearchImpl.rewriteSearchSpecForDatabases(searchSpecProto, Collections.singleton(
+                "database"));
         assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly("database/type");
         assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly("database/namespace");
     }
 
     @Test
+    public void testRewriteSearchSpec_TwoInstances() throws Exception {
+        SearchSpecProto.Builder searchSpecProto =
+                SearchSpecProto.newBuilder().setQuery("");
+
+        // Insert schema
+        SchemaProto schema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("typeA").build())
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("typeB").build())
+                .build();
+        mAppSearchImpl.setSchema("database1", schema, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database2", schema, /*forceOverride=*/false);
+
+        // Insert documents
+        DocumentProto document1 = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("typeA")
+                .setNamespace("namespace")
+                .build();
+        mAppSearchImpl.putDocument("database1", document1);
+
+        DocumentProto document2 = DocumentProto.newBuilder()
+                .setUri("inside-uri")
+                .setSchema("typeB")
+                .setNamespace("namespace")
+                .build();
+        mAppSearchImpl.putDocument("database2", document2);
+
+        // Rewrite SearchSpec
+        mAppSearchImpl.rewriteSearchSpecForDatabases(searchSpecProto,
+                ImmutableSet.of("database1", "database2"));
+        assertThat(searchSpecProto.getSchemaTypeFiltersList()).containsExactly(
+                "database1/typeA", "database1/typeB", "database2/typeA", "database2/typeB");
+        assertThat(searchSpecProto.getNamespaceFiltersList()).containsExactly(
+                "database1/namespace", "database2/namespace");
+    }
+
+    @Test
     public void testQueryEmptyDatabase() throws Exception {
         SearchResultProto searchResultProto = mAppSearchImpl.query("EmptyDatabase",
+                SearchSpecProto.getDefaultInstance(),
+                ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
+        assertThat(searchResultProto.getResultsCount()).isEqualTo(0);
+        assertThat(searchResultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+    }
+
+    @Test
+    public void testGlobalQueryEmptyDatabase() throws Exception {
+        SearchResultProto searchResultProto = mAppSearchImpl.globalQuery(
                 SearchSpecProto.getDefaultInstance(),
                 ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
         assertThat(searchResultProto.getResultsCount()).isEqualTo(0);
@@ -326,7 +406,7 @@ public class AppSearchImplTest {
 
         // Save only Email to database1 this time.
         SchemaProto emailSchemaProto = SchemaProto.newBuilder()
-                        .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
                 .build();
         mAppSearchImpl.setSchema("database1", emailSchemaProto, /*forceOverride=*/true);
 
