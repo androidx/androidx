@@ -43,9 +43,9 @@ class GlesTextureComplication(
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
     /** Renders the complication to an OpenGL texture. */
-    fun renderToTexture(calendar: Calendar, @DrawMode drawMode: Int) {
+    fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        renderer.render(canvas, bounds, calendar, drawMode)
+        renderer.render(canvas, bounds, calendar, renderParameters)
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }

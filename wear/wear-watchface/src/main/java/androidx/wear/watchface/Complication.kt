@@ -28,6 +28,7 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.style.Layer
 
 /** Common interface for rendering complications onto a [Canvas]. */
 interface CanvasComplicationRenderer {
@@ -52,14 +53,14 @@ interface CanvasComplicationRenderer {
      * @param canvas The [Canvas] to render into
      * @param bounds A [Rect] describing the bounds of the complication
      * @param calendar The current [Calendar]
-     * @param drawMode The current [DrawMode]
+     * @param renderParameters The current [RenderParameters]
      */
     @UiThread
     fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     )
 
     /**
@@ -160,11 +161,31 @@ open class CanvasComplicationDrawableRenderer(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ) {
-        drawable.bounds = bounds
-        drawable.currentTimeMillis = calendar.timeInMillis
-        drawable.draw(canvas)
+        when (renderParameters.layerParameters[Layer.COMPLICATIONS]) {
+            LayerMode.DRAW -> {
+                drawable.bounds = bounds
+                drawable.currentTimeMillis = calendar.timeInMillis
+                drawable.draw(canvas)
+            }
+            LayerMode.DRAW_HIGHLIGHTED -> {
+                drawable.bounds = bounds
+                drawable.currentTimeMillis = calendar.timeInMillis
+                drawable.draw(canvas)
+                drawHighlight(canvas, bounds, calendar)
+            }
+            LayerMode.HIDE -> return
+        }
+    }
+
+    /** Used (indirectly) by the editor, draws a highlight around the complication. */
+    open fun drawHighlight(
+        canvas: Canvas,
+        bounds: Rect,
+        calendar: Calendar
+    ) {
+        ComplicationOutlineRenderer.drawComplicationSelectOutline(canvas, bounds)
     }
 
     /** {@inheritDoc} */
@@ -317,7 +338,6 @@ class Complication internal constructor(
     var unitSquareBounds: RectF
         @UiThread
         get() = _unitSquareBounds
-
         @UiThread
         set(value) {
             _unitSquareBounds = value
@@ -332,7 +352,6 @@ class Complication internal constructor(
         @JvmName("isEnabled")
         @UiThread
         get() = _enabled
-
         @UiThread
         set(value) {
             _enabled = value
@@ -348,7 +367,6 @@ class Complication internal constructor(
     var renderer: CanvasComplicationRenderer
         @UiThread
         get() = _renderer
-
         @UiThread
         set(value) {
             renderer.onDetach()
@@ -363,16 +381,16 @@ class Complication internal constructor(
      *
      * @param canvas The [Canvas] to render into
      * @param calendar The current [Calendar]
-     * @param drawMode The current [DrawMode]
+     * @param renderParameters The current [RenderParameters]
      */
     @UiThread
     fun render(
         canvas: Canvas,
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
-        renderer.render(canvas, bounds, calendar, drawMode)
+        renderer.render(canvas, bounds, calendar, renderParameters)
     }
 
     /**

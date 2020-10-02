@@ -29,6 +29,7 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.DrawMode
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
@@ -76,7 +77,7 @@ class WatchFaceControlServiceTest {
         instance.initWithoutSurface(watchFaceService, 100, 100)
 
         val bitmap = watchFaceService.watchFaceCommand!!.takeWatchfaceScreenshot(
-            DrawMode.INTERACTIVE,
+            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
             100,
             1234567890,
             null

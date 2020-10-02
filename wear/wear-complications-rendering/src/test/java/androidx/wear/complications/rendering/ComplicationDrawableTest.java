@@ -52,6 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.watchface.ComplicationsManager;
+import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceHost;
@@ -712,7 +713,8 @@ public class ComplicationDrawableTest {
                         @NotNull
                         @Override
                         public Bitmap takeScreenshot$wear_watchface_debug(
-                                @NotNull Calendar calendar, int drawMode) {
+                                @NotNull Calendar calendar,
+                                @NonNull RenderParameters renderParameters) {
                             return null;
                         }
 

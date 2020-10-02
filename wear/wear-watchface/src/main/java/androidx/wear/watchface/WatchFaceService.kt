@@ -49,6 +49,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
@@ -63,68 +64,6 @@ import java.util.concurrent.CountDownLatch
  * expose a callback.
  */
 internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
-
-/**
- * Used to parameterize watch face drawing based on the current system state.
- *
- * @hide
- */
-@IntDef(
-    value = [
-        DrawMode.INTERACTIVE,
-        DrawMode.LOW_BATTERY_INTERACTIVE,
-        DrawMode.MUTE,
-        DrawMode.AMBIENT,
-        DrawMode.BASE_WATCHFACE,
-        DrawMode.UPPER_LAYER
-    ]
-)
-annotation class DrawMode {
-    companion object {
-        /** This mode is used when the user is interacting with the watch face. */
-        const val INTERACTIVE = 0
-
-        /**
-         * This mode is used when the user is interacting with the watch face but the battery is
-         * low, the watch face should render fewer pixels, ideally with darker colors.
-         */
-        const val LOW_BATTERY_INTERACTIVE = 1
-
-        /**
-         * This mode is used when there's an interruption filter. The watch face should look muted.
-         */
-        const val MUTE = 2
-
-        /**
-         * In this mode as few pixels as possible should be turned on, ideally with darker colors.
-         */
-        const val AMBIENT = 3
-
-        /**
-         * As [INTERACTIVE] but complications shouldn't be drawn, nor should any watch face
-         * elements that might occlude complications (e.g. watch hands).  Used by the
-         * remote configuration UI.
-         */
-        const val BASE_WATCHFACE = 4
-
-        /**
-         * Related to [BASE_WATCHFACE], only watch face elements that might occlude
-         * complications should be drawn (e.g. watch hands).  If nothing can occlude the
-         * complications then nothing should be drawn. Used by the remote configuration UI. A screen
-         * shot taken in this mode needs to include an alpha channel.
-         */
-        const val UPPER_LAYER = 5
-
-        fun values(): Collection<Int> = arrayListOf(
-            INTERACTIVE,
-            LOW_BATTERY_INTERACTIVE,
-            MUTE,
-            AMBIENT,
-            BASE_WATCHFACE,
-            UPPER_LAYER
-        )
-    }
-}
 
 /** @hide */
 @IntDef(
@@ -504,7 +443,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun takeWatchfaceScreenshot(
-                drawMode: Int,
+                rendererParametersWireFormat: RenderParametersWireFormat,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
                 userStyle: UserStyleWireFormat?
@@ -521,7 +460,7 @@ abstract class WatchFaceService : WallpaperService() {
                         Calendar.getInstance().apply {
                             timeInMillis = calendarTimeMillis
                         },
-                        drawMode
+                        RenderParameters(rendererParametersWireFormat)
                     )
 
                     // Restore previous style if required.
@@ -537,7 +476,7 @@ abstract class WatchFaceService : WallpaperService() {
 
             override fun takeComplicationScreenshot(
                 complicationId: Int,
-                drawMode: Int,
+                rendererParametersWireFormat: RenderParametersWireFormat,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
                 complicationData: ComplicationData?,
@@ -576,7 +515,7 @@ abstract class WatchFaceService : WallpaperService() {
                             Canvas(complicationBitmap),
                             Rect(0, 0, bounds.width(), bounds.height()),
                             calendar,
-                            drawMode
+                            RenderParameters(rendererParametersWireFormat)
                         )
 
                         // Restore previous ComplicationData & style if required.

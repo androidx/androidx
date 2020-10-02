@@ -19,6 +19,7 @@ package android.support.wearable.watchface;
 import android.support.wearable.complications.ComplicationData;
 import androidx.wear.watchface.data.ImmutableSystemState;
 import androidx.wear.watchface.data.IndicatorState;
+import androidx.wear.watchface.data.RenderParametersWireFormat;
 import androidx.wear.watchface.data.SystemState;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -105,14 +106,14 @@ interface IWatchFaceCommand {
      * calendarTimeMillis.
      *
      * @since API version 1.
-     * @param drawMode The {@link androidx.wear.watchface.DrawMode} to render with
+     * @param renderParameters The {@link RenderParametersWireFormat} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
      * @param style A {@link StyleMapWireFormat}. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
      */
-    Bundle takeWatchfaceScreenshot(in int drawMode,
+    Bundle takeWatchfaceScreenshot(in RenderParametersWireFormat renderParameters,
                                    in int compressionQuality,
                                    in long calendarTimeMillis,
                                    in UserStyleWireFormat style) = 9;
@@ -125,7 +126,7 @@ interface IWatchFaceCommand {
      *
      * @since API version 1.
      * @param complicationId The watchface's ID of the complication to render
-     * @param drawMode The {@link androidx.wear.watchface.DrawMode} to render with
+     * @param renderParameters The {@link RenderParametersWireFormat} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
      * @param complicationData The {@link ComplicationData} to render the complication with, if
@@ -135,7 +136,7 @@ interface IWatchFaceCommand {
      *     complication with the requested settings
      */
     Bundle takeComplicationScreenshot(in int complicationId,
-                                      in int drawMode,
+                                      in RenderParametersWireFormat renderParameters,
                                       in int compressionQuality,
                                       in long calendarTimeMillis,
                                       in ComplicationData complicationData,

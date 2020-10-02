@@ -37,6 +37,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
@@ -105,7 +106,7 @@ class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+        listOf(Layer.BASE_LAYER)
     )
 
     private val classicStyleOption =
@@ -126,7 +127,7 @@ class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+        listOf(Layer.TOP_LAYER)
     )
 
     private val badStyleOption =
@@ -304,34 +305,34 @@ class WatchFaceServiceTest {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
         watchState.isAmbient.value = false
 
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = false
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_NONE
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.MUTE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
 
         // Ambient takes precidence over interruption filter.
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
         watchState.interruptionFilter.value = 0
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
     }
 
     @Test
@@ -1264,11 +1265,11 @@ class WatchFaceServiceTest {
         // Enter ambient mode.
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         // Simulate enter ambient animation finishing.
         testRenderer.animate = false
         watchFace.maybeUpdateDrawMode()
-        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+        assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
     }
 }

@@ -42,10 +42,13 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.DrawMode
+import androidx.wear.watchface.LayerMode
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import org.junit.Before
@@ -274,7 +277,7 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
-                DrawMode.AMBIENT,
+                RenderParameters(DrawMode.AMBIENT, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
                 100,
                 123456789,
                 null
@@ -298,7 +301,7 @@ class WatchFaceServiceImageTest {
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                DrawMode.AMBIENT,
+                RenderParameters(DrawMode.AMBIENT, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
                 100,
                 123456789,
                 null,
@@ -322,7 +325,8 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
-                DrawMode.INTERACTIVE,
+                RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS)
+                    .toWireFormat(),
                 100,
                 123456789,
                 null
@@ -346,7 +350,8 @@ class WatchFaceServiceImageTest {
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                DrawMode.INTERACTIVE,
+                RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS)
+                    .toWireFormat(),
                 100,
                 123456789,
                 ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
@@ -372,7 +377,8 @@ class WatchFaceServiceImageTest {
         handler.post {
             bitmap2 = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                DrawMode.INTERACTIVE,
+                RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS)
+                    .toWireFormat(),
                 100,
                 123456789,
                 null,
@@ -400,5 +406,32 @@ class WatchFaceServiceImageTest {
 
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         bitmap.assertAgainstGolden(screenshotRule, "green_screenshot")
+    }
+
+    @Test
+    fun testHighlightComplicationsInScreenshot() {
+        val latch = CountDownLatch(1)
+
+        handler.post(this::initCanvasWatchFace)
+        var bitmap: Bitmap? = null
+        handler.post {
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
+                RenderParameters(DrawMode.INTERACTIVE, mapOf(
+                    Layer.BASE_LAYER to LayerMode.DRAW,
+                    Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                    Layer.TOP_LAYER to LayerMode.DRAW
+                )).toWireFormat(),
+                100,
+                123456789,
+                null
+            ).ashmemCompressedImageBundleToBitmap()
+            latch.countDown()
+        }
+
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "highlight_complications"
+        )
     }
 }

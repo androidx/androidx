@@ -33,13 +33,14 @@ import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.GlesRenderer
 import androidx.wear.watchface.GlesTextureComplication
+import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -93,8 +94,7 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE or
-                UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsManager(
@@ -547,7 +547,7 @@ class ExampleOpenGLRenderer(
         // Draw background color and select the appropriate view projection matrix. The background
         // should always be black in ambient mode. The view projection matrix used is overhead in
         // ambient. In interactive mode, it's tilted depending on the current time.
-        val vpMatrix = if (drawMode == DrawMode.AMBIENT) {
+        val vpMatrix = if (renderParameters.drawMode == DrawMode.AMBIENT) {
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
@@ -561,8 +561,9 @@ class ExampleOpenGLRenderer(
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
-        if (drawMode != DrawMode.BASE_WATCHFACE && drawMode != DrawMode.UPPER_LAYER) {
-            complicationTexture.renderToTexture(calendar, drawMode)
+        // TODO(alexclarke): Implement LayerMode.DRAW_HIGHLIGHTED
+        if (renderParameters.layerParameters[Layer.COMPLICATIONS] != LayerMode.HIDE) {
+            complicationTexture.renderToTexture(calendar, renderParameters)
 
             textureTriangleProgram.bindProgramAndAttribs()
             complicationTexture.bind()
@@ -585,7 +586,8 @@ class ExampleOpenGLRenderer(
         val minIndex = (minutes / 60f * 360f).toInt()
         val hoursIndex = (hours / 12f * 360f).toInt()
 
-        if (drawMode != DrawMode.BASE_WATCHFACE) {
+        // Render hands.
+        if (renderParameters.layerParameters[Layer.TOP_LAYER] != LayerMode.HIDE) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -605,22 +607,23 @@ class ExampleOpenGLRenderer(
                 0
             )
             minuteHandTriangle.draw(mvpMatrix)
+
+            if (renderParameters.drawMode != DrawMode.AMBIENT) {
+                Matrix.multiplyMM(
+                    mvpMatrix,
+                    0,
+                    vpMatrix,
+                    0,
+                    modelMatrices[secIndex],
+                    0
+                )
+                secondHandTriangleMap[
+                    userStyleRepository.userStyle.options[colorStyleCategory]!!.id]
+                    ?.draw(mvpMatrix)
+            }
         }
 
-        if (drawMode != DrawMode.AMBIENT && drawMode != DrawMode.BASE_WATCHFACE) {
-            Matrix.multiplyMM(
-                mvpMatrix,
-                0,
-                vpMatrix,
-                0,
-                modelMatrices[secIndex],
-                0
-            )
-            secondHandTriangleMap[userStyleRepository.userStyle.options[colorStyleCategory]!!.id]
-                ?.draw(mvpMatrix)
-        }
-
-        if (drawMode != DrawMode.UPPER_LAYER) {
+        if (renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE) {
             majorTickTriangles.draw(vpMatrix)
             minorTickTriangles.draw(vpMatrix)
             coloredTriangleProgram.unbindAttribs()

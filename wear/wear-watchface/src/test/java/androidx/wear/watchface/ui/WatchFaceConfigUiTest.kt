@@ -31,9 +31,12 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.CanvasComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
+import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.createComplicationData
+import androidx.wear.watchface.data.RenderParametersWireFormat
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
@@ -90,7 +93,7 @@ class WatchFaceConfigUiTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+        listOf(Layer.BASE_LAYER)
     )
 
     private val classicStyleOption =
@@ -111,7 +114,7 @@ class WatchFaceConfigUiTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+        listOf(Layer.TOP_LAYER)
     )
 
     private val leftComplication =
@@ -196,7 +199,10 @@ class WatchFaceConfigUiTest {
             object : Renderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
                 override fun renderInternal(calendar: Calendar) {}
 
-                override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {
+                override fun takeScreenshot(
+                    calendar: Calendar,
+                    renderParameters: RenderParameters
+                ): Bitmap {
                     throw RuntimeException("Not Implemented!")
                 }
             })
@@ -234,8 +240,8 @@ class WatchFaceConfigUiTest {
                 override fun takeScreenshot(
                     drawRect: Rect,
                     calendar: Calendar,
-                    drawMode: Int
-                ) = watchFaceConfigDelegate.takeScreenshot(drawRect, calendar, drawMode)
+                    renderParameters: RenderParametersWireFormat
+                ) = watchFaceConfigDelegate.takeScreenshot(drawRect, calendar, renderParameters)
             })
 
         configActivity.init(watchFaceComponentName, fragmentController)

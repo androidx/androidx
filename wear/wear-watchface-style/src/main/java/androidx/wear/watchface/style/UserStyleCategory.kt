@@ -55,29 +55,11 @@ abstract class UserStyleCategory(
     val defaultOptionIndex: Int,
 
     /**
-     * Used by the style configuration UI. Describes which rendering layer this style affects. Must
-     * be either 0 (for a style change with no visual effect, e.g. sound controls) or a combination
-     * (logical OR) of [LAYER_FLAG_WATCH_FACE_BASE], [LAYER_FLAG_COMPLICATONS],
-     * [LAYER_FLAG_WATCH_FACE_UPPER].
+     * Used by the style configuration UI. Describes which rendering layers this style affects.
      */
-    val layerFlags: Int
+    val affectsLayers: Collection<Layer>
 ) {
     companion object {
-        /**
-         * The base watch face without complications or watch hands (or any other elements that
-         * could occlude complications).
-         */
-        const val LAYER_FLAG_WATCH_FACE_BASE = 1 shl 0
-
-        /** The complications layer. */
-        const val LAYER_FLAG_COMPLICATONS = 1 shl 1
-
-        /** Anything that could occlude complications, typically watch hands. */
-        const val LAYER_FLAG_WATCH_FACE_UPPER = 1 shl 2
-
-        internal const val INVALID_LAYER_MASK =
-            (LAYER_FLAG_WATCH_FACE_BASE or LAYER_FLAG_COMPLICATONS or LAYER_FLAG_WATCH_FACE_UPPER)
-                .inv()
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -99,10 +81,6 @@ abstract class UserStyleCategory(
     }
 
     init {
-        require(layerFlags and INVALID_LAYER_MASK == 0) {
-            "layerFlags must be either 0 or a combination of LAYER_WATCH_FACE_BASE, " +
-                    "LAYER_COMPLICATONS, LAYER_WATCH_FACE_UPPER"
-        }
         require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
             "defaultOptionIndex must be in the range [0 .. options.size)"
         }
@@ -122,7 +100,7 @@ abstract class UserStyleCategory(
         wireFormat.mIcon,
         wireFormat.mOptions.map { Option.createFromWireFormat(it) },
         wireFormat.mDefaultOptionIndex,
-        wireFormat.mLayerFlags
+        wireFormat.mAffectsLayers.map { Layer.values()[it] }
     )
 
     /** @hide */
@@ -165,7 +143,7 @@ abstract class UserStyleCategory(
 
                     else -> throw IllegalArgumentException(
                         "Unknown StyleCategoryWireFormat.OptionWireFormat " +
-                                wireFormat::javaClass.name
+                            wireFormat::javaClass.name
                     )
                 }
         }

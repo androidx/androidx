@@ -47,7 +47,7 @@ class StyleParcelableTest {
             "description",
             categoryIcon,
             listOf(option1, option2, option3),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
 
         val parcelable = ParcelUtils.toParcelable(styleCategory.toWireFormat())
@@ -60,7 +60,8 @@ class StyleParcelableTest {
         assertThat(unparceled.displayName).isEqualTo("displayName")
         assertThat(unparceled.description).isEqualTo("description")
         assertThat(unparceled.icon!!.uri.toString()).isEqualTo("categoryIcon")
-        assertThat(unparceled.layerFlags).isEqualTo(UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE)
+        assertThat(unparceled.affectsLayers.size).isEqualTo(1)
+        assertThat(unparceled.affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray =
             unparceled.options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -110,7 +111,7 @@ class StyleParcelableTest {
             "description1",
             categoryIcon1,
             listOf(option1, option2),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         val styleCategory2 = ListUserStyleCategory(
             "id2",
@@ -118,7 +119,7 @@ class StyleParcelableTest {
             "description2",
             categoryIcon2,
             listOf(option3, option4),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.TOP_LAYER)
         )
         val styleCategory3 = BooleanUserStyleCategory(
             "id3",
@@ -126,7 +127,7 @@ class StyleParcelableTest {
             "description3",
             null,
             true,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
 
         val parceled = ParcelUtils.toParcelable(
@@ -147,7 +148,8 @@ class StyleParcelableTest {
         assertThat(schema[0].displayName).isEqualTo("displayName1")
         assertThat(schema[0].description).isEqualTo("description1")
         assertThat(schema[0].icon!!.uri.toString()).isEqualTo("categoryIcon1")
-        assertThat(schema[0].layerFlags).isEqualTo(UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE)
+        assertThat(schema[0].affectsLayers.size).isEqualTo(1)
+        assertThat(schema[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray1 =
             schema[0].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -164,7 +166,8 @@ class StyleParcelableTest {
         assertThat(schema[1].displayName).isEqualTo("displayName2")
         assertThat(schema[1].description).isEqualTo("description2")
         assertThat(schema[1].icon!!.uri.toString()).isEqualTo("categoryIcon2")
-        assertThat(schema[1].layerFlags).isEqualTo(UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER)
+        assertThat(schema[1].affectsLayers.size).isEqualTo(1)
+        assertThat(schema[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
         val optionArray2 =
             schema[1].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -181,7 +184,8 @@ class StyleParcelableTest {
         assertThat(schema[2].displayName).isEqualTo("displayName3")
         assertThat(schema[2].description).isEqualTo("description3")
         assertThat(schema[2].icon).isEqualTo(null)
-        assertThat(schema[2].layerFlags).isEqualTo(UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE)
+        assertThat(schema[2].affectsLayers.size).isEqualTo(1)
+        assertThat(schema[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
     }
 
     @Test
@@ -194,7 +198,7 @@ class StyleParcelableTest {
             "description1",
             categoryIcon1,
             listOf(option1, option2),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         val styleCategory2 = ListUserStyleCategory(
             "id2",
@@ -202,7 +206,7 @@ class StyleParcelableTest {
             "description2",
             categoryIcon2,
             listOf(option3, option4),
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_UPPER
+            listOf(Layer.TOP_LAYER)
         )
         val schema = listOf(styleCategory1, styleCategory2)
         val userStyle = UserStyle(
@@ -228,7 +232,7 @@ class StyleParcelableTest {
             "description2",
             null,
             true,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertTrue(booleanUserStyleCategoryDefaultTrue.getDefaultValue())
 
@@ -238,7 +242,7 @@ class StyleParcelableTest {
             "description2",
             null,
             false,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertFalse(booleanUserStyleCategoryDefaultFalse.getDefaultValue())
     }
@@ -253,7 +257,7 @@ class StyleParcelableTest {
             -1.0,
             1.0,
             -1.0,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(doubleRangeUserStyleCategoryDefaultMin.getDefaultValue()).isEqualTo(-1.0)
 
@@ -265,7 +269,7 @@ class StyleParcelableTest {
             -1.0,
             1.0,
             0.5,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(doubleRangeUserStyleCategoryDefaultMid.getDefaultValue()).isEqualTo(0.5)
 
@@ -277,7 +281,7 @@ class StyleParcelableTest {
             -1.0,
             1.0,
             1.0,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(doubleRangeUserStyleCategoryDefaultMax.getDefaultValue()).isEqualTo(1.0)
     }
@@ -292,7 +296,7 @@ class StyleParcelableTest {
             -1,
             10,
             -1,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleCategoryDefaultMin.getDefaultValue()).isEqualTo(-1)
 
@@ -304,7 +308,7 @@ class StyleParcelableTest {
             -1,
             10,
             5,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleCategoryDefaultMid.getDefaultValue()).isEqualTo(5)
 
@@ -316,7 +320,7 @@ class StyleParcelableTest {
             -1,
             10,
             10,
-            UserStyleCategory.LAYER_FLAG_WATCH_FACE_BASE
+            listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleCategoryDefaultMax.getDefaultValue()).isEqualTo(10)
     }
