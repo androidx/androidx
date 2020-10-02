@@ -60,7 +60,7 @@ private fun packageNameHash(packageName: String) =
 @OptIn(ExperimentalLayoutNodeApi::class)
 class LayoutInspectorTree {
     private val inlineClassConverter = InlineClassConverter()
-    private val parameterFactory = ParameterFactory()
+    private val parameterFactory = ParameterFactory(inlineClassConverter)
     private val cache = ArrayDeque<MutableInspectorNode>()
     private var generatedId = -1L
     /** Map from [LayoutNode] to the nearest [InspectorNode] that contains it */

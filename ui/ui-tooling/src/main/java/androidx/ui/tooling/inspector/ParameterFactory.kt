@@ -17,22 +17,17 @@
 package androidx.ui.tooling.inspector
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -41,17 +36,21 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
+import java.lang.reflect.Field
 import kotlin.math.abs
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaGetter
+import java.lang.reflect.Modifier as JavaModifier
 
 private const val MAX_RECURSIONS = 10
 private const val MAX_ITERABLE = 25
@@ -62,11 +61,22 @@ private const val MAX_ITERABLE = 25
  * Each parameter value is converted to a user readable value.
  */
 @ExperimentalLayoutNodeApi
-internal class ParameterFactory {
+internal class ParameterFactory(private val inlineClassConverter: InlineClassConverter) {
     /**
      * A map from known values to a user readable string representation.
      */
     private val valueLookup = mutableMapOf<Any, String>()
+
+    /**
+     * The classes we have loaded constants from.
+     */
+    private val valuesLoaded = mutableSetOf<Class<*>>()
+
+    /**
+     * Do not load constant names from instances of these classes.
+     * We prefer showing the raw values of Color and Dimensions.
+     */
+    private val ignoredClasses = listOf(Color::class.java, Dp::class.java)
     private var creatorCache: ParameterCreator? = null
     private val kotlinReflectionSupported = try {
         Class.forName("kotlin.reflect.full.KClasses")
@@ -80,17 +90,10 @@ internal class ParameterFactory {
     init {
         val textDecorationCombination = TextDecoration.combine(
             listOf(TextDecoration.LineThrough, TextDecoration.Underline))
-        loadFromCompanion(AbsoluteAlignment.Companion)
-        loadFromCompanion(Alignment.Companion)
-        loadFromInterface(Arrangement::class.java)
-        loadFromCompanion(FontFamily.Companion)
-        loadFromCompanion(FontWeight.Companion, ignore = "getW")
-        loadFromCompanion(Shadow.Companion)
-        loadFromCompanion(TextDecoration.Companion)
-        loadFromCompanion(TextIndent.Companion)
-        valueLookup[Color.Unset] = "Unset"
-        valueLookup[RectangleShape] = "RectangleShape"
         valueLookup[textDecorationCombination] = "LineThrough+Underline"
+        valueLookup[Color.Unset] = "Unset"
+        valuesLoaded.add(Enum::class.java)
+        valuesLoaded.add(Any::class.java)
     }
 
     /**
@@ -108,25 +111,111 @@ internal class ParameterFactory {
         }
     }
 
-    private fun loadFromInterface(interfaceClass: Class<*>) {
-        // REDO: If we decide to add a kotlin reflection dependency
-        interfaceClass.declaredFields
-            .filter { it.name != "INSTANCE" }
-            .associateByTo(valueLookup, { it.isAccessible = true; it[null]!! }, { it.name })
+    private fun loadConstantsFrom(javaClass: Class<*>) {
+        if (valuesLoaded.contains(javaClass)) {
+            return
+        }
+        val related = generateSequence(javaClass) { it.superclass }.plus(javaClass.interfaces)
+        related.forEach { aClass ->
+            val topClass = generateSequence(aClass) { it.enclosingClass }.last()
+            loadConstantsFromEnclosedClasses(topClass)
+            findPackageLevelClass(topClass)?.let { loadConstantsFromStaticFinal(it) }
+        }
     }
 
-    private fun loadFromCompanion(companionInstance: Any, ignore: String? = null) {
-        // REDO: If we decide to add a kotlin reflection dependency
-        companionInstance::class.java.declaredMethods.asSequence()
-            .filter {
-                java.lang.reflect.Modifier.isPublic(it.modifiers) &&
-                        it.returnType != Void.TYPE &&
-                        it.parameterTypes.isEmpty() &&
-                        it.name.startsWith("get") &&
-                        (ignore == null || !it.name.startsWith(ignore))
-            }
-            .associateByTo(valueLookup, { it(companionInstance)!! }, { it.name.substring(3) })
+    private fun findPackageLevelClass(javaClass: Class<*>): Class<*>? = try {
+        // Note: This doesn't work when @file.JvmName is specified
+        Class.forName("${javaClass.name}Kt")
+    } catch (ex: Throwable) {
+        null
     }
+
+    private fun loadConstantsFromEnclosedClasses(javaClass: Class<*>) {
+        if (valuesLoaded.contains(javaClass)) {
+            return
+        }
+        loadConstantsFromObjectInstance(javaClass.kotlin)
+        loadConstantsFromStaticFinal(javaClass)
+        valuesLoaded.add(javaClass)
+        javaClass.declaredClasses.forEach { loadConstantsFromEnclosedClasses(it) }
+    }
+
+    /**
+     * Load all constants from companion objects and singletons
+     *
+     * Exclude: primary types and types of ignoredClasses, open and lateinit vals.
+     */
+    private fun loadConstantsFromObjectInstance(kClass: KClass<*>) {
+        try {
+            val instance = kClass.objectInstance ?: return
+            kClass.declaredMemberProperties.asSequence()
+                .filter { it.isFinal && !it.isLateinit }
+                .mapNotNull { constantValueOf(it, instance)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) }
+                .toMap(valueLookup)
+        } catch (_: Throwable) {
+            // KT-16479 :  kotlin reflection does currently not support packages and files.
+            // We load top level values using Java reflection instead.
+            // Ignore other reflection errors as well
+        }
+    }
+
+    /**
+     * Load all constants from top level values from Java.
+     *
+     * Exclude: primary types and types of ignoredClasses.
+     * Since this is Java, inline types will also (unfortunately) be excluded.
+     */
+    private fun loadConstantsFromStaticFinal(javaClass: Class<*>) {
+        try {
+            javaClass.declaredMethods.asSequence()
+                .filter {
+                    it.returnType != Void.TYPE &&
+                            JavaModifier.isStatic(it.modifiers) &&
+                            JavaModifier.isFinal(it.modifiers) &&
+                            !it.returnType.isPrimitive &&
+                            it.parameterTypes.isEmpty() &&
+                            it.name.startsWith("get")
+                }
+                .mapNotNull { javaClass.getDeclaredField(it.name.substring(3)) }
+                .mapNotNull { constantValueOf(it)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) }
+                .toMap(valueLookup)
+        } catch (_: ReflectiveOperationException) {
+            // ignore reflection errors
+        }
+    }
+
+    private fun constantValueOf(field: Field?): Any? = try {
+        field?.isAccessible = true
+        field?.get(null)
+    } catch (_: ReflectiveOperationException) {
+        // ignore reflection errors
+        null
+    }
+
+    private fun constantValueOf(property: KProperty1<out Any, *>, instance: Any): Any? = try {
+        val field = property.javaField
+        field?.isAccessible = true
+        inlineClassConverter.castParameterValue(inlineResultClass(property), field?.get(instance))
+    } catch (_: ReflectiveOperationException) {
+        // ignore reflection errors
+        null
+    }
+
+    private fun inlineResultClass(property: KProperty1<out Any, *>): String? {
+        // The Java getter name will be mangled if it contains parameters of an inline class.
+        // The mangled part starts with a '-'.
+        if (property.javaGetter?.name?.contains('-') == true) {
+            return property.returnType.toString()
+        }
+        return null
+    }
+
+    private fun ignoredValue(value: Any?): Boolean =
+        value == null ||
+                ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
+                value::class.java.isPrimitive
 
     /**
      * Convenience class for building [NodeParameter]s.
@@ -135,14 +224,13 @@ internal class ParameterFactory {
         private var node: MutableInspectorNode? = null
         private var recursions = 0
 
-        fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? =
-            try {
-                this.node = node
-                recursions = 0
-                create(name, value)
-            } finally {
-                this.node = null
-            }
+        fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? = try {
+            this.node = node
+            recursions = 0
+            create(name, value)
+        } finally {
+            this.node = null
+        }
 
         private fun create(name: String, value: Any?): NodeParameter? {
             if (value == null || recursions >= MAX_RECURSIONS) {
@@ -150,10 +238,7 @@ internal class ParameterFactory {
             }
             try {
                 recursions++
-                val text = valueLookup[value]
-                if (text != null) {
-                    return NodeParameter(name, ParameterType.String, text)
-                }
+                createFromConstant(name, value)?.let { return it }
                 return when (value) {
                     is AnnotatedString -> NodeParameter(name, ParameterType.String, value.text)
                     is BaselineShift -> createFromBaselineShift(name, value)
@@ -196,6 +281,14 @@ internal class ParameterFactory {
             return NodeParameter(name, ParameterType.String, converted)
         }
 
+        private fun createFromConstant(name: String, value: Any): NodeParameter? {
+            if (!kotlinReflectionSupported) {
+                return null
+            }
+            loadConstantsFrom(value.javaClass)
+            return valueLookup[value]?.let { NodeParameter(name, ParameterType.String, it) }
+        }
+
         private fun createFromCornerSize(name: String, value: CornerSize): NodeParameter {
             val size = Size(node!!.width.toFloat(), node!!.height.toFloat())
             val pixels = value.toPx(size, density)
@@ -211,10 +304,7 @@ internal class ParameterFactory {
                 NodeParameter(name, ParameterType.Resource, it.resId)
             }
 
-        private fun createFromKotlinReflection(
-            name: String,
-            value: Any
-        ): NodeParameter? {
+        private fun createFromKotlinReflection(name: String, value: Any): NodeParameter? {
             val kClass = value::class
             if (kClass.simpleName == null || !kotlinReflectionSupported) {
                 // internal synthetic class or kotlin reflection library not available
@@ -237,17 +327,16 @@ internal class ParameterFactory {
             return parameter
         }
 
-        private fun valueOf(property: KProperty1<Any, *>, instance: Any): Any? =
-            try {
-                property.isAccessible = true
-                // Bug in kotlin reflection API: if the type is a nullable inline type with a null
-                // value, we get an IllegalArgumentException in this line:
-                property.get(instance)
-            } catch (ex: Throwable) {
-                // TODO: Remove this warning since this is expected with nullable inline types
-                Log.w("Compose", "Could not get value of ${property.name}")
-                null
-            }
+        private fun valueOf(property: KProperty1<Any, *>, instance: Any): Any? = try {
+            property.isAccessible = true
+            // Bug in kotlin reflection API: if the type is a nullable inline type with a null
+            // value, we get an IllegalArgumentException in this line:
+            property.get(instance)
+        } catch (ex: Throwable) {
+            // TODO: Remove this warning since this is expected with nullable inline types
+            Log.w("Compose", "Could not get value of ${property.name}")
+            null
+        }
 
         private fun createFromInspectableValue(
             name: String,

@@ -77,7 +77,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ParameterFactoryTest {
     private val node = MutableInspectorNode()
-    private val factory = ParameterFactory()
+    private val factory = ParameterFactory(InlineClassConverter())
     private val api = android.os.Build.VERSION.SDK_INT
 
     @Before
@@ -258,7 +258,7 @@ class ParameterFactoryTest {
 
     @Test
     fun testCornerSize() {
-        assertThat(lookup(ZeroCornerSize)).isEqualTo(ParameterType.DimensionDp to 0.0f)
+        assertThat(lookup(ZeroCornerSize)).isEqualTo(ParameterType.String to "ZeroCornerSize")
         assertThat(lookup(CornerSize(2.4.dp))).isEqualTo(ParameterType.DimensionDp to 2.4f)
         assertThat(lookup(CornerSize(2.4f))).isEqualTo(ParameterType.DimensionDp to 1.2f)
         assertThat(lookup(CornerSize(3))).isEqualTo(ParameterType.DimensionDp to 7.5f)
@@ -314,24 +314,24 @@ class ParameterFactoryTest {
 
     @Test
     fun testFontWeight() {
-        assertThat(lookup(FontWeight.Thin)).isEqualTo(ParameterType.String to "Thin")
-        assertThat(lookup(FontWeight.ExtraLight)).isEqualTo(ParameterType.String to "ExtraLight")
-        assertThat(lookup(FontWeight.Light)).isEqualTo(ParameterType.String to "Light")
-        assertThat(lookup(FontWeight.Normal)).isEqualTo(ParameterType.String to "Normal")
-        assertThat(lookup(FontWeight.Medium)).isEqualTo(ParameterType.String to "Medium")
-        assertThat(lookup(FontWeight.SemiBold)).isEqualTo(ParameterType.String to "SemiBold")
-        assertThat(lookup(FontWeight.Bold)).isEqualTo(ParameterType.String to "Bold")
-        assertThat(lookup(FontWeight.ExtraBold)).isEqualTo(ParameterType.String to "ExtraBold")
-        assertThat(lookup(FontWeight.Black)).isEqualTo(ParameterType.String to "Black")
-        assertThat(lookup(FontWeight.W100)).isEqualTo(ParameterType.String to "Thin")
-        assertThat(lookup(FontWeight.W200)).isEqualTo(ParameterType.String to "ExtraLight")
-        assertThat(lookup(FontWeight.W300)).isEqualTo(ParameterType.String to "Light")
-        assertThat(lookup(FontWeight.W400)).isEqualTo(ParameterType.String to "Normal")
-        assertThat(lookup(FontWeight.W500)).isEqualTo(ParameterType.String to "Medium")
-        assertThat(lookup(FontWeight.W600)).isEqualTo(ParameterType.String to "SemiBold")
-        assertThat(lookup(FontWeight.W700)).isEqualTo(ParameterType.String to "Bold")
-        assertThat(lookup(FontWeight.W800)).isEqualTo(ParameterType.String to "ExtraBold")
-        assertThat(lookup(FontWeight.W900)).isEqualTo(ParameterType.String to "Black")
+        assertThat(lookup(FontWeight.Thin)).isEqualTo(ParameterType.String to "W100")
+        assertThat(lookup(FontWeight.ExtraLight)).isEqualTo(ParameterType.String to "W200")
+        assertThat(lookup(FontWeight.Light)).isEqualTo(ParameterType.String to "W300")
+        assertThat(lookup(FontWeight.Normal)).isEqualTo(ParameterType.String to "W400")
+        assertThat(lookup(FontWeight.Medium)).isEqualTo(ParameterType.String to "W500")
+        assertThat(lookup(FontWeight.SemiBold)).isEqualTo(ParameterType.String to "W600")
+        assertThat(lookup(FontWeight.Bold)).isEqualTo(ParameterType.String to "W700")
+        assertThat(lookup(FontWeight.ExtraBold)).isEqualTo(ParameterType.String to "W800")
+        assertThat(lookup(FontWeight.Black)).isEqualTo(ParameterType.String to "W900")
+        assertThat(lookup(FontWeight.W100)).isEqualTo(ParameterType.String to "W100")
+        assertThat(lookup(FontWeight.W200)).isEqualTo(ParameterType.String to "W200")
+        assertThat(lookup(FontWeight.W300)).isEqualTo(ParameterType.String to "W300")
+        assertThat(lookup(FontWeight.W400)).isEqualTo(ParameterType.String to "W400")
+        assertThat(lookup(FontWeight.W500)).isEqualTo(ParameterType.String to "W500")
+        assertThat(lookup(FontWeight.W600)).isEqualTo(ParameterType.String to "W600")
+        assertThat(lookup(FontWeight.W700)).isEqualTo(ParameterType.String to "W700")
+        assertThat(lookup(FontWeight.W800)).isEqualTo(ParameterType.String to "W800")
+        assertThat(lookup(FontWeight.W900)).isEqualTo(ParameterType.String to "W900")
     }
 
     @Test
@@ -416,6 +416,7 @@ class ParameterFactoryTest {
                 parameter("paint", ParameterType.String, "") {
                     parameter("alignment", ParameterType.String, "Center")
                     parameter("alpha", ParameterType.Float, 1.0f)
+                    parameter("contentScale", ParameterType.String, "Inside")
                     parameter("painter", ParameterType.String, "TestPainter") {
                         parameter("alpha", ParameterType.Float, 1.0f)
                         parameter("color", ParameterType.Color, Color.Red.toArgb())
@@ -460,10 +461,7 @@ class ParameterFactoryTest {
             }
         }
         validate(factory.create(node, "offset", Offset.Zero)!!) {
-            parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
-                parameter("x", ParameterType.DimensionDp, 0.0f)
-                parameter("y", ParameterType.DimensionDp, 0.0f)
-            }
+            parameter("offset", ParameterType.String, "Zero")
         }
     }
 
@@ -504,10 +502,7 @@ class ParameterFactoryTest {
             parameter("shadow", ParameterType.String, Shadow::class.java.simpleName) {
                 parameter("blurRadius", ParameterType.DimensionDp, 1.25f)
                 parameter("color", ParameterType.Color, Color.Cyan.toArgb())
-                parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
-                    parameter("x", ParameterType.DimensionDp, 0.0f)
-                    parameter("y", ParameterType.DimensionDp, 0.0f)
-                }
+                parameter("offset", ParameterType.String, "Zero")
             }
         }
         validate(factory.create(node, "shadow", Shadow(Color.Blue, Offset(1.0f, 4.0f), 1.5f))!!) {
