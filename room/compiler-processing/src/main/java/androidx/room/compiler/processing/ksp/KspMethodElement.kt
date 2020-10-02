@@ -58,7 +58,7 @@ internal sealed class KspMethodElement(
     }
 
     override fun asMemberOf(other: XDeclaredType): XMethodType {
-        check(other is KspType)
+        check(other is KspDeclaredType)
         return KspMethodType.create(
             env = env,
             origin = this,

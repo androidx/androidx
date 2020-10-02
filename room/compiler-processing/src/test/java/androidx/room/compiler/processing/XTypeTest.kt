@@ -20,13 +20,17 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestForFailedCompilation
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
+import org.jetbrains.kotlin.ksp.getClassDeclarationByName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -46,7 +50,7 @@ class XTypeTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             sources = listOf(parent)
         ) {
             val type = it.processingEnv.requireType("foo.bar.Parent") as XDeclaredType
@@ -61,13 +65,21 @@ class XTypeTest {
 
             val typeArguments = type.typeArguments
             assertThat(typeArguments).hasSize(1)
+            val inputStreamClassName = ClassName.get("java.io", "InputStream")
             typeArguments.first().let { firstType ->
                 assertThat(firstType.isDeclared()).isFalse()
                 val expected = TypeVariableName.get(
                     "InputStreamType",
-                    ClassName.get("java.io", "InputStream")
+                    inputStreamClassName
                 )
                 assertThat(firstType.typeName).isEqualTo(expected)
+                // equals in TypeVariableName just checks the string representation but we want
+                // to assert the upper bound as well
+                assertThat(
+                    (firstType.typeName as TypeVariableName).bounds
+                ).containsExactly(
+                    inputStreamClassName
+                )
             }
 
             type.asTypeElement().getMethod("wildcardParam").let { method ->
@@ -75,7 +87,7 @@ class XTypeTest {
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)
                     .isEqualTo(
-                        it.processingEnv.requireType("java.util.Set").rawType
+                        it.processingEnv.requireType(it.types.mutableSet).rawType
                     )
             }
         }
@@ -95,6 +107,7 @@ class XTypeTest {
                 }
             """.trimIndent()
         )
+        // TODO run with KSP as well once https://github.com/google/ksp/issues/107 is resolved
         runProcessorTestForFailedCompilation(
             sources = listOf(missingTypeRef)
         ) {
@@ -125,7 +138,7 @@ class XTypeTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             sources = listOf(subject)
         ) {
             val type = it.processingEnv.requireType("foo.bar.Baz")
@@ -143,6 +156,10 @@ class XTypeTest {
             it.processingEnv.requireType("java.util.List").let { list ->
                 assertThat(list.isCollection()).isTrue()
             }
+            it.processingEnv.requireType("java.util.ArrayList").let { list ->
+                // isCollection is overloaded name, it is actually just checking list or set.
+                assertThat(list.isCollection()).isFalse()
+            }
             it.processingEnv.requireType("java.util.Set").let { list ->
                 assertThat(list.isCollection()).isTrue()
             }
@@ -153,11 +170,29 @@ class XTypeTest {
     }
 
     @Test
-    fun toStringMatchesUnderlyingElement() {
-        runProcessorTest {
-            it.processingEnv.requireType("java.lang.Integer").let { map ->
-                assertThat(map.toString()).isEqualTo("java.lang.Integer")
+    fun isCollection_kotlin() {
+        runKspTest(sources = emptyList(), succeed = true) { invocation ->
+            val subjects = listOf("Map" to false, "List" to true, "Set" to true)
+            subjects.forEach { (subject, expected) ->
+                invocation.processingEnv.requireType("kotlin.collections.$subject").let { type ->
+                    Truth.assertWithMessage(type.typeName.toString())
+                        .that(type.isCollection()).isEqualTo(expected)
+                }
             }
+        }
+    }
+
+    @Test
+    fun toStringMatchesUnderlyingElement() {
+        runProcessorTestIncludingKsp {
+            val subject = "java.lang.String"
+            val expected = if (it.isKsp) {
+                it.kspResolver.getClassDeclarationByName(subject)?.toString()
+            } else {
+                it.javaElementUtils.getTypeElement(subject)?.toString()
+            }
+            val actual = it.processingEnv.requireType(subject).toString()
+            assertThat(actual).isEqualTo(expected)
         }
     }
 
@@ -174,6 +209,7 @@ class XTypeTest {
                 }
             """.trimIndent()
         )
+        // TODO run with KSP as well once https://github.com/google/ksp/issues/107 is resolved
         runProcessorTestForFailedCompilation(
             sources = listOf(missingTypeRef)
         ) {
@@ -217,7 +253,7 @@ class XTypeTest {
 
     @Test
     fun rawType() {
-        runProcessorTest {
+        runProcessorTestIncludingKsp {
             val subject = it.processingEnv.getDeclaredType(
                 it.processingEnv.requireTypeElement(List::class),
                 it.processingEnv.requireType(String::class)

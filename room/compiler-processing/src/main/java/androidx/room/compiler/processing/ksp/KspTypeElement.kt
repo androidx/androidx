@@ -71,7 +71,7 @@ internal class KspTypeElement(
         }
     }
 
-    override val type: KspType by lazy {
+    override val type: KspDeclaredType by lazy {
         env.wrap(declaration.asStarProjectedType())
     }
 

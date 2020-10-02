@@ -16,24 +16,22 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import org.jetbrains.kotlin.ksp.symbol.KSType
 
-internal class KspArrayType(
+internal open class KspDeclaredType(
     env: KspProcessingEnv,
     ksType: KSType
-) : KspDeclaredType( // in kotlin, array types are also declared
-    env, ksType
-),
-    XArrayType {
-    override val componentType: XType by lazy {
-        typeArguments.first().extendsBoundOrSelf()
+) : KspType(env, ksType), XDeclaredType {
+    override val typeName: TypeName by lazy {
+        ksType.typeName()
     }
 
-    override val typeName: TypeName by lazy {
-        ArrayTypeName.of(componentType.typeName)
+    override val typeArguments: List<XType> by lazy {
+        ksType.arguments.mapIndexed { index, arg ->
+            env.wrap(ksType.declaration.typeParameters[index], arg)
+        }
     }
 }
