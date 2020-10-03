@@ -343,6 +343,8 @@ public final class AppSearchImpl {
      * Fetches the next page of results of a previously executed query. Results can be empty if
      * next-page token is invalid or all pages have been returned.
      *
+     * <p>This method belongs to query group.
+     *
      * @param databaseName The databaseName of the previously executed query.
      * @param nextPageToken The token of pre-loaded results of previously executed query.
      * @return The next page of results of previously executed query.
@@ -364,6 +366,9 @@ public final class AppSearchImpl {
 
     /**
      * Invalidates the next-page token so that no more results of the related query can be returned.
+     *
+     * <p>This method belongs to query group.
+     *
      * @param nextPageToken The token of pre-loaded results of previously executed query to be
      *                      Invalidated.
      */
@@ -807,7 +812,7 @@ public final class AppSearchImpl {
         }
     }
 
-    /** Remove the rewritten schema types from any result documents.*/
+    /** Removes the rewritten schema types from any result documents.*/
     private SearchResultProto rewriteSearchResultProto(@NonNull String databaseName,
             @NonNull SearchResultProto searchResultProto) {
         SearchResultProto.Builder searchResultsBuilder = searchResultProto.toBuilder();

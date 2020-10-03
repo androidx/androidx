@@ -157,7 +157,7 @@ public @interface AppSearchDocument {
     @interface Score {}
 
     /**
-     * Configures a member field of a class as a property known to Appsearch.
+     * Configures a member field of a class as a property known to AppSearch.
      *
      * <p>Properties contain the document's data. They may be indexed or non-indexed (the default).
      * Only indexed properties can be searched for in queries. There is a limit of
@@ -201,10 +201,9 @@ public @interface AppSearchDocument {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@code androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
          * this attribute to {@code true}.
          */
-        // TODO(b/157082794) Linkify AppSearchManager once that API is public.
         boolean required() default false;
     }
 

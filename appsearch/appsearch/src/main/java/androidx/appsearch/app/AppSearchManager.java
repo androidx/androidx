@@ -259,7 +259,7 @@ public class AppSearchManager {
      * </ul>
      *
      * <p> This method is lightweight. The heavy work will be done in
-     * {@link SearchResults#getNextPage()}.
+     *     {@link SearchResults#getNextPage()}.
      *
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.

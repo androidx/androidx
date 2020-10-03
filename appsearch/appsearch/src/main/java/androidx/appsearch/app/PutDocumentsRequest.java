@@ -69,7 +69,7 @@ public final class PutDocumentsRequest {
         /**
          * Adds one or more documents to the request.
          *
-         * @param dataClasses non-inner classes annotated with
+         * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
@@ -83,7 +83,7 @@ public final class PutDocumentsRequest {
         /**
          * Adds one or more documents to the request.
          *
-         * @param dataClasses non-inner classes annotated with
+         * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
