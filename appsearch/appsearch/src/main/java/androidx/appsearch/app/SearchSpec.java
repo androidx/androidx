@@ -261,10 +261,13 @@ public final class SearchSpec {
         }
 
         /**
-         * Only the first {@code matchesCountPerProperty} matches for a every property of
-         * {@link GenericDocument} will contain snippet information.
+         * Sets {@code snippetCountPerProperty}, only the first {@code snippetCountPerProperty}
+         * snippets for a every property of {@link GenericDocument} will contain snippet
+         * information.
+         *
          * <p>If set to 0, snippeting is disabled and {@link SearchResults.Result#getMatches}
          * will return {@code null} for that result.
+         *
          * <p>The value should be set in range[0, 10k].
          */
         @NonNull
@@ -281,10 +284,13 @@ public final class SearchSpec {
          * {@code maxSnippetSize/2} bytes before the middle of the matching token and end at
          * {@code maxSnippetSize/2} bytes after the middle of the matching token. It respects
          * token boundaries, therefore the returned window may be smaller than requested.
+         *
          * <p> Setting {@code maxSnippetSize} to 0 will disable windowing and an empty string will
          * be returned. If matches enabled is also set to false, then snippeting is disabled.
+         *
          * <p>Ex. {@code maxSnippetSize} = 16. "foo bar baz bat rat" with a query of "baz" will
          * return a window of "bar baz bat" which is only 11 bytes long.
+         *
          * <p>The value should be in range[0, 10k].
          */
         @NonNull

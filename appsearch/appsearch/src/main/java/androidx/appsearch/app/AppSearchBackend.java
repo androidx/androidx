@@ -74,7 +74,7 @@ public interface AppSearchBackend {
             @NonNull String databaseName, @NonNull GetByUriRequest request);
 
     /**
-     * Searches a document based on a given query string.
+     * Searches {@link GenericDocument}s based on a given query string.
      * <p> This method is lightweight. The heavy work will be done in
      * {@link BackendSearchResults#getNextPage()}.
      * @see AppSearchManager#query
@@ -120,7 +120,8 @@ public interface AppSearchBackend {
     @NonNull
     AppSearchResult<Void> removeAll(@NonNull String databaseName);
 
-    /** Clears all documents, schemas and all other information owned by this app. */
+    /** Clears all {@link GenericDocument}s, {@link AppSearchSchema}s and all other information
+     * owned by this app. */
     @VisibleForTesting
     @NonNull
     AppSearchResult<Void> resetAllDatabases();
