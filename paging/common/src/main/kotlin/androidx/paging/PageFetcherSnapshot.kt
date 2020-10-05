@@ -71,7 +71,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     init {
         require(config.jumpThreshold == COUNT_UNDEFINED || pagingSource.jumpingSupported) {
             "PagingConfig.jumpThreshold was set, but the associated PagingSource has not marked " +
-                    "support for jumps by overriding PagingSource.jumpingSupported to true."
+                "support for jumps by overriding PagingSource.jumpingSupported to true."
         }
     }
 
@@ -93,7 +93,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
-                    "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
+                "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
         }
 
         // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
@@ -235,7 +235,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 hintChannel.asFlow()
                     .filter { hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
-                                hint.presentedItemsAfter * -1 > config.jumpThreshold
+                            hint.presentedItemsAfter * -1 > config.jumpThreshold
                     }
                     .collectLatest { invalidate() }
             }
@@ -243,60 +243,54 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
         launch {
             state.consumePrependGenerationIdAsFlow()
-                .flatMapLatest<Int, GenerationalViewportHint> { generationId ->
-                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
-                    // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock {
-                        // Skip this generationId of loads if there is no more to load in this
-                        // direction. In the case of the terminal page getting dropped, a new
-                        // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates.get(PREPEND, false) == NotLoading.Complete) {
-                            return@flatMapLatest flowOf()
-                        } else if (state.loadStates.get(PREPEND, false) !is Error) {
-                            state.loadStates.set(PREPEND, false, NotLoading.Incomplete)
-                        }
-                    }
-
-                    @OptIn(FlowPreview::class)
-                    hintChannel.asFlow()
-                        // Prevent infinite loop when competing prepend / append cancel each other
-                        .drop(if (generationId == 0) 0 else 1)
-                        .map { hint -> GenerationalViewportHint(generationId, hint) }
-                }
-                .conflatePrioritizingPrefetchDistance(PREPEND)
-                .collect { generationalHint ->
-                    doLoad(this, state, PREPEND, generationalHint)
-                }
+                .collectAsGenerationalViewportHints(this, PREPEND)
         }
 
         launch {
             state.consumeAppendGenerationIdAsFlow()
-                .flatMapLatest<Int, GenerationalViewportHint> { generationId ->
-                    // Reset state to Idle and setup a new flow for consuming incoming load hints.
-                    // Subsequent generationIds are normally triggered by cancellation.
-                    stateLock.withLock {
-                        // Skip this generationId of loads if there is no more to load in this
-                        // direction. In the case of the terminal page getting dropped, a new
-                        // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates.get(APPEND, false) == NotLoading.Complete) {
-                            return@flatMapLatest flowOf()
-                        } else if (state.loadStates.get(APPEND, false) !is Error) {
-                            state.loadStates.set(APPEND, false, NotLoading.Incomplete)
-                        }
-                    }
-
-                    @OptIn(FlowPreview::class)
-                    hintChannel.asFlow()
-                        // Prevent infinite loop when competing prepend / append cancel each other
-                        .drop(if (generationId == 0) 0 else 1)
-                        .map { hint -> GenerationalViewportHint(generationId, hint) }
-                }
-                .conflatePrioritizingPrefetchDistance(APPEND)
-                .collect { generationalHint ->
-                    doLoad(this, state, APPEND, generationalHint)
-                }
+                .collectAsGenerationalViewportHints(this, APPEND)
         }
     }
+
+    /**
+     * Maps a [Flow] of generation ids from [PageFetcherSnapshotState] to [ViewportHint]s from
+     * [hintChannel] with back-pressure handling via conflation by prioritizing hints which
+     * either update presenter state or those that would load the most items.
+     *
+     * @param loadType [PREPEND] or [APPEND]
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun Flow<Int>.collectAsGenerationalViewportHints(
+        scope: CoroutineScope,
+        loadType: LoadType
+    ) = flatMapLatest { generationId ->
+        // Reset state to Idle and setup a new flow for consuming incoming load hints.
+        // Subsequent generationIds are normally triggered by cancellation.
+        stateLock.withLock {
+            // Skip this generationId of loads if there is no more to load in this
+            // direction. In the case of the terminal page getting dropped, a new
+            // generationId will be sent after load state is updated to Idle.
+            if (state.loadStates.get(loadType, false) == NotLoading.Complete) {
+                return@flatMapLatest flowOf()
+            } else if (state.loadStates.get(loadType, false) !is Error) {
+                state.loadStates.set(loadType, false, NotLoading.Incomplete)
+            }
+        }
+
+        @OptIn(FlowPreview::class)
+        hintChannel.asFlow()
+            // Prevent infinite loop when competing PREPEND / APPEND cancel each other
+            .drop(if (generationId == 0) 0 else 1)
+            .map { hint -> GenerationalViewportHint(generationId, hint) }
+    }
+        // Prioritize new hints that would load the maximum number of items.
+        .runningReduce { previous, next ->
+            if (next.shouldPrioritizeOver(previous, loadType)) next else previous
+        }
+        .conflate()
+        .collect { generationalHint ->
+            doLoad(scope, state, loadType, generationalHint)
+        }
 
     private fun loadParams(loadType: LoadType, key: Key?) = LoadParams.create(
         loadType = loadType,
@@ -562,7 +556,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         var loadId = when (loadType) {
                             REFRESH -> throw IllegalStateException(
                                 "Attempt to insert an extra REFRESH page due to " +
-                                        "RemoteMediator, which is an invalid operation."
+                                    "RemoteMediator, which is an invalid operation."
                             )
                             PREPEND -> state.prependLoadId
                             APPEND -> state.appendLoadId
@@ -573,7 +567,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             loadId = when (loadType) {
                                 REFRESH -> throw IllegalStateException(
                                     "Attempt to insert an extra REFRESH page due to " +
-                                            "RemoteMediator, which is an invalid operation."
+                                        "RemoteMediator, which is an invalid operation."
                                 )
                                 PREPEND -> state.prependLoadId
                                 APPEND -> state.appendLoadId
@@ -671,31 +665,34 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
 
 /**
- * Conflate a [Flow] of [GenerationalViewportHint], after applying a [runningReduce] that
- * prioritizes new hints that would cause [PageFetcherSnapshot] to load the maximum number of items
- * for the given [loadType].
+ * Helper for [GenerationalViewportHint] prioritization in cases where item accesses are being sent
+ * to PageFetcherSnapshot] faster than they can be processed. A [GenerationalViewportHint] is
+ * prioritized if it represents an update to presenter state or if it would cause
+ * [PageFetcherSnapshot] to load more items.
+ *
+ * @param previous [GenerationalViewportHint] that would normally be processed next if [this]
+ * [GenerationalViewportHint] was not sent.
+ *
+ * @return `true` if [this] [GenerationalViewportHint] should be prioritized over [previous].
  */
-@VisibleForTesting
-@OptIn(ExperimentalCoroutinesApi::class)
-internal fun Flow<GenerationalViewportHint>.conflatePrioritizingPrefetchDistance(
+internal fun GenerationalViewportHint.shouldPrioritizeOver(
+    previous: GenerationalViewportHint,
     loadType: LoadType
-): Flow<GenerationalViewportHint> = runningReduce { acc, it ->
-    when {
+): Boolean {
+    return when {
         // Prioritize hints from new generations, which increments after dropping.
-        it.generationId > acc.generationId -> it
+        generationId > previous.generationId -> true
         // Prioritize hints from most recent presenter state
-        acc.hint.originalPageOffsetFirst != it.hint.originalPageOffsetFirst ||
-                acc.hint.originalPageOffsetLast != it.hint.originalPageOffsetLast -> {
-            it
-        }
+        hint.originalPageOffsetFirst != previous.hint.originalPageOffsetFirst -> true
+        hint.originalPageOffsetLast != previous.hint.originalPageOffsetLast -> true
         // Prioritize hints that would load the most items in PREPEND direction.
-        loadType == PREPEND && acc.hint.presentedItemsBefore < it.hint.presentedItemsBefore -> {
-            acc
+        loadType == PREPEND && previous.hint.presentedItemsBefore < hint.presentedItemsBefore -> {
+            false
         }
         // Prioritize hints that would load the most items in APPEND direction.
-        loadType == APPEND && acc.hint.presentedItemsAfter < it.hint.presentedItemsAfter -> {
-            acc
+        loadType == APPEND && previous.hint.presentedItemsAfter < hint.presentedItemsAfter -> {
+            false
         }
-        else -> it
+        else -> true
     }
-}.conflate()
+}

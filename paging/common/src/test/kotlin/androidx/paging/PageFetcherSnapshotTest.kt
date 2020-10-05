@@ -37,12 +37,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -3036,133 +3034,53 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun conflatePrioritizingPrefetchDistance_prioritizesUpdates() = testScope.runBlockingTest {
-        val prependHintCh = Channel<GenerationalViewportHint>()
-        val prependHints = mutableListOf<GenerationalViewportHint>()
-        val prependJob = launch {
-            prependHintCh.consumeAsFlow()
-                .conflatePrioritizingPrefetchDistance(PREPEND)
-                .collect { prependHints.add(it) }
-        }
+    fun generationalViewportHint_shouldPrioritizeOver_presenterUpdates() {
+        val prependHint = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = -10,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+        val prependHintWithPresenterUpdate = GenerationalViewportHint(
+            generationId = 0, hint = ViewportHint(
+                pageOffset = -10,
+                indexInPage = 0,
+                presentedItemsBefore = -5,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = -10,
+                originalPageOffsetLast = 0
+            )
+        )
+        assertTrue { prependHintWithPresenterUpdate.shouldPrioritizeOver(prependHint, PREPEND) }
 
-        prependHintCh.send(
-            GenerationalViewportHint(
-                generationId = 0,
-                hint = ViewportHint(
-                    pageOffset = 0,
-                    indexInPage = 0,
-                    presentedItemsBefore = -10,
-                    presentedItemsAfter = 0,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0
-                )
+        val appendHint = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = -10,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
             )
         )
-        advanceUntilIdle()
-        prependHintCh.send(
-            GenerationalViewportHint(
-                generationId = 0, hint = ViewportHint(
-                    pageOffset = -10,
-                    indexInPage = 0,
-                    presentedItemsBefore = -5,
-                    presentedItemsAfter = 0,
-                    originalPageOffsetFirst = -10,
-                    originalPageOffsetLast = 0
-                )
+        val appendHintWithPresenterUpdate = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 10,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = -5,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 10
             )
         )
-        advanceUntilIdle()
-        assertThat(prependHints).isEqualTo(
-            listOf(
-                GenerationalViewportHint(
-                    generationId = 0,
-                    hint = ViewportHint(
-                        pageOffset = 0,
-                        indexInPage = 0,
-                        presentedItemsBefore = -10,
-                        presentedItemsAfter = 0,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0
-                    )
-                ),
-                GenerationalViewportHint(
-                    generationId = 0,
-                    hint = ViewportHint(
-                        pageOffset = -10,
-                        indexInPage = 0,
-                        presentedItemsBefore = -5,
-                        presentedItemsAfter = 0,
-                        originalPageOffsetFirst = -10,
-                        originalPageOffsetLast = 0
-                    )
-                )
-            )
-        )
-        prependJob.cancel()
-
-        val appendHintCh = Channel<GenerationalViewportHint>()
-        val appendHints = mutableListOf<GenerationalViewportHint>()
-        val appendJob = launch {
-            appendHintCh.consumeAsFlow()
-                .conflatePrioritizingPrefetchDistance(APPEND)
-                .collect { appendHints.add(it) }
-        }
-
-        appendHintCh.send(
-            GenerationalViewportHint(
-                generationId = 0,
-                hint = ViewportHint(
-                    pageOffset = 0,
-                    indexInPage = 0,
-                    presentedItemsBefore = 0,
-                    presentedItemsAfter = -10,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 0
-                )
-            )
-        )
-        advanceUntilIdle()
-        appendHintCh.send(
-            GenerationalViewportHint(
-                generationId = 0,
-                hint = ViewportHint(
-                    pageOffset = 10,
-                    indexInPage = 0,
-                    presentedItemsBefore = 0,
-                    presentedItemsAfter = -5,
-                    originalPageOffsetFirst = 0,
-                    originalPageOffsetLast = 10
-                )
-            )
-        )
-        advanceUntilIdle()
-        assertThat(appendHints).isEqualTo(
-            listOf(
-                GenerationalViewportHint(
-                    generationId = 0,
-                    hint = ViewportHint(
-                        pageOffset = 0,
-                        indexInPage = 0,
-                        presentedItemsBefore = 0,
-                        presentedItemsAfter = -10,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0
-                    )
-                ),
-                GenerationalViewportHint(
-                    generationId = 0,
-                    hint = ViewportHint(
-                        pageOffset = 10,
-                        indexInPage = 0,
-                        presentedItemsBefore = 0,
-                        presentedItemsAfter = -5,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 10
-                    )
-                )
-            )
-        )
-        appendJob.cancel()
+        assertTrue { appendHintWithPresenterUpdate.shouldPrioritizeOver(appendHint, APPEND) }
     }
 }
 
