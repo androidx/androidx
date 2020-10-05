@@ -16,11 +16,6 @@
 
 package androidx.room.writer
 
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.T
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
@@ -28,12 +23,19 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.T
+import androidx.room.ext.W
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
 import androidx.room.vo.InsertionMethod
+import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
@@ -145,6 +147,10 @@ class DaoWriter(
             }
             dao.kotlinDefaultMethodDelegates.forEach {
                 addMethod(createDefaultMethodDelegate(it))
+            }
+
+            dao.delegatingMethods.forEach {
+                addMethod(createDelegatingMethod(it))
             }
             // keep this the last one to be generated because used custom converters will register
             // fields with a payload which we collect in dao to report used Type Converters.
@@ -481,6 +487,25 @@ class DaoWriter(
                 parameterNames = method.element.parameters.map { it.name },
                 scope = scope)
             addCode(scope.builder().build())
+        }.build()
+    }
+
+    private fun createDelegatingMethod(method: KotlinBoxedPrimitiveMethodDelegate): MethodSpec {
+        return overrideWithoutAnnotations(method.element, declaredDao).apply {
+
+            val args = method.concreteMethod.parameters.map {
+                val paramTypename = it.type.typeName
+                if (paramTypename.isBoxedPrimitive()) {
+                    CodeBlock.of("$L", paramTypename, it.name.toString())
+                } else {
+                    CodeBlock.of("($T) $L", paramTypename.unbox(), it.name.toString())
+                }
+            }
+            if (method.element.returnType.isVoid()) {
+                addStatement("$L($L)", method.element.name, CodeBlock.join(args, ",$W"))
+            } else {
+                addStatement("return $L($L)", method.element.name, CodeBlock.join(args, ",$W"))
+            }
         }.build()
     }
 

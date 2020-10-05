@@ -25,9 +25,11 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
+import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
 
 class DaoProcessor(
@@ -56,7 +58,7 @@ class DaoProcessor(
                 it.isAbstract() && !it.hasKotlinDefaultImpl()
             }.groupBy { method ->
                 context.checker.check(
-                        PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } == 1, method,
+                        PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
                         ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
                 )
                 if (method.hasAnnotation(Query::class)) {
@@ -73,6 +75,7 @@ class DaoProcessor(
                     Any::class
                 }
             }
+
         val processorVerifier = if (element.hasAnnotation(SkipQueryVerification::class) ||
                 element.hasAnnotation(RawQuery::class)) {
             null
@@ -127,6 +130,15 @@ class DaoProcessor(
                     executableElement = it).process()
         }
 
+        // TODO (b/169950251): avoid going through the matching logic if the interface does not
+        //  extend another one
+        val unannotatedMethods = methods[Any::class] ?: emptyList<XMethodElement>()
+        val allAnnotatedMethods = methods.values.flatten() - unannotatedMethods
+        val delegatingMethods = matchKotlinBoxedPrimitiveMethods(
+            unannotatedMethods,
+            annotatedMethods = allAnnotatedMethods
+        )
+
         val kotlinDefaultMethodDelegates = if (element.isInterface()) {
             val allProcessedMethods =
                 methods.values.flatten() + transactionMethods.map { it.element }
@@ -157,8 +169,9 @@ class DaoProcessor(
             null
         }
 
-        context.checker.check(methods[Any::class] == null, element,
-                ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
+        (unannotatedMethods - delegatingMethods.map { it.element }).forEach { method ->
+            context.logger.e(method, ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
+        }
 
         val type = declaredType.typeName
         context.checker.notUnbound(type, element,
@@ -172,6 +185,7 @@ class DaoProcessor(
                 deletionMethods = deletionMethods,
                 updateMethods = updateMethods,
                 transactionMethods = transactionMethods,
+                delegatingMethods = delegatingMethods,
                 kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates,
                 constructorParamType = constructorParamType)
     }
@@ -181,5 +195,28 @@ class DaoProcessor(
             context.logger.e(element, ProcessorErrors.daoMustHaveMatchingConstructor(
                     element.toString(), dbType.toString()))
         }
+    }
+
+    private fun matchKotlinBoxedPrimitiveMethods(
+        unannotatedMethods: List<XMethodElement>,
+        annotatedMethods: List<XMethodElement>
+    ) = unannotatedMethods.mapNotNull { unannotated ->
+        annotatedMethods.firstOrNull {
+            if (it.name != unannotated.name) {
+                return@firstOrNull false
+            }
+            if (!it.returnType.boxed().isSameType(unannotated.returnType.boxed())) {
+                return@firstOrNull false
+            }
+            if (it.parameters.size != unannotated.parameters.size) {
+                return@firstOrNull false
+            }
+            for (i in it.parameters.indices) {
+                if (it.parameters[i].type.boxed() != unannotated.parameters[i].type.boxed()) {
+                    return@firstOrNull false
+                }
+            }
+            return@firstOrNull true
+        }?.let { matchingMethod -> KotlinBoxedPrimitiveMethodDelegate(unannotated, matchingMethod) }
     }
 }
