@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation.fragment {
 
   @androidx.navigation.Navigator.Name("dialog") public final class DialogFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {

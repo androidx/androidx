@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.paging {
 
   @Deprecated public class AsyncPagedListDiffer<T> {
@@ -59,10 +59,10 @@ package androidx.paging {
   }
 
   public final class LivePagedListKt {
-    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
-    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
-    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, kotlinx.coroutines.CoroutineScope coroutineScope = GlobalScope, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher());
-    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, kotlinx.coroutines.CoroutineScope coroutineScope = GlobalScope, kotlinx.coroutines.CoroutineDispatcher fetchDispatcher = ArchTaskExecutor.getIOThreadExecutor().asCoroutineDispatcher());
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional java.util.concurrent.Executor fetchExecutor);
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional java.util.concurrent.Executor fetchExecutor);
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, androidx.paging.PagedList.Config config, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional kotlinx.coroutines.CoroutineScope coroutineScope, optional kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>>, int pageSize, optional Key? initialLoadKey, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional kotlinx.coroutines.CoroutineScope coroutineScope, optional kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
   }
 
   public abstract class LoadStateAdapter<VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
