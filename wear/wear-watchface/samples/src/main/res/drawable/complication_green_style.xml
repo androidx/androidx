@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<androidx.wear.complications.rendering.ComplicationDrawable
+<androidx.wear.watchface.complications.rendering.ComplicationDrawable
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:borderColor="@color/light_green_50"
     app:borderStyle="solid"
@@ -35,4 +35,4 @@
       app:rangedValuePrimaryColor="@color/white"
       app:rangedValueSecondaryColor="@color/transparent"
   />
-</androidx.wear.complications.rendering.ComplicationDrawable>
+</androidx.wear.watchface.complications.rendering.ComplicationDrawable>
