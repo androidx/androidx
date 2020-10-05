@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.slice.remotecallback {
 
   public abstract class RemoteSliceProvider<T extends androidx.slice.remotecallback.RemoteSliceProvider> extends androidx.slice.SliceProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
