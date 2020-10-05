@@ -132,7 +132,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
-    public void testSplitsDefaultChecksums() throws Exception {
+    public void testSplitsSha256() throws Exception {
         installSplits(new String[]{TEST_V4_APK, TEST_V4_SPLIT0, TEST_V4_SPLIT1, TEST_V4_SPLIT2,
                 TEST_V4_SPLIT3, TEST_V4_SPLIT4});
         assertTrue(isAppInstalled(V4_PACKAGE_NAME));
@@ -226,11 +226,12 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, ALL_CHECKSUMS,
                 Checksums.TRUST_NONE);
         assertNotNull(checksums);
-        assertEquals(4, checksums.length);
-        assertEquals(TYPE_WHOLE_MD5, checksums[0].getType());
-        assertEquals(TYPE_WHOLE_SHA1, checksums[1].getType());
-        assertEquals(TYPE_WHOLE_SHA256, checksums[2].getType());
-        assertEquals(TYPE_WHOLE_SHA512, checksums[3].getType());
+        assertEquals(5, checksums.length);
+        assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
+        assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
+        assertEquals(TYPE_WHOLE_SHA1, checksums[2].getType());
+        assertEquals(TYPE_WHOLE_SHA256, checksums[3].getType());
+        assertEquals(TYPE_WHOLE_SHA512, checksums[4].getType());
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -242,17 +243,52 @@ public class ChecksumsTest {
 
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, ALL_CHECKSUMS,
                 Checksums.TRUST_NONE);
+        validateFixedAllChecksums(checksums);
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @MediumTest
+    @Test
+    public void testFixedAllChecksumsDirectExecutor() throws Exception {
+        installPackage(TEST_FIXED_APK);
+        assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
+
+        Checksum[] checksums = getChecksums(mContext, new Executor() {
+                    @Override
+                    public void execute(Runnable command) {
+                        command.run();
+                    }
+                }, FIXED_PACKAGE_NAME, true, ALL_CHECKSUMS, Checksums.TRUST_NONE);
+        validateFixedAllChecksums(checksums);
+    }
+
+    @SdkSuppress(minSdkVersion = 29)
+    @MediumTest
+    @Test
+    public void testFixedAllChecksumsSingleThread() throws Exception {
+        installPackage(TEST_FIXED_APK);
+        assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
+
+        Checksum[] checksums = getChecksums(mContext, Executors.newSingleThreadExecutor(),
+                FIXED_PACKAGE_NAME, true, ALL_CHECKSUMS, Checksums.TRUST_NONE);
+        validateFixedAllChecksums(checksums);
+    }
+
+    private void validateFixedAllChecksums(Checksum[] checksums) {
         assertNotNull(checksums);
-        assertEquals(4, checksums.length);
-        assertEquals(TYPE_WHOLE_MD5, checksums[0].getType());
-        assertEquals(TEST_FIXED_APK_MD5, bytesToHexString(checksums[0].getValue()));
-        assertEquals(TYPE_WHOLE_SHA1, checksums[1].getType());
+        assertEquals(5, checksums.length);
+        assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
+        assertEquals("90553b8d221ab1b900b242a93e4cc659ace3a2ff1d5c62e502488b385854e66a",
+                bytesToHexString(checksums[0].getValue()));
+        assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
+        assertEquals(TEST_FIXED_APK_MD5, bytesToHexString(checksums[1].getValue()));
+        assertEquals(TYPE_WHOLE_SHA1, checksums[2].getType());
         assertEquals("331eef6bc57671de28cbd7e32089d047285ade6a",
-                bytesToHexString(checksums[1].getValue()));
-        assertEquals(TYPE_WHOLE_SHA256, checksums[2].getType());
-        assertEquals(TEST_FIXED_APK_SHA256, bytesToHexString(checksums[2].getValue()));
-        assertEquals(TYPE_WHOLE_SHA512, checksums[3].getType());
-        assertEquals(TEST_FIXED_APK_SHA512, bytesToHexString(checksums[3].getValue()));
+                bytesToHexString(checksums[2].getValue()));
+        assertEquals(TYPE_WHOLE_SHA256, checksums[3].getType());
+        assertEquals(TEST_FIXED_APK_SHA256, bytesToHexString(checksums[3].getValue()));
+        assertEquals(TYPE_WHOLE_SHA512, checksums[4].getType());
+        assertEquals(TEST_FIXED_APK_SHA512, bytesToHexString(checksums[4].getValue()));
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -265,26 +301,38 @@ public class ChecksumsTest {
         Checksum[] checksums = getChecksums(FIXED_PACKAGE_NAME, true, ALL_CHECKSUMS,
                 Checksums.TRUST_NONE);
         assertNotNull(checksums);
-        assertEquals(4, checksums.length);
-        assertEquals(TYPE_WHOLE_MD5, checksums[0].getType());
-        assertEquals(bytesToHexString(checksums[0].getValue()), "78e51e8c51e4adc6870cd71389e0f3db");
-        assertEquals(TYPE_WHOLE_SHA1, checksums[1].getType());
+        assertEquals(5, checksums.length);
+        assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
+        assertEquals("1e8f831ef35257ca30d11668520aaafc6da243e853531caabc3b7867986f8886",
+                bytesToHexString(checksums[0].getValue()));
+        assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
+        assertEquals(bytesToHexString(checksums[1].getValue()), "78e51e8c51e4adc6870cd71389e0f3db");
+        assertEquals(TYPE_WHOLE_SHA1, checksums[2].getType());
         assertEquals("f6654505f2274fd9bfc098b660cdfdc2e4da6d53",
-                bytesToHexString(checksums[1].getValue()));
-        assertEquals(TYPE_WHOLE_SHA256, checksums[2].getType());
-        assertEquals("43755d36ec944494f6275ee92662aca95079b3aa6639f2d35208c5af15adff78",
                 bytesToHexString(checksums[2].getValue()));
-        assertEquals(TYPE_WHOLE_SHA512, checksums[3].getType());
+        assertEquals(TYPE_WHOLE_SHA256, checksums[3].getType());
+        assertEquals("43755d36ec944494f6275ee92662aca95079b3aa6639f2d35208c5af15adff78",
+                bytesToHexString(checksums[3].getValue()));
+        assertEquals(TYPE_WHOLE_SHA512, checksums[4].getType());
         assertEquals("030fc815a4957c163af2bc6f30dd5b48ac09c94c25a824a514609e1476f91421"
                         + "e2c8b6baa16ef54014ad6c5b90c37b26b0f5c8aeb01b63a1db2eca133091c8d1",
-                bytesToHexString(checksums[3].getValue()));
+                bytesToHexString(checksums[4].getValue()));
     }
 
     private Checksum[] getChecksums(@NonNull String packageName, boolean includeSplits,
             @Checksum.Type int required, @NonNull List<Certificate> trustedInstallers)
             throws Exception {
-        Checksum[] checksums = Checksums.getChecksums(mContext, packageName, includeSplits,
-                required, trustedInstallers, mExecutor).get();
+        return getChecksums(mContext, mExecutor, packageName, includeSplits, required,
+                trustedInstallers);
+    }
+
+    private static Checksum[] getChecksums(@NonNull Context context, @NonNull Executor executor,
+            @NonNull String packageName,
+            boolean includeSplits,
+            @Checksum.Type int required, @NonNull List<Certificate> trustedInstallers)
+            throws Exception {
+        Checksum[] checksums = Checksums.getChecksums(context, packageName, includeSplits,
+                required, trustedInstallers, executor).get();
 
         Arrays.sort(checksums, (Checksum lhs, Checksum rhs) -> {
             final String lhsSplit = lhs.getSplitName();
