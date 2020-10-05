@@ -178,7 +178,18 @@ internal class PausingDispatcher : CoroutineDispatcher() {
     @JvmField
     internal val dispatchQueue = DispatchQueue()
 
+    override fun isDispatchNeeded(context: CoroutineContext): Boolean {
+        if (Dispatchers.Main.immediate.isDispatchNeeded(context)) {
+            return true
+        }
+        // It's safe to call dispatchQueue.canRun() here because
+        // Dispatchers.Main.immediate.isDispatchNeeded returns true if we're not on the main thread
+        // If the queue is paused right now we need to dispatch so that the block is added to the
+        // the queue
+        return !dispatchQueue.canRun()
+    }
+
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        dispatchQueue.runOrEnqueue(block)
+        dispatchQueue.dispatchAndEnqueue(context, block)
     }
 }
