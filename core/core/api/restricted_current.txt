@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package android.support.v4.os {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ResultReceiver implements android.os.Parcelable {

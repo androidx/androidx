@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.ui.tooling {
 
   public final class CallGroup extends androidx.ui.tooling.Group {

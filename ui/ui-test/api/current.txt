@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.ui.test {
 
   public final class ActionsKt {
@@ -18,10 +18,10 @@ package androidx.ui.test {
 
   public final class AndroidBitmapHelpersKt {
     method public static android.graphics.Bitmap assertContainsColor-VZNGtkI(android.graphics.Bitmap, long expectedColor);
-    method public static void assertPixelColor-eWrXCG0(android.graphics.Bitmap, long expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,java.lang.String> error = { color -> return "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
-    method public static void assertPixels-mvPU1zk(android.graphics.Bitmap, androidx.compose.ui.unit.IntSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset,androidx.compose.ui.graphics.Color> expectedColorProvider);
-    method public static void assertShape-LBqplUo(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Shape shape, long shapeColor, long backgroundColor, androidx.compose.ui.graphics.Shape backgroundShape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float sizeX = width.toFloat(), float sizeY = height.toFloat(), float shapeSizeX = sizeX, float shapeSizeY = sizeY, float centerX = width / 2.0, float centerY = height / 2.0, float shapeOverlapPixelCount = 1.0f);
-    method public static void assertShape-WOPiG5A(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
+    method public static void assertPixelColor-eWrXCG0(android.graphics.Bitmap, long expected, int x, int y, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Color,java.lang.String> error);
+    method public static void assertPixels-mvPU1zk(android.graphics.Bitmap, optional androidx.compose.ui.unit.IntSize? expectedSize, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.IntOffset,androidx.compose.ui.graphics.Color> expectedColorProvider);
+    method public static void assertShape-LBqplUo(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Shape shape, long shapeColor, long backgroundColor, optional androidx.compose.ui.graphics.Shape backgroundShape, optional float sizeX, optional float sizeY, optional float shapeSizeX, optional float shapeSizeY, optional float centerX, optional float centerY, optional float shapeOverlapPixelCount);
+    method public static void assertShape-WOPiG5A(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, optional androidx.compose.ui.graphics.Shape shape, optional float shapeOverlapPixelCount);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
     method public static boolean contains-ej0GBII(androidx.compose.ui.graphics.Path, long offset);
@@ -51,8 +51,8 @@ package androidx.ui.test {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, optional boolean disableTransitions, optional boolean disableBlinkingCursor);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(optional boolean disableTransitions, optional boolean disableBlinkingCursor);
     method public static androidx.ui.test.ComposeTestRuleJUnit createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
   }
 
@@ -83,7 +83,7 @@ package androidx.ui.test {
   }
 
   public final class AssertionsKt {
-    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher, kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError = null);
+    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher, optional kotlin.jvm.functions.Function0<java.lang.String>? messagePrefixOnError);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAll(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAny(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertCountEquals(androidx.ui.test.SemanticsNodeInteractionCollection, int expectedSize);
@@ -111,8 +111,8 @@ package androidx.ui.test {
   public final class BoundsAssertionsKt {
     method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsAtLeast-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedMinHeight);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHeightIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedHeight);
-    method public static void assertIsEqualTo-nR2IGDg(float, float expected, String subject = "", float tolerance = androidx.compose.ui.unit.Dp(0.5));
-    method public static void assertIsNotEqualTo-nR2IGDg(float, float unexpected, String subject = "", float tolerance = androidx.compose.ui.unit.Dp(0.5));
+    method public static void assertIsEqualTo-nR2IGDg(float, float expected, optional String subject, optional float tolerance);
+    method public static void assertIsNotEqualTo-nR2IGDg(float, float unexpected, optional String subject, optional float tolerance);
     method public static androidx.ui.test.SemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
     method public static androidx.ui.test.SemanticsNodeInteraction assertPositionInRootIsEqualTo-cUvJKr8(androidx.ui.test.SemanticsNodeInteraction, float expectedLeft, float expectedTop);
     method public static androidx.ui.test.SemanticsNodeInteraction assertTopPositionInRootIsEqualTo-7iZCdLk(androidx.ui.test.SemanticsNodeInteraction, float expectedTop);
@@ -126,8 +126,8 @@ package androidx.ui.test {
     method @androidx.ui.test.ExperimentalTesting public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public androidx.compose.ui.unit.Density getDensity();
     method public long getDisplaySize-YbymL2g();
-    method public default androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
-    method public default androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
+    method public default androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
+    method public default androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
     method public <T> T! runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
     method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void waitForIdle();
@@ -142,7 +142,7 @@ package androidx.ui.test {
   }
 
   public final class CoroutineBuildersKt {
-    method @androidx.ui.test.ExperimentalTesting public static <R> void runBlockingWithManualClock(boolean compatibleWithManualAnimationClock = false, kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.animation.core.ManualFrameClock,? super kotlin.coroutines.Continuation<? super R>,?> block);
+    method @androidx.ui.test.ExperimentalTesting public static <R> void runBlockingWithManualClock(optional boolean compatibleWithManualAnimationClock, kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.animation.core.ManualFrameClock,? super kotlin.coroutines.Continuation<? super R>,?> block);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -164,15 +164,15 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasClickAction();
     method public static androidx.ui.test.SemanticsMatcher hasImeAction(androidx.compose.ui.text.input.ImeAction actionType);
     method public static androidx.ui.test.SemanticsMatcher hasInputMethodsSupport();
-    method public static androidx.ui.test.SemanticsMatcher hasLabel(String label, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsMatcher hasLabel(String label, optional boolean ignoreCase);
     method public static androidx.ui.test.SemanticsMatcher hasNoClickAction();
     method public static androidx.ui.test.SemanticsMatcher hasNoScrollAction();
     method public static androidx.ui.test.SemanticsMatcher hasParent(androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsMatcher hasRangeInfo(androidx.compose.ui.semantics.AccessibilityRangeInfo rangeInfo);
     method public static androidx.ui.test.SemanticsMatcher hasScrollAction();
-    method public static androidx.ui.test.SemanticsMatcher hasSubstring(String substring, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsMatcher hasSubstring(String substring, optional boolean ignoreCase);
     method public static androidx.ui.test.SemanticsMatcher hasTestTag(String testTag);
-    method public static androidx.ui.test.SemanticsMatcher hasText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsMatcher hasText(String text, optional boolean ignoreCase);
     method public static androidx.ui.test.SemanticsMatcher hasValue(String value);
     method public static androidx.ui.test.SemanticsMatcher isDialog();
     method public static androidx.ui.test.SemanticsMatcher isEnabled();
@@ -193,24 +193,24 @@ package androidx.ui.test {
   }
 
   public final class FindersKt {
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(androidx.ui.test.ComposeTestRule, String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(androidx.ui.test.ComposeTestRule, String testTag, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(String testTag, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(androidx.ui.test.ComposeTestRule, String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(androidx.ui.test.ComposeTestRule, String testTag, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(String testTag, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
-    method public static androidx.ui.test.SemanticsNodeInteraction onRoot(androidx.ui.test.ComposeTestRule, boolean useUnmergedTree = false);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onRoot(boolean useUnmergedTree = false);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(androidx.ui.test.ComposeTestRule, String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(androidx.ui.test.ComposeTestRule, String testTag, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(String testTag, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(androidx.ui.test.ComposeTestRule, String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(androidx.ui.test.ComposeTestRule, String testTag, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(String testTag, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
+    method public static androidx.ui.test.SemanticsNodeInteraction onRoot(androidx.ui.test.ComposeTestRule, optional boolean useUnmergedTree);
+    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onRoot(optional boolean useUnmergedTree);
   }
 
   public final class GestureScope {
@@ -221,8 +221,8 @@ package androidx.ui.test {
 
   public final class GestureScopeKt {
     method public static void cancel(androidx.ui.test.GestureScope);
-    method public static void click-7zpKyg8(androidx.ui.test.GestureScope, long position = center);
-    method public static void doubleClick-FEK65Ao(androidx.ui.test.GestureScope, long position = center, long delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
+    method public static void click-7zpKyg8(androidx.ui.test.GestureScope, optional long position);
+    method public static void doubleClick-FEK65Ao(androidx.ui.test.GestureScope, optional long position, optional long delay);
     method public static void down-7zpKyg8(androidx.ui.test.GestureScope, long position);
     method public static void down-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
     method public static inline float getBottom(androidx.ui.test.GestureScope);
@@ -243,7 +243,7 @@ package androidx.ui.test {
     method public static long getTopRight(androidx.ui.test.GestureScope);
     method public static inline int getWidth(androidx.ui.test.GestureScope);
     method public static long localToGlobal-7zpKyg8(androidx.ui.test.GestureScope, long position);
-    method public static void longClick-FEK65Ao(androidx.ui.test.GestureScope, long position = center, long duration = androidx.compose.ui.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
+    method public static void longClick-FEK65Ao(androidx.ui.test.GestureScope, optional long position, optional long duration);
     method public static void move(androidx.ui.test.GestureScope);
     method public static void moveBy-7zpKyg8(androidx.ui.test.GestureScope, long delta);
     method public static void moveBy-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long delta);
@@ -251,15 +251,15 @@ package androidx.ui.test {
     method public static void movePointerTo-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
     method public static void moveTo-7zpKyg8(androidx.ui.test.GestureScope, long position);
     method public static void moveTo-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
-    method public static long percentOffset(androidx.ui.test.GestureScope, @FloatRange(from=-1.0, to=1.0) float x = 0f, @FloatRange(from=-1.0, to=1.0) float y = 0f);
-    method public static void pinch-LifKLvY(androidx.ui.test.GestureScope, long start0, long end0, long start1, long end1, long duration = 400.milliseconds);
-    method public static void swipe-lXQwTZI(androidx.ui.test.GestureScope, long start, long end, long duration = 200.milliseconds);
+    method public static long percentOffset(androidx.ui.test.GestureScope, optional @FloatRange(from=-1.0, to=1.0) float x, optional @FloatRange(from=-1.0, to=1.0) float y);
+    method public static void pinch-LifKLvY(androidx.ui.test.GestureScope, long start0, long end0, long start1, long end1, optional long duration);
+    method public static void swipe-lXQwTZI(androidx.ui.test.GestureScope, long start, long end, optional long duration);
     method public static void swipeDown(androidx.ui.test.GestureScope);
     method public static void swipeLeft(androidx.ui.test.GestureScope);
     method public static void swipeRight(androidx.ui.test.GestureScope);
     method public static void swipeUp(androidx.ui.test.GestureScope);
-    method public static void swipeWithVelocity-HxPTMKA(androidx.ui.test.GestureScope, long start, long end, @FloatRange(from=0.0, to=3.4E38) float endVelocity, long duration = 200.milliseconds);
-    method public static void up(androidx.ui.test.GestureScope, int pointerId = 0);
+    method public static void swipeWithVelocity-HxPTMKA(androidx.ui.test.GestureScope, long start, long end, @FloatRange(from=0.0, to=3.4E38) float endVelocity, optional long duration);
+    method public static void up(androidx.ui.test.GestureScope, optional int pointerId);
   }
 
   public final class KeyInputHelpersKt {
@@ -267,10 +267,10 @@ package androidx.ui.test {
   }
 
   public final class OutputKt {
-    method public static void printToLog(androidx.ui.test.SemanticsNodeInteraction, String tag, @IntRange(from=0) int maxDepth = 2147483647);
-    method public static void printToLog(androidx.ui.test.SemanticsNodeInteractionCollection, String tag, @IntRange(from=0) int maxDepth = 0);
-    method public static String printToString(androidx.ui.test.SemanticsNodeInteraction, @IntRange(from=0) int maxDepth = 2147483647);
-    method public static String printToString(androidx.ui.test.SemanticsNodeInteractionCollection, @IntRange(from=0) int maxDepth = 0);
+    method public static void printToLog(androidx.ui.test.SemanticsNodeInteraction, String tag, optional @IntRange(from=0) int maxDepth);
+    method public static void printToLog(androidx.ui.test.SemanticsNodeInteractionCollection, String tag, optional @IntRange(from=0) int maxDepth);
+    method public static String printToString(androidx.ui.test.SemanticsNodeInteraction, optional @IntRange(from=0) int maxDepth);
+    method public static String printToString(androidx.ui.test.SemanticsNodeInteractionCollection, optional @IntRange(from=0) int maxDepth);
   }
 
   public final class SelectionResult {
@@ -315,13 +315,13 @@ package androidx.ui.test {
 
   public final class SemanticsNodeInteraction {
     method public void assertDoesNotExist();
-    method public androidx.ui.test.SemanticsNodeInteraction assertExists(String? errorMessageOnFail = null);
-    method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(String? errorMessageOnFail = null);
+    method public androidx.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
+    method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
   }
 
   public final class SemanticsNodeInteractionCollection {
     ctor public SemanticsNodeInteractionCollection(internal boolean useUnmergedTree, internal androidx.ui.test.SemanticsSelector selector);
-    method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> fetchSemanticsNodes(String? errorMessageOnFail = null);
+    method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> fetchSemanticsNodes(optional String? errorMessageOnFail);
     method public operator androidx.ui.test.SemanticsNodeInteraction get(int index);
   }
 
@@ -367,10 +367,10 @@ package androidx.ui.test {
   }
 
   public final class TextActionsKt {
-    method public static void performImeAction(androidx.ui.test.SemanticsNodeInteraction, boolean alreadyHasFocus = false);
-    method public static void performTextClearance(androidx.ui.test.SemanticsNodeInteraction, boolean alreadyHasFocus = false);
-    method public static void performTextInput(androidx.ui.test.SemanticsNodeInteraction, String text, boolean alreadyHasFocus = false);
-    method public static void performTextReplacement(androidx.ui.test.SemanticsNodeInteraction, String text, boolean alreadyHasFocus = false);
+    method public static void performImeAction(androidx.ui.test.SemanticsNodeInteraction, optional boolean alreadyHasFocus);
+    method public static void performTextClearance(androidx.ui.test.SemanticsNodeInteraction, optional boolean alreadyHasFocus);
+    method public static void performTextInput(androidx.ui.test.SemanticsNodeInteraction, String text, optional boolean alreadyHasFocus);
+    method public static void performTextReplacement(androidx.ui.test.SemanticsNodeInteraction, String text, optional boolean alreadyHasFocus);
   }
 
   public final class UtilsKt {
@@ -381,8 +381,8 @@ package androidx.ui.test {
 package androidx.ui.test.android {
 
   public final class AndroidComposeTestRuleKt {
-    method @Deprecated public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method @Deprecated public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, optional boolean disableTransitions, optional boolean disableBlinkingCursor);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(optional boolean disableTransitions, optional boolean disableBlinkingCursor);
   }
 
   public final class ComposeIdlingResourceKt {

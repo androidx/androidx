@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.hilt.lifecycle {
 
   public final class HiltViewModelFactory extends androidx.lifecycle.AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {

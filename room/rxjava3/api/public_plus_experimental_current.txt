@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.room.rxjava3 {
 
   public final class EmptyResultSetException extends java.lang.RuntimeException {

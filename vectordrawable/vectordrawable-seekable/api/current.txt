@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.vectordrawable.graphics.drawable {
 
   public class SeekableAnimatedVectorDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {

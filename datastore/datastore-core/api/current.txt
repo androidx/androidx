@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.datastore {
 
   public final class CorruptionException extends java.io.IOException {
@@ -22,15 +22,15 @@ package androidx.datastore {
   }
 
   public final class DataStoreFactory {
-    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<T>> migrations = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
-    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<T>> migrations = listOf());
-    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null);
+    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.DataMigration<T>> migrations);
+    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
     method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer);
     field public static final androidx.datastore.DataStoreFactory INSTANCE;
   }
 
   public final class DataStoreFactoryKt {
-    method public static <T> androidx.datastore.DataStore<T> createDataStore(android.content.Context, String fileName, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<T>> migrations = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
+    method public static <T> androidx.datastore.DataStore<T> createDataStore(android.content.Context, String fileName, androidx.datastore.Serializer<T> serializer, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
   }
 
   public interface Serializer<T> {
@@ -72,8 +72,8 @@ package androidx.datastore.migrations {
     method public float getFloat(String key, float defValue);
     method public int getInt(String key, int defValue);
     method public long getLong(String key, long defValue);
-    method public String? getString(String key, String? defValue = null);
-    method public java.util.Set<java.lang.String>? getStringSet(String key, java.util.Set<java.lang.String>? defValues = null);
+    method public String? getString(String key, optional String? defValue);
+    method public java.util.Set<java.lang.String>? getStringSet(String key, optional java.util.Set<java.lang.String>? defValues);
   }
 
 }

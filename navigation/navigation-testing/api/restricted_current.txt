@@ -1,10 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation.testing {
 
   public final class TestNavHostController extends androidx.navigation.NavHostController {
     ctor public TestNavHostController(android.content.Context context);
     method public java.util.List<androidx.navigation.NavBackStackEntry> getBackStack();
-    method public void setCurrentDestination(@IdRes int destId, android.os.Bundle args = Bundle());
+    method public void setCurrentDestination(@IdRes int destId, optional android.os.Bundle args);
     method public void setCurrentDestination(@IdRes int destId);
     property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
   }

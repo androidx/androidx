@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.media2.common {
 
   public class CallbackMediaItem extends androidx.media2.common.MediaItem {
