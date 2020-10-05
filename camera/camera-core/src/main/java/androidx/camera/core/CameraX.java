@@ -36,7 +36,9 @@ import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
+import androidx.camera.core.impl.CameraValidator;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.quirk.IncompleteCameraListQuirk;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
@@ -579,10 +581,17 @@ public final class CameraX {
 
                 mCameraRepository.init(mCameraFactory);
 
+                // Only verify the devices might have the b/167201193
+                if (IncompleteCameraListQuirk.isCurrentDeviceAffected()) {
+                    // Please ensure only validate the camera at the last of the initialization.
+                    CameraValidator.validateCameras(mAppContext, mCameraRepository);
+                }
+
                 // Set completer to null if the init was successful.
                 setStateToInitialized();
                 completer.set(null);
-            } catch (InitializationException | RuntimeException e) {
+            } catch (CameraValidator.CameraIdListIncorrectException | InitializationException
+                    | RuntimeException e) {
                 if (SystemClock.elapsedRealtime() - startMs
                         < WAIT_INITIALIZED_TIMEOUT_MILLIS - RETRY_SLEEP_MILLIS) {
                     Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
@@ -594,7 +603,14 @@ public final class CameraX {
                 } else {
                     // Set the state to initialized so it can be shut down properly.
                     setStateToInitialized();
-                    if (e instanceof InitializationException) {
+                    if (e instanceof CameraValidator.CameraIdListIncorrectException) {
+                        // Ignore the camera validation failure if it reaches the maximum retry
+                        // time. Set complete.
+                        Logger.e(TAG, "The device might underreport the amount of the cameras. "
+                                + "Finish the initialize task since we are already reaching the "
+                                + "maximum number of retries.");
+                        completer.set(null);
+                    } else if (e instanceof InitializationException) {
                         completer.setException(e);
                     } else {
                         // For any unexpected RuntimeException, catch it instead of crashing.
