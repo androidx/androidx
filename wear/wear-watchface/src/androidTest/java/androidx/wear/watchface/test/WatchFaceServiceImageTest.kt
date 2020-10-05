@@ -30,9 +30,9 @@ import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
@@ -148,15 +148,15 @@ class WatchFaceServiceImageTest {
 
     private val complicationProviders = mapOf(
         SystemProviders.DAY_OF_WEEK to
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(ComplicationText.plainText("23rd"))
-                    .setShortText(ComplicationText.plainText("Mon"))
-                    .build(),
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortTitle(ComplicationText.plainText("23rd"))
+                .setShortText(ComplicationText.plainText("Mon"))
+                .build(),
         SystemProviders.STEP_COUNT to
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(ComplicationText.plainText("Steps"))
-                    .setShortText(ComplicationText.plainText("100"))
-                    .build()
+            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                .setShortTitle(ComplicationText.plainText("Steps"))
+                .setShortText(ComplicationText.plainText("100"))
+                .build()
     )
 
     @get:Rule
@@ -193,6 +193,7 @@ class WatchFaceServiceImageTest {
             renderDoneLatch.countDown()
         }
 
+        sendImmutableProperties(false, false)
         setBinder()
     }
 
@@ -211,6 +212,7 @@ class WatchFaceServiceImageTest {
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, BITMAP_WIDTH, BITMAP_HEIGHT)
 
         Mockito.`when`(surfaceHolder.surface).thenReturn(Surface(surfaceTexture))
+        sendImmutableProperties(false, false)
         setBinder()
     }
 
@@ -229,6 +231,29 @@ class WatchFaceServiceImageTest {
                 putBinder(
                     Constants.EXTRA_BINDER,
                     watchFaceServiceStub.asBinder()
+                )
+            },
+            false
+        )
+    }
+
+    private fun sendImmutableProperties(
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean
+    ) {
+        engineWrapper.onCommand(
+            Constants.COMMAND_SET_PROPERTIES,
+            0,
+            0,
+            0,
+            Bundle().apply {
+                putBoolean(
+                    Constants.PROPERTY_LOW_BIT_AMBIENT,
+                    hasLowBitAmbient
+                )
+                putBoolean(
+                    Constants.PROPERTY_BURN_IN_PROTECTION,
+                    hasBurnInProtection
                 )
             },
             false
@@ -416,11 +441,14 @@ class WatchFaceServiceImageTest {
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
-                RenderParameters(DrawMode.INTERACTIVE, mapOf(
-                    Layer.BASE_LAYER to LayerMode.DRAW,
-                    Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
-                    Layer.TOP_LAYER to LayerMode.DRAW
-                )).toWireFormat(),
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    mapOf(
+                        Layer.BASE_LAYER to LayerMode.DRAW,
+                        Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                        Layer.TOP_LAYER to LayerMode.DRAW
+                    )
+                ).toWireFormat(),
                 100,
                 123456789,
                 null
