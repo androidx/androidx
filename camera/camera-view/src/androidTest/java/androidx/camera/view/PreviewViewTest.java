@@ -496,10 +496,12 @@ public class PreviewViewTest {
         // Surface resolution is 640x480 , set a different size for PreviewView.
         changeViewSize(mPreviewView, 800, 700);
 
-        mPreviewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+        mInstrumentation.runOnMainSync(
+                () -> mPreviewView.setScaleType(PreviewView.ScaleType.FILL_CENTER));
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
-        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START);
+        mInstrumentation.runOnMainSync(
+                () -> mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START));
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
