@@ -28,6 +28,9 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -592,6 +595,12 @@ class ParameterFactoryTest {
         assertThat(lookup(TextUnit.Em(2.0f))).isEqualTo(ParameterType.DimensionEm to 2.0f)
         assertThat(lookup(TextUnit.Em(1))).isEqualTo(ParameterType.DimensionEm to 1.0f)
         assertThat(lookup(TextUnit.Em(3.0))).isEqualTo(ParameterType.DimensionEm to 3.0f)
+    }
+
+    @Test
+    fun testVectorAssert() {
+        assertThat(lookup(Icons.Filled.Call)).isEqualTo(ParameterType.String to "Filled.Call")
+        assertThat(lookup(Icons.Rounded.Add)).isEqualTo(ParameterType.String to "Rounded.Add")
     }
 
     private fun lookup(value: Any): Pair<ParameterType, Any?>? {

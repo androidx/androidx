@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.VectorAsset
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
@@ -264,6 +265,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     is SolidColor -> NodeParameter(name, ParameterType.Color, value.value.toArgb())
                     is String -> NodeParameter(name, ParameterType.String, value)
                     is TextUnit -> createFromTextUnit(name, value)
+                    is VectorAsset -> createFromVectorAssert(name, value)
                     else -> createFromKotlinReflection(name, value)
                 }
             } finally {
@@ -402,6 +404,9 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 TextUnitType.Em -> NodeParameter(name, ParameterType.DimensionEm, value.value)
                 TextUnitType.Inherit -> NodeParameter(name, ParameterType.String, "Inherit")
             }
+
+        private fun createFromVectorAssert(name: String, value: VectorAsset): NodeParameter? =
+            NodeParameter(name, ParameterType.String, value.name)
 
         /**
          * Select a resource font among the font in the family to represent the font
