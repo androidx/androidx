@@ -68,9 +68,11 @@ class RenderParameters(
 ) {
     companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
+        @JvmField
         val DRAW_ALL_LAYERS = Layer.values().associateBy({ it }, { LayerMode.DRAW })
 
         /** Default RenderParameters which draws everything in interactive mode. */
+        @JvmField
         val DEFAULT_INTERACTIVE = RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS)
     }
 
