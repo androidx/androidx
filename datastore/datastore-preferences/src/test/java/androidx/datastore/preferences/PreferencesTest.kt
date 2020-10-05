@@ -315,13 +315,13 @@ class PreferencesTest {
         val intKey2 = preferencesKey<Int>("int_key2")
         val prefs = preferencesOf(intKey1 to 1, intKey2 to 2)
         val toPrefs = prefs.toPreferences()
-        assertEquals( 2, toPrefs.asMap().size)
+        assertEquals(2, toPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
 
         val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
         val mutableToPrefs = mutablePreferences.toPreferences()
-        assertEquals( 2, mutableToPrefs.asMap().size)
+        assertEquals(2, mutableToPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
     }
@@ -332,13 +332,13 @@ class PreferencesTest {
         val intKey2 = preferencesKey<Int>("int_key2")
         val prefs = preferencesOf(intKey1 to 1, intKey2 to 2)
         val toPrefs = prefs.toMutablePreferences()
-        assertEquals( 2, toPrefs.asMap().size)
+        assertEquals(2, toPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
 
         val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
         val mutableToPrefs = mutablePreferences.toMutablePreferences()
-        assertEquals( 2, mutableToPrefs.asMap().size)
+        assertEquals(2, mutableToPrefs.asMap().size)
         assertEquals(1, prefs[intKey1])
         assertEquals(2, prefs[intKey2])
     }
@@ -356,5 +356,38 @@ class PreferencesTest {
         val mutableToPrefs = mutablePreferences.toMutablePreferences()
         mutableToPrefs[intKey1] = 12903819
         assertEquals(1, prefs[intKey1])
+    }
+
+    @Test
+    fun testToString() {
+        val intKey = preferencesKey<Int>("int_key")
+        val booleanKey = preferencesKey<Boolean>("boolean_key")
+        val floatKey = preferencesKey<Float>("float_key")
+        val stringKey = preferencesKey<String>("string_key")
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
+        val longKey = preferencesKey<Long>("long_key")
+
+        val prefs = preferencesOf(
+            intKey to 123,
+            booleanKey to false,
+            floatKey to 3.14f,
+            stringKey to "abc",
+            stringSetKey to setOf("1", "2", "3"),
+            longKey to 10000000000L
+        )
+
+        assertEquals(
+            """
+            {
+              int_key = 123,
+              boolean_key = false,
+              float_key = 3.14,
+              string_key = abc,
+              string_set_key = [1, 2, 3],
+              long_key = 10000000000
+            }
+            """.trimIndent(),
+            prefs.toString()
+        )
     }
 }
