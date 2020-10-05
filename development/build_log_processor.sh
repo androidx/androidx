@@ -38,7 +38,8 @@ if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
   summarizeOnFailure=true
 fi
 validateNoUnrecognizedMessagesOnSuccess=false
-if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
+validateArgument="-Pandroidx.validateNoUnrecognizedMessages"
+if [[ " ${@} " =~ " $validateArgument " ]]; then
   validateNoUnrecognizedMessagesOnSuccess=true
 fi
 
@@ -66,7 +67,13 @@ programName="$1"
 shift
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
   if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
-    $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2
+    if $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2; then
+      echo No unrecognized messages found in build log >&2
+    else
+      echo >&2
+      echo "Build log validation, enabled by the argument $validateArgument, failed" >&2
+      exit 1
+    fi
   fi
 else
   echo >&2

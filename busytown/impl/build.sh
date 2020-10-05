@@ -21,8 +21,8 @@ function run() {
   if eval "$*"; then
     return 0
   else
-    echo
-    echo "Failed: $*"
+    echo >&2
+    echo "Failed: $*" >&2
     return 1
   fi
 }
