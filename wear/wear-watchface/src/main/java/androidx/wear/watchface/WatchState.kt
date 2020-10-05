@@ -106,11 +106,11 @@ class WatchState(
     /** The total number of unread notification cards in the stream. */
     val unreadNotificationCount: WatchData<Int>,
 
-    /** Whether or not the watch has low bit ambient support. */
-    val hasLowBitAmbient: WatchData<Boolean>,
+    /** Whether or not the watch hardware supports low bit ambient support. */
+    val hasLowBitAmbient: Boolean,
 
-    /** Whether or not the watch has burn in protection support. */
-    val hasBurnInProtection: WatchData<Boolean>
+    /** Whether or not the watch hardware supports burn in protection. */
+    val hasBurnInProtection: Boolean
 )
 
 /** @hide */
@@ -128,8 +128,8 @@ class MutableWatchState {
     val isVisible = MutableWatchData<Boolean>()
     val notificationCount = MutableWatchData<Int>()
     val unreadNotificationCount = MutableWatchData<Int>()
-    val hasLowBitAmbient = MutableWatchData<Boolean>()
-    val hasBurnInProtection = MutableWatchData<Boolean>()
+    var hasLowBitAmbient = false
+    var hasBurnInProtection = false
 
     fun asWatchState() = WatchState(
         interruptionFilter = interruptionFilter,

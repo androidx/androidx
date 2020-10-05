@@ -299,6 +299,8 @@ abstract class WatchFaceService : WallpaperService() {
         internal var lastActiveComplications: IntArray? = null
         internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
 
+        private var watchFaceInitStarted = false
+
         private val watchFaceCommand = object : IWatchFaceCommand.Stub() {
             override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
 
@@ -399,9 +401,8 @@ abstract class WatchFaceService : WallpaperService() {
                 uiThreadHandler.runOnHandler {
                     // These properties never change so set them once only.
                     if (!immutableSystemStateDone) {
-                        mutableWatchState.hasLowBitAmbient.value =
-                            immutableSystemState.hasLowBitAmbient
-                        mutableWatchState.hasBurnInProtection.value =
+                        mutableWatchState.hasLowBitAmbient = immutableSystemState.hasLowBitAmbient
+                        mutableWatchState.hasBurnInProtection =
                             immutableSystemState.hasBurnInProtection
 
                         immutableSystemStateDone = true
@@ -709,8 +710,15 @@ abstract class WatchFaceService : WallpaperService() {
             // To simplify handling of watch face state, we only construct the [WatchFace]
             // once both currentSurfaceHolder and iWatchFaceService have been initialized.
             if (this::currentSurfaceHolder.isInitialized &&
-                this::iWatchFaceService.isInitialized && !watchFaceCreated()
+                this::iWatchFaceService.isInitialized && pendingProperties != null &&
+                !watchFaceCreated()
             ) {
+                watchFaceInitStarted = true
+
+                // Apply immutable properties to mutableWatchState before creating the watch face.
+                onPropertiesChanged(pendingProperties!!)
+                pendingProperties = null
+
                 val host = WatchFaceHost()
                 host.api = this
                 watchFace = createWatchFace(
@@ -740,11 +748,6 @@ abstract class WatchFaceService : WallpaperService() {
                 if (visibility != null) {
                     onVisibilityChanged(visibility)
                     pendingVisibilityChanged = null
-                }
-                val properties = pendingProperties
-                if (properties != null) {
-                    onPropertiesChanged(properties)
-                    pendingProperties = null
                 }
                 for (complicationDataUpdate in pendingComplicationDataUpdates) {
                     watchFaceCommand.setComplicationData(
@@ -867,8 +870,9 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         internal fun onPropertiesChanged(properties: Bundle) {
-            if (!watchFaceCreated()) {
+            if (!watchFaceInitStarted) {
                 pendingProperties = properties
+                maybeCreateWatchFace()
                 return
             }
 

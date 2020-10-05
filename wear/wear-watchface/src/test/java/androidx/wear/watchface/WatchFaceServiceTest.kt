@@ -46,6 +46,8 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -219,7 +221,9 @@ class WatchFaceServiceTest {
         @WatchFaceType watchFaceType: Int,
         complications: List<Complication>,
         userStyleCategories: List<UserStyleCategory>,
-        apiVersion: Int = 2
+        apiVersion: Int = 2,
+        hasLowBitAmbient: Boolean = false,
+        hasBurnInProtection: Boolean = false
     ) {
         this.complicationsManager = ComplicationsManager(complications)
         userStyleRepository =
@@ -236,9 +240,13 @@ class WatchFaceServiceTest {
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
-        // Trigger watch face creation.
+
+        // Trigger watch face creation by sending the SurfceHolder, setting the binder and the
+        // immutable properties.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion)
+        sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
+
         watchFace = testWatchFaceService.watchFace
     }
 
@@ -257,6 +265,17 @@ class WatchFaceServiceTest {
             },
             false
         )
+    }
+
+    private fun sendImmutableProperties(
+        engine: WatchFaceService.EngineWrapper,
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean
+    ) {
+        engine.onPropertiesChanged(Bundle().apply {
+            putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
+            putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
+        })
     }
 
     private fun sendRequestStyle() {
@@ -744,10 +763,12 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(hashMapOf(
-            colorStyleCategory to blueStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        userStyleRepository.userStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to blueStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -769,12 +790,13 @@ class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
+        sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
-            blueStyleOption
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
+            blueStyleOption.id
         )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
-            gothicStyleOption
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
+            gothicStyleOption.id
         )
     }
 
@@ -800,10 +822,12 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(hashMapOf(
-            colorStyleCategory to blueStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        userStyleRepository.userStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to blueStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -825,12 +849,13 @@ class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 3)
+        sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
-            blueStyleOption
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
+            blueStyleOption.id
         )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
-            gothicStyleOption
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
+            gothicStyleOption.id
         )
     }
 
@@ -910,22 +935,19 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun onPropertiesChanged_issuesCorrectApiCalls() {
-        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList())
-        val bundle = Bundle().apply {
-            putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, true)
-            putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, false)
-        }
+    fun immutablePropertiesSetCorrectly() {
+        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, true, false)
 
-        val hasLowBitAmbientObserver = mock<Observer<Boolean>>()
-        val hasBurnInProtectionObserver = mock<Observer<Boolean>>()
-        watchState.hasLowBitAmbient.addObserver(hasLowBitAmbientObserver)
-        watchState.hasBurnInProtection.addObserver(hasBurnInProtectionObserver)
+        assertTrue(watchState.hasLowBitAmbient)
+        assertFalse(watchState.hasBurnInProtection)
+    }
 
-        // Check all the right methods are called on initial onPropertiesChanged call.
-        engineWrapper.onPropertiesChanged(bundle)
-        verify(hasLowBitAmbientObserver).onChanged(true)
-        verify(hasBurnInProtectionObserver).onChanged(false)
+    @Test
+    fun immutablePropertiesSetCorrectly2() {
+        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, false, true)
+
+        assertFalse(watchState.hasLowBitAmbient)
+        assertTrue(watchState.hasBurnInProtection)
     }
 
     @Test
@@ -1032,15 +1054,19 @@ class WatchFaceServiceTest {
 
         assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
-            Rect(30, 30, 50, 50))
+            Rect(30, 30, 50, 50)
+        )
 
         assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
-            Rect(70, 75, 90, 95))
+            Rect(70, 75, 90, 95)
+        )
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
@@ -1110,6 +1136,7 @@ class WatchFaceServiceTest {
         // Trigger watch face creation.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
+        sendImmutableProperties(engineWrapper, false, false)
         watchFace = service.watchFace
 
         val argument = ArgumentCaptor.forClass(WatchFaceStyle::class.java)
@@ -1200,9 +1227,11 @@ class WatchFaceServiceTest {
 
         assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
-            Rect(20, 40, 40, 60))
+            Rect(20, 40, 40, 60)
+        )
         assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -1210,13 +1239,16 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_SHORT_TEXT,
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
-            ))
+            )
+        )
 
         assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
-            Rect(60, 40, 80, 60))
+            Rect(60, 40, 80, 60)
+        )
         assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -1224,15 +1256,19 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_SHORT_TEXT,
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
-            ))
+            )
+        )
 
         assertThat(complicationId.allValues[2]).isEqualTo(BACKGROUND_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[2].boundsType).isEqualTo(
-            ComplicationBoundsType.BACKGROUND)
+            ComplicationBoundsType.BACKGROUND
+        )
         assertThat(complicationDetails.allValues[2].bounds).isEqualTo(
-            Rect(0, 0, 100, 100))
+            Rect(0, 0, 100, 100)
+        )
         assertThat(complicationDetails.allValues[2].supportedTypes).isEqualTo(
-            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE))
+            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
+        )
     }
 
     @Test
@@ -1260,6 +1296,7 @@ class WatchFaceServiceTest {
         // Trigger watch face creation.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
+        sendImmutableProperties(engineWrapper, false, false)
         watchFace = service.watchFace
 
         // Enter ambient mode.
