@@ -44,6 +44,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
@@ -366,17 +367,20 @@ public class PreviewView extends FrameLayout {
      * Gets the {@link MeteringPointFactory} for the camera currently connected to the
      * {@link PreviewView}, if any.
      *
-     * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
+     * <p> The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
      * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
-     * {@link ScaleType}.
+     * {@link ScaleType}. The {@link MeteringPointFactory} is automatically adjusted if the
+     * {@link PreviewView} layout or the {@link ScaleType} changes.
      *
-     * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
-     * {@link Surface} is not yet requested by the camera, the returned factory will always create
-     * invalid {@link MeteringPoint}s which could lead to the failure of
-     * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)}, but it
-     * won't cause the application to crash.
+     * <p> The {@link MeteringPointFactory} returns invalid {@link MeteringPoint} if the
+     * preview is not ready, or the {@link PreviewView} dimension is zero. The invalid
+     * {@link MeteringPoint} will cause
+     * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail but it won't
+     * crash the application. Wait for the {@link StreamState#STREAMING} state to make sure the
+     * preview is ready.
      *
      * @return a {@link MeteringPointFactory}
+     * @see #getPreviewStreamState()
      */
     @UiThread
     @NonNull
