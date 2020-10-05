@@ -29,6 +29,7 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.view.PreviewView.ImplementationMode;
@@ -42,6 +43,7 @@ import androidx.test.rule.ActivityTestRule;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -64,6 +66,11 @@ public class PreviewViewBitmapTest {
 
     private static final int CAMERA_LENS = CameraSelector.LENS_FACING_BACK;
     private ProcessCameraProvider mCameraProvider;
+
+    @BeforeClass
+    public static void classSetUp() {
+        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+    }
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
