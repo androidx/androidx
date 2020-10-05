@@ -32,6 +32,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
+import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +75,12 @@ class WatchFaceControlServiceTest {
             )
         )
         val watchFaceService = WatchFaceServiceStub(API_VERSION, complicationProviders)
-        instance.initWithoutSurface(watchFaceService, 100, 100)
+        instance.initWithoutSurface(
+            watchFaceService,
+            ImmutableSystemState(false, false),
+            100,
+            100
+        )
 
         val bitmap = watchFaceService.watchFaceCommand!!.takeWatchfaceScreenshot(
             RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),

@@ -119,22 +119,14 @@ open class CanvasComplicationDrawableRenderer(
         set(value) {
             _drawable = value
             _drawable.inAmbientMode = watchState.isAmbient.value
-            _drawable.lowBitAmbient = watchState.hasLowBitAmbient.value
-            _drawable.setBurnInProtection(watchState.hasBurnInProtection.value)
+            _drawable.lowBitAmbient = watchState.hasLowBitAmbient
+            _drawable.setBurnInProtection(watchState.hasBurnInProtection)
 
             attachedComplication?.scheduleUpdateActiveComplications()
         }
 
     private val isAmbientObserver = Observer<Boolean> {
         drawable.inAmbientMode = it
-    }
-
-    private val lowBitAmbientObserver = Observer<Boolean> {
-        drawable.lowBitAmbient = it
-    }
-
-    private val burnInProtectionObserver = Observer<Boolean> {
-        drawable.setBurnInProtection(it)
     }
 
     private var attachedComplication: Complication? = null
@@ -144,15 +136,11 @@ open class CanvasComplicationDrawableRenderer(
     override fun onAttach(complication: Complication) {
         attachedComplication = complication
         watchState.isAmbient.addObserver(isAmbientObserver)
-        watchState.hasLowBitAmbient.addObserver(lowBitAmbientObserver)
-        watchState.hasBurnInProtection.addObserver(burnInProtectionObserver)
     }
 
     /** {@inheritDoc} */
     override fun onDetach() {
         watchState.isAmbient.removeObserver(isAmbientObserver)
-        watchState.hasLowBitAmbient.removeObserver(lowBitAmbientObserver)
-        watchState.hasBurnInProtection.removeObserver(burnInProtectionObserver)
         attachedComplication = null
     }
 

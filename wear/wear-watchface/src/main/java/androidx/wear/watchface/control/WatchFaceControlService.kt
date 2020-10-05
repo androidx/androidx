@@ -32,6 +32,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.runOnHandler
 
 /**
@@ -109,6 +110,7 @@ private class IWatchFaceInstanceStub(
 
     override fun initWithoutSurface(
         iWatchFaceService: IWatchFaceService,
+        immutableSystemState: ImmutableSystemState,
         width: Int,
         height: Int
     ) {
@@ -175,10 +177,12 @@ private class IWatchFaceInstanceStub(
         }
 
         registerIWatchFaceService(iWatchFaceService)
+        sendImmutableProperties(immutableSystemState)
     }
 
     override fun initWithSurface(
         iWatchFaceService: IWatchFaceService,
+        immutableSystemState: ImmutableSystemState,
         surface: Surface,
         format: Int,
         width: Int,
@@ -186,6 +190,7 @@ private class IWatchFaceInstanceStub(
     ) {
         onSurfaceChanged(surface, format, width, height)
         registerIWatchFaceService(iWatchFaceService)
+        sendImmutableProperties(immutableSystemState)
     }
 
     override fun onSurfaceChanged(
@@ -261,6 +266,21 @@ private class IWatchFaceInstanceStub(
                 false
             )
             Unit
+        }
+    }
+
+    private fun sendImmutableProperties(immutableSystemState: ImmutableSystemState) {
+        uiThreadHandler.runOnHandler {
+            engine!!.onPropertiesChanged(Bundle().apply {
+                putBoolean(
+                    Constants.PROPERTY_LOW_BIT_AMBIENT,
+                    immutableSystemState.hasLowBitAmbient
+                )
+                putBoolean(
+                    Constants.PROPERTY_BURN_IN_PROTECTION,
+                    immutableSystemState.hasBurnInProtection
+                )
+            })
         }
     }
 

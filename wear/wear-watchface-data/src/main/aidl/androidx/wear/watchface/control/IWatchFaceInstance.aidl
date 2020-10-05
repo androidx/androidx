@@ -18,6 +18,7 @@ package androidx.wear.watchface.control;
 
 import android.view.Surface;
 import android.support.wearable.watchface.IWatchFaceService;
+import androidx.wear.watchface.data.ImmutableSystemState;
 
 /**
  * Interface for interacting with an instance of a watch face.
@@ -52,6 +53,7 @@ interface IWatchFaceInstance {
      */
     oneway void initWithoutSurface(
         in IWatchFaceService iWatchFaceService,
+        in ImmutableSystemState immutableSystemState,
         in int width,
         in int height) = 2;
 
@@ -65,6 +67,7 @@ interface IWatchFaceInstance {
      */
     oneway void initWithSurface(
         in IWatchFaceService iWatchFaceService,
+        in ImmutableSystemState immutableSystemState,
         in Surface surface,
         in int format,
         in int width,
