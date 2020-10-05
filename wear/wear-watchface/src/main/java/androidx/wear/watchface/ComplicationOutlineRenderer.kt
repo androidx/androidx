@@ -42,6 +42,7 @@ class ComplicationOutlineRenderer {
         }
 
         /** Draws a thick dotted line around the complication with the given bounds. */
+        @JvmStatic
         fun drawComplicationSelectOutline(canvas: Canvas, bounds: Rect) {
             if (bounds.width() == bounds.height()) {
                 drawCircleDashBorder(canvas, bounds)
@@ -78,7 +79,7 @@ class ComplicationOutlineRenderer {
             }
         }
 
-        private fun drawArcDashBorder(
+        internal fun drawArcDashBorder(
             canvas: Canvas,
             cx: Float,
             cy: Float,
@@ -97,7 +98,7 @@ class ComplicationOutlineRenderer {
             }
         }
 
-        private fun drawCircleDashBorder(canvas: Canvas, bounds: Rect) {
+        internal fun drawCircleDashBorder(canvas: Canvas, bounds: Rect) {
             val radius = bounds.width() / 2.0f
             val dashCount = (2.0 * Math.PI * radius / (DASH_WIDTH + DASH_GAP)).toInt()
             val cx = bounds.exactCenterX()
