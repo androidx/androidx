@@ -258,6 +258,18 @@ class MutablePreferences internal constructor(
     override fun hashCode(): Int {
         return preferencesMap.hashCode()
     }
+
+    /**
+     * For better debugging.
+     */
+    override fun toString(): String =
+        preferencesMap.entries.joinToString(
+            separator = ",\n",
+            prefix = "{\n",
+            postfix = "\n}"
+        ) { entry ->
+            "  ${entry.key.name} = ${entry.value}"
+        }
 }
 
 /**
