@@ -195,9 +195,9 @@ public class PreviewViewTest {
         // Wait for layout ready
         assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-        // Act: pinch-in 50% in 20 steps.
+        // Act: pinch-in 80% in 100 steps.
         UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0))
-                .pinchIn(50, 20);
+                .pinchIn(80, 100);
 
         // Assert: pinch-to-zoom is called.
         assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
