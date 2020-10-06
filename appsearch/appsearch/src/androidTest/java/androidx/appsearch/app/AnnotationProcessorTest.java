@@ -41,12 +41,12 @@ public class AnnotationProcessorTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).getResultValue();
+        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
         mAppSearchManager = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb").setBackend(backend).build());
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().getResultValue();
+        backend.resetAllDatabases().get().getResultValue();
     }
 
     @AppSearchDocument

@@ -24,18 +24,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * This class provides access to the centralized AppSearch index maintained by the system.
  *
  * <p>Apps can index structured text documents with AppSearch, which can then be retrieved through
  * the query API.
- *
- * <p>AppSearch support multi-thread execute for query but we should use single thread for mutate
- * requests(put, delete, etc..) to avoid data manipulation conflict.
  */
 // TODO(b/148046169): This class header needs a detailed example/tutorial.
 public class AppSearchManager {
@@ -44,11 +38,6 @@ public class AppSearchManager {
 
     private final String mDatabaseName;
     private final AppSearchBackend mBackend;
-    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
-    // execute() won't return anything, we will hang forever waiting for the execution.
-    // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
-    // mutate requests will need to gain write lock and query requests need to gain read lock.
-    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
     /** Builder class for {@link AppSearchManager} objects. */
     public static final class Builder {
@@ -99,34 +88,16 @@ public class AppSearchManager {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkState(mBackend != null, "setBackend() has never been called");
             mBuilt = true;
-            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName, mBackend);
-            return appSearchManager.initialize();
+            ResolvableFuture<AppSearchResult<AppSearchManager>> result = ResolvableFuture.create();
+            result.set(AppSearchResult.newSuccessfulResult(
+                    new AppSearchManager(mDatabaseName, mBackend)));
+            return result;
         }
     }
 
     AppSearchManager(@NonNull String databaseName, @NonNull AppSearchBackend backend) {
         mDatabaseName = databaseName;
         mBackend = backend;
-    }
-
-    ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
-        if (mBackend.isInitialized()) {
-            // Already initialized, nothing to do.
-            ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
-                    ResolvableFuture.create();
-            resolvableFuture.set(AppSearchResult.newSuccessfulResult(this));
-            return resolvableFuture;
-        }
-        return execute(() -> {
-            if (!mBackend.isInitialized()) {
-                AppSearchResult<Void> initResult = mBackend.initialize();
-                if (!initResult.isSuccess()) {
-                    return AppSearchResult.newFailedResult(
-                            initResult.getResultCode(), initResult.getErrorMessage());
-                }
-            }
-            return AppSearchResult.newSuccessfulResult(this);
-        });
     }
 
     /**
@@ -180,7 +151,7 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.setSchema(mDatabaseName, request));
+        return mBackend.setSchema(mDatabaseName, request);
     }
 
     /**
@@ -198,10 +169,8 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
             @NonNull PutDocumentsRequest request) {
-        // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
-        // one big list.
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.putDocuments(mDatabaseName, request));
+        return mBackend.putDocuments(mDatabaseName, request);
     }
 
     /**
@@ -217,10 +186,8 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
             @NonNull GetByUriRequest request) {
-        // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
-        //     them in one big list.
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.getByUri(mDatabaseName, request));
+        return mBackend.getByUri(mDatabaseName, request);
     }
 
     /**
@@ -274,7 +241,7 @@ public class AppSearchManager {
         Preconditions.checkNotNull(searchSpec);
         AppSearchBackend.BackendSearchResults backendSearchResults =
                 mBackend.query(mDatabaseName, queryExpression, searchSpec);
-        return new SearchResults(mExecutorService, backendSearchResults);
+        return new SearchResults(backendSearchResults);
     }
 
     /**
@@ -291,7 +258,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
             @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(() -> mBackend.removeByUri(mDatabaseName, request));
+        return mBackend.removeByUri(mDatabaseName, request);
     }
 
     /**
@@ -327,7 +294,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull List<String> schemaTypes) {
         Preconditions.checkNotNull(schemaTypes);
-        return execute(() -> mBackend.removeByType(mDatabaseName, schemaTypes));
+        return mBackend.removeByType(mDatabaseName, schemaTypes);
     }
 
     /**
@@ -363,7 +330,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull List<String> namespaces) {
         Preconditions.checkNotNull(namespaces);
-        return execute(() -> mBackend.removeByNamespace(mDatabaseName, namespaces));
+        return mBackend.removeByNamespace(mDatabaseName, namespaces);
     }
 
     /**
@@ -377,21 +344,6 @@ public class AppSearchManager {
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
-        return execute(() -> mBackend.removeAll(mDatabaseName));
-    }
-
-    /** Executes the callable task and set result to ListenableFuture. */
-    private <T> ListenableFuture<T> execute(Callable<T> callable) {
-        ResolvableFuture<T> future = ResolvableFuture.create();
-        mExecutorService.execute(() -> {
-            if (!future.isCancelled()) {
-                try {
-                    future.set(callable.call());
-                } catch (Throwable t) {
-                    future.setException(t);
-                }
-            }
-        });
-        return future;
+        return mBackend.removeAll(mDatabaseName);
     }
 }
