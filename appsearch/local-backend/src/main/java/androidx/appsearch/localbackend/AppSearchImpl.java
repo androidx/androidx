@@ -191,10 +191,32 @@ public final class AppSearchImpl {
         SetSchemaResultProto setSchemaResultProto;
         mReadWriteLock.writeLock().lock();
         try {
-            setSchemaResultProto = mIcingSearchEngine.setSchema(existingSchemaBuilder.build(),
-                    forceOverride);
-            checkSuccess(setSchemaResultProto.getStatus());
+            // Apply schema
+            setSchemaResultProto =
+                    mIcingSearchEngine.setSchema(existingSchemaBuilder.build(), forceOverride);
+
+            // Determine whether it succeeded.
+            try {
+                checkSuccess(setSchemaResultProto.getStatus());
+            } catch (AppSearchException e) {
+                // Improve the error message by merging in information about incompatible types.
+                if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
+                        || setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0) {
+                    String newMessage = e.getMessage()
+                            + "\n  Deleted types: "
+                            + setSchemaResultProto.getDeletedSchemaTypesList()
+                            + "\n  Incompatible types: "
+                            + setSchemaResultProto.getIncompatibleSchemaTypesList();
+                    throw new AppSearchException(e.getResultCode(), newMessage, e.getCause());
+                } else {
+                    throw e;
+                }
+            }
+
+            // Update derived data structures.
             mSchemaMap.put(databaseName, newTypeNames);
+
+            // Determine whether to schedule an immediate optimize.
             if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
                     || (setSchemaResultProto.getIncompatibleSchemaTypesCount() > 0
                     && forceOverride)) {

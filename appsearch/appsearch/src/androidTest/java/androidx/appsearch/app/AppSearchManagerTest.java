@@ -221,7 +221,9 @@ public class AppSearchManagerTest {
         AppSearchResult<Void> failResult1 =
                 mDb1.setSchema(new SetSchemaRequest.Builder().build()).get();
         assertThat(failResult1.isSuccess()).isFalse();
-        assertThat(failResult1.getErrorMessage()).isEqualTo("Schema is incompatible.");
+        assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
+        assertThat(failResult1.getErrorMessage())
+                .contains("Deleted types: [testDb1/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
@@ -298,7 +300,9 @@ public class AppSearchManagerTest {
         AppSearchResult<Void> failResult1 =
                 mDb1.setSchema(new SetSchemaRequest.Builder().build()).get();
         assertThat(failResult1.isSuccess()).isFalse();
-        assertThat(failResult1.getErrorMessage()).isEqualTo("Schema is incompatible.");
+        assertThat(failResult1.getErrorMessage()).contains("Schema is incompatible");
+        assertThat(failResult1.getErrorMessage())
+                .contains("Deleted types: [testDb1/builtin:Email]");
 
         // Try to remove the email schema again, which should now work as we set forceOverride to
         // be true.
