@@ -30,7 +30,7 @@ import org.robolectric.annotation.Config
 
 @Config(manifest = Config.NONE)
 @RunWith(WatchFaceTestRunner::class)
-class WatchDataTest {
+class ObservableWatchDataTest {
     @Mock
     private lateinit var observer: Observer<Int>
 
@@ -47,34 +47,34 @@ class WatchDataTest {
 
     @Test
     fun initialValue() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         assertThat(data.value).isEqualTo(10)
     }
 
     @Test
     fun mutatedValue() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         data.value = 20
         assertThat(data.value).isEqualTo(20)
     }
 
     @Test
     fun addObserverNoData() {
-        val data = MutableWatchData<Int>()
+        val data = MutableObservableWatchData<Int>()
         data.addObserver(observer)
         verify(observer, never()).onChanged(any())
     }
 
     @Test
     fun addObserver() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         data.addObserver(observer)
         verify(observer).onChanged(10)
     }
 
     @Test
     fun addObserverAndAssign() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         data.addObserver(observer)
         verify(observer).onChanged(10)
 
@@ -84,7 +84,7 @@ class WatchDataTest {
 
     @Test
     fun addObserverNoDataThenAssign() {
-        val data = MutableWatchData<Int>()
+        val data = MutableObservableWatchData<Int>()
         data.addObserver(observer)
 
         data.value = 20
@@ -93,7 +93,7 @@ class WatchDataTest {
 
     @Test
     fun addAndRemoveObserver() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         data.addObserver(observer)
         data.removeObserver(observer)
         verify(observer).onChanged(10)
@@ -104,7 +104,7 @@ class WatchDataTest {
 
     @Test
     fun removeObserverDuringCallback() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         data.addObserver(observer)
         data.addObserver(observer2)
         data.addObserver(observer3)
@@ -125,7 +125,7 @@ class WatchDataTest {
 
     @Test
     fun addObserverInObserver() {
-        val data = MutableWatchData(10)
+        val data = MutableObservableWatchData(10)
         var observersAdded = 0
         var addedObserverObservations = 0
 

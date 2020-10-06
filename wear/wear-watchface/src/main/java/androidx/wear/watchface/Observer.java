@@ -19,7 +19,7 @@ package androidx.wear.watchface;
 import androidx.annotation.NonNull;
 
 /**
- * A simple callback that can receive from WatchData.  NB defined in java to allow SAM
+ * A simple callback that can receive from ObservableWatchData.  NB defined in java to allow SAM
  * conversion of kotlin lambdas.
  *
  * @param <T> The type of the parameter

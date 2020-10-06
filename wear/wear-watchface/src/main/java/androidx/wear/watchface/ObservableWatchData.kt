@@ -23,16 +23,16 @@ import androidx.annotation.UiThread
  *
  * @param <T> The type of data hold by this instance
  */
-open class WatchData<T : Any> protected constructor(internal var _value: T?) {
+open class ObservableWatchData<T : Any> protected constructor(internal var _value: T?) {
 
     private var iterating = false
     private val observers = ArrayList<Observer<T>>()
     private val toBeRemoved = HashSet<Observer<T>>()
 
-    /** Whether or not this WatchData contains a value. */
+    /** Whether or not this ObservableWatchData contains a value. */
     fun hasValue() = _value != null
 
-    /** Returns the value contained within this WatchData or default if there isn't one. */
+    /** Returns the value contained within this ObservableWatchData or default if there isn't one. */
     fun getValueOr(default: T) = if (_value != null) {
         _value!!
     } else {
@@ -66,7 +66,7 @@ open class WatchData<T : Any> protected constructor(internal var _value: T?) {
 
     /**
      * Adds the given observer to the observers list. The events are dispatched on the ui thread.
-     * If there's any data held within the WatchData it will be immediately delivered to the
+     * If there's any data held within the ObservableWatchData it will be immediately delivered to the
      * observer.
      */
     @UiThread
@@ -80,7 +80,7 @@ open class WatchData<T : Any> protected constructor(internal var _value: T?) {
         }
     }
 
-    /** Removes an observer previously added by [observe]. */
+    /** Removes an observer previously added by [addObserver]. */
     @UiThread
     fun removeObserver(observer: Observer<T>) {
         require(observers.contains(observer))
@@ -94,12 +94,12 @@ open class WatchData<T : Any> protected constructor(internal var _value: T?) {
 }
 
 /**
- * [WatchData] which publicly exposes [setValue(T)] method
+ * [ObservableWatchData] which publicly exposes [setValue(T)] method
  *
  * @param <T> The type of data hold by this instance
  */
 @SuppressWarnings("WeakerAccess")
-class MutableWatchData<T : Any>(initialValue: T?) : WatchData<T>(initialValue) {
+class MutableObservableWatchData<T : Any>(initialValue: T?) : ObservableWatchData<T>(initialValue) {
     constructor() : this(null)
 
     override var value: T
