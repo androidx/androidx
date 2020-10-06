@@ -50,8 +50,7 @@ public class AppSearchImplTest {
 
     @Before
     public void setUp() throws Exception {
-        mAppSearchImpl = new AppSearchImpl(mTemporaryFolder.newFolder());
-        mAppSearchImpl.initialize();
+        mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder());
     }
 
     /**

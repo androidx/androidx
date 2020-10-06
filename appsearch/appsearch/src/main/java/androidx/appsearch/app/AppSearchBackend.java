@@ -16,43 +16,31 @@
 
 package androidx.appsearch.app;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
 import java.util.List;
 
 /**
-* Abstracts a storage system where {@link androidx.appsearch.annotation.AppSearchDocument}s can be
-* placed and queried.
+ * Abstracts a storage system where {@link androidx.appsearch.annotation.AppSearchDocument}s can be
+ * placed and queried.
  *
  * All implementations of this interface must be thread safe.
-* @hide
-*/
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@WorkerThread
 public interface AppSearchBackend {
-    /** Returns {@code true} if this backend has been successfully initialized. */
-    @AnyThread
-    boolean isInitialized();
-
-    /**
-     * Initializes this backend, or returns a successful {@link AppSearchResult} if it has already
-     * been initialized.
-     */
-    @NonNull
-    AppSearchResult<Void> initialize();
-
     /**
      * Sets the schema being used by documents provided to the {@link #putDocuments} method.
      *
      * @see AppSearchManager#setSchema
      */
     @NonNull
-    AppSearchResult<Void> setSchema(
+    ListenableFuture<AppSearchResult<Void>> setSchema(
             @NonNull String databaseName, @NonNull SetSchemaRequest request);
 
     /**
@@ -61,7 +49,7 @@ public interface AppSearchBackend {
      * @see AppSearchManager#putDocuments
      */
     @NonNull
-    AppSearchBatchResult<String, Void> putDocuments(
+    ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
             @NonNull String databaseName, @NonNull PutDocumentsRequest request);
 
     /**
@@ -70,17 +58,17 @@ public interface AppSearchBackend {
      * @see AppSearchManager#getByUri
      */
     @NonNull
-    AppSearchBatchResult<String, GenericDocument> getByUri(
+    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
             @NonNull String databaseName, @NonNull GetByUriRequest request);
 
     /**
      * Searches {@link GenericDocument}s based on a given query string.
      * <p> This method is lightweight. The heavy work will be done in
-     * {@link BackendSearchResults#getNextPage()}.
+     * {@link AppSearchBackend.BackendSearchResults#getNextPage}.
      * @see AppSearchManager#query
      */
     @NonNull
-    BackendSearchResults query(
+    AppSearchBackend.BackendSearchResults query(
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec);
@@ -91,7 +79,7 @@ public interface AppSearchBackend {
      * @see AppSearchManager#removeByUri
      */
     @NonNull
-    AppSearchBatchResult<String, Void> removeByUri(
+    ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
             @NonNull String databaseName, @NonNull RemoveByUriRequest request);
 
     /**
@@ -100,7 +88,7 @@ public interface AppSearchBackend {
      * @see AppSearchManager#removeByType
      */
     @NonNull
-    AppSearchBatchResult<String, Void> removeByType(
+    ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull String databaseName, @NonNull List<String> schemaTypes);
 
     /**
@@ -109,7 +97,7 @@ public interface AppSearchBackend {
      * @see AppSearchManager#removeByNamespace
      */
     @NonNull
-    AppSearchBatchResult<String, Void> removeByNamespace(
+    ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull String databaseName, @NonNull List<String> namespaces);
 
     /**
@@ -118,26 +106,39 @@ public interface AppSearchBackend {
      * @see AppSearchManager#removeAll
      */
     @NonNull
-    AppSearchResult<Void> removeAll(@NonNull String databaseName);
+    ListenableFuture<AppSearchResult<Void>> removeAll(@NonNull String databaseName);
 
     /** Clears all {@link GenericDocument}s, {@link AppSearchSchema}s and all other information
      * owned by this app. */
     @VisibleForTesting
     @NonNull
-    AppSearchResult<Void> resetAllDatabases();
+    ListenableFuture<AppSearchResult<Void>> resetAllDatabases();
 
     /**
-     * Abstracts a returned search results object, where the pagination of the results can be
-     * implemented.
+     * SearchResults are a returned object from a query API.
+     *
+     * <p>Each {@link SearchResults.Result} contains a document and may contain other fields like
+     * snippets based on request.
+     *
+     * <p>Should close this object after finish fetching results.
+     *
+     * <p>This class is not thread safe.
      */
-    @WorkerThread
     interface BackendSearchResults extends Closeable {
-
         /**
-         * Fetches the next page of results of a previously executed query. Results can be empty if
-         * next-page token is invalid or all pages have been returned.
+         * Gets a whole page of {@link SearchResults.Result}s.
+         *
+         * <p>Re-call this method to get next page of {@link SearchResults.Result}, until it returns
+         * an empty list.
+         *
+         * <p>The page size is set by {@link SearchSpec.Builder#setNumPerPage}.
+         *
+         * @return The pending result of performing this operation.
          */
         @NonNull
-        AppSearchResult<List<SearchResults.Result>> getNextPage();
+        ListenableFuture<AppSearchResult<List<SearchResults.Result>>> getNextPage();
+
+        @Override
+        void close();
     }
 }
