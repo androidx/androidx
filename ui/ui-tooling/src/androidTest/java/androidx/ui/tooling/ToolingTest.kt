@@ -18,7 +18,6 @@ package androidx.ui.tooling
 
 import android.os.Handler
 import android.os.Looper
-import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.onGloballyPositioned
@@ -78,18 +77,10 @@ open class ToolingTest {
             WeakHashMap<SlotTable, Boolean>()
         )
         activityTestRule.onUiThread {
-            val activity = activity
-            val owner = AndroidOwner(activity, activity, activity).also {
-                activity.setContentView(
-                    it.view,
-                    ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                )
+            AndroidOwner.onAndroidOwnerCreatedCallback = {
+                it.view.setTag(R.id.inspection_slot_table_set, map)
+                AndroidOwner.onAndroidOwnerCreatedCallback = null
             }
-
-            owner.view.setTag(R.id.inspection_slot_table_set, map)
             activity.setContent {
                 Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
                     .fillMaxSize()) {
