@@ -105,7 +105,7 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
         @Suppress("DEPRECATION")
         return runOnUiThread {
             hadNoSnapshotChanges = !Snapshot.current.hasPendingChanges()
-            hadNoRecomposerChanges = !Recomposer.current().hasPendingChanges()
+            hadNoRecomposerChanges = !Recomposer.current().hasInvalidations()
             hadAnimationClocksIdle = areAllClocksIdle()
             lastCompositionAwaiters = compositionAwaiters.get()
 
