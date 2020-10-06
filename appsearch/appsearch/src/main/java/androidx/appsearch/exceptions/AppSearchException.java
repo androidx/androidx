@@ -18,6 +18,7 @@ package androidx.appsearch.exceptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 
 /**
@@ -50,6 +51,12 @@ public class AppSearchException extends Exception {
             @Nullable Throwable cause) {
         super(message, cause);
         mResultCode = resultCode;
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @AppSearchResult.ResultCode int getResultCode() {
+        return mResultCode;
     }
 
     /**
