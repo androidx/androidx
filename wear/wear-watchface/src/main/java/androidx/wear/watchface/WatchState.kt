@@ -31,14 +31,14 @@ class WatchState(
      * [NotificationManager.INTERRUPTION_FILTER_ALARMS], or
      * [NotificationManager.INTERRUPTION_FILTER_UNKNOWN].
      */
-    val interruptionFilter: WatchData<Int>,
+    val interruptionFilter: ObservableWatchData<Int>,
 
     /**
      * Whether or not the watch is in ambient mode. The watch face should switch to a simplified low
      * intensity display when in ambient mode. E.g. if the watch face displays seconds, it should
      * hide them in ambient mode.
      */
-    val isAmbient: WatchData<Boolean>,
+    val isAmbient: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not the watch is in airplane mode. Only valid if
@@ -46,7 +46,7 @@ class WatchState(
      *
      * @hide
      */
-    val inAirplaneMode: WatchData<Boolean>,
+    val inAirplaneMode: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not we should conserve power due to a low battery which isn't charging. Only
@@ -55,7 +55,7 @@ class WatchState(
      *
      * @hide
      */
-    val isBatteryLowAndNotCharging: WatchData<Boolean>,
+    val isBatteryLowAndNotCharging: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not the watch is charging. Only valid if
@@ -63,7 +63,7 @@ class WatchState(
      *
      * @hide
      */
-    val isCharging: WatchData<Boolean>,
+    val isCharging: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not the watch is connected to the companion phone. Only valid if
@@ -71,7 +71,7 @@ class WatchState(
      *
      * @hide
      */
-    val isConnectedToCompanion: WatchData<Boolean>,
+    val isConnectedToCompanion: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not GPS is active on the watch. Only valid if
@@ -79,7 +79,7 @@ class WatchState(
      *
      * @hide
      */
-    val isGpsActive: WatchData<Boolean>,
+    val isGpsActive: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not the watch's keyguard (lock screen) is locked. Only valid if
@@ -87,7 +87,7 @@ class WatchState(
      *
      * @hide
      */
-    val isKeyguardLocked: WatchData<Boolean>,
+    val isKeyguardLocked: ObservableWatchData<Boolean>,
 
     /**
      * Whether or not the watch is in theater mode. Only valid if
@@ -95,16 +95,16 @@ class WatchState(
      *
      * @hide
      */
-    val isInTheaterMode: WatchData<Boolean>,
+    val isInTheaterMode: ObservableWatchData<Boolean>,
 
     /** Whether or not the watch face is visible. */
-    val isVisible: WatchData<Boolean>,
+    val isVisible: ObservableWatchData<Boolean>,
 
     /** The total number of notification cards in the stream. */
-    val notificationCount: WatchData<Int>,
+    val notificationCount: ObservableWatchData<Int>,
 
     /** The total number of unread notification cards in the stream. */
-    val unreadNotificationCount: WatchData<Int>,
+    val unreadNotificationCount: ObservableWatchData<Int>,
 
     /** Whether or not the watch hardware supports low bit ambient support. */
     val hasLowBitAmbient: Boolean,
@@ -116,18 +116,18 @@ class WatchState(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class MutableWatchState {
-    var interruptionFilter = MutableWatchData<Int>()
-    val isAmbient = MutableWatchData<Boolean>()
-    val inAirplaneMode = MutableWatchData<Boolean>()
-    val isBatteryLowAndNotCharging = MutableWatchData<Boolean>()
-    val isCharging = MutableWatchData<Boolean>()
-    val isConnectedToCompanion = MutableWatchData<Boolean>()
-    val isGpsActive = MutableWatchData<Boolean>()
-    val isKeyguardLocked = MutableWatchData<Boolean>()
-    val isInTheaterMode = MutableWatchData<Boolean>()
-    val isVisible = MutableWatchData<Boolean>()
-    val notificationCount = MutableWatchData<Int>()
-    val unreadNotificationCount = MutableWatchData<Int>()
+    var interruptionFilter = MutableObservableWatchData<Int>()
+    val isAmbient = MutableObservableWatchData<Boolean>()
+    val inAirplaneMode = MutableObservableWatchData<Boolean>()
+    val isBatteryLowAndNotCharging = MutableObservableWatchData<Boolean>()
+    val isCharging = MutableObservableWatchData<Boolean>()
+    val isConnectedToCompanion = MutableObservableWatchData<Boolean>()
+    val isGpsActive = MutableObservableWatchData<Boolean>()
+    val isKeyguardLocked = MutableObservableWatchData<Boolean>()
+    val isInTheaterMode = MutableObservableWatchData<Boolean>()
+    val isVisible = MutableObservableWatchData<Boolean>()
+    val notificationCount = MutableObservableWatchData<Int>()
+    val unreadNotificationCount = MutableObservableWatchData<Int>()
     var hasLowBitAmbient = false
     var hasBurnInProtection = false
 

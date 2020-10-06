@@ -366,7 +366,7 @@ class WatchFace private constructor(
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
             val isBatteryLowAndNotCharging =
-                watchState.isBatteryLowAndNotCharging as MutableWatchData
+                watchState.isBatteryLowAndNotCharging as MutableObservableWatchData
             when (intent.action) {
                 Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
                 Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
