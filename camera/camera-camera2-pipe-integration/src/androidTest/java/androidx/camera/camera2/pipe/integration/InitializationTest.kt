@@ -16,7 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration
 
-import androidx.annotation.experimental.UseExperimental
+import androidx.annotation.OptIn
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InitializationTest {
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun initializeCameraX_withCameraPipeConfig() = runBlocking {
         ProcessCameraProvider.configureInstance(CameraPipeConfig.defaultConfig())

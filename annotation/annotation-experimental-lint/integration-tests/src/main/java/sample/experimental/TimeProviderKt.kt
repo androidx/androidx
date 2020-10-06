@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.experimental
 
-@ExperimentalDateTime
-class DateProvider {
-    int getDate() {
-        return -1;
+class TimeProviderKt {
+    @ExperimentalDateTimeKt
+    fun getTime(): Int {
+        return -1
+    }
+
+    @ExperimentalDateTime
+    fun getTimeJava(): Int {
+        return -1
+    }
+
+    internal companion object {
+        @JvmStatic
+        @ExperimentalDateTimeKt
+        fun getTimeStatically(): Int {
+            return -1
+        }
     }
 }

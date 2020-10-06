@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.annotation.experimental
+package androidx.annotation
 
 import kotlin.annotation.Retention
 import kotlin.annotation.Target
 
 /**
- * Denotes that the annotated element is a marker of an experimental API.
+ * Denotes that the annotated element is a marker of an opt-in API.
  *
- * Any declaration annotated with this marker is considered part of an unstable API surface and its
- * call sites should accept the experimental aspect of it either by using [UseExperimental],
- * or by being annotated with that marker themselves, effectively causing further propagation of
- * that experimental aspect.
+ * Any declaration annotated with this marker is considered part of an unstable or otherwise
+ * non-standard API surface and its call sites should accept the opt-in aspect of it either
+ * by using [OptIn] or by being annotated with that marker themselves, effectively causing
+ * further propagation of that opt-in aspect.
  *
  * Example:
  * <pre>`
  * // Library code
  * &#64;Retention(CLASS)
  * &#64;Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
- * &#64;Experimental(level = Level.ERROR)
+ * &#64;RequiresOptIn(level = Level.ERROR)
  * public @interface ExperimentalDateTime {}
  *
  * &#64;ExperimentalDateTime
@@ -60,31 +60,31 @@ import kotlin.annotation.Target
 `</pre> *
  *
  */
-@Deprecated(
-    "This annotation has been replaced by `@RequiresOptIn`",
-    ReplaceWith("RequiresOptIn", "androidx.annotation.RequiresOptIn")
-)
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class Experimental(
+annotation class RequiresOptIn(
     /**
-     * Defines the reporting level for incorrect usages of this experimental API.
+     * Defines the reporting level for incorrect usages of this opt-in API.
      */
     val level: Level = Level.ERROR
 ) {
     /**
-     * Severity of the diagnostic that should be reported on usages of experimental API which did
-     * not explicitly accept the experimental aspect of that API either by using
-     * [UseExperimental] or by being annotated with the corresponding marker annotation.
+     * Severity of the diagnostic that should be reported on usages of opt-in API which did
+     * not explicitly accept the opt-in aspect of that API either by:
+     * <ul>
+     *     <li>Propagating the opt-in aspect by annotating the usage with the marker annotation,
+     *     thus becoming part of the marked opt-in API surface <i>or</i>
+     *     <li>Suppressing propagation of the opt-in aspect by annotating the usage with [OptIn]
+     *     and specifying the marker annotation
      */
     enum class Level {
         /**
-         * Specifies that a warning should be reported on incorrect usages of this experimental API.
+         * Specifies that a warning should be reported on incorrect usages of this opt-in API.
          */
         WARNING,
 
         /**
-         * Specifies that an error should be reported on incorrect usages of this experimental API.
+         * Specifies that an error should be reported on incorrect usages of this opt-in API.
          */
         ERROR
     }

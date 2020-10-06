@@ -16,7 +16,7 @@
 
 package androidx.paging.samples.java;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.LoadType;
 import androidx.paging.PagingState;
@@ -37,7 +37,7 @@ import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
 
 @SuppressWarnings("unused")
-@UseExperimental(markerClass = ExperimentalPagingApi.class)
+@OptIn(markerClass = ExperimentalPagingApi.class)
 class RemoteMediatorRxItemKeyedSample extends RxRemoteMediator<Integer, User> {
     private String mQuery;
     private ExampleRxBackendService mNetworkService;

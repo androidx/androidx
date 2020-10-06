@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.experimental;
 
-import androidx.annotation.experimental.UseExperimental;
-
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "deprecation"})
 class UseJavaExperimentalFromJava {
     /**
      * Unsafe call into an experimental class.
@@ -34,7 +32,7 @@ class UseJavaExperimentalFromJava {
         return dateProvider.getDate();
     }
 
-    @UseExperimental(markerClass = ExperimentalDateTime.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTime.class)
     int getDateUseExperimental() {
         DateProvider dateProvider = new DateProvider();
         return dateProvider.getDate();
@@ -64,7 +62,7 @@ class UseJavaExperimentalFromJava {
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
-    @UseExperimental(markerClass = ExperimentalDateTime.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTime.class)
     @ExperimentalLocation
     int getDateUseExperimentalLocationExperimental() {
         DateProvider dateProvider = new DateProvider();
@@ -72,7 +70,8 @@ class UseJavaExperimentalFromJava {
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
-    @UseExperimental(markerClass = { ExperimentalDateTime.class, ExperimentalLocation.class })
+    @androidx.annotation.experimental.UseExperimental(
+            markerClass = { ExperimentalDateTime.class, ExperimentalLocation.class })
     int getDateAndLocationUseExperimental() {
         DateProvider dateProvider = new DateProvider();
         LocationProvider locationProvider = new LocationProvider();

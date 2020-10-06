@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.experimental;
 
 @ExperimentalLocation
 class LocationProvider {

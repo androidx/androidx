@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package sample.foo;
+package sample.experimental
 
-/**
- * Test class.
- */
-@SuppressWarnings("unused")
-public class Bar {
-    /**
-     * Test method.
-     */
-    public void baz() {
-        // Stub method, nothing to see here.
-    }
-}
+@Suppress("DEPRECATION")
+@Experimental
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+annotation class ExperimentalDateTimeKt

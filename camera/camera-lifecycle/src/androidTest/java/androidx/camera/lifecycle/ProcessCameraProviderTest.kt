@@ -20,7 +20,7 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Resources
-import androidx.annotation.experimental.UseExperimental
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
@@ -86,7 +86,7 @@ class ProcessCameraProviderTest {
         assertThat(contextWrapper.testResources.defaultProviderRetrieved).isTrue()
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun configuredGetInstance_doesNotUseResources() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
@@ -100,7 +100,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun configuredGetInstance_doesNotUseApplication() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
@@ -125,7 +125,7 @@ class ProcessCameraProviderTest {
         assertThat(testApp.providerUsed).isTrue()
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun multipleConfigureInstance_throwsISE() {
         val config = FakeAppConfig.create()
@@ -135,7 +135,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun configuredGetInstance_returnsProvider() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
@@ -145,7 +145,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun configuredGetInstance_usesConfiguredExecutor() {
         var executeCalled = false
@@ -163,7 +163,7 @@ class ProcessCameraProviderTest {
         }
     }
 
-    @UseExperimental(ExperimentalCameraProviderConfiguration::class)
+    @OptIn(ExperimentalCameraProviderConfiguration::class)
     @Test
     fun canRetrieveCamera_withZeroUseCases() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())

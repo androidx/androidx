@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+package sample.optin;
 
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+import static androidx.annotation.RequiresOptIn.Level.ERROR;
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
-}
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
-dependencies {
-    implementation KOTLIN_STDLIB
-    implementation project(":annotation:annotation-experimental")
-}
+import androidx.annotation.RequiresOptIn;
 
-// Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [ "-Xuse-experimental=kotlin.Experimental" ]
-    }
-}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention(CLASS)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD,
+        ElementType.PACKAGE})
+@RequiresOptIn(level = ERROR)
+@interface ExperimentalDateTime {}
