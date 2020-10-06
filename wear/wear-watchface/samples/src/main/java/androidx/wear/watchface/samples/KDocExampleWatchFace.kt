@@ -25,6 +25,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasRenderer
@@ -114,7 +115,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationData.TYPE_ICON,
                             ComplicationData.TYPE_SMALL_IMAGE
                         ),
-                        Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                     ).setUnitSquareBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                         .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                         .build(),
@@ -131,11 +132,12 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationData.TYPE_ICON,
                             ComplicationData.TYPE_SMALL_IMAGE
                         ),
-                        Complication.DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
+                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
                     ).setUnitSquareBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
                         .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                         .build()
-                )
+                ),
+                userStyleRepository
             )
 
             val renderer = object : CanvasRenderer(

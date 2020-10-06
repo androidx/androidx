@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.RectF
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
@@ -27,7 +28,11 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationHelperActivity
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleRepository
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
@@ -45,7 +50,13 @@ class ComplicationsManager(
     /**
      * The complications associated with the watch face, may be empty.
      */
-    complicationCollection: Collection<Complication>
+    complicationCollection: Collection<Complication>,
+
+    /**
+     * The [UserStyleRepository] used to listen for [ComplicationsUserStyleCategory] changes and
+     * apply them.
+     */
+    private val userStyleRepository: UserStyleRepository
 ) {
     interface TapListener {
         /**
@@ -67,19 +78,47 @@ class ComplicationsManager(
     private lateinit var watchFaceHostApi: WatchFaceHostApi
     private lateinit var calendar: Calendar
     private lateinit var renderer: Renderer
-    private lateinit var pendingUpdateActiveComplications: CancellableUniqueTask
+    private lateinit var pendingUpdate: CancellableUniqueTask
 
     // A map of IDs to complications.
     val complications: Map<Int, Complication> =
         complicationCollection.associateBy(Complication::id)
 
+    private class InitialComplicationConfig(
+        val id: Int,
+        val unitSquareBounds: RectF,
+        val enabled: Boolean,
+        val supportedTypes: IntArray,
+        val defaultProviderPolicy: DefaultComplicationProviderPolicy,
+        val defaultProviderType: Int
+    )
+
+    // Copy of the original complication configs. This is necessary because the semantics of
+    // [ComplicationsUserStyleCategory] are defined in terms of an override applied to the initial
+    // config.
+    private val initialComplicationConfigs: Map<Int, InitialComplicationConfig> =
+        complicationCollection.associateBy(
+            { it.id },
+            {
+                InitialComplicationConfig(
+                    it.id,
+                    it.unitSquareBounds,
+                    it.enabled,
+                    it.supportedTypes,
+                    it.defaultProviderPolicy,
+                    it.defaultProviderType
+                )
+            }
+        )
+
     private val complicationListeners = HashSet<TapListener>()
 
     @VisibleForTesting
-    constructor(
+    internal constructor(
         complicationCollection: Collection<Complication>,
+        userStyleRepository: UserStyleRepository,
         renderer: Renderer
-    ) : this(complicationCollection) {
+    ) : this(complicationCollection, userStyleRepository) {
         this.renderer = renderer
     }
 
@@ -92,37 +131,72 @@ class ComplicationsManager(
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
         this.renderer = renderer
-        pendingUpdateActiveComplications = CancellableUniqueTask(watchFaceHostApi.getHandler())
+        pendingUpdate = CancellableUniqueTask(watchFaceHostApi.getHandler())
 
         for ((_, complication) in complications) {
             complication.init(this, complicationInvalidateCallback)
+        }
 
-            if (!complication.defaultProviderPolicy.isEmpty() &&
-                complication.defaultProviderType != WatchFace.DEFAULT_PROVIDER_TYPE_NONE
-            ) {
-                this.watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
-                    complication.id,
-                    complication.defaultProviderPolicy.providers,
-                    complication.defaultProviderPolicy.systemProviderFallback,
-                    complication.defaultProviderType
-                )
+        val complicationsStyleCategory =
+            userStyleRepository.userStyleCategories.firstOrNull {
+                it is ComplicationsUserStyleCategory
             }
+
+        // Add a listener if we have a ComplicationsUserStyleCategory so we can track changes and
+        // automatically apply them.
+        if (complicationsStyleCategory != null) {
+            var previousOption =
+                userStyleRepository.userStyle.options[complicationsStyleCategory] as
+                    ComplicationsUserStyleCategory.ComplicationsOption
+            userStyleRepository.addUserStyleListener(
+                object : UserStyleRepository.UserStyleListener {
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        val newlySelectedOption =
+                            userStyle.options[complicationsStyleCategory] as
+                                ComplicationsUserStyleCategory.ComplicationsOption
+                        if (previousOption != newlySelectedOption) {
+                            previousOption = newlySelectedOption
+                            applyComplicationsStyleCategoryOption(newlySelectedOption)
+                        }
+                    }
+                }
+            )
         }
 
         // Activate complications.
-        scheduleUpdateActiveComplications()
+        scheduleUpdate()
+    }
+
+    internal fun applyComplicationsStyleCategoryOption(
+        styleOption: ComplicationsUserStyleCategory.ComplicationsOption
+    ) {
+        for ((id, complication) in complications) {
+            val override = styleOption.complications.find { it.complicationId == id }
+            val initialConfig = initialComplicationConfigs[id]!!
+            // Apply styleOption overrides.
+            complication.unitSquareBounds =
+                override?.bounds ?: initialConfig.unitSquareBounds
+            complication.enabled =
+                override?.enabled ?: initialConfig.enabled
+            complication.supportedTypes =
+                override?.supportedTypes ?: initialConfig.supportedTypes
+            complication.defaultProviderPolicy =
+                override?.defaultProviderPolicy ?: initialConfig.defaultProviderPolicy
+            complication.defaultProviderType =
+                override?.defaultProviderType ?: initialConfig.defaultProviderType
+        }
     }
 
     /** Returns the [Complication] corresponding to id or null. */
     operator fun get(id: Int) = complications[id]
 
-    internal fun scheduleUpdateActiveComplications() {
-        if (!pendingUpdateActiveComplications.isPending()) {
-            pendingUpdateActiveComplications.postUnique(this::updateActiveComplications)
+    internal fun scheduleUpdate() {
+        if (!pendingUpdate.isPending()) {
+            pendingUpdate.postUnique(this::updateComplications)
         }
     }
 
-    private fun updateActiveComplications() {
+    private fun updateComplications() {
         val activeKeys = mutableListOf<Int>()
         val labels = mutableListOf<ContentDescriptionLabel>()
 
@@ -136,46 +210,77 @@ class ComplicationsManager(
             )
         )
 
+        // Work out what's changed using the dirty flags and issue appropriate watchFaceHostApi
+        // calls.
+        var enabledDirty = false
+        var labelsDirty = false
         for ((id, complication) in complications) {
+            enabledDirty = enabledDirty || complication.enabledDirty
+            labelsDirty = labelsDirty || complication.enabledDirty
+
             if (complication.enabled) {
                 activeKeys.add(id)
 
-                // Generate a ContentDescriptionLabel and send complication bounds for
-                // non-background complications.
+                labelsDirty =
+                    labelsDirty || complication.dataDirty || complication.unitSquareBoundsDirty
+
+                val complicationBounds = complication.computeBounds(renderer.screenBounds)
+
+                // Generate a ContentDescriptionLabel.
                 val data = complication.renderer.getData()
-                if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
-                    watchFaceHostApi.setComplicationDetails(
-                        id,
-                        renderer.screenBounds,
-                        ComplicationBoundsType.BACKGROUND,
-                        complication.supportedTypes
-                    )
-                } else {
-                    val complicationBounds = complication.computeBounds(renderer.screenBounds)
-                    if (data != null) {
-                        labels.add(
-                            ContentDescriptionLabel(
-                                watchFaceHostApi.getContext(),
-                                complicationBounds,
-                                data
+                val complicationBoundsType =
+                    if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
+                        ComplicationBoundsType.BACKGROUND
+                    } else {
+                        if (data != null) {
+                            labels.add(
+                                ContentDescriptionLabel(
+                                    watchFaceHostApi.getContext(),
+                                    complicationBounds,
+                                    data
+                                )
                             )
-                        )
+                        }
+                        ComplicationBoundsType.ROUND_RECT
                     }
 
+                if (complication.unitSquareBoundsDirty || complication.supportedTypesDirty) {
                     watchFaceHostApi.setComplicationDetails(
                         id,
                         complicationBounds,
-                        ComplicationBoundsType.ROUND_RECT,
+                        complicationBoundsType,
                         complication.supportedTypes
                     )
                 }
+
+                if (complication.defaultProviderPolicyDirty ||
+                    complication.defaultProviderTypeDirty
+                ) {
+                    watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
+                        complication.id,
+                        complication.defaultProviderPolicy.providersAsList(),
+                        complication.defaultProviderPolicy.systemProviderFallback,
+                        complication.defaultProviderType
+                    )
+                }
+
+                complication.unitSquareBoundsDirty = false
+                complication.supportedTypesDirty = false
+                complication.defaultProviderPolicyDirty = false
+                complication.defaultProviderTypeDirty = false
             }
+
+            complication.enabledDirty = false
         }
 
-        watchFaceHostApi.setActiveComplications(activeKeys.toIntArray())
+        if (enabledDirty) {
+            watchFaceHostApi.setActiveComplications(activeKeys.toIntArray())
+        }
 
-        // Register ContentDescriptionLabels which are used to provide accessibility data.
-        watchFaceHostApi.setContentDescriptionLabels(labels.toTypedArray())
+        if (labelsDirty) {
+            // Register ContentDescriptionLabels which are used to provide accessibility data.
+            watchFaceHostApi.setContentDescriptionLabels(labels.toTypedArray())
+        }
     }
 
     /**
@@ -187,7 +292,9 @@ class ComplicationsManager(
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        complications[watchFaceComplicationId]?.renderer?.setData(data)
+        val complication = complications[watchFaceComplicationId]!!
+        complication.dataDirty = complication.renderer.getData() != data
+        complication.renderer.setData(data)
     }
 
     /**

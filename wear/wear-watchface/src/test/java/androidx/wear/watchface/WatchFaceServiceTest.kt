@@ -33,10 +33,14 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
@@ -69,6 +73,10 @@ private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
 private const val BACKGROUND_COMPLICATION_ID = 1111
+private const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
+private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
+private const val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
+private const val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 
 @Config(manifest = Config.NONE)
 @RunWith(WatchFaceTestRunner::class)
@@ -151,7 +159,7 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
+            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
@@ -172,7 +180,7 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
@@ -189,10 +197,68 @@ class WatchFaceServiceTest {
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy()
+            DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
             .setBackgroundComplication()
             .build()
+
+    private val leftAndRightComplicationsOption = ComplicationsOption(
+        LEFT_AND_RIGHT_COMPLICATIONS,
+        "Both",
+        null,
+        listOf(
+            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+                .setEnabled(true).build(),
+            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+                .setEnabled(true).build()
+        )
+    )
+    private val noComplicationsOption = ComplicationsOption(
+        NO_COMPLICATIONS,
+        "Both",
+        null,
+        listOf(
+            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+                .setEnabled(false).build(),
+            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+                .setEnabled(false).build()
+        )
+    )
+    private val leftComplicationsOption = ComplicationsOption(
+        LEFT_COMPLICATION,
+        "Left",
+        null,
+        listOf(
+            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+                .setEnabled(true).build(),
+            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+                .setEnabled(false).build()
+        )
+    )
+    private val rightComplicationsOption = ComplicationsOption(
+        RIGHT_COMPLICATION,
+        "Right",
+        null,
+        listOf(
+            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+                .setEnabled(false).build(),
+            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+                .setEnabled(true).build()
+        )
+    )
+    private val complicationsStyleCategory = ComplicationsUserStyleCategory(
+        "complications_style_category",
+        "Complications",
+        "Number and position",
+        icon = null,
+        complicationConfig = listOf(
+            leftAndRightComplicationsOption,
+            noComplicationsOption,
+            leftComplicationsOption,
+            rightComplicationsOption
+        ),
+        affectsLayers = listOf(Layer.COMPLICATIONS)
+    )
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationsManager: ComplicationsManager
@@ -225,9 +291,8 @@ class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean = false,
         hasBurnInProtection: Boolean = false
     ) {
-        this.complicationsManager = ComplicationsManager(complications)
-        userStyleRepository =
-            UserStyleRepository(userStyleCategories)
+        userStyleRepository = UserStyleRepository(userStyleCategories)
+        this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
         renderer = TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
@@ -780,7 +845,7 @@ class WatchFaceServiceTest {
             TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsManager(emptyList()),
+            ComplicationsManager(emptyList(), userStyleRepository2),
             testRenderer2,
             userStyleRepository2,
             watchState,
@@ -839,7 +904,7 @@ class WatchFaceServiceTest {
             TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsManager(emptyList()),
+            ComplicationsManager(emptyList(), userStyleRepository2),
             testRenderer2,
             userStyleRepository2,
             watchState,
@@ -1125,7 +1190,8 @@ class WatchFaceServiceTest {
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(
-                listOf(leftComplication, rightComplication, backgroundComplication)
+                listOf(leftComplication, rightComplication, backgroundComplication),
+                userStyleRepository
             ),
             testRenderer,
             UserStyleRepository(emptyList()),
@@ -1150,6 +1216,7 @@ class WatchFaceServiceTest {
         assertThat(argument.value.acceptsTapEvents).isEqualTo(true)
     }
 
+    @Test
     fun defaultProvidersWithFallbacks_newApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
@@ -1157,14 +1224,17 @@ class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
-            Complication.DefaultComplicationProviderPolicy(
-                listOf(provider1, provider2),
+            DefaultComplicationProviderPolicy(
+                provider1,
+                provider2,
                 SystemProviders.SUNRISE_SUNSET
             )
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), emptyList())
+
+        runPostedTasksFor(0)
 
         verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
             LEFT_COMPLICATION_ID,
@@ -1182,14 +1252,17 @@ class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
-            Complication.DefaultComplicationProviderPolicy(
-                listOf(provider1, provider2),
+            DefaultComplicationProviderPolicy(
+                provider1,
+                provider2,
                 SystemProviders.SUNRISE_SUNSET
             )
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), emptyList(), apiVersion = 0)
+
+        runPostedTasksFor(0)
 
         verify(iWatchFaceService).setDefaultComplicationProvider(
             LEFT_COMPLICATION_ID, provider2, ComplicationData.TYPE_SHORT_TEXT
@@ -1287,7 +1360,7 @@ class WatchFaceServiceTest {
         }
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsManager(emptyList()),
+            ComplicationsManager(emptyList(), userStyleRepository),
             testRenderer,
             UserStyleRepository(emptyList()),
             watchState,
@@ -1314,5 +1387,124 @@ class WatchFaceServiceTest {
         testRenderer.animate = false
         watchFace.maybeUpdateDrawMode()
         assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
+    }
+
+    @Test
+    fun complicationsUserStyleCategorySelectionAppliesChanges() {
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            listOf(complicationsStyleCategory),
+            apiVersion = 4
+        )
+
+        // Select a new style which turns off both complications.
+        val newStyleA = HashMap(userStyleRepository.userStyle.options)
+        newStyleA[complicationsStyleCategory] = noComplicationsOption
+        userStyleRepository.userStyle = UserStyle(newStyleA)
+
+        runPostedTasksFor(0)
+
+        assertFalse(leftComplication.enabled)
+        assertFalse(rightComplication.enabled)
+        verify(iWatchFaceService).setActiveComplications(intArrayOf(), true)
+
+        val argumentA = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(argumentA.capture())
+        assertThat(argumentA.value.size).isEqualTo(1)
+        assertThat(argumentA.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+
+        reset(iWatchFaceService)
+
+        // Select a new style which turns on only the left complication.
+        val newStyleB = HashMap(userStyleRepository.userStyle.options)
+        newStyleB[complicationsStyleCategory] = leftComplicationsOption
+        userStyleRepository.userStyle = UserStyle(newStyleB)
+
+        runPostedTasksFor(0)
+
+        assertTrue(leftComplication.enabled)
+        assertFalse(rightComplication.enabled)
+        verify(iWatchFaceService).setActiveComplications(intArrayOf(LEFT_COMPLICATION_ID), false)
+
+        val argumentB = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(argumentB.capture())
+        assertThat(argumentB.value.size).isEqualTo(2)
+        assertThat(argumentB.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(argumentB.value[1].bounds).isEqualTo(Rect(20, 40, 40, 60)) // Left complication.
+    }
+
+    @Test
+    fun partialComplicationOverrides() {
+        val bothComplicationsOption = ComplicationsOption(
+            LEFT_AND_RIGHT_COMPLICATIONS,
+            "Left And Right",
+            null,
+            emptyList()
+        )
+        val leftOnlyComplicationsOption = ComplicationsOption(
+            LEFT_COMPLICATION,
+            "Left",
+            null,
+            listOf(ComplicationOverride.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
+        )
+        val rightOnlyComplicationsOption = ComplicationsOption(
+            RIGHT_COMPLICATION,
+            "Right",
+            null,
+            listOf(ComplicationOverride.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
+        )
+        val complicationsStyleCategory = ComplicationsUserStyleCategory(
+            "complications_style_category",
+            "Complications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                bothComplicationsOption,
+                leftOnlyComplicationsOption,
+                rightOnlyComplicationsOption
+            ),
+            affectsLayers = listOf(Layer.COMPLICATIONS)
+        )
+
+        initEngine(
+            WatchFaceType.DIGITAL,
+            listOf(leftComplication, rightComplication),
+            listOf(complicationsStyleCategory),
+            apiVersion = 4
+        )
+
+        assertTrue(leftComplication.enabled)
+        assertTrue(rightComplication.enabled)
+
+        // Select left complication only.
+        val newStyleA = HashMap(userStyleRepository.userStyle.options)
+        newStyleA[complicationsStyleCategory] = leftOnlyComplicationsOption
+        userStyleRepository.userStyle = UserStyle(newStyleA)
+
+        runPostedTasksFor(0)
+
+        assertTrue(leftComplication.enabled)
+        assertFalse(rightComplication.enabled)
+
+        // Select right complication only.
+        val newStyleB = HashMap(userStyleRepository.userStyle.options)
+        newStyleB[complicationsStyleCategory] = rightOnlyComplicationsOption
+        userStyleRepository.userStyle = UserStyle(newStyleB)
+
+        runPostedTasksFor(0)
+
+        assertFalse(leftComplication.enabled)
+        assertTrue(rightComplication.enabled)
+
+        // Select both complications.
+        val newStyleC = HashMap(userStyleRepository.userStyle.options)
+        newStyleC[complicationsStyleCategory] = bothComplicationsOption
+        userStyleRepository.userStyle = UserStyle(newStyleC)
+
+        runPostedTasksFor(0)
+
+        assertTrue(leftComplication.enabled)
+        assertTrue(rightComplication.enabled)
     }
 }

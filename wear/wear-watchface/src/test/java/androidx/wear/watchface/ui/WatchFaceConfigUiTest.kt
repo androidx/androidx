@@ -25,6 +25,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.Complication
@@ -133,7 +134,7 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
+            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
@@ -154,7 +155,7 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
@@ -171,7 +172,7 @@ class WatchFaceConfigUiTest {
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProviderPolicy()
+            DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
             .setBackgroundComplication()
             .build()
@@ -196,6 +197,7 @@ class WatchFaceConfigUiTest {
 
         val complicationSet = ComplicationsManager(
             complications,
+            userStyleRepository,
             object : Renderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
                 override fun renderInternal(calendar: Calendar) {}
 
