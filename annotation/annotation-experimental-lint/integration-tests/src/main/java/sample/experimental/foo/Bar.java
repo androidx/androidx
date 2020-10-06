@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package sample
+package sample.experimental.foo;
 
-class TimeProviderKt {
-    @ExperimentalDateTimeKt
-    fun getTime(): Int {
-        return -1
-    }
-
-    @ExperimentalDateTime
-    fun getTimeJava(): Int {
-        return -1
-    }
-
-    internal companion object {
-        @JvmStatic
-        @ExperimentalDateTimeKt
-        fun getTimeStatically(): Int {
-            return -1
-        }
+/**
+ * Test class.
+ */
+@SuppressWarnings("unused")
+public class Bar {
+    /**
+     * Test method.
+     */
+    public void baz() {
+        // Stub method, nothing to see here.
     }
 }

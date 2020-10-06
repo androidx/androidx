@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.optin
 
-import static androidx.annotation.experimental.Experimental.Level.ERROR;
-
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import androidx.annotation.experimental.Experimental;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-@Retention(CLASS)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD,
-        ElementType.PACKAGE})
-@Experimental(level = ERROR)
-@interface ExperimentalLocation {}
+@Suppress("DEPRECATION")
+@RequiresOptIn
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+annotation class ExperimentalDateTimeKt

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package sample
+@file:Suppress("deprecation")
+
+package sample.experimental
 
 import androidx.annotation.experimental.UseExperimental
 
-import sample.foo.Bar
-import sample.foo.ExperimentalPackage
+import sample.experimental.foo.Bar
+import sample.experimental.foo.ExperimentalPackage
 
 @Suppress("unused")
 class UseJavaPackageFromKt {

@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package sample.foo;
-
-import static androidx.annotation.experimental.Experimental.Level.ERROR;
+package sample.experimental;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
-
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
+@SuppressWarnings("deprecation")
 @Retention(CLASS)
-@Experimental(level = ERROR)
-public @interface ExperimentalPackage {}
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD,
+        ElementType.PACKAGE})
+@androidx.annotation.experimental.Experimental(
+        level = androidx.annotation.experimental.Experimental.Level.ERROR)
+@interface ExperimentalLocation {}

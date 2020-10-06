@@ -14,20 +14,5 @@
  * limitations under the License.
  */
 
-package sample;
-
-import static androidx.annotation.experimental.Experimental.Level.ERROR;
-
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
-import androidx.annotation.experimental.Experimental;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-@Retention(CLASS)
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD,
-        ElementType.PACKAGE})
-@Experimental(level = ERROR)
-@interface ExperimentalDateTime {}
+@ExperimentalPackage
+package sample.experimental.foo;

@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -265,10 +264,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @throws IllegalArgumentException If the provided camera selector is unable to resolve a
      *                                  camera to be used for the given use cases.
      */
-    @SuppressWarnings("lambdaLast")
+    @SuppressWarnings({"lambdaLast", "deprecation"})
     @MainThread
     @NonNull
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
@@ -288,10 +287,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseGroup)} call.
      */
     @ExperimentalUseCaseGroupLifecycle
-    @SuppressWarnings("lambdaLast")
+    @SuppressWarnings({"lambdaLast", "deprecation"})
     @MainThread
     @NonNull
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCaseGroup useCaseGroup) {
@@ -357,10 +356,10 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      *                                  camera to be used for the given use cases.
      * @hide
      */
-    @SuppressWarnings({"lambdaLast", "unused"})
+    @SuppressWarnings({"lambdaLast", "unused", "deprecation"})
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ExperimentalUseCaseGroup
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public Camera bindToLifecycle(
             @NonNull LifecycleOwner lifecycleOwner,

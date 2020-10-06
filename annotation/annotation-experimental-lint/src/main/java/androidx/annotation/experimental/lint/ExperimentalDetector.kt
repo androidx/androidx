@@ -45,7 +45,9 @@ import org.jetbrains.uast.getParentOfType
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     override fun applicableAnnotations(): List<String>? = listOf(
         JAVA_EXPERIMENTAL_ANNOTATION,
-        KOTLIN_EXPERIMENTAL_ANNOTATION
+        KOTLIN_EXPERIMENTAL_ANNOTATION,
+        JAVA_REQUIRES_OPT_IN_ANNOTATION,
+        KOTLIN_REQUIRES_OPT_IN_ANNOTATION
     )
 
     override fun visitAnnotationUsage(
@@ -62,17 +64,30 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         allPackageAnnotations: List<UAnnotation>
     ) {
         when (qualifiedName) {
-            JAVA_EXPERIMENTAL_ANNOTATION -> {
-                checkExperimentalUsage(
-                    context, annotation, usage,
-                    JAVA_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = true
+            JAVA_EXPERIMENTAL_ANNOTATION, JAVA_REQUIRES_OPT_IN_ANNOTATION -> {
+                // Only allow Java annotations, since the Kotlin compiler doesn't understand our
+                // annotations and could get confused when it's trying to opt-in to some random
+                // annotation that it doesn't understand.
+                checkExperimentalUsage(context, annotation, usage,
+                    listOf(
+                        JAVA_USE_EXPERIMENTAL_ANNOTATION,
+                        JAVA_OPT_IN_ANNOTATION
+                    )
                 )
             }
-            KOTLIN_EXPERIMENTAL_ANNOTATION -> {
+            KOTLIN_EXPERIMENTAL_ANNOTATION, KOTLIN_REQUIRES_OPT_IN_ANNOTATION -> {
+                // Don't check usages of Kotlin annotations from Kotlin sources, since the Kotlin
+                // compiler handles that already. Allow either Java or Kotlin annotations, since
+                // we can enforce both and it's possible that a Kotlin-sourced experimental library
+                // is being used from Java without the Kotlin stdlib in the classpath.
                 if (!isKotlin(usage.sourcePsi)) {
-                    checkExperimentalUsage(
-                        context, annotation, usage,
-                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = false
+                    checkExperimentalUsage(context, annotation, usage,
+                        listOf(
+                            KOTLIN_USE_EXPERIMENTAL_ANNOTATION,
+                            KOTLIN_OPT_IN_ANNOTATION,
+                            JAVA_USE_EXPERIMENTAL_ANNOTATION,
+                            JAVA_OPT_IN_ANNOTATION
+                        )
                     )
                 }
             }
@@ -84,34 +99,24 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
      * site.
      *
      * @param context the lint scanning context
-     * @param annotation the experimental annotation detected on the referenced element
+     * @param annotation the experimental opt-in annotation detected on the referenced element
      * @param usage the element whose usage should be checked
-     * @param useAnnotationName fully-qualified class name for experimental opt-in annotation
-     * @param checkMarkerClasses whether to check the markerClasses attribute on UseExperimental
+     * @param useAnnotationNames fully-qualified class name for experimental opt-in annotation
      */
     private fun checkExperimentalUsage(
         context: JavaContext,
         annotation: UAnnotation,
         usage: UElement,
-        useAnnotationName: String,
-        checkMarkerClasses: Boolean
+        useAnnotationNames: List<String>
     ) {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
-        if (!hasOrUsesAnnotation(
-                context, usage, useAnnotation, useAnnotationName,
-                checkMarkerClasses
-            )
-        ) {
+        if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationNames)) {
             val level = extractAttribute(annotation, "level")
             if (level != null) {
-                report(
-                    context, usage,
-                    """
-                    This declaration is experimental and its usage should be marked with
-                    '@$useAnnotation' or '@UseExperimental(markerClass = $useAnnotation.class)'
-                """,
-                    level
-                )
+                report(context, usage, """
+                    This declaration is opt-in and its usage should be marked with
+                    '@$useAnnotation' or '@OptIn(markerClass = $useAnnotation.class)'
+                """, level)
             } else {
                 report(
                     context, annotation,
@@ -132,14 +137,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
     /**
      * Check whether the specified [usage] is either within the scope of [annotationName] or an
-     * explicit opt-in via the [useAnnotationName] annotation.
+     * explicit opt-in via a [useAnnotationNames] annotation.
      */
     private fun hasOrUsesAnnotation(
         context: JavaContext,
         usage: UElement,
         annotationName: String,
-        useAnnotationName: String,
-        checkMarkerClasses: Boolean
+        useAnnotationNames: List<String>
     ): Boolean {
         var element: UAnnotated? = if (usage is UAnnotated) {
             usage
@@ -150,24 +154,17 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         while (element != null) {
             val annotations = context.evaluator.getAllAnnotations(element, false)
 
-            val matchName = annotations.any { it.qualifiedName == annotationName }
+            val matchName = annotations.any { annotationName == it.qualifiedName }
             if (matchName) {
                 return true
             }
 
             val matchUse = annotations.any { annotation ->
-                if (annotation.qualifiedName == useAnnotationName) {
+                val qualifiedName = annotation.qualifiedName
+                if (qualifiedName != null && useAnnotationNames.contains(qualifiedName)) {
                     // Kotlin uses the same attribute for single- and multiple-marker usages.
                     if (annotation.hasMatchingAttributeValueClass(
                             context, "markerClass", annotationName
-                        )
-                    ) {
-                        return@any true
-                    }
-
-                    // Java uses a separate attribute for multiple-marker usages.
-                    if (checkMarkerClasses && annotation.hasMatchingAttributeValueClass(
-                            context, "markerClasses", annotationName
                         )
                     ) {
                         return@any true
@@ -215,22 +212,30 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
         private const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
 
+        private const val KOTLIN_OPT_IN_ANNOTATION = "kotlin.OptIn"
+        private const val KOTLIN_REQUIRES_OPT_IN_ANNOTATION = "kotlin.RequiresOptIn"
+
         private const val JAVA_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.Experimental"
         private const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
             "androidx.annotation.experimental.UseExperimental"
 
+        private const val JAVA_REQUIRES_OPT_IN_ANNOTATION =
+            "androidx.annotation.RequiresOptIn"
+        private const val JAVA_OPT_IN_ANNOTATION =
+            "androidx.annotation.OptIn"
+
         @Suppress("DefaultLocale")
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
-            id = "UnsafeExperimentalUsage${level.capitalize()}",
-            briefDescription = "Unsafe experimental usage intended to be $level-level severity",
+            id = "UnsafeOptInUsage${level.capitalize()}",
+            briefDescription = "Unsafe opt-in usage intended to be $level-level severity",
             explanation = """
-                This API has been flagged as experimental with $level-level severity.
+                This API has been flagged as opt-in with $level-level severity.
 
-                Any declaration annotated with this marker is considered part of an unstable API \
-                surface and its call sites should accept the experimental aspect of it either by \
-                using `@UseExperimental`, or by being annotated with that marker themselves, \
-                effectively causing further propagation of that experimental aspect.
+                Any declaration annotated with this marker is considered part of an unstable or
+                otherwise non-standard API surface and its call sites should accept the opt-in
+                aspect of it either by using `@OptIn` or by being annotated with that marker
+                themselves, effectively causing further propagation of the opt-in aspect.
             """,
             category = Category.CORRECTNESS,
             priority = 4,

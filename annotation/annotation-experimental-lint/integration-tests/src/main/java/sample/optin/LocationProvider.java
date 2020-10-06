@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package sample
+package sample.optin;
 
-@Suppress("DEPRECATION")
-@Experimental
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class ExperimentalDateTimeKt
+@ExperimentalLocation
+class LocationProvider {
+    int getLocation() {
+        return -1;
+    }
+}

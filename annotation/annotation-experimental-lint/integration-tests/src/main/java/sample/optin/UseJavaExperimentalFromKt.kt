@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package sample
+package sample.optin
 
-import androidx.annotation.experimental.UseExperimental
+import androidx.annotation.OptIn
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaExperimentalFromKt {
@@ -34,7 +34,7 @@ class UseJavaExperimentalFromKt {
         return dateProvider.date
     }
 
-    @UseExperimental(ExperimentalDateTime::class)
+    @OptIn(ExperimentalDateTime::class)
     fun getDateUseExperimental(): Int {
         val dateProvider = DateProvider()
         return dateProvider.date
@@ -64,7 +64,7 @@ class UseJavaExperimentalFromKt {
         return dateProvider.date + locationProvider.location
     }
 
-    @UseExperimental(ExperimentalDateTime::class)
+    @OptIn(ExperimentalDateTime::class)
     @ExperimentalLocation
     fun getDateUseExperimentalLocationExperimental(): Int {
         val dateProvider = DateProvider()
@@ -72,7 +72,7 @@ class UseJavaExperimentalFromKt {
         return dateProvider.date + locationProvider.location
     }
 
-    @UseExperimental(ExperimentalDateTime::class, ExperimentalLocation::class)
+    @OptIn(ExperimentalDateTime::class, ExperimentalLocation::class)
     fun getDateAndLocationUseExperimental(): Int {
         val dateProvider = DateProvider()
         val locationProvider = LocationProvider()
