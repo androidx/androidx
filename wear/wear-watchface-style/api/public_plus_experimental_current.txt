@@ -1,0 +1,124 @@
+// Signature format: 4.0
+package androidx.wear.watchface.style {
+
+  public final class BooleanUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
+    ctor public BooleanUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, boolean defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    method public boolean getDefaultValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat toWireFormat();
+  }
+
+  public static class BooleanUserStyleCategory.BooleanOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+    ctor public BooleanUserStyleCategory.BooleanOption(boolean value);
+    method public final boolean getValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat toWireFormat();
+    property public final boolean value;
+  }
+
+  public final class DoubleRangeUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
+    ctor public DoubleRangeUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, double minimumValue, double maximumValue, double defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    method public double getDefaultValue();
+    method public double getMaximumValue();
+    method public double getMinimumValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat toWireFormat();
+  }
+
+  public static final class DoubleRangeUserStyleCategory.DoubleRangeOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+    ctor public DoubleRangeUserStyleCategory.DoubleRangeOption(double value);
+    method public double getValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat toWireFormat();
+    property public final double value;
+  }
+
+  public enum Layer {
+    enum_constant public static final androidx.wear.watchface.style.Layer BASE_LAYER;
+    enum_constant public static final androidx.wear.watchface.style.Layer COMPLICATIONS;
+    enum_constant public static final androidx.wear.watchface.style.Layer TOP_LAYER;
+  }
+
+  public class ListUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
+    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.ListUserStyleCategory.ListOption defaultOption);
+    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat toWireFormat();
+  }
+
+  public static class ListUserStyleCategory.ListOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+    ctor public ListUserStyleCategory.ListOption(String id, String displayName, android.graphics.drawable.Icon? icon);
+    method public final String getDisplayName();
+    method public final android.graphics.drawable.Icon? getIcon();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat.ListOptionWireFormat toWireFormat();
+    property public final String displayName;
+    property public final android.graphics.drawable.Icon? icon;
+  }
+
+  public final class LongRangeUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
+    ctor public LongRangeUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, long minimumValue, long maximumValue, long defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    method public long getDefaultValue();
+    method public long getMaximumValue();
+    method public long getMinimumValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat toWireFormat();
+  }
+
+  public static final class LongRangeUserStyleCategory.LongRangeOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+    ctor public LongRangeUserStyleCategory.LongRangeOption(long value);
+    method public long getValue();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat toWireFormat();
+    property public final long value;
+  }
+
+  public final class UserStyle {
+    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleCategory,? extends androidx.wear.watchface.style.UserStyleCategory.Option> options);
+    method public java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> getOptions();
+    property public final java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> options;
+  }
+
+  public abstract class UserStyleCategory {
+    ctor public UserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory.Option> options, int defaultOptionIndex, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    method public final java.util.Collection<androidx.wear.watchface.style.Layer> getAffectsLayers();
+    method public final androidx.wear.watchface.style.UserStyleCategory.Option getDefaultOption();
+    method public final int getDefaultOptionIndex();
+    method public final String getDescription();
+    method public final String getDisplayName();
+    method public final android.graphics.drawable.Icon? getIcon();
+    method public final String getId();
+    method public androidx.wear.watchface.style.UserStyleCategory.Option getOptionForId(String optionId);
+    method public final java.util.List<androidx.wear.watchface.style.UserStyleCategory.Option> getOptions();
+    property public final java.util.Collection<androidx.wear.watchface.style.Layer> affectsLayers;
+    property public final int defaultOptionIndex;
+    property public final String description;
+    property public final String displayName;
+    property public final android.graphics.drawable.Icon? icon;
+    property public final String id;
+    property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory.Option> options;
+    field public static final androidx.wear.watchface.style.UserStyleCategory.Companion Companion;
+  }
+
+  public static final class UserStyleCategory.Companion {
+  }
+
+  public abstract static class UserStyleCategory.Option {
+    ctor public UserStyleCategory.Option(String id);
+    method public final String getId();
+    property public final String id;
+    field public static final androidx.wear.watchface.style.UserStyleCategory.Option.Companion Companion;
+  }
+
+  public static final class UserStyleCategory.Option.Companion {
+  }
+
+  public final class UserStyleRepository {
+    ctor public UserStyleRepository(java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory> userStyleCategories);
+    method @UiThread public void addUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
+    method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
+    method public java.util.List<androidx.wear.watchface.style.UserStyleCategory> getUserStyleCategories();
+    method @UiThread public void removeUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
+    method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
+    property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
+    property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory> userStyleCategories;
+  }
+
+  public static interface UserStyleRepository.UserStyleListener {
+    method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
+  }
+
+}
+
