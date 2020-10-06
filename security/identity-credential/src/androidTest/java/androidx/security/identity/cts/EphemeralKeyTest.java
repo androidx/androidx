@@ -21,7 +21,6 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.security.keystore.KeyProperties;
@@ -66,10 +65,7 @@ public class EphemeralKeyTest {
     @Test
     public void createEphemeralKey() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         String credentialName = "ephemeralKeyTest";
         byte[] sessionTranscript = {0x01, 0x02, 0x03};
