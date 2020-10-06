@@ -47,14 +47,14 @@ public class AppSearchManagerTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).getResultValue();
+        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
         mDb1 = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb1").setBackend(backend).build());
         mDb2 = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb2").setBackend(backend).build());
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().getResultValue();
+        backend.resetAllDatabases().get().getResultValue();
     }
 
     @Test

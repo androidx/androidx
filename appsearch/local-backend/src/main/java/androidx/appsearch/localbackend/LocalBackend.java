@@ -16,19 +16,18 @@
 
 package androidx.appsearch.localbackend;
 
-import static androidx.appsearch.app.AppSearchResult.newFailedResult;
 import static androidx.appsearch.app.AppSearchResult.newSuccessfulResult;
 
 import android.content.Context;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchBackend;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
@@ -36,150 +35,106 @@ import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.localbackend.converter.GenericDocumentToProtoConverter;
-import androidx.appsearch.localbackend.converter.SchemaToProtoConverter;
-import androidx.appsearch.localbackend.converter.SearchResultToProtoConverter;
-import androidx.appsearch.localbackend.converter.SearchSpecToProtoConverter;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
-import com.google.android.icing.proto.DocumentProto;
-import com.google.android.icing.proto.SchemaProto;
-import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.SearchResultProto;
-import com.google.android.icing.proto.SearchSpecProto;
+import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * An implementation of {@link androidx.appsearch.app.AppSearchBackend} which stores data locally
  * in the app's storage space using a bundled version of the search native library.
+ *
+ * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,
+ * delete, etc..).
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LocalBackend implements AppSearchBackend {
-    private static final String ICING_DIR = "icing";
+    private static volatile ListenableFuture<AppSearchResult<LocalBackend>> sInstance;
 
-    private static volatile AppSearchResult<LocalBackend> sInstance;
+    // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
+    // execute() won't return anything, we will hang forever waiting for the execution.
+    // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
+    // mutate requests will need to gain write lock and query requests need to gain read lock.
+    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
-    final AppSearchImpl mAppSearchImpl;
+    private volatile LocalBackendSyncImpl mSyncImpl;
 
     /**
      * Returns an instance of {@link LocalBackend}.
      *
-     * <p>If no instance exists, one will be created using the provided {@code context}, but not
-     * initialized.
-     *
-     * <p>You must call {@link #initialize} before using it.
+     * <p>If no instance exists, one will be created using the provided {@code context}.
      */
     @AnyThread
     @NonNull
-    public static AppSearchResult<LocalBackend> getInstance(@NonNull Context context) {
+    public static ListenableFuture<AppSearchResult<LocalBackend>> getInstance(
+            @NonNull Context context) {
         Preconditions.checkNotNull(context);
         if (sInstance == null) {
             synchronized (LocalBackend.class) {
                 if (sInstance == null) {
-                    File icingDir = new File(context.getFilesDir(), ICING_DIR);
-                    sInstance = newSuccessfulResult(new LocalBackend(icingDir));
+                    sInstance = new LocalBackend().initialize(context);
                 }
             }
         }
         return sInstance;
     }
 
-    @AnyThread
-    private LocalBackend(@NonNull File icingDir) {
-        mAppSearchImpl = new AppSearchImpl(icingDir);
-    }
+    private LocalBackend() {}
 
-    @Override
-    public boolean isInitialized() {
-        return mAppSearchImpl.isInitialized();
-    }
-
-    @Override
-    @NonNull
-    public AppSearchResult<Void> initialize() {
-        if (!mAppSearchImpl.isInitialized()) {
-            try {
-                mAppSearchImpl.initialize();
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
+    // NOTE: No instance of this class should be created or returned except via initialize().
+    // Once the ListenableFuture returned here is populated, the class is ready to use.
+    @GuardedBy("LocalBackend.class")
+    private ListenableFuture<AppSearchResult<LocalBackend>> initialize(@NonNull Context context) {
+        ResolvableFuture<AppSearchResult<LocalBackend>> future = ResolvableFuture.create();
+        mExecutorService.execute(() -> {
+            if (!future.isCancelled()) {
+                AppSearchResult<LocalBackendSyncImpl> implCreateResult =
+                        LocalBackendSyncImpl.create(context);
+                if (!implCreateResult.isSuccess()) {
+                    future.set(
+                            AppSearchResult.newFailedResult(
+                                    implCreateResult.getResultCode(),
+                                    implCreateResult.getErrorMessage()));
+                    return;
+                }
+                mSyncImpl = implCreateResult.getResultValue();
+                future.set(newSuccessfulResult(this));
             }
-        }
-        return AppSearchResult.newSuccessfulResult(null);
+        });
+        return future;
     }
 
     @Override
     @NonNull
-    public AppSearchResult<Void> setSchema(
+    public ListenableFuture<AppSearchResult<Void>> setSchema(
             @NonNull String databaseName, @NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
-        SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
-        for (AppSearchSchema schema : request.getSchemas()) {
-            SchemaTypeConfigProto schemaTypeProto = SchemaToProtoConverter.convert(schema);
-            schemaProtoBuilder.addTypes(schemaTypeProto);
-        }
-        try {
-            mAppSearchImpl.setSchema(
-                    databaseName, schemaProtoBuilder.build(), request.isForceOverride());
-            return AppSearchResult.newSuccessfulResult(/*value=*/ null);
-        } catch (Throwable t) {
-            return throwableToFailedResult(t);
-        }
+        return execute(() -> mSyncImpl.setSchema(databaseName, request));
     }
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> putDocuments(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
             @NonNull String databaseName, @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (int i = 0; i < request.getDocuments().size(); i++) {
-            GenericDocument document = request.getDocuments().get(i);
-            try {
-                DocumentProto documentProto = GenericDocumentToProtoConverter.convert(document);
-                mAppSearchImpl.putDocument(databaseName, documentProto);
-                resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
+        return execute(() -> mSyncImpl.putDocuments(databaseName, request));
     }
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, GenericDocument> getByUri(
+    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
             @NonNull String databaseName, @NonNull GetByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
-        AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (String uri : request.getUris()) {
-            try {
-                DocumentProto documentProto =
-                        mAppSearchImpl.getDocument(databaseName, request.getNamespace(), uri);
-                try {
-                    GenericDocument document =
-                            GenericDocumentToProtoConverter.convert(documentProto);
-                    resultBuilder.setSuccess(uri, document);
-                } catch (Throwable t) {
-                    // These documents went through validation, so how could this fail?
-                    // We must have done something wrong.
-                    resultBuilder.setFailure(
-                            uri, AppSearchResult.RESULT_INTERNAL_ERROR, t.getMessage());
-                }
-            } catch (Throwable t) {
-                resultBuilder.setResult(uri, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
+        return execute(() -> mSyncImpl.getByUri(databaseName, request));
     }
 
     @Override
@@ -191,174 +146,88 @@ public class LocalBackend implements AppSearchBackend {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        return new LocalBackendSearchResults(databaseName, queryExpression, searchSpec);
+        return new SearchResultsImpl(mSyncImpl.query(databaseName, queryExpression, searchSpec));
     }
-
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> removeByUri(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
             @NonNull String databaseName,
             @NonNull RemoveByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (String uri : request.getUris()) {
-            try {
-                mAppSearchImpl.remove(databaseName, request.getNamespace(), uri);
-                resultBuilder.setSuccess(uri, /*result= */null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(uri, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
+        return execute(() -> mSyncImpl.removeByUri(databaseName, request));
     }
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> removeByType(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull String databaseName, @NonNull List<String> schemaTypes) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(schemaTypes);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (int i = 0; i < schemaTypes.size(); i++) {
-            String schemaType = schemaTypes.get(i);
-            try {
-                mAppSearchImpl.removeByType(databaseName, schemaType);
-                resultBuilder.setSuccess(schemaType, /*result=*/ null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(schemaType, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
+        return execute(() -> mSyncImpl.removeByType(databaseName, schemaTypes));
     }
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> removeByNamespace(
+    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull String databaseName, @NonNull List<String> namespaces) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(namespaces);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (int i = 0; i < namespaces.size(); i++) {
-            String namespace = namespaces.get(i);
-            try {
-                mAppSearchImpl.removeByNamespace(databaseName, namespace);
-                resultBuilder.setSuccess(namespace, /*result=*/ null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(namespace, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
+        return execute(() -> mSyncImpl.removeByNamespace(databaseName, namespaces));
     }
 
     @Override
     @NonNull
-    public AppSearchResult<Void> removeAll(@NonNull String databaseName) {
+    public ListenableFuture<AppSearchResult<Void>> removeAll(@NonNull String databaseName) {
         Preconditions.checkNotNull(databaseName);
-        try {
-            mAppSearchImpl.removeAll(databaseName);
-            return AppSearchResult.newSuccessfulResult(null);
-        } catch (Throwable t) {
-            return throwableToFailedResult(t);
-        }
+        return execute(() -> mSyncImpl.removeAll(databaseName));
     }
 
     @VisibleForTesting
     @Override
     @NonNull
-    public AppSearchResult<Void> resetAllDatabases() {
-        try {
-            mAppSearchImpl.reset();
-            return AppSearchResult.newSuccessfulResult(null);
-        } catch (Throwable t) {
-            return throwableToFailedResult(t);
-        }
+    public ListenableFuture<AppSearchResult<Void>> resetAllDatabases() {
+        return execute(() -> mSyncImpl.resetAllDatabases());
     }
 
-    @NonNull
-    <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
-            @NonNull Throwable t) {
-        if (t instanceof AppSearchException) {
-            return ((AppSearchException) t).toAppSearchResult();
-        }
-
-        @AppSearchResult.ResultCode int resultCode;
-        if (t instanceof IllegalStateException) {
-            resultCode = AppSearchResult.RESULT_INTERNAL_ERROR;
-        } else if (t instanceof IllegalArgumentException) {
-            resultCode = AppSearchResult.RESULT_INVALID_ARGUMENT;
-        } else if (t instanceof IOException) {
-            resultCode = AppSearchResult.RESULT_IO_ERROR;
-        } else {
-            resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
-        }
-        return newFailedResult(resultCode, t.toString());
+    /** Executes the callable task and set result to ListenableFuture. */
+    <T> ListenableFuture<T> execute(Callable<T> callable) {
+        ResolvableFuture<T> future = ResolvableFuture.create();
+        mExecutorService.execute(() -> {
+            if (!future.isCancelled()) {
+                try {
+                    future.set(callable.call());
+                } catch (Throwable t) {
+                    future.setException(t);
+                }
+            }
+        });
+        return future;
     }
 
-    /**
-     * An implement of {@link AppSearchBackend.BackendSearchResults}, which presents the search
-     * results in the app's locally storage space using a bundled version of the search native
-     * library.
-     */
-    private class LocalBackendSearchResults implements BackendSearchResults {
-        private long mNextPageToken;
-        private final String mDatabaseName;
-        private final SearchSpec mSearchSpec;
-        private final String mQueryExpression;
-        private boolean mIsFirstLoad = true;
+    private class SearchResultsImpl implements BackendSearchResults {
+        private final LocalBackendSyncImpl.SearchResultsImpl mSyncResults;
 
-        LocalBackendSearchResults(@NonNull String databaseName,
-                @NonNull String queryExpression,
-                @NonNull SearchSpec searchSpec)  {
-            Preconditions.checkNotNull(databaseName);
-            Preconditions.checkNotNull(queryExpression);
-            Preconditions.checkNotNull(searchSpec);
-            mDatabaseName = databaseName;
-            mQueryExpression = queryExpression;
-            mSearchSpec = searchSpec;
+        SearchResultsImpl(@NonNull LocalBackendSyncImpl.SearchResultsImpl syncResults) {
+            mSyncResults = Preconditions.checkNotNull(syncResults);
         }
 
         @Override
         @NonNull
-        public AppSearchResult<List<SearchResults.Result>> getNextPage() {
-            try {
-                if (mIsFirstLoad) {
-                    mIsFirstLoad = false;
-                    SearchSpecProto searchSpecProto =
-                            SearchSpecToProtoConverter.toSearchSpecProto(mSearchSpec);
-                    searchSpecProto = searchSpecProto.toBuilder()
-                            .setQuery(mQueryExpression).build();
-                    SearchResultProto searchResultProto = mAppSearchImpl.query(
-                            mDatabaseName,
-                            searchSpecProto,
-                            SearchSpecToProtoConverter.toResultSpecProto(mSearchSpec),
-                            SearchSpecToProtoConverter.toScoringSpecProto(mSearchSpec));
-                    mNextPageToken = searchResultProto.getNextPageToken();
-                    return AppSearchResult.newSuccessfulResult(
-                            SearchResultToProtoConverter.toResults(searchResultProto));
-                } else {
-                    SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(mDatabaseName,
-                            mNextPageToken);
-                    mNextPageToken = searchResultProto.getNextPageToken();
-                    return AppSearchResult.newSuccessfulResult(
-                            SearchResultToProtoConverter.toResults(searchResultProto));
-                }
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
+        public ListenableFuture<AppSearchResult<List<SearchResults.Result>>> getNextPage() {
+            return execute(mSyncResults::getNextPage);
         }
 
         @Override
-        public void close() throws IOException {
-            try {
-                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
-            } catch (InterruptedException e) {
-                throw new IOException(e);
-            }
+        @SuppressWarnings("FutureReturnValueIgnored")
+        public void close() {
+            // Close the SearchResult in the backend thread. No future is needed here since the
+            // method is void.
+            execute(() -> {
+                mSyncResults.close();
+                return null;
+            });
         }
     }
 }
