@@ -295,13 +295,13 @@ class LocalBackendSyncImpl {
                             SearchSpecToProtoConverter.toScoringSpecProto(mSearchSpec));
                     mNextPageToken = searchResultProto.getNextPageToken();
                     return AppSearchResult.newSuccessfulResult(
-                            SearchResultToProtoConverter.toResults(searchResultProto));
+                            SearchResultToProtoConverter.convert(searchResultProto));
                 } else {
                     SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(mDatabaseName,
                             mNextPageToken);
                     mNextPageToken = searchResultProto.getNextPageToken();
                     return AppSearchResult.newSuccessfulResult(
-                            SearchResultToProtoConverter.toResults(searchResultProto));
+                            SearchResultToProtoConverter.convert(searchResultProto));
                 }
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
