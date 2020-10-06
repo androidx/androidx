@@ -287,7 +287,8 @@ public class AppSearchImplTest {
         SchemaProto finalSchemaProto = schemaProto;
         AppSearchException e = assertThrows(AppSearchException.class, () ->
                 mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/false));
-        assertThat(e).hasMessageThat().isEqualTo("Schema is incompatible.");
+        assertThat(e).hasMessageThat().contains("Schema is incompatible");
+        assertThat(e).hasMessageThat().contains("Deleted types: [database1/Document]");
 
         // ForceOverride to delete.
         mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/true);
