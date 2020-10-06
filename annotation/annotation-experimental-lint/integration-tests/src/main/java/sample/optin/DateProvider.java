@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+package sample.optin;
 
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
-
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
-}
-
-dependencies {
-    implementation KOTLIN_STDLIB
-    implementation project(":annotation:annotation-experimental")
-}
-
-// Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [ "-Xuse-experimental=kotlin.Experimental" ]
+@ExperimentalDateTime
+class DateProvider {
+    int getDate() {
+        return -1;
     }
 }

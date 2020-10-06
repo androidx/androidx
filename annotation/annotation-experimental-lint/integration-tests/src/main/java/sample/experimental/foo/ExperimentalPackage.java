@@ -14,5 +14,14 @@
  * limitations under the License.
  */
 
-@ExperimentalPackage
-package sample.foo;
+package sample.experimental.foo;
+
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Retention;
+
+@SuppressWarnings("deprecation")
+@Retention(CLASS)
+@androidx.annotation.experimental.Experimental(
+        level = androidx.annotation.experimental.Experimental.Level.ERROR)
+public @interface ExperimentalPackage {}

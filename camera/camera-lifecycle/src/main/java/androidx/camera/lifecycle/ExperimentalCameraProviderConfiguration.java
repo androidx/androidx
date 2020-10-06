@@ -18,8 +18,6 @@ package androidx.camera.lifecycle;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
-
 import java.lang.annotation.Retention;
 
 /**
@@ -35,7 +33,8 @@ import java.lang.annotation.Retention;
  *
  * @see androidx.camera.core.CameraXConfig.Provider
  */
+@SuppressWarnings("deprecation")
 @Retention(CLASS)
-@Experimental
+@androidx.annotation.experimental.Experimental
 public @interface ExperimentalCameraProviderConfiguration {
 }

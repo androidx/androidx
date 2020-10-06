@@ -14,47 +14,47 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.optin
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn
 
-import sample.foo.Bar;
-import sample.foo.ExperimentalPackage;
+import sample.optin.foo.Bar
+import sample.optin.foo.ExperimentalPackage
 
-@SuppressWarnings("unused")
-class UseJavaPackageFromJava {
+@Suppress("unused")
+class UseJavaPackageFromKt {
     /**
      * Unsafe call into a class within an experimental package.
      */
-    void callPackageUnsafe() {
-        Bar bar = new Bar();
-        bar.baz();
+    fun callPackageUnsafe() {
+        val bar = Bar()
+        bar.baz()
     }
 
     @ExperimentalPackage
-    void callPackageExperimental() {
-        Bar bar = new Bar();
-        bar.baz();
+    fun callPackageExperimental() {
+        val bar = Bar()
+        bar.baz()
     }
 
-    @UseExperimental(markerClass = ExperimentalPackage.class)
-    void callPackageUseExperimental() {
-        Bar bar = new Bar();
-        bar.baz();
+    @OptIn(ExperimentalPackage::class)
+    fun callPackageUseExperimental() {
+        val bar = Bar()
+        bar.baz()
     }
 
-    void callSelfUnsafe() {
-        callPackageUnsafe();
+    fun callSelfUnsafe() {
+        callPackageUnsafe()
     }
 
     /**
      * Unsafe call into an experimental method within this class.
      */
-    void callSelfExperimental() {
-        callPackageExperimental();
+    fun callSelfExperimental() {
+        callPackageExperimental()
     }
 
-    void callSelfUseExperimental() {
-        callPackageUseExperimental();
+    fun callSelfUseExperimental() {
+        callPackageUseExperimental()
     }
 }

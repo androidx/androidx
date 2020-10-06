@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.experimental;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 class UseKtExperimentalFromJava {
@@ -22,20 +22,20 @@ class UseKtExperimentalFromJava {
      * Unsafe call into an experimental class.
      */
     int getDateUnsafe() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         return dateProvider.getDate();
     }
 
     @ExperimentalDateTimeKt
     int getDateExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         return dateProvider.getDate();
     }
 
     @SuppressWarnings("deprecation")
-    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
     int getDateUseExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         return dateProvider.getDate();
     }
 
@@ -50,7 +50,7 @@ class UseKtExperimentalFromJava {
      */
     @ExperimentalDateTimeKt
     int getDateExperimentalLocationUnsafe() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         LocationProviderKt locationProvider = new LocationProviderKt();
         return dateProvider.getDate() + locationProvider.getLocation();
     }
@@ -58,25 +58,25 @@ class UseKtExperimentalFromJava {
     @ExperimentalDateTimeKt
     @ExperimentalLocationKt
     int getDateAndLocationExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         LocationProviderKt locationProvider = new LocationProviderKt();
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
     @SuppressWarnings("deprecation")
-    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
     @ExperimentalLocationKt
     int getDateUseExperimentalLocationExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
         LocationProviderKt locationProvider = new LocationProviderKt();
         return dateProvider.getDate() + locationProvider.getLocation();
     }
 
     @SuppressWarnings("deprecation")
-    @kotlin.UseExperimental(markerClass = {ExperimentalDateTimeKt.class,
+    @androidx.annotation.experimental.UseExperimental(markerClass = {ExperimentalDateTimeKt.class,
             ExperimentalLocationKt.class})
     int getDateAndLocationUseExperimental() {
-        DateProviderKt dateProvider = new DateProviderKt();
+        sample.experimental.DateProviderKt dateProvider = new DateProviderKt();
         LocationProviderKt locationProvider = new LocationProviderKt();
         return dateProvider.getDate() + locationProvider.getLocation();
     }
@@ -96,4 +96,12 @@ class UseKtExperimentalFromJava {
         new TimeProviderKt().getTime();
         new TimeProviderKt().getTimeJava();
     }
+
+    @SuppressWarnings("deprecation")
+    @androidx.annotation.experimental.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    static class FancyDateProvider extends DateProviderKt {}
+
+    @SuppressWarnings("deprecation")
+    @kotlin.UseExperimental(markerClass = ExperimentalDateTimeKt.class)
+    static class FancyDateProvider2 extends DateProviderKt {}
 }

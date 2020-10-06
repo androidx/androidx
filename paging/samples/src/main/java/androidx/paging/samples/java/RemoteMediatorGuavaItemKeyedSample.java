@@ -16,7 +16,7 @@
 
 package androidx.paging.samples.java;
 
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.ListenableFutureRemoteMediator;
 import androidx.paging.LoadType;
@@ -37,7 +37,7 @@ import java.util.concurrent.Executor;
 import retrofit2.HttpException;
 
 @SuppressWarnings("unused")
-@UseExperimental(markerClass = ExperimentalPagingApi.class)
+@OptIn(markerClass = ExperimentalPagingApi.class)
 class RemoteMediatorGuavaItemKeyedSample extends ListenableFutureRemoteMediator<Integer, User> {
     private String mQuery;
     private ExampleGuavaBackendService mNetworkService;
