@@ -46,11 +46,6 @@ public class ProviderUpdateRequester {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String EXTRA_PENDING_INTENT =
-            "android.support.wearable.complications.EXTRA_PENDING_INTENT";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_PROVIDER_COMPONENT =
             "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT";
 
@@ -96,7 +91,8 @@ public class ProviderUpdateRequester {
         intent.putExtra(EXTRA_PROVIDER_COMPONENT, mProviderComponent);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                EXTRA_PENDING_INTENT, PendingIntent.getActivity(mContext, 0, new Intent(""), 0));
+                ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+                PendingIntent.getActivity(mContext, 0, new Intent(""), 0));
         mContext.sendBroadcast(intent);
     }
 
@@ -117,7 +113,8 @@ public class ProviderUpdateRequester {
         intent.putExtra(EXTRA_COMPLICATION_IDS, complicationIds);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                EXTRA_PENDING_INTENT, PendingIntent.getActivity(mContext, 0, new Intent(""), 0));
+                ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+                PendingIntent.getActivity(mContext, 0, new Intent(""), 0));
 
         mContext.sendBroadcast(intent);
     }
