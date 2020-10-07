@@ -17,6 +17,16 @@
 package androidx.navigation.testing
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentController
+import androidx.fragment.app.FragmentHostCallback
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
+import androidx.navigation.createGraph
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.fragment
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.test.R
 import androidx.test.core.app.ApplicationProvider
@@ -68,6 +78,18 @@ class TestNavHostControllerTest {
     }
 
     @Test
+    fun testDsl() {
+        navController.navigatorProvider += NoOpFragmentNavigator()
+        navController.graph = navController.createGraph(R.id.test_graph, R.id.start_test) {
+            fragment<Fragment>(R.id.start_test)
+        }
+        val backStack = navController.backStack
+        assertThat(backStack).hasSize(2)
+        assertThat(backStack[1].destination)
+            .isInstanceOf(FragmentNavigator.Destination::class.java)
+    }
+
+    @Test
     fun testSetDestinationId() {
         navController.setGraph(R.navigation.test_graph)
         navController.setCurrentDestination(R.id.third_test)
@@ -91,4 +113,24 @@ class TestNavHostControllerTest {
         assertThat(actualArgs).containsKey("arg")
         assertThat(actualArgs).string("arg").isEqualTo("test")
     }
+}
+
+@Navigator.Name("fragment")
+class NoOpFragmentNavigator : FragmentNavigator(
+    ApplicationProvider.getApplicationContext(),
+    FragmentController.createController(object : FragmentHostCallback<Nothing>(
+        ApplicationProvider.getApplicationContext(), Handler(Looper.getMainLooper()), 0
+    ) {
+        override fun onGetHost() = null
+    }).supportFragmentManager,
+    0
+) {
+    override fun popBackStack() = true
+
+    override fun navigate(
+        destination: Destination,
+        args: Bundle?,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) = destination
 }
