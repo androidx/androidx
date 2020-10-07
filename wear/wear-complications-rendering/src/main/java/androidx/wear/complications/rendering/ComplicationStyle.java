@@ -88,6 +88,7 @@ public class ComplicationStyle {
     private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
     private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
     private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
+    private boolean mDirty = true;
 
     public ComplicationStyle() {
     }
@@ -113,6 +114,14 @@ public class ComplicationStyle {
         mRangedValuePrimaryColor = style.getRangedValuePrimaryColor();
         mRangedValueSecondaryColor = style.getRangedValueSecondaryColor();
         mHighlightColor = style.getHighlightColor();
+    }
+
+    boolean isDirty() {
+        return mDirty;
+    }
+
+    void clearDirtyFlag() {
+        mDirty = false;
     }
 
     /** Returns the background color to be used. */
@@ -277,7 +286,8 @@ public class ComplicationStyle {
      * @param colorFilter The {@link ColorFilter} to use
      */
     public void setImageColorFilter(@Nullable ColorFilter colorFilter) {
-        this.mImageColorFilter = colorFilter;
+        mImageColorFilter = colorFilter;
+        mDirty = true;
     }
 
     /**
@@ -286,7 +296,8 @@ public class ComplicationStyle {
      * @param iconColor The color to render the icon with
      */
     public void setIconColor(int iconColor) {
-        this.mIconColor = iconColor;
+        mIconColor = iconColor;
+        mDirty = true;
     }
 
     /**
@@ -295,7 +306,8 @@ public class ComplicationStyle {
      * @param textTypeface The {@link Typeface} to render the text with
      */
     public void setTextTypeface(@NonNull Typeface textTypeface) {
-        this.mTextTypeface = textTypeface;
+        mTextTypeface = textTypeface;
+        mDirty = true;
     }
 
     /**
@@ -304,7 +316,8 @@ public class ComplicationStyle {
      * @param titleTypeface The {@link Typeface} to render the title with
      */
     public void setTitleTypeface(@NonNull Typeface titleTypeface) {
-        this.mTitleTypeface = titleTypeface;
+        mTitleTypeface = titleTypeface;
+        mDirty = true;
     }
 
     /**
@@ -313,7 +326,8 @@ public class ComplicationStyle {
      * @param textSize The size of the text=
      */
     public void setTextSize(int textSize) {
-        this.mTextSize = textSize;
+        mTextSize = textSize;
+        mDirty = true;
     }
 
     /**
@@ -322,7 +336,8 @@ public class ComplicationStyle {
      * @param titleSize The size of the title text=
      */
     public void setTitleSize(int titleSize) {
-        this.mTitleSize = titleSize;
+        mTitleSize = titleSize;
+        mDirty = true;
     }
 
     /**
@@ -331,7 +346,8 @@ public class ComplicationStyle {
      * @param borderColor The color to render the complication border with
      */
     public void setBorderColor(int borderColor) {
-        this.mBorderColor = borderColor;
+        mBorderColor = borderColor;
+        mDirty = true;
     }
 
     /**
@@ -342,14 +358,15 @@ public class ComplicationStyle {
     public void setBorderStyle(@ComplicationDrawable.BorderStyle int borderStyle) {
         switch (borderStyle) {
             case ComplicationDrawable.BORDER_STYLE_SOLID:
-                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
+                mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
                 break;
             case ComplicationDrawable.BORDER_STYLE_DASHED:
-                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_DASHED;
+                mBorderStyle = ComplicationDrawable.BORDER_STYLE_DASHED;
                 break;
             default:
-                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_NONE;
+                mBorderStyle = ComplicationDrawable.BORDER_STYLE_NONE;
         }
+        mDirty = true;
     }
 
     /**
@@ -359,7 +376,8 @@ public class ComplicationStyle {
      * @param borderDashWidth The dash widths to render the complication border with
      */
     public void setBorderDashWidth(int borderDashWidth) {
-        this.mBorderDashWidth = borderDashWidth;
+        mBorderDashWidth = borderDashWidth;
+        mDirty = true;
     }
 
     /**
@@ -369,7 +387,8 @@ public class ComplicationStyle {
      * @param borderDashGap The dash gap render the complication border with
      */
     public void setBorderDashGap(int borderDashGap) {
-        this.mBorderDashGap = borderDashGap;
+        mBorderDashGap = borderDashGap;
+        mDirty = true;
     }
 
     /**
@@ -380,7 +399,8 @@ public class ComplicationStyle {
      * @param borderRadius The radius to render the complication border with
      */
     public void setBorderRadius(int borderRadius) {
-        this.mBorderRadius = borderRadius;
+        mBorderRadius = borderRadius;
+        mDirty = true;
     }
 
     /**
@@ -389,7 +409,8 @@ public class ComplicationStyle {
      * @param borderWidth The width to render the complication border with
      */
     public void setBorderWidth(int borderWidth) {
-        this.mBorderWidth = borderWidth;
+        mBorderWidth = borderWidth;
+        mDirty = true;
     }
 
     /**
@@ -398,7 +419,8 @@ public class ComplicationStyle {
      * @param rangedValueRingWidth The width to render the ranged value ring with
      */
     public void setRangedValueRingWidth(int rangedValueRingWidth) {
-        this.mRangedValueRingWidth = rangedValueRingWidth;
+        mRangedValueRingWidth = rangedValueRingWidth;
+        mDirty = true;
     }
 
     /**
@@ -407,7 +429,8 @@ public class ComplicationStyle {
      * @param rangedValuePrimaryColor The main color to render the ranged value text with
      */
     public void setRangedValuePrimaryColor(int rangedValuePrimaryColor) {
-        this.mRangedValuePrimaryColor = rangedValuePrimaryColor;
+        mRangedValuePrimaryColor = rangedValuePrimaryColor;
+        mDirty = true;
     }
 
     /**
@@ -416,7 +439,8 @@ public class ComplicationStyle {
      * @param rangedValueSecondaryColor The secondary color to render the ranged value text with
      */
     public void setRangedValueSecondaryColor(int rangedValueSecondaryColor) {
-        this.mRangedValueSecondaryColor = rangedValueSecondaryColor;
+        mRangedValueSecondaryColor = rangedValueSecondaryColor;
+        mDirty = true;
     }
 
     /**
@@ -425,6 +449,7 @@ public class ComplicationStyle {
      * @param highlightColor The background color to use when the complication is highlighted
      */
     public void setHighlightColor(int highlightColor) {
-        this.mHighlightColor = highlightColor;
+        mHighlightColor = highlightColor;
+        mDirty = true;
     }
 }

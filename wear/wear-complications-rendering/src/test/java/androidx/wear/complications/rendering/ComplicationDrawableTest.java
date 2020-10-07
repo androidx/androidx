@@ -679,6 +679,20 @@ public class ComplicationDrawableTest {
         assertThat(copy.getAmbientStyle().getTitleSize()).isEqualTo(titleSizeAmbient);
     }
 
+    @Test
+    public void testUpdateStyleIfRequired() {
+        mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
+        mComplicationDrawable.getActiveStyle().setBackgroundColor(123);
+
+        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
+                .mBackgroundPaint.getColor()).isNotEqualTo(123);
+
+        mComplicationDrawable.updateStyleIfRequired();
+
+        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
+                .mBackgroundPaint.getColor()).isEqualTo(123);
+    }
+
     /** Proxies necessary methods to Robolectric application. */
     private static class FakeWatchFaceService extends WatchFaceService {
 
