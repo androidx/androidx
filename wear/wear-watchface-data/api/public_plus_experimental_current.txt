@@ -1,0 +1,8 @@
+// Signature format: 4.0
+package android.support.wearable.watchface {
+
+  public final class SharedMemoryImage {
+  }
+
+}
+
