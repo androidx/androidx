@@ -67,20 +67,16 @@ public class FakeUseCase extends UseCase {
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return factory.getConfig(FakeUseCaseConfig.class);
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config config = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        return config == null ? null : getUseCaseConfigBuilder(config).getUseCaseConfig();
     }
 
     @Override
     public void onDetached() {
         super.onDetached();
         mIsDetached = true;
-    }
-
-    @NonNull
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return null;
     }
 
     @Override

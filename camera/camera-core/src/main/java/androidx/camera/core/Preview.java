@@ -445,8 +445,16 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return factory.getConfig(PreviewConfig.class);
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+
+        if (applyDefaultConfig) {
+            captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
+        }
+
+        return captureConfig == null ? null :
+                getUseCaseConfigBuilder(captureConfig).getUseCaseConfig();
     }
 
     /**
@@ -478,18 +486,6 @@ public final class Preview extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return Preview.Builder.fromConfig(config);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Preview.Builder.fromConfig((PreviewConfig) getCurrentConfig());
     }
 
     /**
@@ -614,13 +610,13 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
+        private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder =
-                    new Builder()
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder().setSurfaceOccupancyPriority(
+                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 

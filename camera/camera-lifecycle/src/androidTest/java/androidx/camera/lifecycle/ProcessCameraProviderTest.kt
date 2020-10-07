@@ -26,13 +26,13 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
@@ -441,7 +441,7 @@ class ProcessCameraProviderTest {
         val appConfigBuilder = CameraXConfig.Builder()
             .setCameraFactoryProvider(cameraFactoryProvider)
             .setDeviceSurfaceManagerProvider { _, _ -> FakeCameraDeviceSurfaceManager() }
-            .setUseCaseConfigFactoryProvider { ExtendableUseCaseConfigFactory() }
+            .setUseCaseConfigFactoryProvider { FakeUseCaseConfigFactory() }
 
         ProcessCameraProvider.configureInstance(appConfigBuilder.build())
 

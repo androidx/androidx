@@ -50,18 +50,13 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -619,18 +614,8 @@ public final class Camera2DeviceSurfaceManagerTest {
                 };
 
         // Create default configuration factory
-        UseCaseConfigFactory.Provider factoryProvider = context -> {
-            ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
-            configFactory.installDefaultProvider(
-                    ImageAnalysisConfig.class, new ImageAnalysisConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    ImageCaptureConfig.class, new ImageCaptureConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    VideoCaptureConfig.class, new VideoCaptureConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    PreviewConfig.class, new PreviewConfigProvider(context));
-            return configFactory;
-        };
+        UseCaseConfigFactory.Provider factoryProvider = context -> new Camera2UseCaseConfigFactory(
+                context);
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
