@@ -223,7 +223,7 @@ class ParameterFactoryTest {
         assertThat(lookup(Color.Blue)).isEqualTo(ParameterType.Color to 0xff0000ff.toInt())
         assertThat(lookup(Color.Red)).isEqualTo(ParameterType.Color to 0xffff0000.toInt())
         assertThat(lookup(Color.Transparent)).isEqualTo(ParameterType.Color to 0x00000000)
-        assertThat(lookup(Color.Unset)).isEqualTo(ParameterType.String to "Unset")
+        assertThat(lookup(Color.Unspecified)).isEqualTo(ParameterType.String to "Unspecified")
     }
 
     @Test
@@ -578,7 +578,7 @@ class ParameterFactoryTest {
         )
         validate(factory.create(node, "style", style)!!) {
             parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
-                parameter("background", ParameterType.String, "Unset")
+                parameter("background", ParameterType.String, "Unspecified")
                 parameter("color", ParameterType.Color, Color.Red.toArgb())
                 parameter("fontSize", ParameterType.String, "Inherit")
                 parameter("letterSpacing", ParameterType.String, "Inherit")

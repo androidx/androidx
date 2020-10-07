@@ -92,7 +92,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         val textDecorationCombination = TextDecoration.combine(
             listOf(TextDecoration.LineThrough, TextDecoration.Underline))
         valueLookup[textDecorationCombination] = "LineThrough+Underline"
-        valueLookup[Color.Unset] = "Unset"
+        valueLookup[Color.Unspecified] = "Unspecified"
         valuesLoaded.add(Enum::class.java)
         valuesLoaded.add(Any::class.java)
     }
