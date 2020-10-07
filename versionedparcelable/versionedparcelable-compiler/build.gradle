@@ -33,7 +33,7 @@ dependencies {
 
 androidx {
     name = "VersionedParcelable - Compiler"
-    publish = Publish.SNAPSHOT_ONLY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
     toolingProject = true
     compilationTarget = CompilationTarget.HOST
