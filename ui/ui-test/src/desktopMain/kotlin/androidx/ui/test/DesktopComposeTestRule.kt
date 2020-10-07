@@ -32,7 +32,6 @@ import kotlinx.coroutines.delay
 import org.jetbrains.skija.Surface
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.awt.Component
 import java.util.LinkedList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
@@ -131,8 +130,7 @@ class DesktopComposeTestRule(
     override fun setContent(composable: @Composable () -> Unit) {
         val surface = Surface.makeRasterN32Premul(displaySize.width, displaySize.height)
         val canvas = surface.canvas
-        val component = object : Component() {}
-        val owners = DesktopOwners(component = component, invalidate = {}).also {
+        val owners = DesktopOwners(invalidate = {}).also {
             owners = it
         }
         val owner = DesktopOwner(owners)
