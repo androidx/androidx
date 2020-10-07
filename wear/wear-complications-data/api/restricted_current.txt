@@ -182,6 +182,10 @@ package androidx.wear.complications {
     method public void onUpdateComplication(android.support.wearable.complications.ComplicationData?) throws android.os.RemoteException;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public static interface ComplicationProviderService.RetailModeProvider {
+    method public boolean inRetailMode();
+  }
+
   public final class DefaultComplicationProviderPolicy {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, int systemProviderFallback);
     ctor public DefaultComplicationProviderPolicy();

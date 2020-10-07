@@ -272,7 +272,8 @@ public abstract class ComplicationProviderService extends Service {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    interface RetailModeProvider {
+    @VisibleForTesting
+    public interface RetailModeProvider {
         /**
          * Returns true if the device is currently running in retail mode (e.g. the watch is being
          * demonstrated in a store, or the watch face is being configured by the system UI).
