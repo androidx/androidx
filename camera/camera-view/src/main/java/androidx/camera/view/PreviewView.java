@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -722,14 +724,16 @@ public class PreviewView extends FrameLayout {
     /**
      * Sets the {@link CameraController}.
      *
-     * <p> The controller creates and manages the {@link Preview} that backs the
-     * {@link PreviewView}. It also configures the {@link ViewPort} based on the {@link ScaleType}
-     * and the dimension of the {@link PreviewView}.
+     * <p> Once set, the controller will use {@link PreviewView} to display camera preview feed.
+     * It also uses the {@link PreviewView}'s layout dimension to set the crop rect for all the use
+     * cases so that the output from other use cases match what the end user sees in
+     * {@link PreviewView}. It also enables features like tap-to-focus and pinch-to-zoom.
      *
      * @hide
+     * @see LifecycleCameraController
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @MainThread
+    @RestrictTo(LIBRARY_GROUP)
     public void setController(@Nullable CameraController cameraController) {
         Threads.checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
@@ -746,9 +750,9 @@ public class PreviewView extends FrameLayout {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @MainThread
+    @RestrictTo(LIBRARY_GROUP)
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;
