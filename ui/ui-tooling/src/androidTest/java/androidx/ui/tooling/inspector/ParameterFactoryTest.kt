@@ -403,12 +403,7 @@ class ParameterFactoryTest {
                     parameter("width", ParameterType.DimensionDp, 5.0f)
                     parameter("shape", ParameterType.String, "Shape")
                 }*/
-                parameter("padding", ParameterType.DimensionDp, 2.0f) {
-                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
-                    parameter("end", ParameterType.DimensionDp, 2.0f)
-                    parameter("start", ParameterType.DimensionDp, 2.0f)
-                    parameter("top", ParameterType.DimensionDp, 2.0f)
-                }
+                parameter("padding", ParameterType.DimensionDp, 2.0f)
                 parameter("fillMaxWidth", ParameterType.String, "")
                 parameter("wrapContentHeight", ParameterType.String, "") {
                     parameter("alignment", ParameterType.String, "Bottom")
@@ -445,10 +440,19 @@ class ParameterFactoryTest {
     fun testSingleModifier() {
         validate(factory.create(node, "modifier", Modifier.padding(2.0.dp))!!) {
             parameter("modifier", ParameterType.String, "") {
-                parameter("padding", ParameterType.DimensionDp, 2.0f) {
-                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
-                    parameter("end", ParameterType.DimensionDp, 2.0f)
-                    parameter("start", ParameterType.DimensionDp, 2.0f)
+                parameter("padding", ParameterType.DimensionDp, 2.0f)
+            }
+        }
+    }
+
+    @Test
+    fun testSingleModifierWithParameters() {
+        validate(factory.create(node, "modifier", Modifier.padding(1.dp, 2.dp, 3.dp, 4.dp))!!) {
+            parameter("modifier", ParameterType.String, "") {
+                parameter("padding", ParameterType.String, "") {
+                    parameter("bottom", ParameterType.DimensionDp, 4.0f)
+                    parameter("end", ParameterType.DimensionDp, 3.0f)
+                    parameter("start", ParameterType.DimensionDp, 1.0f)
                     parameter("top", ParameterType.DimensionDp, 2.0f)
                 }
             }
