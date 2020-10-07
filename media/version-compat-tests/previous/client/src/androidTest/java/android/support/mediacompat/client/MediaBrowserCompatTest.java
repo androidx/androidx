@@ -229,7 +229,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testConnectTwice() throws Exception {
         connectMediaBrowserService();
         try {
