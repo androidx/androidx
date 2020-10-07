@@ -86,7 +86,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="moocow"
+            android:authorities="moocow;additional.authority"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
