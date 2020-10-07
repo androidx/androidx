@@ -96,9 +96,10 @@ public class CameraControllerFragment extends Fragment {
         for (byte value : bytes) {
             total += value & 0xFF;
         }
-        final int luminance = total / bytes.length;
-        mLuminance.post(
-                () -> mLuminance.setText(String.valueOf(luminance)));
+        if (bytes.length != 0) {
+            final int luminance = total / bytes.length;
+            mLuminance.post(() -> mLuminance.setText(String.valueOf(luminance)));
+        }
         // Forward the call to wrapped analyzer if set.
         if (mWrappedAnalyzer != null) {
             mWrappedAnalyzer.analyze(image);
