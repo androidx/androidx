@@ -397,6 +397,7 @@ public class FileProvider extends ContentProvider {
      * @param context A {@link Context} for the current component.
      * @param info A {@link ProviderInfo} for the new provider.
      */
+    @SuppressWarnings("StringSplitter")
     @Override
     public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
         super.attachInfo(context, info);
@@ -409,7 +410,7 @@ public class FileProvider extends ContentProvider {
             throw new SecurityException("Provider must grant uri permissions");
         }
 
-        mStrategy = getPathStrategy(context, info.authority);
+        mStrategy = getPathStrategy(context, info.authority.split(";")[0]);
     }
 
     /**
