@@ -57,7 +57,7 @@ import org.junit.Test
 class PositionsTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun testCornersEdgesAndCenter() {

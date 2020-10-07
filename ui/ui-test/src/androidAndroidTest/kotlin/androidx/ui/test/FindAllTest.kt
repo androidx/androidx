@@ -33,7 +33,7 @@ import org.junit.runners.JUnit4
 class FindAllTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findAllTest_twoComponents_areChecked() {

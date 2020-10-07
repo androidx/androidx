@@ -117,7 +117,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(

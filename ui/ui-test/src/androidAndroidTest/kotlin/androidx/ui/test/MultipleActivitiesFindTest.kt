@@ -29,7 +29,7 @@ import org.junit.Test
 class MultipleActivitiesFindTest {
 
     @get:Rule
-    val rule = createAndroidComposeRule<Activity1>(disableTransitions = true)
+    val rule = createAndroidComposeRule<Activity1>()
 
     @Test
     fun test() {

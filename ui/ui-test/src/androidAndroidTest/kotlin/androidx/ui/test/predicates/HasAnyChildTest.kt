@@ -33,7 +33,7 @@ import org.junit.runners.JUnit4
 class HasAnyChildTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findByChild_oneSubtree_oneChild_matches() {

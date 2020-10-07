@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 class FindersTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findAll_zeroOutOfOne_findsNone() {
