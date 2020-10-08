@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeVariableName
 
@@ -55,19 +56,13 @@ internal sealed class KspMethodType(
                 )
             )
         }
-
-        override fun getSuspendFunctionReturnType(): XType {
-            throw IllegalStateException(
-                "cannot call getSuspendFunctionReturnType on a non-suspend method. $this"
-            )
-        }
     }
 
     private class KspSuspendMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
         containing: KspType
-    ) : KspMethodType(env, origin, containing) {
+    ) : KspMethodType(env, origin, containing), XSuspendMethodType {
         override val returnType: XType
             // suspend functions always return Any?, no need to call asMemberOf
             get() = origin.returnType
