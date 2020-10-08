@@ -13,7 +13,7 @@
  */
 package androidx.leanback.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * Helper for view transitions.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 public final class TransitionHelper {
 
     public static final int FADE_IN = 0x1;
