@@ -17,6 +17,7 @@
 package android.support.wearable.watchface;
 
 import android.support.wearable.complications.ComplicationData;
+import androidx.wear.watchface.data.IdAndComplicationData;
 import androidx.wear.watchface.data.ImmutableSystemState;
 import androidx.wear.watchface.data.IndicatorState;
 import androidx.wear.watchface.data.RenderParametersWireFormat;
@@ -109,6 +110,8 @@ interface IWatchFaceCommand {
      * @param renderParameters The {@link RenderParametersWireFormat} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
+     * @param complicationData The complications to render with. If null then the current
+     *     complication data is used instead.
      * @param style A {@link StyleMapWireFormat}. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
@@ -116,6 +119,7 @@ interface IWatchFaceCommand {
     Bundle takeWatchfaceScreenshot(in RenderParametersWireFormat renderParameters,
                                    in int compressionQuality,
                                    in long calendarTimeMillis,
+                                   in List<IdAndComplicationData> complicationData,
                                    in UserStyleWireFormat style) = 9;
 
     /**
