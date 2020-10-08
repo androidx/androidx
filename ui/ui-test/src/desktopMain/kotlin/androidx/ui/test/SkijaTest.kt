@@ -15,16 +15,13 @@
  */
 package androidx.ui.test
 
-import androidx.compose.runtime.EmbeddingContext
-import androidx.compose.runtime.EmbeddingContextFactory
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.skija.Surface
 import org.jetbrains.skiko.Library
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 import java.io.File
 import java.security.MessageDigest
-import org.junit.rules.TestRule
-import org.junit.runners.model.Statement
-import org.junit.runner.Description
 import java.util.LinkedList
 
 // TODO: replace with androidx.test.screenshot.proto.ScreenshotResultProto after MPP
@@ -178,9 +175,7 @@ private object ComposeInit {
     }
 }
 
-class ScreenshotTestRule internal constructor(val config: GoldenConfig) :
-    TestRule,
-    EmbeddingContext {
+class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRule {
     private lateinit var testIdentifier: String
     private lateinit var album: SkijaTestAlbum
 
@@ -195,13 +190,9 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) :
     override fun apply(base: Statement, description: Description?): Statement {
         return object : Statement() {
             override fun evaluate() {
-                EmbeddingContextFactory = fun() = this@ScreenshotTestRule
                 album = SkijaTestAlbum(config)
-                testIdentifier = "${description!!.className}_${description.methodName}".replace(
-                    "" +
-                        ".",
-                    "_"
-                )
+                testIdentifier = "${description!!.className}_${description.methodName}"
+                    .replace(".", "_").replace(",", "_").replace(" ", "_").replace("__", "_")
                 base.evaluate()
                 runExecutionQueue()
                 handleReport(album.check())
@@ -242,7 +233,4 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) :
             }
         }
     }
-
-    override fun isMainThread() = true
-    override fun mainThreadCompositionContext() = Dispatchers.Main
 }

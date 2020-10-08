@@ -17,8 +17,6 @@
 package androidx.ui.test
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.EmbeddingContext
-import androidx.compose.runtime.EmbeddingContextFactory
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
@@ -27,7 +25,6 @@ import androidx.compose.ui.platform.DesktopOwners
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import org.jetbrains.skija.Surface
 import org.junit.runner.Description
@@ -50,7 +47,7 @@ actual fun createComposeRule(
 class DesktopComposeTestRule(
     private val disableTransitions: Boolean = false,
     private val disableBlinkingCursor: Boolean = true
-) : ComposeTestRuleJUnit, EmbeddingContext {
+) : ComposeTestRuleJUnit {
 
     companion object {
         init {
@@ -61,6 +58,7 @@ class DesktopComposeTestRule(
     }
 
     var owners: DesktopOwners? = null
+    private var owner: DesktopOwner? = null
 
     override val clockTestRule: AnimationClockTestRule = DesktopAnimationClockTestRule()
 
@@ -75,9 +73,10 @@ class DesktopComposeTestRule(
         current = this
         return object : Statement() {
             override fun evaluate() {
-                EmbeddingContextFactory = fun() = this@DesktopComposeTestRule
                 base.evaluate()
                 runExecutionQueue()
+                owner?.dispose()
+                owner = null
             }
         }
     }
@@ -128,6 +127,9 @@ class DesktopComposeTestRule(
     }
 
     override fun setContent(composable: @Composable () -> Unit) {
+        check(owner == null) {
+            "Cannot call setContent twice per test!"
+        }
         val surface = Surface.makeRasterN32Premul(displaySize.width, displaySize.height)
         val canvas = surface.canvas
         val owners = DesktopOwners(invalidate = {}).also {
@@ -137,8 +139,6 @@ class DesktopComposeTestRule(
         owner.setContent(composable)
         owner.setSize(displaySize.width, displaySize.height)
         owner.draw(canvas)
+        this.owner = owner
     }
-
-    override fun isMainThread() = true
-    override fun mainThreadCompositionContext() = Dispatchers.Default
 }
