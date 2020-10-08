@@ -19,14 +19,21 @@ package androidx.biometric;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
+import androidx.core.os.CancellationSignal;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
@@ -57,6 +64,9 @@ public class BiometricFragmentTest {
 
     @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
     @Mock private Handler mHandler;
+    @Mock private androidx.core.hardware.fingerprint.FingerprintManagerCompat
+            mFingerprintManagerCompat;
+    @Mock private Context mContext;
 
     @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
@@ -121,6 +131,36 @@ public class BiometricFragmentTest {
                         .setNegativeButtonText("Cancel")
                         .build(),
                 null /* crypto */);
+    }
+
+    @Test
+    public void testAuthenticateWithFingerprint_DoesShowErrorAndDismiss_WhenNPEThrown() {
+        mViewModel.setClientExecutor(EXECUTOR);
+        mViewModel.setClientCallback(mAuthenticationCallback);
+        mViewModel.setAwaitingResult(true);
+
+        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+        final String errString = "test string";
+
+        doThrow(NullPointerException.class).when(mFingerprintManagerCompat).authenticate(
+                nullable(androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                        .CryptoObject.class),
+                anyInt(),
+                any(CancellationSignal.class),
+                any(androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                        .AuthenticationCallback.class),
+                nullable(Handler.class)
+        );
+
+        // Configure mock context to return test string
+        when(mContext.getString(anyInt())).thenReturn(errString);
+
+        // Have authentication via BiometricPrompt run, and have it invoke the mFingerprintCompat
+        // authenticate call
+        mFragment.authenticateWithFingerprint(mFingerprintManagerCompat, mContext);
+
+        // Verify that authentication should fail and we should receive onError
+        verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
     }
 
     private static void prepareMockHandler(Handler mockHandler) {
