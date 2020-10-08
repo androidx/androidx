@@ -21,11 +21,13 @@ import org.jetbrains.kotlin.ksp.getAllSuperTypes
 import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
+import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSName
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
 import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
+import org.jetbrains.kotlin.ksp.symbol.KSVariableParameter
 import org.jetbrains.kotlin.ksp.symbol.Nullability
 
 /**
@@ -38,6 +40,27 @@ import org.jetbrains.kotlin.ksp.symbol.Nullability
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
     val myType: KSType = checkNotNull(type?.requireType()) {
         "Cannot find type of Kotlin property: $this"
+    }
+    return myType.asMemberOf(resolver, this, ksType)
+}
+
+internal fun KSVariableParameter.typeAsMemberOf(
+    resolver: Resolver,
+    functionDeclaration: KSFunctionDeclaration,
+    ksType: KSType
+): KSType {
+    val myType: KSType = checkNotNull(type?.requireType()) {
+        "Cannot find type of method parameter: $this"
+    }
+    return myType.asMemberOf(resolver, functionDeclaration, ksType)
+}
+
+internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
+    resolver: Resolver,
+    ksType: KSType
+): KSType {
+    val myType: KSType = checkNotNull(returnType?.requireType()) {
+        "Cannot resolve return type of $this"
     }
     return myType.asMemberOf(resolver, this, ksType)
 }

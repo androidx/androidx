@@ -16,12 +16,14 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.squareup.javapoet.ClassName
 import org.jetbrains.kotlin.ksp.getAllSuperTypes
@@ -36,7 +38,10 @@ import org.jetbrains.kotlin.ksp.symbol.Modifier
 internal class KspTypeElement(
     env: KspProcessingEnv,
     override val declaration: KSClassDeclaration
-) : KspElement(env, declaration), XTypeElement, XHasModifiers by KspHasModifiers(declaration) {
+) : KspElement(env, declaration),
+    XTypeElement,
+    XHasModifiers by KspHasModifiers(declaration),
+    XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
 
     override val name: String by lazy {
         declaration.simpleName.asString()
@@ -185,7 +190,7 @@ internal class KspTypeElement(
                 // filter out constructors
                 it.simpleName.asString() != name
             }.map {
-                KspMethodElement(
+                KspMethodElement.create(
                     env = env,
                     containing = this,
                     declaration = it

@@ -16,18 +16,23 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.FIELD
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
     val containing: KspTypeElement
-) : KspElement(env, declaration), XFieldElement, XHasModifiers by KspHasModifiers(declaration) {
+) : KspElement(env, declaration),
+    XFieldElement,
+    XHasModifiers by KspHasModifiers(declaration),
+    XAnnotated by KspAnnotated.create(env, declaration, FIELD) {
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(declaration, containing)
