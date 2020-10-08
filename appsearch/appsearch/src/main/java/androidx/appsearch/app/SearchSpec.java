@@ -73,6 +73,7 @@ public final class SearchSpec {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_NUM_PER_PAGE = 10;
 
+    // TODO(b/170371356): In framework, we may want these limits might be flag controlled.
     private static final int MAX_NUM_PER_PAGE = 10_000;
     private static final int MAX_SNIPPET_COUNT = 10_000;
     private static final int MAX_SNIPPET_PER_PROPERTY_COUNT = 10_000;
@@ -107,7 +108,7 @@ public final class SearchSpec {
             TERM_MATCH_PREFIX
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface TermMatchCode {}
+    public @interface TermMatch {}
 
     /**
      * Query terms will only match exact tokens in the index.
@@ -125,14 +126,14 @@ public final class SearchSpec {
      * @hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
-    // {@link ScoringSpecProto.RankingStrategy.Code }
+    // {@link ScoringSpecProto.RankingStrategy.Code}
     @IntDef(value = {
             RANKING_STRATEGY_NONE,
             RANKING_STRATEGY_DOCUMENT_SCORE,
             RANKING_STRATEGY_CREATION_TIMESTAMP
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface RankingStrategyCode {}
+    public @interface RankingStrategy {}
 
     /** No Ranking, results are returned in arbitrary order.*/
     public static final int RANKING_STRATEGY_NONE = 0;
@@ -146,13 +147,13 @@ public final class SearchSpec {
      * @hide
      */
     // NOTE: The integer values of these constants must match the proto enum constants in
-    // {@link ScoringSpecProto.Order.Code }
+    // {@link ScoringSpecProto.Order.Code}
     @IntDef(value = {
             ORDER_DESCENDING,
             ORDER_ASCENDING
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface OrderCode {}
+    public @interface Order {}
 
     /** Search results will be returned in a descending order. */
     public static final int ORDER_DESCENDING = 0;
@@ -175,7 +176,7 @@ public final class SearchSpec {
          * Indicates how the query terms should match {@code TermMatchCode} in the index.
          */
         @NonNull
-        public Builder setTermMatch(@TermMatchCode int termMatchTypeCode) {
+        public Builder setTermMatch(@TermMatch int termMatchTypeCode) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(termMatchTypeCode, TERM_MATCH_EXACT_ONLY,
                     TERM_MATCH_PREFIX, "Term match type");
@@ -223,7 +224,7 @@ public final class SearchSpec {
 
         /** Sets ranking strategy for AppSearch results.*/
         @NonNull
-        public Builder setRankingStrategy(@RankingStrategyCode int rankingStrategy) {
+        public Builder setRankingStrategy(@RankingStrategy int rankingStrategy) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
                     RANKING_STRATEGY_CREATION_TIMESTAMP, "Result ranking strategy");
@@ -237,7 +238,7 @@ public final class SearchSpec {
          * <p>This order field will be ignored if RankingStrategy = {@code RANKING_STRATEGY_NONE}.
          */
         @NonNull
-        public Builder setOrder(@OrderCode int order) {
+        public Builder setOrder(@Order int order) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
                     "Result ranking order");
