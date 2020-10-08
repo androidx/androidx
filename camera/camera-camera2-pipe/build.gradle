@@ -100,7 +100,7 @@ android.libraryVariants.all { variant ->
 
 androidx {
     name = "Jetpack Camera Pipe"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenGroup = LibraryGroups.CAMERA
     mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
