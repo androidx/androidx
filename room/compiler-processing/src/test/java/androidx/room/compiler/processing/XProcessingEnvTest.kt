@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
@@ -29,7 +30,7 @@ import org.junit.runners.JUnit4
 class XProcessingEnvTest {
     @Test
     fun getElement() {
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(
                 Source.java(
                     "foo.bar.Baz", """
@@ -91,7 +92,7 @@ class XProcessingEnvTest {
 
     @Test
     fun basic() {
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(
                 Source.java(
                     "foo.bar.Baz", """
@@ -111,11 +112,12 @@ class XProcessingEnvTest {
             assertThat(element.name).isEqualTo("Baz")
             assertThat(element.asDeclaredType().typeName)
                 .isEqualTo(ClassName.get("foo.bar", "Baz"))
+            assertThat(element.findPrimaryConstructor()).isNull()
             assertThat(element.getConstructors()).hasSize(1)
             assertThat(element.getDeclaredMethods()).hasSize(2)
             assertThat(element.kindName()).isEqualTo("class")
             assertThat(element.isInterface()).isFalse()
-            assertThat(element.superType?.typeName).isEqualTo(TypeName.OBJECT)
+            assertThat(element.superType?.typeName).isEqualTo(it.types.objectOrAny)
         }
     }
 
@@ -148,7 +150,7 @@ class XProcessingEnvTest {
                 }
             }
         """.trimIndent())
-        runProcessorTest(sources = listOf(src)) {
+        runProcessorTestIncludingKsp(sources = listOf(src)) {
             it.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
                 val className = it.className
                 assertThat(className.packageName()).isEqualTo("foo.bar")

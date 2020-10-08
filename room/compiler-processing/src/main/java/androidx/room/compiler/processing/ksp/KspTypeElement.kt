@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.squareup.javapoet.ClassName
 import org.jetbrains.kotlin.ksp.getAllSuperTypes
@@ -32,8 +33,10 @@ import org.jetbrains.kotlin.ksp.getDeclaredProperties
 import org.jetbrains.kotlin.ksp.isOpen
 import org.jetbrains.kotlin.ksp.symbol.ClassKind
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
+import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 import org.jetbrains.kotlin.ksp.symbol.Modifier
+import org.jetbrains.kotlin.ksp.symbol.Origin
 
 internal class KspTypeElement(
     env: KspProcessingEnv,
@@ -181,7 +184,18 @@ internal class KspTypeElement(
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {
-        TODO("Not yet implemented")
+        val primary = if (declaration.declaredConstructors().isEmpty() && !isInterface()) {
+            declaration.primaryConstructor
+        } else {
+            declaration.getNonSyntheticPrimaryConstructor()
+        }
+        return primary?.let {
+            KspConstructorElement(
+                env = env,
+                containing = this,
+                declaration = it
+            )
+        }
     }
 
     private val _declaredMethods by lazy {
@@ -212,24 +226,32 @@ internal class KspTypeElement(
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        val constructors = declaration.getDeclaredFunctions()
-            .filter {
-                it.simpleName.asString() == name
-            }.toMutableList()
-        declaration.primaryConstructor?.let { primary ->
-            // workaround for https://github.com/android/kotlin/issues/136
-            // TODO remove once that bug is fixed
-            if (primary.simpleName.asString() != "<init>") {
-                constructors.add(primary)
-            }
+        val constructors = declaration.declaredConstructors().toMutableList()
+        val primary = if (constructors.isEmpty() && !isInterface()) {
+            declaration.primaryConstructor
+        } else {
+            declaration.getNonSyntheticPrimaryConstructor()
         }
+        primary?.let(constructors::add)
 
-        return constructors.map {
+        val elements: List<XConstructorElement> = constructors.map {
             KspConstructorElement(
                 env = env,
                 containing = this,
                 declaration = it
             )
+        }
+        return if (elements.isEmpty() &&
+            declaration.origin == Origin.JAVA &&
+            !isInterface()) {
+            // workaround for https://github.com/google/ksp/issues/98
+            // TODO remove if KSP support this
+            listOf(KspSyntheticConstructorForJava(
+                env = env,
+                origin = this
+            ))
+        } else {
+            elements
         }
     }
 
@@ -243,4 +265,20 @@ internal class KspTypeElement(
                 env.wrapClassDeclaration(it)
             }
     }
+
+    private fun KSClassDeclaration.getNonSyntheticPrimaryConstructor(): KSFunctionDeclaration? {
+        val primary = declaration.primaryConstructor
+        // workaround for https://github.com/android/kotlin/issues/136
+        // TODO remove once that bug is fixed
+        return if (primary?.simpleName?.asString() != "<init>") {
+            primary
+        } else {
+            null
+        }
+    }
+
+    private fun KSClassDeclaration.declaredConstructors() = this.getDeclaredFunctions()
+        .filter {
+            it.simpleName == this.simpleName
+        }.distinct() // workaround for: https://github.com/google/ksp/issues/99
 }
