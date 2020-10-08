@@ -26,7 +26,7 @@ import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication

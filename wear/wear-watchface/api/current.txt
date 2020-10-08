@@ -2,18 +2,18 @@
 package androidx.wear.watchface {
 
   public class CanvasComplicationDrawableRenderer implements androidx.wear.watchface.CanvasComplicationRenderer {
-    ctor public CanvasComplicationDrawableRenderer(androidx.wear.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
+    ctor public CanvasComplicationDrawableRenderer(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
     method public android.support.wearable.complications.ComplicationData? getData();
-    method public final androidx.wear.complications.rendering.ComplicationDrawable getDrawable();
+    method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void onDetach();
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method public void setData(android.support.wearable.complications.ComplicationData? data);
-    method public final void setDrawable(androidx.wear.complications.rendering.ComplicationDrawable value);
+    method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
     method public void setInvalidateCallback(androidx.wear.watchface.CanvasComplicationRenderer.InvalidateCallback callback);
     method public void setIsHighlighted(boolean highlight);
-    property public final androidx.wear.complications.rendering.ComplicationDrawable drawable;
+    property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
   }
 
   public interface CanvasComplicationRenderer {

@@ -26,7 +26,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 

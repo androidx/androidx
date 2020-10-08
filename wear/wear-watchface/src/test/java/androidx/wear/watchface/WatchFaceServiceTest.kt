@@ -34,7 +34,7 @@ import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.style.Layer
