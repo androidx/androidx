@@ -47,9 +47,9 @@ internal class KotlinMetadataElement(
     private val ExecutableElement.descriptor: String
         get() = descriptor()
 
-    fun findPrimaryConstructorSignature() = constructorList.first {
+    fun findPrimaryConstructorSignature() = constructorList.firstOrNull {
         it.isPrimary()
-    }.descriptor
+    }?.descriptor
 
     fun isObject(): Boolean = classMetadata.isObject()
 
