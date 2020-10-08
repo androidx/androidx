@@ -66,13 +66,14 @@ class BoundsTest : ToolingTest() {
 
         activityTestRule.runOnUiThread {
             val tree = slotTableRecord.store.first().asTree()
+
             val boundingBoxes = tree.firstOrNull {
-                it.position?.contains("BoundsTest.kt") == true && it.box.right > 0
+                it.location?.sourceFile?.equals("BoundsTest.kt") == true && it.box.right > 0
             }!!
                 .all()
                 .filter {
-                    val name = it.position
-                    name != null && name.contains("BoundsTest.kt")
+                    val name = it.location?.sourceFile
+                    name != null && name.equals("BoundsTest.kt")
                 }
                 .map {
                     it.box.left
@@ -80,7 +81,6 @@ class BoundsTest : ToolingTest() {
                 .distinct()
                 .sorted()
                 .toTypedArray()
-
             with(Density(activityTestRule.activity)) {
                 println(boundingBoxes.contentDeepToString())
                 arrayOf(
