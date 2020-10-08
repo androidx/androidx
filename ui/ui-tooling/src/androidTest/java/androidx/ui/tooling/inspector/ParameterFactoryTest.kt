@@ -405,13 +405,14 @@ class ParameterFactoryTest {
                     parameter("width", ParameterType.DimensionDp, 5.0f)
                 }
                 parameter("padding", ParameterType.DimensionDp, 2.0f)
-                parameter("fillMaxWidth", ParameterType.String, "")
+                parameter("fillMaxWidth", ParameterType.String, "") {
+                    parameter("fraction", ParameterType.Float, 1.0f)
+                }
                 parameter("wrapContentHeight", ParameterType.String, "") {
-                    parameter("alignment", ParameterType.String, "Bottom")
+                    parameter("align", ParameterType.String, "Bottom")
+                    parameter("unbounded", ParameterType.Boolean, false)
                 }
-                parameter("preferredWidth", ParameterType.DimensionDp, 30.0f) {
-                    parameter("width", ParameterType.DimensionDp, 30.0f)
-                }
+                parameter("preferredWidth", ParameterType.DimensionDp, 30.0f)
                 parameter("paint", ParameterType.String, "") {
                     parameter("alignment", ParameterType.String, "Center")
                     parameter("alpha", ParameterType.Float, 1.0f)
