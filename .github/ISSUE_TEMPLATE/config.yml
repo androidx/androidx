@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Fragment
+    url: https://issuetracker.google.com/issues/new?component=460964&template=1182267
+    about: File a bug or feature request for Fragment
   - name: Paging
     url: https://issuetracker.google.com/issues/new?component=413106&template=1096385
     about: File a bug or feature request for Paging
