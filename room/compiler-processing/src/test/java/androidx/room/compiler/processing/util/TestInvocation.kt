@@ -25,6 +25,8 @@ import org.jetbrains.kotlin.ksp.processing.Resolver
 class TestInvocation(
     val processingEnv: XProcessingEnv
 ) {
+    val isKsp = processingEnv is KspProcessingEnv
+
     val kspResolver: Resolver
         get() = (processingEnv as KspProcessingEnv).resolver
 
@@ -35,7 +37,9 @@ class TestInvocation(
                 voidOrUnit = KotlinTypeNames.UNIT_CLASS_NAME,
                 objectOrAny = KotlinTypeNames.ANY_CLASS_NAME,
                 boxedInt = KotlinTypeNames.INT_CLASS_NAME,
-                int = KotlinTypeNames.INT_CLASS_NAME
+                int = KotlinTypeNames.INT_CLASS_NAME,
+                long = KotlinTypeNames.LONG_CLASS_NAME,
+                list = KotlinTypeNames.LIST_CLASS_NAME
             )
         } else {
             Types(
@@ -43,7 +47,9 @@ class TestInvocation(
                 voidOrUnit = TypeName.VOID,
                 objectOrAny = TypeName.OBJECT,
                 boxedInt = TypeName.INT.box(),
-                int = TypeName.INT
+                int = TypeName.INT,
+                long = TypeName.LONG,
+                list = ClassName.get("java.util", "List")
             )
         }
     }
@@ -57,6 +63,8 @@ class TestInvocation(
         val voidOrUnit: TypeName,
         val objectOrAny: ClassName,
         val boxedInt: TypeName,
-        val int: TypeName
+        val int: TypeName,
+        val long: TypeName,
+        val list: ClassName
     )
 }

@@ -18,10 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import org.jetbrains.kotlin.ksp.symbol.KSAnnotated
 
-fun KSAnnotated.isJvmStatic() = annotations.any {
+internal fun KSAnnotated.isJvmStatic() = annotations.any {
     it.annotationType.resolve()?.declaration?.qualifiedName?.asString() == "kotlin.jvm.JvmStatic"
 }
 
-fun KSAnnotated.isJvmDefault() = annotations.any {
+internal fun KSAnnotated.isJvmDefault() = annotations.any {
     it.annotationType.resolve()?.declaration?.qualifiedName?.asString() == "kotlin.jvm.JvmDefault"
 }

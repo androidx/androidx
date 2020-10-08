@@ -16,20 +16,28 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 
-internal open class KspExecutableElement(
+internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
     val containing: KspTypeElement,
     override val declaration: KSFunctionDeclaration
 ) : KspElement(
     env = env,
     declaration = declaration
-), XExecutableElement, XHasModifiers by KspHasModifiers(declaration) {
+), XExecutableElement,
+    XHasModifiers by KspHasModifiers(declaration),
+    XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = declaration,
+        filter = NO_USE_SITE
+    ) {
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(containing, declaration)
@@ -39,13 +47,15 @@ internal open class KspExecutableElement(
         declaration.requireEnclosingTypeElement(env)
     }
 
-    override val parameters: List<XExecutableParameterElement>
-        get() = TODO(
-            """
-            implement parameters. need to be careful w/ suspend functions as they need to fake
-            an additional parameter to look like java
-        """.trimIndent()
-        )
+    override val parameters: List<XExecutableParameterElement> by lazy {
+        declaration.parameters.map {
+            KspExecutableParameterElement(
+                env = env,
+                method = this,
+                parameter = it
+            )
+        }
+    }
 
     override fun isVarArgs(): Boolean {
         return declaration.parameters.any {

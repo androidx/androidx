@@ -16,21 +16,25 @@
 
 package androidx.room.compiler.processing.ksp.synthetic
 
-import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspAnnotated
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_GETTER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_SETTER
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.PROPERTY_SETTER_PARAMETER
 import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import java.util.Locale
-import kotlin.reflect.KClass
 
 /**
  * Kotlin properties don't have getters/setters in KSP. As Room expects Java code, we synthesize
@@ -38,14 +42,12 @@ import kotlin.reflect.KClass
  *
  * @see KspSyntheticPropertyMethodElement.Getter
  * @see KspSyntheticPropertyMethodElement.Setter
+ * @see KspSyntheticPropertyMethodType
  */
 internal sealed class KspSyntheticPropertyMethodElement(
-    env: KspProcessingEnv,
+    val env: KspProcessingEnv,
     val field: KspFieldElement
-) : KspElement(
-    env = env,
-    declaration = field.declaration
-), XMethodElement, XHasModifiers by KspHasModifiers(
+) : XMethodElement, XEquality, XHasModifiers by KspHasModifiers(
     field.declaration
 ) {
     // NOTE: modifiers of the property are not necessarily my modifiers.
@@ -62,11 +64,26 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isVarArgs() = false
 
-    final override val executableType: XMethodType
-        get() = TODO()
+    final override val executableType: XMethodType by lazy {
+        KspSyntheticPropertyMethodType.create(
+            element = this,
+            container = field.containing.type
+        )
+    }
 
     final override fun asMemberOf(other: XDeclaredType): XMethodType {
-        TODO()
+        return KspSyntheticPropertyMethodType.create(
+            element = this,
+            container = other
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return XEquality.equals(this, other)
+    }
+
+    override fun hashCode(): Int {
+        return XEquality.hashCode(equalityItems)
     }
 
     internal class Getter(
@@ -75,6 +92,14 @@ internal sealed class KspSyntheticPropertyMethodElement(
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field
+    ), XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = field.declaration.getter,
+        filter = NO_USE_SITE
+    ) + KspAnnotated.create(
+        env = env,
+        delegate = field.declaration,
+        filter = PROPERTY_GETTER
     ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "getter")
@@ -97,6 +122,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override val parameters: List<XExecutableParameterElement>
             get() = emptyList()
 
+        override fun kindName(): String {
+            return "synthetic property getter"
+        }
+
         override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
             return other is Getter &&
                 field.declaration.overrides(other.field.declaration)
@@ -117,6 +146,14 @@ internal sealed class KspSyntheticPropertyMethodElement(
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field
+    ), XAnnotated by KspAnnotated.create(
+        env = env,
+        delegate = field.declaration.setter,
+        filter = NO_USE_SITE
+    ) + KspAnnotated.create(
+        env = env,
+        delegate = field.declaration,
+        filter = PROPERTY_SETTER
     ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "setter")
@@ -141,9 +178,14 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override val parameters: List<XExecutableParameterElement> by lazy {
             listOf(
                 SyntheticExecutableParameterElement(
-                    this
+                    env = env,
+                    origin = this
                 )
             )
+        }
+
+        override fun kindName(): String {
+            return "synthetic property getter"
         }
 
         override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
@@ -160,8 +202,18 @@ internal sealed class KspSyntheticPropertyMethodElement(
         }
 
         private class SyntheticExecutableParameterElement(
+            env: KspProcessingEnv,
             private val origin: Setter
-        ) : XExecutableParameterElement {
+        ) : XExecutableParameterElement,
+            XAnnotated by KspAnnotated.create(
+                env = env,
+                delegate = origin.field.declaration,
+                filter = PROPERTY_SETTER_PARAMETER
+            ) + KspAnnotated.create(
+                env = env,
+                delegate = origin.field.declaration.setter?.parameter,
+                filter = NO_USE_SITE
+            ) {
             override val name: String
                 get() = origin.name
             override val type: XType
@@ -173,20 +225,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override fun kindName(): String {
                 return "method parameter"
-            }
-
-            override fun <T : Annotation> toAnnotationBox(
-                annotation: KClass<T>
-            ): XAnnotationBox<T>? {
-                TODO("Not yet implemented")
-            }
-
-            override fun hasAnnotationWithPackage(pkg: String): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
-                TODO("Not yet implemented")
             }
         }
     }
