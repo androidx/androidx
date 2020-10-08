@@ -96,11 +96,13 @@ public final class Checksums {
      * @param packageName whose checksums to return.
      * @param required explicitly request the checksum types. Will incur significant
      *                 CPU/memory/disk usage.
-     * @param trustedInstallers for checksums enforced by Installer, which ones to be trusted.
-     *                          {@link #TRUST_ALL} will return checksums from any Installer,
-     *                          {@link #TRUST_NONE} disables optimized Installer-enforced checksums,
+     * @param trustedInstallers for checksums enforced by installer, which installers are to be
+     *                          trusted.
+     *                          {@link #TRUST_ALL} will return checksums from any installer,
+     *                          {@link #TRUST_NONE} disables optimized installer-enforced checksums,
      *                          otherwise the list has to be non-empty list of certificates.
      * @param executor for calculating checksums.
+     * @throws IllegalArgumentException if the list of trusted installer certificates is empty.
      * @throws PackageManager.NameNotFoundException if a package with the given name cannot be
      *                                              found on the system.
      */
