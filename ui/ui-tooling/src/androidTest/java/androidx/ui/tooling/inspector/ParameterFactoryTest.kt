@@ -18,6 +18,7 @@ package androidx.ui.tooling.inspector
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -382,8 +383,7 @@ class ParameterFactoryTest {
                 node, "modifier",
                 Modifier
                     .background(Color.Blue)
-                    // TODO(b/163494569) uncomment this and code below when bug is fixed
-                    // .border(width = 5.dp, color = Color.Red)
+                    .border(width = 5.dp, color = Color.Red)
                     .padding(2.0.dp)
                     .fillMaxWidth()
                     .wrapContentHeight(Alignment.Bottom)
@@ -397,12 +397,11 @@ class ParameterFactoryTest {
                     parameter("color", ParameterType.Color, Color.Blue.toArgb())
                     parameter("shape", ParameterType.String, "RectangleShape")
                 }
-                // TODO(b/163494569)
-                /*parameter("border", ParameterType.Color, Color.Red.toArgb()) {
+                parameter("border", ParameterType.Color, Color.Red.toArgb()) {
                     parameter("color", ParameterType.Color, Color.Red.toArgb())
+                    parameter("shape", ParameterType.String, "RectangleShape")
                     parameter("width", ParameterType.DimensionDp, 5.0f)
-                    parameter("shape", ParameterType.String, "Shape")
-                }*/
+                }
                 parameter("padding", ParameterType.DimensionDp, 2.0f)
                 parameter("fillMaxWidth", ParameterType.String, "")
                 parameter("wrapContentHeight", ParameterType.String, "") {
