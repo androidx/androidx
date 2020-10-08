@@ -50,7 +50,7 @@ internal class JavacProcessingEnv(
         JavacProcessingEnvMessager(delegate)
     }
 
-    override val filer = delegate.filer
+    override val filer = JavacFiler(delegate.filer)
 
     override val options: Map<String, String>
         get() = delegate.options
