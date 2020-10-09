@@ -19,7 +19,6 @@ package androidx.ui.tooling.inspector
 import androidx.test.filters.SmallTest
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
@@ -43,9 +42,7 @@ class InlineClassConverterTest : ToolingTest() {
         show {
             Inspectable(slotTableRecord) {
                 Surface {
-                    Button(onClick = {}) {
-                        Text(text = "OK", fontSize = TextUnit.Sp(12))
-                    }
+                    Text(text = "OK", fontSize = TextUnit.Sp(12))
                 }
             }
         }
@@ -53,7 +50,6 @@ class InlineClassConverterTest : ToolingTest() {
         val tree = slotTableRecord.store.first().asTree()
         val groups = flatten(tree)
         val surface = find(groups, "Surface")
-        val button = find(groups, "Button")
         val text = find(groups, "Text")
 
         val mapper = InlineClassConverter()
@@ -66,8 +62,6 @@ class InlineClassConverterTest : ToolingTest() {
 
         validate(surface, "color", Color::class.java)
         validate(surface, "elevation", Dp::class.java)
-        validate(button, "backgroundColor", Color::class.java)
-        validate(button, "elevation", Dp::class.java)
         validate(text, "color", Color::class.java)
         validate(text, "fontSize", TextUnit::class.java)
     }
