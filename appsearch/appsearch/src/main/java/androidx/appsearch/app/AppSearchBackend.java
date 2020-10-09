@@ -94,30 +94,15 @@ public interface AppSearchBackend {
             @NonNull String databaseName, @NonNull RemoveByUriRequest request);
 
     /**
-     * Removes {@link GenericDocument}s from the index by schema type.
+     * Removes {@link GenericDocument}s from the index by query.
      *
-     * @see AppSearchManager#removeByType
+     * @see AppSearchManager#removeByQuery
      */
     @NonNull
-    ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
-            @NonNull String databaseName, @NonNull List<String> schemaTypes);
-
-    /**
-     * Removes {@link GenericDocument}s from the index by namespace.
-     *
-     * @see AppSearchManager#removeByNamespace
-     */
-    @NonNull
-    ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
-            @NonNull String databaseName, @NonNull List<String> namespaces);
-
-    /**
-     * Removes all documents owned by this database.
-     *
-     * @see AppSearchManager#removeAll
-     */
-    @NonNull
-    ListenableFuture<AppSearchResult<Void>> removeAll(@NonNull String databaseName);
+    ListenableFuture<AppSearchResult<Void>> removeByQuery(
+            @NonNull String databaseName,
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec);
 
     /** Clears all {@link GenericDocument}s, {@link AppSearchSchema}s and all other information
      * owned by this app. */

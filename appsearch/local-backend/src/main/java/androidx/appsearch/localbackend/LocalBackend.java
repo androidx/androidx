@@ -171,27 +171,13 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
-            @NonNull String databaseName, @NonNull List<String> schemaTypes) {
+    public ListenableFuture<AppSearchResult<Void>> removeByQuery(@NonNull String databaseName,
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(schemaTypes);
-        return execute(() -> mSyncImpl.removeByType(databaseName, schemaTypes));
-    }
-
-    @Override
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
-            @NonNull String databaseName, @NonNull List<String> namespaces) {
-        Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(namespaces);
-        return execute(() -> mSyncImpl.removeByNamespace(databaseName, namespaces));
-    }
-
-    @Override
-    @NonNull
-    public ListenableFuture<AppSearchResult<Void>> removeAll(@NonNull String databaseName) {
-        Preconditions.checkNotNull(databaseName);
-        return execute(() -> mSyncImpl.removeAll(databaseName));
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        return execute(() -> mSyncImpl.removeByQuery(databaseName, queryExpression, searchSpec));
     }
 
     @VisibleForTesting

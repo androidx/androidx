@@ -496,6 +496,7 @@ In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/inte
 \[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/document\.pb\.cc, icing\-protobuf\-gen/icing/proto/document\.pb\.h
 \[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/search\.pb\.cc, icing\-protobuf\-gen/icing/proto/search\.pb\.h
 \[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/schema\.pb\.cc, icing\-protobuf\-gen/icing/proto/schema\.pb\.h
+\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/usage\.pb\.cc, icing\-protobuf\-gen/icing/proto/usage\.pb\.h
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/canonical_errors\.cc\.o
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/core/icing\-timer\.cc\.o
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/str_cat\.cc\.o
@@ -576,6 +577,16 @@ In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/inte
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/search\.pb\.cc\.o
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/icing\-search\-engine\.cc\.o
 \[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/store/document\-store\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/character\-iterator\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-identifier\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-accessor\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/doc\-hit\-info\-iterator\-term\-main\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/lite/doc\-hit\-info\-iterator\-term\-lite\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/store/usage\-store\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/flash\-index\-storage\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/main\-index\-merger\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/usage\.pb\.cc\.o
+\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/main\-index\.cc\.o
 \[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libicing\.so
 Build icing_arm[0-9]+\-v[0-9]+a
 ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/arm[0-9]+\-v[0-9]+a'
