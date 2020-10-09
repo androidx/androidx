@@ -204,7 +204,7 @@ class PageEventTest {
         val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
-            combinedLoadStates = MutableLoadStateCollection(false).snapshot()
+            combinedLoadStates = MutableLoadStateCollection().snapshot()
         )
 
         // filter out C

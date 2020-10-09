@@ -33,6 +33,8 @@ internal sealed class PageEvent<T : Any> {
         val pages: List<TransformablePage<T>>,
         val placeholdersBefore: Int,
         val placeholdersAfter: Int,
+        // NOTE: If more events have combinedLoadStates, make sure to change PageFetcher's
+        //  injectRemoteEvents method
         val combinedLoadStates: CombinedLoadStates
     ) : PageEvent<T>() {
         init {
@@ -176,10 +178,22 @@ internal sealed class PageEvent<T : Any> {
         val loadState: LoadState // TODO: consider using full state object here
     ) : PageEvent<T>() {
         init {
-            require(loadState is LoadState.Loading || loadState is LoadState.Error) {
-                "LoadStateUpdates can only be used for Loading or Error. To update loadState to " +
-                    "Idle or Done, use Insert / Drop events."
+            require(canDispatchWithoutInsert(loadState, fromMediator)) {
+                "LoadStateUpdates cannot be used to dispatch NotLoading unless it is from remote" +
+                    " mediator and remote mediator reached end of pagination."
             }
+        }
+
+        companion object {
+            /**
+             * DataSource loads with no more to load must carry LoadState.NotLoading with them,
+             * to ensure content appears in the same frame as e.g. a load state spinner is removed.
+             *
+             * This prevents multiple related RV animations from happening simultaneously
+             */
+            internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
+                loadState is LoadState.Loading || loadState is LoadState.Error ||
+                    (loadState.endOfPaginationReached && fromMediator)
         }
     }
 

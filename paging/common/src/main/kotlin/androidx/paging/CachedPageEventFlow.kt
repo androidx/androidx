@@ -217,7 +217,7 @@ internal class FlattenedPageEventStorage<T : Any> {
      * data once we start getting events. This is fine, since downstream needs to handle this
      * anyway - remote state being added after initial, empty, PagingData.
      */
-    private val loadStates = MutableLoadStateCollection(hasRemoteState = false)
+    private val loadStates = MutableLoadStateCollection()
     fun add(event: PageEvent<T>) {
         when (event) {
             is PageEvent.Insert<T> -> handleInsert(event)
@@ -284,9 +284,7 @@ internal class FlattenedPageEventStorage<T : Any> {
             )
         } else {
             loadStates.forEach { type, fromMediator, state ->
-                // Should be mostly safe to ignore NotLoading states since they don't need to be
-                // communicated... but it's unclear if this is true when endOfPagination = true
-                if (state is LoadState.Loading || state is LoadState.Error) {
+                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator)) {
                     events.add(PageEvent.LoadStateUpdate(type, fromMediator, state))
                 }
             }
