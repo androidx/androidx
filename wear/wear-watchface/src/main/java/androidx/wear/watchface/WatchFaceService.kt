@@ -47,6 +47,7 @@ import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.data.IdAndComplicationData
 import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
 import androidx.wear.watchface.data.RenderParametersWireFormat
@@ -447,6 +448,7 @@ abstract class WatchFaceService : WallpaperService() {
                 rendererParametersWireFormat: RenderParametersWireFormat,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
+                idAndComplicationData: List<IdAndComplicationData>?,
                 userStyle: UserStyleWireFormat?
             ): Bundle {
                 return uiThreadHandler.runOnHandler {
@@ -457,6 +459,18 @@ abstract class WatchFaceService : WallpaperService() {
                         )
                     }
 
+                    val oldComplicationData =
+                        watchFace.complicationsManager.complications.mapValues {
+                            it.value.renderer.getData()!!
+                        }
+                    if (idAndComplicationData != null) {
+                        for (idAndData in idAndComplicationData) {
+                            watchFace.onComplicationDataUpdate(
+                                idAndData.id, idAndData.complicationData
+                            )
+                        }
+                    }
+
                     val bitmap = watchFace.renderer.takeScreenshot(
                         Calendar.getInstance().apply {
                             timeInMillis = calendarTimeMillis
@@ -464,9 +478,15 @@ abstract class WatchFaceService : WallpaperService() {
                         RenderParameters(rendererParametersWireFormat)
                     )
 
-                    // Restore previous style if required.
+                    // Restore previous style & complications if required.
                     if (userStyle != null) {
                         watchFace.onSetStyleInternal(UserStyle(oldStyle))
+                    }
+
+                    if (idAndComplicationData != null) {
+                        for ((id, data) in oldComplicationData) {
+                            watchFace.onComplicationDataUpdate(id, data)
+                        }
                     }
 
                     bitmap

@@ -86,6 +86,7 @@ class WatchFaceControlServiceTest {
             RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
             100,
             1234567890,
+            null,
             null
         ).ashmemCompressedImageBundleToBitmap()
 
