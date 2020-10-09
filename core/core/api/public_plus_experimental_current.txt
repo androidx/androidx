@@ -2329,6 +2329,7 @@ package androidx.core.view {
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
     method public static float getTranslationZ(android.view.View);
+    method public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
     method public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
@@ -2565,6 +2566,7 @@ package androidx.core.view {
   }
 
   public final class WindowCompat {
+    method public static androidx.core.view.WindowInsetsControllerCompat? getInsetsController(android.view.Window, android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.Window, @IdRes int);
     method public static void setDecorFitsSystemWindows(android.view.Window, boolean);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
@@ -2634,6 +2636,18 @@ package androidx.core.view {
     method public static int systemBars();
     method public static int systemGestures();
     method public static int tappableElement();
+  }
+
+  public final class WindowInsetsControllerCompat {
+    ctor public WindowInsetsControllerCompat(android.view.Window, android.view.View);
+    method public int getSystemBarsBehavior();
+    method public void hide(int);
+    method public void setSystemBarsBehavior(int);
+    method public void show(int);
+    method @RequiresApi(30) public static androidx.core.view.WindowInsetsControllerCompat toWindowInsetsControllerCompat(android.view.WindowInsetsController);
+    field public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1; // 0x1
+    field public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0; // 0x0
+    field public static final int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2; // 0x2
   }
 
 }
