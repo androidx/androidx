@@ -85,9 +85,12 @@ public class Room {
         //noinspection TryWithIdenticalCatches
         try {
 
+            final String fullClassName = fullPackage.isEmpty()
+                    ? implName
+                    : fullPackage + "." + implName;
             @SuppressWarnings("unchecked")
             final Class<T> aClass = (Class<T>) Class.forName(
-                    fullPackage.isEmpty() ? implName : fullPackage + "." + implName);
+                    fullClassName, true, klass.getClassLoader());
             return aClass.newInstance();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("cannot find implementation for "
