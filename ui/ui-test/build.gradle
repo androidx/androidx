@@ -115,4 +115,5 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Compose testing library"
+    legacyDisableKotlinStrictApiMode = true
 }

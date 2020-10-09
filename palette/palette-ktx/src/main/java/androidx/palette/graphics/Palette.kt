@@ -24,4 +24,4 @@ package androidx.palette.graphics
  *
  * @see Palette.getSwatchForTarget
  */
-inline operator fun Palette.get(target: Target): Palette.Swatch? = getSwatchForTarget(target)
+public inline operator fun Palette.get(target: Target): Palette.Swatch? = getSwatchForTarget(target)

@@ -52,5 +52,6 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Android Navigation-Fragment-Ktx"
+    legacyDisableKotlinStrictApiMode = true
 }
 

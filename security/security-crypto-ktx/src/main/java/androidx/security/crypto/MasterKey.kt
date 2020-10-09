@@ -30,7 +30,7 @@ import android.content.Context
  * valid for after the user has authenticated. Must be a value > 0.
  * @param requestStrongBoxBacked `true` if the key should be stored in Strong Box, if possible.
  */
-fun MasterKey(
+public fun MasterKey(
     context: Context,
     keyAlias: String = MasterKey.DEFAULT_MASTER_KEY_ALIAS,
     keyScheme: MasterKey.KeyScheme = MasterKey.KeyScheme.AES256_GCM,
@@ -38,7 +38,7 @@ fun MasterKey(
     userAuthenticationValidityDurationSeconds: Int =
         MasterKey.getDefaultAuthenticationValidityDurationSeconds(),
     requestStrongBoxBacked: Boolean = false
-) = MasterKey.Builder(context, keyAlias)
+): MasterKey = MasterKey.Builder(context, keyAlias)
     .setKeyScheme(keyScheme)
     .setUserAuthenticationRequired(
         authenticationRequired,

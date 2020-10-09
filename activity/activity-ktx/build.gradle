@@ -57,4 +57,5 @@ androidx {
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"
+    legacyDisableKotlinStrictApiMode = true
 }

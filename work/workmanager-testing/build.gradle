@@ -59,4 +59,5 @@ androidx {
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager testing library"
+    legacyDisableKotlinStrictApiMode = true
 }

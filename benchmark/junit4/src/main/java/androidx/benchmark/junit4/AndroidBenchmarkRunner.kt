@@ -62,7 +62,7 @@ import androidx.test.runner.AndroidJUnitRunner
  * even if a continuous suite of benchmarks runs for many minutes on end.
  */
 @Suppress("unused") // Note: not referenced by code
-open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
+public open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
 
     @CallSuper
     override fun waitForActivitiesToComplete() {

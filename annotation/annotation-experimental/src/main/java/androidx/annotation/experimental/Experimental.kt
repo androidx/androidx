@@ -66,18 +66,18 @@ import kotlin.annotation.Target
 )
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class Experimental(
+public annotation class Experimental(
     /**
      * Defines the reporting level for incorrect usages of this experimental API.
      */
-    val level: Level = Level.ERROR
+    public val level: Level = Level.ERROR
 ) {
     /**
      * Severity of the diagnostic that should be reported on usages of experimental API which did
      * not explicitly accept the experimental aspect of that API either by using
      * [UseExperimental] or by being annotated with the corresponding marker annotation.
      */
-    enum class Level {
+    public enum class Level {
         /**
          * Specifies that a warning should be reported on incorrect usages of this experimental API.
          */

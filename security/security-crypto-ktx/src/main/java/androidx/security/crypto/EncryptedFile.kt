@@ -34,14 +34,14 @@ import java.io.File
  * [EncryptedFile].
  */
 @SuppressLint("StreamFiles")
-fun EncryptedFile(
+public fun EncryptedFile(
     context: Context,
     file: File,
     masterKey: MasterKey,
     fileEncryptionScheme: FileEncryptionScheme = FileEncryptionScheme.AES256_GCM_HKDF_4KB,
     keysetPrefName: String? = null,
     keysetAlias: String? = null
-) = EncryptedFile.Builder(context, file, masterKey, fileEncryptionScheme).apply {
+): EncryptedFile = EncryptedFile.Builder(context, file, masterKey, fileEncryptionScheme).apply {
     if (keysetPrefName != null) setKeysetPrefName(keysetPrefName)
     if (keysetAlias != null) setKeysetAlias(keysetAlias)
 }.build()

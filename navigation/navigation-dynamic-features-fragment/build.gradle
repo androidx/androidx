@@ -57,4 +57,5 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
+    legacyDisableKotlinStrictApiMode = true
 }
