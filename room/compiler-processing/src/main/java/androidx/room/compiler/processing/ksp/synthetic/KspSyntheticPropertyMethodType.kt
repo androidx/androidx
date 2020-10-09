@@ -38,10 +38,6 @@ internal sealed class KspSyntheticPropertyMethodType(
     override val typeVariableNames: List<TypeVariableName>
         get() = emptyList()
 
-    override fun getSuspendFunctionReturnType(): XType {
-        throw IllegalStateException("Property types are not suspend functions.")
-    }
-
     companion object {
         fun create(
             element: KspSyntheticPropertyMethodElement,

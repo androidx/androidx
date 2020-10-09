@@ -17,12 +17,13 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeVariableName
 import javax.lang.model.type.ExecutableType
 
-internal class JavacMethodType(
+internal sealed class JavacMethodType(
     val env: JavacProcessingEnv,
     val element: JavacMethodElement,
     val executableType: ExecutableType
@@ -66,22 +67,56 @@ internal class JavacMethodType(
         return executableType.hashCode()
     }
 
-    override fun getSuspendFunctionReturnType(): XType {
-        // the continuation parameter is always the last parameter of a suspend function and it only
-        // has one type parameter, e.g Continuation<? super T>
-        val typeParam =
-            MoreTypes.asDeclared(executableType.parameterTypes.last()).typeArguments.first()
-        // kotlin generates ? extends Foo and we want Foo so get the extends bounds
-        val bounded = typeParam.extendsBound() ?: typeParam
-        return env.wrap<JavacType>(
-            typeMirror = bounded,
-            // use kotlin metadata here to get the real type information
-            kotlinType = element.kotlinMetadata?.returnType,
-            elementNullability = element.element.nullability
-        )
-    }
-
     override fun toString(): String {
         return executableType.toString()
+    }
+
+    private class NormalMethodType(
+        env: JavacProcessingEnv,
+        element: JavacMethodElement,
+        executableType: ExecutableType
+    ) : JavacMethodType(
+        env = env,
+        element = element,
+        executableType = executableType
+    )
+
+    private class SuspendMethodType(
+        env: JavacProcessingEnv,
+        element: JavacMethodElement,
+        executableType: ExecutableType
+    ) : JavacMethodType(
+        env = env,
+        element = element,
+        executableType = executableType
+    ), XSuspendMethodType {
+        override fun getSuspendFunctionReturnType(): XType {
+            // the continuation parameter is always the last parameter of a suspend function and it
+            // only has one type parameter, e.g Continuation<? super T>
+            val typeParam =
+                MoreTypes.asDeclared(executableType.parameterTypes.last()).typeArguments.first()
+            // kotlin generates ? extends Foo and we want Foo so get the extends bounds
+            val bounded = typeParam.extendsBound() ?: typeParam
+            return env.wrap<JavacType>(
+                typeMirror = bounded,
+                // use kotlin metadata here to get the real type information
+                kotlinType = element.kotlinMetadata?.returnType,
+                elementNullability = element.element.nullability
+            )
+        }
+    }
+
+    companion object {
+        fun create(
+            env: JavacProcessingEnv,
+            element: JavacMethodElement,
+            executableType: ExecutableType
+        ): JavacMethodType {
+            return if (element.isSuspendFunction()) {
+                SuspendMethodType(env, element, executableType)
+            } else {
+                NormalMethodType(env, element, executableType)
+            }
+        }
     }
 }
