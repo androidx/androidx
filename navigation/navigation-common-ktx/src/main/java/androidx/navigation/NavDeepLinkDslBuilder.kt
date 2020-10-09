@@ -17,32 +17,32 @@
 package androidx.navigation
 
 @DslMarker
-annotation class NavDeepLinkDsl
+public annotation class NavDeepLinkDsl
 
 /**
  * Construct a new [NavDeepLink]
  */
-fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDeepLink =
+public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDeepLink =
         NavDeepLinkDslBuilder().apply(deepLinkBuilder).build()
 
 /**
  * DSL for constructing a new [NavDeepLink]
  */
 @NavDeepLinkDsl
-class NavDeepLinkDslBuilder {
+public class NavDeepLinkDslBuilder {
     private val builder = NavDeepLink.Builder()
 
     /**
      * The uri pattern of the deep link
      */
-    var uriPattern: String? = null
+    public var uriPattern: String? = null
 
     /**
      * Intent action for the deep link
      *
      * @throws IllegalArgumentException if attempting to set to empty.
      */
-    var action: String? = null
+    public var action: String? = null
         @Suppress("DocumentExceptions")
         set(p) {
             if (p != null && p.isEmpty()) {
@@ -54,7 +54,7 @@ class NavDeepLinkDslBuilder {
     /**
      * MimeType for the deep link
      */
-    var mimeType: String? = null
+    public var mimeType: String? = null
 
     internal fun build() = builder.apply {
         check(!(uriPattern == null && action == null && mimeType == null)) {
