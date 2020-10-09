@@ -317,9 +317,14 @@ public class AppSearchImplTest {
 
     @Test
     public void testRemoveEmptyDatabase_NoExceptionThrown() throws Exception {
-        mAppSearchImpl.removeByType("EmptyDatabase", "FakeType");
-        mAppSearchImpl.removeByNamespace("EmptyDatabase", "FakeNamespace");
-        mAppSearchImpl.removeAll("EmptyDatabase");
+        mAppSearchImpl.removeByQuery("EmptyDatabase",
+                SearchSpecProto.newBuilder().addSchemaTypeFilters("FakeType")
+                        .setTermMatchType(TermMatchType.Code.PREFIX).build());
+        mAppSearchImpl.removeByQuery("EmptyDatabase",
+                SearchSpecProto.newBuilder().addNamespaceFilters("FakeNamespace")
+                        .setTermMatchType(TermMatchType.Code.PREFIX).build());
+        mAppSearchImpl.removeByQuery("EmptyDatabase",  SearchSpecProto.newBuilder()
+                .setTermMatchType(TermMatchType.Code.PREFIX).build());
     }
 
     @Test
