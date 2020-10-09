@@ -139,6 +139,15 @@ package androidx.wear.watchface.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.ComplicationDetails!>! CREATOR;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class IdAndComplicationData implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public IdAndComplicationData(int, android.support.wearable.complications.ComplicationData);
+    method public int describeContents();
+    method public android.support.wearable.complications.ComplicationData getComplicationData();
+    method public int getId();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationData!>! CREATOR;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ImmutableSystemState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public ImmutableSystemState(boolean, boolean);
     method public int describeContents();

@@ -46,8 +46,10 @@ import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.data.IdAndComplicationData
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -305,6 +307,7 @@ class WatchFaceServiceImageTest {
                 RenderParameters(DrawMode.AMBIENT, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
                 100,
                 123456789,
+                null,
                 null
             ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
@@ -354,6 +357,7 @@ class WatchFaceServiceImageTest {
                     .toWireFormat(),
                 100,
                 123456789,
+                null,
                 null
             ).ashmemCompressedImageBundleToBitmap()!!
             latch.countDown()
@@ -451,6 +455,7 @@ class WatchFaceServiceImageTest {
                 ).toWireFormat(),
                 100,
                 123456789,
+                null,
                 null
             ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
@@ -460,6 +465,48 @@ class WatchFaceServiceImageTest {
         bitmap!!.assertAgainstGolden(
             screenshotRule,
             "highlight_complications"
+        )
+    }
+
+    @Test
+    fun testScreenshotWithPreviewComplicationData() {
+        val latch = CountDownLatch(1)
+        val previewComplicationData = listOf(
+            IdAndComplicationData(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                    .setShortTitle(ComplicationText.plainText("Preview"))
+                    .setShortText(ComplicationText.plainText("A"))
+                    .build()
+            ),
+            IdAndComplicationData(
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                    .setShortTitle(ComplicationText.plainText("Preview"))
+                    .setShortText(ComplicationText.plainText("B"))
+                    .build()
+            )
+        )
+
+        handler.post(this::initCanvasWatchFace)
+        var bitmap: Bitmap? = null
+        handler.post {
+            bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
+                RenderParameters(
+                    DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS
+                ).toWireFormat(),
+                100,
+                123456789,
+                previewComplicationData,
+                null
+            ).ashmemCompressedImageBundleToBitmap()
+            latch.countDown()
+        }
+
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "preview_complications"
         )
     }
 }
