@@ -151,6 +151,16 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
+    public BackendSearchResults globalQuery(
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        return new GlobalSearchResultsImpl(mSyncImpl.globalQuery(queryExpression, searchSpec));
+    }
+
+    @Override
+    @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
             @NonNull String databaseName,
             @NonNull RemoveByUriRequest request) {
@@ -210,6 +220,31 @@ public class LocalBackend implements AppSearchBackend {
         private final LocalBackendSyncImpl.SearchResultsImpl mSyncResults;
 
         SearchResultsImpl(@NonNull LocalBackendSyncImpl.SearchResultsImpl syncResults) {
+            mSyncResults = Preconditions.checkNotNull(syncResults);
+        }
+
+        @Override
+        @NonNull
+        public ListenableFuture<AppSearchResult<List<SearchResults.Result>>> getNextPage() {
+            return execute(mSyncResults::getNextPage);
+        }
+
+        @Override
+        @SuppressWarnings("FutureReturnValueIgnored")
+        public void close() {
+            // Close the SearchResult in the backend thread. No future is needed here since the
+            // method is void.
+            execute(() -> {
+                mSyncResults.close();
+                return null;
+            });
+        }
+    }
+
+    private class GlobalSearchResultsImpl implements BackendSearchResults {
+        private final LocalBackendSyncImpl.GlobalSearchResultsImpl mSyncResults;
+
+        GlobalSearchResultsImpl(@NonNull LocalBackendSyncImpl.GlobalSearchResultsImpl syncResults) {
             mSyncResults = Preconditions.checkNotNull(syncResults);
         }
 

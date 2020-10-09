@@ -49,10 +49,8 @@ public class AppSearchTestUtils {
         return list;
     }
 
-    public static List<GenericDocument> doQuery(
-            AppSearchManager instance, String queryExpression, SearchSpec spec)
+    public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
             throws Exception {
-        SearchResults searchResults = instance.query(queryExpression, spec);
         List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
@@ -62,13 +60,6 @@ public class AppSearchTestUtils {
             results = checkIsResultSuccess(searchResults.getNextPage());
         }
         return documents;
-    }
-
-    public static List<GenericDocument> doQuery(AppSearchManager instance, String queryExpression)
-            throws Exception {
-        return doQuery(instance, queryExpression, new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
     }
 
     public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(

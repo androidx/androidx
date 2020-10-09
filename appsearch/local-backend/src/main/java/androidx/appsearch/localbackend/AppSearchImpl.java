@@ -54,8 +54,10 @@ import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -89,12 +91,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </ul>
  *
  * <p>This class is thread safe.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @WorkerThread
 public final class AppSearchImpl {
     private static final String TAG = "AppSearchImpl";
+    private static final char DATABASE_DELIMITER = '/';
 
     @VisibleForTesting
     static final int OPTIMIZE_THRESHOLD_DOC_COUNT = 1000;
@@ -242,7 +246,7 @@ public final class AppSearchImpl {
     public void putDocument(@NonNull String databaseName, @NonNull DocumentProto document)
             throws AppSearchException {
         DocumentProto.Builder documentBuilder = document.toBuilder();
-        rewriteDocumentTypes(getDatabasePrefix(databaseName), documentBuilder, /*add=*/ true);
+        addPrefixToDocument(documentBuilder, getDatabasePrefix(databaseName));
 
         PutResultProto putResultProto;
         mReadWriteLock.writeLock().lock();
@@ -283,7 +287,7 @@ public final class AppSearchImpl {
         checkSuccess(getResultProto.getStatus());
 
         DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
-        rewriteDocumentTypes(getDatabasePrefix(databaseName), documentBuilder, /*add=*/ false);
+        removeDatabasesFromDocument(documentBuilder);
         return documentBuilder.build();
     }
 
@@ -306,14 +310,44 @@ public final class AppSearchImpl {
             @NonNull SearchSpecProto searchSpec,
             @NonNull ResultSpecProto resultSpec,
             @NonNull ScoringSpecProto scoringSpec) throws AppSearchException {
+        return doQuery(searchSpec, resultSpec, scoringSpec, Collections.singleton(databaseName));
+    }
+
+    /**
+     * Executes a global query, i.e. over all permitted databases, against the AppSearch index and
+     * returns results.
+     *
+     * <p>This method belongs to query group.
+     *
+     * @param searchSpec  Defines what and how to search
+     * @param resultSpec  Defines what results to show
+     * @param scoringSpec Defines how to order results
+     * @return The results of performing this search  The proto might have no {@code results} if no
+     * documents matched the query.
+     * @throws AppSearchException on IcingSearchEngine error.
+     */
+    @NonNull
+    public SearchResultProto globalQuery(
+            @NonNull SearchSpecProto searchSpec,
+            @NonNull ResultSpecProto resultSpec,
+            @NonNull ScoringSpecProto scoringSpec) throws AppSearchException {
+        return doQuery(searchSpec, resultSpec, scoringSpec, mNamespaceMap.keySet());
+    }
+
+
+    private SearchResultProto doQuery(@NonNull SearchSpecProto searchSpec,
+            @NonNull ResultSpecProto resultSpec,
+            @NonNull ScoringSpecProto scoringSpec, Set<String> databases)
+            throws AppSearchException {
         SearchSpecProto.Builder searchSpecBuilder = searchSpec.toBuilder();
         SearchResultProto searchResultProto;
         mReadWriteLock.readLock().lock();
         try {
-            // Only rewrite SearchSpec for non empty database.
-            // rewriteSearchSpecForNonEmptyDatabase will return false for empty database, we
-            // should just return an empty SearchResult and skip sending request to Icing.
-            if (!rewriteSearchSpecForNonEmptyDatabase(databaseName, searchSpecBuilder)) {
+            // rewriteSearchSpecForDatabases will return false if none of the databases have
+            // documents, so we can return an empty SearchResult and skip sending request to Icing.
+            // We use the mNamespaceMap.keySet here because it's the smaller set of valid databases
+            // that could exist.
+            if (!rewriteSearchSpecForDatabases(searchSpecBuilder, databases)) {
                 return SearchResultProto.newBuilder()
                         .setStatus(StatusProto.newBuilder()
                                 .setCode(StatusProto.Code.OK)
@@ -329,7 +363,7 @@ public final class AppSearchImpl {
         if (searchResultProto.getResultsCount() == 0) {
             return searchResultProto;
         }
-        return rewriteSearchResultProto(databaseName, searchResultProto);
+        return rewriteSearchResultProto(searchResultProto);
     }
 
     /**
@@ -338,20 +372,19 @@ public final class AppSearchImpl {
      *
      * <p>This method belongs to query group.
      *
-     * @param databaseName The databaseName of the previously executed query.
      * @param nextPageToken The token of pre-loaded results of previously executed query.
      * @return The next page of results of previously executed query.
      * @throws AppSearchException on IcingSearchEngine error.
      */
     @NonNull
-    public SearchResultProto getNextPage(@NonNull String databaseName, long nextPageToken)
+    public SearchResultProto getNextPage(long nextPageToken)
             throws AppSearchException {
         SearchResultProto searchResultProto = mIcingSearchEngine.getNextPage(nextPageToken);
         checkSuccess(searchResultProto.getStatus());
         if (searchResultProto.getResultsCount() == 0) {
             return searchResultProto;
         }
-        return rewriteSearchResultProto(databaseName, searchResultProto);
+        return rewriteSearchResultProto(searchResultProto);
     }
 
     /**
@@ -570,36 +603,63 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Rewrites all types and namespaces mentioned anywhere in {@code documentBuilder} to prepend
-     * or remove {@code prefix}.
+     * Prepends {@code prefix} to all types and namespaces mentioned anywhere in
+     * {@code documentBuilder}.
      *
-     * @param prefix          The prefix to add or remove
      * @param documentBuilder The document to mutate
-     * @param add             Whether to add prefix to the types and namespaces. If {@code false},
-     *                        prefix will be removed.
-     * @throws IllegalStateException If {@code add=false} and the document has a type or namespace
-     *                               that doesn't start with {@code prefix}.
+     * @param prefix          The prefix to add
      */
     @VisibleForTesting
-    void rewriteDocumentTypes(
-            @NonNull String prefix,
+    void addPrefixToDocument(
             @NonNull DocumentProto.Builder documentBuilder,
-            boolean add) {
+            @NonNull String prefix) {
         // Rewrite the type name to include/remove the prefix.
-        String newSchema;
-        if (add) {
-            newSchema = prefix + documentBuilder.getSchema();
-        } else {
-            newSchema = removePrefix(prefix, "schemaType", documentBuilder.getSchema());
-        }
+        String newSchema = prefix + documentBuilder.getSchema();
         documentBuilder.setSchema(newSchema);
 
         // Rewrite the namespace to include/remove the prefix.
-        if (add) {
-            documentBuilder.setNamespace(prefix + documentBuilder.getNamespace());
-        } else {
-            documentBuilder.setNamespace(
-                    removePrefix(prefix, "namespace", documentBuilder.getNamespace()));
+        documentBuilder.setNamespace(prefix + documentBuilder.getNamespace());
+
+        // Recurse into derived documents
+        for (int propertyIdx = 0;
+                propertyIdx < documentBuilder.getPropertiesCount();
+                propertyIdx++) {
+            int documentCount = documentBuilder.getProperties(propertyIdx).getDocumentValuesCount();
+            if (documentCount > 0) {
+                PropertyProto.Builder propertyBuilder =
+                        documentBuilder.getProperties(propertyIdx).toBuilder();
+                for (int documentIdx = 0; documentIdx < documentCount; documentIdx++) {
+                    DocumentProto.Builder derivedDocumentBuilder =
+                            propertyBuilder.getDocumentValues(documentIdx).toBuilder();
+                    addPrefixToDocument(derivedDocumentBuilder, prefix);
+                    propertyBuilder.setDocumentValues(documentIdx, derivedDocumentBuilder);
+                }
+                documentBuilder.setProperties(propertyIdx, propertyBuilder);
+            }
+        }
+    }
+
+    /**
+     * Removes any database names from types and namespaces mentioned anywhere in
+     * {@code documentBuilder}.
+     *
+     * @param documentBuilder The document to mutate
+     */
+    @VisibleForTesting
+    void removeDatabasesFromDocument(@NonNull DocumentProto.Builder documentBuilder) {
+        int delimiterIndex;
+        if ((delimiterIndex = documentBuilder.getSchema().indexOf(DATABASE_DELIMITER)) != -1) {
+            // Rewrite the type name to remove the prefix.
+            // Add 1 to include the char size of the DATABASE_DELIMITER
+            String newSchema = documentBuilder.getSchema().substring(delimiterIndex + 1);
+            documentBuilder.setSchema(newSchema);
+        }
+
+        if ((delimiterIndex = documentBuilder.getNamespace().indexOf(DATABASE_DELIMITER)) != -1) {
+            // Rewrite the namespace to remove the prefix.
+            // Add 1 to include the char size of the DATABASE_DELIMITER
+            String newNamespace = documentBuilder.getNamespace().substring(delimiterIndex + 1);
+            documentBuilder.setNamespace(newNamespace);
         }
 
         // Recurse into derived documents
@@ -613,7 +673,7 @@ public final class AppSearchImpl {
                 for (int documentIdx = 0; documentIdx < documentCount; documentIdx++) {
                     DocumentProto.Builder derivedDocumentBuilder =
                             propertyBuilder.getDocumentValues(documentIdx).toBuilder();
-                    rewriteDocumentTypes(prefix, derivedDocumentBuilder, add);
+                    removeDatabasesFromDocument(derivedDocumentBuilder);
                     propertyBuilder.setDocumentValues(documentIdx, derivedDocumentBuilder);
                 }
                 documentBuilder.setProperties(propertyIdx, propertyBuilder);
@@ -622,51 +682,68 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Rewrites searchSpec by adding schemaTypeFilter and namespacesFilter
+     * Rewrites the schemaTypeFilters and namespacesFilters that exist in {@code databaseNames}.
      *
-     * <p>If user input empty filter lists, will look up {@link #mSchemaMap} and
-     * {@link #mNamespaceMap} and put all values belong to current database to narrow down Icing
-     * search area.
+     * <p>If the searchSpec has empty filter lists, all existing databases from
+     * {@code databaseNames} will be added.
      * <p>This method should be only called in query methods and get the READ lock to keep thread
      * safety.
-     * @return false if the current database is brand new and contains nothing. We should just
-     * return an empty query result to user.
+     *
+     * @return false if none of the requested databases exist.
      */
     @VisibleForTesting
     @GuardedBy("mReadWriteLock")
-    boolean rewriteSearchSpecForNonEmptyDatabase(@NonNull String databaseName,
-            @NonNull SearchSpecProto.Builder searchSpecBuilder) {
-        Set<String> existingSchemaTypes = mSchemaMap.get(databaseName);
-        Set<String> existingNamespaces = mNamespaceMap.get(databaseName);
-        if (existingSchemaTypes == null || existingSchemaTypes.isEmpty()
-                || existingNamespaces == null || existingNamespaces.isEmpty()) {
+    boolean rewriteSearchSpecForDatabases(
+            @NonNull SearchSpecProto.Builder searchSpecBuilder,
+            @NonNull Set<String> databaseNames) {
+        // Create a copy since retainAll() modifies the original set.
+        Set<String> existingDatabases = new HashSet<>(mNamespaceMap.keySet());
+        existingDatabases.retainAll(databaseNames);
+
+        if (existingDatabases.isEmpty()) {
+            // None of the databases exist, empty query.
             return false;
         }
-        // Rewrite any existing schema types specified in the searchSpec, or add schema types to
-        // limit the search to this database instance.
-        if (searchSpecBuilder.getSchemaTypeFiltersCount() > 0) {
-            for (int i = 0; i < searchSpecBuilder.getSchemaTypeFiltersCount(); i++) {
-                String qualifiedType = getDatabasePrefix(databaseName)
-                        + searchSpecBuilder.getSchemaTypeFilters(i);
-                if (existingSchemaTypes.contains(qualifiedType)) {
-                    searchSpecBuilder.setSchemaTypeFilters(i, qualifiedType);
+
+        // Cache the schema type filters and namespaces before clearing everything.
+        List<String> schemaTypeFilters = searchSpecBuilder.getSchemaTypeFiltersList();
+        searchSpecBuilder.clearSchemaTypeFilters();
+
+        List<String> namespaceFilters = searchSpecBuilder.getNamespaceFiltersList();
+        searchSpecBuilder.clearNamespaceFilters();
+
+        // Rewrite filters to include a database prefix.
+        for (String databaseName : existingDatabases) {
+            Set<String> existingSchemaTypes = mSchemaMap.get(databaseName);
+            if (schemaTypeFilters.isEmpty()) {
+                // Include all schema types
+                searchSpecBuilder.addAllSchemaTypeFilters(existingSchemaTypes);
+            } else {
+                // Qualify the given schema types
+                for (String schemaType : schemaTypeFilters) {
+                    String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
+                    if (existingSchemaTypes.contains(qualifiedType)) {
+                        searchSpecBuilder.addSchemaTypeFilters(qualifiedType);
+                    }
+
                 }
             }
-        } else {
-            searchSpecBuilder.addAllSchemaTypeFilters(existingSchemaTypes);
+
+            Set<String> existingNamespaces = mNamespaceMap.get(databaseName);
+            if (namespaceFilters.isEmpty()) {
+                // Include all namespaces
+                searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
+            } else {
+                // Qualify the given namespaces.
+                for (String namespace : namespaceFilters) {
+                    String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
+                    if (existingNamespaces.contains(qualifiedNamespace)) {
+                        searchSpecBuilder.addNamespaceFilters(qualifiedNamespace);
+                    }
+                }
+            }
         }
 
-        // Rewrite any existing namespaces specified in the searchSpec, or add namespaces to
-        // limit the search to this database instance.
-        if (searchSpecBuilder.getNamespaceFiltersCount() > 0) {
-            for (int i = 0; i < searchSpecBuilder.getNamespaceFiltersCount(); i++) {
-                String qualifiedNamespace = getDatabasePrefix(databaseName)
-                        + searchSpecBuilder.getNamespaceFilters(i);
-                searchSpecBuilder.setNamespaceFilters(i, qualifiedNamespace);
-            }
-        } else {
-            searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
-        }
         return true;
     }
 
@@ -681,28 +758,18 @@ public final class AppSearchImpl {
 
     @NonNull
     private String getDatabasePrefix(@NonNull String databaseName) {
-        return databaseName + "/";
+        // TODO(b/170370381): Reconsider the way we separate database names for security reasons.
+        return databaseName + DATABASE_DELIMITER;
     }
 
     @NonNull
     private String getDatabaseName(@NonNull String prefixedValue) throws AppSearchException {
-        int delimiterIndex = prefixedValue.indexOf('/');
+        int delimiterIndex = prefixedValue.indexOf(DATABASE_DELIMITER);
         if (delimiterIndex == -1) {
             throw new AppSearchException(AppSearchResult.RESULT_UNKNOWN_ERROR,
                     "The databaseName prefixed value doesn't contains a valid database name.");
         }
         return prefixedValue.substring(0, delimiterIndex);
-    }
-
-    @NonNull
-    private static String removePrefix(@NonNull String prefix, @NonNull String inputType,
-            @NonNull String input) {
-        if (!input.startsWith(prefix)) {
-            throw new IllegalStateException(
-                    "Unexpected " + inputType + " \"" + input
-                            + "\" does not start with \"" + prefix + "\"");
-        }
-        return input.substring(prefix.length());
     }
 
     @GuardedBy("mReadWriteLock")
@@ -781,17 +848,17 @@ public final class AppSearchImpl {
         }
     }
 
-    /** Removes the rewritten schema types from any result documents.*/
-    private SearchResultProto rewriteSearchResultProto(@NonNull String databaseName,
+    /** Remove the rewritten schema types from any result documents. */
+    private SearchResultProto rewriteSearchResultProto(
             @NonNull SearchResultProto searchResultProto) {
         SearchResultProto.Builder searchResultsBuilder = searchResultProto.toBuilder();
+
         for (int i = 0; i < searchResultsBuilder.getResultsCount(); i++) {
             if (searchResultProto.getResults(i).hasDocument()) {
                 SearchResultProto.ResultProto.Builder resultBuilder =
                         searchResultsBuilder.getResults(i).toBuilder();
                 DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
-                rewriteDocumentTypes(
-                        getDatabasePrefix(databaseName), documentBuilder, /*add=*/false);
+                removeDatabasesFromDocument(documentBuilder);
                 resultBuilder.setDocument(documentBuilder);
                 searchResultsBuilder.setResults(i, resultBuilder);
             }
