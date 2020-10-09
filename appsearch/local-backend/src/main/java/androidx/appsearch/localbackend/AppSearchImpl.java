@@ -332,7 +332,6 @@ public final class AppSearchImpl {
         return doQuery(searchSpec, resultSpec, scoringSpec, mNamespaceMap.keySet());
     }
 
-
     private SearchResultProto doQuery(@NonNull SearchSpecProto searchSpec,
             @NonNull ResultSpecProto resultSpec,
             @NonNull ScoringSpecProto scoringSpec, Set<String> databases)
@@ -440,7 +439,8 @@ public final class AppSearchImpl {
             // Only rewrite SearchSpec for non empty database.
             // rewriteSearchSpecForNonEmptyDatabase will return false for empty database, we
             // should skip sending request to Icing and return in here.
-            if (!rewriteSearchSpecForNonEmptyDatabase(databaseName, searchSpecBuilder)) {
+            if (!rewriteSearchSpecForDatabases(searchSpecBuilder,
+                    Collections.singleton(databaseName))) {
                 return;
             }
             deleteResultProto = mIcingSearchEngine.deleteByQuery(
