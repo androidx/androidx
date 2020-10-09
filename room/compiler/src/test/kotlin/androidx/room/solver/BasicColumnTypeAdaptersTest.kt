@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.writeTo
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
@@ -152,7 +153,9 @@ class BasicColumnTypeAdaptersTest(
                     .build()
             )
             .build()
-        JavaFile.builder("foo.bar", spec).build().writeTo(invocation.processingEnv.filer)
+        JavaFile.builder("foo.bar", spec).build().writeTo(
+            invocation.processingEnv.filer
+        )
     }
 
     @Test

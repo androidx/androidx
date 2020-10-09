@@ -17,14 +17,18 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.lang.model.element.Modifier
 
 @RunWith(JUnit4::class)
 class XProcessingEnvTest {
@@ -162,6 +166,50 @@ class XProcessingEnvTest {
                 assertThat(className.packageName()).isEqualTo("foo.bar")
                 assertThat(className.simpleNames()).containsExactly("Outer", "Inner")
                 assertThat(className.simpleName()).isEqualTo("Inner")
+            }
+        }
+    }
+
+    @Test
+    fun generateCode() {
+        val javaSrc = Source.java(
+            "foo.bar.AccessGenerated",
+            """
+            package foo.bar;
+            public class AccessGenerated {
+                ToBeGenerated x;
+            }
+            """.trimIndent()
+        )
+        val kotlinSrc = Source.kotlin(
+            "AccessGenerated.kt",
+            """
+            package foo.bar;
+            public class AccessGenerated(x: ToBeGenerated)
+            """.trimIndent()
+        )
+        listOf(javaSrc, kotlinSrc).forEach { src ->
+            fun runTest(block: (TestInvocation) -> Unit) {
+                // KSP does not support generated code access in java sources yet
+                // TODO remove this check once the bug is fixed.
+                //  https://github.com/google/ksp/issues/119
+                if (src === javaSrc) {
+                    runProcessorTest(sources = listOf(src), block)
+                } else {
+                    runProcessorTestIncludingKsp(sources = listOf(src), block)
+                }
+            }
+            runTest { invocation ->
+                val className = ClassName.get("foo.bar", "ToBeGenerated")
+                if (invocation.processingEnv.findTypeElement(className) == null) {
+                    // generate only if it doesn't exist to handle multi-round
+                    val spec = TypeSpec.classBuilder(className)
+                        .addModifiers(Modifier.PUBLIC)
+                        .build()
+                    JavaFile.builder(className.packageName(), spec)
+                        .build()
+                        .writeTo(invocation.processingEnv.filer)
+                }
             }
         }
     }
