@@ -313,8 +313,9 @@ public interface WorkSpecDao {
             + "state=" + WorkTypeConverters.StateIds.ENQUEUED
             // Order by period start time so we execute scheduled WorkSpecs in FIFO order
             + " ORDER BY period_start_time"
+            + " LIMIT :maxLimit"
     )
-    List<WorkSpec> getAllEligibleWorkSpecsForScheduling();
+    List<WorkSpec> getAllEligibleWorkSpecsForScheduling(int maxLimit);
 
     /**
      * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
