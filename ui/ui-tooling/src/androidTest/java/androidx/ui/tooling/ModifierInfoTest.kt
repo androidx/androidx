@@ -16,17 +16,17 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.DrawModifier
-import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.platform.DensityAmbient
