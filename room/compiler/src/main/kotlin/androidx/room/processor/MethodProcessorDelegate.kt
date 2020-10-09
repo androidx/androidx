@@ -24,8 +24,11 @@ import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.isSuspendFunction
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
@@ -90,7 +93,8 @@ abstract class MethodProcessorDelegate(
             containing: XDeclaredType,
             executableElement: XMethodElement
         ): MethodProcessorDelegate {
-            return if (executableElement.isSuspendFunction()) {
+            val asMember = executableElement.asMemberOf(containing)
+            return if (asMember.isSuspendFunction()) {
                 val hasCoroutineArtifact = context.processingEnv
                     .findTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
                 if (!hasCoroutineArtifact) {
@@ -99,13 +103,15 @@ abstract class MethodProcessorDelegate(
                 SuspendMethodProcessorDelegate(
                     context,
                     containing,
-                    executableElement
+                    executableElement,
+                    asMember
                 )
             } else {
                 DefaultMethodProcessorDelegate(
                     context,
                     containing,
-                    executableElement
+                    executableElement,
+                    asMember
                 )
             }
         }
@@ -118,12 +124,12 @@ abstract class MethodProcessorDelegate(
 class DefaultMethodProcessorDelegate(
     context: Context,
     containing: XDeclaredType,
-    executableElement: XMethodElement
+    executableElement: XMethodElement,
+    val executableType: XMethodType
 ) : MethodProcessorDelegate(context, containing, executableElement) {
 
     override fun extractReturnType(): XType {
-        val asMember = executableElement.asMemberOf(containing)
-        return asMember.returnType
+        return executableType.returnType
     }
 
     override fun extractParams() = executableElement.parameters
@@ -156,7 +162,8 @@ class DefaultMethodProcessorDelegate(
 class SuspendMethodProcessorDelegate(
     context: Context,
     containing: XDeclaredType,
-    executableElement: XMethodElement
+    executableElement: XMethodElement,
+    val executableType: XSuspendMethodType
 ) : MethodProcessorDelegate(context, containing, executableElement) {
 
     private val continuationParam: XVariableElement by lazy {
@@ -168,8 +175,7 @@ class SuspendMethodProcessorDelegate(
     }
 
     override fun extractReturnType(): XType {
-        val asMember = executableElement.asMemberOf(containing)
-        return asMember.getSuspendFunctionReturnType()
+        return executableType.getSuspendFunctionReturnType()
     }
 
     override fun extractParams() =
