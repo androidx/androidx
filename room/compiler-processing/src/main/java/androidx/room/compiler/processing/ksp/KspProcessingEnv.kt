@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
@@ -30,14 +31,14 @@ import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 import org.jetbrains.kotlin.ksp.symbol.Variance
-import javax.annotation.processing.Filer
 
 internal class KspProcessingEnv(
     override val options: Map<String, String>,
-    private val codeGenerator: CodeGenerator,
+    codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
     val resolver: Resolver
 ) : XProcessingEnv {
+
     private val typeElementStore =
         XTypeElementStore { qName ->
             resolver.getClassDeclarationByName(
@@ -53,8 +54,7 @@ internal class KspProcessingEnv(
     override val messager: XMessager
         get() = TODO("Not yet implemented")
 
-    override val filer: Filer
-        get() = TODO("Not yet implemented")
+    override val filer: XFiler = KspFiler(codeGenerator)
 
     val commonTypes = CommonTypes(resolver)
 

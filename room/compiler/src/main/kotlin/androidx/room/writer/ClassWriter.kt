@@ -20,6 +20,7 @@ import androidx.room.RoomProcessor
 import androidx.room.ext.S
 import androidx.room.ext.typeName
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.writeTo
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
