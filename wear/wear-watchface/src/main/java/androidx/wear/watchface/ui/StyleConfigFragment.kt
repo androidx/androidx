@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.BooleanUserStyleCategory
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
@@ -49,9 +50,7 @@ import androidx.wear.widget.WearableRecyclerView
  * @hide
  */
 @RestrictTo(LIBRARY)
-internal class StyleConfigFragment :
-    Fragment(),
-    StyleSettingViewAdapter.ClickListener {
+internal class StyleConfigFragment : Fragment(), ClickListener {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal lateinit var watchFaceConfigActivity: WatchFaceConfigActivity
@@ -103,8 +102,10 @@ internal class StyleConfigFragment :
         val styleOptions = styleCategory.options
         val booleanUserStyleCategory =
             styleOptions.filterIsInstance<BooleanUserStyleCategory.BooleanOption>()
-        val ListUserStyleCategory =
+        val listUserStyleCategory =
             styleOptions.filterIsInstance<ListUserStyleCategory.ListOption>()
+        val complicationsUserStyleCategory =
+            styleOptions.filterIsInstance<ComplicationsUserStyleCategory.ComplicationsOption>()
         val rangeUserStyleCategory =
             styleOptions.filterIsInstance<DoubleRangeUserStyleCategory.DoubleRangeOption>()
 
@@ -124,13 +125,27 @@ internal class StyleConfigFragment :
                 rangedStyle.isEnabled = false
             }
 
-            ListUserStyleCategory.isNotEmpty() -> {
+            listUserStyleCategory.isNotEmpty() -> {
                 booleanStyle.isEnabled = false
                 booleanStyle.visibility = View.GONE
                 styleOptionsList.adapter =
-                    StyleSettingViewAdapter(
+                    ListStyleSettingViewAdapter(
                         requireContext(),
-                        ListUserStyleCategory,
+                        listUserStyleCategory,
+                        this@StyleConfigFragment
+                    )
+                styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
+                rangedStyle.isEnabled = false
+                rangedStyle.visibility = View.GONE
+            }
+
+            complicationsUserStyleCategory.isNotEmpty() -> {
+                booleanStyle.isEnabled = false
+                booleanStyle.visibility = View.GONE
+                styleOptionsList.adapter =
+                    ComplicationsStyleSettingViewAdapter(
+                        requireContext(),
+                        complicationsUserStyleCategory,
                         this@StyleConfigFragment
                     )
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -219,23 +234,62 @@ internal class StyleSettingViewHolder(view: View) : RecyclerView.ViewHolder(view
     var userStyleOption: UserStyleCategory.Option? = null
 }
 
+internal interface ClickListener {
+    /** Called when a userStyle option is selected. */
+    fun onItemClick(userStyleOption: UserStyleCategory.Option)
+}
+
 /**
- * An adapter for lists of selectable userStyle options.
- *
- * @hide
+ * An adapter for [ListUserStyleCategory].
  */
-@RestrictTo(LIBRARY)
-internal class StyleSettingViewAdapter(
+internal class ListStyleSettingViewAdapter(
     private val context: Context,
     private val styleOptions: List<ListUserStyleCategory.ListOption>,
     private val clickListener: ClickListener
 ) :
     RecyclerView.Adapter<StyleSettingViewHolder>() {
 
-    interface ClickListener {
-        /** Called when a userStyle option is selected. */
-        fun onItemClick(userStyleOption: UserStyleCategory.Option)
+    private val handler = Handler(Looper.getMainLooper())
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = StyleSettingViewHolder(
+        LayoutInflater.from(parent.context).inflate(
+            R.layout.stylelist_item_layout, parent, false
+        )
+    ).apply {
+        itemView.setOnClickListener { clickListener.onItemClick(userStyleOption!!) }
     }
+
+    override fun onBindViewHolder(holder: StyleSettingViewHolder, position: Int) {
+        val styleOption = styleOptions[position]
+        holder.userStyleOption = styleOption
+        val textView = holder.itemView as TextView
+        textView.text = styleOption.displayName
+        styleOption.icon?.loadDrawableAsync(
+            context,
+            { drawable ->
+                textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    Helper.wrapIcon(context, drawable),
+                    /* top = */ null,
+                    /* end = */ null,
+                    /* bottom = */ null
+                )
+            },
+            handler
+        )
+    }
+
+    override fun getItemCount() = styleOptions.size
+}
+
+/**
+ * An adapter for [ComplicationsUserStyleCategory]. This is a very minimal placeholder UI.
+ */
+internal class ComplicationsStyleSettingViewAdapter(
+    private val context: Context,
+    private val styleOptions: List<ComplicationsUserStyleCategory.ComplicationsOption>,
+    private val clickListener: ClickListener
+) :
+    RecyclerView.Adapter<StyleSettingViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
 

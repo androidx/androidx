@@ -722,7 +722,7 @@ public class ComplicationDrawableTest {
                     WatchFaceType.ANALOG,
                     100,
                     userStyleRepository,
-                    new ComplicationsManager(new ArrayList<>()),
+                    new ComplicationsManager(new ArrayList<>(), userStyleRepository),
                     new Renderer(surfaceHolder, userStyleRepository, watchState) {
                         @NotNull
                         @Override

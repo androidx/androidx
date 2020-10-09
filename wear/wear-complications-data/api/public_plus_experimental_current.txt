@@ -165,6 +165,24 @@ package androidx.wear.complications {
     method public void onUpdateComplication(android.support.wearable.complications.ComplicationData?) throws android.os.RemoteException;
   }
 
+  public final class DefaultComplicationProviderPolicy {
+    ctor public DefaultComplicationProviderPolicy();
+    ctor public DefaultComplicationProviderPolicy(int systemProvider);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, int systemProviderFallback);
+    method public android.content.ComponentName? getPrimaryProvider();
+    method public android.content.ComponentName? getSecondaryProvider();
+    method public int getSystemProviderFallback();
+    method public boolean isEmpty();
+    property public final android.content.ComponentName? primaryProvider;
+    property public final android.content.ComponentName? secondaryProvider;
+    property public final int systemProviderFallback;
+    field public static final androidx.wear.complications.DefaultComplicationProviderPolicy.Companion Companion;
+  }
+
+  public static final class DefaultComplicationProviderPolicy.Companion {
+  }
+
   public class ProviderInfoRetriever implements java.lang.AutoCloseable {
     ctor public ProviderInfoRetriever(android.content.Context);
     method public void close();

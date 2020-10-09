@@ -19,6 +19,7 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
 import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
@@ -66,6 +67,9 @@ abstract class UserStyleCategory(
         fun createFromWireFormat(wireFormat: UserStyleCategoryWireFormat) =
             when (wireFormat) {
                 is BooleanUserStyleCategoryWireFormat -> BooleanUserStyleCategory(wireFormat)
+
+                is ComplicationsUserStyleCategoryWireFormat ->
+                    ComplicationsUserStyleCategory(wireFormat)
 
                 is DoubleRangeUserStyleCategoryWireFormat ->
                     DoubleRangeUserStyleCategory(wireFormat)
@@ -131,6 +135,9 @@ abstract class UserStyleCategory(
                 when (wireFormat) {
                     is BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat ->
                         BooleanUserStyleCategory.BooleanOption(wireFormat)
+
+                    is ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat ->
+                        ComplicationsUserStyleCategory.ComplicationsOption(wireFormat)
 
                     is DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat ->
                         DoubleRangeUserStyleCategory.DoubleRangeOption(wireFormat)

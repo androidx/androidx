@@ -70,7 +70,8 @@ private const val TIMEOUT_MS = 800L
 
 internal class WatchFaceServiceStub(
     private val apiVersion: Int,
-    private val complicationProviders: Map<Int, ComplicationData>
+    private val complicationProviders: Map<Int, ComplicationData>,
+    private val activeComplicationsLatch: CountDownLatch
 ) : IWatchFaceService.Stub() {
     var watchFaceCommand: IWatchFaceCommand? = null
 
@@ -81,6 +82,7 @@ internal class WatchFaceServiceStub(
     }
 
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
+        activeComplicationsLatch.countDown()
     }
 
     override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
@@ -167,6 +169,7 @@ class WatchFaceServiceImageTest {
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
     private val renderDoneLatch = CountDownLatch(1)
+    private var activeComplicationsLatch = CountDownLatch(1)
 
     private val surfaceTexture = SurfaceTexture(false)
 
@@ -221,7 +224,8 @@ class WatchFaceServiceImageTest {
     private fun setBinder() {
         watchFaceServiceStub = WatchFaceServiceStub(
             API_VERSION,
-            complicationProviders
+            complicationProviders,
+            activeComplicationsLatch
         )
 
         engineWrapper.onCommand(
@@ -275,8 +279,9 @@ class WatchFaceServiceImageTest {
 
     @Test
     fun testActiveScreenshot() {
+        handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            initCanvasWatchFace()
             engineWrapper.draw()
         }
 
@@ -286,8 +291,9 @@ class WatchFaceServiceImageTest {
 
     @Test
     fun testAmbientScreenshot() {
+        handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            initCanvasWatchFace()
             setAmbient(true)
             engineWrapper.draw()
         }
@@ -301,6 +307,7 @@ class WatchFaceServiceImageTest {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
@@ -325,6 +332,7 @@ class WatchFaceServiceImageTest {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
@@ -350,6 +358,7 @@ class WatchFaceServiceImageTest {
         val latch = CountDownLatch(1)
 
         handler.post(this::initGles2WatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(
@@ -375,6 +384,7 @@ class WatchFaceServiceImageTest {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
@@ -400,8 +410,10 @@ class WatchFaceServiceImageTest {
 
         // Rendering again with complicationData = null should result in a different image.
         val latch2 = CountDownLatch(1)
+        activeComplicationsLatch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap2: Bitmap? = null
         handler.post {
             bitmap2 = watchFaceServiceStub.watchFaceCommand!!.takeComplicationScreenshot(
@@ -425,8 +437,9 @@ class WatchFaceServiceImageTest {
 
     @Test
     fun testSetGreenStyle() {
+        handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
-            initCanvasWatchFace()
             watchFaceServiceStub.watchFaceCommand!!.setUserStyle(
                 UserStyleWireFormat(mapOf("color_style_category" to "green_style"))
             )
@@ -442,6 +455,7 @@ class WatchFaceServiceImageTest {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
+        activeComplicationsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         var bitmap: Bitmap? = null
         handler.post {
             bitmap = watchFaceServiceStub.watchFaceCommand!!.takeWatchfaceScreenshot(

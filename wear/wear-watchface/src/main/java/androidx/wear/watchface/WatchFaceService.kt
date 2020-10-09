@@ -35,6 +35,7 @@ import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
 import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationData.TYPE_NO_DATA
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
@@ -461,7 +462,8 @@ abstract class WatchFaceService : WallpaperService() {
 
                     val oldComplicationData =
                         watchFace.complicationsManager.complications.mapValues {
-                            it.value.renderer.getData()!!
+                            it.value.renderer.getData() ?: ComplicationData.Builder(TYPE_NO_DATA)
+                                .build()
                         }
                     if (idAndComplicationData != null) {
                         for (idAndData in idAndComplicationData) {
