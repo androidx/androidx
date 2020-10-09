@@ -54,12 +54,14 @@ inline fun DynamicNavGraphBuilder.includeDynamic(
     moduleName: String,
     graphResourceName: String,
     builder: DynamicIncludeNavGraphBuilder.() -> Unit
-) = destination(DynamicIncludeNavGraphBuilder(
-    provider[DynamicIncludeGraphNavigator::class],
-    id,
-    moduleName,
-    graphResourceName
-).apply(builder))
+) = destination(
+    DynamicIncludeNavGraphBuilder(
+        provider[DynamicIncludeGraphNavigator::class],
+        id,
+        moduleName,
+        graphResourceName
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph]

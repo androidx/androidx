@@ -35,9 +35,11 @@ internal sealed class KspMethodType(
         origin.declaration.typeParameters.map {
             TypeVariableName.get(
                 it.name.asString(),
-                *(it.bounds.map {
-                    it.typeName()
-                }.toTypedArray())
+                *(
+                    it.bounds.map {
+                        it.typeName()
+                    }.toTypedArray()
+                    )
             )
         }
     }

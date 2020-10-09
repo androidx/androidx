@@ -133,9 +133,11 @@ private fun KSType.replaceFromMap(
     if (this.arguments.isEmpty()) {
         return this
     }
-    return replace(this.arguments.map {
-        it.replaceFromMap(resolver, arguments)
-    })
+    return replace(
+        this.arguments.map {
+            it.replaceFromMap(resolver, arguments)
+        }
+    )
 }
 
 private fun KSTypeArgument.makeNullable(resolver: Resolver): KSTypeArgument {

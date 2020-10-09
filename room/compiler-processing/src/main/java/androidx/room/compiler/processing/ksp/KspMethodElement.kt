@@ -38,7 +38,8 @@ internal sealed class KspMethodElement(
     env = env,
     containing = containing,
     declaration = declaration
-), XMethodElement {
+),
+    XMethodElement {
 
     override val name: String by lazy {
         declaration.simpleName.asString()
@@ -72,7 +73,7 @@ internal sealed class KspMethodElement(
         // we should have a default implementation
         return parentDeclaration is KSClassDeclaration &&
             parentDeclaration.classKind == ClassKind.INTERFACE &&
-                !declaration.isAbstract
+            !declaration.isAbstract
     }
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
@@ -128,9 +129,11 @@ internal sealed class KspMethodElement(
         env, containing, declaration
     ) {
         override val returnType: XType by lazy {
-            env.wrap(checkNotNull(declaration.returnType) {
-                "return type on a method declaration cannot be null"
-            })
+            env.wrap(
+                checkNotNull(declaration.returnType) {
+                    "return type on a method declaration cannot be null"
+                }
+            )
         }
         override fun isSuspendFunction() = false
     }

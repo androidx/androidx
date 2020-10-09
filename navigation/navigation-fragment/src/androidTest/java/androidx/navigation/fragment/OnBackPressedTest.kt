@@ -89,8 +89,10 @@ class OnBackPressedTest(
                 onBackPressed()
                 finishCountDownLatch
             }
-            assertWithMessage("onBackPressed() should finish the activity when not the " +
-                    "primary nav")
+            assertWithMessage(
+                "onBackPressed() should finish the activity when not the " +
+                    "primary nav"
+            )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -101,7 +103,7 @@ class OnBackPressedTest(
         with(ActivityScenario.launch(activityClass)) {
             withActivity {
                 val navHostFragment = supportFragmentManager.primaryNavigationFragment
-                        as NavHostFragment
+                    as NavHostFragment
                 val navHostFragmentManager = navHostFragment.childFragmentManager
                 val navController = navHostFragment.navController
                 navController.setGraph(R.navigation.nav_simple)
@@ -109,14 +111,16 @@ class OnBackPressedTest(
                 navHostFragmentManager.executePendingTransactions()
 
                 val currentFragment = navHostFragmentManager.primaryNavigationFragment
-                        as ChildBackStackFragment
+                    as ChildBackStackFragment
                 assertWithMessage("Current Fragment should have a child Fragment by default")
                     .that(currentFragment.childFragment)
                     .isNotNull()
 
                 onBackPressed()
-                assertWithMessage("onBackPressed() should not trigger NavController when there " +
-                        "is a child back stack")
+                assertWithMessage(
+                    "onBackPressed() should not trigger NavController when there " +
+                        "is a child back stack"
+                )
                     .that(navController.currentDestination?.id)
                     .isEqualTo(R.id.child_back_stack_fragment)
                 assertWithMessage("Child Fragment should be popped")

@@ -107,9 +107,11 @@ abstract class CameraPipeModules {
             val cameraHandlerFn =
                 {
                     config.cameraThread?.let { Handler(it.looper) }
-                        ?: Handler(HandlerThread("CXCP-Camera2-H").also {
-                            it.start()
-                        }.looper)
+                        ?: Handler(
+                            HandlerThread("CXCP-Camera2-H").also {
+                                it.start()
+                            }.looper
+                        )
                 }
             val cameraExecutorFn = {
                 Executors.newFixedThreadPool(1) {

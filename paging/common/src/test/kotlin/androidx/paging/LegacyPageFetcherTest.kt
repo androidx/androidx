@@ -218,7 +218,8 @@ class LegacyPageFetcherTest {
         assertEquals(
             listOf(
                 Result(APPEND, rangeResult(6, 8))
-            ), consumer.takeResults()
+            ),
+            consumer.takeResults()
         )
 
         assertEquals(
@@ -228,7 +229,8 @@ class LegacyPageFetcherTest {
                     APPEND,
                     NotLoading(endOfPaginationReached = false)
                 )
-            ), consumer.takeStateChanges()
+            ),
+            consumer.takeStateChanges()
         )
 
         pager.tryScheduleAppend()
@@ -237,7 +239,8 @@ class LegacyPageFetcherTest {
         assertEquals(
             listOf(
                 Result(APPEND, rangeResult(8, 9))
-            ), consumer.takeResults()
+            ),
+            consumer.takeResults()
         )
 
         assertEquals(
@@ -263,7 +266,8 @@ class LegacyPageFetcherTest {
         assertEquals(
             listOf(
                 Result(PREPEND, rangeResult(2, 4))
-            ), consumer.takeResults()
+            ),
+            consumer.takeResults()
         )
 
         assertEquals(
@@ -282,7 +286,8 @@ class LegacyPageFetcherTest {
         assertEquals(
             listOf(
                 Result(PREPEND, rangeResult(0, 2))
-            ), consumer.takeResults()
+            ),
+            consumer.takeResults()
         )
         assertEquals(
             listOf(

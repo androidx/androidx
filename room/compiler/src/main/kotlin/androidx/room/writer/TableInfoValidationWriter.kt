@@ -46,74 +46,99 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(HashMap::class.typeName,
-                    CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN)
+            val columnListType = ParameterizedTypeName.get(
+                HashMap::class.typeName,
+                CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN
+            )
 
-            addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
-                    columnListType, entity.fields.size)
+            addStatement(
+                "final $T $L = new $T($L)", columnListType, columnListVar,
+                columnListType, entity.fields.size
+            )
             entity.fields.forEach { field ->
-                addStatement("$L.put($S, new $T($S, $S, $L, $L, $S, $T.$L))",
-                        columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
-                        /*name*/ field.columnName,
-                        /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
-                        /*nonNull*/ field.nonNull,
-                        /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1,
-                        /*defaultValue*/ field.defaultValue,
-                        /*createdFrom*/ RoomTypeNames.TABLE_INFO, CREATED_FROM_ENTITY)
+                addStatement(
+                    "$L.put($S, new $T($S, $S, $L, $L, $S, $T.$L))",
+                    columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
+                    /*name*/ field.columnName,
+                    /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
+                    /*nonNull*/ field.nonNull,
+                    /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1,
+                    /*defaultValue*/ field.defaultValue,
+                    /*createdFrom*/ RoomTypeNames.TABLE_INFO, CREATED_FROM_ENTITY
+                )
             }
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
-            val foreignKeySetType = ParameterizedTypeName.get(HashSet::class.typeName,
-                    RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
-            addStatement("final $T $L = new $T($L)", foreignKeySetType, foreignKeySetVar,
-                    foreignKeySetType, entity.foreignKeys.size)
+            val foreignKeySetType = ParameterizedTypeName.get(
+                HashSet::class.typeName,
+                RoomTypeNames.TABLE_INFO_FOREIGN_KEY
+            )
+            addStatement(
+                "final $T $L = new $T($L)", foreignKeySetType, foreignKeySetVar,
+                foreignKeySetType, entity.foreignKeys.size
+            )
             entity.foreignKeys.forEach {
                 val myColumnNames = it.childFields
-                        .joinToString(",") { "\"${it.columnName}\"" }
+                    .joinToString(",") { "\"${it.columnName}\"" }
                 val refColumnNames = it.parentColumns
-                        .joinToString(",") { "\"$it\"" }
-                addStatement("$L.add(new $T($S, $S, $S," +
-                        "$T.asList($L), $T.asList($L)))", foreignKeySetVar,
-                        RoomTypeNames.TABLE_INFO_FOREIGN_KEY,
-                        /*parent table*/ it.parentTable,
-                        /*on delete*/ it.onDelete.sqlName,
-                        /*on update*/ it.onUpdate.sqlName,
-                        Arrays::class.typeName,
-                        /*parent names*/ myColumnNames,
-                        Arrays::class.typeName,
-                        /*parent column names*/ refColumnNames)
+                    .joinToString(",") { "\"$it\"" }
+                addStatement(
+                    "$L.add(new $T($S, $S, $S," +
+                        "$T.asList($L), $T.asList($L)))",
+                    foreignKeySetVar,
+                    RoomTypeNames.TABLE_INFO_FOREIGN_KEY,
+                    /*parent table*/ it.parentTable,
+                    /*on delete*/ it.onDelete.sqlName,
+                    /*on update*/ it.onUpdate.sqlName,
+                    Arrays::class.typeName,
+                    /*parent names*/ myColumnNames,
+                    Arrays::class.typeName,
+                    /*parent column names*/ refColumnNames
+                )
             }
 
             val indicesSetVar = scope.getTmpVar("_indices$suffix")
-            val indicesType = ParameterizedTypeName.get(HashSet::class.typeName,
-                    RoomTypeNames.TABLE_INFO_INDEX)
-            addStatement("final $T $L = new $T($L)", indicesType, indicesSetVar,
-                    indicesType, entity.indices.size)
+            val indicesType = ParameterizedTypeName.get(
+                HashSet::class.typeName,
+                RoomTypeNames.TABLE_INFO_INDEX
+            )
+            addStatement(
+                "final $T $L = new $T($L)", indicesType, indicesSetVar,
+                indicesType, entity.indices.size
+            )
             entity.indices.forEach { index ->
                 val columnNames = index.columnNames.joinToString(",") { "\"$it\"" }
-                addStatement("$L.add(new $T($S, $L, $T.asList($L)))",
-                        indicesSetVar,
-                        RoomTypeNames.TABLE_INFO_INDEX,
-                        index.name,
-                        index.unique,
-                        Arrays::class.typeName,
-                        columnNames)
+                addStatement(
+                    "$L.add(new $T($S, $L, $T.asList($L)))",
+                    indicesSetVar,
+                    RoomTypeNames.TABLE_INFO_INDEX,
+                    index.name,
+                    index.unique,
+                    Arrays::class.typeName,
+                    columnNames
+                )
             }
 
-            addStatement("final $T $L = new $T($S, $L, $L, $L)",
-                    RoomTypeNames.TABLE_INFO, expectedInfoVar, RoomTypeNames.TABLE_INFO,
-                    entity.tableName, columnListVar, foreignKeySetVar, indicesSetVar)
+            addStatement(
+                "final $T $L = new $T($S, $L, $L, $L)",
+                RoomTypeNames.TABLE_INFO, expectedInfoVar, RoomTypeNames.TABLE_INFO,
+                entity.tableName, columnListVar, foreignKeySetVar, indicesSetVar
+            )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement("final $T $L = $T.read($N, $S)",
-                    RoomTypeNames.TABLE_INFO, existingVar, RoomTypeNames.TABLE_INFO,
-                    dbParam, entity.tableName)
+            addStatement(
+                "final $T $L = $T.read($N, $S)",
+                RoomTypeNames.TABLE_INFO, existingVar, RoomTypeNames.TABLE_INFO,
+                dbParam, entity.tableName
+            )
 
             beginControlFlow("if (! $L.equals($L))", expectedInfoVar, existingVar).apply {
-                addStatement("return new $T(false, $S + $L + $S + $L)",
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
-                        expectedInfoVar, "\n Found:\n", existingVar)
+                addStatement(
+                    "return new $T(false, $S + $L + $S + $L)",
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
+                    expectedInfoVar, "\n Found:\n", existingVar
+                )
             }
             endControlFlow()
         }

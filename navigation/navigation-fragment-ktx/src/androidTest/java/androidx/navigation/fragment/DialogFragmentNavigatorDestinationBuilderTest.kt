@@ -40,8 +40,8 @@ class DialogFragmentNavigatorDestinationBuilderTest {
     @Test fun fragment() {
         val navHostFragment = NavHostFragment()
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             dialog<BuilderTestDialogFragment>(DESTINATION_ID)
         }
@@ -57,8 +57,8 @@ class DialogFragmentNavigatorDestinationBuilderTest {
     @Test fun fragmentWithBody() {
         val navHostFragment = NavHostFragment()
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             dialog<BuilderTestDialogFragment>(DESTINATION_ID) {
                 label = LABEL

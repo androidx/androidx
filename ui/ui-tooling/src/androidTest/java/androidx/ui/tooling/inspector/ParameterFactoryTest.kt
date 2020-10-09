@@ -187,10 +187,12 @@ class ParameterFactoryTest {
         val preAPI28 = { api <= 28 }
         assertThat(lookup(SolidColor(Color.Red)))
             .isEqualTo(ParameterType.Color to Color.Red.toArgb())
-        validate(factory.create(
-            node,
-            "brush",
-            LinearGradient(listOf(Color.Red, Color.Blue), 0.0f, 0.5f, 5.0f, 10.0f))!!
+        validate(
+            factory.create(
+                node,
+                "brush",
+                LinearGradient(listOf(Color.Red, Color.Blue), 0.0f, 0.5f, 5.0f, 10.0f)
+            )!!
         ) {
             parameter("brush", ParameterType.String, "LinearGradient") {
                 parameter("colors", ParameterType.String, "") {

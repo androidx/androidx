@@ -49,7 +49,8 @@ import androidx.wear.widget.WearableRecyclerView
  * @hide
  */
 @RestrictTo(LIBRARY)
-internal class StyleConfigFragment : Fragment(),
+internal class StyleConfigFragment :
+    Fragment(),
     StyleSettingViewAdapter.ClickListener {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -97,7 +98,7 @@ internal class StyleConfigFragment : Fragment(),
 
         val view =
             inflater.inflate(R.layout.style_options_layout, container, false)
-                    as SwipeDismissFrameLayout
+                as SwipeDismissFrameLayout
 
         val styleOptions = styleCategory.options
         val booleanUserStyleCategory =
@@ -140,11 +141,15 @@ internal class StyleConfigFragment : Fragment(),
             rangeUserStyleCategory.isNotEmpty() -> {
                 val rangedStyleCategory = styleCategory as DoubleRangeUserStyleCategory
                 val minValue =
-                    (rangedStyleCategory.options.first() as
-                            DoubleRangeUserStyleCategory.DoubleRangeOption).value
+                    (
+                        rangedStyleCategory.options.first() as
+                            DoubleRangeUserStyleCategory.DoubleRangeOption
+                        ).value
                 val maxValue =
-                    (rangedStyleCategory.options.last() as
-                            DoubleRangeUserStyleCategory.DoubleRangeOption).value
+                    (
+                        rangedStyleCategory.options.last() as
+                            DoubleRangeUserStyleCategory.DoubleRangeOption
+                        ).value
                 val delta = (maxValue - minValue) / 100.0f
                 val value = userStyle.options[styleCategory]!!.id.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()

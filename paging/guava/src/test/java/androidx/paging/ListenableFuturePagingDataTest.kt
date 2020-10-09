@@ -37,27 +37,36 @@ class ListenableFuturePagingDataTest {
 
     @Test
     fun map() = testDispatcher.runBlockingTest {
-        val transformed = original.mapAsync(AsyncFunction<String, String> {
-            Futures.immediateFuture(it + it)
-        }, testDispatcher.asExecutor())
+        val transformed = original.mapAsync(
+            AsyncFunction<String, String> {
+                Futures.immediateFuture(it + it)
+            },
+            testDispatcher.asExecutor()
+        )
         differ.collectFrom(transformed)
         assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
     fun flatMap() = testDispatcher.runBlockingTest {
-        val transformed = original.flatMapAsync(AsyncFunction<String, Iterable<String>> {
-            Futures.immediateFuture(listOf(it!!, it))
-        }, testDispatcher.asExecutor())
+        val transformed = original.flatMapAsync(
+            AsyncFunction<String, Iterable<String>> {
+                Futures.immediateFuture(listOf(it!!, it))
+            },
+            testDispatcher.asExecutor()
+        )
         differ.collectFrom(transformed)
         assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
     fun filter() = testDispatcher.runBlockingTest {
-        val filtered = original.filterAsync(AsyncFunction {
-            Futures.immediateFuture(it != "b")
-        }, testDispatcher.asExecutor())
+        val filtered = original.filterAsync(
+            AsyncFunction {
+                Futures.immediateFuture(it != "b")
+            },
+            testDispatcher.asExecutor()
+        )
         differ.collectFrom(filtered)
         assertEquals(listOf("a", "c"), differ.currentList)
     }

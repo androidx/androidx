@@ -45,9 +45,12 @@ class Cache(
         private val entries: MutableMap<FullKey<K>, T> = source?.entries ?: mutableMapOf()
         fun get(key: K, calculate: () -> T): T {
             val fullKey = FullKey(converters, suppressedWarnings, key)
-            return entries.getOrPut(fullKey, {
-                calculate()
-            })
+            return entries.getOrPut(
+                fullKey,
+                {
+                    calculate()
+                }
+            )
         }
     }
 

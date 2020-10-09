@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
-        BaseEntityParserTest() {
+    BaseEntityParserTest() {
     val fieldName = triple.first
     val getterName = triple.second
     val setterName = triple.third
@@ -53,22 +53,30 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
 
     @Test
     fun testSuccessfulParamToMethodMatching() {
-        singleEntity("""
+        singleEntity(
+            """
                 @PrimaryKey
                 private int $fieldName;
                 public int $getterName() { return $fieldName; }
                 public void $setterName(int id) { this.$fieldName = id; }
-            """) { entity, invocation ->
+            """
+        ) { entity, invocation ->
             assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(TypeName.INT)
-            assertThat(field, `is`(Field(
-                    element = field.element,
-                    name = fieldName,
-                    type = intType,
-                    columnName = fieldName,
-                    affinity = SQLTypeAffinity.INTEGER)))
+            assertThat(
+                field,
+                `is`(
+                    Field(
+                        element = field.element,
+                        name = fieldName,
+                        type = intType,
+                        columnName = fieldName,
+                        affinity = SQLTypeAffinity.INTEGER
+                    )
+                )
+            )
             assertThat(field.setter, `is`(FieldSetter(setterName, intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter(getterName, intType, CallType.METHOD)))
         }.compilesWithoutError()

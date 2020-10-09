@@ -26,7 +26,9 @@ import java.util.AbstractList
  * This class only holds data, and does not have any notion of the ideas of async loads, or
  * prefetching.
  */
-internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPageFetcher.KeyProvider<Any>,
+internal class PagedStorage<T : Any> :
+    AbstractList<T>,
+    LegacyPageFetcher.KeyProvider<Any>,
     NullPaddedList<T> {
     private val pages = mutableListOf<Page<*, T>>()
 
@@ -232,8 +234,8 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPageFetcher.KeyPro
     private fun needsTrim(maxSize: Int, requiredRemaining: Int, localPageIndex: Int): Boolean {
         val page = pages[localPageIndex]
         return storageCount > maxSize &&
-                pages.size > 2 &&
-                storageCount - page.data.size >= requiredRemaining
+            pages.size > 2 &&
+            storageCount - page.data.size >= requiredRemaining
     }
 
     fun needsTrimFromFront(maxSize: Int, requiredRemaining: Int) =
@@ -244,8 +246,8 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPageFetcher.KeyPro
 
     fun shouldPreTrimNewPage(maxSize: Int, requiredRemaining: Int, countToBeAdded: Int) =
         storageCount + countToBeAdded > maxSize &&
-                pages.size > 1 &&
-                storageCount >= requiredRemaining
+            pages.size > 1 &&
+            storageCount >= requiredRemaining
 
     internal fun trimFromFront(
         insertNulls: Boolean,
@@ -353,5 +355,5 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPageFetcher.KeyPro
 
     override fun toString(): String =
         "leading $placeholdersBefore, storage $storageCount, trailing $placeholdersAfter " +
-                pages.joinToString(" ")
+            pages.joinToString(" ")
 }

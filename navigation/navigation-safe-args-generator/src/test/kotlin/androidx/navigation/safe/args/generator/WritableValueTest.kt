@@ -40,7 +40,9 @@ class WritableValueTest {
 
     @Test
     fun testReferenceWrite() {
-        assertThat(ReferenceValue(ResReference("foo", "id", "bla")).write().toString(),
-                `is`("foo.R.id.bla"))
+        assertThat(
+            ReferenceValue(ResReference("foo", "id", "bla")).write().toString(),
+            `is`("foo.R.id.bla")
+        )
     }
 }

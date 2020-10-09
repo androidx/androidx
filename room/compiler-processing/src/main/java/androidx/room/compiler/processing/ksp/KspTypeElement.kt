@@ -243,13 +243,16 @@ internal class KspTypeElement(
         }
         return if (elements.isEmpty() &&
             declaration.origin == Origin.JAVA &&
-            !isInterface()) {
+            !isInterface()
+        ) {
             // workaround for https://github.com/google/ksp/issues/98
             // TODO remove if KSP support this
-            listOf(KspSyntheticConstructorForJava(
-                env = env,
-                origin = this
-            ))
+            listOf(
+                KspSyntheticConstructorForJava(
+                    env = env,
+                    origin = this
+                )
+            )
         } else {
             elements
         }

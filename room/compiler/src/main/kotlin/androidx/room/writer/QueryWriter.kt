@@ -40,8 +40,10 @@ class QueryWriter constructor(
     val query: ParsedQuery
 ) {
 
-    constructor(queryMethod: QueryMethod) : this(queryMethod.parameters,
-            queryMethod.sectionToParamMapping, queryMethod.query)
+    constructor(queryMethod: QueryMethod) : this(
+        queryMethod.parameters,
+        queryMethod.sectionToParamMapping, queryMethod.query
+    )
 
     fun prepareReadAndBind(
         outSqlQueryName: String,
@@ -66,7 +68,7 @@ class QueryWriter constructor(
     ): List<Pair<QueryParameter, String>> {
         val listSizeVars = arrayListOf<Pair<QueryParameter, String>>()
         val varargParams = parameters
-                .filter { it.queryParamAdapter?.isMultiple ?: false }
+            .filter { it.queryParamAdapter?.isMultiple ?: false }
         val sectionToParamMapping = sectionToParamMapping
         val knownQueryArgsCount = sectionToParamMapping.filterNot {
             it.second?.queryParamAdapter?.isMultiple ?: false
@@ -74,12 +76,17 @@ class QueryWriter constructor(
         scope.builder().apply {
             if (varargParams.isNotEmpty()) {
                 val stringBuilderVar = scope.getTmpVar("_stringBuilder")
-                addStatement("$T $L = $T.newStringBuilder()",
-                        ClassName.get(StringBuilder::class.java), stringBuilderVar, STRING_UTIL)
+                addStatement(
+                    "$T $L = $T.newStringBuilder()",
+                    ClassName.get(StringBuilder::class.java), stringBuilderVar, STRING_UTIL
+                )
                 query.sections.forEach {
                     when (it.type) {
-                        SectionType.TEXT -> addStatement("$L.append($S)", stringBuilderVar, it
-                            .text)
+                        SectionType.TEXT -> addStatement(
+                            "$L.append($S)", stringBuilderVar,
+                            it
+                                .text
+                        )
                         SectionType.NEWLINE -> addStatement("$L.append($S)", stringBuilderVar, "\n")
                         SectionType.BIND_VAR -> {
                             // If it is null, will be reported as error before. We just try out
@@ -91,10 +98,12 @@ class QueryWriter constructor(
                                     val tmpCount = scope.getTmpVar("_inputSize")
                                     listSizeVars.add(Pair(pair.second!!, tmpCount))
                                     pair.second
-                                            ?.queryParamAdapter
-                                            ?.getArgCount(pair.second!!.name, tmpCount, scope)
-                                    addStatement("$T.appendPlaceholders($L, $L)",
-                                            STRING_UTIL, stringBuilderVar, tmpCount)
+                                        ?.queryParamAdapter
+                                        ?.getArgCount(pair.second!!.name, tmpCount, scope)
+                                    addStatement(
+                                        "$T.appendPlaceholders($L, $L)",
+                                        STRING_UTIL, stringBuilderVar, tmpCount
+                                    )
                                 } else {
                                     addStatement("$L.append($S)", stringBuilderVar, "?")
                                 }
@@ -103,23 +112,33 @@ class QueryWriter constructor(
                     }
                 }
 
-                addStatement("final $T $L = $L.toString()", String::class.typeName,
-                        outSqlQueryName, stringBuilderVar)
+                addStatement(
+                    "final $T $L = $L.toString()", String::class.typeName,
+                    outSqlQueryName, stringBuilderVar
+                )
                 if (outArgsName != null) {
                     val argCount = scope.getTmpVar("_argCount")
-                    addStatement("final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
-                            listSizeVars.joinToString("") { " + ${it.second}" })
-                    addStatement("final $T $L = $T.acquire($L, $L)",
-                            ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
-                            argCount)
+                    addStatement(
+                        "final $T $L = $L$L", TypeName.INT, argCount, knownQueryArgsCount,
+                        listSizeVars.joinToString("") { " + ${it.second}" }
+                    )
+                    addStatement(
+                        "final $T $L = $T.acquire($L, $L)",
+                        ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
+                        argCount
+                    )
                 }
             } else {
-                addStatement("final $T $L = $S", String::class.typeName,
-                        outSqlQueryName, query.queryWithReplacedBindParams)
+                addStatement(
+                    "final $T $L = $S", String::class.typeName,
+                    outSqlQueryName, query.queryWithReplacedBindParams
+                )
                 if (outArgsName != null) {
-                    addStatement("final $T $L = $T.acquire($L, $L)",
-                            ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
-                            knownQueryArgsCount)
+                    addStatement(
+                        "final $T $L = $T.acquire($L, $L)",
+                        ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,
+                        knownQueryArgsCount
+                    )
                 }
             }
         }
@@ -144,9 +163,11 @@ class QueryWriter constructor(
             sectionToParamMapping.forEach { pair ->
                 // reset the argIndex to the correct start index
                 if (constInputs > 0 || varInputs.isNotEmpty()) {
-                    addStatement("$L = $L$L", argIndex,
-                            if (constInputs > 0) (1 + constInputs) else "1",
-                            varInputs.joinToString("") { " + $it" })
+                    addStatement(
+                        "$L = $L$L", argIndex,
+                        if (constInputs > 0) (1 + constInputs) else "1",
+                        varInputs.joinToString("") { " + $it" }
+                    )
                 }
                 val param = pair.second
                 param?.let {

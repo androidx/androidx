@@ -35,18 +35,25 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
     override fun invalidate() = source.invalidate()
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<B>) {
-        source.loadInitial(params, object : LoadInitialCallback<A>() {
-            override fun onResult(data: List<A>, position: Int, totalCount: Int) =
-                callback.onResult(convert(listFunction, data), position, totalCount)
+        source.loadInitial(
+            params,
+            object : LoadInitialCallback<A>() {
+                override fun onResult(data: List<A>, position: Int, totalCount: Int) =
+                    callback.onResult(convert(listFunction, data), position, totalCount)
 
-            override fun onResult(data: List<A>, position: Int) =
-                callback.onResult(convert(listFunction, data), position)
-        })
+                override fun onResult(data: List<A>, position: Int) =
+                    callback.onResult(convert(listFunction, data), position)
+            }
+        )
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<B>) {
-        source.loadRange(params, object : LoadRangeCallback<A>() {
-            override fun onResult(data: List<A>) = callback.onResult(convert(listFunction, data))
-        })
+        source.loadRange(
+            params,
+            object : LoadRangeCallback<A>() {
+                override fun onResult(data: List<A>) =
+                    callback.onResult(convert(listFunction, data))
+            }
+        )
     }
 }

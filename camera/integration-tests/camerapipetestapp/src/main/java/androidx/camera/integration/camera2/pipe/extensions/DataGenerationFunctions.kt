@@ -66,13 +66,15 @@ fun DataGenerator.generateData1D(
          * data points aren't added to the generated points. This simulates missing data
          */
         val currentValue = params.generateNewValue(previousValue)
-        currentValue?.let { points.add(
-            GeneratedDataPoint1D(
-                frame,
-                timeStampNanos,
-                it
+        currentValue?.let {
+            points.add(
+                GeneratedDataPoint1D(
+                    frame,
+                    timeStampNanos,
+                    it
+                )
             )
-        ) }
+        }
 
         previousValue = currentValue
         frame++

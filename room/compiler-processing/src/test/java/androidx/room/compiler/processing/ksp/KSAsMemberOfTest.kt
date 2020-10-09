@@ -36,7 +36,8 @@ class KSAsMemberOfTest {
     @Test
     fun asMemberOfInheritance() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class BaseClass<T, R>(val genericProp : T) {
                 val listOfGeneric : List<T> = TODO()
                 val mapOfStringToGeneric2 : Map<String, R> = TODO()
@@ -45,7 +46,7 @@ class KSAsMemberOfTest {
             class SubClass(x : Int) : BaseClass<Int, List<String>>(x) {
                 val subClassProp : String = "abc"
             }
-        """.trimIndent()
+            """.trimIndent()
         )
 
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
@@ -85,7 +86,8 @@ class KSAsMemberOfTest {
     @Test
     fun asMemberOfNullabilityResolution() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class MyInterface<T> {
                 val inheritedProp: T = TODO()
                 var nullableProp: T? = TODO()
@@ -94,7 +96,7 @@ class KSAsMemberOfTest {
             }
             abstract class NonNullSubject : MyInterface<String>()
             abstract class NullableSubject: MyInterface<String?>()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val myInterface = invocation.requireClass("MyInterface")

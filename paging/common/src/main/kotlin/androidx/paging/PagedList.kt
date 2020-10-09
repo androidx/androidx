@@ -252,7 +252,7 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData, which no " +
-                "longer supports constructing snapshots of loaded data manually.",
+            "longer supports constructing snapshots of loaded data manually.",
         replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager")
     )
     class Builder<Key : Any, Value : Any> {
@@ -372,7 +372,7 @@ abstract class PagedList<T : Any> internal constructor(
          */
         @Deprecated(
             message = "Passing an executor will cause it get wrapped as a CoroutineDispatcher, " +
-                    "consider passing a CoroutineDispatcher directly",
+                "consider passing a CoroutineDispatcher directly",
             replaceWith = ReplaceWith(
                 "setNotifyDispatcher(fetchExecutor.asCoroutineDispatcher())",
                 "kotlinx.coroutines.asCoroutineDispatcher"
@@ -405,7 +405,7 @@ abstract class PagedList<T : Any> internal constructor(
          */
         @Deprecated(
             message = "Passing an executor will cause it get wrapped as a CoroutineDispatcher, " +
-                    "consider passing a CoroutineDispatcher directly",
+                "consider passing a CoroutineDispatcher directly",
             replaceWith = ReplaceWith(
                 "setFetchDispatcher(fetchExecutor.asCoroutineDispatcher())",
                 "kotlinx.coroutines.asCoroutineDispatcher"
@@ -740,15 +740,15 @@ abstract class PagedList<T : Any> internal constructor(
                 if (!enablePlaceholders && prefetchDistance == 0) {
                     throw IllegalArgumentException(
                         "Placeholders and prefetch are the only ways" +
-                                " to trigger loading of more data in the PagedList, so either" +
-                                " placeholders must be enabled, or prefetch distance must be > 0."
+                            " to trigger loading of more data in the PagedList, so either" +
+                            " placeholders must be enabled, or prefetch distance must be > 0."
                     )
                 }
                 if (maxSize != MAX_SIZE_UNBOUNDED && maxSize < pageSize + prefetchDistance * 2) {
                     throw IllegalArgumentException(
                         "Maximum size must be at least pageSize + 2*prefetchDist" +
-                                ", pageSize=$pageSize, prefetchDist=$prefetchDistance" +
-                                ", maxSize=$maxSize"
+                            ", pageSize=$pageSize, prefetchDist=$prefetchDistance" +
+                            ", maxSize=$maxSize"
                     )
                 }
 
@@ -945,8 +945,8 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @Deprecated(
         message = "DataSource is deprecated and has been replaced by PagingSource. PagedList " +
-                "offers indirect ways of controlling fetch ('loadAround()', 'retry()') so that " +
-                "you should not need to access the DataSource/PagingSource."
+            "offers indirect ways of controlling fetch ('loadAround()', 'retry()') so that " +
+            "you should not need to access the DataSource/PagingSource."
     )
     val dataSource: DataSource<*, T>
         @Suppress("DocumentExceptions")
@@ -958,7 +958,7 @@ abstract class PagedList<T : Any> internal constructor(
             }
             throw IllegalStateException(
                 "Attempt to access dataSource on a PagedList that was instantiated with a " +
-                        "${pagingSource::class.java.simpleName} instead of a DataSource"
+                    "${pagingSource::class.java.simpleName} instead of a DataSource"
             )
         }
 
@@ -1169,8 +1169,8 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @Deprecated(
         "Dispatching a diff since snapshot created is behavior that can be instead " +
-                "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
-                "changes since calling PagedList.snapshot()."
+            "tracked by attaching a Callback to the PagedList that is mutating, and tracking " +
+            "changes since calling PagedList.snapshot()."
     )
     fun addWeakCallback(previousSnapshot: List<T>?, callback: Callback) {
         if (previousSnapshot != null && previousSnapshot !== this) {

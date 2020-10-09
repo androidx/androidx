@@ -56,19 +56,24 @@ class ShortcutMethodProcessor(
             ShortcutParameterProcessor(
                 baseContext = context,
                 containing = containing,
-                element = it).process()
+                element = it
+            ).process()
         }
         context.checker.check(params.isNotEmpty(), executableElement, missingParamError)
 
         val targetEntity = if (targetEntityType != null &&
-            !targetEntityType.isTypeOf(Any::class)) {
+            !targetEntityType.isTypeOf(Any::class)
+        ) {
             processEntity(
                 element = targetEntityType.asTypeElement(),
                 onInvalid = {
-                    context.logger.e(executableElement,
-                        ProcessorErrors.INVALID_TARGET_ENTITY_IN_SHORTCUT_METHOD)
+                    context.logger.e(
+                        executableElement,
+                        ProcessorErrors.INVALID_TARGET_ENTITY_IN_SHORTCUT_METHOD
+                    )
                     return emptyMap<String, ShortcutEntity>() to emptyList()
-                })
+                }
+            )
         } else {
             null
         }
@@ -88,41 +93,56 @@ class ShortcutMethodProcessor(
         targetEntity: Entity,
         params: List<ShortcutQueryParameter>,
         onValidatePartialEntity: (Entity, Pojo) -> Unit
-    ) = params.associateBy({ it.name }, { param ->
-        if (targetEntity.type.isSameType(param.pojoType!!)) {
-            ShortcutEntity(entity = targetEntity, partialEntity = null)
-        } else {
-            // Target entity and pojo param are not the same, process and validate partial entity.
-            val pojo = PojoProcessor.createFor(
-                context = context,
-                element = param.pojoType.asTypeElement(),
-                bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
-                parent = null
-            ).process().also { pojo ->
-                pojo.fields.filter { targetEntity.findFieldByColumnName(it.columnName) == null }
-                    .forEach { context.logger.e(it.element,
-                        ProcessorErrors.cannotFindAsEntityField(targetEntity.typeName.toString())) }
+    ) = params.associateBy(
+        { it.name },
+        { param ->
+            if (targetEntity.type.isSameType(param.pojoType!!)) {
+                ShortcutEntity(entity = targetEntity, partialEntity = null)
+            } else {
+                // Target entity and pojo param are not the same, process and validate partial entity.
+                val pojo = PojoProcessor.createFor(
+                    context = context,
+                    element = param.pojoType.asTypeElement(),
+                    bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                    parent = null
+                ).process().also { pojo ->
+                    pojo.fields.filter { targetEntity.findFieldByColumnName(it.columnName) == null }
+                        .forEach {
+                            context.logger.e(
+                                it.element,
+                                ProcessorErrors.cannotFindAsEntityField(
+                                    targetEntity.typeName.toString()
+                                )
 
-                if (pojo.relations.isNotEmpty()) {
-                    // TODO: Support Pojos with relations.
-                    context.logger.e(pojo.element,
-                        ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
+                            )
+                        }
+
+                    if (pojo.relations.isNotEmpty()) {
+                        // TODO: Support Pojos with relations.
+                        context.logger.e(
+                            pojo.element,
+                            ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY
+                        )
+                    }
+                    onValidatePartialEntity(targetEntity, pojo)
                 }
-                onValidatePartialEntity(targetEntity, pojo)
+                ShortcutEntity(entity = targetEntity, partialEntity = pojo)
             }
-            ShortcutEntity(entity = targetEntity, partialEntity = pojo)
         }
-    })
+    )
 
     private fun extractEntities(params: List<ShortcutQueryParameter>) =
         params.mapNotNull {
             val entity = processEntity(
                 element = it.pojoType!!.asTypeElement(),
                 onInvalid = {
-                    context.logger.e(it.element,
-                        ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER)
+                    context.logger.e(
+                        it.element,
+                        ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
+                    )
                     return@mapNotNull null
-                })
+                }
+            )
             it.name to ShortcutEntity(entity = entity!!, partialEntity = null)
         }.toMap()
 
@@ -130,7 +150,8 @@ class ShortcutMethodProcessor(
         if (element.isEntityElement()) {
             EntityProcessor(
                 context = context,
-                element = element).process()
+                element = element
+            ).process()
         } else {
             onInvalid()
             null

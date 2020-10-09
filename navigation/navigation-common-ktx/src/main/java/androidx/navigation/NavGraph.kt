@@ -26,7 +26,7 @@ import androidx.annotation.IdRes
  * @throws IllegalArgumentException if no destination is found with that id.
  */
 public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
-        findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
+    findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
 
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null

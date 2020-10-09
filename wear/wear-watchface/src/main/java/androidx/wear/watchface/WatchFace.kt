@@ -482,7 +482,8 @@ class WatchFace private constructor(
         // fully constructed and it will fail. It's also superfluous because we're going to render
         // anyway.
         var initFinished = false
-        complicationsManager.init(watchFaceHostApi, calendar, renderer,
+        complicationsManager.init(
+            watchFaceHostApi, calendar, renderer,
             object : CanvasComplicationRenderer.InvalidateCallback {
                 @SuppressWarnings("SyntheticAccessor")
                 override fun onInvalidate() {
@@ -491,9 +492,9 @@ class WatchFace private constructor(
                     // extra invalidation.
                     if (renderer.shouldAnimate() &&
                         computeDelayTillNextFrame(
-                            nextDrawTimeMillis,
-                            systemTimeProvider.getSystemTimeMillis()
-                        )
+                                nextDrawTimeMillis,
+                                systemTimeProvider.getSystemTimeMillis()
+                            )
                         < MIN_PERCEPTABLE_DELAY_MILLIS
                     ) {
                         return
@@ -505,36 +506,39 @@ class WatchFace private constructor(
             }
         )
 
-        WatchFaceConfigActivity.registerWatchFace(componentName, object : WatchFaceConfigDelegate {
-            override fun getUserStyleSchema() = userStyleRepository.toSchemaWireFormat()
+        WatchFaceConfigActivity.registerWatchFace(
+            componentName,
+            object : WatchFaceConfigDelegate {
+                override fun getUserStyleSchema() = userStyleRepository.toSchemaWireFormat()
 
-            override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
+                override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
 
-            override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                userStyleRepository.userStyle =
-                    UserStyle(userStyle, userStyleRepository.userStyleCategories)
+                override fun setUserStyle(userStyle: UserStyleWireFormat) {
+                    userStyleRepository.userStyle =
+                        UserStyle(userStyle, userStyleRepository.userStyleCategories)
+                }
+
+                override fun getBackgroundComplicationId() =
+                    complicationsManager.getBackgroundComplication()?.id
+
+                override fun getComplicationsMap() = complicationsManager.complications
+
+                override fun getCalendar() = calendar
+
+                override fun getComplicationIdAt(tapX: Int, tapY: Int) =
+                    complicationsManager.getComplicationAt(tapX, tapY)?.id
+
+                override fun brieflyHighlightComplicationId(complicationId: Int) {
+                    complicationsManager.bringAttentionToComplication(complicationId)
+                }
+
+                override fun takeScreenshot(
+                    drawRect: Rect,
+                    calendar: Calendar,
+                    renderParameters: RenderParametersWireFormat
+                ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
             }
-
-            override fun getBackgroundComplicationId() =
-                complicationsManager.getBackgroundComplication()?.id
-
-            override fun getComplicationsMap() = complicationsManager.complications
-
-            override fun getCalendar() = calendar
-
-            override fun getComplicationIdAt(tapX: Int, tapY: Int) =
-                complicationsManager.getComplicationAt(tapX, tapY)?.id
-
-            override fun brieflyHighlightComplicationId(complicationId: Int) {
-                complicationsManager.bringAttentionToComplication(complicationId)
-            }
-
-            override fun takeScreenshot(
-                drawRect: Rect,
-                calendar: Calendar,
-                renderParameters: RenderParametersWireFormat
-            ) = renderer.takeScreenshot(calendar, RenderParameters(renderParameters))
-        })
+        )
 
         watchFaceHostApi.registerWatchFaceType(watchFaceType)
         watchFaceHostApi.registerUserStyleSchema(userStyleRepository.toSchemaWireFormat())
@@ -693,27 +697,28 @@ class WatchFace private constructor(
     @UiThread
     internal fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long):
         Long {
-        // Limit update rate to conserve power when the battery is low and not charging.
-        val updateRateMillis =
-            if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
-                max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
-            } else {
-                interactiveUpdateRateMillis
+            // Limit update rate to conserve power when the battery is low and not charging.
+            val updateRateMillis =
+                if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
+                    max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
+                } else {
+                    interactiveUpdateRateMillis
+                }
+            // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
+            // to compute min(beginFrameTimeMillis, currentTimeMillis).
+            var nextFrameTimeMillis =
+                Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
+            // Drop frames if needed (happens when onDraw is slow).
+            if (nextFrameTimeMillis <= currentTimeMillis) {
+                // Compute the next runtime after currentTimeMillis with the same phase as
+                //  beginFrameTimeMillis to keep the animation smooth.
+                val phaseAdjust =
+                    updateRateMillis +
+                        ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
+                nextFrameTimeMillis = currentTimeMillis + phaseAdjust
             }
-        // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
-        // to compute min(beginFrameTimeMillis, currentTimeMillis).
-        var nextFrameTimeMillis =
-            Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
-        // Drop frames if needed (happens when onDraw is slow).
-        if (nextFrameTimeMillis <= currentTimeMillis) {
-            // Compute the next runtime after currentTimeMillis with the same phase as
-            //  beginFrameTimeMillis to keep the animation smooth.
-            val phaseAdjust =
-                updateRateMillis + ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
-            nextFrameTimeMillis = currentTimeMillis + phaseAdjust
+            return nextFrameTimeMillis - currentTimeMillis
         }
-        return nextFrameTimeMillis - currentTimeMillis
-    }
 
     /**
      * Called when new complication data is received.

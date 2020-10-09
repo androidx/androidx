@@ -146,7 +146,8 @@ class SqlParser {
                     syntaxErrors = syntaxErrors,
                     runtimeQueryPlaceholder = false
                 )
-            })
+            }
+        )
 
         fun isValidIdentifier(input: String): Boolean =
             input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
@@ -204,12 +205,12 @@ enum class SQLTypeAffinity {
     }
 
     private fun withBoxedTypes(env: XProcessingEnv, vararg primitives: TypeName):
-            List<XType> {
-        return primitives.flatMap {
-            val primitiveType = env.requireType(it)
-            listOf(primitiveType, primitiveType.boxed())
+        List<XType> {
+            return primitives.flatMap {
+                val primitiveType = env.requireType(it)
+                listOf(primitiveType, primitiveType.boxed())
+            }
         }
-    }
 
     companion object {
         fun fromAnnotationValue(value: Int?): SQLTypeAffinity? {

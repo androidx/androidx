@@ -40,13 +40,14 @@ class LiveDataQueryResultBinderProvider(context: Context) :
         tableNames: Set<String>
     ): QueryResultBinder {
         return LiveDataQueryResultBinder(
-                typeArg = typeArg,
-                tableNames = tableNames,
-                adapter = resultAdapter)
+            typeArg = typeArg,
+            tableNames = tableNames,
+            adapter = resultAdapter
+        )
     }
 
     override fun matches(declared: XDeclaredType): Boolean =
-            declared.typeArguments.size == 1 && isLiveData(declared)
+        declared.typeArguments.size == 1 && isLiveData(declared)
 
     private fun isLiveData(declared: XDeclaredType): Boolean {
         if (liveDataType == null) {

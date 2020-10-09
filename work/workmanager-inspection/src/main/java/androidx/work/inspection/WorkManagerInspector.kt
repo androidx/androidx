@@ -128,19 +128,22 @@ class WorkManagerInspector(
         listener: (oldValue: T?, newValue: T) -> Unit
     ) {
         mainHandler.post {
-            observe(owner, object : Observer<T> {
-                private var lastValue: T? = null
-                override fun onChanged(t: T) {
-                    if (t == null) {
-                        removeObserver(this)
-                    } else {
-                        executor.execute {
-                            listener(lastValue, t)
-                            lastValue = t
+            observe(
+                owner,
+                object : Observer<T> {
+                    private var lastValue: T? = null
+                    override fun onChanged(t: T) {
+                        if (t == null) {
+                            removeObserver(this)
+                        } else {
+                            executor.execute {
+                                listener(lastValue, t)
+                                lastValue = t
+                            }
                         }
                     }
                 }
-            })
+            )
         }
     }
 
@@ -151,7 +154,7 @@ class WorkManagerInspector(
     private fun List<StackTraceElement>.prune(): List<StackTraceElement> {
         val entryHookIndex = indexOfFirst {
             it.className.startsWith("androidx.work.impl.WorkContinuationImpl") &&
-                    it.methodName == "enqueue"
+                it.methodName == "enqueue"
         }
         if (entryHookIndex != -1) {
             return subList(entryHookIndex + 1, size)

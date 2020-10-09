@@ -67,6 +67,7 @@ class NavControllerViewModelTest {
 
         baseViewModelStore.clear()
         assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameInstanceAs(
-            navGraphViewModelStore)
+            navGraphViewModelStore
+        )
     }
 }

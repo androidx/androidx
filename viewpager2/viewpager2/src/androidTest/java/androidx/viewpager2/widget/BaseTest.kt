@@ -263,7 +263,8 @@ open class BaseTest {
                                     coordinates[1] += offset
                                 }
                                 coordinates
-                            }, Press.FINGER
+                            },
+                            Press.FINGER
                         )
                     )
                 )
@@ -282,43 +283,47 @@ open class BaseTest {
             var isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
 
             val expectPageLeftAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled && isHorizontalOrientation &&
-                    (if (viewPager.isRtl) currentPage < numPages - 1 else currentPage > 0)
+                isUserInputEnabled && isHorizontalOrientation &&
+                (if (viewPager.isRtl) currentPage < numPages - 1 else currentPage > 0)
 
             val expectPageRightAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled && isHorizontalOrientation &&
-                    (if (viewPager.isRtl) currentPage > 0 else currentPage < numPages - 1)
+                isUserInputEnabled && isHorizontalOrientation &&
+                (if (viewPager.isRtl) currentPage > 0 else currentPage < numPages - 1)
 
             val expectPageUpAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled && isVerticalOrientation &&
-                    currentPage > 0
+                isUserInputEnabled && isVerticalOrientation &&
+                currentPage > 0
 
             val expectPageDownAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
-                    isUserInputEnabled && isVerticalOrientation &&
-                    currentPage < numPages - 1
+                isUserInputEnabled && isVerticalOrientation &&
+                currentPage < numPages - 1
 
             val expectScrollBackwardAction =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
-                        currentPage > 0
+                    currentPage > 0
 
             val expectScrollForwardAction =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
-                        currentPage < numPages - 1
+                    currentPage < numPages - 1
 
-            assertThat("Left action expected: $expectPageLeftAction",
+            assertThat(
+                "Left action expected: $expectPageLeftAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_LEFT),
                 equalTo(expectPageLeftAction)
             )
 
-            assertThat("Right action expected: $expectPageRightAction",
+            assertThat(
+                "Right action expected: $expectPageRightAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_RIGHT),
                 equalTo(expectPageRightAction)
             )
-            assertThat("Up action expected: $expectPageUpAction",
+            assertThat(
+                "Up action expected: $expectPageUpAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_UP),
                 equalTo(expectPageUpAction)
             )
-            assertThat("Down action expected: $expectPageDownAction",
+            assertThat(
+                "Down action expected: $expectPageDownAction",
                 hasPageAction(customActions, ACTION_ID_PAGE_DOWN),
                 equalTo(expectPageDownAction)
             )
@@ -327,12 +332,14 @@ open class BaseTest {
             runOnUiThreadSync { viewPager.onInitializeAccessibilityNodeInfo(node) }
             @Suppress("DEPRECATION") var standardActions = node.actions
 
-            assertThat("scroll backward action expected: $expectScrollBackwardAction",
+            assertThat(
+                "scroll backward action expected: $expectScrollBackwardAction",
                 hasScrollAction(standardActions, ACTION_SCROLL_BACKWARD),
                 equalTo(expectScrollBackwardAction)
             )
 
-            assertThat("Scroll forward action expected: $expectScrollForwardAction",
+            assertThat(
+                "Scroll forward action expected: $expectScrollForwardAction",
                 hasScrollAction(standardActions, ACTION_SCROLL_FORWARD),
                 equalTo(expectScrollForwardAction)
             )
@@ -354,10 +361,10 @@ open class BaseTest {
 
         @Suppress("UNCHECKED_CAST")
         private fun getActionList(view: View):
-                List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> {
-            return view.getTag(R.id.tag_accessibility_actions) as?
+            List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> {
+                return view.getTag(R.id.tag_accessibility_actions) as?
                     ArrayList<AccessibilityNodeInfoCompat.AccessibilityActionCompat> ?: ArrayList()
-        }
+            }
     }
 
     /**
@@ -542,10 +549,10 @@ open class BaseTest {
         expectEvents: Boolean = (targetPage != currentItem)
     ) {
         val latch =
-                if (expectEvents)
-                    addWaitForScrolledLatch(targetPage, smoothScroll)
-                else
-                    CountDownLatch(1)
+            if (expectEvents)
+                addWaitForScrolledLatch(targetPage, smoothScroll)
+            else
+                CountDownLatch(1)
         post {
             setCurrentItem(targetPage, smoothScroll)
             if (!expectEvents) {
@@ -706,9 +713,9 @@ fun scrollStateToString(@ViewPager2.ScrollState state: Int): String {
 
 fun scrollStateGlossary(): String {
     return "Scroll states: " +
-            "$SCROLL_STATE_IDLE=${scrollStateToString(SCROLL_STATE_IDLE)}, " +
-            "$SCROLL_STATE_DRAGGING=${scrollStateToString(SCROLL_STATE_DRAGGING)}, " +
-            "$SCROLL_STATE_SETTLING=${scrollStateToString(SCROLL_STATE_SETTLING)})"
+        "$SCROLL_STATE_IDLE=${scrollStateToString(SCROLL_STATE_IDLE)}, " +
+        "$SCROLL_STATE_DRAGGING=${scrollStateToString(SCROLL_STATE_DRAGGING)}, " +
+        "$SCROLL_STATE_SETTLING=${scrollStateToString(SCROLL_STATE_SETTLING)})"
 }
 
 class RetryException(msg: String) : Exception(msg)

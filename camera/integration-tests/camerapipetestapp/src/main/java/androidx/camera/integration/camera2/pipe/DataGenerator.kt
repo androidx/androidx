@@ -41,7 +41,8 @@ class DataGenerator(
             val runnable = get1DRunnable(default) { point ->
                 /** For graphs both keyValue and graph DataHolders need to be updated */
                 if (visualizationDefaults.keysVisualizedAsValueGraph.contains(key) ||
-                    visualizationDefaults.keysVisualizedAsStateGraph.contains(key)) {
+                    visualizationDefaults.keysVisualizedAsStateGraph.contains(key)
+                ) {
                     dataListener.newGraphData(
                         entry.key,
                         point.frameNumber,

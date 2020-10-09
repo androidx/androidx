@@ -34,7 +34,9 @@ class LinearSnapHelperCenterTest(
     startPadded: Boolean,
     endPadded: Boolean,
     clipToPadding: Boolean
-) : BaseSnapHelperCenterTest(vertical, startPadded, endPadded,
-    clipToPadding) {
+) : BaseSnapHelperCenterTest(
+    vertical, startPadded, endPadded,
+    clipToPadding
+) {
     override val snapHelper = LinearSnapHelper()
 }

@@ -131,13 +131,15 @@ class ObservableWatchDataTest {
 
         // Inhibit initial onChanged callback for clarity.
         var addObserver = false
-        data.addObserver(Observer<Int> {
-            if (addObserver) {
-                val observer = Observer<Int> { addedObserverObservations++ }
-                data.addObserver(observer)
-                observersAdded++
+        data.addObserver(
+            Observer<Int> {
+                if (addObserver) {
+                    val observer = Observer<Int> { addedObserverObservations++ }
+                    data.addObserver(observer)
+                    observersAdded++
+                }
             }
-        })
+        )
         addObserver = true
 
         data.value = 20

@@ -205,7 +205,8 @@ class WatchFaceConfigUiTest {
                 ): Bitmap {
                     throw RuntimeException("Not Implemented!")
                 }
-            })
+            }
+        )
 
         val watchFaceComponentName = ComponentName(
             context.packageName,
@@ -242,7 +243,8 @@ class WatchFaceConfigUiTest {
                     calendar: Calendar,
                     renderParameters: RenderParametersWireFormat
                 ) = watchFaceConfigDelegate.takeScreenshot(drawRect, calendar, renderParameters)
-            })
+            }
+        )
 
         configActivity.init(watchFaceComponentName, fragmentController)
     }
@@ -361,10 +363,12 @@ class WatchFaceConfigUiTest {
         val styleConfigFragment = StyleConfigFragment.newInstance(
             configActivity.styleSchema[categoryIndex].id,
             configActivity.styleSchema,
-            UserStyle(hashMapOf(
-                colorStyleCategory to colorStyleCategory.options.first(),
-                watchHandStyleCategory to watchHandStyleCategory.options.first()
-            ))
+            UserStyle(
+                hashMapOf(
+                    colorStyleCategory to colorStyleCategory.options.first(),
+                    watchHandStyleCategory to watchHandStyleCategory.options.first()
+                )
+            )
         )
         styleConfigFragment.readOptionsFromArguments()
         styleConfigFragment.watchFaceConfigActivity = configActivity

@@ -73,7 +73,7 @@ class CameraViewFragmentTest {
             launchFragmentInContainer<CameraViewFragment>(
                 fragmentArgs = bundleOf(
                     CameraViewFragment.ARG_LIFECYCLE_TYPE to
-                            CameraViewFragment.LIFECYCLE_TYPE_ACTIVITY
+                        CameraViewFragment.LIFECYCLE_TYPE_ACTIVITY
                 )
             )
         ) { assertStreaming() }
@@ -85,7 +85,7 @@ class CameraViewFragmentTest {
             launchFragmentInContainer<CameraViewFragment>(
                 fragmentArgs = bundleOf(
                     CameraViewFragment.ARG_LIFECYCLE_TYPE to
-                            CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT
+                        CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT
                 )
             )
         ) { assertStreaming() }
@@ -97,7 +97,7 @@ class CameraViewFragmentTest {
             launchFragmentInContainer<CameraViewFragment>(
                 fragmentArgs = bundleOf(
                     CameraViewFragment.ARG_LIFECYCLE_TYPE to
-                            CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT_VIEW
+                        CameraViewFragment.LIFECYCLE_TYPE_FRAGMENT_VIEW
                 )
             )
         ) { assertStreaming() }
@@ -116,7 +116,8 @@ class CameraViewFragmentTest {
                 CameraViewFragment().apply {
                     setDebugLifecycleOwner(TestLifecycleOwner(Lifecycle.State.DESTROYED))
                 }
-            })
+            }
+        )
     }
 }
 

@@ -33,18 +33,20 @@ class TestTypeSelectFragment : Fragment(R.layout.test_type_select) {
     }
 
     private fun Fragment.addButton(text: String, fragment: Fragment) {
-        (requireView() as LinearLayout).addView(Button(context).apply {
-            this.text = text
+        (requireView() as LinearLayout).addView(
+            Button(context).apply {
+                this.text = text
 
-            setOnClickListener {
-                parentFragmentManager.commit {
-                    replace(R.id.fragment_container, fragment)
-                    addToBackStack(null)
+                setOnClickListener {
+                    parentFragmentManager.commit {
+                        replace(R.id.fragment_container, fragment)
+                        addToBackStack(null)
+                    }
+                }
+                layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
+                    weight = 1f
                 }
             }
-            layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
-                weight = 1f
-            }
-        })
+        )
     }
 }

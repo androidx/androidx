@@ -53,14 +53,16 @@ class RxWorkerSetProgressDetectorTest {
                         worker.setProgress()
                         ~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
-            .expectFixDiffs("""
+            .expectFixDiffs(
+                """
                 Fix for src/com/example/App.kt line 8: Use setCompletableProgress instead:
                 @@ -8 +8
                 -         worker.setProgress()
                 +         worker.setCompletableProgress()
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

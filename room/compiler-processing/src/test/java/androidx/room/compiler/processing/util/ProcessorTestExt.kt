@@ -103,10 +103,13 @@ fun runProcessorTest(
     val sources = if (sources.isEmpty()) {
         // synthesize a source to trigger compilation
         listOf(
-            Source.java("foo.bar.SyntheticSource", """
+            Source.java(
+                "foo.bar.SyntheticSource",
+                """
             package foo.bar;
             public class SyntheticSource {}
-        """.trimIndent())
+                """.trimIndent()
+            )
         )
     } else {
         sources

@@ -41,8 +41,10 @@ class KtxTests {
         // Delete all previous keys and shared preferences.
         val parentDir = context.filesDir?.parent
             ?: throw IllegalStateException("filesDir?.parent is null?")
-        var filePath = (parentDir + "/shared_prefs/" +
-                "__androidx_security__crypto_encrypted_prefs__")
+        var filePath = (
+            parentDir + "/shared_prefs/" +
+                "__androidx_security__crypto_encrypted_prefs__"
+            )
         var deletePrefFile = File(filePath)
         deletePrefFile.delete()
         val notEncryptedSharedPrefs = context.getSharedPreferences(

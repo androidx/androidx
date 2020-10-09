@@ -81,9 +81,12 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
             navigationXml = file,
             outputDir = out,
             useAndroidX = useAndroidX,
-            generateKotlin = generateKotlin).generate()
-        Mapping(file.relativeTo(
-            projectLayout.projectDirectory.asFile).path,
+            generateKotlin = generateKotlin
+        ).generate()
+        Mapping(
+            file.relativeTo(
+                projectLayout.projectDirectory.asFile
+            ).path,
             output.fileNames
         ) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
@@ -143,16 +146,16 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
             File(projectLayout.projectDirectory.asFile, it.navFile) in changedInputs
         }
         modified.flatMap { it.javaFiles }
-                .filter { name -> name !in newJavaFiles }
-                .forEach { javaName ->
-                    val fileExtension = if (generateKotlin) { ".kt" } else { ".java" }
-                    val fileName =
-                        "${javaName.replace('.', File.separatorChar)}$fileExtension"
-                    val file = File(outputDir, fileName)
-                    if (file.exists()) {
-                        file.delete()
-                    }
+            .filter { name -> name !in newJavaFiles }
+            .forEach { javaName ->
+                val fileExtension = if (generateKotlin) { ".kt" } else { ".java" }
+                val fileName =
+                    "${javaName.replace('.', File.separatorChar)}$fileExtension"
+                val file = File(outputDir, fileName)
+                if (file.exists()) {
+                    file.delete()
                 }
+            }
         writeMappings(unmodified + newMapping)
         failIfErrors(errors)
     }
@@ -161,14 +164,15 @@ open class ArgumentsGenerationTask @Inject constructor(private val projectLayout
         if (errors.isNotEmpty()) {
             val errString = errors.joinToString("\n") { it.toClickableText() }
             throw GradleException(
-                    "androidx.navigation.safeargs plugin failed.\n " +
-                            "Following errors found: \n$errString")
+                "androidx.navigation.safeargs plugin failed.\n " +
+                    "Following errors found: \n$errString"
+            )
         }
     }
 }
 
 private fun ErrorMessage.toClickableText() = "$path:$line:$column " +
-        "(${File(path).name}:$line): \n" +
-        "error: $message"
+    "(${File(path).name}:$line): \n" +
+    "error: $message"
 
 private data class Mapping(val navFile: String, val javaFiles: List<String>)

@@ -21,120 +21,144 @@ class BaseDaoTest {
 
     @Test
     fun insert() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertArray() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun insertList() {
-        baseDao("""
+        baseDao(
+            """
             @Insert
             void insertMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.insertionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun delete() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteArray() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun deleteList() {
-        baseDao("""
+        baseDao(
+            """
             @Delete
             void deleteMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.deletionMethods.size, `is`(1))
         }
     }
 
     @Test
     fun update() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateArray() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T[] t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateVarArg() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(T... t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }
 
     @Test
     fun updateList() {
-        baseDao("""
+        baseDao(
+            """
             @Update
             void updateMe(List<T> t);
-        """) { dao ->
+        """
+        ) { dao ->
             assertThat(dao.updateMethods.size, `is`(1))
         }
     }

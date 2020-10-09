@@ -39,8 +39,9 @@ class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
     init {
         if (DEBUG) {
             Log.d(
-                TAG, "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
-                        " $cameraManager, CameraPipe: $cameraPipe]"
+                TAG,
+                "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
+                    " $cameraManager, CameraPipe: $cameraPipe]"
             )
         }
     }

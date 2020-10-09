@@ -42,8 +42,10 @@ fun Toolbar.setupWithNavController(
     navController: NavController,
     drawerLayout: DrawerLayout?
 ) {
-    NavigationUI.setupWithNavController(this, navController,
-        AppBarConfiguration(navController.graph, drawerLayout))
+    NavigationUI.setupWithNavController(
+        this, navController,
+        AppBarConfiguration(navController.graph, drawerLayout)
+    )
 }
 
 /**

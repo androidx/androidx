@@ -46,7 +46,8 @@ class NavGraphAndroidTest {
         graph.addDeepLink("www.example.com/users/{id}")
 
         val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43"))
+            Uri.parse("https://www.example.com/users/43")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -74,7 +75,8 @@ class NavGraphAndroidTest {
         graph.addDeepLink("www.example.com/users/{name}")
 
         val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/index.html"))
+            Uri.parse("https://www.example.com/users/index.html")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -125,7 +127,8 @@ class NavGraphAndroidTest {
         graph.addDeepLink("www.example.com/users/{id}/posts/{postId}")
 
         val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99"))
+            Uri.parse("https://www.example.com/users/43/posts/99")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -173,7 +176,8 @@ class NavGraphAndroidTest {
         graph.addDestination(postDestination)
 
         val match = graph.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99"))
+            Uri.parse("https://www.example.com/users/43/posts/99")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -203,7 +207,7 @@ class NavGraphAndroidTest {
                 startDestination = DESTINATION_ID
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
-                "startDestination=0x${DESTINATION_ID.toString(16)}"
+            "startDestination=0x${DESTINATION_ID.toString(16)}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 
@@ -226,8 +230,8 @@ class NavGraphAndroidTest {
                 addDestination(destination)
             }
         val expected = "NavGraph(0x${GRAPH_ID.toString(16)}) label=$GRAPH_LABEL " +
-                "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
-                "label=$DESTINATION_LABEL}"
+            "startDestination={NavDestination(0x${DESTINATION_ID.toString(16)}) " +
+            "label=$DESTINATION_LABEL}"
         assertThat(graph.toString()).isEqualTo(expected)
     }
 }

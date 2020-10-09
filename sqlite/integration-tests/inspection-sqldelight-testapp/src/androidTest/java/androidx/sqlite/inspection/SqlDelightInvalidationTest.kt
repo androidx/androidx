@@ -65,7 +65,8 @@ class SqlDelightInvalidationTest {
                     openedDb = db
                     super.onCreate(db)
                 }
-            })
+            }
+        )
     }
 
     @Test

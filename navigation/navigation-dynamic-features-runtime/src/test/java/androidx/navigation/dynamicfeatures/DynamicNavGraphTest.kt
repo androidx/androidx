@@ -43,7 +43,8 @@ class DynamicNavGraphTest {
     fun setup() {
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
-        navigator = DynamicGraphNavigator(provider,
+        navigator = DynamicGraphNavigator(
+            provider,
             TestDynamicInstallManager()
         )
         provider.addNavigator(noOpNavigator)
@@ -57,9 +58,11 @@ class DynamicNavGraphTest {
 
     @Test
     fun testGetOrThrow_CorrectParent() {
-        setupProgressDestination(noOpNavigator.createDestination().apply {
-            id = progressId
-        })
+        setupProgressDestination(
+            noOpNavigator.createDestination().apply {
+                id = progressId
+            }
+        )
         val progressDestination = navigator.navigateToProgressDestination(dynamicNavGraph, null)
         assertNotNull(progressDestination)
         progressDestination?.let {
@@ -76,9 +79,11 @@ class DynamicNavGraphTest {
 
     @Test
     fun testNavigateToProgressDestination_withProviderAndDestination() {
-        setupProgressDestination(noOpNavigator.createDestination().apply {
-            id = progressId
-        })
+        setupProgressDestination(
+            noOpNavigator.createDestination().apply {
+                id = progressId
+            }
+        )
         val destination = navigator.navigateToProgressDestination(dynamicNavGraph, null)
         assertTrue(destination?.parent is DynamicNavGraph)
     }

@@ -146,7 +146,8 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, callType))
+            TransactionMethodAdapter(executableElement.name, callType)
+        )
 }
 
 /**

@@ -238,7 +238,8 @@ class JvmDescriptorUtilsTest {
                 @Describe
                 DataClass method2() { return null; }
             }
-            """.toJFO("androidx.room.test.DummyClass"), extraJfo
+            """.toJFO("androidx.room.test.DummyClass"),
+            extraJfo
         ) { descriptors ->
             assertThat(descriptors).isEqualTo(
                 setOf(
@@ -284,7 +285,8 @@ class JvmDescriptorUtilsTest {
                 @Describe
                 DataClass.StaticInnerData method4() { return null; }
             }
-            """.toJFO("androidx.room.test.DummyClass"), extraJfo
+            """.toJFO("androidx.room.test.DummyClass"),
+            extraJfo
         ) { descriptors ->
             assertThat(descriptors).isEqualTo(
                 setOf(
@@ -323,7 +325,8 @@ class JvmDescriptorUtilsTest {
                 @Describe
                 void method4(int... array) { }
             }
-            """.toJFO("androidx.room.test.DummyClass"), extraJfo
+            """.toJFO("androidx.room.test.DummyClass"),
+            extraJfo
         ) { descriptors ->
             assertThat(descriptors).isEqualTo(
                 setOf(

@@ -47,7 +47,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
     pagingSource,
     PagedStorage<V>(),
     config
-), PagedStorage.Callback, LegacyPageFetcher.PageConsumer<V> {
+),
+    PagedStorage.Callback,
+    LegacyPageFetcher.PageConsumer<V> {
     internal companion object {
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
@@ -251,9 +253,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     private fun tryDispatchBoundaryCallbacks(post: Boolean) {
         val dispatchBegin = boundaryCallbackBeginDeferred &&
-                lowestIndexAccessed <= config.prefetchDistance
+            lowestIndexAccessed <= config.prefetchDistance
         val dispatchEnd = boundaryCallbackEndDeferred &&
-                highestIndexAccessed >= size - 1 - config.prefetchDistance
+            highestIndexAccessed >= size - 1 - config.prefetchDistance
 
         if (!dispatchBegin && !dispatchEnd) return
 
@@ -304,7 +306,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 this,
                 initialPage.itemsBefore != COUNT_UNDEFINED &&
-                        initialPage.itemsAfter != COUNT_UNDEFINED
+                    initialPage.itemsAfter != COUNT_UNDEFINED
             )
         } else {
             // If placeholder are disabled, avoid passing leading/trailing nulls, since PagingSource
@@ -374,7 +376,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         // we drop a page. Note that we don't use config.enablePlaceholders, since the
         // PagingSource may have opted not to load any.
         replacePagesWithNulls = storage.placeholdersBefore > 0 ||
-                storage.placeholdersAfter > 0
+            storage.placeholdersAfter > 0
     }
 
     @MainThread

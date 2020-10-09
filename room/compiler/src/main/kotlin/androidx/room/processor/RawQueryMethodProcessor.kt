@@ -38,12 +38,16 @@ class RawQueryMethodProcessor(
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
         val returnType = delegate.extractReturnType()
 
-        context.checker.check(executableElement.hasAnnotation(RawQuery::class), executableElement,
-                ProcessorErrors.MISSING_RAWQUERY_ANNOTATION)
+        context.checker.check(
+            executableElement.hasAnnotation(RawQuery::class), executableElement,
+            ProcessorErrors.MISSING_RAWQUERY_ANNOTATION
+        )
 
         val returnTypeName = returnType.typeName
-        context.checker.notUnbound(returnTypeName, executableElement,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
+        context.checker.notUnbound(
+            returnTypeName, executableElement,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
+        )
         val observedTableNames = processObservedTables()
         val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.
@@ -51,49 +55,53 @@ class RawQueryMethodProcessor(
         val runtimeQueryParam = findRuntimeQueryParameter(delegate.extractParams())
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         val rawQueryMethod = RawQueryMethod(
-                element = executableElement,
-                name = executableElement.name,
-                observedTableNames = observedTableNames,
-                returnType = returnType,
-                runtimeQueryParam = runtimeQueryParam,
-                inTransaction = inTransaction,
-                queryResultBinder = resultBinder
+            element = executableElement,
+            name = executableElement.name,
+            observedTableNames = observedTableNames,
+            returnType = returnType,
+            runtimeQueryParam = runtimeQueryParam,
+            inTransaction = inTransaction,
+            queryResultBinder = resultBinder
         )
         // TODO: Lift this restriction, to allow for INSERT, UPDATE and DELETE raw statements.
-        context.checker.check(rawQueryMethod.returnsValue, executableElement,
-                ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE)
+        context.checker.check(
+            rawQueryMethod.returnsValue, executableElement,
+            ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
+        )
         return rawQueryMethod
     }
 
     private fun processObservedTables(): Set<String> {
         val annotation = executableElement.toAnnotationBox(RawQuery::class)
         return annotation?.getAsTypeList("observedEntities")
-                ?.map {
-                    it.asTypeElement()
-                }
-                ?.flatMap {
-                    if (it.isEntityElement()) {
-                        val entity = EntityProcessor(
-                                context = context,
-                                element = it
-                        ).process()
-                        arrayListOf(entity.tableName)
-                    } else {
-                        val pojo = PojoProcessor.createFor(
-                                context = context,
-                                element = it,
-                                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                                parent = null
-                        ).process()
-                        val tableNames = pojo.accessedTableNames()
-                        // if it is empty, report error as it does not make sense
-                        if (tableNames.isEmpty()) {
-                            context.logger.e(executableElement,
-                                    ProcessorErrors.rawQueryBadEntity(it.type.typeName))
-                        }
-                        tableNames
+            ?.map {
+                it.asTypeElement()
+            }
+            ?.flatMap {
+                if (it.isEntityElement()) {
+                    val entity = EntityProcessor(
+                        context = context,
+                        element = it
+                    ).process()
+                    arrayListOf(entity.tableName)
+                } else {
+                    val pojo = PojoProcessor.createFor(
+                        context = context,
+                        element = it,
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
+                    ).process()
+                    val tableNames = pojo.accessedTableNames()
+                    // if it is empty, report error as it does not make sense
+                    if (tableNames.isEmpty()) {
+                        context.logger.e(
+                            executableElement,
+                            ProcessorErrors.rawQueryBadEntity(it.type.typeName)
+                        )
                     }
-                }?.toSet() ?: emptySet()
+                    tableNames
+                }
+            }?.toSet() ?: emptySet()
     }
 
     private fun findRuntimeQueryParameter(
@@ -106,8 +114,9 @@ class RawQueryMethodProcessor(
             val isSupportSql = supportQueryType.isAssignableFrom(param)
             if (isSupportSql) {
                 return RawQueryMethod.RuntimeQueryParameter(
-                        paramName = extractParams[0].name,
-                        type = supportQueryType.typeName)
+                    paramName = extractParams[0].name,
+                    type = supportQueryType.typeName
+                )
             }
             val stringType = processingEnv.requireType("java.lang.String")
             val isString = stringType.isAssignableFrom(param)

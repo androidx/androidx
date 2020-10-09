@@ -27,7 +27,8 @@ internal class KspArrayType(
     ksType: KSType
 ) : KspType(
     env, ksType
-), XArrayType {
+),
+    XArrayType {
     override val componentType: XType by lazy {
         typeArguments.first()
     }

@@ -65,7 +65,7 @@ internal data class TransformablePage<T : Any>(
 
         require(hintOriginalIndices == null || hintOriginalIndices.size == data.size) {
             "If originalIndices (size = ${hintOriginalIndices!!.size}) is provided," +
-                    " it must be same length as data (size = ${data.size})"
+                " it must be same length as data (size = ${data.size})"
         }
     }
 

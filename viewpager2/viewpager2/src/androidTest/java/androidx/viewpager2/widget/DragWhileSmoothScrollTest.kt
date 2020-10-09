@@ -79,14 +79,19 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         var recorder = test.viewPager.addNewRecordingCallback()
         val movingForward = config.targetPage > config.startPage
 
-        tryNTimes(3, resetBlock = {
-            test.resetViewPagerTo(config.startPage)
-            test.viewPager.unregisterOnPageChangeCallback(recorder)
-            recorder = test.viewPager.addNewRecordingCallback()
-        }) {
+        tryNTimes(
+            3,
+            resetBlock = {
+                test.resetViewPagerTo(config.startPage)
+                test.viewPager.unregisterOnPageChangeCallback(recorder)
+                recorder = test.viewPager.addNewRecordingCallback()
+            }
+        ) {
             // when we are close enough
-            val waitTillCloseEnough = test.viewPager.addWaitForDistanceToTarget(config.targetPage,
-                config.distanceToTargetWhenStartDrag)
+            val waitTillCloseEnough = test.viewPager.addWaitForDistanceToTarget(
+                config.targetPage,
+                config.distanceToTargetWhenStartDrag
+            )
             test.runOnUiThreadSync { test.viewPager.setCurrentItem(config.targetPage, true) }
             waitTillCloseEnough.await(2, SECONDS)
 
@@ -133,23 +138,37 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
             if (currentlyVisible == config.targetPage) {
                 // drag coincidentally landed us on the targetPage,
                 // this slightly changes the assertions
-                assertThat("viewPager.getCurrentItem() should be ${config.targetPage}",
-                    test.viewPager.currentItem, equalTo(config.targetPage))
-                assertThat("Exactly 1 onPageSelected event should be fired",
-                    selectEvents.size, equalTo(1))
-                assertThat("onPageSelected event should have reported ${config.targetPage}",
-                    selectEvents.first().position, equalTo(config.targetPage))
+                assertThat(
+                    "viewPager.getCurrentItem() should be ${config.targetPage}",
+                    test.viewPager.currentItem, equalTo(config.targetPage)
+                )
+                assertThat(
+                    "Exactly 1 onPageSelected event should be fired",
+                    selectEvents.size, equalTo(1)
+                )
+                assertThat(
+                    "onPageSelected event should have reported ${config.targetPage}",
+                    selectEvents.first().position, equalTo(config.targetPage)
+                )
             } else {
-                assertThat("viewPager.getCurrentItem() should not be ${config.targetPage}",
-                    test.viewPager.currentItem, not(equalTo(config.targetPage)))
-                assertThat("Exactly 2 onPageSelected events should be fired",
-                    selectEvents.size, equalTo(2))
-                assertThat("First onPageSelected event should have reported ${config.targetPage}",
-                    selectEvents.first().position, equalTo(config.targetPage))
-                assertThat("Second onPageSelected event should have reported " +
+                assertThat(
+                    "viewPager.getCurrentItem() should not be ${config.targetPage}",
+                    test.viewPager.currentItem, not(equalTo(config.targetPage))
+                )
+                assertThat(
+                    "Exactly 2 onPageSelected events should be fired",
+                    selectEvents.size, equalTo(2)
+                )
+                assertThat(
+                    "First onPageSelected event should have reported ${config.targetPage}",
+                    selectEvents.first().position, equalTo(config.targetPage)
+                )
+                assertThat(
+                    "Second onPageSelected event should have reported " +
                         "$currentlyVisible, or visible page should be " +
                         "${selectEvents.last().position}",
-                    selectEvents.last().position, equalTo(currentlyVisible))
+                    selectEvents.last().position, equalTo(currentlyVisible)
+                )
             }
         }
     }
@@ -305,16 +324,18 @@ private fun createTestSet(): List<TestConfig> {
                     )
                 }
             }
-        }.plus(listOf(
-            TestConfig(
-                title = "drag back to start",
-                orientation = orientation,
-                startPage = 0,
-                targetPage = 1,
-                dragInOppositeDirection = true,
-                distanceToTargetWhenStartDrag = .7f
+        }.plus(
+            listOf(
+                TestConfig(
+                    title = "drag back to start",
+                    orientation = orientation,
+                    startPage = 0,
+                    targetPage = 1,
+                    dragInOppositeDirection = true,
+                    distanceToTargetWhenStartDrag = .7f
+                )
             )
-        ))
+        )
     }
 }
 

@@ -78,15 +78,19 @@ class SplitLayout : FrameLayout {
             val startWidthSpec = MeasureSpec.makeMeasureSpec(startPosition.width(), EXACTLY)
             val startHeightSpec = MeasureSpec.makeMeasureSpec(startPosition.height(), EXACTLY)
             startView.measure(startWidthSpec, startHeightSpec)
-            startView.layout(startPosition.left, startPosition.top, startPosition.right,
-                startPosition.bottom)
+            startView.layout(
+                startPosition.left, startPosition.top, startPosition.right,
+                startPosition.bottom
+            )
 
             val endPosition = splitPositions[1]
             val endWidthSpec = MeasureSpec.makeMeasureSpec(endPosition.width(), EXACTLY)
             val endHeightSpec = MeasureSpec.makeMeasureSpec(endPosition.height(), EXACTLY)
             endView.measure(endWidthSpec, endHeightSpec)
-            endView.layout(endPosition.left, endPosition.top, endPosition.right,
-                endPosition.bottom)
+            endView.layout(
+                endPosition.left, endPosition.top, endPosition.right,
+                endPosition.bottom
+            )
         } else {
             super.onLayout(changed, left, top, right, bottom)
         }
@@ -130,23 +134,33 @@ class SplitLayout : FrameLayout {
             val splitRect = getFeaturePositionInViewRect(feature, this) ?: continue
 
             if (feature.bounds.left == 0) { // Horizontal layout
-                val topRect = Rect(paddingLeft, paddingTop,
-                    paddingLeft + paddedWidth, splitRect.top)
-                val bottomRect = Rect(paddingLeft, splitRect.bottom,
-                    paddingLeft + paddedWidth, paddingTop + paddedHeight)
+                val topRect = Rect(
+                    paddingLeft, paddingTop,
+                    paddingLeft + paddedWidth, splitRect.top
+                )
+                val bottomRect = Rect(
+                    paddingLeft, splitRect.bottom,
+                    paddingLeft + paddedWidth, paddingTop + paddedHeight
+                )
 
                 if (measureAndCheckMinSize(topRect, startView) &&
-                    measureAndCheckMinSize(bottomRect, endView)) {
+                    measureAndCheckMinSize(bottomRect, endView)
+                ) {
                     return arrayOf(topRect, bottomRect)
                 }
             } else if (feature.bounds.top == 0) { // Vertical layout
-                val leftRect = Rect(paddingLeft, paddingTop,
-                    splitRect.left, paddingTop + paddedHeight)
-                val rightRect = Rect(splitRect.right, paddingTop,
-                    paddingLeft + paddedWidth, paddingTop + paddedHeight)
+                val leftRect = Rect(
+                    paddingLeft, paddingTop,
+                    splitRect.left, paddingTop + paddedHeight
+                )
+                val rightRect = Rect(
+                    splitRect.right, paddingTop,
+                    paddingLeft + paddedWidth, paddingTop + paddedHeight
+                )
 
                 if (measureAndCheckMinSize(leftRect, startView) &&
-                    measureAndCheckMinSize(rightRect, endView)) {
+                    measureAndCheckMinSize(rightRect, endView)
+                ) {
                     return arrayOf(leftRect, rightRect)
                 }
             }

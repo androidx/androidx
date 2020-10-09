@@ -36,9 +36,10 @@ class TransactionMethodProcessor(
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
         val hasKotlinDefaultImpl = executableElement.hasKotlinDefaultImpl()
         context.checker.check(
-                executableElement.isOverrideableIgnoringContainer() &&
-                        (!executableElement.isAbstract() || hasKotlinDefaultImpl),
-                executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
+            executableElement.isOverrideableIgnoringContainer() &&
+                (!executableElement.isAbstract() || hasKotlinDefaultImpl),
+            executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS
+        )
 
         val returnType = delegate.extractReturnType()
         val rawReturnType = returnType.rawType
@@ -64,11 +65,12 @@ class TransactionMethodProcessor(
         }
 
         return TransactionMethod(
-                element = executableElement,
-                returnType = returnType,
-                parameterNames = delegate.extractParams().map { it.name },
-                callType = callType,
-                methodBinder = delegate.findTransactionMethodBinder(callType))
+            element = executableElement,
+            returnType = returnType,
+            parameterNames = delegate.extractParams().map { it.name },
+            callType = callType,
+            methodBinder = delegate.findTransactionMethodBinder(callType)
+        )
     }
 
     companion object {
@@ -84,6 +86,7 @@ class TransactionMethodProcessor(
             RxJava3TypeNames.MAYBE,
             RxJava3TypeNames.SINGLE,
             RxJava3TypeNames.COMPLETABLE,
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+        )
     }
 }

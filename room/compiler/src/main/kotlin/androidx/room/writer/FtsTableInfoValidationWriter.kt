@@ -36,29 +36,39 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(HashSet::class.typeName,
-                    CommonTypeNames.STRING)
+            val columnListType = ParameterizedTypeName.get(
+                HashSet::class.typeName,
+                CommonTypeNames.STRING
+            )
 
-            addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
-                    columnListType, entity.fields.size)
+            addStatement(
+                "final $T $L = new $T($L)", columnListType, columnListVar,
+                columnListType, entity.fields.size
+            )
             entity.nonHiddenFields.forEach {
                 addStatement("$L.add($S)", columnListVar, it.columnName)
             }
 
-            addStatement("final $T $L = new $T($S, $L, $S)",
-                    RoomTypeNames.FTS_TABLE_INFO, expectedInfoVar, RoomTypeNames.FTS_TABLE_INFO,
-                    entity.tableName, columnListVar, entity.createTableQuery)
+            addStatement(
+                "final $T $L = new $T($S, $L, $S)",
+                RoomTypeNames.FTS_TABLE_INFO, expectedInfoVar, RoomTypeNames.FTS_TABLE_INFO,
+                entity.tableName, columnListVar, entity.createTableQuery
+            )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
-            addStatement("final $T $L = $T.read($N, $S)",
-                    RoomTypeNames.FTS_TABLE_INFO, existingVar, RoomTypeNames.FTS_TABLE_INFO,
-                    dbParam, entity.tableName)
+            addStatement(
+                "final $T $L = $T.read($N, $S)",
+                RoomTypeNames.FTS_TABLE_INFO, existingVar, RoomTypeNames.FTS_TABLE_INFO,
+                dbParam, entity.tableName
+            )
 
             beginControlFlow("if (!$L.equals($L))", expectedInfoVar, existingVar).apply {
-                addStatement("return new $T(false, $S + $L + $S + $L)",
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
-                        "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
-                        expectedInfoVar, "\n Found:\n", existingVar)
+                addStatement(
+                    "return new $T(false, $S + $L + $S + $L)",
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
+                    expectedInfoVar, "\n Found:\n", existingVar
+                )
             }
             endControlFlow()
         }

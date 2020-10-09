@@ -52,11 +52,11 @@ class DoubleTransitionBugActivity : FragmentActivity(R.layout.double_transition_
         first.enterTransition = Fade().setDuration(5000)
 
         supportFragmentManager.beginTransaction()
-                .setReorderingAllowed(true)
-                .add(R.id.content, first)
-                .add(R.id.content, second)
-                .hide(currentFragment)
-                .addToBackStack(null)
-                .commit()
+            .setReorderingAllowed(true)
+            .add(R.id.content, first)
+            .add(R.id.content, second)
+            .hide(currentFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

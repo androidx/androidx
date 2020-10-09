@@ -50,7 +50,7 @@ sealed class LoadState(
 
         override fun equals(other: Any?): Boolean {
             return other is NotLoading &&
-                    endOfPaginationReached == other.endOfPaginationReached
+                endOfPaginationReached == other.endOfPaginationReached
         }
 
         override fun hashCode(): Int {
@@ -73,7 +73,7 @@ sealed class LoadState(
 
         override fun equals(other: Any?): Boolean {
             return other is Loading &&
-                    endOfPaginationReached == other.endOfPaginationReached
+                endOfPaginationReached == other.endOfPaginationReached
         }
 
         override fun hashCode(): Int {
@@ -93,8 +93,8 @@ sealed class LoadState(
     ) : LoadState(false) {
         override fun equals(other: Any?): Boolean {
             return other is Error &&
-                    endOfPaginationReached == other.endOfPaginationReached &&
-                    error == other.error
+                endOfPaginationReached == other.endOfPaginationReached &&
+                error == other.error
         }
 
         override fun hashCode(): Int {

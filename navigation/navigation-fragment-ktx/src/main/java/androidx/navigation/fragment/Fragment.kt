@@ -26,4 +26,4 @@ import androidx.navigation.NavController
  * will result in an [IllegalStateException]
  */
 fun Fragment.findNavController(): NavController =
-        NavHostFragment.findNavController(this)
+    NavHostFragment.findNavController(this)

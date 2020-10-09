@@ -24,11 +24,16 @@ import androidx.room.RoomWarnings
 import androidx.room.TypeConverters
 
 @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
-@Entity(foreignKeys = arrayOf(
-        ForeignKey(entity = Publisher::class,
-                parentColumns = arrayOf("publisherId"),
-                childColumns = arrayOf("bookPublisherId"),
-                deferred = true)))
+@Entity(
+    foreignKeys = arrayOf(
+        ForeignKey(
+            entity = Publisher::class,
+            parentColumns = arrayOf("publisherId"),
+            childColumns = arrayOf("bookPublisherId"),
+            deferred = true
+        )
+    )
+)
 data class Book(
     @PrimaryKey val bookId: String,
     val title: String,

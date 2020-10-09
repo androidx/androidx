@@ -91,17 +91,17 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         progressUpdater: ProgressUpdater,
         foregroundUpdater: ForegroundUpdater
     ) = WorkerParameters(
-            UUID.randomUUID(),
-            Data.EMPTY,
-            listOf<String>(),
-            WorkerParameters.RuntimeExtras(),
-            1,
-            SynchronousExecutor(),
-            WorkManagerTaskExecutor(SynchronousExecutor()),
-            factory,
-            progressUpdater,
-            foregroundUpdater
-        )
+        UUID.randomUUID(),
+        Data.EMPTY,
+        listOf<String>(),
+        WorkerParameters.RuntimeExtras(),
+        1,
+        SynchronousExecutor(),
+        WorkManagerTaskExecutor(SynchronousExecutor()),
+        factory,
+        progressUpdater,
+        foregroundUpdater
+    )
 }
 
 class NoOpFactory : WorkerFactory() {

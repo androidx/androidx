@@ -52,12 +52,14 @@ private class DatabaseImpl(
 
         override fun create(driver: SqlDriver) {
             driver.execute(
-                null, """
+                null,
+                """
           |CREATE TABLE TestEntity(
           |    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
           |    value TEXT NOT NULL
           |)
-          """.trimMargin(), 0
+          """.trimMargin(),
+                0
             )
         }
 
@@ -95,12 +97,14 @@ private class TestEntityQueriesImpl(
 
     override fun insertOrReplace(value: String) {
         driver.execute(
-            -2020431062, """
+            -2020431062,
+            """
     |INSERT OR REPLACE INTO TestEntity(
     |  value
     |)
     |VALUES (?1)
-    """.trimMargin(), 1
+    """.trimMargin(),
+            1
         ) {
             bindString(1, value)
         }

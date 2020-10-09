@@ -82,7 +82,8 @@ class CoroutineWorkerTest {
             .setExecutor(SynchronousExecutor())
             .setMinimumLoggingLevel(Log.DEBUG)
             .build()
-        workManagerImpl = WorkManagerImpl(context, configuration,
+        workManagerImpl = WorkManagerImpl(
+            context, configuration,
             InstantWorkTaskExecutor()
         )
         WorkManagerImpl.setDelegate(workManagerImpl)
@@ -118,7 +119,9 @@ class CoroutineWorkerTest {
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
                 progressUpdater,
-                mForegroundUpdater)) as SynchronousCoroutineWorker
+                mForegroundUpdater
+            )
+        ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
 
@@ -128,9 +131,12 @@ class CoroutineWorkerTest {
         assertThat(future.isDone, `is`(true))
         assertThat(future.isCancelled, `is`(false))
         assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
-        assertThat((result as ListenableWorker.Result.Success).outputData.getLong(
-            "output", 0L),
-            `is`(999L))
+        assertThat(
+            (result as ListenableWorker.Result.Success).outputData.getLong(
+                "output", 0L
+            ),
+            `is`(999L)
+        )
     }
 
     @Test
@@ -149,7 +155,9 @@ class CoroutineWorkerTest {
                 workManagerImpl.workTaskExecutor,
                 workerFactory,
                 progressUpdater,
-                mForegroundUpdater)) as SynchronousCoroutineWorker
+                mForegroundUpdater
+            )
+        ) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
         worker.future.cancel(true)
@@ -187,7 +195,8 @@ class CoroutineWorkerTest {
                 .updateProgress(
                     any(Context::class.java),
                     any(UUID::class.java),
-                    captor.capture())
+                    captor.capture()
+                )
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()
             assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))
@@ -230,7 +239,8 @@ class CoroutineWorkerTest {
                 .updateProgress(
                     any(Context::class.java),
                     any(UUID::class.java),
-                    captor.capture())
+                    captor.capture()
+                )
             assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
             val recent = captor.allValues.lastOrNull()
             assertThat(recent?.getInt(ProgressUpdatingWorker.Progress, 0), `is`(100))

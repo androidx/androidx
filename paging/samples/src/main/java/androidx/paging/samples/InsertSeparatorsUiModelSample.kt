@@ -135,17 +135,25 @@ fun insertSeparatorsUiModelFutureSample() {
             .map { item ->
                 ItemUiModel(item) // convert items in stream to ItemUiModel
             }
-            .insertSeparatorsAsync(AsyncFunction<AdjacentItems<ItemUiModel>, UiModel?> {
-                Futures.submit(Callable<UiModel> {
-                    val (before, after) = it!!
-                    if (after != null && before?.item?.label?.first() != after.item.label.first()) {
-                        // separator - after is first item that starts with its first letter
-                        SeparatorUiModel(after.item.label.first().toUpperCase())
-                    } else {
-                        // no separator - either end of list, or first letters of before/after are the same
-                        null
-                    }
-                }, executor)
-            }, executor)
+            .insertSeparatorsAsync(
+                AsyncFunction<AdjacentItems<ItemUiModel>, UiModel?> {
+                    Futures.submit(
+                        Callable<UiModel> {
+                            val (before, after) = it!!
+                            if (after != null &&
+                                before?.item?.label?.first() != after.item.label.first()
+                            ) {
+                                // separator - after is first item that starts with its first letter
+                                SeparatorUiModel(after.item.label.first().toUpperCase())
+                            } else {
+                                // no separator - either end of list, or first letters of before/after are the same
+                                null
+                            }
+                        },
+                        executor
+                    )
+                },
+                executor
+            )
     }
 }

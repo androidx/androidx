@@ -32,7 +32,8 @@ import org.mockito.Mockito.mock
 class DynamicGraphNavigatorTest {
 
     private val navigator =
-        DynamicGraphNavigator(mock(NavigatorProvider::class.java),
+        DynamicGraphNavigator(
+            mock(NavigatorProvider::class.java),
             TestDynamicInstallManager()
         )
 

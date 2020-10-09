@@ -49,8 +49,10 @@ class WindowDemosActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState != null) {
-            selectedBackend = savedInstanceState.getInt(BACKEND_TYPE_EXTRA,
-                BACKEND_TYPE_DEVICE_DEFAULT)
+            selectedBackend = savedInstanceState.getInt(
+                BACKEND_TYPE_EXTRA,
+                BACKEND_TYPE_DEVICE_DEFAULT
+            )
         }
         when (selectedBackend) {
             BACKEND_TYPE_DEVICE_DEFAULT ->

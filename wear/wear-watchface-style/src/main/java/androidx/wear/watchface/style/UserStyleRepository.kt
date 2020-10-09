@@ -70,11 +70,13 @@ class UserStyleRepository(
 
     // The current style state which is initialized from the userStyleCategories.
     @SuppressWarnings("SyntheticAccessor")
-    private val _style = UserStyle(HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-        for (category in userStyleCategories) {
-            this[category] = category.getDefaultOption()
+    private val _style = UserStyle(
+        HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
+            for (category in userStyleCategories) {
+                this[category] = category.getDefaultOption()
+            }
         }
-    })
+    )
 
     /** The current user controlled style for rendering etc... */
     var userStyle: UserStyle

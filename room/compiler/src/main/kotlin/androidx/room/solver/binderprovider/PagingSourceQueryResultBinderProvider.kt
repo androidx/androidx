@@ -42,8 +42,10 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        val tableNames = ((listAdapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (listAdapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         return PagingSourceQueryResultBinder(
             PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
         )

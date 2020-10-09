@@ -45,7 +45,8 @@ class CameraXPreviewSessionStateCallback(
 
         // Prevent duplicate captures from being triggered if running a capture test
         if (testConfig.currentRunningTest != TestType.MULTI_SWITCH &&
-            testConfig.currentRunningTest != TestType.SWITCH_CAMERA) {
+            testConfig.currentRunningTest != TestType.SWITCH_CAMERA
+        ) {
             if (testConfig.isFirstOnActive) {
                 testConfig.isFirstOnActive = false
             } else {

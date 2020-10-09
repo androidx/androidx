@@ -26,7 +26,7 @@ import com.squareup.javapoet.TypeName
  * Binds Collection<T> (e.g. List<T>) into String[] query args.
  */
 class CollectionQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
-            QueryParameterAdapter(true) {
+    QueryParameterAdapter(true) {
     override fun bindToStmt(
         inputVarName: String,
         stmtVarName: String,
@@ -35,17 +35,19 @@ class CollectionQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
     ) {
         scope.builder().apply {
             val itrVar = scope.getTmpVar("_item")
-            beginControlFlow("for ($T $L : $L)", bindAdapter.typeMirror().typeName, itrVar,
-                    inputVarName).apply {
-                        bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
-                        addStatement("$L ++", startIndexVarName)
-                    }
+            beginControlFlow(
+                "for ($T $L : $L)", bindAdapter.typeMirror().typeName, itrVar,
+                inputVarName
+            ).apply {
+                bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
+                addStatement("$L ++", startIndexVarName)
+            }
             endControlFlow()
         }
     }
 
     override fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()
-                .addStatement("final $T $L = $L.size()", TypeName.INT, outputVarName, inputVarName)
+            .addStatement("final $T $L = $L.size()", TypeName.INT, outputVarName, inputVarName)
     }
 }

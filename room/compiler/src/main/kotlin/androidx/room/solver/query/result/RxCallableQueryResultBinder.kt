@@ -50,7 +50,8 @@ internal class RxCallableQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope)
+                scope = scope
+            )
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -81,23 +82,27 @@ internal class RxCallableQueryResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
-        addStatement("final $T $L = $T.query($N, $L, $L, $L)",
-                AndroidTypeNames.CURSOR,
-                cursorVar,
-                RoomTypeNames.DB_UTIL,
-                dbField,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                "null")
+        addStatement(
+            "final $T $L = $T.query($N, $L, $L, $L)",
+            AndroidTypeNames.CURSOR,
+            cursorVar,
+            RoomTypeNames.DB_UTIL,
+            dbField,
+            roomSQLiteQueryVar,
+            if (shouldCopyCursor) "true" else "false",
+            "null"
+        )
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             addCode(adapterScope.generate())
             if (!rxType.canBeNull) {
                 beginControlFlow("if($L == null)", outVar).apply {
-                    addStatement("throw new $T($S + $L.getSql())",
-                            rxType.version.emptyResultExceptionClassName,
-                            "Query returned empty result set: ",
-                            roomSQLiteQueryVar)
+                    addStatement(
+                        "throw new $T($S + $L.getSql())",
+                        rxType.version.emptyResultExceptionClassName,
+                        "Query returned empty result set: ",
+                        roomSQLiteQueryVar
+                    )
                 }
                 endControlFlow()
             }

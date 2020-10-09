@@ -29,8 +29,10 @@ data class Argument(
 ) {
     init {
         if (isNullable && !type.allowsNullable()) {
-            throw IllegalArgumentException("Argument is nullable but type $type " +
-                    "cannot be nullable.")
+            throw IllegalArgumentException(
+                "Argument is nullable but type $type " +
+                    "cannot be nullable."
+            )
         }
         if (!isNullable && defaultValue == NullValue) {
             throw IllegalArgumentException("Argument has null value but is not nullable.")
@@ -38,7 +40,7 @@ data class Argument(
     }
 
     val sanitizedName = name.split("[^a-zA-Z0-9]".toRegex())
-            .map { it.trim() }.joinToCamelCaseAsVar()
+        .map { it.trim() }.joinToCamelCaseAsVar()
 
     fun isOptional() = defaultValue != null
 

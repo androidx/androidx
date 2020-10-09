@@ -34,7 +34,8 @@ import java.util.Locale
 import javax.lang.model.element.Modifier.PRIVATE
 
 class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethodSpec(
-        "entityCursorConverter_${entity.typeName.toString().stripNonJava()}") {
+    "entityCursorConverter_${entity.typeName.toString().stripNonJava()}"
+) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
@@ -42,7 +43,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
     override fun prepare(methodName: String, writer: ClassWriter, builder: MethodSpec.Builder) {
         builder.apply {
             val cursorParam = ParameterSpec
-                    .builder(AndroidTypeNames.CURSOR, "cursor").build()
+                .builder(AndroidTypeNames.CURSOR, "cursor").build()
             addParameter(cursorParam)
             addModifiers(PRIVATE)
             returns(entity.typeName)
@@ -57,20 +58,26 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
             scope.builder().addStatement("final $T $L", entity.typeName, entityVar)
             val fieldsWithIndices = entity.fields.map {
                 val indexVar = scope.getTmpVar(
-                        "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
-                scope.builder().addStatement("final $T $L = $N.getColumnIndex($S)",
-                        TypeName.INT, indexVar, cursorParam, it.columnName)
-                FieldWithIndex(field = it,
-                        indexVar = indexVar,
-                        alwaysExists = false)
+                    "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
+                )
+                scope.builder().addStatement(
+                    "final $T $L = $N.getColumnIndex($S)",
+                    TypeName.INT, indexVar, cursorParam, it.columnName
+                )
+                FieldWithIndex(
+                    field = it,
+                    indexVar = indexVar,
+                    alwaysExists = false
+                )
             }
             FieldReadWriteWriter.readFromCursor(
-                    outVar = entityVar,
-                    outPojo = entity,
-                    cursorVar = cursorParam.name,
-                    fieldsWithIndices = fieldsWithIndices,
-                    relationCollectors = emptyList(), // no relationship for entities
-                    scope = scope)
+                outVar = entityVar,
+                outPojo = entity,
+                cursorVar = cursorParam.name,
+                fieldsWithIndices = fieldsWithIndices,
+                relationCollectors = emptyList(), // no relationship for entities
+                scope = scope
+            )
             addStatement("return $L", entityVar)
         }
         return scope.builder().build()

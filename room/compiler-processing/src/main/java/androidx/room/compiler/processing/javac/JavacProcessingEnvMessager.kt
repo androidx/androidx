@@ -79,9 +79,11 @@ internal class JavacProcessingEnvMessager(
                     else -> {
                         // Not sure how to nicely print the element, delegate to utils then.
                         append("In:\n")
-                        append(StringWriter().apply {
-                            elementUtils.printElements(this, element)
-                        }.toString())
+                        append(
+                            StringWriter().apply {
+                                elementUtils.printElements(this, element)
+                            }.toString()
+                        )
                     }
                 }
             }.toString()

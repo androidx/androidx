@@ -140,11 +140,13 @@ class RecyclerViewSmoothScrollToPositionTest {
 
         // Act
 
-        BaseRecyclerViewInstrumentationTest.mActivityRule.runOnUiThread(Runnable {
-            recyclerView.smoothScrollToPosition(
-                targetPosition
-            )
-        })
+        BaseRecyclerViewInstrumentationTest.mActivityRule.runOnUiThread(
+            Runnable {
+                recyclerView.smoothScrollToPosition(
+                    targetPosition
+                )
+            }
+        )
 
         // Assert
 

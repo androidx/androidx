@@ -33,40 +33,50 @@ internal enum class RxType(
     RX2_FLOWABLE(
         version = RxVersion.TWO,
         className = RxJava2TypeNames.FLOWABLE,
-        factoryMethodName = RoomRxJava2TypeNames.RX_ROOM_CREATE_FLOWABLE),
+        factoryMethodName = RoomRxJava2TypeNames.RX_ROOM_CREATE_FLOWABLE
+    ),
     RX2_OBSERVABLE(
         version = RxVersion.TWO,
         className = RxJava2TypeNames.OBSERVABLE,
-        factoryMethodName = RoomRxJava2TypeNames.RX_ROOM_CREATE_OBSERVABLE),
+        factoryMethodName = RoomRxJava2TypeNames.RX_ROOM_CREATE_OBSERVABLE
+    ),
     RX2_SINGLE(
         version = RxVersion.TWO,
-        className = RxJava2TypeNames.SINGLE),
+        className = RxJava2TypeNames.SINGLE
+    ),
     RX2_MAYBE(
         version = RxVersion.TWO,
         className = RxJava2TypeNames.MAYBE,
-        canBeNull = true),
+        canBeNull = true
+    ),
     RX2_COMPLETABLE(
         version = RxVersion.TWO,
-        className = RxJava2TypeNames.COMPLETABLE),
+        className = RxJava2TypeNames.COMPLETABLE
+    ),
     // RxJava3 types
     RX3_FLOWABLE(
         version = RxVersion.THREE,
         className = RxJava3TypeNames.FLOWABLE,
-        factoryMethodName = RoomRxJava3TypeNames.RX_ROOM_CREATE_FLOWABLE),
+        factoryMethodName = RoomRxJava3TypeNames.RX_ROOM_CREATE_FLOWABLE
+    ),
     RX3_OBSERVABLE(
         version = RxVersion.THREE,
         className = RxJava3TypeNames.OBSERVABLE,
-        factoryMethodName = RoomRxJava3TypeNames.RX_ROOM_CREATE_OBSERVABLE),
+        factoryMethodName = RoomRxJava3TypeNames.RX_ROOM_CREATE_OBSERVABLE
+    ),
     RX3_SINGLE(
         version = RxVersion.THREE,
-        className = RxJava3TypeNames.SINGLE),
+        className = RxJava3TypeNames.SINGLE
+    ),
     RX3_MAYBE(
         version = RxVersion.THREE,
         className = RxJava3TypeNames.MAYBE,
-        canBeNull = true),
+        canBeNull = true
+    ),
     RX3_COMPLETABLE(
         version = RxVersion.THREE,
-        className = RxJava3TypeNames.COMPLETABLE);
+        className = RxJava3TypeNames.COMPLETABLE
+    );
 
     fun isSingle() = this == RX2_SINGLE || this == RX3_SINGLE
 }
@@ -79,9 +89,11 @@ internal enum class RxVersion(
     TWO(
         rxRoomClassName = RoomRxJava2TypeNames.RX_ROOM,
         emptyResultExceptionClassName = RoomRxJava2TypeNames.RX_EMPTY_RESULT_SET_EXCEPTION,
-        missingArtifactMessage = ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT),
+        missingArtifactMessage = ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT
+    ),
     THREE(
         rxRoomClassName = RoomRxJava3TypeNames.RX_ROOM,
         emptyResultExceptionClassName = RoomRxJava3TypeNames.RX_EMPTY_RESULT_SET_EXCEPTION,
-        missingArtifactMessage = ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT);
+        missingArtifactMessage = ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT
+    );
 }

@@ -74,7 +74,7 @@ class Context private constructor(
     companion object {
         val ARG_OPTIONS by lazy {
             ProcessorOptions.values().map { it.argName } +
-                    BooleanProcessorOptions.values().map { it.argName }
+                BooleanProcessorOptions.values().map { it.argName }
         }
     }
 
@@ -86,12 +86,13 @@ class Context private constructor(
     }
 
     constructor(processingEnv: XProcessingEnv) : this(
-            processingEnv = processingEnv,
-            logger = RLog(processingEnv.messager, emptySet(), null),
-            typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
-            inheritedAdapterStore = null,
-            cache = Cache(null, LinkedHashSet(), emptySet()),
-            canRewriteQueriesToDropUnusedColumns = false)
+        processingEnv = processingEnv,
+        logger = RLog(processingEnv.messager, emptySet(), null),
+        typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
+        inheritedAdapterStore = null,
+        cache = Cache(null, LinkedHashSet(), emptySet()),
+        canRewriteQueriesToDropUnusedColumns = false
+    )
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
@@ -116,12 +117,14 @@ class Context private constructor(
 
     fun <T> collectLogs(handler: (Context) -> T): Pair<T, RLog.CollectingMessager> {
         val collector = RLog.CollectingMessager()
-        val subContext = Context(processingEnv = processingEnv,
-                logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
-                typeConverters = this.typeConverters,
-                inheritedAdapterStore = typeAdapterStore,
-                cache = cache,
-                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns)
+        val subContext = Context(
+            processingEnv = processingEnv,
+            logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
+            typeConverters = this.typeConverters,
+            inheritedAdapterStore = typeAdapterStore,
+            cache = cache,
+            canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns
+        )
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -141,14 +144,15 @@ class Context private constructor(
             forceSuppressedWarnings + suppressedWarnings + logger.suppressedWarnings
         val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
         val subCanRemoveUnusedColumns = canRewriteQueriesToDropUnusedColumns ||
-                element.hasRemoveUnusedColumnsAnnotation()
+            element.hasRemoveUnusedColumnsAnnotation()
         val subContext = Context(
-                processingEnv = processingEnv,
-                logger = RLog(logger.messager, subSuppressedWarnings, element),
-                typeConverters = subTypeConverters,
-                inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
-                cache = subCache,
-                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns)
+            processingEnv = processingEnv,
+            logger = RLog(logger.messager, subSuppressedWarnings, element),
+            typeConverters = subTypeConverters,
+            inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
+            cache = subCache,
+            canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns
+        )
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }

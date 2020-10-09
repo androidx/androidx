@@ -38,11 +38,11 @@ internal sealed class PageEvent<T : Any> {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
                 "Append state defining placeholdersBefore must be > 0, but was" +
-                        " $placeholdersBefore"
+                    " $placeholdersBefore"
             }
             require(loadType == PREPEND || placeholdersAfter >= 0) {
                 "Prepend state defining placeholdersAfter must be > 0, but was" +
-                        " $placeholdersAfter"
+                    " $placeholdersAfter"
             }
         }
 
@@ -178,7 +178,7 @@ internal sealed class PageEvent<T : Any> {
         init {
             require(loadState is LoadState.Loading || loadState is LoadState.Error) {
                 "LoadStateUpdates can only be used for Loading or Error. To update loadState to " +
-                        "Idle or Done, use Insert / Drop events."
+                    "Idle or Done, use Insert / Drop events."
             }
         }
     }

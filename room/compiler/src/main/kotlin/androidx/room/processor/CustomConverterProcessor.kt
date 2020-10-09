@@ -63,7 +63,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                 .values.forEach {
                     it.forEach { converter ->
                         context.logger.e(
-                            converter.method, ProcessorErrors
+                            converter.method,
+                            ProcessorErrors
                                 .duplicateTypeConverters(it.minus(converter))
                         )
                     }
@@ -87,9 +88,10 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         if (!isProvidedConverter) {
             context.checker.check(
                 isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
-                        constructors.any {
-                            it.parameters.isEmpty()
-                        }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
+                    constructors.any {
+                        it.parameters.isEmpty()
+                    },
+                element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
             )
         }
         return converterMethods.mapNotNull {

@@ -52,8 +52,8 @@ open class DynamicInstallManager(
             // Best effort leak prevention, will only work for active observers
             check(!status.hasActiveObservers()) {
                 "This DynamicInstallMonitor will not " +
-                        "emit any more status updates. You should remove all " +
-                        "Observers after null has been emitted."
+                    "emit any more status updates. You should remove all " +
+                    "Observers after null has been emitted."
             }
         }
     }
@@ -83,7 +83,8 @@ open class DynamicInstallManager(
                 navigator.navigateToProgressDestination(dynamicNavGraph, progressArgs)
             } else {
                 throw IllegalStateException(
-                    "You must use a DynamicNavGraph to perform a module installation.")
+                    "You must use a DynamicNavGraph to perform a module installation."
+                )
             }
         }
     }
@@ -105,7 +106,7 @@ open class DynamicInstallManager(
         check(!installMonitor.isUsed) {
             // We don't want an installMonitor in an undefined state or used by another install
             "You must pass in a fresh DynamicInstallMonitor " +
-                    "in DynamicExtras every time you call navigate()."
+                "in DynamicExtras every time you call navigate()."
         }
 
         val status = installMonitor.status as MutableLiveData<SplitInstallSessionState>
@@ -142,8 +143,10 @@ open class DynamicInstallManager(
                 }
             }
             .addOnFailureListener { exception ->
-                Log.i("DynamicInstallManager",
-                    "Error requesting install of $module: ${exception.message}")
+                Log.i(
+                    "DynamicInstallManager",
+                    "Error requesting install of $module: ${exception.message}"
+                )
                 installMonitor.exception = exception
                 status.value = SplitInstallSessionState.create(
                     /* sessionId */ 0,

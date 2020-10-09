@@ -46,19 +46,22 @@ abstract class SafeArgsPlugin protected constructor(
             extension is LibraryExtension -> {
                 extension.libraryVariants.all(action)
             }
-            else -> throw GradleException("safeargs plugin must be used with android app," +
-                    "library or feature plugin")
+            else -> throw GradleException(
+                "safeargs plugin must be used with android app," +
+                    "library or feature plugin"
+            )
         }
     }
 
     override fun apply(project: Project) {
         val extension = project.extensions.findByType(BaseExtension::class.java)
-                ?: throw GradleException("safeargs plugin must be used with android plugin")
+            ?: throw GradleException("safeargs plugin must be used with android plugin")
         val isKotlinProject =
             project.extensions.findByType(KotlinProjectExtension::class.java) != null
         if (!isKotlinProject && generateKotlin) {
             throw GradleException(
-                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin")
+                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
+            )
         }
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(

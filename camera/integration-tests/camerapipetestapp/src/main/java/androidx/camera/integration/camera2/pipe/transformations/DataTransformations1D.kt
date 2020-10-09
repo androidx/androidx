@@ -48,50 +48,52 @@ object DataTransformations1D {
      */
     private val specificTransformationMap: HashMap<CameraMetadataKey, (Any?) -> Number?> =
         hashMapOf(
-        /**
-         * LENS_FOCUS_DISTANCE has a specific transformation that maps Float inputs to their
-         * reciprocals, maps null input to null, and throws an IllegalArgumentException if the input
-         * is not of the expected type Float?
-         */
-        LENS_FOCUS_DISTANCE to { keyData: Any? ->
-            when (keyData) {
-                is Float -> 1 / keyData
-                else -> nullOrInvalid(LENS_FOCUS_DISTANCE, keyData)
-            }
-        },
-
-        /**
-         * CONTROL_AE_MODE has a specific transformation that upon an Int input returns that input
-         * as is since each Int corresponds to a mode (The strings describing these modes will be
-         * passed as a map into the data source for the visualization directly). Upon a null input,
-         * null will be returned, and upon any other input, an exception will be thrown
-         */
-        CONTROL_AE_MODE to { keyData: Any? ->
-            when (keyData) {
-                is Int -> keyData
-                else -> nullOrInvalid(CONTROL_AE_MODE, keyData)
-            }
-        },
-
-        /**
-         * STATISTICS_FACES has a specific transformation that maps Array<Face> inputs to array
-         * size of that input, maps null input to null, and throws an IllegalArgumentException if
-         * the input is not an Array, or is an Array of the wrong type
-         */
-        STATISTICS_FACES to { keyData: Any? ->
-            when (keyData) {
-                is Array<*> -> {
-                    if (keyData.isArrayOf<Face>()) {
-                        keyData.size
-                    } else {
-                        throw IllegalArgumentException("keyData for $STATISTICS_FACES expected " +
-                                "to be Array<Face>, but was ${keyData::class.simpleName}")
-                    }
+            /**
+             * LENS_FOCUS_DISTANCE has a specific transformation that maps Float inputs to their
+             * reciprocals, maps null input to null, and throws an IllegalArgumentException if the input
+             * is not of the expected type Float?
+             */
+            LENS_FOCUS_DISTANCE to { keyData: Any? ->
+                when (keyData) {
+                    is Float -> 1 / keyData
+                    else -> nullOrInvalid(LENS_FOCUS_DISTANCE, keyData)
                 }
-                else -> nullOrInvalid(STATISTICS_FACES, keyData)
+            },
+
+            /**
+             * CONTROL_AE_MODE has a specific transformation that upon an Int input returns that input
+             * as is since each Int corresponds to a mode (The strings describing these modes will be
+             * passed as a map into the data source for the visualization directly). Upon a null input,
+             * null will be returned, and upon any other input, an exception will be thrown
+             */
+            CONTROL_AE_MODE to { keyData: Any? ->
+                when (keyData) {
+                    is Int -> keyData
+                    else -> nullOrInvalid(CONTROL_AE_MODE, keyData)
+                }
+            },
+
+            /**
+             * STATISTICS_FACES has a specific transformation that maps Array<Face> inputs to array
+             * size of that input, maps null input to null, and throws an IllegalArgumentException if
+             * the input is not an Array, or is an Array of the wrong type
+             */
+            STATISTICS_FACES to { keyData: Any? ->
+                when (keyData) {
+                    is Array<*> -> {
+                        if (keyData.isArrayOf<Face>()) {
+                            keyData.size
+                        } else {
+                            throw IllegalArgumentException(
+                                "keyData for $STATISTICS_FACES expected " +
+                                    "to be Array<Face>, but was ${keyData::class.simpleName}"
+                            )
+                        }
+                    }
+                    else -> nullOrInvalid(STATISTICS_FACES, keyData)
+                }
             }
-        }
-    )
+        )
 
     /**
      * When converting data, this function will be called only if the camera metadata key has no
@@ -112,7 +114,9 @@ object DataTransformations1D {
      */
     private fun nullOrInvalid(key: CameraMetadataKey, keyData: Any?): Number? {
         if (keyData == null) return null
-        throw IllegalArgumentException("keyData of type ${keyData::class.simpleName} for $key is" +
-                " not supported")
+        throw IllegalArgumentException(
+            "keyData of type ${keyData::class.simpleName} for $key is" +
+                " not supported"
+        )
     }
 }

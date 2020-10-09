@@ -66,9 +66,10 @@ class PojoProcessorTargetMethodTest {
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
-                .failsToCompile()
-                .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
+            .failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
+            )
     }
 
     @Test
@@ -84,9 +85,10 @@ class PojoProcessorTargetMethodTest {
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
-                .failsToCompile()
-                .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
+            .failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
+            )
     }
 
     @Test
@@ -102,15 +104,16 @@ class PojoProcessorTargetMethodTest {
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
-                .failsToCompile()
-                .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method"))
+            .failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.invalidAnnotationTarget("PrimaryKey", "method")
+            )
     }
 
     @Test
     fun invalidAnnotationInAutoValueMethod() {
         singleRun(
-                """
+            """
                 @AutoValue.CopyAnnotations
                 @PrimaryKey
                 abstract long getId();
@@ -118,7 +121,7 @@ class PojoProcessorTargetMethodTest {
                 void someRandomMethod() { }
                 static MyPojo create(long id) { return new AutoValue_MyPojo(id); }
                 """,
-                """
+            """
                 @PrimaryKey
                 private final long id;
                 AutoValue_MyPojo(long id) { this.id = id; }
@@ -126,7 +129,8 @@ class PojoProcessorTargetMethodTest {
                 long getId() { return this.id; }
                 """
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
+            ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method")
+        )
     }
 
     @Test
@@ -144,7 +148,7 @@ class PojoProcessorTargetMethodTest {
             }
             """
         singleRunFullClass(
-                """
+            """
                 package foo.bar;
 
                 import androidx.room.*;
@@ -160,7 +164,7 @@ class PojoProcessorTargetMethodTest {
                     }
                 $FOOTER
                 """,
-                """
+            """
                 $AUTO_VALUE_HEADER
                     private final long id;
                     private final String value;
@@ -171,9 +175,10 @@ class PojoProcessorTargetMethodTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-                parent.toJFO("foo.bar.ParentPojo")
+            parent.toJFO("foo.bar.ParentPojo")
         ).failsToCompile().withErrorContaining(
-                ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method"))
+            ProcessorErrors.invalidAnnotationTarget("ColumnInfo", "method")
+        )
     }
 
     @Test
@@ -189,7 +194,7 @@ class PojoProcessorTargetMethodTest {
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
-                .compilesWithoutError()
+            .compilesWithoutError()
     }
 
     @Test
@@ -205,19 +210,19 @@ class PojoProcessorTargetMethodTest {
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
-                .compilesWithoutError()
+            .compilesWithoutError()
     }
 
     @Test
     fun validAnnotationInAutoValueAbstractMethod() {
         singleRun(
-                """
+            """
                 @AutoValue.CopyAnnotations
                 @PrimaryKey
                 abstract long getId();
                 static MyPojo create(long id) { return new AutoValue_MyPojo(id); }
                 """,
-                """
+            """
                 @PrimaryKey
                 private final long id;
                 AutoValue_MyPojo(long id) { this.id = id; }
@@ -240,7 +245,7 @@ class PojoProcessorTargetMethodTest {
             }
             """
         singleRunFullClass(
-                """
+            """
                 package foo.bar;
 
                 import androidx.room.*;
@@ -256,7 +261,7 @@ class PojoProcessorTargetMethodTest {
                     }
                 $FOOTER
                 """,
-                """
+            """
                 $AUTO_VALUE_HEADER
                     private final long id;
                     private final String value;
@@ -267,7 +272,7 @@ class PojoProcessorTargetMethodTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-                parent.toJFO("foo.bar.ParentPojo")
+            parent.toJFO("foo.bar.ParentPojo")
         ).compilesWithoutError()
     }
 
@@ -284,7 +289,7 @@ class PojoProcessorTargetMethodTest {
             }
             """
         singleRunFullClass(
-                """
+            """
                 package foo.bar;
 
                 import androidx.room.*;
@@ -300,7 +305,7 @@ class PojoProcessorTargetMethodTest {
                     }
                 $FOOTER
                 """,
-                """
+            """
                 $AUTO_VALUE_HEADER
                     private final long id;
                     private final String value;
@@ -311,7 +316,7 @@ class PojoProcessorTargetMethodTest {
                     public String getValue() { return this.value; };
                 $FOOTER
                 """,
-                parent.toJFO("foo.bar.InterfacePojo")
+            parent.toJFO("foo.bar.InterfacePojo")
         ).compilesWithoutError()
     }
 
@@ -327,7 +332,7 @@ class PojoProcessorTargetMethodTest {
             }
             """
         singleRun(
-                """
+            """
                 @AutoValue.CopyAnnotations
                 @PrimaryKey
                 abstract long getId();
@@ -338,7 +343,7 @@ class PojoProcessorTargetMethodTest {
                     return new AutoValue_MyPojo(id, embedded);
                 }
                 """,
-                """
+            """
                 @PrimaryKey
                 private final long id;
                 @Embedded
@@ -352,7 +357,7 @@ class PojoProcessorTargetMethodTest {
                 @Embedded
                 EmbeddedPojo getEmbedded() { return this.embedded; }
                 """,
-                embeddedPojo.toJFO("foo.bar.EmbeddedPojo")
+            embeddedPojo.toJFO("foo.bar.EmbeddedPojo")
         ).compilesWithoutError()
     }
 
@@ -372,7 +377,7 @@ class PojoProcessorTargetMethodTest {
             }
             """
         singleRun(
-                """
+            """
                 @AutoValue.CopyAnnotations
                 @PrimaryKey
                 abstract long getId();
@@ -383,7 +388,7 @@ class PojoProcessorTargetMethodTest {
                     return new AutoValue_MyPojo(id, relations);
                 }
                 """,
-                """
+            """
                 @PrimaryKey
                 private final long id;
                 @Relation(parentColumn = "id", entityColumn = "parentId")
@@ -397,15 +402,17 @@ class PojoProcessorTargetMethodTest {
                 @Relation(parentColumn = "id", entityColumn = "parentId")
                 List<RelationPojo> getRelations() { return this.relations; }
                 """,
-                embeddedPojo.toJFO("foo.bar.RelationPojo")
+            embeddedPojo.toJFO("foo.bar.RelationPojo")
         ).compilesWithoutError()
     }
 
     private fun singleRun(vararg jfos: JavaFileObject) = simpleRun(*jfos) { invocation ->
-        PojoProcessor.createFor(context = invocation.context,
+        PojoProcessor.createFor(
+            context = invocation.context,
             element = invocation.processingEnv.requireTypeElement(MY_POJO),
             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-            parent = null).process()
+            parent = null
+        ).process()
     }
 
     private fun singleRun(
@@ -414,17 +421,17 @@ class PojoProcessorTargetMethodTest {
         vararg jfos: JavaFileObject
     ): CompileTester {
         return singleRunFullClass(
-                pojoCode = """
+            pojoCode = """
                     $HEADER
                     $pojoCode
                     $FOOTER
                     """,
-                autoValuePojoCode = """
+            autoValuePojoCode = """
                     $AUTO_VALUE_HEADER
                     $autoValuePojoCode
                     $FOOTER
                     """,
-                jfos = jfos
+            jfos = jfos
         )
     }
 
@@ -437,10 +444,12 @@ class PojoProcessorTargetMethodTest {
         val autoValuePojoJFO = autoValuePojoCode.toJFO(AUTOVALUE_MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
         return simpleRun(*all) { invocation ->
-            PojoProcessor.createFor(context = invocation.context,
+            PojoProcessor.createFor(
+                context = invocation.context,
                 element = invocation.processingEnv.requireTypeElement(MY_POJO),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null).process()
+                parent = null
+            ).process()
         }
     }
 }

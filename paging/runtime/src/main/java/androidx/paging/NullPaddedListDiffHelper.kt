@@ -38,41 +38,44 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     val oldSize = storageCount
     val newSize = newList.storageCount
 
-    return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+    return DiffUtil.calculateDiff(
+        object : DiffUtil.Callback() {
+            override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.getChangePayload(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.getChangePayload(oldItem, newItem)
+                }
             }
-        }
 
-        override fun getOldListSize() = oldSize
+            override fun getOldListSize() = oldSize
 
-        override fun getNewListSize() = newSize
+            override fun getNewListSize() = newSize
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.areItemsTheSame(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.areItemsTheSame(oldItem, newItem)
+                }
             }
-        }
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = getFromStorage(oldItemPosition)
-            val newItem = newList.getFromStorage(newItemPosition)
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val oldItem = getFromStorage(oldItemPosition)
+                val newItem = newList.getFromStorage(newItemPosition)
 
-            return when {
-                oldItem === newItem -> true
-                else -> diffCallback.areContentsTheSame(oldItem, newItem)
+                return when {
+                    oldItem === newItem -> true
+                    else -> diffCallback.areContentsTheSame(oldItem, newItem)
+                }
             }
-        }
-    }, true)
+        },
+        true
+    )
 }
 
 private class OffsettingListUpdateCallback internal constructor(
