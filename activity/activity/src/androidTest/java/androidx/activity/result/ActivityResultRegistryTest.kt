@@ -146,9 +146,6 @@ class ActivityResultRegistryTest {
         // restore the state of the registry
         registry.onRestoreInstanceState(state)
 
-        // launch the result
-        activityResult.launch(null)
-
         var resultReturned = false
         // re-register for the result that should have been saved
         registry.register(
@@ -157,6 +154,9 @@ class ActivityResultRegistryTest {
                 resultReturned = true
             }
         )
+
+        // launch the result
+        activityResult.launch(null)
 
         // move to CREATED and make sure the callback is not fired
         lifecycleOwner.currentState = Lifecycle.State.CREATED
