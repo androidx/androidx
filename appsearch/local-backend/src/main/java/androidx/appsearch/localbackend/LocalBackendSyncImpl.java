@@ -159,6 +159,18 @@ class LocalBackendSyncImpl {
     }
 
     @NonNull
+    public GlobalSearchResultsImpl globalQuery(
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        // TODO(169883602): Consider moving database management into LocalBackendSyncImpl, leaving
+        // AppSearchImpl as a thin wrapper around. This would let us reuse SearchResultsImpl and
+        // minimize the duplication of APIs in AppSearchImpl.
+        return new GlobalSearchResultsImpl(queryExpression, searchSpec);
+    }
+
+    @NonNull
     public AppSearchBatchResult<String, Void> removeByUri(
             @NonNull String databaseName,
             @NonNull RemoveByUriRequest request) {
@@ -297,7 +309,57 @@ class LocalBackendSyncImpl {
                     return AppSearchResult.newSuccessfulResult(
                             SearchResultToProtoConverter.convert(searchResultProto));
                 } else {
-                    SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(mDatabaseName,
+                    SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(
+                            mNextPageToken);
+                    mNextPageToken = searchResultProto.getNextPageToken();
+                    return AppSearchResult.newSuccessfulResult(
+                            SearchResultToProtoConverter.convert(searchResultProto));
+                }
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+        }
+
+        @Override
+        public void close() {
+            mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+        }
+    }
+
+    /** Presents global search results using a bundled version of the search native library. */
+    class GlobalSearchResultsImpl implements Closeable {
+        private long mNextPageToken;
+        private final SearchSpec mSearchSpec;
+        private final String mQueryExpression;
+        private boolean mIsFirstLoad = true;
+
+        GlobalSearchResultsImpl(
+                @NonNull String queryExpression,
+                @NonNull SearchSpec searchSpec)  {
+            Preconditions.checkNotNull(queryExpression);
+            Preconditions.checkNotNull(searchSpec);
+            mQueryExpression = queryExpression;
+            mSearchSpec = searchSpec;
+        }
+
+        @NonNull
+        public AppSearchResult<List<SearchResults.Result>> getNextPage() {
+            try {
+                if (mIsFirstLoad) {
+                    mIsFirstLoad = false;
+                    SearchSpecProto searchSpecProto =
+                            SearchSpecToProtoConverter.toSearchSpecProto(mSearchSpec);
+                    searchSpecProto = searchSpecProto.toBuilder()
+                            .setQuery(mQueryExpression).build();
+                    SearchResultProto searchResultProto = mAppSearchImpl.globalQuery(
+                            searchSpecProto,
+                            SearchSpecToProtoConverter.toResultSpecProto(mSearchSpec),
+                            SearchSpecToProtoConverter.toScoringSpecProto(mSearchSpec));
+                    mNextPageToken = searchResultProto.getNextPageToken();
+                    return AppSearchResult.newSuccessfulResult(
+                            SearchResultToProtoConverter.convert(searchResultProto));
+                } else {
+                    SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(
                             mNextPageToken);
                     mNextPageToken = searchResultProto.getNextPageToken();
                     return AppSearchResult.newSuccessfulResult(

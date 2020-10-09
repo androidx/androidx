@@ -18,7 +18,7 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.doQuery;
+import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -211,15 +211,18 @@ public class AnnotationProcessorTest {
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mAppSearchManager.putDocuments(
                 new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
-        List<GenericDocument> searchResults = doQuery(mAppSearchManager, "");
-        assertThat(searchResults).hasSize(1);
+        SearchResults searchResults = mAppSearchManager.query("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
 
         // Create DataClassFactory for Gift.
         DataClassFactoryRegistry registry = DataClassFactoryRegistry.getInstance();
         DataClassFactory<Gift> factory = registry.getOrCreateFactory(Gift.class);
 
         // Convert GenericDocument to Gift and check values.
-        Gift outputDataClass = factory.fromGenericDocument(searchResults.get((0)));
+        Gift outputDataClass = factory.fromGenericDocument(documents.get((0)));
         assertThat(outputDataClass).isEqualTo(inputDataClass);
     }
 }
