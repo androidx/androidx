@@ -27,6 +27,7 @@ import android.graphics.drawable.Icon
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
@@ -40,6 +41,8 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.BooleanUserStyleCategory
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
@@ -117,31 +120,55 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 0.75,
                 listOf(Layer.TOP_LAYER)
             )
-        val complicationsStyleCategory = ListUserStyleCategory(
+        val complicationsStyleCategory = ComplicationsUserStyleCategory(
             "complications_style_category",
             "Complications",
             "Number and position",
             icon = null,
-            options = listOf(
-                ListUserStyleCategory.ListOption(
+            complicationConfig = listOf(
+                ComplicationsUserStyleCategory.ComplicationsOption(
                     LEFT_AND_RIGHT_COMPLICATIONS,
                     "Both",
-                    null
+                    null,
+                    listOf(
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                            .setEnabled(true).build(),
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                            .setEnabled(true).build()
+                    )
                 ),
-                ListUserStyleCategory.ListOption(
+                ComplicationsUserStyleCategory.ComplicationsOption(
                     NO_COMPLICATIONS,
                     "None",
-                    null
+                    null,
+                    listOf(
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                            .setEnabled(false).build(),
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                            .setEnabled(false).build()
+                    )
                 ),
-                ListUserStyleCategory.ListOption(
+                ComplicationsUserStyleCategory.ComplicationsOption(
                     LEFT_COMPLICATION,
                     "Left",
-                    null
+                    null,
+                    listOf(
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                            .setEnabled(true).build(),
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                            .setEnabled(true).build()
+                    )
                 ),
-                ListUserStyleCategory.ListOption(
+                ComplicationsUserStyleCategory.ComplicationsOption(
                     RIGHT_COMPLICATION,
                     "Right",
-                    null
+                    null,
+                    listOf(
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                            .setEnabled(true).build(),
+                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                            .setEnabled(false).build()
+                    )
                 )
             ),
             listOf(Layer.COMPLICATIONS)
@@ -166,7 +193,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build(),
@@ -180,11 +207,12 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
+                    DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
                 ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build()
-            )
+            ),
+            userStyleRepository
         )
         val renderer = ExampleCanvasRenderer(
             surfaceHolder,
@@ -195,7 +223,6 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             colorStyleCategory,
             drawHourPipsStyleCategory,
             watchHandLengthStyleCategory,
-            complicationsStyleCategory,
             complicationSlots
         )
 
@@ -224,7 +251,6 @@ class ExampleCanvasRenderer(
     private val colorStyleCategory: ListUserStyleCategory,
     private val drawPipsStyleCategory: BooleanUserStyleCategory,
     private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
-    private val complicationsCategory: ListUserStyleCategory,
     private val complicationsManager: ComplicationsManager
 ) : CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
 
@@ -285,34 +311,6 @@ class ExampleCanvasRenderer(
 
                     drawHourPips = drawPipsOption.value
                     watchHandScale = watchHandLengthOption.value.toFloat()
-
-                    val leftComplication =
-                        complicationsManager.complications[
-                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-                        ]!!
-                    val rightComplication =
-                        complicationsManager.complications[
-                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-                        ]!!
-
-                    when (userStyle.options[complicationsCategory]!!.id) {
-                        NO_COMPLICATIONS -> {
-                            leftComplication.enabled = false
-                            rightComplication.enabled = false
-                        }
-                        LEFT_COMPLICATION -> {
-                            leftComplication.enabled = true
-                            rightComplication.enabled = false
-                        }
-                        RIGHT_COMPLICATION -> {
-                            leftComplication.enabled = false
-                            rightComplication.enabled = true
-                        }
-                        LEFT_AND_RIGHT_COMPLICATIONS -> {
-                            leftComplication.enabled = true
-                            rightComplication.enabled = true
-                        }
-                    }
                 }
             }
         )

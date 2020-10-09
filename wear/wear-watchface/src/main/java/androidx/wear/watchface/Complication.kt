@@ -17,7 +17,6 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
@@ -25,7 +24,7 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
@@ -122,7 +121,7 @@ open class CanvasComplicationDrawableRenderer(
             _drawable.lowBitAmbient = watchState.hasLowBitAmbient
             _drawable.setBurnInProtection(watchState.hasBurnInProtection)
 
-            attachedComplication?.scheduleUpdateActiveComplications()
+            attachedComplication?.scheduleUpdateComplications()
         }
 
     private val isAmbientObserver = Observer<Boolean> {
@@ -215,9 +214,9 @@ class Complication internal constructor(
     @ComplicationBoundsType internal val boundsType: Int,
     unitSquareBounds: RectF,
     renderer: CanvasComplicationRenderer,
-    internal val supportedTypes: IntArray,
-    internal val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    internal val defaultProviderType: Int
+    supportedTypes: IntArray,
+    defaultProviderPolicy: DefaultComplicationProviderPolicy,
+    defaultProviderType: Int
 ) {
     /** @hide */
     private companion object {
@@ -249,8 +248,12 @@ class Complication internal constructor(
 
         private var defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
 
-        /** Sets the default complication provider data type. */
-        fun setDefaultProviderType(defaultProviderType: Int): Builder {
+        /**
+         * Sets the default complication provider data type. See [ComplicationData.ComplicationType]
+         */
+        fun setDefaultProviderType(
+            @ComplicationData.ComplicationType defaultProviderType: Int
+        ): Builder {
             this.defaultProviderType = defaultProviderType
             return this
         }
@@ -297,72 +300,145 @@ class Complication internal constructor(
         renderer.onAttach(this)
     }
 
-    /**
-     * A watch face may wish to try and set one or more non-system providers as the default provider
-     * for a complication. If a provider can't be used for some reason (e.g. it isn't installed or
-     * it doesn't support the requested type, or the watch face lacks the necessary permission)
-     * then the next one will be tried. A system provider acts as a final fallback in case no
-     * non-system providers can be used.
-     *
-     * If the DefaultComplicationProviderPolicy is empty then no default is set.
-     */
-    class DefaultComplicationProviderPolicy(
-        /** List of up to two non-system providers to be tried in turn. This may be empty. */
-        val providers: List<ComponentName> = listOf(),
-
-        /** Fallback in case none of the non-system providers could be used. */
-        @SystemProviders.ProviderId val systemProviderFallback: Int = WatchFace.NO_DEFAULT_PROVIDER
-    ) {
-        constructor(systemProviderFallback: Int) : this(listOf(), systemProviderFallback)
-
-        fun isEmpty() =
-            providers.isEmpty() && systemProviderFallback == WatchFace.NO_DEFAULT_PROVIDER
-    }
-
     private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateCallback: CanvasComplicationRenderer.InvalidateCallback
 
     private var _unitSquareBounds = unitSquareBounds
+    internal var unitSquareBoundsDirty = true
+    /**
+     * The screen space unit-square bounds of the complication. This is converted to pixels during
+     * rendering.
+     */
     var unitSquareBounds: RectF
         @UiThread
         get() = _unitSquareBounds
         @UiThread
         set(value) {
+            if (_unitSquareBounds == value) {
+                return
+            }
             _unitSquareBounds = value
+            unitSquareBoundsDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to coalesce
             // these into one update task.
-            complicationsManager.scheduleUpdateActiveComplications()
+            complicationsManager.scheduleUpdate()
         }
 
     private var _enabled = true
+    internal var enabledDirty = true
+    /**
+     * Whether or not the complication should be drawn and accept taps.
+     */
     var enabled: Boolean
         @JvmName("isEnabled")
         @UiThread
         get() = _enabled
         @UiThread
         set(value) {
+            if (_enabled == value) {
+                return
+            }
             _enabled = value
+            enabledDirty = true
 
             // The caller might enable/disable a number of complications. For efficiency we need
             // to coalesce these into one update task.
             if (this::complicationsManager.isInitialized) {
-                complicationsManager.scheduleUpdateActiveComplications()
+                complicationsManager.scheduleUpdate()
             }
         }
 
     private var _renderer = renderer
+    /**
+     * The [CanvasComplicationRenderer] used to render the complication.
+     */
     var renderer: CanvasComplicationRenderer
         @UiThread
         get() = _renderer
         @UiThread
         set(value) {
+            if (_renderer == value) {
+                return
+            }
             renderer.onDetach()
             value.setData(renderer.getData())
             _renderer = value
             value.onAttach(this)
             initRenderer()
         }
+
+    private var _supportedTypes = supportedTypes
+    internal var supportedTypesDirty = true
+    /**
+     * The types of complications the complication supports.
+     */
+    var supportedTypes: IntArray
+        @UiThread
+        get() = _supportedTypes
+        @UiThread
+        set(value) {
+            if (_supportedTypes == value) {
+                return
+            }
+            _supportedTypes = value
+            supportedTypesDirty = true
+
+            // The caller might modify a number of complications. For efficiency we need to
+            // coalesce these into one update task.
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdate()
+            }
+        }
+
+    private var _defaultProviderPolicy = defaultProviderPolicy
+    internal var defaultProviderPolicyDirty = true
+    /**
+     * The [DefaultComplicationProviderPolicy] which defines the default complications providers
+     * selected when the user hasn't yet made a choice. See also [.defaultProviderType].
+     */
+    var defaultProviderPolicy: DefaultComplicationProviderPolicy
+        @UiThread
+        get() = _defaultProviderPolicy
+        @UiThread
+        set(value) {
+            if (_defaultProviderPolicy == value) {
+                return
+            }
+            _defaultProviderPolicy = value
+            defaultProviderPolicyDirty = true
+
+            // The caller might modify a number of complications. For efficiency we need to
+            // coalesce these into one update task.
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdate()
+            }
+        }
+
+    private var _defaultProviderType = defaultProviderType
+    internal var defaultProviderTypeDirty = true
+    /**
+     * The default [ComplicationData.ComplicationType] to use alongside [.defaultProviderPolicy].
+     */
+    var defaultProviderType: Int
+        @UiThread
+        get() = _defaultProviderType
+        @UiThread
+        set(value) {
+            if (_defaultProviderType == value) {
+                return
+            }
+            _defaultProviderType = value
+            defaultProviderTypeDirty = true
+
+            // The caller might modify a number of complications. For efficiency we need to
+            // coalesce these into one update task.
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdate()
+            }
+        }
+
+    internal var dataDirty = true
 
     /**
      * Watch faces should use this method to render a complication. Note the system may call this.
@@ -408,11 +484,11 @@ class Complication internal constructor(
         initRenderer()
     }
 
-    internal fun scheduleUpdateActiveComplications() {
+    internal fun scheduleUpdateComplications() {
         // In tests this may not be initialized.
         if (this::complicationsManager.isInitialized) {
             // Update active complications to ensure accessibility data is up to date.
-            complicationsManager.scheduleUpdateActiveComplications()
+            complicationsManager.scheduleUpdate()
         }
     }
 

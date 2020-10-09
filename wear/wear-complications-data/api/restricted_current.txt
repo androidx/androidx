@@ -182,6 +182,26 @@ package androidx.wear.complications {
     method public void onUpdateComplication(android.support.wearable.complications.ComplicationData?) throws android.os.RemoteException;
   }
 
+  public final class DefaultComplicationProviderPolicy {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy();
+    ctor public DefaultComplicationProviderPolicy(int systemProvider);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, int systemProviderFallback);
+    method public android.content.ComponentName? getPrimaryProvider();
+    method public android.content.ComponentName? getSecondaryProvider();
+    method public int getSystemProviderFallback();
+    method public boolean isEmpty();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.ArrayList<android.content.ComponentName> providersAsList();
+    property public final android.content.ComponentName? primaryProvider;
+    property public final android.content.ComponentName? secondaryProvider;
+    property public final int systemProviderFallback;
+    field public static final androidx.wear.complications.DefaultComplicationProviderPolicy.Companion Companion;
+  }
+
+  public static final class DefaultComplicationProviderPolicy.Companion {
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ProviderChooserIntent {
     method public static android.content.Intent createProviderChooserIntent(android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);
     method public static void startProviderChooserActivity(android.content.Context, android.content.ComponentName, int, @android.support.wearable.complications.ComplicationData.ComplicationType int...);

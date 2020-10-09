@@ -37,6 +37,7 @@ import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 
 private const val API_VERSION = 3
 
@@ -74,7 +75,9 @@ class WatchFaceControlServiceTest {
                 ExampleCanvasWatchFaceService::class.java
             )
         )
-        val watchFaceService = WatchFaceServiceStub(API_VERSION, complicationProviders)
+        val activeComplicationsLatch = CountDownLatch(1)
+        val watchFaceService =
+            WatchFaceServiceStub(API_VERSION, complicationProviders, activeComplicationsLatch)
         instance.initWithoutSurface(
             watchFaceService,
             ImmutableSystemState(false, false),
