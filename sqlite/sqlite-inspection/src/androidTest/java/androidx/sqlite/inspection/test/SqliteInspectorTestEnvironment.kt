@@ -51,7 +51,8 @@ class SqliteInspectorTestEnvironment(
             InspectorTester(
                 inspectorId = SQLITE_INSPECTOR_ID,
                 environment = DefaultTestInspectorEnvironment(
-                    TestInspectorExecutors(job, ioExecutorOverride), artTooling)
+                    TestInspectorExecutors(job, ioExecutorOverride), artTooling
+                )
             )
         }
     }

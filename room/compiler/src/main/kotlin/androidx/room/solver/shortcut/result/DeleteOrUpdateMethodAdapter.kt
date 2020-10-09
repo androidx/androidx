@@ -41,9 +41,9 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
 
         private fun isDeleteOrUpdateValid(returnType: XType): Boolean {
             return returnType.isVoid() ||
-                    returnType.isInt() ||
-                    returnType.isVoidObject() ||
-                    returnType.isKotlinUnit()
+                returnType.isInt() ||
+                returnType.isVoidObject() ||
+                returnType.isKotlinUnit()
         }
     }
 
@@ -66,9 +66,11 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
                     val adapter = adapters[param.name]?.first
-                    addStatement("$L$N.$L($L)",
-                            if (resultVar == null) "" else "$resultVar +=",
-                            adapter, param.handleMethodName(), param.name)
+                    addStatement(
+                        "$L$N.$L($L)",
+                        if (resultVar == null) "" else "$resultVar +=",
+                        adapter, param.handleMethodName(), param.name
+                    )
                 }
                 addStatement("$N.setTransactionSuccessful()", dbField)
                 if (resultVar != null) {
@@ -87,9 +89,11 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: XT
     }
 
     private fun hasResultValue(returnType: XType): Boolean {
-        return !(returnType.isVoid() ||
+        return !(
+            returnType.isVoid() ||
                 returnType.isVoidObject() ||
-                returnType.isKotlinUnit())
+                returnType.isKotlinUnit()
+            )
     }
 
     private fun hasNullReturn(returnType: XType) = returnType.isVoidObject()

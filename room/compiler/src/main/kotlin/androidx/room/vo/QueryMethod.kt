@@ -39,9 +39,12 @@ sealed class QueryMethod(
                 Pair(it, parameters.firstOrNull())
             } else if (it.text.startsWith(":")) {
                 val subName = it.text.substring(1)
-                Pair(it, parameters.firstOrNull {
-                    it.sqlName == subName
-                })
+                Pair(
+                    it,
+                    parameters.firstOrNull {
+                        it.sqlName == subName
+                    }
+                )
             } else {
                 Pair(it, null)
             }

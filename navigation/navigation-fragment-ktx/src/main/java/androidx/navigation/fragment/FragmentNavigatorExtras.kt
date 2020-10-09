@@ -26,8 +26,8 @@ import android.view.View
  */
 @Suppress("FunctionName")
 fun FragmentNavigatorExtras(vararg sharedElements: Pair<View, String>) =
-        FragmentNavigator.Extras.Builder().apply {
-            sharedElements.forEach { (view, name) ->
-                addSharedElement(view, name)
-            }
-        }.build()
+    FragmentNavigator.Extras.Builder().apply {
+        sharedElements.forEach { (view, name) ->
+            addSharedElement(view, name)
+        }
+    }.build()

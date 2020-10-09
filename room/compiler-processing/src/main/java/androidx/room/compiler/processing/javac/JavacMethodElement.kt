@@ -37,7 +37,8 @@ internal class JavacMethodElement(
     env,
     containing,
     element
-), XMethodElement {
+),
+    XMethodElement {
     init {
         check(element.kind == ElementKind.METHOD) {
             "Method element is constructed with invalid type: $element"

@@ -225,7 +225,7 @@ class ComplicationsManager(
     fun getComplicationAt(x: Int, y: Int): Complication? {
         return complications.entries.firstOrNull {
             it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
-                    it.value.computeBounds(renderer.screenBounds).contains(x, y)
+                it.value.computeBounds(renderer.screenBounds).contains(x, y)
         }?.value
     }
 

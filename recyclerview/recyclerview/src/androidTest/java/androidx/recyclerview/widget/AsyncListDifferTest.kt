@@ -42,11 +42,13 @@ class AsyncListDifferTest {
     private fun createDiffer(
         listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
     ): AsyncListDiffer<String> {
-        return AsyncListDiffer(listUpdateCallback,
-                AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-                        .setMainThreadExecutor(mMainThread)
-                        .setBackgroundThreadExecutor(mBackgroundThread)
-                        .build())
+        return AsyncListDiffer(
+            listUpdateCallback,
+            AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
+                .setMainThreadExecutor(mMainThread)
+                .setBackgroundThreadExecutor(mBackgroundThread)
+                .build()
+        )
     }
 
     @Test
@@ -293,7 +295,7 @@ class AsyncListDifferTest {
 
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
         differ.addListListener(listener)
 
         val callback = mock(Runnable::class.java)

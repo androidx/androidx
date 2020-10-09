@@ -58,7 +58,7 @@ object PreferenceDataStoreFactory {
                 val file = produceFile()
                 check(file.extension == PreferencesSerializer.fileExtension) {
                     "File extension for file: $file does not match required extension for" +
-                            " Preferences file: ${PreferencesSerializer.fileExtension}"
+                        " Preferences file: ${PreferencesSerializer.fileExtension}"
                 }
                 file
             },
@@ -103,15 +103,15 @@ fun Context.createDataStore(
 internal class PreferenceDataStore(private val delegate: DataStore<Preferences>) :
     DataStore<Preferences> by delegate {
     override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences):
-            Preferences {
-        return delegate.updateData {
-            val transformed = transform(it)
-            // Freeze the preferences since any future mutations will break DataStore. If a user
-            // tunnels the value out of DataStore and mutates it, this could be problematic.
-            // This is a safe cast, since MutablePreferences is the only implementation of
-            // Preferences.
-            (transformed as MutablePreferences).freeze()
-            transformed
+        Preferences {
+            return delegate.updateData {
+                val transformed = transform(it)
+                // Freeze the preferences since any future mutations will break DataStore. If a user
+                // tunnels the value out of DataStore and mutates it, this could be problematic.
+                // This is a safe cast, since MutablePreferences is the only implementation of
+                // Preferences.
+                (transformed as MutablePreferences).freeze()
+                transformed
+            }
         }
-    }
 }

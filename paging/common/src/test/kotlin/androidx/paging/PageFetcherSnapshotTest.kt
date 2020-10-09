@@ -3047,7 +3047,8 @@ class PageFetcherSnapshotTest {
             )
         )
         val prependHintWithPresenterUpdate = GenerationalViewportHint(
-            generationId = 0, hint = ViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
                 pageOffset = -10,
                 indexInPage = 0,
                 presentedItemsBefore = -5,

@@ -116,12 +116,18 @@ class ContentDeleteTest {
 
     @Test
     fun testDeleteAllItems() {
-        val beforeDeletionCursor = contentResolver.query(MediaStore.Images.Media
-            .EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media.TITLE), null, null, null)!!
+        val beforeDeletionCursor = contentResolver.query(
+            MediaStore.Images.Media
+                .EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Images.Media.TITLE), null, null, null
+        )!!
         assertThat(beforeDeletionCursor.count).isEqualTo(3)
         assertThat(imageAccessor.deleteAll()).isEqualTo(3)
-        val afterDeletionCursor = contentResolver.query(MediaStore.Images.Media
-            .EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media.TITLE), null, null, null)!!
+        val afterDeletionCursor = contentResolver.query(
+            MediaStore.Images.Media
+                .EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Images.Media.TITLE), null, null, null
+        )!!
         assertThat(afterDeletionCursor.count).isEqualTo(0)
     }
 

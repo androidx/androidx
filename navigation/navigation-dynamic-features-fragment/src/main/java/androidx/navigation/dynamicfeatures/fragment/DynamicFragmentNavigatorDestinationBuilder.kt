@@ -51,11 +51,13 @@ inline fun DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     fragmentClassName: String,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
-) = destination(DynamicFragmentNavigatorDestinationBuilder(
+) = destination(
+    DynamicFragmentNavigatorDestinationBuilder(
         provider[DynamicFragmentNavigator::class],
         id,
         fragmentClassName
-).apply(builder))
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [DynamicFragmentNavigator.Destination]
@@ -71,7 +73,7 @@ class DynamicFragmentNavigatorDestinationBuilder(
 
     override fun build() =
         (super.build() as DynamicFragmentNavigator.Destination).also { destination ->
-                destination.className = fragmentClassName
-                destination.moduleName = moduleName
-            }
+            destination.className = fragmentClassName
+            destination.moduleName = moduleName
+        }
 }

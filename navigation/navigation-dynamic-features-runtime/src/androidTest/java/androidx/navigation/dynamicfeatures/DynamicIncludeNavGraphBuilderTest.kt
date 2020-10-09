@@ -37,8 +37,10 @@ class DynamicIncludeNavGraphBuilderTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val navController = NavController(context).apply {
-        navigatorProvider += DynamicIncludeGraphNavigator(context, navigatorProvider, navInflater,
-            AndroidTestDynamicInstallManager(context))
+        navigatorProvider += DynamicIncludeGraphNavigator(
+            context, navigatorProvider, navInflater,
+            AndroidTestDynamicInstallManager(context)
+        )
         navigatorProvider += NoOpNavigator()
     }
 

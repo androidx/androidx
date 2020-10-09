@@ -56,9 +56,11 @@ class PageFillTest : BaseTest() {
     private fun test_pageFillEnforced(layoutParams: LayoutParams) {
         val fixedViewSizeAdapter = object : RecyclerView.Adapter<ViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-                return object : ViewHolder(View(parent.context).apply {
-                    this.layoutParams = layoutParams
-                }) {}
+                return object : ViewHolder(
+                    View(parent.context).apply {
+                        this.layoutParams = layoutParams
+                    }
+                ) {}
             }
 
             override fun getItemCount(): Int = 1
@@ -72,8 +74,12 @@ class PageFillTest : BaseTest() {
                     viewPager.measure(0, 0)
                     fail("Expected exception was not thrown")
                 } catch (e: IllegalStateException) {
-                    assertThat(e.message, containsString(
-                            "Pages must fill the whole ViewPager2 (use match_parent)"))
+                    assertThat(
+                        e.message,
+                        containsString(
+                            "Pages must fill the whole ViewPager2 (use match_parent)"
+                        )
+                    )
                 }
             }
         }

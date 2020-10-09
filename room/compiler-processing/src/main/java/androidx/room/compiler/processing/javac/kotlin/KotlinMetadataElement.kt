@@ -31,9 +31,11 @@ internal class KotlinMetadataElement(
 ) {
     private val typeInfo: KmClassTypeInfo by lazy {
         lateinit var result: KmClassTypeInfo
-        classMetadata.accept(ClassAsKmTypeReader {
-            result = it
-        })
+        classMetadata.accept(
+            ClassAsKmTypeReader {
+                result = it
+            }
+        )
         result
     }
     val kmType

@@ -27,8 +27,10 @@ internal class Context {
 
     fun createStubId() = ResReference("error", "id", "errorId${next()}")
     fun createStubArg() = Argument("errorArg${next()}", StringType)
-    fun createStubDestination() = Destination(createStubId(), null, "stub",
-            emptyList(), emptyList())
+    fun createStubDestination() = Destination(
+        createStubId(), null, "stub",
+        emptyList(), emptyList()
+    )
     fun createStubIncludedDestination() = IncludedDestination(createStubId())
 
     private fun next() = nextId++

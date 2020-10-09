@@ -40,15 +40,17 @@ class KspTypeElementTest {
     @Test
     fun qualifiedNames() {
         val src1 = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             class TopLevel
-        """.trimIndent()
+            """.trimIndent()
         )
         val src2 = Source.kotlin(
-            "Bar.kt", """
+            "Bar.kt",
+            """
             package foo.bar
             class InFooBar
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             sources = listOf(src1, src2),
@@ -82,13 +84,14 @@ class KspTypeElementTest {
     @Test
     fun typeAndSuperType() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             class Baz : MyInterface, AbstractClass() {
             }
             abstract class AbstractClass {}
             interface MyInterface {}
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
@@ -123,12 +126,13 @@ class KspTypeElementTest {
     @Test
     fun nestedClassName() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             package foo.bar;
             class Outer {
                 class Inner
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Outer").let {
@@ -149,14 +153,15 @@ class KspTypeElementTest {
     @Test
     fun modifiers() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class OpenClass
             abstract class AbstractClass
             object MyObject
             interface MyInterface
             class Final
             private class PrivateClass
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             fun getModifiers(element: XTypeElement): Set<String> {
@@ -194,10 +199,11 @@ class KspTypeElementTest {
     @Test
     fun kindName() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             class MyClass
             interface MyInterface
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("MyClass").let {
@@ -212,12 +218,13 @@ class KspTypeElementTest {
     @Test
     fun fieldBasic() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class BaseClass<T>(val genericProp : T)
             class SubClass(x : Int) : BaseClass<Int>(x) {
                 val subClassProp : String = "abc"
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
@@ -236,14 +243,15 @@ class KspTypeElementTest {
     @Test
     fun fieldsOverride() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class BaseClass(
                 open val value : List<Int>
             )
             class SubClass(
                 override val value : MutableList<Int>
             ) : BaseClass(value)
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
@@ -266,7 +274,8 @@ class KspTypeElementTest {
     @Test
     fun declaredAndInstanceMethods() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class Base(x:Int) {
                 open fun baseFun(): Int = TODO()
                 suspend fun suspendFun(): Int = TODO()
@@ -290,16 +299,18 @@ class KspTypeElementTest {
                     fun staticFun(): Int = TODO()
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
             assertThat(base.getDeclaredMethods().names()).containsExactly(
-                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun")
+                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
+            )
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(sub.getDeclaredMethods().names()).containsExactly(
-                "baseFun", "subFun", "privateSubFun", "staticFun")
+                "baseFun", "subFun", "privateSubFun", "staticFun"
+            )
             assertThat(sub.getAllNonPrivateInstanceMethods().names()).containsExactly(
                 "baseFun", "suspendFun", "subFun"
             )
@@ -309,7 +320,8 @@ class KspTypeElementTest {
     @Test
     fun allMethods() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class Base(x:Int) {
                 constructor(x:Int, y:Int): this(x) {
                 }
@@ -341,7 +353,7 @@ class KspTypeElementTest {
                     fun subCompanionMethod(): Int = TODO()
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("SubClass")
@@ -354,7 +366,9 @@ class KspTypeElementTest {
 
     @Test
     fun gettersSetters() {
-        val src = Source.kotlin("Foo.kt", """
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
             open class JustGetter(val x:Int) {
                 private val invisible:Int = TODO()
                 private var invisibleMutable:Int = TODO()
@@ -363,7 +377,8 @@ class KspTypeElementTest {
                 private val subInvisible:Int = TODO()
                 private var subInvisibleMutable:Int = TODO()
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().names()).containsExactly(
@@ -392,7 +407,9 @@ class KspTypeElementTest {
 
     @Test
     fun gettersSetters_companion() {
-        val src = Source.kotlin("Foo.kt", """
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
             open class CompanionSubject {
                 companion object {
                     @JvmStatic
@@ -403,7 +420,8 @@ class KspTypeElementTest {
                 }
             }
             class SubClass : CompanionSubject()
-        """.trimIndent())
+            """.trimIndent()
+        )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
             assertThat(subject.getDeclaredMethods().names()).containsExactly(
@@ -423,14 +441,17 @@ class KspTypeElementTest {
 
     @Test
     fun gettersSetters_interface() {
-        val src = Source.kotlin("Foo.kt", """
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
             interface JustGetter {
                 val x:Int
             }
             interface GetterSetter : JustGetter {
                 var y:Int
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
                 assertThat(base.getDeclaredMethods().names()).containsExactly(
@@ -460,7 +481,8 @@ class KspTypeElementTest {
     @Test
     fun constructors() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             interface MyInterface
             class NoExplicitConstructor
             open class Base(x:Int)
@@ -477,7 +499,7 @@ class KspTypeElementTest {
             }
             abstract class AbstractNoExplicit
             abstract class AbstractExplicit(x:Int)
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val subjects = listOf(
@@ -525,13 +547,16 @@ class KspTypeElementTest {
 
     @Test
     fun jvmDefault() {
-        val src = Source.kotlin("Foo.kt", """
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
             interface MyInterface {
                 fun notJvmDefault()
                 @JvmDefault
                 fun jvmDefault()
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("MyInterface")
             assertThat(subject.getMethod("notJvmDefault").isJavaDefault()).isFalse()
@@ -542,7 +567,8 @@ class KspTypeElementTest {
     @Test
     fun constructors_java() {
         val src = Source.java(
-            "Source", """
+            "Source",
+            """
             import java.util.List;
             interface MyInterface {}
             class NoExplicitConstructor{}
@@ -576,7 +602,7 @@ class KspTypeElementTest {
             abstract class AbstractExplicit {
                 AbstractExplicit(int x) {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val subjects = listOf(

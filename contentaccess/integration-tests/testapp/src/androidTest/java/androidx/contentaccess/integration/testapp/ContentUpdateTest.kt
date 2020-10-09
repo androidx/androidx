@@ -86,11 +86,13 @@ class ContentUpdateTest : ContactsBasedTest() {
     @Test
     fun testUseUriInAnnotation() {
         val contactsAccessorEntityWithNoUri = ContentAccess.getAccessor(
-            ContactsAccessorEntityWithNoUri::class, contentResolver)
+            ContactsAccessorEntityWithNoUri::class, contentResolver
+        )
         assertThat(contactsAccessorEntityWithNoUri.updateAllDisplayNames("updated-displayName"))
             .isEqualTo(2)
         val cursor = contentResolver.query(
-            CONTENT_URI, arrayOf(DISPLAY_NAME), null, null, null)!!
+            CONTENT_URI, arrayOf(DISPLAY_NAME), null, null, null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-displayName")
     }
@@ -98,13 +100,17 @@ class ContentUpdateTest : ContactsBasedTest() {
     @Test
     fun testUseUriInArgument() {
         val contactsAccessorEntityWithNoUri = ContentAccess.getAccessor(
-            ContactsAccessorEntityWithNoUri::class, contentResolver)
-        assertThat(contactsAccessorEntityWithNoUri.updateDisplayNameWithUriArgument(
-            "updated-displayName",
-            "content://com.android.contacts/raw_contacts")
+            ContactsAccessorEntityWithNoUri::class, contentResolver
+        )
+        assertThat(
+            contactsAccessorEntityWithNoUri.updateDisplayNameWithUriArgument(
+                "updated-displayName",
+                "content://com.android.contacts/raw_contacts"
+            )
         ).isEqualTo(2)
         val cursor = contentResolver.query(
-            CONTENT_URI, arrayOf(DISPLAY_NAME), null, null, null)!!
+            CONTENT_URI, arrayOf(DISPLAY_NAME), null, null, null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-displayName")
     }
@@ -112,22 +118,39 @@ class ContentUpdateTest : ContactsBasedTest() {
     @Test
     fun testUseEntityInAnnotation() {
         val contactsAccessorWithNoEntity = ContentAccess.getAccessor(
-            ContactsAccessorWithNoEntity::class, contentResolver)
-        assertThat(contactsAccessorWithNoEntity
-            .updateDisplayName("updated-description")).isEqualTo(2)
-        val cursor = contentResolver.query(CONTENT_URI, arrayOf(
-            DISPLAY_NAME), null, null, null)!!
+            ContactsAccessorWithNoEntity::class, contentResolver
+        )
+        assertThat(
+            contactsAccessorWithNoEntity
+                .updateDisplayName("updated-description")
+        ).isEqualTo(2)
+        val cursor = contentResolver.query(
+            CONTENT_URI,
+            arrayOf(
+                DISPLAY_NAME
+            ),
+            null, null, null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-description")
     }
 
     @Test
     fun testUpdatesAllColumns() {
-        assertThat(contactsAccessor.updateDisplayNamesAndDisplayNamesPrimary("updated-display-name",
-            "updated-display-name-source"))
+        assertThat(
+            contactsAccessor.updateDisplayNamesAndDisplayNamesPrimary(
+                "updated-display-name",
+                "updated-display-name-source"
+            )
+        )
             .isEqualTo(2)
-        val cursor = contentResolver.query(CONTENT_URI, arrayOf(
-            DISPLAY_NAME, DISPLAY_NAME_SOURCE), null, null, null)!!
+        val cursor = contentResolver.query(
+            CONTENT_URI,
+            arrayOf(
+                DISPLAY_NAME, DISPLAY_NAME_SOURCE
+            ),
+            null, null, null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
         assertThat(cursor.getString(1)).isEqualTo("updated-display-name-source")
@@ -136,12 +159,21 @@ class ContentUpdateTest : ContactsBasedTest() {
     @Test
     fun testSuspendingUpdatesAllColumns() {
         runBlocking {
-            assertThat(contactsAccessor.suspendingUpdateDisplayNamesAndDisplayNamesPrimary
-                ("updated-display-name",
-                "updated-display-name-source"))
+            assertThat(
+                contactsAccessor.suspendingUpdateDisplayNamesAndDisplayNamesPrimary
+                (
+                    "updated-display-name",
+                    "updated-display-name-source"
+                )
+            )
                 .isEqualTo(2)
-            val cursor = contentResolver.query(CONTENT_URI, arrayOf(
-                DISPLAY_NAME, DISPLAY_NAME_SOURCE), null, null, null)!!
+            val cursor = contentResolver.query(
+                CONTENT_URI,
+                arrayOf(
+                    DISPLAY_NAME, DISPLAY_NAME_SOURCE
+                ),
+                null, null, null
+            )!!
             cursor.moveToFirst()
             assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
             assertThat(cursor.getString(1)).isEqualTo("updated-display-name-source")
@@ -150,11 +182,18 @@ class ContentUpdateTest : ContactsBasedTest() {
 
     @Test
     fun testUpdatesColumnsWithSelection() {
-        assertThat(contactsAccessor.updateDisplayNameWithWhereConditionNoSelectionArgs(
-            "updated-display-name")
+        assertThat(
+            contactsAccessor.updateDisplayNameWithWhereConditionNoSelectionArgs(
+                "updated-display-name"
+            )
         ).isEqualTo(1)
-        val cursor = contentResolver.query(CONTENT_URI, arrayOf(
-            DISPLAY_NAME), null, null, null)!!
+        val cursor = contentResolver.query(
+            CONTENT_URI,
+            arrayOf(
+                DISPLAY_NAME
+            ),
+            null, null, null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
     }
@@ -167,8 +206,13 @@ class ContentUpdateTest : ContactsBasedTest() {
                 "displayName2"
             )
         ).isEqualTo(1)
-        val cursor = contentResolver.query(CONTENT_URI, arrayOf(
-            DISPLAY_NAME), "$DISPLAY_NAME_SOURCE=?", arrayOf("displayNameSource2"), null)!!
+        val cursor = contentResolver.query(
+            CONTENT_URI,
+            arrayOf(
+                DISPLAY_NAME
+            ),
+            "$DISPLAY_NAME_SOURCE=?", arrayOf("displayNameSource2"), null
+        )!!
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
     }

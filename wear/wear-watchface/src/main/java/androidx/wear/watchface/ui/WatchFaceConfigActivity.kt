@@ -120,46 +120,51 @@ class WatchFaceConfigActivity : FragmentActivity() {
         val componentName: ComponentName =
             intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT) ?: return
 
-        init(componentName, object : FragmentController {
-            @SuppressLint("SyntheticAccessor")
-            override fun showConfigFragment() {
-                showFragment(ConfigFragment())
-            }
+        init(
+            componentName,
+            object : FragmentController {
+                @SuppressLint("SyntheticAccessor")
+                override fun showConfigFragment() {
+                    showFragment(ConfigFragment())
+                }
 
-            @SuppressLint("SyntheticAccessor")
-            override fun showComplicationConfigSelectionFragment() {
-                showFragment(ComplicationConfigFragment())
-            }
+                @SuppressLint("SyntheticAccessor")
+                override fun showComplicationConfigSelectionFragment() {
+                    showFragment(ComplicationConfigFragment())
+                }
 
-            @SuppressLint("SyntheticAccessor")
-            override fun showStyleConfigFragment(
-                categoryId: String,
-                styleSchema: List<UserStyleCategory>,
-                userStyle: UserStyle
-            ) {
-                showFragment(StyleConfigFragment.newInstance(categoryId, styleSchema, userStyle))
-            }
+                @SuppressLint("SyntheticAccessor")
+                override fun showStyleConfigFragment(
+                    categoryId: String,
+                    styleSchema: List<UserStyleCategory>,
+                    userStyle: UserStyle
+                ) {
+                    showFragment(
+                        StyleConfigFragment.newInstance(categoryId, styleSchema, userStyle)
+                    )
+                }
 
-            /**
-             * Displays a config screen which allows the user to select the data source for the
-             * complication.
-             */
-            @SuppressWarnings("deprecation")
-            override fun showComplicationConfig(
-                complicationId: Int,
-                vararg supportedComplicationDataTypes: Int
-            ) {
-                startActivityForResult(
-                    ComplicationHelperActivity.createProviderChooserHelperIntent(
-                        context,
-                        watchFaceComponentName,
-                        complicationId,
-                        supportedComplicationDataTypes
-                    ),
-                    Constants.PROVIDER_CHOOSER_REQUEST_CODE
-                )
+                /**
+                 * Displays a config screen which allows the user to select the data source for the
+                 * complication.
+                 */
+                @SuppressWarnings("deprecation")
+                override fun showComplicationConfig(
+                    complicationId: Int,
+                    vararg supportedComplicationDataTypes: Int
+                ) {
+                    startActivityForResult(
+                        ComplicationHelperActivity.createProviderChooserHelperIntent(
+                            context,
+                            watchFaceComponentName,
+                            complicationId,
+                            supportedComplicationDataTypes
+                        ),
+                        Constants.PROVIDER_CHOOSER_REQUEST_CODE
+                    )
+                }
             }
-        })
+        )
     }
 
     private fun focusCurrentFragment() {

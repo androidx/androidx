@@ -33,22 +33,22 @@ val S = "\$S"
 val W = "\$W"
 
 val KClass<*>.typeName: ClassName
-        get() = ClassName.get(this.java)
+    get() = ClassName.get(this.java)
 val KClass<*>.arrayTypeName: ArrayTypeName
-        get() = ArrayTypeName.of(typeName)
+    get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
     val SQLITE_STMT: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
     val SQLITE_OPEN_HELPER: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
     val SQLITE_OPEN_HELPER_CONFIG: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
     val QUERY: ClassName =
-            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
+        ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {
@@ -57,58 +57,60 @@ object RoomTypeNames {
     val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+        ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
+        ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: ClassName =
-            ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
+        ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
+        ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
-            ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
+        ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
     val ROOM_SQL_QUERY: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
+        ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
     val OPEN_HELPER: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
     val OPEN_HELPER_VALIDATION_RESULT: ClassName =
-            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
+        ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
     val TABLE_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Column")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Column")
     val TABLE_INFO_FOREIGN_KEY: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.ForeignKey")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.ForeignKey")
     val TABLE_INFO_INDEX: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Index")
+        ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Index")
     val FTS_TABLE_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
     val VIEW_INFO: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
+        ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
-            ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
+        ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
+        ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: ClassName =
-            ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
+        ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
 }
 
 object PagingTypeNames {
     val DATA_SOURCE: ClassName =
-            ClassName.get(PAGING_PACKAGE, "DataSource")
+        ClassName.get(PAGING_PACKAGE, "DataSource")
     val POSITIONAL_DATA_SOURCE: ClassName =
-            ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
+        ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY: ClassName =
-            ClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
+        ClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
     val PAGING_SOURCE: ClassName =
-            ClassName.get(PAGING_PACKAGE, "PagingSource")
+        ClassName.get(PAGING_PACKAGE, "PagingSource")
 }
 
 object LifecyclesTypeNames {
     val LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE, "LiveData")
-    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE,
-            "ComputableLiveData")
+    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(
+        LIFECYCLE_PACKAGE,
+        "ComputableLiveData"
+    )
 }
 
 object AndroidTypeNames {
@@ -207,13 +209,15 @@ fun CallableTypeSpecBuilder(
     callBody: MethodSpec.Builder.() -> Unit
 ) = TypeSpec.anonymousClassBuilder("").apply {
     superclass(ParameterizedTypeName.get(Callable::class.typeName, parameterTypeName))
-    addMethod(MethodSpec.methodBuilder("call").apply {
-        returns(parameterTypeName)
-        addException(Exception::class.typeName)
-        addModifiers(Modifier.PUBLIC)
-        addAnnotation(Override::class.java)
-        callBody()
-    }.build())
+    addMethod(
+        MethodSpec.methodBuilder("call").apply {
+            returns(parameterTypeName)
+            addException(Exception::class.typeName)
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
+            callBody()
+        }.build()
+    )
 }
 
 fun Function1TypeSpecBuilder(
@@ -229,11 +233,13 @@ fun Function1TypeSpecBuilder(
             returnTypeName
         )
     )
-    addMethod(MethodSpec.methodBuilder("invoke").apply {
-        addParameter(parameterTypeName, parameterName)
-        returns(returnTypeName)
-        addModifiers(Modifier.PUBLIC)
-        addAnnotation(Override::class.java)
-        callBody()
-    }.build())
+    addMethod(
+        MethodSpec.methodBuilder("invoke").apply {
+            addParameter(parameterTypeName, parameterName)
+            returns(returnTypeName)
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(Override::class.java)
+            callBody()
+        }.build()
+    )
 }

@@ -41,7 +41,8 @@ class PageFetcherSnapshotStateTest {
         assertEquals(0, pagerState.placeholdersAfter)
 
         pagerState.insert(
-            loadId = 0, loadType = REFRESH, page = Page(
+            loadId = 0, loadType = REFRESH,
+            page = Page(
                 data = listOf(),
                 prevKey = -1,
                 nextKey = 1,
@@ -54,7 +55,8 @@ class PageFetcherSnapshotStateTest {
         assertEquals(0, pagerState.placeholdersAfter)
 
         pagerState.insert(
-            loadId = 0, loadType = PREPEND, page = Page(
+            loadId = 0, loadType = PREPEND,
+            page = Page(
                 data = listOf(),
                 prevKey = -2,
                 nextKey = 0,
@@ -62,7 +64,8 @@ class PageFetcherSnapshotStateTest {
             )
         )
         pagerState.insert(
-            loadId = 0, loadType = APPEND, page = Page(
+            loadId = 0, loadType = APPEND,
+            page = Page(
                 data = listOf(),
                 prevKey = 0,
                 nextKey = 2,

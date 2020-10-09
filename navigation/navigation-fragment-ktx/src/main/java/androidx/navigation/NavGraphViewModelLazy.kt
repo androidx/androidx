@@ -58,7 +58,10 @@ inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     val storeProducer: () -> ViewModelStore = {
         backStackEntry.viewModelStore
     }
-    return createViewModelLazy(VM::class, storeProducer, {
-        factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
-    })
+    return createViewModelLazy(
+        VM::class, storeProducer,
+        {
+            factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
+        }
+    )
 }

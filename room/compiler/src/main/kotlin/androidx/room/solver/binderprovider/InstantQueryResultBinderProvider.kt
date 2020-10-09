@@ -26,7 +26,8 @@ import androidx.room.solver.query.result.QueryResultBinder
 class InstantQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
     override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         return InstantQueryResultBinder(
-                context.typeAdapterStore.findQueryResultAdapter(declared, query))
+            context.typeAdapterStore.findQueryResultAdapter(declared, query)
+        )
     }
 
     override fun matches(declared: XDeclaredType): Boolean = true

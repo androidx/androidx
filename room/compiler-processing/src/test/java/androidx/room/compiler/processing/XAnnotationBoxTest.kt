@@ -35,12 +35,13 @@ class XAnnotationBoxTest {
     @Test
     fun readSimpleAnnotationValue() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             @SuppressWarnings({"warning1", "warning 2"})
             public class Baz {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         // TODO add KSP once https://github.com/google/ksp/issues/96 is fixed.
         runProcessorTest(
@@ -60,7 +61,8 @@ class XAnnotationBoxTest {
     @Test
     fun typeReference() {
         val mySource = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.MainAnnotation;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
@@ -78,7 +80,7 @@ class XAnnotationBoxTest {
             )
             public class Baz {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             listOf(mySource)
@@ -115,11 +117,12 @@ class XAnnotationBoxTest {
     @Test
     fun readSimpleAnnotationValue_kotlin() {
         val source = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             @SuppressWarnings("warning1", "warning 2")
             class Subject {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(source)
@@ -138,7 +141,8 @@ class XAnnotationBoxTest {
     @Test
     fun typeReference_kotlin() {
         val mySource = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             import androidx.room.compiler.processing.testcode.MainAnnotation
             import androidx.room.compiler.processing.testcode.OtherAnnotation
 
@@ -158,7 +162,7 @@ class XAnnotationBoxTest {
             )
             public class Subject {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             listOf(mySource)
@@ -195,7 +199,8 @@ class XAnnotationBoxTest {
     @Test
     fun propertyAnnotations() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             import androidx.room.compiler.processing.testcode.OtherAnnotation
             class Subject {
                 @SuppressWarnings("onProp1")
@@ -217,7 +222,7 @@ class XAnnotationBoxTest {
                     @OtherAnnotation("_onSetter3")
                     set(@OtherAnnotation("_onSetterParam3") value) = Unit
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
@@ -257,7 +262,8 @@ class XAnnotationBoxTest {
     @Test
     fun methodAnnotations() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             import androidx.room.compiler.processing.testcode.OtherAnnotation
             class Subject {
                 fun noAnnotations(x:Int): Unit = TODO()
@@ -267,7 +273,7 @@ class XAnnotationBoxTest {
                     notAnnotated:Int
                 ): Unit = TODO()
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")
@@ -286,7 +292,8 @@ class XAnnotationBoxTest {
     @Test
     fun constructorParameterAnnotations() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             @SuppressWarnings("onClass")
             data class Subject(
                 @field:SuppressWarnings("onField")
@@ -295,7 +302,7 @@ class XAnnotationBoxTest {
                 @set:SuppressWarnings("onSetter")
                 var x:Int
             )
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("Subject")

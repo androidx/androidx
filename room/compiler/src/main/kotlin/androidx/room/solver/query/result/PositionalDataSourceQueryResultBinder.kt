@@ -36,7 +36,8 @@ class PositionalDataSourceQueryResultBinder(
 ) : QueryResultBinder(listAdapter) {
     val itemTypeName: TypeName = listAdapter?.rowAdapter?.out?.typeName ?: TypeName.OBJECT
     val typeName: ParameterizedTypeName = ParameterizedTypeName.get(
-            RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName)
+        RoomTypeNames.LIMIT_OFFSET_DATA_SOURCE, itemTypeName
+    )
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
         canReleaseQuery: Boolean,
@@ -48,8 +49,10 @@ class PositionalDataSourceQueryResultBinder(
         // we don't need a comma. If list is empty, this prevents generating bad code (it is still
         // an error to have empty list but that is already reported while item is processed)
         val tableNamesList = tableNames.joinToString("") { ", \"$it\"" }
-        val spec = TypeSpec.anonymousClassBuilder("$N, $L, $L $L",
-                dbField, roomSQLiteQueryVar, inTransaction, tableNamesList).apply {
+        val spec = TypeSpec.anonymousClassBuilder(
+            "$N, $L, $L $L",
+            dbField, roomSQLiteQueryVar, inTransaction, tableNamesList
+        ).apply {
             superclass(typeName)
             addMethod(createConvertRowsMethod(scope))
         }.build()
@@ -59,17 +62,17 @@ class PositionalDataSourceQueryResultBinder(
     }
 
     private fun createConvertRowsMethod(scope: CodeGenScope): MethodSpec =
-            MethodSpec.methodBuilder("convertRows").apply {
-                addAnnotation(Override::class.java)
-                addModifiers(Modifier.PROTECTED)
-                returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
-                val cursorParam = ParameterSpec.builder(AndroidTypeNames.CURSOR, "cursor")
-                        .build()
-                addParameter(cursorParam)
-                val resultVar = scope.getTmpVar("_res")
-                val rowsScope = scope.fork()
-                listAdapter?.convert(resultVar, cursorParam.name, rowsScope)
-                addCode(rowsScope.builder().build())
-                addStatement("return $L", resultVar)
-            }.build()
+        MethodSpec.methodBuilder("convertRows").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(Modifier.PROTECTED)
+            returns(ParameterizedTypeName.get(CommonTypeNames.LIST, itemTypeName))
+            val cursorParam = ParameterSpec.builder(AndroidTypeNames.CURSOR, "cursor")
+                .build()
+            addParameter(cursorParam)
+            val resultVar = scope.getTmpVar("_res")
+            val rowsScope = scope.fork()
+            listAdapter?.convert(resultVar, cursorParam.name, rowsScope)
+            addCode(rowsScope.builder().build())
+            addStatement("return $L", resultVar)
+        }.build()
 }

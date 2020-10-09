@@ -41,10 +41,10 @@ class InstantDeleteOrUpdateMethodBinder(
             addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
         }
         adapter?.createDeleteOrUpdateMethodBody(
-                parameters = parameters,
-                adapters = adapters,
-                dbField = dbField,
-                scope = scope
+            parameters = parameters,
+            adapters = adapters,
+            dbField = dbField,
+            scope = scope
         )
     }
 }

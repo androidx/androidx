@@ -64,12 +64,14 @@ class StartDestinationArgsActivity : FragmentActivity() {
             val args = Bundle().apply {
                 putString(TEST_ARG, TEST_ARG_VALUE)
             }
-            val navHostFragment = NavHostFragment.create(R.navigation.nav_fragment_start_args,
-                    args)
+            val navHostFragment = NavHostFragment.create(
+                R.navigation.nav_fragment_start_args,
+                args
+            )
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host, navHostFragment)
-                    .setPrimaryNavigationFragment(navHostFragment)
-                    .commit()
+                .replace(R.id.nav_host, navHostFragment)
+                .setPrimaryNavigationFragment(navHostFragment)
+                .commit()
         }
     }
 }

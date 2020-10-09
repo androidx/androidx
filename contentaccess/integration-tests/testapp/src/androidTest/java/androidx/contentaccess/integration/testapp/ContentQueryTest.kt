@@ -51,8 +51,11 @@ class ContentQueryTest {
     @JvmField
     @Rule
     var storagePermissions =
-        GrantPermissionRule.grant(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission
-            .WRITE_EXTERNAL_STORAGE)!!
+        GrantPermissionRule.grant(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission
+                .WRITE_EXTERNAL_STORAGE
+        )!!
 
     @Before
     fun setup() {
@@ -80,10 +83,14 @@ class ContentQueryTest {
         // For the tests to work properly in terms of the expected results, the provider should not
         // have prior rows, so make sure we delete everything at the end of the tests for proper
         // local testing.
-        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg"))
-        contentResolver.delete(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-            "", null)
+        contentResolver.delete(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg")
+        )
+        contentResolver.delete(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            "", null
+        )
     }
 
     @ContentAccessObject(Image::class)
@@ -197,23 +204,28 @@ class ContentQueryTest {
     @Test
     fun testUseUriInAnnotation() {
         val imageAccessorEntityWithNoUri = ContentAccess.getAccessor(
-            ImageAccessorEntityWithNoUri::class, contentResolver)
+            ImageAccessorEntityWithNoUri::class, contentResolver
+        )
         assertThat(imageAccessorEntityWithNoUri.getSingleElement()!!.title).isEqualTo("title1")
     }
 
     @Test
     fun testUseUriInArgument() {
         val imageAccessorEntityWithNoUri = ContentAccess.getAccessor(
-            ImageAccessorEntityWithNoUri::class, contentResolver)
-        assertThat(imageAccessorEntityWithNoUri
-            .getSingleElementWithArgumentUri("content://media/external/images/media")!!.title)
+            ImageAccessorEntityWithNoUri::class, contentResolver
+        )
+        assertThat(
+            imageAccessorEntityWithNoUri
+                .getSingleElementWithArgumentUri("content://media/external/images/media")!!.title
+        )
             .isEqualTo("title1")
     }
 
     @Test
     fun testUseEntityInAnnotation() {
         val imageAccessorWithNoEntity = ContentAccess.getAccessor(
-            ImageAccessorWithNoEntity::class, contentResolver)
+            ImageAccessorWithNoEntity::class, contentResolver
+        )
         assertThat(imageAccessorWithNoEntity.getSingleElement()!!.title).isEqualTo("title1")
     }
 
@@ -368,8 +380,10 @@ class ContentQueryTest {
 
     @Test
     fun testProperlyQueriesWithSelectionAndSelectionArgs() {
-        val result = imageAccessor.getPojoMatchingSelectionWithSelectionArgs("title2",
-            "description2")
+        val result = imageAccessor.getPojoMatchingSelectionWithSelectionArgs(
+            "title2",
+            "description2"
+        )
         assertThat(result.size).isEqualTo(1)
         assertThat(result.first().description).isEqualTo("description2")
     }
@@ -387,8 +401,10 @@ class ContentQueryTest {
     @Test
     fun testOrderByMultipleFields() {
         // Delete all the added ones
-        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg"))
+        contentResolver.delete(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg")
+        )
 
         val values = ContentValues().apply {
             put(TITLE, "title1")

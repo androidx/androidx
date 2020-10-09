@@ -105,7 +105,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
          */
         @Deprecated(
             message = "PagingConfig.pageSize will be removed in future versions, use " +
-                    "PagingConfig.loadSize instead.",
+                "PagingConfig.loadSize instead.",
             replaceWith = ReplaceWith("loadSize")
         )
         val pageSize: Int = loadSize

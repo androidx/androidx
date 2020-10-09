@@ -315,7 +315,8 @@ open class NoInterfaceTestActivity : AppCompatActivity() {
     }
 }
 
-class WithInterfaceTestActivity : NoInterfaceTestActivity(),
+class WithInterfaceTestActivity :
+    NoInterfaceTestActivity(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
     PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
     PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {

@@ -46,7 +46,8 @@ class TransactionMethodAdapter(
             val format = buildString {
                 if (resultVar != null && returnStmt) {
                     throw IllegalStateException(
-                        "Can't assign to var and return in the same statement.")
+                        "Can't assign to var and return in the same statement."
+                    )
                 } else if (resultVar != null) {
                     append("$T $L = ")
                     params.add(returnType.typeName)

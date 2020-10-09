@@ -173,7 +173,7 @@ class NavControllerTest {
         }
 
         val navGraph = navController.navigatorProvider.navigation(
-                startDestination = R.id.start_test
+            startDestination = R.id.start_test
         ) {
             test(R.id.start_test)
         }
@@ -249,7 +249,8 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
         val deepLinkRequest = NavDeepLinkRequest.Builder.fromUri(
-            Uri.parse("android-app://androidx.navigation.test/invalid")).build()
+            Uri.parse("android-app://androidx.navigation.test/invalid")
+        ).build()
 
         try {
             navController.navigate(deepLinkRequest)
@@ -258,7 +259,7 @@ class NavControllerTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Navigation destination that matches request $deepLinkRequest cannot be " +
-                            "found in the navigation graph ${navController.graph}"
+                        "found in the navigation graph ${navController.graph}"
                 )
         }
     }
@@ -375,9 +376,12 @@ class NavControllerTest {
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
 
-        navController.navigate(deepLink, navOptions {
-            popUpTo(R.id.nav_root) { inclusive = true }
-        })
+        navController.navigate(
+            deepLink,
+            navOptions {
+                popUpTo(R.id.nav_root) { inclusive = true }
+            }
+        )
         assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size).isEqualTo(1)
     }
@@ -788,8 +792,10 @@ class NavControllerTest {
         val returnedArgs = navigateWithArgs(args)
 
         // Test that default values can be overridden by programmatic values
-        assertEquals(TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-                returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+        assertEquals(
+            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
+            returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG)
+        )
     }
 
     private fun navigateWithArgs(args: Bundle?): Bundle {
@@ -816,8 +822,8 @@ class NavControllerTest {
 
         val success = navController.popBackStack()
         assertWithMessage("NavController should return false when popping the root")
-                .that(success)
-                .isFalse()
+            .that(success)
+            .isFalse()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
     }
@@ -833,14 +839,16 @@ class NavControllerTest {
 
         val success = navController.popBackStack()
         assertWithMessage("NavController should return false when popping the root")
-                .that(success)
-                .isFalse()
+            .that(success)
+            .isFalse()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
 
         val popped = navController.popBackStack()
-        assertWithMessage("popBackStack should return false when there's nothing on the " +
-                "back stack")
+        assertWithMessage(
+            "popBackStack should return false when there's nothing on the " +
+                "back stack"
+        )
             .that(popped)
             .isFalse()
     }
@@ -896,9 +904,12 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
 
-        navController.navigate(R.id.second_test, null, navOptions {
-            popUpTo(R.id.start_test) { inclusive = true }
-        })
+        navController.navigate(
+            R.id.second_test, null,
+            navOptions {
+                popUpTo(R.id.start_test) { inclusive = true }
+            }
+        )
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
     }
@@ -912,9 +923,12 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
 
-        navController.navigate(R.id.second_test, null, navOptions {
-            popUpTo(R.id.nav_root) { inclusive = true }
-        })
+        navController.navigate(
+            R.id.second_test, null,
+            navOptions {
+                popUpTo(R.id.nav_root) { inclusive = true }
+            }
+        )
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
     }
@@ -1019,9 +1033,12 @@ class NavControllerTest {
 
         var destinationListenerExecuted = false
 
-        navController.navigate(R.id.start_test, args, navOptions {
-            launchSingleTop = true
-        })
+        navController.navigate(
+            R.id.start_test, args,
+            navOptions {
+                launchSingleTop = true
+            }
+        )
 
         navController.addOnDestinationChangedListener { _, destination, arguments ->
             destinationListenerExecuted = true
@@ -1156,12 +1173,15 @@ class NavControllerTest {
         // Test that programmatically constructed arguments are passed through
         assertEquals(TEST_ARG_VALUE, returnedArgs.getString(TEST_ARG))
         // Test that default values can be overridden by programmatic values
-        assertEquals(TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-                returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+        assertEquals(
+            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
+            returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG)
+        )
         // Test that default values can be overridden by action default values
         assertEquals(
             TEST_OVERRIDDEN_VALUE_ARG_VALUE,
-            returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG))
+            returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG)
+        )
     }
 
     @UiThreadTest
@@ -1171,8 +1191,8 @@ class NavControllerTest {
         navController.setGraph(R.navigation.nav_simple)
 
         val taskStackBuilder = navController.createDeepLink()
-                .setDestination(R.id.second_test)
-                .createTaskStackBuilder()
+            .setDestination(R.id.second_test)
+            .createTaskStackBuilder()
         assertNotNull(taskStackBuilder)
         assertEquals(1, taskStackBuilder.intentCount)
     }
@@ -1186,9 +1206,9 @@ class NavControllerTest {
         val args = Bundle()
         args.putString("test", "test")
         val taskStackBuilder = navController.createDeepLink()
-                .setDestination(R.id.second_test)
-                .setArguments(args)
-                .createTaskStackBuilder()
+            .setDestination(R.id.second_test)
+            .setArguments(args)
+            .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
         assertNotNull(intent)
@@ -1210,7 +1230,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.start_test)),
-            any())
+            any()
+        )
 
         val taskStackBuilder = navController.createDeepLink()
             .setDestination(R.id.second_test)
@@ -1226,11 +1247,13 @@ class NavControllerTest {
         verify(onDestinationChangedListener, times(2)).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.start_test)),
-            any())
+            any()
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.second_test)),
-            any())
+            any()
+        )
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
@@ -1246,7 +1269,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(startDestination),
-            any())
+            any()
+        )
 
         val taskStackBuilder = navController.createDeepLink()
             .setDestination(R.id.second_test)
@@ -1262,11 +1286,13 @@ class NavControllerTest {
         verify(onDestinationChangedListener, times(2)).onDestinationChanged(
             eq(navController),
             eq(startDestination),
-            any())
+            any()
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.second_test)),
-            any())
+            any()
+        )
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
@@ -1282,7 +1308,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(startDestination),
-            any())
+            any()
+        )
         val childDestination = navController.findDestination(R.id.simple_child_second_test)
 
         val taskStackBuilder = navController.createDeepLink()
@@ -1301,20 +1328,24 @@ class NavControllerTest {
         verify(onDestinationChangedListener, times(2)).onDestinationChanged(
             eq(navController),
             eq(startDestination),
-            any())
+            any()
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(childDestination),
-            any())
+            any()
+        )
         // Then to the second destination added via addDestination()
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.deep_link_child_start_test)),
-            any())
+            any()
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.deep_link_child_second_test)),
-            any())
+            any()
+        )
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
@@ -1330,7 +1361,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(startDestination),
-            any())
+            any()
+        )
         val childDestination = navController.findDestination(R.id.simple_child_second_test)
 
         val globalBundle = Bundle().apply {
@@ -1362,30 +1394,34 @@ class NavControllerTest {
             eq(startDestination),
             argThat { args ->
                 args?.getString("global").equals("global") &&
-                        args?.getString("test").equals("first")
-            })
+                    args?.getString("test").equals("first")
+            }
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(childDestination),
             argThat { args ->
                 args?.getString("global").equals("global") &&
-                        args?.getString("test").equals("first")
-            })
+                    args?.getString("test").equals("first")
+            }
+        )
         // Then to the second destination added via addDestination()
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.deep_link_child_start_test)),
             argThat { args ->
                 args?.getString("global").equals("overridden") &&
-                        args?.getString("test").equals("second")
-            })
+                    args?.getString("test").equals("second")
+            }
+        )
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.deep_link_child_second_test)),
             argThat { args ->
                 args?.getString("global").equals("overridden") &&
-                        args?.getString("test").equals("second")
-            })
+                    args?.getString("test").equals("second")
+            }
+        )
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
@@ -1400,7 +1436,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.start_test)),
-            any())
+            any()
+        )
 
         val taskStackBuilder = navController.createDeepLink()
             .setGraph(R.navigation.nav_nested_start_destination)
@@ -1427,7 +1464,8 @@ class NavControllerTest {
         verify(onDestinationChangedListener).onDestinationChanged(
             eq(navController),
             eq(navController.findDestination(R.id.start_test)),
-            any())
+            any()
+        )
 
         val taskStackBuilder = navController.createDeepLink()
             .setGraph(R.navigation.nav_nested_start_destination)

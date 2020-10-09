@@ -105,10 +105,14 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
     }
 
     private fun verifyPage(page: Int) {
-        verifyCurrentPage(hasDescendant(allOf(
-            withId(R.id.textViewItemText),
-            withText("item#$page")
-        )))
+        verifyCurrentPage(
+            hasDescendant(
+                allOf(
+                    withId(R.id.textViewItemText),
+                    withText("item#$page")
+                )
+            )
+        )
     }
 
     private fun choosePage(page: Int) {

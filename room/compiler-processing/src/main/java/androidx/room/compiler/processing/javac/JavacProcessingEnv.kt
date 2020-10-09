@@ -98,9 +98,11 @@ internal class JavacProcessingEnv(
             check(it is JavacType)
             it.typeMirror
         }.toTypedArray()
-        check(types.all {
-            it is JavacType
-        })
+        check(
+            types.all {
+                it is JavacType
+            }
+        )
         return wrap<JavacDeclaredType>(
             typeMirror = typeUtils.getDeclaredType(type.element, *args),
             // type elements cannot have nullability hence we don't synthesize anything here
@@ -127,46 +129,49 @@ internal class JavacProcessingEnv(
         elementNullability: XNullability
     ): T {
         return when (typeMirror.kind) {
-            TypeKind.ARRAY -> if (kotlinType == null) {
-                JavacArrayType(
-                    env = this,
-                    typeMirror = MoreTypes.asArray(typeMirror),
-                    nullability = elementNullability,
-                    knownComponentNullability = null
-                )
-            } else {
-                JavacArrayType(
-                    env = this,
-                    typeMirror = MoreTypes.asArray(typeMirror),
-                    kotlinType = kotlinType
-                )
-            }
-            TypeKind.DECLARED -> if (kotlinType == null) {
-                JavacDeclaredType(
-                    env = this,
-                    typeMirror = MoreTypes.asDeclared(typeMirror),
-                    nullability = elementNullability
-                )
-            } else {
-                JavacDeclaredType(
-                    env = this,
-                    typeMirror = MoreTypes.asDeclared(typeMirror),
-                    kotlinType = kotlinType
-                )
-            }
-            else -> if (kotlinType == null) {
-                DefaultJavacType(
-                    env = this,
-                    typeMirror = typeMirror,
-                    nullability = elementNullability
-                )
-            } else {
-                DefaultJavacType(
-                    env = this,
-                    typeMirror = typeMirror,
-                    kotlinType = kotlinType
-                )
-            }
+            TypeKind.ARRAY ->
+                if (kotlinType == null) {
+                    JavacArrayType(
+                        env = this,
+                        typeMirror = MoreTypes.asArray(typeMirror),
+                        nullability = elementNullability,
+                        knownComponentNullability = null
+                    )
+                } else {
+                    JavacArrayType(
+                        env = this,
+                        typeMirror = MoreTypes.asArray(typeMirror),
+                        kotlinType = kotlinType
+                    )
+                }
+            TypeKind.DECLARED ->
+                if (kotlinType == null) {
+                    JavacDeclaredType(
+                        env = this,
+                        typeMirror = MoreTypes.asDeclared(typeMirror),
+                        nullability = elementNullability
+                    )
+                } else {
+                    JavacDeclaredType(
+                        env = this,
+                        typeMirror = MoreTypes.asDeclared(typeMirror),
+                        kotlinType = kotlinType
+                    )
+                }
+            else ->
+                if (kotlinType == null) {
+                    DefaultJavacType(
+                        env = this,
+                        typeMirror = typeMirror,
+                        nullability = elementNullability
+                    )
+                } else {
+                    DefaultJavacType(
+                        env = this,
+                        typeMirror = typeMirror,
+                        kotlinType = kotlinType
+                    )
+                }
         } as T
     }
 

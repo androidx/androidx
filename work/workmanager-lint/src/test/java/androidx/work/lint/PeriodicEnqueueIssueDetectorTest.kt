@@ -55,12 +55,14 @@ class PeriodicEnqueueIssueDetectorTest {
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 src/androidx/work/WorkManager.kt:4: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
                    fun enqueue(request: WorkRequest)
                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -93,12 +95,14 @@ class PeriodicEnqueueIssueDetectorTest {
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 src/androidx/work/WorkManager.kt:5: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
                    fun enqueue(requests: List<WorkRequest>)
                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -133,12 +137,14 @@ class PeriodicEnqueueIssueDetectorTest {
             snippet
         ).issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 src/androidx/work/WorkManager.kt:5: Warning: Use enqueueUniquePeriodicWork() instead of enqueue() [BadPeriodicWorkRequestEnqueue]
                    fun enqueue(requests: List<WorkRequest>)
                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 

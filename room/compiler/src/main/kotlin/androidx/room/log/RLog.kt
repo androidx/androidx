@@ -78,9 +78,12 @@ class RLog(
     class CollectingMessager : XMessager {
         private val messages = mutableMapOf<Diagnostic.Kind, MutableList<Pair<String, XElement?>>>()
         override fun printMessage(kind: Diagnostic.Kind, msg: String, element: XElement?) {
-            messages.getOrPut(kind, {
-                arrayListOf()
-            }).add(Pair(msg, element))
+            messages.getOrPut(
+                kind,
+                {
+                    arrayListOf()
+                }
+            ).add(Pair(msg, element))
         }
 
         fun hasErrors() = messages.containsKey(ERROR)

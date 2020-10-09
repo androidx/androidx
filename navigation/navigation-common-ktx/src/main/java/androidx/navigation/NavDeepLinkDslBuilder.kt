@@ -23,7 +23,7 @@ public annotation class NavDeepLinkDsl
  * Construct a new [NavDeepLink]
  */
 public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDeepLink =
-        NavDeepLinkDslBuilder().apply(deepLinkBuilder).build()
+    NavDeepLinkDslBuilder().apply(deepLinkBuilder).build()
 
 /**
  * DSL for constructing a new [NavDeepLink]

@@ -340,43 +340,52 @@ class PageKeyedDataSourceTest {
             params: LoadInitialParams<K>,
             callback: LoadInitialCallback<K, B>
         ) {
-            source.loadInitial(params, object : LoadInitialCallback<K, A>() {
-                override fun onResult(
-                    data: List<A>,
-                    position: Int,
-                    totalCount: Int,
-                    previousPageKey: K?,
-                    nextPageKey: K?
-                ) {
-                    callback.onResult(
-                        convert(data),
-                        position,
-                        totalCount,
-                        previousPageKey,
-                        nextPageKey
-                    )
-                }
+            source.loadInitial(
+                params,
+                object : LoadInitialCallback<K, A>() {
+                    override fun onResult(
+                        data: List<A>,
+                        position: Int,
+                        totalCount: Int,
+                        previousPageKey: K?,
+                        nextPageKey: K?
+                    ) {
+                        callback.onResult(
+                            convert(data),
+                            position,
+                            totalCount,
+                            previousPageKey,
+                            nextPageKey
+                        )
+                    }
 
-                override fun onResult(data: List<A>, previousPageKey: K?, nextPageKey: K?) {
-                    callback.onResult(convert(data), previousPageKey, nextPageKey)
+                    override fun onResult(data: List<A>, previousPageKey: K?, nextPageKey: K?) {
+                        callback.onResult(convert(data), previousPageKey, nextPageKey)
+                    }
                 }
-            })
+            )
         }
 
         override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<K, B>) {
-            source.loadBefore(params, object : LoadCallback<K, A>() {
-                override fun onResult(data: List<A>, adjacentPageKey: K?) {
-                    callback.onResult(convert(data), adjacentPageKey)
+            source.loadBefore(
+                params,
+                object : LoadCallback<K, A>() {
+                    override fun onResult(data: List<A>, adjacentPageKey: K?) {
+                        callback.onResult(convert(data), adjacentPageKey)
+                    }
                 }
-            })
+            )
         }
 
         override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<K, B>) {
-            source.loadAfter(params, object : LoadCallback<K, A>() {
-                override fun onResult(data: List<A>, adjacentPageKey: K?) {
-                    callback.onResult(convert(data), adjacentPageKey)
+            source.loadAfter(
+                params,
+                object : LoadCallback<K, A>() {
+                    override fun onResult(data: List<A>, adjacentPageKey: K?) {
+                        callback.onResult(convert(data), adjacentPageKey)
+                    }
                 }
-            })
+            )
         }
 
         protected abstract fun convert(source: List<A>): List<B>
@@ -401,7 +410,7 @@ class PageKeyedDataSourceTest {
         // load initial
         @Suppress("UNCHECKED_CAST")
         val loadInitialCallback = mock(PageKeyedDataSource.LoadInitialCallback::class.java)
-                as PageKeyedDataSource.LoadInitialCallback<String, String>
+            as PageKeyedDataSource.LoadInitialCallback<String, String>
 
         val initParams = PageKeyedDataSource.LoadInitialParams<String>(4, true)
         wrapper.loadInitial(initParams, loadInitialCallback)
@@ -415,7 +424,7 @@ class PageKeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         // load after
         var loadCallback = mock(PageKeyedDataSource.LoadCallback::class.java)
-                as PageKeyedDataSource.LoadCallback<String, String>
+            as PageKeyedDataSource.LoadCallback<String, String>
         wrapper.loadAfter(PageKeyedDataSource.LoadParams(expectedInitial.next!!, 4), loadCallback)
         val expectedAfter = PAGE_MAP[expectedInitial.next]!!
         verify(loadCallback).onResult(expectedAfter.data.map { it.toString() }, expectedAfter.next)
@@ -427,7 +436,7 @@ class PageKeyedDataSourceTest {
         // load before
         @Suppress("UNCHECKED_CAST")
         loadCallback = mock(PageKeyedDataSource.LoadCallback::class.java)
-                as PageKeyedDataSource.LoadCallback<String, String>
+            as PageKeyedDataSource.LoadCallback<String, String>
         wrapper.loadBefore(PageKeyedDataSource.LoadParams(expectedAfter.prev!!, 4), loadCallback)
         verify(loadCallback).onResult(
             expectedInitial.data.map { it.toString() },

@@ -479,8 +479,8 @@ internal constructor(internal val type: KeyType) {
             if (itemsBefore == COUNT_UNDEFINED || itemsAfter == COUNT_UNDEFINED) {
                 throw IllegalStateException(
                     "Placeholders requested, but totalCount not provided. Please call the" +
-                            " three-parameter onResult method, or disable placeholders in the" +
-                            " PagedList.Config"
+                        " three-parameter onResult method, or disable placeholders in the" +
+                        " PagedList.Config"
                 )
             }
 
@@ -488,20 +488,21 @@ internal constructor(internal val type: KeyType) {
                 val totalCount = itemsBefore + data.size + itemsAfter
                 throw IllegalArgumentException(
                     "PositionalDataSource requires initial load size to be a multiple of page" +
-                            " size to support internal tiling. loadSize ${data.size}, position" +
-                            " $itemsBefore, totalCount $totalCount, pageSize $pageSize"
+                        " size to support internal tiling. loadSize ${data.size}, position" +
+                        " $itemsBefore, totalCount $totalCount, pageSize $pageSize"
                 )
             }
             if (itemsBefore % pageSize != 0) {
                 throw IllegalArgumentException(
                     "Initial load must be pageSize aligned.Position = $itemsBefore, pageSize =" +
-                            " $pageSize"
+                        " $pageSize"
                 )
             }
         }
 
         override fun equals(other: Any?) = when (other) {
-            is BaseResult<*> -> data == other.data &&
+            is BaseResult<*> ->
+                data == other.data &&
                     prevKey == other.prevKey &&
                     nextKey == other.nextKey &&
                     itemsBefore == other.itemsBefore &&

@@ -43,12 +43,14 @@ internal class RxQueryResultBinder(
         scope: CodeGenScope
     ) {
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-            createRunQueryAndReturnStatements(builder = this,
+            createRunQueryAndReturnStatements(
+                builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
                 dbField = dbField,
                 scope = scope,
-                cancellationSignalVar = "null")
+                cancellationSignalVar = "null"
+            )
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -56,14 +58,16 @@ internal class RxQueryResultBinder(
         }.build()
         scope.builder().apply {
             val tableNamesList = queryTableNames.joinToString(",") { "\"$it\"" }
-            addStatement("return $T.$N($N, $L, new $T{$L}, $L)",
+            addStatement(
+                "return $T.$N($N, $L, new $T{$L}, $L)",
                 rxType.version.rxRoomClassName,
                 rxType.factoryMethodName,
                 dbField,
                 if (inTransaction) "true" else "false",
                 String::class.arrayTypeName,
                 tableNamesList,
-                callableImpl)
+                callableImpl
+            )
         }
     }
 }

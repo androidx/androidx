@@ -49,9 +49,11 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
         // Use the type T inside ListenableFuture<T> as the type to adapt and to pass into
         // the binder.
         val adapter = context.typeAdapterStore.findQueryResultAdapter(
-                declared.typeArguments.first(), query)
+            declared.typeArguments.first(), query
+        )
         return GuavaListenableFutureQueryResultBinder(
-                declared.typeArguments.first(), adapter)
+            declared.typeArguments.first(), adapter
+        )
     }
 
     /**
@@ -59,5 +61,5 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
      */
     override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 }

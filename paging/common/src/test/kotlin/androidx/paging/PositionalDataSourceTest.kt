@@ -49,7 +49,8 @@ class PositionalDataSourceTest {
     @Test
     fun computeInitialLoadPositionZero() {
         assertEquals(
-            0, computeInitialLoadPos(
+            0,
+            computeInitialLoadPos(
                 requestedStartPosition = 0,
                 requestedLoadSize = 30,
                 pageSize = 10,
@@ -61,7 +62,8 @@ class PositionalDataSourceTest {
     @Test
     fun computeInitialLoadPositionRequestedPositionIncluded() {
         assertEquals(
-            10, computeInitialLoadPos(
+            10,
+            computeInitialLoadPos(
                 requestedStartPosition = 10,
                 requestedLoadSize = 10,
                 pageSize = 10,
@@ -73,7 +75,8 @@ class PositionalDataSourceTest {
     @Test
     fun computeInitialLoadPositionRound() {
         assertEquals(
-            10, computeInitialLoadPos(
+            10,
+            computeInitialLoadPos(
                 requestedStartPosition = 13,
                 requestedLoadSize = 30,
                 pageSize = 10,
@@ -85,7 +88,8 @@ class PositionalDataSourceTest {
     @Test
     fun computeInitialLoadPositionEndAdjusted() {
         assertEquals(
-            70, computeInitialLoadPos(
+            70,
+            computeInitialLoadPos(
                 requestedStartPosition = 99,
                 requestedLoadSize = 30,
                 pageSize = 10,
@@ -97,7 +101,8 @@ class PositionalDataSourceTest {
     @Test
     fun computeInitialLoadPositionEndAdjustedAndAligned() {
         assertEquals(
-            70, computeInitialLoadPos(
+            70,
+            computeInitialLoadPos(
                 requestedStartPosition = 99,
                 requestedLoadSize = 35,
                 pageSize = 10,
@@ -280,23 +285,29 @@ class PositionalDataSourceTest {
             get() = source.isInvalid
 
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<B>) {
-            source.loadInitial(params, object : LoadInitialCallback<A>() {
-                override fun onResult(data: List<A>, position: Int, totalCount: Int) {
-                    callback.onResult(convert(data), position, totalCount)
-                }
+            source.loadInitial(
+                params,
+                object : LoadInitialCallback<A>() {
+                    override fun onResult(data: List<A>, position: Int, totalCount: Int) {
+                        callback.onResult(convert(data), position, totalCount)
+                    }
 
-                override fun onResult(data: List<A>, position: Int) {
-                    callback.onResult(convert(data), position)
+                    override fun onResult(data: List<A>, position: Int) {
+                        callback.onResult(convert(data), position)
+                    }
                 }
-            })
+            )
         }
 
         override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<B>) {
-            source.loadRange(params, object : LoadRangeCallback<A>() {
-                override fun onResult(data: List<A>) {
-                    callback.onResult(convert(data))
+            source.loadRange(
+                params,
+                object : LoadRangeCallback<A>() {
+                    override fun onResult(data: List<A>) {
+                        callback.onResult(convert(data))
+                    }
                 }
-            })
+            )
         }
 
         protected abstract fun convert(source: List<A>): List<B>
@@ -360,7 +371,7 @@ class PositionalDataSourceTest {
         // load initial
         @Suppress("UNCHECKED_CAST")
         val loadInitialCallback = mock(PositionalDataSource.LoadInitialCallback::class.java)
-                as PositionalDataSource.LoadInitialCallback<String>
+            as PositionalDataSource.LoadInitialCallback<String>
         val initParams = PositionalDataSource.LoadInitialParams(0, 2, 1, true)
         wrapper.loadInitial(initParams, loadInitialCallback)
         verify(loadInitialCallback).onResult(listOf("0", "5"), 0, 5)
@@ -372,7 +383,7 @@ class PositionalDataSourceTest {
         // load range
         @Suppress("UNCHECKED_CAST")
         val loadRangeCallback = mock(PositionalDataSource.LoadRangeCallback::class.java)
-                as PositionalDataSource.LoadRangeCallback<String>
+            as PositionalDataSource.LoadRangeCallback<String>
         wrapper.loadRange(PositionalDataSource.LoadRangeParams(2, 3), loadRangeCallback)
         verify(loadRangeCallback).onResult(listOf("4", "8", "12"))
         // load range - error
@@ -443,13 +454,15 @@ class PositionalDataSourceTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runBlockingTest {
         val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
-        dataSource.load(DataSource.Params(
-            type = LoadType.REFRESH,
-            key = 0,
-            initialLoadSize = 3,
-            placeholdersEnabled = false,
-            pageSize = 1
-        )).apply {
+        dataSource.load(
+            DataSource.Params(
+                type = LoadType.REFRESH,
+                key = 0,
+                initialLoadSize = 3,
+                placeholdersEnabled = false,
+                pageSize = 1
+            )
+        ).apply {
             assertEquals(listOf(0, 1, 2), data)
             // prepends always return prevKey = null if they return the first item
             assertEquals(null, prevKey)
@@ -457,13 +470,15 @@ class PositionalDataSourceTest {
             assertEquals(if (counted) null else 3, nextKey)
         }
 
-        dataSource.load(DataSource.Params(
-            type = LoadType.PREPEND,
-            key = 1,
-            initialLoadSize = 3,
-            placeholdersEnabled = false,
-            pageSize = 1
-        )).apply {
+        dataSource.load(
+            DataSource.Params(
+                type = LoadType.PREPEND,
+                key = 1,
+                initialLoadSize = 3,
+                placeholdersEnabled = false,
+                pageSize = 1
+            )
+        ).apply {
             // prepends should return prevKey = null if they return the first item
             assertEquals(listOf(0), data)
             assertEquals(null, prevKey)

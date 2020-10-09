@@ -41,15 +41,21 @@ class DaoProcessor(
     val context = baseContext.fork(element)
 
     companion object {
-        val PROCESSED_ANNOTATIONS = listOf(Insert::class, Delete::class, Query::class,
-                Update::class, RawQuery::class)
+        val PROCESSED_ANNOTATIONS = listOf(
+            Insert::class, Delete::class, Query::class,
+            Update::class, RawQuery::class
+        )
     }
 
     fun process(): Dao {
-        context.checker.hasAnnotation(element, androidx.room.Dao::class,
-                ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO)
-        context.checker.check(element.isAbstract() || element.isInterface(),
-                element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
+        context.checker.hasAnnotation(
+            element, androidx.room.Dao::class,
+            ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
+        )
+        context.checker.check(
+            element.isAbstract() || element.isInterface(),
+            element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE
+        )
 
         val declaredType = element.asDeclaredType()
         val allMethods = element.getAllMethods()
@@ -58,8 +64,8 @@ class DaoProcessor(
                 it.isAbstract() && !it.hasKotlinDefaultImpl()
             }.groupBy { method ->
                 context.checker.check(
-                        PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
-                        ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
+                    PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
+                    ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
                 )
                 if (method.hasAnnotation(Query::class)) {
                     Query::class
@@ -77,7 +83,8 @@ class DaoProcessor(
             }
 
         val processorVerifier = if (element.hasAnnotation(SkipQueryVerification::class) ||
-                element.hasAnnotation(RawQuery::class)) {
+            element.hasAnnotation(RawQuery::class)
+        ) {
             null
         } else {
             dbVerifier
@@ -85,49 +92,54 @@ class DaoProcessor(
 
         val queryMethods = methods[Query::class]?.map {
             QueryMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it,
-                    dbVerifier = processorVerifier).process()
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it,
+                dbVerifier = processorVerifier
+            ).process()
         } ?: emptyList()
 
         val rawQueryMethods = methods[RawQuery::class]?.map {
             RawQueryMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
             ).process()
         } ?: emptyList()
 
         val insertionMethods = methods[Insert::class]?.map {
             InsertionMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it).process()
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
         } ?: emptyList()
 
         val deletionMethods = methods[Delete::class]?.map {
             DeletionMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it).process()
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
         } ?: emptyList()
 
         val updateMethods = methods[Update::class]?.map {
             UpdateMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it).process()
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
         } ?: emptyList()
 
         val transactionMethods = allMethods.filter { member ->
             member.hasAnnotation(Transaction::class) &&
-                    PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
+                PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
         }.map {
             TransactionMethodProcessor(
-                    baseContext = context,
-                    containing = declaredType,
-                    executableElement = it).process()
+                baseContext = context,
+                containing = declaredType,
+                executableElement = it
+            ).process()
         }
 
         // TODO (b/169950251): avoid going through the matching logic if the interface does not
@@ -160,7 +172,7 @@ class DaoProcessor(
         val constructors = element.getConstructors()
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&
-                    it.parameters[0].type.isAssignableFrom(dbType)
+                it.parameters[0].type.isAssignableFrom(dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
             goodConstructor.parameters[0].type.typeName
@@ -174,26 +186,34 @@ class DaoProcessor(
         }
 
         val type = declaredType.typeName
-        context.checker.notUnbound(type, element,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
+        context.checker.notUnbound(
+            type, element,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES
+        )
 
-        return Dao(element = element,
-                type = declaredType,
-                queryMethods = queryMethods,
-                rawQueryMethods = rawQueryMethods,
-                insertionMethods = insertionMethods,
-                deletionMethods = deletionMethods,
-                updateMethods = updateMethods,
-                transactionMethods = transactionMethods,
-                delegatingMethods = delegatingMethods,
-                kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates,
-                constructorParamType = constructorParamType)
+        return Dao(
+            element = element,
+            type = declaredType,
+            queryMethods = queryMethods,
+            rawQueryMethods = rawQueryMethods,
+            insertionMethods = insertionMethods,
+            deletionMethods = deletionMethods,
+            updateMethods = updateMethods,
+            transactionMethods = transactionMethods,
+            delegatingMethods = delegatingMethods,
+            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates,
+            constructorParamType = constructorParamType
+        )
     }
 
     private fun validateEmptyConstructor(constructors: List<XConstructorElement>) {
         if (constructors.isNotEmpty() && constructors.all { it.parameters.isNotEmpty() }) {
-            context.logger.e(element, ProcessorErrors.daoMustHaveMatchingConstructor(
-                    element.toString(), dbType.toString()))
+            context.logger.e(
+                element,
+                ProcessorErrors.daoMustHaveMatchingConstructor(
+                    element.toString(), dbType.toString()
+                )
+            )
         }
     }
 

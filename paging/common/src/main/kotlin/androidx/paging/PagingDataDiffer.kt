@@ -178,7 +178,7 @@ abstract class PagingDataDiffer<T : Any>(
                             event.combinedLoadStates.prepend.endOfPaginationReached
                         val appendDone = event.combinedLoadStates.append.endOfPaginationReached
                         val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                                !(event.loadType == APPEND && appendDone)
+                            !(event.loadType == APPEND && appendDone)
 
                         if (!canContinueLoading) {
                             // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
@@ -187,8 +187,8 @@ abstract class PagingDataDiffer<T : Any>(
                         } else if (lastAccessedIndexUnfulfilled) {
                             val shouldResendHint =
                                 lastAccessedIndex < presenter.placeholdersBefore ||
-                                        lastAccessedIndex > presenter.placeholdersBefore +
-                                        presenter.storageCount
+                                    lastAccessedIndex > presenter.placeholdersBefore +
+                                    presenter.storageCount
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
@@ -300,7 +300,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
-                "getItemCount, and will be removed in a future alpha version"
+            "getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
@@ -354,7 +354,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
@@ -370,7 +370,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {

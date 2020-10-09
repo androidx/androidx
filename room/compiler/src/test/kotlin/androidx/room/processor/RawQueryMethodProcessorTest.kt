@@ -46,46 +46,57 @@ class RawQueryMethodProcessorTest {
     @Test
     fun supportRawQuery() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public int[] foo(SupportSQLiteQuery query);
-                """) { query, _ ->
+                """
+        ) { query, _ ->
             assertThat(query.name, `is`("foo"))
-            assertThat(query.runtimeQueryParam, `is`(
+            assertThat(
+                query.runtimeQueryParam,
+                `is`(
                     RawQueryMethod.RuntimeQueryParameter(
-                            paramName = "query",
-                            type = SupportDbTypeNames.QUERY
+                        paramName = "query",
+                        type = SupportDbTypeNames.QUERY
                     )
-            ))
-            assertThat(query.returnType.typeName,
-                    `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
+                )
+            )
+            assertThat(
+                query.returnType.typeName,
+                `is`(ArrayTypeName.of(TypeName.INT) as TypeName)
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun stringRawQuery() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public int[] foo(String query);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(RAW_QUERY_STRING_PARAMETER_REMOVED)
     }
 
     @Test
     fun withObservedEntities() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery(observedEntities = User.class)
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
-                """) { query, _ ->
+                """
+        ) { query, _ ->
             assertThat(query.name, `is`("foo"))
-            assertThat(query.runtimeQueryParam, `is`(
+            assertThat(
+                query.runtimeQueryParam,
+                `is`(
                     RawQueryMethod.RuntimeQueryParameter(
-                            paramName = "query",
-                            type = SupportDbTypeNames.QUERY
+                        paramName = "query",
+                        type = SupportDbTypeNames.QUERY
                     )
-            ))
+                )
+            )
             assertThat(query.observedTableNames.size, `is`(1))
             assertThat(query.observedTableNames, `is`(setOf("User")))
         }.compilesWithoutError()
@@ -94,54 +105,61 @@ class RawQueryMethodProcessorTest {
     @Test
     fun observableWithoutEntities() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery(observedEntities = {})
                 abstract public LiveData<User> foo(SupportSQLiteQuery query);
-                """) { query, _ ->
+                """
+        ) { query, _ ->
             assertThat(query.name, `is`("foo"))
-            assertThat(query.runtimeQueryParam, `is`(
+            assertThat(
+                query.runtimeQueryParam,
+                `is`(
                     RawQueryMethod.RuntimeQueryParameter(
-                            paramName = "query",
-                            type = SupportDbTypeNames.QUERY
+                        paramName = "query",
+                        type = SupportDbTypeNames.QUERY
                     )
-            ))
+                )
+            )
             assertThat(query.observedTableNames, `is`(emptySet()))
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
     fun observableWithoutEntities_dataSourceFactory() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, User> getOne();
-                """) { _, _ ->
+                """
+        ) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
     fun observableWithoutEntities_positionalDataSource() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne();
-                """) { _, _ ->
+                """
+        ) { _, _ ->
             // do nothing
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
+            .withErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
     }
 
     @Test
     fun positionalDataSource() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery(observedEntities = {User.class})
                 abstract public ${PagingTypeNames.POSITIONAL_DATA_SOURCE}<User> getOne(
                         SupportSQLiteQuery query);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
             // do nothing
         }.compilesWithoutError()
     }
@@ -150,7 +168,7 @@ class RawQueryMethodProcessorTest {
     fun pojo() {
         val pojo: TypeName = ClassName.get("foo.bar.MyClass", "MyPojo")
         singleQueryMethod(
-                """
+            """
                 public class MyPojo {
                     public String foo;
                     public String bar;
@@ -158,14 +176,18 @@ class RawQueryMethodProcessorTest {
 
                 @RawQuery
                 abstract public MyPojo foo(SupportSQLiteQuery query);
-                """) { query, _ ->
+                """
+        ) { query, _ ->
             assertThat(query.name, `is`("foo"))
-            assertThat(query.runtimeQueryParam, `is`(
+            assertThat(
+                query.runtimeQueryParam,
+                `is`(
                     RawQueryMethod.RuntimeQueryParameter(
-                            paramName = "query",
-                            type = SupportDbTypeNames.QUERY
+                        paramName = "query",
+                        type = SupportDbTypeNames.QUERY
                     )
-            ))
+                )
+            )
             assertThat(query.returnType.typeName, `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
         }.compilesWithoutError()
@@ -174,12 +196,13 @@ class RawQueryMethodProcessorTest {
     @Test
     fun void() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public void foo(SupportSQLiteQuery query);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
+            ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
         )
     }
 
@@ -207,56 +230,60 @@ class RawQueryMethodProcessorTest {
     @Test
     fun noArgs() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public int[] foo();
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.RAW_QUERY_BAD_PARAMS
+            ProcessorErrors.RAW_QUERY_BAD_PARAMS
         )
     }
 
     @Test
     fun tooManyArgs() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public int[] foo(SupportSQLiteQuery query,
                                           SupportSQLiteQuery query2);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.RAW_QUERY_BAD_PARAMS
+            ProcessorErrors.RAW_QUERY_BAD_PARAMS
         )
     }
 
     @Test
     fun varargs() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery
                 abstract public int[] foo(SupportSQLiteQuery... query);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.RAW_QUERY_BAD_PARAMS
+            ProcessorErrors.RAW_QUERY_BAD_PARAMS
         )
     }
 
     @Test
     fun observed_notAnEntity() {
         singleQueryMethod(
-                """
+            """
                 @RawQuery(observedEntities = {${COMMON.NOT_AN_ENTITY_TYPE_NAME}.class})
                 abstract public int[] foo(SupportSQLiteQuery query);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
+            ProcessorErrors.rawQueryBadEntity(COMMON.NOT_AN_ENTITY_TYPE_NAME)
         )
     }
 
     @Test
     fun observed_relationPojo() {
         singleQueryMethod(
-                """
+            """
                 public static class MyPojo {
                     public String foo;
                     @Relation(
@@ -267,7 +294,8 @@ class RawQueryMethodProcessorTest {
                 }
                 @RawQuery(observedEntities = MyPojo.class)
                 abstract public int[] foo(SupportSQLiteQuery query);
-                """) { method, _ ->
+                """
+        ) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
         }.compilesWithoutError()
     }
@@ -275,7 +303,7 @@ class RawQueryMethodProcessorTest {
     @Test
     fun observed_embedded() {
         singleQueryMethod(
-                """
+            """
                 public static class MyPojo {
                     public String foo;
                     @Embedded
@@ -283,7 +311,8 @@ class RawQueryMethodProcessorTest {
                 }
                 @RawQuery(observedEntities = MyPojo.class)
                 abstract public int[] foo(SupportSQLiteQuery query);
-                """) { method, _ ->
+                """
+        ) { method, _ ->
             assertThat(method.observedTableNames, `is`(setOf("User")))
         }.compilesWithoutError()
     }
@@ -293,35 +322,47 @@ class RawQueryMethodProcessorTest {
         handler: (RawQueryMethod, TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
+            .that(
+                listOf(
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.MyClass",
                         DAO_PREFIX +
-                                input.joinToString("\n") +
-                                DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
-                        COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
-                        COMMON.NOT_AN_ENTITY))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Query::class, Dao::class, ColumnInfo::class,
-                                Entity::class, PrimaryKey::class, RawQuery::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                                it.asTypeElement().getAllMethods().filter {
-                                                    it.hasAnnotation(RawQuery::class)
-                                                }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
-                            val parser = RawQueryMethodProcessor(
-                                    baseContext = invocation.context,
-                                    containing = owner.asDeclaredType(),
-                                    executableElement = methods.first())
-                            val parsedQuery = parser.process()
-                            handler(parsedQuery, invocation)
-                            true
-                        }
-                        .build())
+                            input.joinToString("\n") +
+                            DAO_SUFFIX
+                    ),
+                    COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
+                    COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
+                    COMMON.NOT_AN_ENTITY
+                )
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(
+                        Query::class, Dao::class, ColumnInfo::class,
+                        Entity::class, PrimaryKey::class, RawQuery::class
+                    )
+                    .nextRunHandler { invocation ->
+                        val (owner, methods) = invocation.roundEnv
+                            .getElementsAnnotatedWith(Dao::class.java)
+                            .map {
+                                Pair(
+                                    it,
+                                    it.asTypeElement().getAllMethods().filter {
+                                        it.hasAnnotation(RawQuery::class)
+                                    }
+                                )
+                            }.first { it.second.isNotEmpty() }
+                        val parser = RawQueryMethodProcessor(
+                            baseContext = invocation.context,
+                            containing = owner.asDeclaredType(),
+                            executableElement = methods.first()
+                        )
+                        val parsedQuery = parser.process()
+                        handler(parsedQuery, invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 
     companion object {

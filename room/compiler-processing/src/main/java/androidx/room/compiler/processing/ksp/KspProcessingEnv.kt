@@ -80,10 +80,12 @@ internal class KspProcessingEnv(
         check(type is KspType)
         val arrayType = resolver.requireClass(KOTLIN_ARRAY_Q_NAME)
         val ksType = arrayType.asType(
-            listOf(resolver.getTypeArgument(
-                type.ksType.createTypeReference(),
-                Variance.INVARIANT
-            ))
+            listOf(
+                resolver.getTypeArgument(
+                    type.ksType.createTypeReference(),
+                    Variance.INVARIANT
+                )
+            )
         )
         return KspArrayType(
             env = this,

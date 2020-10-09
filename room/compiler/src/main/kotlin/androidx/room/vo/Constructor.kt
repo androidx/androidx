@@ -43,13 +43,17 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
     fun writeConstructor(outVar: String, args: String, builder: CodeBlock.Builder) {
         when {
             element.isConstructor() -> {
-                builder.addStatement("$L = new $T($L)", outVar,
-                        element.enclosingTypeElement.asDeclaredType().typeName, args)
+                builder.addStatement(
+                    "$L = new $T($L)", outVar,
+                    element.enclosingTypeElement.asDeclaredType().typeName, args
+                )
             }
             element.isMethod() -> {
-                builder.addStatement("$L = $T.$L($L)", outVar,
-                        element.enclosingTypeElement.asDeclaredType().typeName,
-                        element.name, args)
+                builder.addStatement(
+                    "$L = $T.$L($L)", outVar,
+                    element.enclosingTypeElement.asDeclaredType().typeName,
+                    element.name, args
+                )
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")
         }

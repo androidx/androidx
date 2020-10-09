@@ -27,4 +27,5 @@ internal class KspConstructorElement(
     env = env,
     containing = containing,
     declaration = declaration
-), XConstructorElement
+),
+    XConstructorElement

@@ -67,11 +67,13 @@ abstract class CanvasRenderer(
     internal override fun renderInternal(
         calendar: Calendar
     ) {
-        val canvas = (if (canvasType == CanvasType.HARDWARE) {
-            surfaceHolder.lockHardwareCanvas()
-        } else {
-            surfaceHolder.lockCanvas()
-        }) ?: return
+        val canvas = (
+            if (canvasType == CanvasType.HARDWARE) {
+                surfaceHolder.lockHardwareCanvas()
+            } else {
+                surfaceHolder.lockCanvas()
+            }
+            ) ?: return
         try {
             if (watchState.isVisible.value) {
                 render(canvas, surfaceHolder.surfaceFrame, calendar)

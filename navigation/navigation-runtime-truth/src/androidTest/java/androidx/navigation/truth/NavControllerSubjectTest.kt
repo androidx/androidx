@@ -46,9 +46,11 @@ class NavControllerSubjectTest {
 
     @Test
     fun testIsCurrentDestinationFailure() {
-        with(assertThrows {
-            assertThat(navController).isCurrentDestination(R.id.second_test)
-        }) {
+        with(
+            assertThrows {
+                assertThat(navController).isCurrentDestination(R.id.second_test)
+            }
+        ) {
             factValue("expected id")
                 .isEqualTo("0x${R.id.second_test.toString(16)}")
             factValue("but was")
@@ -65,9 +67,11 @@ class NavControllerSubjectTest {
 
     @Test
     fun testIsGraphFailure() {
-        with(assertThrows {
-            assertThat(navController).isGraph(R.id.second_test_graph)
-        }) {
+        with(
+            assertThrows {
+                assertThat(navController).isGraph(R.id.second_test_graph)
+            }
+        ) {
             factValue("expected id")
                 .isEqualTo("0x${R.id.second_test_graph.toString(16)}")
             factValue("but was")

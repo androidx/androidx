@@ -25,7 +25,7 @@ import java.nio.charset.Charset
 fun JavaCodeFile.toJavaFileObject() = this.wrapped.toJavaFileObject()
 
 fun JavaSourcesSubject.parsesAs(fullClassName: String, folder: String = "expected") =
-        this.parsesAs(loadSourceFileObject(fullClassName, folder))
+    this.parsesAs(loadSourceFileObject(fullClassName, folder))
 
 fun loadSourceString(fullClassName: String, folder: String, fileExtension: String): String {
     val folderPath = "src/test/test-data/${if (folder.isEmpty()) "" else "$folder/"}"

@@ -35,10 +35,12 @@ val SQLiteDatabase.absolutePath: String
 fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
     assertThat(values).isNotEmpty()
     assertThat(values).hasLength(table.columns.size)
-    execSQL(values.joinToString(
-        prefix = "INSERT INTO ${table.name} VALUES(",
-        postfix = ");"
-    ) { it })
+    execSQL(
+        values.joinToString(
+            prefix = "INSERT INTO ${table.name} VALUES(",
+            postfix = ");"
+        ) { it }
+    )
 }
 
 fun Database.createInstance(
@@ -75,8 +77,8 @@ fun Table.toCreateString(): String {
         postfix = "$primaryKeyPart )${if (isView) " AS $viewQuery" else ""};"
     ) {
         it.name +
-                "${if (isView) "" else " ${it.type}"} " +
-                (if (it.isNotNull) "NOT NULL " else "") +
-                (if (it.isUnique) "UNIQUE " else "")
+            "${if (isView) "" else " ${it.type}"} " +
+            (if (it.isNotNull) "NOT NULL " else "") +
+            (if (it.isUnique) "UNIQUE " else "")
     }
 }

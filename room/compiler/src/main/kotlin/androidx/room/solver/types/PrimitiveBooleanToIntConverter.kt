@@ -29,23 +29,24 @@ object PrimitiveBooleanToIntConverter {
         val tBoolean = processingEnvironment.requireType(TypeName.BOOLEAN)
         val tInt = processingEnvironment.requireType(TypeName.INT)
         return listOf(
-                object : TypeConverter(tBoolean, tInt) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
-                    }
-                },
-                object : TypeConverter(tInt, tBoolean) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
-                    }
-                })
+            object : TypeConverter(tBoolean, tInt) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().addStatement("$L = $L ? 1 : 0", outputVarName, inputVarName)
+                }
+            },
+            object : TypeConverter(tInt, tBoolean) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().addStatement("$L = $L != 0", outputVarName, inputVarName)
+                }
+            }
+        )
     }
 }

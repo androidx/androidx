@@ -61,11 +61,12 @@ inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
 ): PeriodicWorkRequest.Builder {
 
     return PeriodicWorkRequest.Builder(
-            W::class.java,
-            repeatInterval,
-            repeatIntervalTimeUnit,
-            flexTimeInterval,
-            flexTimeIntervalUnit)
+        W::class.java,
+        repeatInterval,
+        repeatIntervalTimeUnit,
+        flexTimeInterval,
+        flexTimeIntervalUnit
+    )
 }
 
 /**

@@ -31,7 +31,8 @@ internal abstract class KspExecutableElement(
 ) : KspElement(
     env = env,
     declaration = declaration
-), XExecutableElement,
+),
+    XExecutableElement,
     XHasModifiers by KspHasModifiers(declaration),
     XAnnotated by KspAnnotated.create(
         env = env,

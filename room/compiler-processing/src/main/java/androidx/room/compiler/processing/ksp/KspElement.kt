@@ -30,8 +30,9 @@ internal abstract class KspElement(
 ) : XElement, XEquality {
     override fun kindName(): String {
         return when (declaration) {
-            is KSClassDeclaration -> (declaration as KSClassDeclaration).classKind.name
-                .toLowerCase(Locale.US)
+            is KSClassDeclaration ->
+                (declaration as KSClassDeclaration).classKind.name
+                    .toLowerCase(Locale.US)
             is KSPropertyDeclaration -> "property"
             is KSFunctionDeclaration -> "function"
             else -> declaration::class.simpleName ?: "unknown"

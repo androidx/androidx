@@ -25,4 +25,4 @@ import android.view.View
  * [IllegalStateException]
  */
 fun View.findNavController(): NavController =
-        Navigation.findNavController(this)
+    Navigation.findNavController(this)

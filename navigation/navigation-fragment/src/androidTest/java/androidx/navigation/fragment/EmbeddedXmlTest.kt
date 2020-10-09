@@ -48,8 +48,10 @@ class EmbeddedXmlTest {
     @Throws(Throwable::class)
     fun testRecreate() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent = Intent(instrumentation.context,
-                EmbeddedXmlActivity::class.java)
+        val intent = Intent(
+            instrumentation.context,
+            EmbeddedXmlActivity::class.java
+        )
 
         val activity = activityRule.launchActivity(intent)
         instrumentation.waitForIdleSync()
@@ -73,9 +75,9 @@ class EmbeddedXmlActivity : FragmentActivity() {
         if (savedInstanceState == null) {
             val embeddedFragment = EmbeddedXmlFragment()
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, embeddedFragment)
-                    .setPrimaryNavigationFragment(embeddedFragment)
-                    .commit()
+                .replace(R.id.container, embeddedFragment)
+                .setPrimaryNavigationFragment(embeddedFragment)
+                .commit()
         }
     }
 }

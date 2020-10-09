@@ -56,8 +56,10 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
-                    .fillMaxSize()) {
+                Box(
+                    Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                        .fillMaxSize()
+                ) {
                     composable()
                 }
             }
@@ -82,8 +84,10 @@ open class ToolingTest {
                 AndroidOwner.onAndroidOwnerCreatedCallback = null
             }
             activity.setContent {
-                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
-                    .fillMaxSize()) {
+                Box(
+                    Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                        .fillMaxSize()
+                ) {
                     content()
                 }
             }

@@ -145,8 +145,8 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
             assertWithMessage(
                 "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
-                        "equal to [$sensorToTargetRotation], or the captured image's resolution " +
-                        "[$imageSize] was expected to be equal to [$expectedResolution]"
+                    "equal to [$sensorToTargetRotation], or the captured image's resolution " +
+                    "[$imageSize] was expected to be equal to [$expectedResolution]"
             )
                 .that(areRotationsEqual || areResolutionsEqual)
                 .isTrue()

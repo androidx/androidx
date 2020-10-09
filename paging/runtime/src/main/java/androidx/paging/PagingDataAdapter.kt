@@ -287,7 +287,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
     @Suppress("DEPRECATION")
     @Deprecated(
         "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
-                "getItemCount, and will be removed in a future alpha version"
+            "getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     val dataRefreshFlow: Flow<Boolean> = differ.dataRefreshFlow
@@ -302,7 +302,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
@@ -319,7 +319,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and getItemCount, and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {

@@ -281,17 +281,19 @@ class ExampleCanvasRenderer(
                         .BooleanOption
                     val watchHandLengthOption =
                         userStyle.options[watchHandLengthStyleCategoryDouble]!! as
-                                DoubleRangeUserStyleCategory.DoubleRangeOption
+                            DoubleRangeUserStyleCategory.DoubleRangeOption
 
                     drawHourPips = drawPipsOption.value
                     watchHandScale = watchHandLengthOption.value.toFloat()
 
                     val leftComplication =
                         complicationsManager.complications[
-                                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
+                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+                        ]!!
                     val rightComplication =
                         complicationsManager.complications[
-                                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID]!!
+                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                        ]!!
 
                     when (userStyle.options[complicationsCategory]!!.id) {
                         NO_COMPLICATIONS -> {
@@ -334,7 +336,8 @@ class ExampleCanvasRenderer(
 
         if (renderParameters.drawMode != DrawMode.AMBIENT &&
             renderParameters.layerParameters[Layer.BASE_LAYER] != LayerMode.HIDE &&
-            drawHourPips) {
+            drawHourPips
+        ) {
             drawNumberStyleOuterElement(canvas, bounds, style)
         }
     }
@@ -349,7 +352,7 @@ class ExampleCanvasRenderer(
         val hours = calendar.get(Calendar.HOUR).toFloat()
         val minutes = calendar.get(Calendar.MINUTE).toFloat()
         val seconds = calendar.get(Calendar.SECOND).toFloat() +
-                (calendar.get(Calendar.MILLISECOND).toFloat() / 1000f)
+            (calendar.get(Calendar.MILLISECOND).toFloat() / 1000f)
 
         val hourRot = (hours + minutes / 60.0f + seconds / 3600.0f) / 12.0f * 360.0f
         val minuteRot = (minutes + seconds / 60.0f) / 60.0f * 360.0f

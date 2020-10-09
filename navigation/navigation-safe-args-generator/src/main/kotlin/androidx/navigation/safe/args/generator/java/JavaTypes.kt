@@ -92,7 +92,7 @@ internal fun NavType.addBundleGetStatement(
     is ObjectType -> builder.apply {
         beginControlFlow(
             "if ($T.class.isAssignableFrom($T.class) " +
-                    "|| $T.class.isAssignableFrom($T.class))",
+                "|| $T.class.isAssignableFrom($T.class))",
             PARCELABLE_CLASSNAME, arg.type.typeName(),
             SERIALIZABLE_CLASSNAME, arg.type.typeName()
         ).apply {
@@ -103,8 +103,8 @@ internal fun NavType.addBundleGetStatement(
         }.nextControlFlow("else").apply {
             addStatement(
                 "throw new UnsupportedOperationException($T.class.getName() + " +
-                        "\" must implement Parcelable or Serializable " +
-                        "or must be an Enum.\")",
+                    "\" must implement Parcelable or Serializable " +
+                    "or must be an Enum.\")",
                 arg.type.typeName()
             )
         }.endControlFlow()
@@ -112,11 +112,14 @@ internal fun NavType.addBundleGetStatement(
     is ObjectArrayType -> builder.apply {
         val arrayName = "__array"
         val baseType = (arg.type.typeName() as ArrayTypeName).componentType
-        addStatement("$T[] $N = $N.$N($S)",
-            PARCELABLE_CLASSNAME, arrayName, bundle, bundleGetMethod(), arg.name)
+        addStatement(
+            "$T[] $N = $N.$N($S)",
+            PARCELABLE_CLASSNAME, arrayName, bundle, bundleGetMethod(), arg.name
+        )
         beginControlFlow("if ($N != null)", arrayName).apply {
             addStatement("$N = new $T[$N.length]", lValue, baseType, arrayName)
-            addStatement("$T.arraycopy($N, 0, $N, 0, $N.length)",
+            addStatement(
+                "$T.arraycopy($N, 0, $N, 0, $N.length)",
                 SYSTEM_CLASSNAME, arrayName, lValue, arrayName
             )
         }
@@ -160,7 +163,7 @@ internal fun NavType.addBundlePutStatement(
         }.nextControlFlow("else").apply {
             addStatement(
                 "throw new UnsupportedOperationException($T.class.getName() + " +
-                        "\" must implement Parcelable or Serializable or must be an Enum.\")",
+                    "\" must implement Parcelable or Serializable or must be an Enum.\")",
                 arg.type.typeName()
             )
         }.endControlFlow()
@@ -208,13 +211,15 @@ internal fun NavType.typeName(): TypeName = when (this) {
     BoolArrayType -> ArrayTypeName.of(TypeName.BOOLEAN)
     ReferenceType -> TypeName.INT
     ReferenceArrayType -> ArrayTypeName.of(TypeName.INT)
-    is ObjectType -> canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
-        ClassName.get(packageName, simpleName, *innerNames)
-    }
+    is ObjectType ->
+        canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+            ClassName.get(packageName, simpleName, *innerNames)
+        }
     is ObjectArrayType -> ArrayTypeName.of(
         canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
             ClassName.get(packageName, simpleName, *innerNames)
-        })
+        }
+    )
     else -> throw IllegalStateException("Unknown type: $this")
 }
 

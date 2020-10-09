@@ -135,9 +135,13 @@ class ConstructorInheritanceTest {
         val childGroup = dao.loadGroupById2(1)
         assertThat(childGroup.child1.id, `is`(1L))
         assertThat(childGroup.children2, hasSize(2))
-        assertThat(childGroup.children2, hasItems(
-            Child2(2, Info("123")),
-            Child2(3, Info("123"))))
+        assertThat(
+            childGroup.children2,
+            hasItems(
+                Child2(2, Info("123")),
+                Child2(3, Info("123"))
+            )
+        )
     }
 
     private fun openDatabase(): EmbeddedDatabase {

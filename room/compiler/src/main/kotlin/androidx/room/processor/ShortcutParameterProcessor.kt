@@ -35,16 +35,18 @@ class ShortcutParameterProcessor(
     fun process(): ShortcutQueryParameter {
         val asMember = element.asMemberOf(containing)
         val name = element.name
-        context.checker.check(!name.startsWith("_"), element,
-                ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
+        context.checker.check(
+            !name.startsWith("_"), element,
+            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+        )
 
         val (pojoType, isMultiple) = extractPojoType(asMember)
         return ShortcutQueryParameter(
-                element = element,
-                name = name,
-                type = asMember,
-                pojoType = pojoType,
-                isMultiple = isMultiple
+            element = element,
+            name = name,
+            type = asMember,
+            pojoType = pojoType,
+            isMultiple = isMultiple
         )
     }
 

@@ -38,9 +38,11 @@ class Camera2CaptureCallback(
 ) : CameraCaptureSession.CaptureCallback() {
 
     override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
-        MainActivity.logd("captureStillPicture captureCallback: Sequence aborted. Current test: " +
-            testConfig.currentRunningTest.toString())
-            super.onCaptureSequenceAborted(session, sequenceId)
+        MainActivity.logd(
+            "captureStillPicture captureCallback: Sequence aborted. Current test: " +
+                testConfig.currentRunningTest.toString()
+        )
+        super.onCaptureSequenceAborted(session, sequenceId)
     }
 
     override fun onCaptureFailed(
@@ -53,8 +55,10 @@ class Camera2CaptureCallback(
             return
         }
 
-        MainActivity.logd("captureStillPicture captureCallback: Capture Failed. Failure: " +
-            failure.reason + " Current test: " + testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "captureStillPicture captureCallback: Capture Failed. Failure: " +
+                failure.reason + " Current test: " + testConfig.currentRunningTest.toString()
+        )
 
         // The session failed. Let's just try again (yay infinite loops)
         closePreviewAndCamera(activity, params, testConfig)
@@ -68,8 +72,10 @@ class Camera2CaptureCallback(
         timestamp: Long,
         frameNumber: Long
     ) {
-        MainActivity.logd("captureStillPicture captureCallback: Capture Started. Current test: " +
-            testConfig.currentRunningTest.toString() + ", frame number: " + frameNumber)
+        MainActivity.logd(
+            "captureStillPicture captureCallback: Capture Started. Current test: " +
+                testConfig.currentRunningTest.toString() + ", frame number: " + frameNumber
+        )
         super.onCaptureStarted(session, request, timestamp, frameNumber)
     }
 
@@ -78,8 +84,10 @@ class Camera2CaptureCallback(
         request: CaptureRequest,
         partialResult: CaptureResult
     ) {
-        MainActivity.logd("captureStillPicture captureCallback: Capture progressed. " +
-            "Current test: " + testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "captureStillPicture captureCallback: Capture progressed. " +
+                "Current test: " + testConfig.currentRunningTest.toString()
+        )
         super.onCaptureProgressed(session, request, partialResult)
     }
 
@@ -89,8 +97,10 @@ class Camera2CaptureCallback(
         target: Surface,
         frameNumber: Long
     ) {
-        MainActivity.logd("captureStillPicture captureCallback: Buffer lost. Current test: " +
-            testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "captureStillPicture captureCallback: Buffer lost. Current test: " +
+                testConfig.currentRunningTest.toString()
+        )
         super.onCaptureBufferLost(session, request, target, frameNumber)
     }
 
@@ -104,8 +114,10 @@ class Camera2CaptureCallback(
             return
         }
 
-        MainActivity.logd("Camera2 onCaptureCompleted. CaptureEnd. Current test: " +
-            testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "Camera2 onCaptureCompleted. CaptureEnd. Current test: " +
+                testConfig.currentRunningTest.toString()
+        )
 
         params.timer.captureEnd = System.currentTimeMillis()
 
@@ -115,8 +127,10 @@ class Camera2CaptureCallback(
         // ImageReader might get the image before this callback is called, if so, the test is done
         if (0L != params.timer.imageSaveEnd) {
             params.timer.imageReaderStart = params.timer.imageReaderEnd // No ImageReader delay
-            MainActivity.logd("Camera2 onCaptureCompleted. Image already saved. " +
-                "Ending Test and closing camera.")
+            MainActivity.logd(
+                "Camera2 onCaptureCompleted. Image already saved. " +
+                    "Ending Test and closing camera."
+            )
 
             if (TestType.MULTI_PHOTO_CHAIN == testConfig.currentRunningTest) {
                 testEnded(activity, params, testConfig)

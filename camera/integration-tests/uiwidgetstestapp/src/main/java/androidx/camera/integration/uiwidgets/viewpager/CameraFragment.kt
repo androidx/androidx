@@ -60,10 +60,13 @@ class CameraFragment : Fragment() {
         Log.d(TAG, "onViewCreated")
         (requireActivity() as BaseActivity).previewView = preview_textureview
 
-        cameraProviderFuture.addListener(Runnable {
-            cameraProvider = cameraProviderFuture.get()
-            bindPreview()
-        }, ContextCompat.getMainExecutor(this.context))
+        cameraProviderFuture.addListener(
+            Runnable {
+                cameraProvider = cameraProviderFuture.get()
+                bindPreview()
+            },
+            ContextCompat.getMainExecutor(this.context)
+        )
     }
 
     private fun bindPreview() {
@@ -82,8 +85,10 @@ class CameraFragment : Fragment() {
 
     private fun getCameraSelector(): CameraSelector {
         val lensFacing = (requireActivity() as BaseActivity).intent.getIntExtra(
-            BaseActivity.INTENT_LENS_FACING, CameraSelector
-                .LENS_FACING_BACK)
+            BaseActivity.INTENT_LENS_FACING,
+            CameraSelector
+                .LENS_FACING_BACK
+        )
         return CameraSelector.Builder()
             .requireLensFacing(lensFacing)
             .build()

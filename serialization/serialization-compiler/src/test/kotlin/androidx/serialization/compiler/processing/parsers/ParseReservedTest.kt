@@ -56,12 +56,15 @@ class ParseReservedTest {
     private fun compile(reserved: String): Reserved {
         val processor =
             ReservedProcessor()
-        val source = JavaFileObjects.forSourceString("TestClass", """
+        val source = JavaFileObjects.forSourceString(
+            "TestClass",
+            """
             import androidx.serialization.Reserved;
             
             $reserved
             public final class TestClass {}
-        """.trimIndent())
+            """.trimIndent()
+        )
         assertThat(javac().withProcessors(processor).compile(source)).succeededWithoutWarnings()
         return processor.reserved
     }

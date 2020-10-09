@@ -42,32 +42,32 @@ open class PrimitiveColumnTypeAdapter(
     typeAffinity: SQLTypeAffinity
 ) : ColumnTypeAdapter(out, typeAffinity) {
     val cast = if (cursorGetter == "get${out.typeName.toString().capitalize(Locale.US)}")
-                    ""
-                else
-                    "(${out.typeName}) "
+        ""
+    else
+        "(${out.typeName}) "
 
     companion object {
         fun createPrimitiveAdapters(
             processingEnvironment: XProcessingEnv
         ): List<PrimitiveColumnTypeAdapter> {
             return listOf(
-                    Triple(INT, "getInt", "bindLong"),
-                    Triple(SHORT, "getShort", "bindLong"),
-                    Triple(BYTE, "getShort", "bindLong"),
-                    Triple(LONG, "getLong", "bindLong"),
-                    Triple(CHAR, "getInt", "bindLong"),
-                    Triple(FLOAT, "getFloat", "bindDouble"),
-                    Triple(DOUBLE, "getDouble", "bindDouble")
+                Triple(INT, "getInt", "bindLong"),
+                Triple(SHORT, "getShort", "bindLong"),
+                Triple(BYTE, "getShort", "bindLong"),
+                Triple(LONG, "getLong", "bindLong"),
+                Triple(CHAR, "getInt", "bindLong"),
+                Triple(FLOAT, "getFloat", "bindDouble"),
+                Triple(DOUBLE, "getDouble", "bindDouble")
             ).map {
                 PrimitiveColumnTypeAdapter(
-                        out = processingEnvironment.requireType(it.first),
-                        cursorGetter = it.second,
-                        stmtSetter = it.third,
-                        typeAffinity = when (it.first) {
-                            INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
-                            FLOAT, DOUBLE -> REAL
-                            else -> throw IllegalArgumentException("invalid type")
-                        }
+                    out = processingEnvironment.requireType(it.first),
+                    cursorGetter = it.second,
+                    stmtSetter = it.third,
+                    typeAffinity = when (it.first) {
+                        INT, SHORT, BYTE, LONG, CHAR -> SQLTypeAffinity.INTEGER
+                        FLOAT, DOUBLE -> REAL
+                        else -> throw IllegalArgumentException("invalid type")
+                    }
                 )
             }
         }
@@ -80,7 +80,7 @@ open class PrimitiveColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
+            .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
     }
 
     override fun readFromCursor(
@@ -90,7 +90,9 @@ open class PrimitiveColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
-                        cursorGetter, indexVarName)
+            .addStatement(
+                "$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
+                cursorGetter, indexVarName
+            )
     }
 }

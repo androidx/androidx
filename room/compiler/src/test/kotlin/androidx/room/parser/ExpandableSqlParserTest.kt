@@ -78,8 +78,8 @@ class ExpandableSqlParserTest {
     fun upsertQuery() {
         val parsed = ExpandableSqlParser.parse(
             "INSERT INTO notes (id, content) VALUES (:id, :content) " +
-                    "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
-                    "revision = revision + 1, modifiedTime = strftime('%s','now')"
+                "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
+                "revision = revision + 1, modifiedTime = strftime('%s','now')"
         )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
@@ -115,7 +115,7 @@ class ExpandableSqlParserTest {
     fun projection() {
         val query = ExpandableSqlParser.parse(
             "SELECT * FROM User WHERE teamId IN " +
-                    "(SELECT * FROM Team WHERE active != 0)"
+                "(SELECT * FROM Team WHERE active != 0)"
         )
         assertThat(query.errors, `is`(emptyList()))
         assertThat(query.projections.size, `is`(1))
@@ -239,7 +239,8 @@ class ExpandableSqlParserTest {
         val query = ExpandableSqlParser.parse("SELECT a.name, b.last_name from user a, book b")
         assertThat(query.errors, `is`(emptyList()))
         assertThat(
-            query.tables, `is`(
+            query.tables,
+            `is`(
                 setOf(
                     Table("user", "a"),
                     Table("book", "b")
@@ -252,11 +253,12 @@ class ExpandableSqlParserTest {
     fun tablePrefixInSelect_where() {
         val query = ExpandableSqlParser.parse(
             "SELECT a.name, b.last_name from user a, book b" +
-                    " WHERE a.name = b.name"
+                " WHERE a.name = b.name"
         )
         assertThat(query.errors, `is`(emptyList()))
         assertThat(
-            query.tables, `is`(
+            query.tables,
+            `is`(
                 setOf(
                     Table("user", "a"),
                     Table("book", "b")

@@ -58,11 +58,14 @@ class AdapterTest : BaseTest() {
         }
         test.assertBasicState(0)
 
-        assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0) // for setting the adapter
-                .plus(expectedEventsForPage(1)) // for going to page 1
-                .plus(expectedEventsForPage(0)) // for setting it again
-        ))
+        assertThat(
+            recorder.allEvents,
+            equalTo(
+                expectedEventsForPage(0) // for setting the adapter
+                    .plus(expectedEventsForPage(1)) // for going to page 1
+                    .plus(expectedEventsForPage(0)) // for setting it again
+            )
+        )
     }
 
     private fun setUpWithoutAdapter() {
@@ -121,10 +124,15 @@ class AdapterTest : BaseTest() {
             swipe(SwipeMethod.ESPRESSO)
             idleLatch.await(2, SECONDS)
 
-            assertThat(recorder.allEvents, equalTo(listOf(
-                OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
-                OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
-            )))
+            assertThat(
+                recorder.allEvents,
+                equalTo(
+                    listOf(
+                        OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
+                        OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
+                    )
+                )
+            )
             test.viewPager.unregisterOnPageChangeCallback(recorder)
         }
     }
@@ -136,10 +144,13 @@ class AdapterTest : BaseTest() {
         clearDataSet()
 
         // check events
-        assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0) // for setting the adapter
-                .plus(expectedEventsForPage(0)) // for clearing it
-        ))
+        assertThat(
+            recorder.allEvents,
+            equalTo(
+                expectedEventsForPage(0) // for setting the adapter
+                    .plus(expectedEventsForPage(0)) // for clearing it
+            )
+        )
     }
 
     @Test
@@ -149,11 +160,14 @@ class AdapterTest : BaseTest() {
         clearDataSet()
 
         // check events
-        assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0) // for setting the adapter
-                .plus(expectedEventsForPage(1)) // for going to page 1
-                .plus(expectedEventsForPage(0)) // for clearing it
-        ))
+        assertThat(
+            recorder.allEvents,
+            equalTo(
+                expectedEventsForPage(0) // for setting the adapter
+                    .plus(expectedEventsForPage(1)) // for going to page 1
+                    .plus(expectedEventsForPage(0)) // for clearing it
+            )
+        )
     }
 
     @Test
@@ -163,9 +177,12 @@ class AdapterTest : BaseTest() {
         fillDataSet()
 
         // check events
-        assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0) // for populating the adapter
-        ))
+        assertThat(
+            recorder.allEvents,
+            equalTo(
+                expectedEventsForPage(0) // for populating the adapter
+            )
+        )
     }
 
     @Test
@@ -178,12 +195,15 @@ class AdapterTest : BaseTest() {
         clearDataSet()
 
         // check events
-        assertThat(recorder.allEvents, equalTo(
-            expectedEventsForPage(0) // for setting the adapter
-                .plus(expectedEventsForPage(0)) // for clearing it
-                .plus(expectedEventsForPage(0)) // for repopulating it
-                .plus(expectedEventsForPage(0)) // for clearing it again
-        ))
+        assertThat(
+            recorder.allEvents,
+            equalTo(
+                expectedEventsForPage(0) // for setting the adapter
+                    .plus(expectedEventsForPage(0)) // for clearing it
+                    .plus(expectedEventsForPage(0)) // for repopulating it
+                    .plus(expectedEventsForPage(0)) // for clearing it again
+            )
+        )
     }
 
     private fun expectedEventsForPage(page: Int): List<Event> {

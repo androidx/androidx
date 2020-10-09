@@ -31,11 +31,12 @@ class KspFieldElementTest {
     @Test
     fun simple() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             class Foo {
                 val intField: Int = 0
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val fooElement = invocation.processingEnv.requireTypeElement("Foo")
@@ -51,13 +52,14 @@ class KspFieldElementTest {
     @Test
     fun asMemberOf() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class Base<T, R> {
                 val t : T = TODO()
                 val listOfR : List<R> = TODO()
             }
             class Sub1 : Base<Int, String>()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val sub = invocation.processingEnv.requireTypeElement("Sub1")

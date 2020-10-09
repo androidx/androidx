@@ -113,13 +113,13 @@ data class Field(
 
     val getterNameWithVariations by lazy {
         nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
-                if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
-                    nameWithVariations.flatMap {
-                        listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
-                    }
-                } else {
-                    emptyList()
+            if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
+                nameWithVariations.flatMap {
+                    listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
                 }
+            } else {
+                emptyList()
+            }
     }
 
     val setterNameWithVariations by lazy {
@@ -146,14 +146,15 @@ data class Field(
         return "`$columnName` ${(affinity ?: SQLTypeAffinity.TEXT).name}$columnSpec"
     }
 
-    fun toBundle(): FieldBundle = FieldBundle(pathWithDotNotation, columnName,
-            affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull, defaultValue
+    fun toBundle(): FieldBundle = FieldBundle(
+        pathWithDotNotation, columnName,
+        affinity?.name ?: SQLTypeAffinity.TEXT.name, nonNull, defaultValue
     )
 
     companion object {
         fun calcNonNull(type: XType, parent: EmbeddedField?): Boolean {
             return XNullability.NONNULL == type.nullability &&
-                    (parent == null || parent.isNonNullRecursively())
+                (parent == null || parent.isNonNullRecursively())
         }
     }
 }

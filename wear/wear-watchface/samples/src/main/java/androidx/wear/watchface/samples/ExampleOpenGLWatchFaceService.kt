@@ -221,7 +221,8 @@ class ExampleOpenGLRenderer(
                 createHand(
                     coloredTriangleProgram,
                     0.02f /* width */,
-                    1.0f /* height */, floatArrayOf(
+                    1.0f /* height */,
+                    floatArrayOf(
                         1.0f /* red */,
                         0.0f /* green */,
                         0.0f /* blue */,
@@ -232,7 +233,8 @@ class ExampleOpenGLRenderer(
                 createHand(
                     coloredTriangleProgram,
                     0.02f /* width */,
-                    1.0f /* height */, floatArrayOf(
+                    1.0f /* height */,
+                    floatArrayOf(
                         0.0f /* red */,
                         1.0f /* green */,
                         0.0f /* blue */,
@@ -243,7 +245,8 @@ class ExampleOpenGLRenderer(
         minuteHandTriangle = createHand(
             coloredTriangleProgram,
             0.06f /* width */,
-            1f /* height */, floatArrayOf(
+            1f /* height */,
+            floatArrayOf(
                 0.7f /* red */,
                 0.7f /* green */,
                 0.7f /* blue */,
@@ -253,7 +256,8 @@ class ExampleOpenGLRenderer(
         hourHandTriangle = createHand(
             coloredTriangleProgram,
             0.1f /* width */,
-            0.6f /* height */, floatArrayOf(
+            0.6f /* height */,
+            floatArrayOf(
                 0.9f /* red */,
                 0.9f /* green */,
                 0.9f /* blue */,
@@ -381,7 +385,8 @@ class ExampleOpenGLRenderer(
             )
         }
         return Gles2ColoredTriangleList(
-            program, trianglesCoords, floatArrayOf(
+            program, trianglesCoords,
+            floatArrayOf(
                 1.0f /* red */,
                 1.0f /* green */,
                 1.0f /* blue */,
@@ -417,7 +422,8 @@ class ExampleOpenGLRenderer(
             index += 9
         }
         return Gles2ColoredTriangleList(
-            program, trianglesCoords, floatArrayOf(
+            program, trianglesCoords,
+            floatArrayOf(
                 0.5f /* red */,
                 0.5f /* green */,
                 0.5f /* blue */,
@@ -618,7 +624,8 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    userStyleRepository.userStyle.options[colorStyleCategory]!!.id]
+                    userStyleRepository.userStyle.options[colorStyleCategory]!!.id
+                ]
                     ?.draw(mvpMatrix)
             }
         }
@@ -928,8 +935,10 @@ class Gles2TexturedTriangleList(
             ("must be multiple of VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
         }
         require(textureCoords.size % (VERTICE_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
-            ("must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
-                "coordinates")
+            (
+                "must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
+                    "coordinates"
+                )
         }
     }
 

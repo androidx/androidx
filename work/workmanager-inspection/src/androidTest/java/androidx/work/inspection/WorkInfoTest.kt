@@ -117,8 +117,8 @@ class WorkInfoTest {
         testEnvironment.workManager.enqueue(request)
         testEnvironment.receiveFilteredEvent { event ->
             event.hasWorkUpdated() &&
-                    event.workUpdated.hasData() &&
-                    event.workUpdated.data.entriesCount == 1
+                event.workUpdated.hasData() &&
+                event.workUpdated.data.entriesCount == 1
         }.let { event ->
             assertThat(event.workUpdated.id).isEqualTo(request.stringId)
             val expectedEntry = DataEntry.newBuilder()
@@ -136,7 +136,7 @@ class WorkInfoTest {
         testEnvironment.workManager.enqueue(request)
         testEnvironment.receiveFilteredEvent { event ->
             event.hasWorkUpdated() &&
-                    event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+                event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
         }.let { event ->
             assertThat(event.workUpdated.id).isEqualTo(request.stringId)
         }

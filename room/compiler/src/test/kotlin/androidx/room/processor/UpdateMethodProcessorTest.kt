@@ -47,10 +47,11 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
     @Test
     fun goodConflict() {
         singleShortcutMethod(
-                """
+            """
                 @Update(onConflict = OnConflictStrategy.REPLACE)
                 abstract public void foo(User user);
-                """) { shortcut, _ ->
+                """
+        ) { shortcut, _ ->
             assertThat(shortcut.onConflictStrategy, `is`(OnConflictStrategy.REPLACE))
         }.compilesWithoutError()
     }
@@ -58,10 +59,11 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
     @Test
     fun badConflict() {
         singleShortcutMethod(
-                """
+            """
                 @Update(onConflict = -1)
                 abstract public void foo(User user);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
     }
 
@@ -80,10 +82,13 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 @Update(entity = User.class)
                 abstract public int foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
             ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
                 partialEntityName = "foo.bar.Username",
-                primaryKeyNames = listOf("uid")))
+                primaryKeyNames = listOf("uid")
+            )
+        )
     }
 }

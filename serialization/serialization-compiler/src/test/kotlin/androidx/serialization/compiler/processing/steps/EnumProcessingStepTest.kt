@@ -31,18 +31,25 @@ import javax.tools.JavaFileObject
 
 /** Unit tests for [EnumProcessingStep]. */
 class EnumProcessingStepTest {
-    private val enumValueCorrespondence = Correspondence.from({
+    private val enumValueCorrespondence = Correspondence.from(
+        {
             actual: Enum.Value?, expected: Pair<Int, String>? ->
-        if (actual != null && expected != null) {
-            actual.id == expected.first && actual.element.simpleName.contentEquals(expected.second)
-        } else {
-            actual == null && expected == null
-        }
-    }, "has ID and name")
+            if (actual != null && expected != null) {
+                actual.id == expected.first &&
+                    actual.element.simpleName.contentEquals(expected.second)
+            } else {
+                actual == null && expected == null
+            }
+        },
+        "has ID and name"
+    )
 
     @Test
     fun testParsing() {
-        val enum = compileEnum(JavaFileObjects.forSourceString("TestEnum", """
+        val enum = compileEnum(
+            JavaFileObjects.forSourceString(
+                "TestEnum",
+                """
             import androidx.serialization.EnumValue;
             
             public enum TestEnum {
@@ -51,7 +58,9 @@ class EnumProcessingStepTest {
                 @EnumValue(1)
                 ONE
             }
-        """.trimIndent()))
+                """.trimIndent()
+            )
+        )
 
         assertThat(enum.values)
             .comparingElementsUsing(enumValueCorrespondence)
@@ -61,7 +70,9 @@ class EnumProcessingStepTest {
 
     @Test
     fun testInvalidPrivateEnum() {
-        val testEnum = JavaFileObjects.forSourceString("com.example.PrivateEnumTest", """
+        val testEnum = JavaFileObjects.forSourceString(
+            "com.example.PrivateEnumTest",
+            """
             package com.example;
             
             import androidx.serialization.EnumValue;
@@ -71,15 +82,19 @@ class EnumProcessingStepTest {
                     @EnumValue(0) TEST
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         assertThat(compile(testEnum)).hadErrorContaining(
-            "Enum com.example.PrivateEnumTest.PrivateEnum is private and cannot be serialized")
+            "Enum com.example.PrivateEnumTest.PrivateEnum is private and cannot be serialized"
+        )
     }
 
     @Test
     fun testInvalidPrivateNestedEnum() {
-        val testEnum = JavaFileObjects.forSourceString("PrivateNestedEnumTest", """
+        val testEnum = JavaFileObjects.forSourceString(
+            "PrivateNestedEnumTest",
+            """
             import androidx.serialization.EnumValue;
             
             public class PrivateNestedEnumTest {
@@ -89,22 +104,27 @@ class EnumProcessingStepTest {
                     }
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         assertThat(compile(testEnum)).hadErrorContaining(
-            "Enum PrivateNestedEnumTest.NestedClass.NestedEnum is not visible to its package")
+            "Enum PrivateNestedEnumTest.NestedClass.NestedEnum is not visible to its package"
+        )
     }
 
     @Test
     fun testInvalidEnumValueAnnotationLocation() {
-        val testField = JavaFileObjects.forSourceString("EnumValueFieldTest", """
+        val testField = JavaFileObjects.forSourceString(
+            "EnumValueFieldTest",
+            """
             import androidx.serialization.EnumValue;
             
             public class EnumValueFieldTest {
                 @EnumValue(0)
                 public int foo;
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         assertThat(compile(testField))
             .hadErrorContaining("@EnumValue must annotate an enum constant")
@@ -112,7 +132,9 @@ class EnumProcessingStepTest {
 
     @Test
     fun testInvalidMissingEnumValue() {
-        val testEnum = JavaFileObjects.forSourceString("MissingEnumValue", """
+        val testEnum = JavaFileObjects.forSourceString(
+            "MissingEnumValue",
+            """
             import androidx.serialization.EnumValue;
             
             public enum MissingEnumValue {
@@ -120,11 +142,13 @@ class EnumProcessingStepTest {
                 ZERO,
                 ONE
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         assertThat(compile(testEnum)).hadErrorContaining(
             "To avoid unexpected behavior, all enum constants in a serializable enum must be " +
-                    "annotated with @EnumValue")
+                "annotated with @EnumValue"
+        )
     }
 
     private fun compile(vararg sources: JavaFileObject): Compilation {
@@ -144,7 +168,7 @@ class EnumProcessingStepTest {
 
         override fun initSteps(): List<ProcessingStep> {
             return listOf(EnumProcessingStep(processingEnv) { enum = it })
-    }
+        }
 
         override fun getSupportedSourceVersion(): SourceVersion {
             return SourceVersion.latest()

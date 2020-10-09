@@ -33,11 +33,12 @@ class XProcessingEnvTest {
         runProcessorTestIncludingKsp(
             listOf(
                 Source.java(
-                    "foo.bar.Baz", """
+                    "foo.bar.Baz",
+                    """
                 package foo.bar;
                 public class Baz {
                 }
-            """.trimIndent()
+                    """.trimIndent()
                 )
             )
         ) {
@@ -95,7 +96,8 @@ class XProcessingEnvTest {
         runProcessorTestIncludingKsp(
             listOf(
                 Source.java(
-                    "foo.bar.Baz", """
+                    "foo.bar.Baz",
+                    """
                 package foo.bar;
                 public class Baz {
                     private void foo() {}
@@ -103,7 +105,7 @@ class XProcessingEnvTest {
                         return 3;
                     }
                 }
-            """.trimIndent()
+                    """.trimIndent()
                 )
             )
         ) {
@@ -124,11 +126,12 @@ class XProcessingEnvTest {
     @Test
     fun getPrimitives() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             class Baz {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             listOf(source)
@@ -143,13 +146,16 @@ class XProcessingEnvTest {
 
     @Test
     fun nestedType() {
-        val src = Source.java("foo.bar.Outer", """
+        val src = Source.java(
+            "foo.bar.Outer",
+            """
             package foo.bar;
             public class Outer {
                 public static class Inner {
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         runProcessorTestIncludingKsp(sources = listOf(src)) {
             it.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
                 val className = it.className

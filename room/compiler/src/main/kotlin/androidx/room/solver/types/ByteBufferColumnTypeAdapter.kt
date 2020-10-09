@@ -35,8 +35,10 @@ class ByteBufferColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-            .addStatement("$L = $T.wrap($L.getBlob($L))",
-                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName)
+            .addStatement(
+                "$L = $T.wrap($L.getBlob($L))",
+                outVarName, TypeName.get(ByteBuffer::class.java), cursorVarName, indexVarName
+            )
     }
 
     override fun bindToStmt(

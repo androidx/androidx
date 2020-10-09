@@ -31,7 +31,8 @@ internal class JavacArrayType private constructor(
 ) : JavacType(
     env,
     typeMirror
-), XArrayType {
+),
+    XArrayType {
     constructor(
         env: JavacProcessingEnv,
         typeMirror: ArrayType,
@@ -71,6 +72,7 @@ internal class JavacArrayType private constructor(
         env.wrap<JavacType>(
             typeMirror = componentType,
             kotlinType = kotlinType?.typeArguments?.firstOrNull(),
-            elementNullability = componentTypeNullability)
+            elementNullability = componentTypeNullability
+        )
     }
 }

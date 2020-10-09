@@ -198,7 +198,7 @@ internal class SingleProcessDataStore<T>(
                     if (initializationComplete) {
                         throw IllegalStateException(
                             "InitializerApi.updateData should not be " +
-                                    "called after initialization is complete."
+                                "called after initialization is complete."
                         )
                     }
 

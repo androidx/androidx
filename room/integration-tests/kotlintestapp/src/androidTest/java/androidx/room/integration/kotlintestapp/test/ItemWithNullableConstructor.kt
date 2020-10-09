@@ -42,7 +42,8 @@ class ItemWithNullableConstructor {
     fun initDb() {
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-                Db::class.java).build()
+            Db::class.java
+        ).build()
     }
 
     @After
@@ -73,9 +74,9 @@ class ItemWithNullableConstructor {
     }
 
     @Database(
-            version = 1,
-            entities = [TestItem::class],
-            exportSchema = false
+        version = 1,
+        entities = [TestItem::class],
+        exportSchema = false
     )
     @SuppressWarnings(RoomWarnings.MISSING_SCHEMA_LOCATION)
     abstract class Db : RoomDatabase() {

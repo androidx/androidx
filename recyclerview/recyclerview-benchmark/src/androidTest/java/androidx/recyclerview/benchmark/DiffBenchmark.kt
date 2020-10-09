@@ -136,8 +136,8 @@ class DiffBenchmark(
         }
 
         override fun toString() = name +
-                "_dispatchUpdates_$dispatchUpdates" +
-                "_detectMoves_$detectMoves" +
-                "_size_[${before.size}_${after.size}]"
+            "_dispatchUpdates_$dispatchUpdates" +
+            "_detectMoves_$detectMoves" +
+            "_size_[${before.size}_${after.size}]"
     }
 }

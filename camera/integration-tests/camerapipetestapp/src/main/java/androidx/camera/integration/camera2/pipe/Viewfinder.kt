@@ -87,9 +87,12 @@ class Viewfinder(
 
         // Make the viewfinder work better in editors by defining a placeholder viewfinder size.
         if (isInEditMode) {
-            configure(Size(480, 640), object : SurfaceListener {
-                override fun onSurfaceChanged(surface: Surface?, size: Size?) {}
-            })
+            configure(
+                Size(480, 640),
+                object : SurfaceListener {
+                    override fun onSurfaceChanged(surface: Surface?, size: Size?) {}
+                }
+            )
         }
     }
 
@@ -424,7 +427,7 @@ class Viewfinder(
                     "center" -> CENTER
                     else -> throw IllegalStateException(
                         "Unknown viewfinderLayout: $layoutMode available values are: " +
-                                "[fit, fill, center]"
+                            "[fit, fill, center]"
                     )
                 }
             }

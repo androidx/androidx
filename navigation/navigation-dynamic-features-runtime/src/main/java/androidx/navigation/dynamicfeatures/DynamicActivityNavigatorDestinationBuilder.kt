@@ -70,7 +70,8 @@ class DynamicActivityNavigatorDestinationBuilder(
                             targetPackage!!
                         } else {
                             activityNavigator.packageName
-                        }, it
+                        },
+                        it
                     )
                 )
             }

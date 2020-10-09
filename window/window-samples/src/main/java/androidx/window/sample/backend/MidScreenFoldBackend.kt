@@ -60,7 +60,8 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     override fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
         val activity = context.getActivityExt() ?: throw IllegalArgumentException(
             "Used non-visual Context used with WindowManager. Please use an Activity or a " +
-                    "ContextWrapper around an Activity instead.")
+                "ContextWrapper around an Activity instead."
+        )
         val windowSize = activity.calculateWindowSizeExt()
         val featureRect = foldRect(windowSize)
 

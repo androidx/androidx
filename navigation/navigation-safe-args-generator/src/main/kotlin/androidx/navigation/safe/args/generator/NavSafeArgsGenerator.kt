@@ -74,7 +74,9 @@ class NavSafeArgsGenerator<T : CodeFile> internal constructor(
                 writeCodeFiles(
                     destination = nestedDestination,
                     parentDirectionsFileList = newParentDirectionFile?.let {
-                        listOf(it) + parentDirectionsFileList } ?: parentDirectionsFileList)
+                        listOf(it) + parentDirectionsFileList
+                    } ?: parentDirectionsFileList
+                )
             }
         }
         writeCodeFiles(resolvedDestination, emptyList())

@@ -41,6 +41,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
             stmtQueryVal = scope.prepareQueryStmtBlock(),
             preparedStmtField = preparedStmtField,
             dbField = dbField,
-            scope = scope)
+            scope = scope
+        )
     }
 }

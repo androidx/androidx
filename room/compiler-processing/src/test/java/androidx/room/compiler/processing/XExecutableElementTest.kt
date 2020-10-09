@@ -37,7 +37,8 @@ class XExecutableElementTest {
         runProcessorTestIncludingKsp(
             sources = listOf(
                 Source.java(
-                    "foo.bar.Baz", """
+                    "foo.bar.Baz",
+                    """
                 package foo.bar;
                 public class Baz {
                     private void foo() {}
@@ -45,7 +46,7 @@ class XExecutableElementTest {
                         return "";
                     }
                 }
-            """.trimIndent()
+                    """.trimIndent()
                 )
             )
         ) {
@@ -76,12 +77,13 @@ class XExecutableElementTest {
     @Test
     fun isVarArgs() {
         val subject = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             interface Baz {
                 void method(String... inputs);
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(subject)
@@ -94,7 +96,8 @@ class XExecutableElementTest {
     @Test
     fun kotlinDefaultImpl() {
         val subject = Source.kotlin(
-            "Baz.kt", """
+            "Baz.kt",
+            """
             package foo.bar;
             import java.util.List;
             interface Baz {
@@ -109,7 +112,7 @@ class XExecutableElementTest {
                     return param1.first();
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(subject)
@@ -146,13 +149,14 @@ class XExecutableElementTest {
     @Test
     fun suspendMethod() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             class Subject {
                 suspend fun noArg():Unit = TODO()
                 suspend fun intReturn(): Int = TODO()
                 suspend fun twoParams(param1:String, param2:Int): Pair<String, Int> = TODO()
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(src)
@@ -223,7 +227,8 @@ class XExecutableElementTest {
     @Test
     fun kotlinProperties() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             data class MyDataClass(val x:String, var y:String, private val z:String) {
                 val prop1: String = ""
                 var prop2: String = ""
@@ -232,7 +237,7 @@ class XExecutableElementTest {
                     get() = TODO()
                 private val prop4:String = ""
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
@@ -264,13 +269,14 @@ class XExecutableElementTest {
     @Test
     fun parametersAsMemberOf() {
         val source = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class Base<T> {
                 fun foo(t:T, nullableT:T?): List<T?> = TODO()
             }
             class Subject : Base<String>()
             class NullableSubject: Base<String?>()
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(source)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
@@ -308,7 +314,8 @@ class XExecutableElementTest {
     @Test
     fun kotlinPropertyOverrides() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             interface MyInterface {
                 val x:Int
                 var y:Int
@@ -317,10 +324,11 @@ class XExecutableElementTest {
                 override var x: Int = 1
                 override var y: Int = 1
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         val javaSrc = Source.java(
-            "JavaImpl", """
+            "JavaImpl",
+            """
             class JavaImpl implements MyInterface {
                 public int getX() {
                     return 1;
@@ -331,7 +339,7 @@ class XExecutableElementTest {
                 public void setY(int value) {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src, javaSrc)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("MyInterface")

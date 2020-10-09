@@ -39,7 +39,8 @@ class MethodSpecHelperTest {
     fun overrides() {
         // check our override impl matches javapoet
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
 
@@ -70,7 +71,7 @@ class MethodSpecHelperTest {
                 protected void throwsException() throws Exception {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         // first build golden image with Java processor so we can use JavaPoet's API
         val golden = buildMethodsViaJavaPoet(source)

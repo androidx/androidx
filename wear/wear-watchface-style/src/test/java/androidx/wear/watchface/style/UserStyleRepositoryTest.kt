@@ -100,10 +100,12 @@ class UserStyleRepositoryTest {
         Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)
         Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
 
-        val newStyle = UserStyle(hashMapOf(
-            colorStyleCategory to greenStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        val newStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to greenStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         Mockito.reset(mockListener1)
         Mockito.reset(mockListener2)
@@ -118,10 +120,12 @@ class UserStyleRepositoryTest {
 
     @Test
     fun assigning_userStyle() {
-        val newStyle = UserStyle(hashMapOf(
-            colorStyleCategory to greenStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        val newStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to greenStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         userStyleRepository.userStyle = newStyle
 
@@ -135,7 +139,7 @@ class UserStyleRepositoryTest {
     fun defaultValues() {
         val watchHandLengthOption =
             userStyleRepository.userStyle.options[watchHandLengthStyleCategory]!! as
-                    DoubleRangeUserStyleCategory.DoubleRangeOption
+                DoubleRangeUserStyleCategory.DoubleRangeOption
         assertThat(watchHandLengthOption.value).isEqualTo(0.75)
     }
 }

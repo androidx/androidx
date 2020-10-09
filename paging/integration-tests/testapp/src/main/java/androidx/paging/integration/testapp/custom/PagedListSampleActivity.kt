@@ -48,8 +48,10 @@ class PagedListSampleActivity : AppCompatActivity() {
         )
 
         @Suppress("DEPRECATION")
-        viewModel.livePagedList.observe(this,
-            Observer<PagedList<Item>> { pagingAdapter.submitList(it) })
+        viewModel.livePagedList.observe(
+            this,
+            Observer<PagedList<Item>> { pagingAdapter.submitList(it) }
+        )
 
         setupLoadStateButtons(viewModel, pagingAdapter)
 

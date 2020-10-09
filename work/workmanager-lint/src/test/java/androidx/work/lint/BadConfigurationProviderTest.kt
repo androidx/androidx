@@ -87,10 +87,12 @@ class BadConfigurationProviderTest {
             invalidProvider
         ).issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 src/com/example/App.kt: Error: Expected Application subtype to implement Configuration.Provider [BadConfigurationProvider]
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 

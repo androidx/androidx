@@ -271,16 +271,18 @@ private class IWatchFaceInstanceStub(
 
     private fun sendImmutableProperties(immutableSystemState: ImmutableSystemState) {
         uiThreadHandler.runOnHandler {
-            engine!!.onPropertiesChanged(Bundle().apply {
-                putBoolean(
-                    Constants.PROPERTY_LOW_BIT_AMBIENT,
-                    immutableSystemState.hasLowBitAmbient
-                )
-                putBoolean(
-                    Constants.PROPERTY_BURN_IN_PROTECTION,
-                    immutableSystemState.hasBurnInProtection
-                )
-            })
+            engine!!.onPropertiesChanged(
+                Bundle().apply {
+                    putBoolean(
+                        Constants.PROPERTY_LOW_BIT_AMBIENT,
+                        immutableSystemState.hasLowBitAmbient
+                    )
+                    putBoolean(
+                        Constants.PROPERTY_BURN_IN_PROTECTION,
+                        immutableSystemState.hasBurnInProtection
+                    )
+                }
+            )
         }
     }
 

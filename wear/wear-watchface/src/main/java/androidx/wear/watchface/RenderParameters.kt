@@ -89,7 +89,8 @@ class RenderParameters(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     fun toWireFormat() = RenderParametersWireFormat(
-        drawMode.ordinal, layerParameters.map {
+        drawMode.ordinal,
+        layerParameters.map {
             RenderParametersWireFormat.LayerParameterWireFormat(
                 it.key.ordinal,
                 it.value.ordinal

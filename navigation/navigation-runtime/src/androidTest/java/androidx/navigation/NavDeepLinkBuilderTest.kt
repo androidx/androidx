@@ -167,7 +167,8 @@ class NavDeepLinkBuilderTest {
         args.putString("test", "test2")
         val secondPendingIntent = deepLinkBuilder.createPendingIntent()
         assertWithMessage(
-            "PendingIntents with different destination arguments should be different")
+            "PendingIntents with different destination arguments should be different"
+        )
             .that(firstPendingIntent)
             .isNotEqualTo(secondPendingIntent)
     }

@@ -30,16 +30,21 @@ class QueryParameterProcessor(
     fun process(): QueryParameter {
         val asMember = element.asMemberOf(containing)
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
-        context.checker.check(parameterAdapter != null, element,
-                ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)
+        context.checker.check(
+            parameterAdapter != null, element,
+            ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
+        )
 
         val name = element.name
-        context.checker.check(!name.startsWith("_"), element,
-                ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE)
+        context.checker.check(
+            !name.startsWith("_"), element,
+            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+        )
         return QueryParameter(
-                name = name,
-                sqlName = sqlName ?: name,
-                type = asMember,
-                queryParamAdapter = parameterAdapter)
+            name = name,
+            sqlName = sqlName ?: name,
+            type = asMember,
+            queryParamAdapter = parameterAdapter
+        )
     }
 }

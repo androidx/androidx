@@ -29,9 +29,10 @@ class KotlinMetadataTest {
     @Test
     fun readWithMetadata() {
         val source = Source.kotlin(
-            "Dummy.kt", """
+            "Dummy.kt",
+            """
             class Dummy
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(source)
