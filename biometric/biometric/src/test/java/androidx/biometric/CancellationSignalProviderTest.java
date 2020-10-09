@@ -18,6 +18,7 @@ package androidx.biometric;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -26,8 +27,11 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.test.filters.LargeTest;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -36,6 +40,45 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CancellationSignalProviderTest {
+    @Mock private android.os.CancellationSignal mBiometricCancellationSignal;
+    @Mock private androidx.core.os.CancellationSignal mFingerprintCancellationSignal;
+
+    private CancellationSignalProvider.Injector mFieldMockInjector;
+    private CancellationSignalProvider.Injector mNewMockInjector;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+
+        mFieldMockInjector = new CancellationSignalProvider.Injector() {
+            @Override
+            @NonNull
+            public android.os.CancellationSignal getBiometricCancellationSignal() {
+                return mBiometricCancellationSignal;
+            }
+
+            @Override
+            @NonNull
+            public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
+                return mFingerprintCancellationSignal;
+            }
+        };
+
+        mNewMockInjector = new CancellationSignalProvider.Injector() {
+            @Override
+            @NonNull
+            public android.os.CancellationSignal getBiometricCancellationSignal() {
+                return mock(android.os.CancellationSignal.class);
+            }
+
+            @Override
+            @NonNull
+            public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
+                return mock(androidx.core.os.CancellationSignal.class);
+            }
+        };
+    }
+
     @Test
     @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN)
     public void testBiometricCancellationSignal_IsCached() {
@@ -48,29 +91,15 @@ public class CancellationSignalProviderTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN)
     public void testBiometricCancellationSignal_ReceivesCancel() {
-        final android.os.CancellationSignal cancellationSignal =
-                mock(android.os.CancellationSignal.class);
-        final CancellationSignalProvider.Injector injector =
-                new CancellationSignalProvider.Injector() {
-                    @Override
-                    @NonNull
-                    public android.os.CancellationSignal getBiometricCancellationSignal() {
-                        return cancellationSignal;
-                    }
+        final CancellationSignalProvider provider =
+                new CancellationSignalProvider(mFieldMockInjector);
 
-                    @Override
-                    @NonNull
-                    public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
-                        return mock(androidx.core.os.CancellationSignal.class);
-                    }
-                };
-        final CancellationSignalProvider provider = new CancellationSignalProvider(injector);
-
-        assertThat(provider.getBiometricCancellationSignal()).isEqualTo(cancellationSignal);
+        assertThat(provider.getBiometricCancellationSignal())
+                .isEqualTo(mBiometricCancellationSignal);
 
         provider.cancel();
 
-        verify(cancellationSignal).cancel();
+        verify(mBiometricCancellationSignal).cancel();
     }
 
     @Test
@@ -83,62 +112,50 @@ public class CancellationSignalProviderTest {
 
     @Test
     public void testFingerprintCancellationSignal_ReceivesCancel() {
-        final androidx.core.os.CancellationSignal cancellationSignal =
-                mock(androidx.core.os.CancellationSignal.class);
-        final CancellationSignalProvider.Injector injector =
-                new CancellationSignalProvider.Injector() {
-                    @Override
-                    @NonNull
-                    public android.os.CancellationSignal getBiometricCancellationSignal() {
-                        return mock(android.os.CancellationSignal.class);
-                    }
+        final CancellationSignalProvider provider =
+                new CancellationSignalProvider(mFieldMockInjector);
 
-                    @Override
-                    @NonNull
-                    public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
-                        return  cancellationSignal;
-                    }
-                };
-        final CancellationSignalProvider provider = new CancellationSignalProvider(injector);
-
-        assertThat(provider.getFingerprintCancellationSignal()).isEqualTo(cancellationSignal);
+        assertThat(provider.getFingerprintCancellationSignal())
+                .isEqualTo(mFingerprintCancellationSignal);
 
         provider.cancel();
 
-        verify(cancellationSignal).cancel();
+        verify(mFingerprintCancellationSignal).cancel();
     }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN)
     public void testBothCancellationSignals_ReceiveCancel() {
-        final android.os.CancellationSignal biometricCancellationSignal =
-                mock(android.os.CancellationSignal.class);
-        final androidx.core.os.CancellationSignal fingerprintCancellationSignal =
-                mock(androidx.core.os.CancellationSignal.class);
-        final CancellationSignalProvider.Injector injector =
-                new CancellationSignalProvider.Injector() {
-                    @Override
-                    @NonNull
-                    public android.os.CancellationSignal getBiometricCancellationSignal() {
-                        return biometricCancellationSignal;
-                    }
-
-                    @Override
-                    @NonNull
-                    public androidx.core.os.CancellationSignal getFingerprintCancellationSignal() {
-                        return fingerprintCancellationSignal;
-                    }
-                };
-        final CancellationSignalProvider provider = new CancellationSignalProvider(injector);
+        final CancellationSignalProvider provider =
+                new CancellationSignalProvider(mFieldMockInjector);
 
         assertThat(provider.getBiometricCancellationSignal())
-                .isEqualTo(biometricCancellationSignal);
+                .isEqualTo(mBiometricCancellationSignal);
         assertThat(provider.getFingerprintCancellationSignal())
-                .isEqualTo(fingerprintCancellationSignal);
+                .isEqualTo(mFingerprintCancellationSignal);
 
         provider.cancel();
 
-        verify(biometricCancellationSignal).cancel();
-        verify(fingerprintCancellationSignal).cancel();
+        verify(mBiometricCancellationSignal).cancel();
+        verify(mFingerprintCancellationSignal).cancel();
+    }
+
+    @Test
+    public void testCancel_DoesNotCrash_WhenCancellationSignalsThrowNPE() {
+        final CancellationSignalProvider provider =
+                new CancellationSignalProvider(mNewMockInjector);
+
+        final android.os.CancellationSignal biometricSignal =
+                provider.getBiometricCancellationSignal();
+        final androidx.core.os.CancellationSignal fingerprintSignal =
+                provider.getFingerprintCancellationSignal();
+
+        doThrow(NullPointerException.class).when(biometricSignal).cancel();
+        doThrow(NullPointerException.class).when(fingerprintSignal).cancel();
+
+        provider.cancel();
+
+        assertThat(provider.getBiometricCancellationSignal()).isNotEqualTo(biometricSignal);
+        assertThat(provider.getFingerprintCancellationSignal()).isNotEqualTo(fingerprintSignal);
     }
 }
