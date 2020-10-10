@@ -1136,22 +1136,38 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3, email4).build()));
 
         // Check the presence of the documents
-        assertThat(doQuery(mDb1, "")).hasSize(2);
-        assertThat(doQuery(mDb2, "")).hasSize(2);
+        SearchResults searchResults = mDb1.query("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+        searchResults = mDb2.query("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
 
         // Delete the all document in instance 1 with TERM_MATCH_PREFIX
         checkIsResultSuccess(mDb1.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                         .build()));
-        assertThat(doQuery(mDb1, "")).isEmpty();
+        searchResults = mDb1.query("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
 
         // Delete the all document in instance 2 with TERM_MATCH_EXACT_ONLY
         checkIsResultSuccess(mDb2.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build()));
-        assertThat(doQuery(mDb2, "")).isEmpty();
+        searchResults = mDb2.query("", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).isEmpty();
     }
 
     @Test
