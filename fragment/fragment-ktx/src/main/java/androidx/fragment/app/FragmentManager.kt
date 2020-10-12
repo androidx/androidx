@@ -23,7 +23,7 @@ package androidx.fragment.app
  * The transaction will be completed by calling [FragmentTransaction.commit] unless [allowStateLoss]
  * is set to `true` in which case [FragmentTransaction.commitAllowingStateLoss] will be used.
  */
-inline fun FragmentManager.commit(
+public inline fun FragmentManager.commit(
     allowStateLoss: Boolean = false,
     body: FragmentTransaction.() -> Unit
 ) {
@@ -44,7 +44,7 @@ inline fun FragmentManager.commit(
  * [allowStateLoss] is set to `true` in which case [FragmentTransaction.commitNowAllowingStateLoss]
  * will be used.
  */
-inline fun FragmentManager.commitNow(
+public inline fun FragmentManager.commitNow(
     allowStateLoss: Boolean = false,
     body: FragmentTransaction.() -> Unit
 ) {
@@ -71,7 +71,7 @@ inline fun FragmentManager.commitNow(
  *     | true  | true             |  commitNowAllowingStateLoss()  |
  */
 @Deprecated("Use commit { .. } or commitNow { .. } extensions")
-inline fun FragmentManager.transaction(
+public inline fun FragmentManager.transaction(
     now: Boolean = false,
     allowStateLoss: Boolean = false,
     body: FragmentTransaction.() -> Unit
