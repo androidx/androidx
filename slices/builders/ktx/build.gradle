@@ -53,4 +53,5 @@ androidx {
     inceptionYear = "2018"
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
     failOnDeprecationWarnings = false
+    legacyDisableKotlinStrictApiMode = true
 }

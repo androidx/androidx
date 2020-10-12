@@ -26,7 +26,7 @@ package androidx.dynamicanimation.animation
  * @param getter The function that returns the value of the property
  * @return [FlingAnimation]
  */
-fun flingAnimationOf(setter: (Float) -> Unit, getter: () -> Float): FlingAnimation {
+public fun flingAnimationOf(setter: (Float) -> Unit, getter: () -> Float): FlingAnimation {
     return FlingAnimation(createFloatValueHolder(setter, getter))
 }
 
@@ -40,7 +40,7 @@ fun flingAnimationOf(setter: (Float) -> Unit, getter: () -> Float): FlingAnimati
  * @param finalPosition [SpringForce.mFinalPosition] Final position of spring.
  * @return [SpringAnimation]
  */
-fun springAnimationOf(
+public fun springAnimationOf(
     setter: (Float) -> Unit,
     getter: () -> Float,
     finalPosition: Float = Float.NaN
@@ -63,7 +63,7 @@ fun springAnimationOf(
  * @param func lambda with receiver on [SpringForce]
  * @return [SpringAnimation]
  */
-inline fun SpringAnimation.withSpringForceProperties(
+public inline fun SpringAnimation.withSpringForceProperties(
     func: SpringForce.() -> Unit
 ): SpringAnimation {
     if (spring == null) {

@@ -34,7 +34,7 @@ import kotlin.coroutines.resumeWithException
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-suspend inline fun <R> ListenableFuture<R>.await(): R {
+public suspend inline fun <R> ListenableFuture<R>.await(): R {
     // Fast path
     if (isDone) {
         try {

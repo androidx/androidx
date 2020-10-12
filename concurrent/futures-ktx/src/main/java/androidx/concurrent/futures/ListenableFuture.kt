@@ -38,7 +38,7 @@ import kotlin.coroutines.resumeWithException
  * Future is cancelled as well. If cancelling the given future is undesired, use
  * [kotlinx.coroutines.NonCancellable].
  */
-suspend fun <T> ListenableFuture<T>.await(): T {
+public suspend fun <T> ListenableFuture<T>.await(): T {
     try {
         if (isDone) return getUninterruptibly(this)
     } catch (e: ExecutionException) {

@@ -53,6 +53,7 @@ androidx {
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
     description = "Android Paging-RXJava2"
+    legacyDisableKotlinStrictApiMode = true
 }
 
 // Allow usage of Kotlin's @OptIn.

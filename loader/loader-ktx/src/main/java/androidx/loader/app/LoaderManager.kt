@@ -55,7 +55,7 @@ import androidx.loader.content.Loader
  * @param onLoadFinished Lambda to call to handle [LoaderManager.LoaderCallbacks.onLoadFinished]
  */
 @MainThread
-inline fun <D> LoaderManager.initLoader(
+public inline fun <D> LoaderManager.initLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},
@@ -105,7 +105,7 @@ inline fun <D> LoaderManager.initLoader(
  * @param onLoadFinished Lambda to call to handle [LoaderManager.LoaderCallbacks.onLoadFinished]
  */
 @MainThread
-inline fun <D> LoaderManager.restartLoader(
+public inline fun <D> LoaderManager.restartLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},

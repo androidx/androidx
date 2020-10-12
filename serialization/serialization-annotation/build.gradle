@@ -43,4 +43,5 @@ androidx {
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2020"
     description = "Annotations for AndroidX Serialization"
+    legacyDisableKotlinStrictApiMode = true
 }

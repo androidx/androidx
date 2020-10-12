@@ -38,4 +38,5 @@ androidx {
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'collection' artifact"
+    legacyDisableKotlinStrictApiMode = true
 }
