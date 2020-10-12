@@ -37,7 +37,7 @@ import com.google.devtools.ksp.symbol.Variance
 internal class KspProcessingEnv(
     override val options: Map<String, String>,
     codeGenerator: CodeGenerator,
-    private val logger: KSPLogger,
+    logger: KSPLogger,
     val resolver: Resolver
 ) : XProcessingEnv {
 
@@ -53,8 +53,7 @@ internal class KspProcessingEnv(
             }
         }
 
-    override val messager: XMessager
-        get() = TODO("Not yet implemented")
+    override val messager: XMessager = KspMessager(logger)
 
     override val filer: XFiler = KspFiler(codeGenerator)
 

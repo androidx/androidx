@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runProcessorTestForFailedCompilation
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -29,6 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import javax.lang.model.element.Modifier
+import javax.tools.Diagnostic
 
 @RunWith(JUnit4::class)
 class XProcessingEnvTest {
@@ -211,6 +213,25 @@ class XProcessingEnvTest {
                         .writeTo(invocation.processingEnv.filer)
                 }
             }
+        }
+    }
+
+    @Test
+    fun errorLogFailsCompilation() {
+        val src = Source.java(
+            "Foo.java",
+            """
+            class Foo {}
+            """.trimIndent()
+        )
+        // TODO include KSP when https://github.com/google/ksp/issues/122 is fixed.
+        runProcessorTestForFailedCompilation(
+            sources = listOf(src)
+        ) {
+            it.processingEnv.messager.printMessage(
+                Diagnostic.Kind.ERROR,
+                "intentional failure"
+            )
         }
     }
 
