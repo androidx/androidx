@@ -37,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.PaintCompat;
-import androidx.core.util.Preconditions;
 import androidx.emoji.widget.SpannableBuilder;
 
 import java.lang.annotation.Retention;
@@ -92,7 +91,7 @@ final class EmojiProcessor {
     /**
      * Utility class that checks if the system can render a given glyph.
      */
-    private GlyphChecker mGlyphChecker = new GlyphChecker();
+    private EmojiCompat.GlyphChecker mGlyphChecker;
 
     /**
      * @see EmojiCompat.Config#setUseEmojiAsDefaultStyle(boolean)
@@ -104,12 +103,16 @@ final class EmojiProcessor {
      */
     private final int[] mEmojiAsDefaultStyleExceptions;
 
-    EmojiProcessor(@NonNull final MetadataRepo metadataRepo,
+    EmojiProcessor(
+            @NonNull final MetadataRepo metadataRepo,
             @NonNull final EmojiCompat.SpanFactory spanFactory,
+            @NonNull final EmojiCompat.GlyphChecker glyphChecker,
             final boolean useEmojiAsDefaultStyle,
-            @Nullable final int[] emojiAsDefaultStyleExceptions) {
+            @Nullable final int[] emojiAsDefaultStyleExceptions
+    ) {
         mSpanFactory = spanFactory;
         mMetadataRepo = metadataRepo;
+        mGlyphChecker = glyphChecker;
         mUseEmojiAsDefaultStyle = useEmojiAsDefaultStyle;
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
     }
@@ -452,28 +455,14 @@ final class EmojiProcessor {
      */
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
             final EmojiMetadata metadata) {
-        // For pre M devices, heuristic in PaintCompat can result in false positives. we are
-        // adding another heuristic using the sdkAdded field. if the emoji was added to OS
-        // at a later version we assume that the system probably cannot render it.
-        if (Build.VERSION.SDK_INT < 23 && metadata.getSdkAdded() > Build.VERSION.SDK_INT) {
-            return false;
-        }
-
         // if the existence is not calculated yet
         if (metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_UNKNOWN) {
-            final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end);
+            final boolean hasGlyph = mGlyphChecker.hasGlyph(charSequence, start, end,
+                    metadata.getSdkAdded());
             metadata.setHasGlyph(hasGlyph);
         }
 
         return metadata.getHasGlyph() == EmojiMetadata.HAS_GLYPH_EXISTS;
-    }
-
-    /**
-     * Set the GlyphChecker instance used by EmojiProcessor. Used for testing.
-     */
-    void setGlyphChecker(@NonNull final GlyphChecker glyphChecker) {
-        Preconditions.checkNotNull(glyphChecker);
-        mGlyphChecker = glyphChecker;
     }
 
     /**
@@ -788,7 +777,7 @@ final class EmojiProcessor {
      */
     @AnyThread
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static class GlyphChecker {
+    public static class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {
         /**
          * Default text size for {@link #mTextPaint}.
          */
@@ -805,21 +794,25 @@ final class EmojiProcessor {
          */
         private final TextPaint mTextPaint;
 
-        GlyphChecker() {
+        DefaultGlyphChecker() {
             mTextPaint = new TextPaint();
             mTextPaint.setTextSize(PAINT_TEXT_SIZE);
         }
 
-        /**
-         * Returns whether the system can render an emoji.
-         *
-         * @param charSequence the CharSequence that the emoji is in
-         * @param start start index of the emoji in the CharSequence
-         * @param end end index of the emoji in the CharSequence
-         *
-         * @return {@code true} if the OS can render emoji, {@code false} otherwise
-         */
-        public boolean hasGlyph(final CharSequence charSequence, int start, final int end) {
+        @Override
+        public boolean hasGlyph(
+                @NonNull CharSequence charSequence,
+                int start,
+                int end,
+                int sdkAdded
+        ) {
+            // For pre M devices, heuristic in PaintCompat can result in false positives. we are
+            // adding another heuristic using the sdkAdded field. if the emoji was added to OS
+            // at a later version we assume that the system probably cannot render it.
+            if (Build.VERSION.SDK_INT < 23 && sdkAdded > Build.VERSION.SDK_INT) {
+                return false;
+            }
+
             final StringBuilder builder = getStringBuilder();
             builder.setLength(0);
 
@@ -837,6 +830,5 @@ final class EmojiProcessor {
             }
             return sStringBuilder.get();
         }
-
     }
 }
