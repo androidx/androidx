@@ -19,7 +19,7 @@
 package androidx.collection
 
 /** Returns an empty new [ArrayMap]. */
-inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
+public inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
 
 /**
  * Returns a new [ArrayMap] with the specified contents, given as a list of pairs where the first
@@ -28,7 +28,7 @@ inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
  * If multiple pairs have the same key, the resulting map will contain the value from the last of
  * those pairs.
  */
-fun <K, V> arrayMapOf(vararg pairs: Pair<K, V>): ArrayMap<K, V> {
+public fun <K, V> arrayMapOf(vararg pairs: Pair<K, V>): ArrayMap<K, V> {
     val map = ArrayMap<K, V>(pairs.size)
     for (pair in pairs) {
         map[pair.first] = pair.second
