@@ -18,19 +18,23 @@ package androidx.activity.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 
-private val ACTIVITY_RESULT_CALLER = java("""
+private val ACTIVITY_RESULT_CALLER = java(
+    """
     package androidx.activity.result;
 
     public class ActivityResultCaller {
         public ActivityResultLauncher registerForActivityResult(ActivityResultContract contract) {}
     }
-""")
+"""
+)
 
-private val ACTIVITY_RESULT_CONTRACT = java("""
+private val ACTIVITY_RESULT_CONTRACT = java(
+    """
     package androidx.activity.result.contract;
 
     public class ActivityResultContract { }
-""")
+"""
+)
 
 // stubs for testing calls to registerForActivityResult
 internal val STUBS = arrayOf(

@@ -100,7 +100,22 @@ internal class JavacMethodElement(
 
     override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
 
-    override fun findKotlinDefaultImpl(): XMethodElement? {
+    override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
+        check(other is JavacMethodElement)
+        check(owner is JavacTypeElement)
+        return env.elementUtils.overrides(element, other.element, owner.element)
+    }
+
+    override fun copyTo(newContainer: XTypeElement): XMethodElement {
+        check(newContainer is JavacTypeElement)
+        return JavacMethodElement(
+            env = env,
+            containing = newContainer,
+            element = element
+        )
+    }
+
+    override fun hasKotlinDefaultImpl(): Boolean {
         fun paramsMatch(
             ourParams: List<XVariableElement>,
             theirParams: List<XVariableElement>
@@ -119,9 +134,9 @@ internal class JavacMethodElement(
             }
             return true
         }
-        return kotlinDefaultImplClass?.getDeclaredMethods()?.find {
+        return kotlinDefaultImplClass?.getDeclaredMethods()?.any {
             it.name == this.name && paramsMatch(parameters, it.parameters)
-        }
+        } ?: false
     }
 
     @Suppress("UnstableApiUsage")

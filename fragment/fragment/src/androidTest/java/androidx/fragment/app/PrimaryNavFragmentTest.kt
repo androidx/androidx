@@ -119,7 +119,8 @@ class PrimaryNavFragmentTest {
         executePendingTransactions(fm)
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment1 to false, trackingFragment2 to true))
+            listOf(trackingFragment1 to false, trackingFragment2 to true)
+        )
 
         assertWithMessage("primary nav fragment not updated to new fragment")
             .that(fm.primaryNavigationFragment)
@@ -128,7 +129,8 @@ class PrimaryNavFragmentTest {
         activityRule.onBackPressed()
 
         assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment2 to false, trackingFragment1 to true))
+            listOf(trackingFragment2 to false, trackingFragment1 to true)
+        )
         assertWithMessage("primary nav fragment not restored on pop")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
@@ -145,7 +147,8 @@ class PrimaryNavFragmentTest {
         activityRule.onBackPressed()
 
         assertWithMessage(
-            "same primary nav fragment not retained when set primary nav transaction popped")
+            "same primary nav fragment not retained when set primary nav transaction popped"
+        )
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
     }
@@ -247,7 +250,8 @@ class PrimaryNavFragmentTest {
         executePendingTransactions(fm)
 
         assertThat(navigations.drain()).containsExactly(
-            trackingFragment1 to false, trackingFragment2 to true).inOrder()
+            trackingFragment1 to false, trackingFragment2 to true
+        ).inOrder()
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment2)
@@ -257,7 +261,8 @@ class PrimaryNavFragmentTest {
         // Note that strictFragment2 does not get a callback since the
         // pop of the replace happens before the pop of the setPrimaryFragment
         assertThat(navigations.drain()).containsExactly(
-            trackingFragment2 to false, trackingFragment1 to true).inOrder()
+            trackingFragment2 to false, trackingFragment1 to true
+        ).inOrder()
         assertWithMessage("primary nav fragment is restored after popping replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
@@ -294,26 +299,30 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        assertThat(navigations.drain()).isEqualTo(if (FragmentManager.USE_STATE_MANAGER) {
-            listOf(
-                trackingFragment to false,
-                postponedFragment to true
-            )
-        } else {
-            listOf(
-                trackingFragment to false,
-                postponedFragment to true,
-                postponedFragment to false,
-                trackingFragment to true
-            )
-        })
+        assertThat(navigations.drain()).isEqualTo(
+            if (FragmentManager.USE_STATE_MANAGER) {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true
+                )
+            } else {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true,
+                    postponedFragment to false,
+                    trackingFragment to true
+                )
+            }
+        )
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(if (FragmentManager.USE_STATE_MANAGER) {
-                postponedFragment
-            } else {
-                trackingFragment
-            })
+            .isSameInstanceAs(
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    postponedFragment
+                } else {
+                    trackingFragment
+                }
+            )
 
         // Now pop the back stack and also add a replacement Fragment
         fm.popBackStack()
@@ -325,23 +334,25 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        assertThat(navigations.drain()).isEqualTo(if (FragmentManager.USE_STATE_MANAGER) {
-            listOf(
-                postponedFragment to false,
-                trackingFragment to true,
-                trackingFragment to false,
-                replacementFragment to true
-            )
-        } else {
-            listOf(
-                trackingFragment to false,
-                postponedFragment to true,
-                postponedFragment to false,
-                trackingFragment to true,
-                trackingFragment to false,
-                replacementFragment to true
-            )
-        })
+        assertThat(navigations.drain()).isEqualTo(
+            if (FragmentManager.USE_STATE_MANAGER) {
+                listOf(
+                    postponedFragment to false,
+                    trackingFragment to true,
+                    trackingFragment to false,
+                    replacementFragment to true
+                )
+            } else {
+                listOf(
+                    trackingFragment to false,
+                    postponedFragment to true,
+                    postponedFragment to false,
+                    trackingFragment to true,
+                    trackingFragment to false,
+                    replacementFragment to true
+                )
+            }
+        )
 
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
@@ -369,8 +380,8 @@ class PrimaryNavFragmentTest {
     @Suppress("DEPRECATION")
     private fun androidx.test.rule.ActivityTestRule<out Activity>.onBackPressed() =
         runOnUiThreadRethrow {
-        activity.onBackPressed()
-    }
+            activity.onBackPressed()
+        }
 
     private fun <T> MutableList<T>.drain(): List<T> {
         val result = ArrayList<T>(this)

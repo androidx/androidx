@@ -69,15 +69,36 @@ import androidx.core.util.Preconditions;
  */
 // TODO(sidchhabra): Capture real snippet after integration with icingLib.
 public final class MatchInfo {
-    // The path of the matching snippet property.
-    static final String PROPERTY_PATH_FIELD = "propertyPath";
-    // The index of matching value in its property. A property may have multiple values. This
-    // index indicates which value is the match.
-    static final String VALUES_INDEX_FIELD = "valuesIndex";
-    static final String EXACT_MATCH_POSITION_LOWER_FIELD = "exactMatchPositionLower";
-    static final String EXACT_MATCH_POSITION_UPPER_FIELD = "exactMatchPositionUpper";
-    static final String WINDOW_POSITION_LOWER_FIELD = "windowPositionLower";
-    static final String WINDOW_POSITION_UPPER_FIELD = "windowPositionUpper";
+    /**
+     * The path of the matching snippet property.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PROPERTY_PATH_FIELD = "propertyPath";
+
+    /**
+     * The index of matching value in its property. A property may have multiple values. This
+     * index indicates which value is the match.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String VALUES_INDEX_FIELD = "valuesIndex";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXACT_MATCH_POSITION_LOWER_FIELD = "exactMatchPositionLower";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXACT_MATCH_POSITION_UPPER_FIELD = "exactMatchPositionUpper";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WINDOW_POSITION_LOWER_FIELD = "windowPositionLower";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WINDOW_POSITION_UPPER_FIELD = "windowPositionUpper";
 
     private final String mFullText;
     private final String mPropertyPath;
@@ -85,23 +106,11 @@ public final class MatchInfo {
     private MatchRange mExactMatchRange;
     private MatchRange mWindowRange;
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public MatchInfo(@NonNull Bundle bundle, @NonNull GenericDocument document) {
+    MatchInfo(@NonNull GenericDocument document, @NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
         Preconditions.checkNotNull(document);
         mPropertyPath = Preconditions.checkNotNull(bundle.getString(PROPERTY_PATH_FIELD));
         mFullText = getPropertyValues(document, mPropertyPath, mBundle.getInt(VALUES_INDEX_FIELD));
-    }
-
-    /**
-     * Returns the {@link Bundle} populated by this builder.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
     }
 
     /**
@@ -133,7 +142,8 @@ public final class MatchInfo {
     @NonNull
     public MatchRange getExactMatchPosition() {
         if (mExactMatchRange == null) {
-            mExactMatchRange = new MatchRange(mBundle.getInt(EXACT_MATCH_POSITION_LOWER_FIELD),
+            mExactMatchRange = new MatchRange(
+                    mBundle.getInt(EXACT_MATCH_POSITION_LOWER_FIELD),
                     mBundle.getInt(EXACT_MATCH_POSITION_UPPER_FIELD));
         }
         return mExactMatchRange;
@@ -157,7 +167,8 @@ public final class MatchInfo {
     @NonNull
     public MatchRange getSnippetPosition() {
         if (mWindowRange == null) {
-            mWindowRange = new MatchRange(mBundle.getInt(WINDOW_POSITION_LOWER_FIELD),
+            mWindowRange = new MatchRange(
+                    mBundle.getInt(WINDOW_POSITION_LOWER_FIELD),
                     mBundle.getInt(WINDOW_POSITION_UPPER_FIELD));
         }
         return mWindowRange;
@@ -177,13 +188,12 @@ public final class MatchInfo {
     }
 
     private CharSequence getSubstring(MatchRange range) {
-        return getFullText()
-                .substring(range.getStart(), range.getEnd());
+        return getFullText().substring(range.getStart(), range.getEnd());
     }
 
     /** Extracts the matching string from the document. */
-    private static String getPropertyValues(GenericDocument document, String propertyName,
-            int valueIndex) {
+    private static String getPropertyValues(
+            GenericDocument document, String propertyName, int valueIndex) {
         // In IcingLib snippeting is available for only 3 data types i.e String, double and long,
         // so we need to check which of these three are requested.
         // TODO (tytytyww): getPropertyStringArray takes property name, handle for property path.
@@ -204,7 +214,7 @@ public final class MatchInfo {
      * <p> Example: MatchRange(0, 100) represent a hundred ints from 0 to 99."
      *
      */
-    public static class MatchRange{
+    public static class MatchRange {
         private final int mEnd;
         private final int mStart;
 
@@ -259,72 +269,6 @@ public final class MatchInfo {
         @Override
         public int hashCode() {
             return ObjectsCompat.hash(mStart, mEnd);
-        }
-    }
-
-    /**
-     * Builder for {@link MatchInfo objects}.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class Builder {
-        private final Bundle mBundle = new Bundle();
-        private final GenericDocument mDocument;
-        private boolean mBuilt = false;
-
-        public Builder(@NonNull GenericDocument document) {
-            mDocument = Preconditions.checkNotNull(document);
-        }
-
-        /**
-         * Sets the path of the matching snippet property.
-         * @see MatchRange#getPropertyPath()
-         */
-        @NonNull
-        public Builder setPropertyPath(@NonNull String propertyPath) {
-            Preconditions.checkNotNull(propertyPath);
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putString(PROPERTY_PATH_FIELD, propertyPath);
-            return this;
-        }
-
-        /** Sets the index of matching value in its property. */
-        @NonNull
-        public Builder setValuesIndex(int valuesIndex) {
-            mBundle.putInt(VALUES_INDEX_FIELD, valuesIndex);
-            return this;
-        }
-        /**
-         * Sets the position range within the matched string at which the exact match begins and
-         * ends.
-         */
-        @NonNull
-        public Builder setExactMatchPositionRange(
-                int exactMatchPositionLower, int exactMatchPositionUpper) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putInt(EXACT_MATCH_POSITION_LOWER_FIELD, exactMatchPositionLower);
-            mBundle.putInt(EXACT_MATCH_POSITION_UPPER_FIELD, exactMatchPositionUpper);
-            return this;
-        }
-
-        /** Sets the position range of the suggested snippet window. */
-        @NonNull
-        public Builder setWindowPositionRange(int windowPositionLower, int windowPositionUpper) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mBundle.putInt(WINDOW_POSITION_LOWER_FIELD, windowPositionLower);
-            mBundle.putInt(WINDOW_POSITION_UPPER_FIELD, windowPositionUpper);
-            return this;
-        }
-
-        /** Builds a {@link MatchInfo} object. */
-        @NonNull
-        public MatchInfo build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            if (!mBundle.containsKey(PROPERTY_PATH_FIELD)) {
-                throw new IllegalArgumentException("Missing field: PROPERTY_PATH");
-            }
-            mBuilt = true;
-            return new MatchInfo(mBundle, mDocument);
         }
     }
 }

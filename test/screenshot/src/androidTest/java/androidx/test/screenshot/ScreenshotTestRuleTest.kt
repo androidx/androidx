@@ -64,7 +64,8 @@ class ScreenshotTestRuleTest {
     fun performDiff_sameSizes_default_noMatch() {
         val first = loadBitmap("round_rect_gray")
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Image mismatch! Comparison stats: '[MSSIM] Required SSIM: 0.98, Actual SSIM: " +
                 "0.951'"
         ) {
@@ -83,7 +84,8 @@ class ScreenshotTestRuleTest {
     fun performDiff_sameSizes_pixelPerfect_noMatch() {
         val first = loadBitmap("round_rect_gray")
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Image mismatch! Comparison stats: '[PixelPerfect] Same pixels: 1748, " +
                 "Different pixels: 556'"
         ) {
@@ -128,8 +130,9 @@ class ScreenshotTestRuleTest {
     fun performDiff_missingGolden() {
         val first = loadBitmap("round_rect_gray")
 
-        expectErrorMessage("Missing golden image 'does_not_exist.png'. Did you mean to check in " +
-            "a new image?"
+        expectErrorMessage(
+            "Missing golden image 'does_not_exist.png'. Did you mean to check in " +
+                "a new image?"
         ) {
             first
                 .assertAgainstGolden(rule, "does_not_exist")

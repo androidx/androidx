@@ -85,8 +85,8 @@ class SampledAnnotationEnforcer {
             "EnforceSampledAnnotation",
             "Missing @$SAMPLED_ANNOTATION annotation",
             "Functions referred to from KDoc with a @$SAMPLE_KDOC_ANNOTATION tag must " +
-                    "be annotated with @$SAMPLED_ANNOTATION, to provide visibility at the sample " +
-                    "site and ensure that it doesn't get changed accidentally.",
+                "be annotated with @$SAMPLED_ANNOTATION, to provide visibility at the sample " +
+                "site and ensure that it doesn't get changed accidentally.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(KDocSampleLinkDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
@@ -95,8 +95,8 @@ class SampledAnnotationEnforcer {
             "EnforceSampledAnnotation",
             "Obsolete @$SAMPLED_ANNOTATION annotation",
             "This function is annotated with @$SAMPLED_ANNOTATION, but is not linked to " +
-                    "from a @$SAMPLE_KDOC_ANNOTATION tag. Either remove this annotation, or add " +
-                    "a valid @$SAMPLE_KDOC_ANNOTATION tag linking to it.",
+                "from a @$SAMPLE_KDOC_ANNOTATION tag. Either remove this annotation, or add " +
+                "a valid @$SAMPLE_KDOC_ANNOTATION tag linking to it.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
@@ -113,7 +113,7 @@ class SampledAnnotationEnforcer {
             "EnforceSampledAnnotation",
             "Unresolved @$SAMPLE_KDOC_ANNOTATION annotation",
             "Couldn't find a valid function matching the function specified in the " +
-                    "$SAMPLE_KDOC_ANNOTATION link.",
+                "$SAMPLE_KDOC_ANNOTATION link.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
@@ -130,7 +130,7 @@ class SampledAnnotationEnforcer {
             "EnforceSampledAnnotation",
             "Invalid samples location",
             "This function is annotated with @$SAMPLED_ANNOTATION, but is not inside a" +
-                    "project/directory named $SAMPLES_DIRECTORY.",
+                "project/directory named $SAMPLES_DIRECTORY.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
@@ -264,8 +264,8 @@ class SampledAnnotationEnforcer {
                                     MISSING_SAMPLED_ANNOTATION,
                                     docTag,
                                     context.getNameLocation(docTag),
-                            "${function.name} is not annotated with @$SAMPLED_ANNOTATION" +
-                                            ", but is linked to from the KDoc of $sourceNodeName"
+                                    "${function.name} is not annotated with @$SAMPLED_ANNOTATION" +
+                                        ", but is linked to from the KDoc of $sourceNodeName"
                                 )
                             }
                         }
@@ -330,8 +330,9 @@ class SampledAnnotationEnforcer {
                 val element = (node.sourceElement as? KtDeclaration) ?: return
 
                 if (element.annotationEntries.any {
-                        it.shortName.safeNameForLazyResolve().identifier == SAMPLED_ANNOTATION
-                    }) {
+                    it.shortName.safeNameForLazyResolve().identifier == SAMPLED_ANNOTATION
+                }
+                ) {
                     handleSampleCode(element, node)
                 }
             }
@@ -345,7 +346,7 @@ class SampledAnnotationEnforcer {
                         node,
                         context.getNameLocation(node),
                         "${function.name} is annotated with @$SAMPLED_ANNOTATION" +
-                                ", but is not inside a project/directory named $SAMPLES_DIRECTORY."
+                            ", but is not inside a project/directory named $SAMPLES_DIRECTORY."
                     )
                     return
                 }
@@ -361,7 +362,7 @@ class SampledAnnotationEnforcer {
                         node,
                         context.getNameLocation(node),
                         "${function.name} is annotated with @$SAMPLED_ANNOTATION, but is not " +
-                                "linked to from a @$SAMPLE_KDOC_ANNOTATION tag."
+                            "linked to from a @$SAMPLE_KDOC_ANNOTATION tag."
                     )
                 }
             }

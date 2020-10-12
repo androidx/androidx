@@ -21,12 +21,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -47,6 +49,7 @@ import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 @InternalCoroutinesApi
 @SmallTest
@@ -74,10 +77,42 @@ class PausingDispatcherTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun updateMainHandlerAndDispatcher() {
-        Dispatchers.setMain(mainExecutor.asCoroutineDispatcher())
+        Dispatchers.setMain(mainExecutor.asCoroutineDispatcher().asMain())
         runBlocking(Dispatchers.Main) {
             // extract the main thread to field for assertions
             mainThread = Thread.currentThread()
+        }
+    }
+
+    /**
+     * Wraps the receiver as a [MainCoroutineDispatcher].
+     *
+     * This is needed because [PausingDispatcher] is uses [Dispatchers.Main.immediate] internally
+     * and simply calling [Dispatchers.setMain] with a coroutine dispatcher leads to a different
+     * behavior. Namely that [CoroutineDispatcher.isDispatchNeeded] always returns `true` which
+     * is not an accurate emulation of how the real android dispatcher behaves.
+     *
+     * The returned dispatcher will mimic the behavior of the default Android main dispatcher in
+     * that its immediate counterpart will return `false` from
+     * [CoroutineDispatcher.isDispatchNeeded] if the current thread is [mainThread].
+     *
+     * The receiver must be backed by a single thread for this to work properly.
+     *
+     * Ideally the real android coroutine dispatcher would be used but this will require a somewhat
+     * refactoring of these tests so for now this is a good trade-off.
+     */
+    private fun CoroutineDispatcher.asMain(immediate: Boolean = false): MainCoroutineDispatcher {
+        return object : MainCoroutineDispatcher() {
+            override val immediate: MainCoroutineDispatcher =
+                if (immediate) this else asMain(immediate = true)
+
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                this@asMain.dispatch(context, block)
+            }
+
+            override fun isDispatchNeeded(context: CoroutineContext): Boolean {
+                return !immediate || Thread.currentThread() != mainThread
+            }
         }
     }
 
@@ -124,8 +159,10 @@ class PausingDispatcherTest {
         assertThat(result).isEqualTo(3)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun yieldTest() {
+        Dispatchers.resetMain()
         runBlocking(Dispatchers.Main) {
             owner.whenResumed {
                 expectations.expect(1)
@@ -140,6 +177,44 @@ class PausingDispatcherTest {
                 }
             }
             expectations.expectTotal(5)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun yieldImmediateTest() {
+        Dispatchers.resetMain()
+        runBlocking(Dispatchers.Main.immediate) {
+            val job = owner.lifecycleScope.launchWhenResumed {
+                expectations.expect(1)
+                yield()
+                expectations.expect(3)
+            }
+            expectations.expect(2)
+            yield()
+            expectations.expect(4)
+            expectations.expectTotal(4)
+            assertThat(job.isActive).isFalse()
+        }
+    }
+
+    @Test
+    fun yieldLoop() {
+        runBlocking(Dispatchers.Main.immediate) {
+            var condition = false
+            val job = owner.lifecycleScope.launchWhenResumed {
+                expectations.expect(1)
+                while (!condition) {
+                    expectations.expect(2)
+                    yield()
+                    expectations.expect(3)
+                }
+            }
+            expectations.expectTotal(2)
+            condition = true
+            yield()
+            assertThat(job.isActive).isFalse()
+            expectations.expectTotal(3)
         }
     }
 

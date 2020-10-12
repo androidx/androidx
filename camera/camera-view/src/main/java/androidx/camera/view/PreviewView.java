@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -25,6 +27,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Rational;
+import android.util.Size;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -43,6 +46,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
@@ -124,7 +128,7 @@ public class PreviewView extends FrameLayout {
 
     @NonNull
     PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
-            new PreviewViewMeteringPointFactory();
+            new PreviewViewMeteringPointFactory(mPreviewTransform);
 
     // Detector for zoom-to-scale.
     @NonNull
@@ -135,8 +139,6 @@ public class PreviewView extends FrameLayout {
 
     private final OnLayoutChangeListener mOnLayoutChangeListener =
             (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-
-                mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
                 boolean isSizeChanged =
                         right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
                 if (isSizeChanged) {
@@ -177,11 +179,6 @@ public class PreviewView extends FrameLayout {
 
             camera.getCameraState().addObserver(
                     ContextCompat.getMainExecutor(getContext()), streamStateObserver);
-
-            mPreviewViewMeteringPointFactory.setViewImplementationResolution(
-                    surfaceRequest.getResolution());
-            mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
-
             mImplementation.onSurfaceRequested(surfaceRequest, () -> {
                 // We've no longer needed this observer, if there is no new StreamStateObserver
                 // (another SurfaceRequest), reset the streamState to IDLE.
@@ -244,7 +241,6 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
-        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
         attachToControllerIfReady();
     }
 
@@ -255,7 +251,6 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onDetachedFromWindow();
         }
-        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
         if (mCameraController != null) {
             mCameraController.clearPreviewSurface();
         }
@@ -354,7 +349,6 @@ public class PreviewView extends FrameLayout {
     @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
-        mPreviewViewMeteringPointFactory.setScaleType(scaleType);
         redrawPreview();
     }
 
@@ -375,17 +369,20 @@ public class PreviewView extends FrameLayout {
      * Gets the {@link MeteringPointFactory} for the camera currently connected to the
      * {@link PreviewView}, if any.
      *
-     * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
+     * <p> The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
      * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
-     * {@link ScaleType}.
+     * {@link ScaleType}. The {@link MeteringPointFactory} is automatically adjusted if the
+     * {@link PreviewView} layout or the {@link ScaleType} changes.
      *
-     * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
-     * {@link Surface} is not yet requested by the camera, the returned factory will always create
-     * invalid {@link MeteringPoint}s which could lead to the failure of
-     * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)}, but it
-     * won't cause the application to crash.
+     * <p> The {@link MeteringPointFactory} returns invalid {@link MeteringPoint} if the
+     * preview is not ready, or the {@link PreviewView} dimension is zero. The invalid
+     * {@link MeteringPoint} will cause
+     * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} to fail but it won't
+     * crash the application. Wait for the {@link StreamState#STREAMING} state to make sure the
+     * preview is ready.
      *
      * @return a {@link MeteringPointFactory}
+     * @see #getPreviewStreamState()
      */
     @UiThread
     @NonNull
@@ -419,16 +416,11 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Returns a {@link Bitmap} representation of the content displayed on the preview
-     * {@link Surface}, or {@code null} if the camera preview hasn't started yet.
+     * Returns a {@link Bitmap} representation of the content displayed on the
+     * {@link PreviewView}, or {@code null} if the camera preview hasn't started yet.
      * <p>
-     * The returned {@link Bitmap} uses the {@link Bitmap.Config#ARGB_8888} pixel format, and its
-     * dimensions depend on the {@link PreviewView}'s {@link ScaleType}. When the
-     * {@link ScaleType} is {@link ScaleType#FILL_START}, {@link ScaleType#FILL_CENTER} or
-     * {@link ScaleType#FILL_END}, the returned {@link Bitmap} has the same size as the
-     * {@link PreviewView}. However, when the {@link ScaleType} is {@link ScaleType#FIT_START},
-     * {@link ScaleType#FIT_CENTER} or {@link ScaleType#FIT_END}, the returned {@link Bitmap}
-     * might be smaller than the {@link PreviewView}, since it doesn't also include its background.
+     * The returned {@link Bitmap} uses the {@link Bitmap.Config#ARGB_8888} pixel format and its
+     * dimensions are the same as this view's.
      * <p>
      * <strong>Do not</strong> invoke this method from a drawing method
      * ({@link View#onDraw(Canvas)} for instance).
@@ -436,7 +428,7 @@ public class PreviewView extends FrameLayout {
      * If an error occurs during the copy, an empty {@link Bitmap} will be returned.
      *
      * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
-     * displayed on the preview {@link Surface}, or null if the camera preview hasn't started yet.
+     * displayed on the {@link PreviewView}, or null if the camera preview hasn't started yet.
      */
     @UiThread
     @Nullable
@@ -545,6 +537,8 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.redrawPreview();
         }
+        mPreviewViewMeteringPointFactory.recalculate(new Size(getWidth(), getHeight()),
+                getLayoutDirection());
     }
 
     // Synthetic access
@@ -730,14 +724,16 @@ public class PreviewView extends FrameLayout {
     /**
      * Sets the {@link CameraController}.
      *
-     * <p> The controller creates and manages the {@link Preview} that backs the
-     * {@link PreviewView}. It also configures the {@link ViewPort} based on the {@link ScaleType}
-     * and the dimension of the {@link PreviewView}.
+     * <p> Once set, the controller will use {@link PreviewView} to display camera preview feed.
+     * It also uses the {@link PreviewView}'s layout dimension to set the crop rect for all the use
+     * cases so that the output from other use cases match what the end user sees in
+     * {@link PreviewView}. It also enables features like tap-to-focus and pinch-to-zoom.
      *
      * @hide
+     * @see LifecycleCameraController
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @MainThread
+    @RestrictTo(LIBRARY_GROUP)
     public void setController(@Nullable CameraController cameraController) {
         Threads.checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
@@ -754,9 +750,9 @@ public class PreviewView extends FrameLayout {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @MainThread
+    @RestrictTo(LIBRARY_GROUP)
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;

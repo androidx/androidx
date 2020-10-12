@@ -136,12 +136,11 @@ class ElementExtTest {
         simpleRun(
             jfos = arrayOf(parentCode, childCode)
         ) {
+            // NOTE: technically, an interface should show all methods it receives from Object
+            //  In practice, we never need it and would require additional code to implement hence
+            //  we don't include object methods in interfaces.
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
-            val objectMethods = it.processingEnv.requireTypeElement("java.lang.Object")
-                .getAllMethods().map {
-                    it.name
-                } - listOf("registerNatives", "clone", "finalize")
             val parentMethods = listOf(
                 "parentPublic", "parentStaticPrivate", "parentStaticPublic", "overridden"
             )
@@ -151,14 +150,14 @@ class ElementExtTest {
             assertThat(parent.getDeclaredMethods())
                 .containsExactlyElementsIn(parentMethods)
             assertThat(parent.getAllMethods())
-                .containsExactlyElementsIn(parentMethods + objectMethods)
+                .containsExactlyElementsIn(parentMethods)
             assertThat(parent.getAllNonPrivateInstanceMethods())
                 .containsExactly("parentPublic", "overridden")
 
             assertThat(child.getDeclaredMethods())
                 .containsExactlyElementsIn(childMethods)
             assertThat(child.getAllMethods()).containsExactlyElementsIn(
-                childMethods + parentMethods + objectMethods -
+                childMethods + parentMethods -
                         listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
                         "overridden" // add 1 overridden back
             )

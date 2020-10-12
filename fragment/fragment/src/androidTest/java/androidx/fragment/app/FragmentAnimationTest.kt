@@ -549,7 +549,7 @@ class FragmentAnimationTest {
             .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
 
         fm1.beginTransaction()
-            .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
+            .setCustomAnimations(0, 0, 0, R.anim.long_fade_out)
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
             .setReorderingAllowed(true)
@@ -558,6 +558,52 @@ class FragmentAnimationTest {
 
         assertThat(fragment2.isAdded).isTrue()
         assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
+    }
+
+    @Test
+    fun popReplaceOperationWithAnimations() {
+        waitForAnimationReady()
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
+
+        val fm1 = fc1.supportFragmentManager
+
+        val fragment1 = AnimationListenerFragment(R.layout.scene1)
+        fm1.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1, "1")
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimationListenerFragment()
+
+        fm1.beginTransaction()
+            .setCustomAnimations(
+                R.anim.long_fade_in,
+                R.anim.long_fade_out,
+                R.anim.long_fade_in,
+                R.anim.long_fade_out
+            )
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        fm1.popBackStack()
+        activityRule.executePendingTransactions(fm1)
+
+        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        // Now fragment2 should be animating away
+        assertThat(fragment2.isAdded).isFalse()
+        assertThat(fm1.findFragmentByTag("2"))
+            .isEqualTo(null) // fragmentManager does not know about animating fragment
+        assertThat(fragment2.parentFragmentManager)
+            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+
+        // We need to wait for the exit animation to end
+        assertThat(fragment2.exitLatch.await(6000, TimeUnit.MILLISECONDS)).isTrue()
+
+        // Make sure the original fragment was correctly readded to the container
+        assertThat(fragment1.requireView().parent).isNotNull()
     }
 
     // When an animation is running on a Fragment's View, the view shouldn't be
@@ -797,7 +843,8 @@ class FragmentAnimationTest {
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0 ||
-                viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED
+            ) {
                 return null
             }
             numAnimators++
@@ -869,7 +916,8 @@ class FragmentAnimationTest {
 
                     override fun onAnimationEnd(animation: Animation) {
                         if (viewLifecycleOwner.lifecycle.currentState
-                            != Lifecycle.State.DESTROYED) {
+                            != Lifecycle.State.DESTROYED
+                        ) {
                             if (enter) {
                                 enterEndCount++
                                 enterLatch.countDown()

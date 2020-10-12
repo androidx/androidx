@@ -69,20 +69,20 @@ internal sealed class Profiler {
         const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
 
         fun getByName(name: String): Profiler? = mapOf(
-                "MethodSampling" to MethodSampling,
-                "MethodTracing" to MethodTracing,
+            "MethodSampling" to MethodSampling,
+            "MethodTracing" to MethodTracing,
 
-                "ConnectedAllocation" to ConnectedAllocation,
-                "ConnectedSampling" to ConnectedSampling,
+            "ConnectedAllocation" to ConnectedAllocation,
+            "ConnectedSampling" to ConnectedSampling,
 
-                "MethodSamplingSimpleperf" to MethodSamplingSimpleperf,
+            "MethodSamplingSimpleperf" to MethodSamplingSimpleperf,
 
-                // Below are compat codepaths for old names. Remove before 1.1 stable.
-                "Method" to MethodTracing,
-                "Sampled" to MethodSampling,
-                "ConnectedSampled" to ConnectedSampling
-            )
-                .mapKeys { it.key.toLowerCase() }[name.toLowerCase()]
+            // Below are compat codepaths for old names. Remove before 1.1 stable.
+            "Method" to MethodTracing,
+            "Sampled" to MethodSampling,
+            "ConnectedSampled" to ConnectedSampling
+        )
+            .mapKeys { it.key.toLowerCase() }[name.toLowerCase()]
     }
 }
 

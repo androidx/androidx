@@ -25,6 +25,10 @@ import kotlin.reflect.KClass
  * declaration, or expression. If a declaration is annotated with [UseExperimental], its
  * usages are **not** required to opt-in to that experimental API.
  */
+@Deprecated(
+    "This annotation has been replaced by `@OptIn`",
+    ReplaceWith("OptIn", "androidx.annotation.OptIn")
+)
 @Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.CLASS,
@@ -42,5 +46,6 @@ annotation class UseExperimental(
     /**
      * Defines the experimental API(s) whose usage this annotation allows.
      */
+    @get:Suppress("ArrayReturn") // Kotlin generates a raw array for annotation vararg
     vararg val markerClass: KClass<out Annotation>
 )

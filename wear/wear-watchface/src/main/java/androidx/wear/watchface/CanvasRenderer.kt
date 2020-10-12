@@ -47,17 +47,17 @@ annotation class CanvasType {
 }
 
 /**
- * Watch faces that require {@link Canvas} rendering should extend their {@link Renderer} from this
+ * Watch faces that require [Canvas] rendering should extend their [Renderer] from this
  * class.
  */
 abstract class CanvasRenderer(
-    /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
+    /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleRepository}. */
+    /** The associated [UserStyleRepository]. */
     userStyleRepository: UserStyleRepository,
 
-    /** The associated {@link WatchState}. */
+    /** The associated [WatchState]. */
     watchState: WatchState,
 
     /** The type of canvas to use. */
@@ -86,29 +86,29 @@ abstract class CanvasRenderer(
     /** {@inheritDoc} */
     internal override fun takeScreenshot(
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(
             screenBounds.width(),
             screenBounds.height(),
             Bitmap.Config.ARGB_8888
         )
-        val prevDrawMode = drawMode
-        this.drawMode = drawMode
+        val prevRenderParameters = this.renderParameters
+        this.renderParameters = renderParameters
         render(Canvas(bitmap), screenBounds, calendar)
-        this.drawMode = prevDrawMode
+        this.renderParameters = prevRenderParameters
         return bitmap
     }
 
     /**
      * Sub-classes should override this to implement their rendering logic which should respect
-     * the current {@link DrawMode}. For correct functioning watch faces must use the supplied
-     * {@link Calendar} and avoid using any other ways of getting the time.
+     * the current [DrawMode]. For correct functioning watch faces must use the supplied
+     * [Calendar] and avoid using any other ways of getting the time.
      *
-     * @param canvas The {@link Canvas} to render into. Don't assume this is always the canvas from
-     *     the {@link SurfaceHolder} backing the display
-     * @param bounds A {@link Rect} describing the bonds of the canvas to draw into
-     * @param calendar The current {@link Calendar}
+     * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
+     *     the [SurfaceHolder] backing the display
+     * @param bounds A [Rect] describing the bonds of the canvas to draw into
+     * @param calendar The current [Calendar]
      */
     @UiThread
     abstract fun render(

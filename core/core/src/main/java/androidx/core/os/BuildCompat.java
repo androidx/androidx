@@ -123,7 +123,7 @@ public class BuildCompat {
      *
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
      */
-    @ChecksSdkIntAtLeast(codename = "R")
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.R)
     public static boolean isAtLeastR() {
         return VERSION.SDK_INT >= 30 || VERSION.CODENAME.equals("R");
     }

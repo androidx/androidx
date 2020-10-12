@@ -56,7 +56,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
         val ISSUE: Issue = Issue.create(
             "UseRequireInsteadOfGet",
             "Use the 'require_____()' API rather than 'get____()' API for more " +
-                    "descriptive error messages when it's null.",
+                "descriptive error messages when it's null.",
             """
             AndroidX added new "require____()" versions of common "get___()" APIs, such as \
             getContext/getActivity/getArguments/etc. Rather than wrap these in something like \
@@ -143,7 +143,8 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 val targetMethod = node.resolve() ?: return
                 val containingClass = targetMethod.containingClass ?: return
                 if (targetMethod.name in REQUIRABLE_METHODS &&
-                    context.evaluator.extendsClass(containingClass, FRAGMENT_FQCN, false)) {
+                    context.evaluator.extendsClass(containingClass, FRAGMENT_FQCN, false)
+                ) {
                     checkForIssue(node, targetMethod.name, "${targetMethod.name}()")
                 }
             }
@@ -190,7 +191,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                         if (singleParameterSpecified) {
                             // Grab the source of this argument as it's represented.
                             val source = nearestNonQualifiedReferenceParent.valueArguments[0]
-                                    .asSourceString()
+                                .asSourceString()
                             val parentToReplace =
                                 nearestNonQualifiedReferenceParent.fullyQualifiedNearestParent()
                                     .asSourceString()
@@ -210,9 +211,11 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 enclosingMethodCall: PsiMethod,
                 nearestNonQualifiedRefParent: UCallExpression
             ) = enclosingMethodCall.parameterList.parametersCount == 1 ||
-                    (isKotlin &&
-                            nearestNonQualifiedRefParent is KotlinUFunctionCallExpression &&
-                            nearestNonQualifiedRefParent.getArgumentForParameter(1) == null)
+                (
+                    isKotlin &&
+                        nearestNonQualifiedRefParent is KotlinUFunctionCallExpression &&
+                        nearestNonQualifiedRefParent.getArgumentForParameter(1) == null
+                    )
 
             private fun correctMethod(
                 source: String,

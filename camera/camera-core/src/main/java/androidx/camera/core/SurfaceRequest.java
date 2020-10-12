@@ -411,7 +411,7 @@ public final class SurfaceRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ExperimentalUseCaseGroup
-    void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
+    public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
         mTransformationInfo = transformationInfo;
         TransformationInfoListener listener = mTransformationInfoListener;
         if (listener != null) {

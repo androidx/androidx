@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.emptyContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.AnimationClockAmbient
@@ -134,6 +135,19 @@ internal class ComposeViewAdapter : FrameLayout {
      * display it to the user.
      */
     private val delayedException = AtomicReference<Throwable?>(null)
+
+    /**
+     * The [Composable] to be rendered in the preview. It is initialized when this adapter
+     * is initialized.
+     */
+    private var previewComposition: @Composable () -> Unit = emptyContent()
+
+    /**
+     * When true, the composition will be immediately invalidated after being drawn. This will
+     * force it to be recomposed on the next render. This is useful for live literals so the
+     * whole composition happens again on the next render.
+     */
+    private var forceCompositionInvalidation = false
 
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -284,8 +298,18 @@ internal class ComposeViewAdapter : FrameLayout {
         return result
     }
 
+    private fun invalidateComposition() {
+        // Invalidate the full composition by setting it to empty and back to the actual value
+        composition?.setContent(emptyContent())
+        composition?.setContent(previewComposition)
+        // Invalidate the state of the view so it gets redrawn
+        invalidate()
+    }
+
     override fun dispatchDraw(canvas: Canvas?) {
         super.dispatchDraw(canvas)
+
+        if (forceCompositionInvalidation) invalidateComposition()
 
         if (!debugPaintBounds) {
             return
@@ -342,6 +366,8 @@ internal class ComposeViewAdapter : FrameLayout {
      * @param debugViewInfos if true, it will generate the [ViewInfo] structures and will log it.
      * @param animationClockStartTime if positive, the [AnimationClockAmbient] will provide
      * [clock] instead of the default clock, setting this value as the clock's initial time.
+     * @param forceCompositionInvalidation if true, the composition will be invalidated on every
+     * draw, forcing it to recompose on next render.
      */
     @VisibleForTesting
     internal fun init(
@@ -351,7 +377,8 @@ internal class ComposeViewAdapter : FrameLayout {
         parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
         debugViewInfos: Boolean = false,
-        animationClockStartTime: Long = -1
+        animationClockStartTime: Long = -1,
+        forceCompositionInvalidation: Boolean = false
     ) {
         ViewTreeLifecycleOwner.set(this, FakeSavedStateRegistryOwnerOwner)
         ViewTreeSavedStateRegistryOwner.set(this, FakeSavedStateRegistryOwnerOwner)
@@ -359,8 +386,9 @@ internal class ComposeViewAdapter : FrameLayout {
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
         this.composableName = methodName
+        this.forceCompositionInvalidation = forceCompositionInvalidation
 
-        composition = setContent(Recomposer.current()) {
+        previewComposition = @Composable {
             WrapPreview {
                 val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the
@@ -404,6 +432,7 @@ internal class ComposeViewAdapter : FrameLayout {
                 }
             }
         }
+        composition = setContent(Recomposer.current(), null, previewComposition)
     }
 
     /**
@@ -456,6 +485,9 @@ internal class ComposeViewAdapter : FrameLayout {
             -1L
         }
 
+        val forceCompositionInvalidation = attrs.getAttributeBooleanValue(TOOLS_NS_URI,
+            "forceCompositionInvalidation", false)
+
         init(
             className = className,
             methodName = methodName,
@@ -471,7 +503,8 @@ internal class ComposeViewAdapter : FrameLayout {
                 "printViewInfos",
                 debugViewInfos
             ),
-            animationClockStartTime = animationClockStartTime
+            animationClockStartTime = animationClockStartTime,
+            forceCompositionInvalidation = forceCompositionInvalidation
         )
     }
 

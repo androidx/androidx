@@ -423,8 +423,10 @@ class SaveStateFragmentTest {
             .childFragmentManager.findFragmentByTag("child") as StrictFragment
         assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
 
-        assertWithMessage("Parent fragment saved instance state should still be null since it is " +
-                "a retained Fragment").that(restoredParentFragment.lastSavedInstanceState).isNull()
+        assertWithMessage(
+            "Parent fragment saved instance state should still be null since it is " +
+                "a retained Fragment"
+        ).that(restoredParentFragment.lastSavedInstanceState).isNull()
         assertWithMessage("Child fragment saved instance state should be non-null")
             .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
 

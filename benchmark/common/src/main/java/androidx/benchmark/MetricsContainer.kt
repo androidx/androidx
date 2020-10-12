@@ -103,16 +103,18 @@ internal class MetricsContainer(
     }
 
     private fun doLog() {
-        metrics.forEachIndexed { i, metric -> data[i].toList().chunked(10)
-            .forEachIndexed { chunkNum, chunk ->
-                Log.d(
-                    BenchmarkState.TAG, metric.name + "[%2d:%2d]: %s".format(
-                        chunkNum * 10,
-                        (chunkNum + 1) * 10,
-                        chunk.joinToString()
+        metrics.forEachIndexed { i, metric ->
+            data[i].toList().chunked(10)
+                .forEachIndexed { chunkNum, chunk ->
+                    Log.d(
+                        BenchmarkState.TAG,
+                        metric.name + "[%2d:%2d]: %s".format(
+                            chunkNum * 10,
+                            (chunkNum + 1) * 10,
+                            chunk.joinToString()
+                        )
                     )
-                )
-            }
+                }
         }
     }
 }

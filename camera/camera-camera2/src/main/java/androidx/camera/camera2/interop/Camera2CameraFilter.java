@@ -53,7 +53,8 @@ public final class Camera2CameraFilter {
                         (Camera2CameraInfoImpl) cameraInfo;
                 cameraMap.put(camera2CameraInfoImpl.getCameraId(), camera);
                 characteristicsMap.put(camera2CameraInfoImpl.getCameraId(),
-                        camera2CameraInfoImpl.getCameraCharacteristics());
+                        camera2CameraInfoImpl
+                                .getCameraCharacteristicsCompat().toCameraCharacteristics());
             }
 
             LinkedHashMap<String, CameraCharacteristics> resultMap = filter.filter(

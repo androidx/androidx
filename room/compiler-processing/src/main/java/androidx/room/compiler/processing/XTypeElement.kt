@@ -92,17 +92,28 @@ interface XTypeElement : XHasModifiers, XElement {
      *  not private).
      *  does not include static methods in parent interfaces
      */
-    fun getAllMethods(): List<XMethodElement>
+    fun getAllMethods(): List<XMethodElement> {
+        return collectAllMethods()
+    }
 
     /**
      * Instance methods declared in this and supers
      *  include non private instance methods
      *  also includes non-private instance methods from supers
      */
-    fun getAllNonPrivateInstanceMethods(): List<XMethodElement>
+    fun getAllNonPrivateInstanceMethods(): List<XMethodElement> {
+        return getAllMethods().filter {
+            !it.isPrivate() && !it.isStatic()
+        }
+    }
 
     /**
      * Returns the list of constructors in this type element
      */
     fun getConstructors(): List<XConstructorElement>
+
+    /**
+     * List of interfaces implemented by this class
+     */
+    fun getSuperInterfaceElements(): List<XTypeElement>
 }

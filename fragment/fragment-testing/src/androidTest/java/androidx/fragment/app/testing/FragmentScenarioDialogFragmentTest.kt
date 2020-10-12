@@ -203,10 +203,12 @@ class FragmentScenarioDialogFragmentTest {
     @Test
     fun recreateCreatedFragment() {
         var numOfInstantiation = 0
-        with(launchFragment(initialState = State.CREATED) {
-            ++numOfInstantiation
-            SimpleDialogFragment()
-        }) {
+        with(
+            launchFragment(initialState = State.CREATED) {
+                ++numOfInstantiation
+                SimpleDialogFragment()
+            }
+        ) {
             assertThat(numOfInstantiation).isEqualTo(1)
             recreate()
             assertThat(numOfInstantiation).isEqualTo(2)
@@ -222,10 +224,12 @@ class FragmentScenarioDialogFragmentTest {
     @Test
     fun recreateStartedFragment() {
         var numOfInstantiation = 0
-        with(launchFragment(initialState = State.STARTED) {
-            ++numOfInstantiation
-            SimpleDialogFragment()
-        }) {
+        with(
+            launchFragment(initialState = State.STARTED) {
+                ++numOfInstantiation
+                SimpleDialogFragment()
+            }
+        ) {
             assertThat(numOfInstantiation).isEqualTo(1)
             recreate()
             assertThat(numOfInstantiation).isEqualTo(2)
@@ -240,10 +244,12 @@ class FragmentScenarioDialogFragmentTest {
     @Test
     fun recreateResumedFragment() {
         var numOfInstantiation = 0
-        with(launchFragment {
-            ++numOfInstantiation
-            SimpleDialogFragment()
-        }) {
+        with(
+            launchFragment {
+                ++numOfInstantiation
+                SimpleDialogFragment()
+            }
+        ) {
             assertThat(numOfInstantiation).isEqualTo(1)
             recreate()
             assertThat(numOfInstantiation).isEqualTo(2)

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -48,10 +49,11 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
+import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -62,68 +64,6 @@ import java.util.concurrent.CountDownLatch
  * expose a callback.
  */
 internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
-
-/**
- * Used to parameterize watch face drawing based on the current system state.
- *
- * @hide
- */
-@IntDef(
-    value = [
-        DrawMode.INTERACTIVE,
-        DrawMode.LOW_BATTERY_INTERACTIVE,
-        DrawMode.MUTE,
-        DrawMode.AMBIENT,
-        DrawMode.BASE_WATCHFACE,
-        DrawMode.UPPER_LAYER
-    ]
-)
-annotation class DrawMode {
-    companion object {
-        /** This mode is used when the user is interacting with the watch face. */
-        const val INTERACTIVE = 0
-
-        /**
-         * This mode is used when the user is interacting with the watch face but the battery is
-         * low, the watch face should render fewer pixels, ideally with darker colors.
-         */
-        const val LOW_BATTERY_INTERACTIVE = 1
-
-        /**
-         * This mode is used when there's an interruption filter. The watch face should look muted.
-         */
-        const val MUTE = 2
-
-        /**
-         * In this mode as few pixels as possible should be turned on, ideally with darker colors.
-         */
-        const val AMBIENT = 3
-
-        /**
-         * As {@link INTERACTIVE} but complications shouldn't be drawn, nor should any watch face
-         * elements that might occlude complications (e.g. watch hands).  Used by the
-         * remote configuration UI.
-         */
-        const val BASE_WATCHFACE = 4
-
-        /**
-         * Related to {@link BASE_WATCHFACE}, only watch face elements that might occlude
-         * complications should be drawn (e.g. watch hands).  If nothing can occlude the
-         * complications then nothing should be drawn. Used by the remote configuration UI. A screen
-         * shot taken in this mode needs to include an alpha channel.
-         */
-        const val UPPER_LAYER = 5
-
-        fun values(): Collection<Int> = arrayListOf(
-            INTERACTIVE,
-            LOW_BATTERY_INTERACTIVE,
-            MUTE,
-            AMBIENT,
-            BASE_WATCHFACE,
-            UPPER_LAYER
-        )
-    }
-}
 
 /** @hide */
 @IntDef(
@@ -154,8 +94,10 @@ annotation class TapType {
     }
 }
 
+private class PendingComplicationData(val complicationId: Int, val data: ComplicationData)
+
 /**
- * WatchFaceService and {@link WatchFace} are a pair of base classes intended to handle much of
+ * WatchFaceService and [WatchFace] are a pair of base classes intended to handle much of
  * the boilerplate needed to implement a watch face without being too opinionated. The suggested
  * structure of an WatchFaceService based watch face is:
  *
@@ -240,13 +182,14 @@ annotation class TapType {
 @TargetApi(26)
 abstract class WatchFaceService : WallpaperService() {
 
+    /** @hide */
     private companion object {
         private const val TAG = "WatchFaceService"
 
         /** Whether to log every frame. */
         private const val LOG_VERBOSE = false
 
-        /** Whether to enable tracing for each call to {@link Engine#onDraw}. */
+        /** Whether to enable tracing for each call to [Engine.onDraw]. */
         private const val TRACE_DRAW = false
     }
 
@@ -265,8 +208,15 @@ abstract class WatchFaceService : WallpaperService() {
     // This is open to allow mocking.
     internal open fun getMutableWatchState() = MutableWatchState()
 
+    // This is open for use by tests.
+    internal open fun allowWatchFaceToAnimate() = true
+
+    internal fun setContext(context: Context) {
+        attachBaseContext(context)
+    }
+
     internal inner class EngineWrapper(
-        private val _handler: Handler
+        private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
         private val _context = this@WatchFaceService as Context
 
@@ -290,6 +240,12 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        /**
+         * Whether or not we allow watchfaces to animate. In some tests or for headless
+         * rendering (for remote config) we don't want this.
+         */
+        internal var allowWatchfaceToAnimate = allowWatchFaceToAnimate()
+
         private var destroyed = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
@@ -297,8 +253,8 @@ abstract class WatchFaceService : WallpaperService() {
         private val choreographer = Choreographer.getInstance()
 
         /**
-         * Whether we already have a {@link #frameCallback} posted and waiting in the {@link
-         * Choreographer} queue. This protects us from drawing multiple times in a single frame.
+         * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
+         * queue. This protects us from drawing multiple times in a single frame.
          */
         private var frameCallbackPending = false
 
@@ -325,43 +281,31 @@ abstract class WatchFaceService : WallpaperService() {
             addAction(Intent.ACTION_TIME_TICK)
         }
 
-        /**
-         * Runs the supplied task on the UI thread.  If we're not on the UI thread a task is posted
-         * and we block until it's been processed.
-         *
-         * AIDL calls are dispatched from a thread pool, but for simplicity WatchFace code is
-         * largely single threaded so we need to post tasks to the UI thread and wait for them to
-         * execute.
-         */
-        internal fun <R> runOnUiThread(task: () -> R) =
-            if (_handler.looper == Looper.myLooper()) {
-                task.invoke()
-            } else {
-                val latch = CountDownLatch(1)
-                var returnVal: R? = null
-                var exception: Exception? = null
-                if (_handler.post {
-                        try {
-                            returnVal = task.invoke()
-                        } catch (e: Exception) {
-                            // Will rethrow on the calling thread.
-                            exception = e
-                        }
-                        latch.countDown()
-                    }) {
-                    latch.await()
-                    if (exception != null) {
-                        throw exception as Exception
-                    }
-                }
-                returnVal!!
-            }
+        // TODO(alexclarke): Migrate all pending logic to operate inside watchFaceCommand.
+        private var pendingBackgroundAction: Bundle? = null
+        private var pendingProperties: Bundle? = null
+        private var pendingSetWatchFaceStyle = false
+        private var pendingVisibilityChanged: Boolean? = null
+        private var pendingComplicationDataUpdates = ArrayList<PendingComplicationData>()
+        private var complicationsActivated = false
+
+        // Only valid after onSetBinder has been called.
+        private var systemApiVersion = -1
+
+        internal var firstSetSystemState = true
+        internal var firstIndicatorState = true
+        internal var immutableSystemStateDone = false
+
+        internal var lastActiveComplications: IntArray? = null
+        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
+
+        private var watchFaceInitStarted = false
 
         private val watchFaceCommand = object : IWatchFaceCommand.Stub() {
             override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
 
             override fun ambientUpdate() {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (mutableWatchState.isAmbient.value) {
                         ambientUpdateWakelock.acquire()
                         watchFace.invalidate()
@@ -371,7 +315,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setSystemState(systemState: SystemState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (firstSetSystemState ||
                         systemState.inAmbientMode != mutableWatchState.isAmbient.value
                     ) {
@@ -402,7 +346,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setIndicatorState(indicatorState: IndicatorState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (firstIndicatorState ||
                         indicatorState.isCharging != mutableWatchState.isCharging.value
                     ) {
@@ -446,7 +390,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     watchFace.onSetStyleInternal(
                         UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
                     )
@@ -454,12 +398,11 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun setImmutableSystemState(immutableSystemState: ImmutableSystemState) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     // These properties never change so set them once only.
                     if (!immutableSystemStateDone) {
-                        mutableWatchState.hasLowBitAmbient.value =
-                            immutableSystemState.hasLowBitAmbient
-                        mutableWatchState.hasBurnInProtection.value =
+                        mutableWatchState.hasLowBitAmbient = immutableSystemState.hasLowBitAmbient
+                        mutableWatchState.hasBurnInProtection =
                             immutableSystemState.hasBurnInProtection
 
                         immutableSystemStateDone = true
@@ -467,14 +410,21 @@ abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+            @SuppressLint("SyntheticAccessor")
             override fun setComplicationData(complicationId: Int, data: ComplicationData) {
-                runOnUiThread {
-                    watchFace.onComplicationDataUpdate(complicationId, data)
+                uiThreadHandler.runOnHandler {
+                    if (watchFaceCreated()) {
+                        watchFace.onComplicationDataUpdate(complicationId, data)
+                    } else {
+                        pendingComplicationDataUpdates.add(
+                            PendingComplicationData(complicationId, data)
+                        )
+                    }
                 }
             }
 
             override fun requestWatchFaceStyle() {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     try {
                         iWatchFaceService.setStyle(watchFace.watchFaceStyle)
                     } catch (e: RemoteException) {
@@ -494,12 +444,12 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun takeWatchfaceScreenshot(
-                drawMode: Int,
+                rendererParametersWireFormat: RenderParametersWireFormat,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
                 userStyle: UserStyleWireFormat?
             ): Bundle {
-                return runOnUiThread {
+                return uiThreadHandler.runOnHandler {
                     val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
                     if (userStyle != null) {
                         watchFace.onSetStyleInternal(
@@ -511,7 +461,7 @@ abstract class WatchFaceService : WallpaperService() {
                         Calendar.getInstance().apply {
                             timeInMillis = calendarTimeMillis
                         },
-                        drawMode
+                        RenderParameters(rendererParametersWireFormat)
                     )
 
                     // Restore previous style if required.
@@ -527,13 +477,13 @@ abstract class WatchFaceService : WallpaperService() {
 
             override fun takeComplicationScreenshot(
                 complicationId: Int,
-                drawMode: Int,
+                rendererParametersWireFormat: RenderParametersWireFormat,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
                 complicationData: ComplicationData?,
                 userStyle: UserStyleWireFormat?
             ): Bundle? {
-                return runOnUiThread {
+                return uiThreadHandler.runOnHandler {
                     val calendar = Calendar.getInstance().apply {
                         timeInMillis = calendarTimeMillis
                     }
@@ -562,11 +512,11 @@ abstract class WatchFaceService : WallpaperService() {
                             complication.renderer.setData(complicationData)
                         }
 
-                        complication.renderer.onDraw(
+                        complication.renderer.render(
                             Canvas(complicationBitmap),
                             Rect(0, 0, bounds.width(), bounds.height()),
                             calendar,
-                            drawMode
+                            RenderParameters(rendererParametersWireFormat)
                         )
 
                         // Restore previous ComplicationData & style if required.
@@ -588,7 +538,7 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
-                runOnUiThread {
+                uiThreadHandler.runOnHandler {
                     if (watchFaceCreated()) {
                         watchFace.onTapCommand(tapType, xPos, yPos)
                     }
@@ -596,26 +546,9 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        // Only valid after onSetBinder has been called.
-        private var systemApiVersion = -1
-
-        internal var firstSetSystemState = true
-        internal var firstIndicatorState = true
-        internal var immutableSystemStateDone = false
-
-        internal var lastActiveComplications: IntArray? = null
-        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
-
-        private var pendingBackgroundAction: Bundle? = null
-        private var pendingProperties: Bundle? = null
-        private var pendingSetWatchFaceStyle = false
-        private var pendingVisibilityChanged: Boolean? = null
-        private var pendingComplicationDataUpdates = ArrayList<Bundle>()
-        private var complicationsActivated = false
-
         override fun getContext() = _context
 
-        override fun getHandler() = _handler
+        override fun getHandler() = uiThreadHandler
 
         override fun onCreate(holder: SurfaceHolder) {
             super.onCreate(holder)
@@ -630,7 +563,7 @@ abstract class WatchFaceService : WallpaperService() {
 
         override fun onDestroy() {
             destroyed = true
-            _handler.removeCallbacks(invalidateRunnable)
+            uiThreadHandler.removeCallbacks(invalidateRunnable)
             choreographer.removeFrameCallback(frameCallback)
 
             if (timeTickRegistered) {
@@ -774,11 +707,18 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun maybeCreateWatchFace() {
-            // To simplify handling of watch face state, we only construct the {@link WatchFace}
+            // To simplify handling of watch face state, we only construct the [WatchFace]
             // once both currentSurfaceHolder and iWatchFaceService have been initialized.
             if (this::currentSurfaceHolder.isInitialized &&
-                this::iWatchFaceService.isInitialized && !watchFaceCreated()
+                this::iWatchFaceService.isInitialized && pendingProperties != null &&
+                !watchFaceCreated()
             ) {
+                watchFaceInitStarted = true
+
+                // Apply immutable properties to mutableWatchState before creating the watch face.
+                onPropertiesChanged(pendingProperties!!)
+                pendingProperties = null
+
                 val host = WatchFaceHost()
                 host.api = this
                 watchFace = createWatchFace(
@@ -809,13 +749,11 @@ abstract class WatchFaceService : WallpaperService() {
                     onVisibilityChanged(visibility)
                     pendingVisibilityChanged = null
                 }
-                val properties = pendingProperties
-                if (properties != null) {
-                    onPropertiesChanged(properties)
-                    pendingProperties = null
-                }
                 for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    onComplicationDataUpdate(complicationDataUpdate)
+                    watchFaceCommand.setComplicationData(
+                        complicationDataUpdate.complicationId,
+                        complicationDataUpdate.data
+                    )
                 }
             }
         }
@@ -832,7 +770,7 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         /**
-         * Registers {@link #timeTickReceiver} if it should be registered and isn't currently, or
+         * Registers [timeTickReceiver] if it should be registered and isn't currently, or
          * unregisters it if it shouldn't be registered but currently is. It also applies the right
          * intent filter depending on whether we are in ambient mode or not.
          */
@@ -891,6 +829,9 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun invalidate() {
+            if (!allowWatchfaceToAnimate) {
+                return
+            }
             if (!frameCallbackPending) {
                 if (LOG_VERBOSE) {
                     Log.v(TAG, "invalidate: requesting draw")
@@ -921,10 +862,6 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun onComplicationDataUpdate(extras: Bundle) {
-            if (!watchFaceCreated()) {
-                pendingComplicationDataUpdates.add(extras)
-                return
-            }
             extras.classLoader = ComplicationData::class.java.classLoader
             watchFaceCommand.setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
@@ -933,8 +870,9 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         internal fun onPropertiesChanged(properties: Bundle) {
-            if (!watchFaceCreated()) {
+            if (!watchFaceInitStarted) {
                 pendingProperties = properties
+                maybeCreateWatchFace()
                 return
             }
 
@@ -1033,23 +971,51 @@ abstract class WatchFaceService : WallpaperService() {
             return iWatchFaceService.storedUserStyle
         }
 
+        @SuppressLint("WrongConstant")
         override fun setComplicationDetails(
             complicationId: Int,
             bounds: Rect,
-            @ComplicationBoundsType boundsType: Int
+            @ComplicationBoundsType boundsType: Int,
+            types: IntArray
         ) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.setComplicationDetails(
                     complicationId,
-                    ComplicationDetails(bounds, boundsType)
+                    ComplicationDetails(bounds, boundsType, types)
                 )
-            }
-        }
-
-        override fun setComplicationSupportedTypes(complicationId: Int, types: IntArray) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.setComplicationSupportedTypes(complicationId, types)
             }
         }
     }
 }
+
+/**
+ * Runs the supplied task on the handler thread. If we're not on the handler thread a task is posted
+ * and we block until it's been processed.
+ *
+ * AIDL calls are dispatched from a thread pool, but for simplicity WatchFace code is
+ * largely single threaded so we need to post tasks to the UI thread and wait for them to
+ * execute.
+ */
+internal fun <R> Handler.runOnHandler(task: () -> R) =
+    if (looper == Looper.myLooper()) {
+        task.invoke()
+    } else {
+        val latch = CountDownLatch(1)
+        var returnVal: R? = null
+        var exception: Exception? = null
+        if (post {
+                try {
+                    returnVal = task.invoke()
+                } catch (e: Exception) {
+                    // Will rethrow on the calling thread.
+                    exception = e
+                }
+                latch.countDown()
+            }) {
+            latch.await()
+            if (exception != null) {
+                throw exception as Exception
+            }
+        }
+        returnVal!!
+    }

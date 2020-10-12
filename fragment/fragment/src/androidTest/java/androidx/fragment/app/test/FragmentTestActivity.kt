@@ -56,11 +56,14 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
 
             if (childFragmentManager.findFragmentByTag(CHILD_FRAGMENT_TAG) == null) {
                 childFragmentManager.beginTransaction()
-                    .add(ChildFragment().apply {
-                        if (retainChildInstance) {
-                            retainInstance = true
-                        }
-                    }, CHILD_FRAGMENT_TAG)
+                    .add(
+                        ChildFragment().apply {
+                            if (retainChildInstance) {
+                                retainInstance = true
+                            }
+                        },
+                        CHILD_FRAGMENT_TAG
+                    )
                     .commitNow()
             }
             wasAttachedInTime = childFragment.attached

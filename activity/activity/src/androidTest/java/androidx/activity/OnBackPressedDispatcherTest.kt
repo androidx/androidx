@@ -92,8 +92,10 @@ class OnBackPressedHandlerTest {
             .isEqualTo(0)
 
         onBackPressedCallback.remove()
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -125,8 +127,10 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -184,8 +188,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Disabled callbacks should not be incremented")
             .that(disabledOnBackPressedCallback.count)
             .isEqualTo(0)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "were disabled")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "were disabled"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
         assertWithMessage("Fallback count should not be incremented")
@@ -212,8 +218,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Most recent callback should be incremented")
             .that(passThroughOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "disabled itself and called onBackPressed()")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "disabled itself and called onBackPressed()"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
         assertWithMessage("Fallback count should not be incremented")
@@ -234,8 +242,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(0)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
@@ -255,8 +265,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(2)
 
@@ -266,8 +278,10 @@ class OnBackPressedHandlerTest {
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
-        assertWithMessage("Previous callbacks should be incremented if more recent callbacks " +
-                "aren't started")
+        assertWithMessage(
+            "Previous callbacks should be incremented if more recent callbacks " +
+                "aren't started"
+        )
             .that(onBackPressedCallback.count)
             .isEqualTo(3)
     }
@@ -292,8 +306,10 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
         dispatcher.onBackPressed()
@@ -323,8 +339,10 @@ class OnBackPressedHandlerTest {
         // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
         // is terminal but serves as a good test to make sure the Observer is cleaned up
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage("Previously destroyed callbacks shouldn't appear as an enabled " +
-                "dispatcher")
+        assertWithMessage(
+            "Previously destroyed callbacks shouldn't appear as an enabled " +
+                "dispatcher"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
     }
@@ -338,16 +356,20 @@ class OnBackPressedHandlerTest {
 
         dispatcher.addCallback(lifecycleOwner, lifecycleOnBackPressedCallback)
 
-        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
-                "are registered")
+        assertWithMessage(
+            "Handler should return false when no OnBackPressedCallbacks " +
+                "are registered"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
 
         // Now start the Lifecycle - this wouldn't happen in a real Lifecycle since DESTROYED
         // is terminal but serves as a good test to make sure no lingering Observer exists
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        assertWithMessage("Previously destroyed callbacks shouldn't appear as an enabled " +
-                "dispatcher")
+        assertWithMessage(
+            "Previously destroyed callbacks shouldn't appear as an enabled " +
+                "dispatcher"
+        )
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
     }

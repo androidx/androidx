@@ -36,7 +36,7 @@ internal const val FOO_DIRECTIONS = "$MAIN_DIR/foo/FooFragmentDirections"
 internal const val FEATURE_DIRECTIONS = "$MAIN_DIR/FeatureFragmentDirections"
 internal const val LIBRARY_DIRECTIONS = "$MAIN_DIR/LibraryFragmentDirections"
 internal const val FOO_DYNAMIC_DIRECTIONS =
-    "safe/gradle/test/app/safe/app/foo/DynFooFeatureFragmentDirections"
+    "safe/gradle/test/app/safe/DynFooFeatureFragmentDirections"
 internal const val NOTFOO_DYNAMIC_DIRECTIONS = "$MAIN_DIR/DynFeatureFragmentDirections"
 
 internal const val NAV_RESOURCES = "src/main/res/navigation"

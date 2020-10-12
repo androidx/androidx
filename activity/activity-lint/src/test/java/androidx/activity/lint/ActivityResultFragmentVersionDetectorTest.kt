@@ -45,7 +45,8 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             """
             ),
             gradle(
-                "build.gradle", """
+                "build.gradle",
+                """
                 dependencies {
                     api("androidx.fragment:fragment:$FRAGMENT_VERSION")
                 }
@@ -69,7 +70,8 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             """
             ),
             gradle(
-                "build.gradle", """
+                "build.gradle",
+                """
                 dependencies {
                     implementation(project(":fragment:fragment-ktx"))
                 }
@@ -107,7 +109,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -143,7 +145,7 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -184,13 +186,14 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
     @Test
     fun expectFailTransitiveDependency() {
-        val projectFragment = project(kotlin(
+        val projectFragment = project(
+            kotlin(
                 """
                 package com.example
 
@@ -199,12 +202,17 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ), gradle(
-                "build.gradle", """
+            ),
+            gradle(
+                "build.gradle",
+                """
                 dependencies {
                     implementation("androidx.fragment:fragment-ktx:1.3.0-alpha05")
                 }
-            """).indented()).withDependencyGraph("""
+            """
+            ).indented()
+        ).withDependencyGraph(
+            """
                 +--- androidx.fragment:fragment-ktx:1.3.0-alpha05
                      \--- androidx.fragment:fragment:1.3.0-alpha05
             """.trimIndent()

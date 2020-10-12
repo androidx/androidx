@@ -52,9 +52,11 @@ class FragmentScenarioViewModelTest {
             }
         }
         // Launch the Fragment with our ViewModelProvider.Factory
-        with(launchFragment {
-            InjectedViewModelFactoryFragment(viewModelFactory)
-        }) {
+        with(
+            launchFragment {
+                InjectedViewModelFactoryFragment(viewModelFactory)
+            }
+        ) {
             onFragment { fragment ->
                 assertThat(fragment.viewModel)
                     .isSameInstanceAs(mockViewModel)

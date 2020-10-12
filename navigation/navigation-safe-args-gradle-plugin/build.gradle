@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    implementation(AGP_STABLE)
+    implementation("com.android.tools.build:gradle:4.0.1")
     implementation(KOTLIN_GRADLE_PLUGIN)
     api(project(":navigation:navigation-safe-args-generator"))
     api(gradleApi())

@@ -18,8 +18,6 @@ package androidx.camera.lifecycle;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.experimental.Experimental;
-
 import java.lang.annotation.Retention;
 
 /**
@@ -34,7 +32,8 @@ import java.lang.annotation.Retention;
  *
  * TODO(b/159033688): Remove after the bug is fixed.
  */
+@SuppressWarnings("deprecation")
 @Retention(CLASS)
-@Experimental
+@androidx.annotation.experimental.Experimental
 public @interface ExperimentalUseCaseGroupLifecycle {
 }

@@ -31,7 +31,7 @@ open class BenchmarkReportTask : DefaultTask() {
     init {
         group = "Android"
         description = "Run benchmarks found in the current project and output reports to the " +
-                "benchmark_reports folder under the project's build directory."
+            "benchmark_reports folder under the project's build directory."
 
         benchmarkReportDir = File(
             "${project.buildDir}/outputs", "connected_android_test_additional_output"
@@ -113,7 +113,7 @@ open class BenchmarkReportTask : DefaultTask() {
     private fun getReportDirForDevice(adb: Adb, deviceId: String): String {
         // _data NOT LIKE '%files/Download' filters app-scoped shared external storage.
         val cmd = "shell content query --uri content://media/external/file --projection _data" +
-                " --where \"_data LIKE '%/Download' AND _data NOT LIKE '%files/Download'\""
+            " --where \"_data LIKE '%/Download' AND _data NOT LIKE '%files/Download'\""
 
         // NOTE: stdout of the above command is of the form:
         // Row: 0 _data=/storage/emulated/0/Download

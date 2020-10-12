@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TextViewFragment">
+    tools:context=".viewpager.TextViewFragment">
     <TextView
         android:id="@+id/blank_textview"
         android:layout_width="match_parent"

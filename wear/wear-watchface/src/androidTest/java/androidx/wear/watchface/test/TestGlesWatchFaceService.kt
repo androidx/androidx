@@ -17,21 +17,26 @@
 package androidx.wear.watchface.test
 
 import android.content.Context
+import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Handler
+import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
+import androidx.wear.complications.SystemProviders
+import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
+import androidx.wear.watchface.samples.WatchFaceColorStyle
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
@@ -57,6 +62,7 @@ internal class TestGlesWatchFaceService(
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
 
+        val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
         val colorStyleCategory = ListUserStyleCategory(
             "color_style_category",
             "Colors",
@@ -74,15 +80,33 @@ internal class TestGlesWatchFaceService(
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_WATCH_FACE_BASE or UserStyleCategory.LAYER_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
-        val complicationSlots = ComplicationsManager(emptyList())
+        val complicationSlots = ComplicationsManager(
+            listOf(
+                Complication.Builder(
+                    EXAMPLE_OPENGL_COMPLICATION_ID,
+                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
+                    intArrayOf(
+                        ComplicationData.TYPE_RANGED_VALUE,
+                        ComplicationData.TYPE_LONG_TEXT,
+                        ComplicationData.TYPE_SHORT_TEXT,
+                        ComplicationData.TYPE_ICON,
+                        ComplicationData.TYPE_SMALL_IMAGE
+                    ),
+                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+                ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .build()
+            )
+        )
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
             userStyleRepository,
             watchState,
-            colorStyleCategory
+            colorStyleCategory,
+            complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
 
         return WatchFace.Builder(
@@ -91,8 +115,7 @@ internal class TestGlesWatchFaceService(
             userStyleRepository,
             complicationSlots,
             renderer,
-            // We want full control over when frames are produced.
-            NoInvalidateWatchFaceHostApi.create(watchFaceHost),
+            watchFaceHost,
             watchState
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
@@ -104,4 +127,7 @@ internal class TestGlesWatchFaceService(
     override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
+
+    // We want full control over when frames are produced.
+    override fun allowWatchFaceToAnimate() = false
 }

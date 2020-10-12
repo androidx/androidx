@@ -980,7 +980,7 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * A detached list is [immutable][isImmutable].
      *
-     * @return True if the data source is detached.
+     * @return `true` if the data source is detached.
      */
     abstract val isDetached: Boolean
 

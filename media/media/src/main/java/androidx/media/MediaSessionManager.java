@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -149,8 +150,14 @@ public final class MediaSessionManager {
          * @param packageName package name of the remote user
          * @param pid pid of the remote user
          * @param uid uid of the remote user
+         * @throws IllegalArgumentException if package name is empty
          */
         public RemoteUserInfo(@NonNull String packageName, int pid, int uid) {
+            if (packageName == null) {
+                throw new NullPointerException("package shouldn't be null");
+            } else if (TextUtils.isEmpty(packageName)) {
+                throw new IllegalArgumentException("packageName should be nonempty");
+            }
             if (Build.VERSION.SDK_INT >= 28) {
                 mImpl = new MediaSessionManagerImplApi28.RemoteUserInfoImplApi28(
                         packageName, pid, uid);
@@ -168,12 +175,23 @@ public final class MediaSessionManager {
          * process.
          *
          * @param remoteUserInfo Framework RemoteUserInfo
+         * @throws IllegalArgumentException if package name is empty
          * @hide
          */
         @RestrictTo(LIBRARY)
         @RequiresApi(28)
         public RemoteUserInfo(
                 android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
+            // Framework RemoteUserInfo doesn't ensure non-null nor non-empty package name,
+            // so ensure package name here instead.
+            String packageName =
+                    MediaSessionManagerImplApi28.RemoteUserInfoImplApi28.getPackageName(
+                            remoteUserInfo);
+            if (packageName == null) {
+                throw new NullPointerException("package shouldn't be null");
+            } else if (TextUtils.isEmpty(packageName)) {
+                throw new IllegalArgumentException("packageName should be nonempty");
+            }
             mImpl = new MediaSessionManagerImplApi28.RemoteUserInfoImplApi28(remoteUserInfo);
         }
 

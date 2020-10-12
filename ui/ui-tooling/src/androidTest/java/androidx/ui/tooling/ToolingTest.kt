@@ -18,10 +18,9 @@ package androidx.ui.tooling
 
 import android.os.Handler
 import android.os.Looper
-import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.onGloballyPositioned
 import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,7 +56,8 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize()) {
+                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                    .fillMaxSize()) {
                     composable()
                 }
             }
@@ -77,20 +77,13 @@ open class ToolingTest {
             WeakHashMap<SlotTable, Boolean>()
         )
         activityTestRule.onUiThread {
-            val activity = activity
-            val owner = AndroidOwner(activity, activity, activity).also {
-                activity.setContentView(
-                    it.view,
-                    ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                )
+            AndroidOwner.onAndroidOwnerCreatedCallback = {
+                it.view.setTag(R.id.inspection_slot_table_set, map)
+                AndroidOwner.onAndroidOwnerCreatedCallback = null
             }
-
-            owner.view.setTag(R.id.inspection_slot_table_set, map)
             activity.setContent {
-                Box(Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize()) {
+                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                    .fillMaxSize()) {
                     content()
                 }
             }

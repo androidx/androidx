@@ -73,7 +73,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         }
         throw IllegalStateException(
             "$caller called while fragment was $currentState; " +
-                    "expected $expectString"
+                "expected $expectString"
         )
     }
 
@@ -81,7 +81,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         if (currentState < minState) {
             throw IllegalStateException(
                 "$caller called while fragment was $currentState; " +
-                        "expected at least $minState"
+                    "expected at least $minState"
             )
         }
     }

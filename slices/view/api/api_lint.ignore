@@ -13,8 +13,6 @@ ExecutorRegistration: androidx.slice.SliceUtils#parseSlice(android.content.Conte
     Registration methods should have overload that accepts delivery Executor: `parseSlice`
 
 
-MissingNullability: androidx.slice.SliceMetadata#from(android.content.Context, androidx.slice.Slice):
-    Missing nullability on method `from` return
 MissingNullability: androidx.slice.SliceMetadata#getToggles():
     Missing nullability on method `getToggles` return
 MissingNullability: androidx.slice.SliceMetadata#sendToggleAction(androidx.slice.core.SliceAction, boolean) parameter #0:

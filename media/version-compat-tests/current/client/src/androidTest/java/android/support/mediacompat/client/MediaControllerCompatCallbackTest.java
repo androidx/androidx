@@ -89,6 +89,7 @@ import android.util.Log;
 import androidx.media.VolumeProviderCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -182,7 +183,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setExtras}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetExtras() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -226,7 +227,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setMetadata}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetMetadata() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -421,7 +422,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setRepeatMode}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetRepeatMode() throws Exception {
         synchronized (mWaitLock) {
             mMediaControllerCallback.resetLocked();
@@ -438,7 +439,7 @@ public class MediaControllerCompatCallbackTest {
      * Tests {@link MediaSessionCompat#setShuffleMode}.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetShuffleMode() throws Exception {
         final int shuffleMode = PlaybackStateCompat.SHUFFLE_MODE_ALL;
         synchronized (mWaitLock) {
@@ -602,7 +603,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = 21)
     public void testOnSessionReadyCalled_extraBinderIsNotReadyWhenRegisteringCallback()
             throws Exception {
@@ -668,7 +669,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = 21)
     public void testOnSessionReadyCalled_fwkMediaSession() throws Exception {
         mController = null;
@@ -753,7 +754,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testRegisterCallbackTwice() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(2);
 
@@ -767,7 +768,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testUnregisterCallbackTwice() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -781,7 +782,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testUnregisterUnknownCallback() throws InterruptedException {
         CountDownLatch latch1 = new CountDownLatch(1);
         CountDownLatch latch2 = new CountDownLatch(1);

@@ -18,7 +18,6 @@ package androidx.navigation.safeargs.gradle
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.FeatureExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.api.BaseVariant
 import groovy.util.XmlSlurper
@@ -46,9 +45,6 @@ abstract class SafeArgsPlugin protected constructor(
             extension is AppExtension -> extension.applicationVariants.all(action)
             extension is LibraryExtension -> {
                 extension.libraryVariants.all(action)
-                if (extension is FeatureExtension) {
-                    extension.featureVariants.all(action)
-                }
             }
             else -> throw GradleException("safeargs plugin must be used with android app," +
                     "library or feature plugin")

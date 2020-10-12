@@ -26,7 +26,6 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
-import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
@@ -43,8 +42,8 @@ import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple canvas test watch face for integration tests. */
@@ -88,9 +87,7 @@ internal class TestCanvasWatchFaceService(
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             ),
-            UserStyleCategory.LAYER_WATCH_FACE_BASE or
-                    UserStyleCategory.LAYER_COMPLICATONS or
-                    UserStyleCategory.LAYER_WATCH_FACE_UPPER
+            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -99,7 +96,7 @@ internal class TestCanvasWatchFaceService(
                 "Whether or not hour pips should be drawn",
                 null,
                 true,
-                UserStyleCategory.LAYER_WATCH_FACE_BASE
+                listOf(Layer.BASE_LAYER)
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -110,7 +107,7 @@ internal class TestCanvasWatchFaceService(
                 0.25,
                 1.0,
                 1.0,
-                UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                listOf(Layer.TOP_LAYER)
             )
         val complicationsStyleCategory = ListUserStyleCategory(
             "complications_style_category",
@@ -139,7 +136,7 @@ internal class TestCanvasWatchFaceService(
                     null
                 )
             ),
-            UserStyleCategory.LAYER_COMPLICATONS
+            listOf(Layer.COMPLICATIONS)
         )
         val userStyleRepository = UserStyleRepository(
             listOf(
@@ -200,8 +197,7 @@ internal class TestCanvasWatchFaceService(
             userStyleRepository,
             complicationSlots,
             renderer,
-            // We want full control over when frames are produced.
-            NoInvalidateWatchFaceHostApi.create(watchFaceHost),
+            watchFaceHost,
             watchState
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
@@ -213,4 +209,7 @@ internal class TestCanvasWatchFaceService(
     override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
+
+    // We want full control over when frames are produced.
+    override fun allowWatchFaceToAnimate() = false
 }

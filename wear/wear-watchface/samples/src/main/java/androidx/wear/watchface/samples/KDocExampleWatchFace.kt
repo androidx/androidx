@@ -30,16 +30,16 @@ import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationDrawableRenderer
+import androidx.wear.watchface.CanvasComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 @Sampled
@@ -75,9 +75,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_WATCH_FACE_BASE or
-                                UserStyleCategory.LAYER_COMPLICATONS or
-                                UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                        listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
                     ),
                     ListUserStyleCategory(
                         "hand_style_category",
@@ -97,7 +95,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 icon = null
                             )
                         ),
-                        UserStyleCategory.LAYER_WATCH_FACE_UPPER
+                        listOf(Layer.TOP_LAYER)
                     )
                 )
             )
@@ -105,7 +103,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 listOf(
                     Complication.Builder(
                         /*id */ 0,
-                        ComplicationDrawableRenderer(
+                        CanvasComplicationDrawableRenderer(
                             ComplicationDrawable(this),
                             watchState
                         ),
@@ -122,7 +120,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         .build(),
                     Complication.Builder(
                         /*id */ 1,
-                        ComplicationDrawableRenderer(
+                        CanvasComplicationDrawableRenderer(
                             ComplicationDrawable(this),
                             watchState
                         ),

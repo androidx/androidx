@@ -194,10 +194,13 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         }
 
         if (library.isNotEmpty() &&
-            library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION) {
+            library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION
+        ) {
             locations.forEach { location ->
-                context.report(ISSUE, expression, location,
-                    "Upgrade Fragment version to at least $FRAGMENT_VERSION.")
+                context.report(
+                    ISSUE, expression, location,
+                    "Upgrade Fragment version to at least $FRAGMENT_VERSION."
+                )
             }
         }
     }
@@ -208,8 +211,11 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
      * Returns an empty string if [value] is not a string literal.
      */
     private fun getStringLiteralValue(value: String): String {
-        if (value.length > 2 && (value.startsWith("'") && value.endsWith("'") ||
-                    value.startsWith("\"") && value.endsWith("\""))) {
+        if (value.length > 2 && (
+            value.startsWith("'") && value.endsWith("'") ||
+                value.startsWith("\"") && value.endsWith("\"")
+            )
+        ) {
             return value.substring(1, value.length - 1)
         }
         return ""

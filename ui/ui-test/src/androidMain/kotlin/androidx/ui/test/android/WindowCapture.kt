@@ -53,7 +53,7 @@ internal fun captureRegionToBitmap(
     val drawLatch = CountDownLatch(1)
     val decorView = windowToCapture.decorView
     handler.post {
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= 29 && decorView.isHardwareAccelerated()) {
             decorView.viewTreeObserver.registerFrameCommitCallback {
                 drawLatch.countDown()
             }

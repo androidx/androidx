@@ -112,17 +112,19 @@ class DialogFragmentDismissTest(
         var onDismissCalledCount = 0
         val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
-            fragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_STOP) {
-                    val dialog = fragment.dialog
-                    dialogIsNonNull = dialog != null
-                    isShowing = dialog != null && dialog.isShowing
-                    countDownLatch.countDown()
-                } else if (event == Lifecycle.Event.ON_DESTROY) {
-                    onDismissCalledCount = fragment.onDismissCalledCount
-                    countDownLatch.countDown()
+            fragment.lifecycle.addObserver(
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        val dialog = fragment.dialog
+                        dialogIsNonNull = dialog != null
+                        isShowing = dialog != null && dialog.isShowing
+                        countDownLatch.countDown()
+                    } else if (event == Lifecycle.Event.ON_DESTROY) {
+                        onDismissCalledCount = fragment.onDismissCalledCount
+                        countDownLatch.countDown()
+                    }
                 }
-            })
+            )
         }
         var dismissOnMainThread = false
         var dismissCalled = false
@@ -158,8 +160,10 @@ class DialogFragmentDismissTest(
             .isTrue()
 
         if (operation is ActivityFinish) {
-            assertWithMessage("Dialog should still be showing in onStop() during " +
-                    "the normal lifecycle")
+            assertWithMessage(
+                "Dialog should still be showing in onStop() during " +
+                    "the normal lifecycle"
+            )
                 .that(isShowing)
                 .isTrue()
         } else {

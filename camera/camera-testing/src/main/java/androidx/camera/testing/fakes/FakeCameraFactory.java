@@ -117,4 +117,10 @@ public final class FakeCameraFactory implements CameraFactory {
 
         return mCachedCameraIds;
     }
+
+    @Nullable
+    @Override
+    public Object getCameraManager() {
+        return null;
+    }
 }

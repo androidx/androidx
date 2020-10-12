@@ -16,6 +16,8 @@
 
 package androidx.camera.view;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -28,24 +30,39 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
-import androidx.lifecycle.Lifecycle;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.lifecycle.LifecycleOwner;
 
 /**
- * The  controller that manages CameraX stack.
+ * A controller that provides most of the CameraX features.
  *
- * <p> The controller is a high level API manages the entire CameraX stack including camera
- * readiness, Android UI lifecycle and use cases.
+ * <p> This a high level controller that provides most of the CameraX core features
+ * in a single class. It handles camera initialization, creates and configures {@link UseCase}s,
+ * and bind them to a {@link LifecycleOwner} when ready. It also listens to device motion sensor
+ * and set the target rotation for the use cases.
  *
- * <p> The controller is bound with the given {@link LifecycleOwner}. It starts use cases by
- * binding it to a {@link LifecycleOwner}, and cleans up once the {@link Lifecycle} is destroyed.
+ * <p> Code sample:
+ * <pre><code>
+ *     // Setup.
+ *     CameraController controller = new LifecycleCameraController(context);
+ *     controller.bindToLifecycle(lifecycleOwner);
+ *     PreviewView previewView = findViewById(R.id.preview_view);
+ *     previewView.setController(controller);
+ *
+ *     // Use case features
+ *     controller.takePicture(...);
+ *
+ *     // Camera control features
+ *     controller.setZoomRatio(.5F);
+ * </code></pre>
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 public final class LifecycleCameraController extends CameraController {
 
     private static final String TAG = "CamLifecycleController";
@@ -58,7 +75,13 @@ public final class LifecycleCameraController extends CameraController {
     }
 
     /**
-     * Sets the {@link LifecycleOwner} to be bound when ready.
+     * Sets the {@link LifecycleOwner} to be bound with the controller.
+     *
+     * <p> The state of the lifecycle will determine when the cameras are open, started, stopped
+     * and closed. When the {@link LifecycleOwner}'s state is start or greater, the controller
+     * receives camera data. It stops once the {@link LifecycleOwner} is destroyed.
+     *
+     * @see ProcessCameraProvider#bindToLifecycle
      */
     @SuppressLint("MissingPermission")
     @MainThread
@@ -69,7 +92,9 @@ public final class LifecycleCameraController extends CameraController {
     }
 
     /**
-     * Unbinds all use cases.
+     * Clears the previously set {@link LifecycleOwner} and stops the camera.
+     *
+     * @see ProcessCameraProvider#unbindAll
      */
     @MainThread
     public void unbind() {

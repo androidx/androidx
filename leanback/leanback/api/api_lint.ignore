@@ -1893,8 +1893,6 @@ MissingNullability: androidx.leanback.widget.BaseGridView#setOnTouchInterceptLis
     Missing nullability on parameter `listener` in method `setOnTouchInterceptListener`
 MissingNullability: androidx.leanback.widget.BaseGridView#setOnUnhandledKeyListener(androidx.leanback.widget.BaseGridView.OnUnhandledKeyListener) parameter #0:
     Missing nullability on parameter `listener` in method `setOnUnhandledKeyListener`
-MissingNullability: androidx.leanback.widget.BaseGridView#setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener) parameter #0:
-    Missing nullability on parameter `listener` in method `setRecyclerListener`
 MissingNullability: androidx.leanback.widget.BaseGridView#setSelectedPosition(int, androidx.leanback.widget.ViewHolderTask) parameter #1:
     Missing nullability on parameter `task` in method `setSelectedPosition`
 MissingNullability: androidx.leanback.widget.BaseGridView#setSelectedPositionSmooth(int, androidx.leanback.widget.ViewHolderTask) parameter #1:

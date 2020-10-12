@@ -26,6 +26,7 @@ import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.Camera;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -60,8 +61,11 @@ public final class Camera2CameraInfoTest {
         CameraCharacteristics characteristics = mock(CameraCharacteristics.class);
         when(characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+        CameraCharacteristicsCompat cameraCharacteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
         Camera2CameraInfoImpl impl = mock(Camera2CameraInfoImpl.class);
-        when(impl.getCameraCharacteristics()).thenAnswer(ignored -> characteristics);
+        when(impl.getCameraCharacteristicsCompat()).thenAnswer(
+                ignored -> cameraCharacteristicsCompat);
         Camera2CameraInfo camera2CameraInfo = new Camera2CameraInfo(impl);
         Integer hardwareLevel = camera2CameraInfo.getCameraCharacteristic(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);

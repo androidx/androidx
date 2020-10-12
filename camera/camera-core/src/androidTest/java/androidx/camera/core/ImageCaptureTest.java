@@ -86,7 +86,7 @@ public class ImageCaptureTest {
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
 
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(fakeCamera,
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory);

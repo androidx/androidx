@@ -28,23 +28,28 @@ import androidx.annotation.RestrictTo
  * A style descriptor for watch faces.
  *
  * <p>Parameters here affect how the system UI will be drawn over a watch face. An instance of this
- * class should be passed in to {@link WatchFaceService.Engine#setWatchFaceStyle} in the {@code
- * onCreate} method of your {@link WatchFaceService.Engine#onCreate} override.
+ * class should be passed in to [WatchFaceService.Engine.setWatchFaceStyle] in the `onCreate`
+ * method of your [WatchFaceService.Engine.onCreate] override.
  *
- * <p>To construct a WatchFaceStyle use {@link WatchFaceStyle.Builder}.
+ * <p>To construct a WatchFaceStyle use [WatchFaceStyle.Builder].
  *
  * @hide
  */
 @SuppressWarnings("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class WatchFaceStyle(
+open class WatchFaceStyle(
     val component: ComponentName,
     val viewProtectionMode: Int,
     val statusBarGravity: Int,
     @ColorInt val accentColor: Int,
     val showUnreadCountIndicator: Boolean,
     val hideNotificationIndicator: Boolean,
-    val acceptsTapEvents: Boolean
+    val acceptsTapEvents: Boolean,
+    /**
+     * Escape hatch needed by WearOS to implement backwards compatibility. Note WearOS support for
+     * obsolete WatchFaceStyle properties may be removed without notice.
+     */
+    val compatBundle: Bundle? = null
 ) : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -125,7 +130,8 @@ class WatchFaceStyle(
                     bundle.getInt(Constants.KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR),
                     bundle.getBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR),
                     bundle.getBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR),
-                    bundle.getBoolean(Constants.KEY_ACCEPTS_TAPS)
+                    bundle.getBoolean(Constants.KEY_ACCEPTS_TAPS),
+                    bundle
                 )
             }
 

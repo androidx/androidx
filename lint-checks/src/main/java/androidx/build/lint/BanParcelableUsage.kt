@@ -37,27 +37,32 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
     }
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-                if (declaration.isInterface ||
-                        declaration.hasModifierProperty(PsiModifier.ABSTRACT) ||
-                        declaration is UAnonymousClass) {
-                    return
-                }
+        if (declaration.isInterface ||
+            declaration.hasModifierProperty(PsiModifier.ABSTRACT) ||
+            declaration is UAnonymousClass
+        ) {
+            return
+        }
         // For now only find classes that directly implement Parcelable, because
         // lint will also examine the entire inheritance and implementation chain.
         for (superclass in declaration.uastSuperTypes) {
             if (superclass.type.canonicalText == PARCELABLE_INTERFACE_CANNONICAL_NAME) {
-                context.report(ISSUE, declaration, context.getNameLocation(declaration),
-                        "Class implements android.os.Parcelable")
+                context.report(
+                    ISSUE, declaration, context.getNameLocation(declaration),
+                    "Class implements android.os.Parcelable"
+                )
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create("BanParcelableUsage",
-                "Class implements android.os.Parcelable",
-                "Use of Parcelable is no longer recommended," +
-                        " please use VersionedParcelable instead.",
-                Category.CORRECTNESS, 5, Severity.ERROR,
-                Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE))
+        val ISSUE = Issue.create(
+            "BanParcelableUsage",
+            "Class implements android.os.Parcelable",
+            "Use of Parcelable is no longer recommended," +
+                " please use VersionedParcelable instead.",
+            Category.CORRECTNESS, 5, Severity.ERROR,
+            Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE)
+        )
     }
 }

@@ -76,8 +76,10 @@ inline fun <reified VM : ViewModel> Fragment.viewModels(
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.activityViewModels(
     noinline factoryProducer: (() -> Factory)? = null
-) = createViewModelLazy(VM::class, { requireActivity().viewModelStore },
-    factoryProducer ?: { requireActivity().defaultViewModelProviderFactory })
+) = createViewModelLazy(
+    VM::class, { requireActivity().viewModelStore },
+    factoryProducer ?: { requireActivity().defaultViewModelProviderFactory }
+)
 
 /**
  * Helper method for creation of [ViewModelLazy], that resolves `null` passed as [factoryProducer]

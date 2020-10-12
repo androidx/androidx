@@ -80,46 +80,49 @@ private fun CombinedLoadStates.set(
     fromMediator: Boolean,
     loadState: LoadState
 ) = when (loadType) {
-    LoadType.REFRESH -> if (fromMediator) {
-        copy(
-            mediator = mediator?.copy(refresh = loadState)
-                ?: LoadStates(
-                    refresh = loadState,
-                    prepend = NotLoading(false),
-                    append = NotLoading(false)
-                )
-        )
-    } else {
-        copy(
-            source = source.copy(refresh = loadState)
-        )
-    }
-    LoadType.PREPEND -> if (fromMediator) {
-        copy(
-            mediator = mediator?.copy(prepend = loadState)
-                ?: LoadStates(
-                    refresh = NotLoading(false),
-                    prepend = loadState,
-                    append = NotLoading(false)
-                )
-        )
-    } else {
-        copy(
-            source = source.copy(prepend = loadState)
-        )
-    }
-    LoadType.APPEND -> if (fromMediator) {
-        copy(
-            mediator = mediator?.copy(append = loadState)
-                ?: LoadStates(
-                    refresh = NotLoading(false),
-                    prepend = NotLoading(false),
-                    append = loadState
-                )
-        )
-    } else {
-        copy(
-            source = source.copy(append = loadState)
-        )
-    }
+    LoadType.REFRESH ->
+        if (fromMediator) {
+            copy(
+                mediator = mediator?.copy(refresh = loadState)
+                    ?: LoadStates(
+                        refresh = loadState,
+                        prepend = NotLoading(false),
+                        append = NotLoading(false)
+                    )
+            )
+        } else {
+            copy(
+                source = source.copy(refresh = loadState)
+            )
+        }
+    LoadType.PREPEND ->
+        if (fromMediator) {
+            copy(
+                mediator = mediator?.copy(prepend = loadState)
+                    ?: LoadStates(
+                        refresh = NotLoading(false),
+                        prepend = loadState,
+                        append = NotLoading(false)
+                    )
+            )
+        } else {
+            copy(
+                source = source.copy(prepend = loadState)
+            )
+        }
+    LoadType.APPEND ->
+        if (fromMediator) {
+            copy(
+                mediator = mediator?.copy(append = loadState)
+                    ?: LoadStates(
+                        refresh = NotLoading(false),
+                        prepend = NotLoading(false),
+                        append = loadState
+                    )
+            )
+        } else {
+            copy(
+                source = source.copy(append = loadState)
+            )
+        }
 }

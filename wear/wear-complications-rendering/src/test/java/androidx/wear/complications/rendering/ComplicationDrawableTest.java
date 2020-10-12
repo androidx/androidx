@@ -52,6 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.watchface.ComplicationsManager;
+import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceHost;
@@ -678,6 +679,20 @@ public class ComplicationDrawableTest {
         assertThat(copy.getAmbientStyle().getTitleSize()).isEqualTo(titleSizeAmbient);
     }
 
+    @Test
+    public void testUpdateStyleIfRequired() {
+        mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
+        mComplicationDrawable.getActiveStyle().setBackgroundColor(123);
+
+        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
+                .mBackgroundPaint.getColor()).isNotEqualTo(123);
+
+        mComplicationDrawable.updateStyleIfRequired();
+
+        assertThat(mComplicationDrawable.getComplicationRenderer().mActivePaintSet
+                .mBackgroundPaint.getColor()).isEqualTo(123);
+    }
+
     /** Proxies necessary methods to Robolectric application. */
     private static class FakeWatchFaceService extends WatchFaceService {
 
@@ -712,7 +727,8 @@ public class ComplicationDrawableTest {
                         @NotNull
                         @Override
                         public Bitmap takeScreenshot$wear_watchface_debug(
-                                @NotNull Calendar calendar, int drawMode) {
+                                @NotNull Calendar calendar,
+                                @NonNull RenderParameters renderParameters) {
                             return null;
                         }
 

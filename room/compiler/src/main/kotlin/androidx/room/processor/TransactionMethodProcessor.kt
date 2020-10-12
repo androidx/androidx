@@ -34,10 +34,10 @@ class TransactionMethodProcessor(
 
     fun process(): TransactionMethod {
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
-        val kotlinDefaultImpl = executableElement.findKotlinDefaultImpl()
+        val hasKotlinDefaultImpl = executableElement.hasKotlinDefaultImpl()
         context.checker.check(
                 executableElement.isOverrideableIgnoringContainer() &&
-                        (!executableElement.isAbstract() || kotlinDefaultImpl != null),
+                        (!executableElement.isAbstract() || hasKotlinDefaultImpl),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
@@ -57,7 +57,7 @@ class TransactionMethodProcessor(
         val callType = when {
             executableElement.isJavaDefault() ->
                 TransactionMethod.CallType.DEFAULT_JAVA8
-            kotlinDefaultImpl != null ->
+            hasKotlinDefaultImpl ->
                 TransactionMethod.CallType.DEFAULT_KOTLIN
             else ->
                 TransactionMethod.CallType.CONCRETE

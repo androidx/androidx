@@ -41,7 +41,7 @@ private val DEFAULT_LANGUAGE = Locale.getDefault().toString()
 class LocaleTestUtilsTest {
     private val configuration: Configuration
         get() =
-        (ApplicationProvider.getApplicationContext() as Context).resources.configuration
+            (ApplicationProvider.getApplicationContext() as Context).resources.configuration
     private val Configuration.language: String get() =
         ConfigurationCompat.getLocales(this).get(0).toString()
 

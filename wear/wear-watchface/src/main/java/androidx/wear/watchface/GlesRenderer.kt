@@ -52,19 +52,20 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
 /**
- * Watch faces that require {@link GLES20} rendering should extend their {@link Renderer} from this
+ * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
  * class.
  */
 abstract class GlesRenderer (
-    /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
+    /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleRepository}. */
+    /** The associated [UserStyleRepository]. */
     userStyleRepository: UserStyleRepository,
 
-    /** The associated {@link WatchState}. */
+    /** The associated [WatchState]. */
     watchState: WatchState
 ) : Renderer(surfaceHolder, userStyleRepository, watchState) {
+    /** @hide */
     private companion object {
         private const val TAG = "Gles2WatchFace"
     }
@@ -103,16 +104,16 @@ abstract class GlesRenderer (
     private var calledOnGlContextCreated = false
 
     /**
-     * Returns the attributes to be passed to {@link EGL14.eglChooseConfig}. By default this selects
+     * Returns the attributes to be passed to [EGL14.eglChooseConfig]. By default this selects
      * an RGBAB8888 back buffer.
      */
     @SuppressWarnings("SyntheticAccessor")
     protected open fun getConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
 
     /**
-     * Chooses the EGLConfig to use, by default this calls {@link getEglConfigAttribList} to get
-     * the attributes list to pass to {@link EGL14.eglChooseConfig}.
-     * @throws RuntimeException if {@link EGL14.eglChooseConfig} fails
+     * Chooses the EGLConfig to use, by default this calls [getEglConfigAttribList] to get
+     * the attributes list to pass to [EGL14.eglChooseConfig].
+     * @throws RuntimeException if [EGL14.eglChooseConfig] fails
      */
     protected open fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
         val numEglConfigs = IntArray(1)
@@ -137,7 +138,7 @@ abstract class GlesRenderer (
     }
 
     /**
-     * Returns the attributes to be passed to {@link EGL14.eglCreateWindowSurface}. By default this
+     * Returns the attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this
      * is empty.
      */
     @SuppressWarnings("SyntheticAccessor")
@@ -250,27 +251,53 @@ abstract class GlesRenderer (
     /** {@inheritDoc} */
     internal override fun takeScreenshot(
         calendar: Calendar,
-        @DrawMode drawMode: Int
+        renderParameters: RenderParameters
     ): Bitmap {
         val width = screenBounds.width()
         val height = screenBounds.height()
         val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)
         makeContextCurrent()
-        this.drawMode = drawMode
+        val prevRenderParameters = this.renderParameters
+        this.renderParameters = renderParameters
         render(calendar)
+        this.renderParameters = prevRenderParameters
         GLES20.glFinish()
         GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuf)
+        // The image is flipped when using read pixels because the first pixel in the OpenGL buffer
+        // is in bottom left.
+        verticalFlip(pixelBuf, width, height)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.copyPixelsFromBuffer(pixelBuf)
         return bitmap
     }
 
+    private fun verticalFlip(
+        buffer: ByteBuffer,
+        width: Int,
+        height: Int
+    ) {
+        var i = 0
+        val tmp = ByteArray(width * 4)
+        while (i++ < height / 2) {
+            buffer[tmp]
+            System.arraycopy(
+                buffer.array(),
+                buffer.limit() - buffer.position(),
+                buffer.array(),
+                buffer.position() - width * 4,
+                width * 4
+            )
+            System.arraycopy(tmp, 0, buffer.array(), buffer.limit() - buffer.position(), width * 4)
+        }
+        buffer.rewind()
+    }
+
     /**
      * Sub-classes should override this to implement their rendering logic which should respect
-     * the current {@link DrawMode}. For correct functioning watch faces must use the supplied
-     * {@link Calendar} and avoid using any other ways of getting the time.
+     * the current [DrawMode]. For correct functioning watch faces must use the supplied
+     * [Calendar] and avoid using any other ways of getting the time.
      *
-     * @param calendar The current {@link Calendar}
+     * @param calendar The current [Calendar]
      */
     @UiThread
     abstract fun render(calendar: Calendar)

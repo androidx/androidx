@@ -53,7 +53,7 @@ class MailToTest(private val parser: MailToParser) {
         private const val MAILTOURI_2 = "mailto:infobot@example.com?subject=current-issue"
         private const val MAILTOURI_3 = "mailto:infobot@example.com?body=send%20current-issue"
         private const val MAILTOURI_4 = "mailto:infobot@example.com?body=send%20current-" +
-                "issue%0D%0Asend%20index" // NOTYPO
+            "issue%0D%0Asend%20index" // NOTYPO
         private const val MAILTOURI_5 = "mailto:joe@example.com?cc=bob@example.com&body=hello"
         private const val MAILTOURI_6 = "mailto:?to=joe@example.com&cc=bob@example.com&body=hello"
     }

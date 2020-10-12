@@ -23,9 +23,13 @@ import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.futures.FutureCallback
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.CameraUtil
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
@@ -53,7 +57,7 @@ import java.util.concurrent.TimeUnit
 const val TIMEOUT_SECONDS = 3L
 
 /**
- * Instrument tests for {@link CameraControllerFragment} and {@link CameraController}.
+ * Instrument tests for [CameraControllerFragment].
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -79,6 +83,103 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    @Test
+    fun fragmentLaunch_cameraInitializationCompletes() {
+        val semaphore = Semaphore(0)
+        Futures.addCallback(
+            createFragmentScenario().getFragment().cameraController.initializationFuture,
+            object : FutureCallback<Void> {
+                override fun onSuccess(result: Void?) {
+                    semaphore.release()
+                }
+
+                override fun onFailure(t: Throwable) {}
+            }, CameraXExecutors.directExecutor()
+        )
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+    }
+
+    @Test
+    fun fragmentLaunch_receiveAnalysisFrames() {
+        createFragmentScenario().getFragment().assertAnalysisStreaming(true)
+    }
+
+    @Test
+    fun imageAnalysisDisabled_isNotStreaming() {
+        val fragment = createFragmentScenario().getFragment()
+        fragment.assertAnalysisStreaming(true)
+
+        instrumentation.runOnMainSync {
+            fragment.cameraController.isImageAnalysisEnabled = false
+        }
+
+        fragment.assertAnalysisStreaming(false)
+    }
+
+    @Test
+    fun imageAnalysisDisabledAndEnabled_isStreaming() {
+        val fragment = createFragmentScenario().getFragment()
+        fragment.assertAnalysisStreaming(true)
+
+        instrumentation.runOnMainSync {
+            fragment.cameraController.isImageAnalysisEnabled = false
+            fragment.cameraController.isImageAnalysisEnabled = true
+        }
+
+        fragment.assertAnalysisStreaming(true)
+    }
+
+    @Test
+    fun analyzerCleared_isNotStreaming() {
+        val fragment = createFragmentScenario().getFragment()
+        fragment.assertAnalysisStreaming(true)
+
+        instrumentation.runOnMainSync {
+            fragment.cameraController.clearImageAnalysisAnalyzer()
+        }
+
+        fragment.assertAnalysisStreaming(false)
+    }
+
+    @Test
+    fun canSetAnalysisImageDepth() {
+        // Arrange.
+        val fragment = createFragmentScenario().getFragment()
+        var currentDepth: Int = 0
+
+        // Act.
+        instrumentation.runOnMainSync {
+            currentDepth = fragment.cameraController.imageAnalysisImageQueueDepth
+            fragment.cameraController.imageAnalysisImageQueueDepth = currentDepth + 1
+        }
+        fragment.assertAnalysisStreaming(true)
+
+        // Assert.
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.imageAnalysisImageQueueDepth)
+                .isEqualTo(currentDepth + 1)
+        }
+    }
+
+    @Test
+    fun canSetAnalysisBackpressureStrategy() {
+        // Arrange.
+        val fragment = createFragmentScenario().getFragment()
+
+        // Act.
+        instrumentation.runOnMainSync {
+            fragment.cameraController.imageAnalysisBackpressureStrategy =
+                ImageAnalysis.STRATEGY_BLOCK_PRODUCER
+        }
+        fragment.assertAnalysisStreaming(true)
+
+        // Assert.
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.imageAnalysisBackpressureStrategy)
+                .isEqualTo(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+        }
+    }
 
     @Test
     fun capturedImage_sameAsPreviewSnapshot() {
@@ -342,6 +443,19 @@ class CameraControllerFragmentTest {
             })
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+    }
+
+    private fun CameraControllerFragment.assertAnalysisStreaming(streaming: Boolean) {
+        val analysisStreaming = Semaphore(0)
+        instrumentation.runOnMainSync {
+            setWrappedAnalyzer {
+                it.close()
+                analysisStreaming.release()
+            }
+        }
+        assertThat(analysisStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(
+            streaming
+        )
     }
 
     /**

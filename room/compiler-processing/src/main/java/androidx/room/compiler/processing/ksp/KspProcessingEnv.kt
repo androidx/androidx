@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
+import org.jetbrains.kotlin.ksp.symbol.Variance
 import javax.annotation.processing.Filer
 
 internal class KspProcessingEnv(
@@ -76,19 +77,36 @@ internal class KspProcessingEnv(
     }
 
     override fun getArrayType(type: XType): XArrayType {
-        TODO("Not yet implemented")
+        check(type is KspType)
+        val arrayType = resolver.requireClass(KOTLIN_ARRAY_Q_NAME)
+        val ksType = arrayType.asType(
+            listOf(resolver.getTypeArgument(
+                type.ksType.createTypeReference(),
+                Variance.INVARIANT
+            ))
+        )
+        return KspArrayType(
+            env = this,
+            ksType = ksType
+        )
     }
 
     fun wrap(ksType: KSType): KspType {
-        return KspType(
-            env = this,
-            ksType = ksType)
+        return if (ksType.declaration.qualifiedName?.asString() == KOTLIN_ARRAY_Q_NAME) {
+            KspArrayType(
+                env = this,
+                ksType = ksType
+            )
+        } else {
+            KspType(
+                env = this,
+                ksType = ksType
+            )
+        }
     }
 
     fun wrap(ksTypeReference: KSTypeReference): KspType {
-        return KspType(
-            env = this,
-            ksTypeReference = ksTypeReference)
+        return wrap(ksTypeReference.requireType())
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
@@ -108,5 +126,9 @@ internal class KspProcessingEnv(
         val nullableByte by lazy {
             resolver.builtIns.byteType.makeNullable()
         }
+    }
+
+    companion object {
+        private const val KOTLIN_ARRAY_Q_NAME = "kotlin.Array"
     }
 }

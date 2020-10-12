@@ -2,7 +2,7 @@
  * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the Laicense.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import androidx.build.RunApiTasks
+
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -28,7 +29,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-
+    api(KOTLIN_STDLIB)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
@@ -56,7 +57,6 @@ android {
 androidx {
     name = "Android Wear Complications"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    runApiTasks = new RunApiTasks.No("Temporary policy violation, see b/162936364")
     mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_COMPLICATIONS
     inceptionYear = "2020"

@@ -458,12 +458,36 @@ public class BiometricFragment extends Fragment {
             }
 
             mViewModel.setCanceledFrom(CANCELED_FROM_INTERNAL);
+            authenticateWithFingerprint(fingerprintManagerCompat, context);
+        }
+    }
+
+    /**
+     *  Requests authentication with fingerprint.
+     *
+     * @param fingerprintManagerCompat FingerprintManagerCompat that coordinates access to the
+     *                                 fingerprint hardware.
+     * @param context The application or activity context.
+     */
+    @SuppressWarnings("deprecation")
+    @VisibleForTesting
+    void authenticateWithFingerprint(
+            @NonNull androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                    fingerprintManagerCompat,
+            @NonNull Context context) {
+        try {
             fingerprintManagerCompat.authenticate(
                     CryptoObjectUtils.wrapForFingerprintManager(mViewModel.getCryptoObject()),
                     0 /* flags */,
                     mViewModel.getCancellationSignalProvider().getFingerprintCancellationSignal(),
                     mViewModel.getAuthenticationCallbackProvider().getFingerprintCallback(),
-                    null /* handler */);
+                    null /* handler */
+            );
+        } catch (NullPointerException e) {
+            Log.e(TAG, "NullPointerException in fingerprintManagerCompat authenticate call", e);
+            sendErrorAndDismiss(BiometricPrompt.ERROR_HW_UNAVAILABLE,
+                    ErrorUtils.getFingerprintErrorString(context,
+                            BiometricPrompt.ERROR_HW_UNAVAILABLE));
         }
     }
 

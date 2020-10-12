@@ -94,29 +94,19 @@ public final class ToggleButtonTest {
 
     @Test
     public void testSwitchAllExtensionsAndTakePicture() throws InterruptedException {
-
         // To switch all extensions.
         for (int i = 0; i < CameraExtensionsActivity.ImageCaptureType.values().length; i++) {
+            // Wait for the take picture button show.
+            waitFor(new WaitForViewToShow(R.id.Picture));
 
-            if (mActivityRule.getActivity().getCurrentImageCaptureType()
-                    != CameraExtensionsActivity.ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE) {
-                // Wait for the take picture button show.
-                waitFor(new WaitForViewToShow(R.id.Picture));
+            // Issue take picture.
+            onView(withId(R.id.Picture)).perform(click());
 
-                // The takePicture() might not work (more detail please see b/136724593,
-                // workaround this issue by wait for a while.
-                // TODO remove the sleep workaround after b/136724593 was fixed.
-                mActivityRule.getActivity().waitForPreviewConfigured(5000);
+            // Wait for the take picture success callback.
+            waitFor(mActivityRule.getActivity().mTakePictureIdlingResource);
 
-                // Issue take picture.
-                onView(withId(R.id.Picture)).perform(click());
-
-                // Wait for the take picture success callback.
-                waitFor(mActivityRule.getActivity().mTakePictureIdlingResource);
-
-                assertNotNull(mActivityRule.getActivity().getImageCapture());
-                assertNotNull(mActivityRule.getActivity().getPreview());
-            }
+            assertNotNull(mActivityRule.getActivity().getImageCapture());
+            assertNotNull(mActivityRule.getActivity().getPreview());
 
             // Switch to the next extension effect.
             onView(withId(R.id.PhotoToggle)).perform(click());

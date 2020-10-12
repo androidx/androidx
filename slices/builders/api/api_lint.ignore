@@ -57,12 +57,6 @@ MissingBuildMethod: androidx.slice.builders.SelectionBuilder:
     androidx.slice.builders.SelectionBuilder does not declare a `build()` method, but builder classes are expected to
 
 
-MissingNullability: androidx.slice.builders.ListBuilder#setKeywords(java.util.Set<java.lang.String>) parameter #0:
-    Missing nullability on parameter `keywords` in method `setKeywords`
-MissingNullability: androidx.slice.builders.ListBuilder.RowBuilder#RowBuilder(android.net.Uri) parameter #0:
-    Missing nullability on parameter `uri` in method `RowBuilder`
-MissingNullability: androidx.slice.builders.ListBuilder.RowBuilder#setTitleItem(androidx.core.graphics.drawable.IconCompat, int):
-    Missing nullability on method `setTitleItem` return
 MissingNullability: androidx.slice.builders.SelectionBuilder#addOption(String, CharSequence):
     Missing nullability on method `addOption` return
 MissingNullability: androidx.slice.builders.SelectionBuilder#addOption(String, CharSequence) parameter #0:

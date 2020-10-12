@@ -16,7 +16,7 @@
 
 package androidx.window.extensions;
 
-import android.os.IBinder;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +33,7 @@ public class ExtensionWindowLayoutInfo {
      * List of display features within the window.
      * <p>NOTE: All display features returned with this container must be cropped to the application
      * window and reported within the coordinate space of the window that was provided by the app.
-     * @see ExtensionInterface#getWindowLayoutInfo(IBinder)
+     * @see ExtensionInterface#getWindowLayoutInfo(Context)
      */
     @NonNull
     private List<ExtensionDisplayFeature> mDisplayFeatures;

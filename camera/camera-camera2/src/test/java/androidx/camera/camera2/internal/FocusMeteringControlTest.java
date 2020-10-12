@@ -48,6 +48,7 @@ import android.util.Size;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl.CaptureResultListener;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -139,9 +140,9 @@ public class FocusMeteringControlTest {
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
         try {
-            CameraCharacteristics cameraCharacteristics =
-                    cameraManager.getCameraCharacteristics(
-                            cameraID);
+            CameraCharacteristicsCompat cameraCharacteristics =
+                    CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraManager
+                            .getCameraCharacteristics(cameraID));
 
             CameraControlInternal.ControlUpdateCallback updateCallback = mock(
                     CameraControlInternal.ControlUpdateCallback.class);

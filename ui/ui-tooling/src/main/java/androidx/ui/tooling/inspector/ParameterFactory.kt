@@ -16,26 +16,19 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.shape.CornerBasedShape
+import android.util.Log
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.InspectableParameter
+import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,38 +37,64 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextGeometricTransform
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
+import java.lang.reflect.Field
 import kotlin.math.abs
+import kotlin.reflect.KClass
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaGetter
+import java.lang.reflect.Modifier as JavaModifier
+
+private const val MAX_RECURSIONS = 10
+private const val MAX_ITERABLE = 25
 
 /**
  * Factory of [NodeParameter]s.
  *
  * Each parameter value is converted to a user readable value.
  */
-internal class ParameterFactory {
+@ExperimentalLayoutNodeApi
+internal class ParameterFactory(private val inlineClassConverter: InlineClassConverter) {
     /**
      * A map from known values to a user readable string representation.
      */
     private val valueLookup = mutableMapOf<Any, String>()
 
+    /**
+     * The classes we have loaded constants from.
+     */
+    private val valuesLoaded = mutableSetOf<Class<*>>()
+
+    /**
+     * Do not load constant names from instances of these classes.
+     * We prefer showing the raw values of Color and Dimensions.
+     */
+    private val ignoredClasses = listOf(Color::class.java, Dp::class.java)
+    private var creatorCache: ParameterCreator? = null
+    private val kotlinReflectionSupported = try {
+        Class.forName("kotlin.reflect.full.KClasses")
+        true
+    } catch (ex: Exception) {
+        false
+    }
+
     var density = Density(1.0f)
 
     init {
-        loadFromCompanion(AbsoluteAlignment.Companion)
-        loadFromCompanion(Alignment.Companion)
-        loadFromInterface(Arrangement::class.java)
-        loadFromCompanion(FontFamily.Companion)
-        loadFromCompanion(FontWeight.Companion, ignore = "getW")
-        loadFromCompanion(Shadow.Companion)
-        loadFromCompanion(TextDecoration.Companion)
-        loadFromCompanion(TextIndent.Companion)
-        valueLookup[Color.Unset] = "Unset"
+        val textDecorationCombination = TextDecoration.combine(
+            listOf(TextDecoration.LineThrough, TextDecoration.Underline))
+        valueLookup[textDecorationCombination] = "LineThrough+Underline"
+        valueLookup[Color.Unspecified] = "Unspecified"
+        valuesLoaded.add(Enum::class.java)
+        valuesLoaded.add(Any::class.java)
     }
 
     /**
@@ -85,273 +104,318 @@ internal class ParameterFactory {
      * For now: return null when a conversion is not possible/found.
      */
     fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? {
-        if (value == null) {
-            return null
-        }
-        val text = valueLookup[value]
-        if (text != null) {
-            return NodeParameter(name, ParameterType.String, text)
-        }
-        return when (value) {
-            is AnnotatedString -> NodeParameter(name, ParameterType.String, value.text)
-            is BaselineShift -> createFromBaselineShift(name, value)
-            is Boolean -> NodeParameter(name, ParameterType.Boolean, value)
-            is BorderStroke -> createFromBorder(node, name, value)
-            is Brush -> createFromBrush(name, value)
-            is Color -> NodeParameter(name, ParameterType.Color, value.toArgb())
-            is CornerBasedShape -> createFromCornerBasedShape(node, name, value)
-            is CornerSize -> createFromCornerSize(node, name, value)
-            is Double -> NodeParameter(name, ParameterType.Double, value)
-            is Dp -> NodeParameter(name, DimensionDp, value.value)
-            is Enum<*> -> NodeParameter(name, ParameterType.String, value.toString())
-            is Float -> NodeParameter(name, ParameterType.Float, value)
-            is FontListFontFamily -> createFromFontListFamily(name, value)
-            is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
-            is PaddingValues -> createFromPaddingValues(node, name, value)
-            is Modifier -> createFromModifier(node, name, value)
-            is InspectableParameter -> createFromInspectableParameter(node, name, value)
-            is Int -> NodeParameter(name, ParameterType.Int32, value)
-            is Locale -> NodeParameter(name, ParameterType.String, value.toString())
-            is LocaleList -> NodeParameter(
-                name, ParameterType.String,
-                value.localeList.joinToString()
-            )
-            is Long -> NodeParameter(name, ParameterType.Int64, value)
-            is Offset -> createFromOffset(name, value)
-            is Shadow -> createFromShadow(node, name, value)
-            is Shape -> NodeParameter(name, ParameterType.String, Shape::class.java.simpleName)
-            is String -> NodeParameter(name, ParameterType.String, value)
-            is TextGeometricTransform -> createFromTextGeometricTransform(node, name, value)
-            is TextIndent -> createFromTextIndent(node, name, value)
-            is TextStyle -> createFromTextStyle(node, name, value)
-            is TextUnit -> createFromTextUnit(name, value)
-            else -> null
+        val creator = creatorCache ?: ParameterCreator()
+        try {
+            return creator.create(node, name, value)
+        } finally {
+            creatorCache = creator
         }
     }
 
-    private fun createFromBaselineShift(name: String, value: BaselineShift): NodeParameter {
-        val converted = when (value.multiplier) {
-            BaselineShift.None.multiplier -> "None"
-            BaselineShift.Subscript.multiplier -> "Subscript"
-            BaselineShift.Superscript.multiplier -> "Superscript"
-            else -> return NodeParameter(name, ParameterType.Float, value.multiplier)
+    private fun loadConstantsFrom(javaClass: Class<*>) {
+        if (valuesLoaded.contains(javaClass)) {
+            return
         }
-        return NodeParameter(name, ParameterType.String, converted)
-    }
-
-    private fun createFromBorder(
-        node: MutableInspectorNode,
-        name: String,
-        value: BorderStroke
-    ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, "BorderStroke")
-        val elements = parameter.elements
-        create(node, "width", value.width)?.let { elements.add(it) }
-        create(node, "brush", value.brush)?.let { elements.add(it) }
-        return parameter
-    }
-
-    private fun createFromBrush(name: String, value: Brush): NodeParameter =
-        when (value) {
-            is SolidColor -> NodeParameter(name, ParameterType.Color, value.value.toArgb())
-            else -> NodeParameter(name, ParameterType.String, classNameOf(value, Brush::class.java))
+        val related = generateSequence(javaClass) { it.superclass }.plus(javaClass.interfaces)
+        related.forEach { aClass ->
+            val topClass = generateSequence(aClass) { it.enclosingClass }.last()
+            loadConstantsFromEnclosedClasses(topClass)
+            findPackageLevelClass(topClass)?.let { loadConstantsFromStaticFinal(it) }
         }
-
-    private fun createFromCornerBasedShape(
-        node: MutableInspectorNode,
-        name: String,
-        value: CornerBasedShape
-    ): NodeParameter? {
-        val parameter = NodeParameter(
-            name, ParameterType.String,
-            classNameOf(value, CornerBasedShape::class.java)
-        )
-        val elements = parameter.elements
-        create(node, "topLeft", value.topLeft)?.let { elements.add(it) }
-        create(node, "topRight", value.topRight)?.let { elements.add(it) }
-        create(node, "bottomLeft", value.bottomLeft)?.let { elements.add(it) }
-        create(node, "bottomRight", value.bottomRight)?.let { elements.add(it) }
-        return parameter
     }
 
-    private fun createFromCornerSize(
-        node: MutableInspectorNode,
-        name: String,
-        value: CornerSize
-    ): NodeParameter {
-        val size = Size(node.width.toFloat(), node.height.toFloat())
-        val pixels = value.toPx(size, density)
-        return NodeParameter(name, DimensionDp, with (density) { pixels.toDp().value })
+    private fun findPackageLevelClass(javaClass: Class<*>): Class<*>? = try {
+        // Note: This doesn't work when @file.JvmName is specified
+        Class.forName("${javaClass.name}Kt")
+    } catch (ex: Throwable) {
+        null
     }
 
-    // For now: select ResourceFontFont closest to W400 and Normal, and return the resId
-    private fun createFromFontListFamily(name: String, value: FontListFontFamily): NodeParameter? =
-        findBestResourceFont(value)?.let {
-            return NodeParameter(name, ParameterType.Resource, it.resId)
+    private fun loadConstantsFromEnclosedClasses(javaClass: Class<*>) {
+        if (valuesLoaded.contains(javaClass)) {
+            return
         }
-
-    private fun createFromPaddingValues(
-        node: MutableInspectorNode,
-        name: String,
-        value: PaddingValues
-    ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, "PaddingValues")
-        val elements = parameter.elements
-        create(node, "start", value.start)?.let { elements.add(it) }
-        create(node, "end", value.end)?.let { elements.add(it) }
-        create(node, "top", value.top)?.let { elements.add(it) }
-        create(node, "bottom", value.bottom)?.let { elements.add(it) }
-        return parameter
+        loadConstantsFromObjectInstance(javaClass.kotlin)
+        loadConstantsFromStaticFinal(javaClass)
+        valuesLoaded.add(javaClass)
+        javaClass.declaredClasses.forEach { loadConstantsFromEnclosedClasses(it) }
     }
-
-    private fun createFromInspectableParameter(
-        node: MutableInspectorNode,
-        name: String,
-        value: InspectableParameter
-    ): NodeParameter {
-        val tempValue = value.valueOverride ?: ""
-        val parameterName = name.ifEmpty { value.nameFallback } ?: "element"
-        val parameterValue = if (tempValue is InspectableParameter) "" else tempValue
-        val parameter = create(node, parameterName, parameterValue)
-            ?: NodeParameter(parameterName, ParameterType.String, "")
-        val elements = parameter.elements
-        value.inspectableElements.mapNotNullTo(elements) { create(node, it.name, it.value) }
-        return parameter
-    }
-
-    private fun createFromModifier(
-        node: MutableInspectorNode,
-        name: String,
-        value: Modifier
-    ): NodeParameter? =
-        when {
-            name.isNotEmpty() -> {
-                val parameter = NodeParameter(name, ParameterType.String, "")
-                val elements = parameter.elements
-                value.foldIn(elements) { acc, m ->
-                    create(node, "", m)?.let { param -> acc.apply { add(param) } } ?: acc
-                }
-                parameter
-            }
-            value is InspectableParameter -> createFromInspectableParameter(node, name, value)
-            else -> null
-        }
-
-    private fun createFromOffset(name: String, value: Offset): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, Offset::class.java.simpleName)
-        val elements = parameter.elements
-        elements.add(NodeParameter("x", DimensionDp, with(density) { value.x.toDp().value }))
-        elements.add(NodeParameter("y", DimensionDp, with(density) { value.y.toDp().value }))
-        return parameter
-    }
-
-    private fun createFromShadow(
-        node: MutableInspectorNode,
-        name: String,
-        value: Shadow
-    ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, Shadow::class.java.simpleName)
-        val elements = parameter.elements
-        val blurRadius = with(density) { value.blurRadius.toDp().value }
-        create(node, "color", value.color)?.let { elements.add(it) }
-        create(node, "offset", value.offset)?.let { elements.add(it) }
-        elements.add(NodeParameter("blurRadius", DimensionDp, blurRadius))
-        return parameter
-    }
-
-    private fun createFromTextGeometricTransform(
-        node: MutableInspectorNode,
-        name: String,
-        value: TextGeometricTransform
-    ): NodeParameter {
-        val parameter = NodeParameter(
-            name, ParameterType.String,
-            TextGeometricTransform::class.java.simpleName
-        )
-        val elements = parameter.elements
-        create(node, "scaleX", value.scaleX)?.let { elements.add(it) }
-        create(node, "skewX", value.skewX)?.let { elements.add(it) }
-        return parameter
-    }
-
-    private fun createFromTextIndent(
-        node: MutableInspectorNode,
-        name: String,
-        value: TextIndent
-    ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, TextIndent::class.java.simpleName)
-        val elements = parameter.elements
-        create(node, "firstLine", value.firstLine)?.let { elements.add(it) }
-        create(node, "restLine", value.restLine)?.let { elements.add(it) }
-        return parameter
-    }
-
-    private fun createFromTextStyle(
-        node: MutableInspectorNode,
-        name: String,
-        value: TextStyle
-    ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, TextStyle::class.java.simpleName)
-        val elements = parameter.elements
-        create(node, "color", value.color)?.let { elements.add(it) }
-        create(node, "fontSize", value.fontSize)?.let { elements.add(it) }
-        create(node, "fontWeight", value.fontWeight)?.let { elements.add(it) }
-        create(node, "fontStyle", value.fontStyle)?.let { elements.add(it) }
-        create(node, "fontSynthesis", value.fontSynthesis)?.let { elements.add(it) }
-        create(node, "fontFamily", value.fontFamily)?.let { elements.add(it) }
-        create(node, "fontFeatureSettings", value.fontFeatureSettings)?.let { elements.add(it) }
-        create(node, "letterSpacing", value.letterSpacing)?.let { elements.add(it) }
-        create(node, "baselineShift", value.baselineShift)?.let { elements.add(it) }
-        create(node, "textGeometricTransform", value.textGeometricTransform)
-            ?.let { elements.add(it) }
-        create(node, "localeList", value.localeList)?.let { elements.add(it) }
-        create(node, "background", value.background)?.let { elements.add(it) }
-        create(node, "textDecoration", value.textDecoration)?.let { elements.add(it) }
-        create(node, "shadow", value.shadow)?.let { elements.add(it) }
-        create(node, "textAlign", value.textAlign)?.let { elements.add(it) }
-        create(node, "textDirection", value.textDirection)?.let { elements.add(it) }
-        create(node, "lineHeight", value.lineHeight)?.let { elements.add(it) }
-        create(node, "textIndent", value.textIndent)?.let { elements.add(it) }
-        return parameter
-    }
-
-    private fun createFromTextUnit(name: String, value: TextUnit): NodeParameter? =
-        when (value.type) {
-            TextUnitType.Sp -> NodeParameter(name, ParameterType.DimensionSp, value.value)
-            TextUnitType.Em -> NodeParameter(name, ParameterType.DimensionEm, value.value)
-            TextUnitType.Inherit -> NodeParameter(name, ParameterType.String, "Inherit")
-        }
-
-    private fun classNameOf(value: Any, default: Class<*>): String =
-        value.javaClass.simpleName.ifEmpty { default.simpleName }
 
     /**
-     * Select a resource font among the font in the family to represent the font
+     * Load all constants from companion objects and singletons
      *
-     * Prefer the font closest to [FontWeight.Normal] and [FontStyle.Normal]
+     * Exclude: primary types and types of ignoredClasses, open and lateinit vals.
      */
-    private fun findBestResourceFont(value: FontListFontFamily): ResourceFont? =
-        value.fonts.asSequence().filterIsInstance<ResourceFont>().minByOrNull {
-            abs(it.weight.weight - FontWeight.Normal.weight) + it.style.ordinal
+    private fun loadConstantsFromObjectInstance(kClass: KClass<*>) {
+        try {
+            val instance = kClass.objectInstance ?: return
+            kClass.declaredMemberProperties.asSequence()
+                .filter { it.isFinal && !it.isLateinit }
+                .mapNotNull { constantValueOf(it, instance)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) }
+                .toMap(valueLookup)
+        } catch (_: Throwable) {
+            // KT-16479 :  kotlin reflection does currently not support packages and files.
+            // We load top level values using Java reflection instead.
+            // Ignore other reflection errors as well
         }
-
-    private fun loadFromInterface(interfaceClass: Class<*>) {
-        // REDO: If we decide to add a kotlin reflection dependency
-        interfaceClass.declaredFields
-            .filter { it.name != "INSTANCE" }
-            .associateByTo(valueLookup, { it.isAccessible = true; it[null]!! }, { it.name })
     }
 
-    private fun loadFromCompanion(companionInstance: Any, ignore: String? = null) {
-        // REDO: If we decide to add a kotlin reflection dependency
-        companionInstance::class.java.declaredMethods.asSequence()
-            .filter {
-                java.lang.reflect.Modifier.isPublic(it.modifiers) &&
+    /**
+     * Load all constants from top level values from Java.
+     *
+     * Exclude: primary types and types of ignoredClasses.
+     * Since this is Java, inline types will also (unfortunately) be excluded.
+     */
+    private fun loadConstantsFromStaticFinal(javaClass: Class<*>) {
+        try {
+            javaClass.declaredMethods.asSequence()
+                .filter {
                     it.returnType != Void.TYPE &&
-                    it.parameterTypes.isEmpty() &&
-                    it.name.startsWith("get") &&
-                    (ignore == null || !it.name.startsWith(ignore))
+                            JavaModifier.isStatic(it.modifiers) &&
+                            JavaModifier.isFinal(it.modifiers) &&
+                            !it.returnType.isPrimitive &&
+                            it.parameterTypes.isEmpty() &&
+                            it.name.startsWith("get")
+                }
+                .mapNotNull { javaClass.getDeclaredField(it.name.substring(3)) }
+                .mapNotNull { constantValueOf(it)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) }
+                .toMap(valueLookup)
+        } catch (_: ReflectiveOperationException) {
+            // ignore reflection errors
+        }
+    }
+
+    private fun constantValueOf(field: Field?): Any? = try {
+        field?.isAccessible = true
+        field?.get(null)
+    } catch (_: ReflectiveOperationException) {
+        // ignore reflection errors
+        null
+    }
+
+    private fun constantValueOf(property: KProperty1<out Any, *>, instance: Any): Any? = try {
+        val field = property.javaField
+        field?.isAccessible = true
+        inlineClassConverter.castParameterValue(inlineResultClass(property), field?.get(instance))
+    } catch (_: ReflectiveOperationException) {
+        // ignore reflection errors
+        null
+    }
+
+    private fun inlineResultClass(property: KProperty1<out Any, *>): String? {
+        // The Java getter name will be mangled if it contains parameters of an inline class.
+        // The mangled part starts with a '-'.
+        if (property.javaGetter?.name?.contains('-') == true) {
+            return property.returnType.toString()
+        }
+        return null
+    }
+
+    private fun ignoredValue(value: Any?): Boolean =
+        value == null ||
+                ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
+                value::class.java.isPrimitive
+
+    /**
+     * Convenience class for building [NodeParameter]s.
+     */
+    private inner class ParameterCreator {
+        private var node: MutableInspectorNode? = null
+        private var recursions = 0
+
+        fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? = try {
+            this.node = node
+            recursions = 0
+            create(name, value)
+        } finally {
+            this.node = null
+        }
+
+        private fun create(name: String, value: Any?): NodeParameter? {
+            if (value == null || recursions >= MAX_RECURSIONS) {
+                return null
             }
-            .associateByTo(valueLookup, { it(companionInstance)!! }, { it.name.substring(3) })
+            try {
+                recursions++
+                createFromConstant(name, value)?.let { return it }
+                return when (value) {
+                    is AnnotatedString -> NodeParameter(name, ParameterType.String, value.text)
+                    is BaselineShift -> createFromBaselineShift(name, value)
+                    is Boolean -> NodeParameter(name, ParameterType.Boolean, value)
+                    is Color -> NodeParameter(name, ParameterType.Color, value.toArgb())
+                    is CornerSize -> createFromCornerSize(name, value)
+                    is Double -> NodeParameter(name, ParameterType.Double, value)
+                    is Dp -> NodeParameter(name, DimensionDp, value.value)
+                    is Enum<*> -> NodeParameter(name, ParameterType.String, value.toString())
+                    is Float -> NodeParameter(name, ParameterType.Float, value)
+                    is FontListFontFamily -> createFromFontListFamily(name, value)
+                    is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
+                    is Modifier -> createFromModifier(name, value)
+                    is InspectableValue -> createFromInspectableValue(name, value)
+                    is Int -> NodeParameter(name, ParameterType.Int32, value)
+                    is Iterable<*> -> createFromIterable(name, value)
+                    is Locale -> NodeParameter(name, ParameterType.String, value.toString())
+                    is LocaleList ->
+                        NodeParameter(name, ParameterType.String, value.localeList.joinToString())
+                    is Long -> NodeParameter(name, ParameterType.Int64, value)
+                    is Offset -> createFromOffset(name, value)
+                    is Shadow -> createFromShadow(name, value)
+                    is SolidColor -> NodeParameter(name, ParameterType.Color, value.value.toArgb())
+                    is String -> NodeParameter(name, ParameterType.String, value)
+                    is TextUnit -> createFromTextUnit(name, value)
+                    is VectorAsset -> createFromVectorAssert(name, value)
+                    else -> createFromKotlinReflection(name, value)
+                }
+            } finally {
+                recursions--
+            }
+        }
+
+        private fun createFromBaselineShift(name: String, value: BaselineShift): NodeParameter {
+            val converted = when (value.multiplier) {
+                BaselineShift.None.multiplier -> "None"
+                BaselineShift.Subscript.multiplier -> "Subscript"
+                BaselineShift.Superscript.multiplier -> "Superscript"
+                else -> return NodeParameter(name, ParameterType.Float, value.multiplier)
+            }
+            return NodeParameter(name, ParameterType.String, converted)
+        }
+
+        private fun createFromConstant(name: String, value: Any): NodeParameter? {
+            if (!kotlinReflectionSupported) {
+                return null
+            }
+            loadConstantsFrom(value.javaClass)
+            return valueLookup[value]?.let { NodeParameter(name, ParameterType.String, it) }
+        }
+
+        private fun createFromCornerSize(name: String, value: CornerSize): NodeParameter {
+            val size = Size(node!!.width.toFloat(), node!!.height.toFloat())
+            val pixels = value.toPx(size, density)
+            return NodeParameter(name, DimensionDp, with(density) { pixels.toDp().value })
+        }
+
+        // For now: select ResourceFontFont closest to W400 and Normal, and return the resId
+        private fun createFromFontListFamily(
+            name: String,
+            value: FontListFontFamily
+        ): NodeParameter? =
+            findBestResourceFont(value)?.let {
+                NodeParameter(name, ParameterType.Resource, it.resId)
+            }
+
+        private fun createFromKotlinReflection(name: String, value: Any): NodeParameter? {
+            val kClass = value::class
+            if (kClass.simpleName == null || !kotlinReflectionSupported) {
+                // internal synthetic class or kotlin reflection library not available
+                return null
+            }
+            val parameter = NodeParameter(name, ParameterType.String, kClass.simpleName)
+            val properties = mutableMapOf<String, KProperty1<Any, *>>()
+            try {
+                sequenceOf(kClass).plus(kClass.allSuperclasses.asSequence())
+                    .flatMap { it.declaredMemberProperties.asSequence() }
+                    .filterIsInstance<KProperty1<Any, *>>()
+                    .associateByTo(properties) { it.name }
+            } catch (ex: Throwable) {
+                Log.w("Compose", "Could not decompose ${kClass.simpleName}")
+                return parameter
+            }
+            properties.values.mapNotNullTo(parameter.elements) {
+                create(it.name, valueOf(it, value))
+            }
+            return parameter
+        }
+
+        private fun valueOf(property: KProperty1<Any, *>, instance: Any): Any? = try {
+            property.isAccessible = true
+            // Bug in kotlin reflection API: if the type is a nullable inline type with a null
+            // value, we get an IllegalArgumentException in this line:
+            property.get(instance)
+        } catch (ex: Throwable) {
+            // TODO: Remove this warning since this is expected with nullable inline types
+            Log.w("Compose", "Could not get value of ${property.name}")
+            null
+        }
+
+        private fun createFromInspectableValue(
+            name: String,
+            value: InspectableValue
+        ): NodeParameter {
+            val tempValue = value.valueOverride ?: ""
+            val parameterName = name.ifEmpty { value.nameFallback } ?: "element"
+            val parameterValue = if (tempValue is InspectableValue) "" else tempValue
+            val parameter = create(parameterName, parameterValue)
+                ?: NodeParameter(parameterName, ParameterType.String, "")
+            val elements = parameter.elements
+            value.inspectableElements.mapNotNullTo(elements) { create(it.name, it.value) }
+            return parameter
+        }
+
+        private fun createFromIterable(name: String, value: Iterable<*>): NodeParameter? {
+            val parameter = NodeParameter(name, ParameterType.String, "")
+            val elements = parameter.elements
+            value.asSequence()
+                .mapNotNull { create(elements.size.toString(), it) }
+                .takeWhile { elements.size < MAX_ITERABLE }
+                .toCollection(elements)
+            return parameter
+        }
+
+        private fun createFromModifier(name: String, value: Modifier): NodeParameter? =
+            when {
+                name.isNotEmpty() -> {
+                    val parameter = NodeParameter(name, ParameterType.String, "")
+                    val elements = parameter.elements
+                    value.foldIn(elements) { acc, m ->
+                        create("", m)?.let { param -> acc.apply { add(param) } } ?: acc
+                    }
+                    parameter
+                }
+                value is InspectableValue -> createFromInspectableValue(name, value)
+                else -> null
+            }
+
+        private fun createFromOffset(name: String, value: Offset): NodeParameter {
+            val parameter = NodeParameter(name, ParameterType.String, Offset::class.java.simpleName)
+            val elements = parameter.elements
+            elements.add(NodeParameter("x", DimensionDp, with(density) { value.x.toDp().value }))
+            elements.add(NodeParameter("y", DimensionDp, with(density) { value.y.toDp().value }))
+            return parameter
+        }
+
+        // Special handling of blurRadius: convert to dp:
+        private fun createFromShadow(name: String, value: Shadow): NodeParameter? {
+            val parameter = createFromKotlinReflection(name, value) ?: return null
+            val elements = parameter.elements
+            val index = elements.indexOfFirst { it.name == "blurRadius" }
+            if (index >= 0) {
+                val blurRadius = with(density) { value.blurRadius.toDp().value }
+                elements[index] = NodeParameter("blurRadius", DimensionDp, blurRadius)
+            }
+            return parameter
+        }
+
+        private fun createFromTextUnit(name: String, value: TextUnit): NodeParameter? =
+            when (value.type) {
+                TextUnitType.Sp -> NodeParameter(name, ParameterType.DimensionSp, value.value)
+                TextUnitType.Em -> NodeParameter(name, ParameterType.DimensionEm, value.value)
+                TextUnitType.Inherit -> NodeParameter(name, ParameterType.String, "Inherit")
+            }
+
+        private fun createFromVectorAssert(name: String, value: VectorAsset): NodeParameter? =
+            NodeParameter(name, ParameterType.String, value.name)
+
+        /**
+         * Select a resource font among the font in the family to represent the font
+         *
+         * Prefer the font closest to [FontWeight.Normal] and [FontStyle.Normal]
+         */
+        private fun findBestResourceFont(value: FontListFontFamily): ResourceFont? =
+            value.fonts.asSequence().filterIsInstance<ResourceFont>().minByOrNull {
+                abs(it.weight.weight - FontWeight.Normal.weight) + it.style.ordinal
+            }
     }
 }

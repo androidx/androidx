@@ -21,8 +21,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assume.assumeTrue
-
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
@@ -37,17 +35,21 @@ class ExtensionsManagerTest {
     }
 
     @Test
-    fun canGetExtensionAfterInit() {
+    fun retrieveExtensionAfterInit() {
         val availabilityFuture = ExtensionsManager.init(context)
 
-        val availability = availabilityFuture.get(5000, TimeUnit.MILLISECONDS)
+        when (availabilityFuture.get(5000, TimeUnit.MILLISECONDS)!!) {
+            ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE,
+            ExtensionsManager.ExtensionsAvailability.NONE ->
+                assertThat(ExtensionsManager.getExtensions(context)).isNotNull()
 
-        assumeTrue(
-            availability == ExtensionsManager.ExtensionsAvailability
-                .LIBRARY_AVAILABLE
-        )
-
-        assertThat(ExtensionsManager.getExtensions(context)).isNotNull()
+            ExtensionsManager.ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
+            ExtensionsManager.ExtensionsAvailability
+                .LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION ->
+                assertThrows<IllegalStateException> {
+                    ExtensionsManager.getExtensions(context)
+                }
+        }
     }
 
     @Test

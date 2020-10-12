@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.leanback.tab {
 
   public class LeanbackTabLayout extends com.google.android.material.tabs.TabLayout {

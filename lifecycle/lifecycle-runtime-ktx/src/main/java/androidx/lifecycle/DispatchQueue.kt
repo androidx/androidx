@@ -22,7 +22,7 @@ import androidx.annotation.MainThread
 import kotlinx.coroutines.Dispatchers
 import java.util.ArrayDeque
 import java.util.Queue
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Helper class for [PausingDispatcher] that tracks runnables which are enqueued to the dispatcher
@@ -80,19 +80,24 @@ internal class DispatchQueue {
     }
 
     @MainThread
-    private fun canRun() = finished || !paused
+    fun canRun() = finished || !paused
 
     @AnyThread
     @SuppressLint("WrongThread") // false negative, we are checking the thread
-    fun runOrEnqueue(runnable: Runnable) {
+    fun dispatchAndEnqueue(context: CoroutineContext, runnable: Runnable) {
         with(Dispatchers.Main.immediate) {
-            if (isDispatchNeeded(EmptyCoroutineContext)) {
-                dispatch(
-                    EmptyCoroutineContext,
-                    Runnable {
-                        enqueue(runnable)
-                    }
-                )
+            // This check is here to handle a special but important case. If for example
+            // launchWhenCreated is used while not created it's expected that it will run
+            // synchronously when the lifecycle is created. If we called `dispatch` here
+            // it launches made before the required state is reached would always be deferred
+            // which is not the intended behavior.
+            //
+            // This means that calling `yield()` while paused and then receiving `resume` right
+            // after leads to the runnable being run immediately but that is indeed intended.
+            // This could be solved by implementing `dispatchYield` in the dispatcher but it's
+            // marked as internal API.
+            if (isDispatchNeeded(context) || canRun()) {
+                dispatch(context, Runnable { enqueue(runnable) })
             } else {
                 enqueue(runnable)
             }

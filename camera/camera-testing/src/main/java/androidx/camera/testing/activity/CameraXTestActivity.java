@@ -132,7 +132,7 @@ public class CameraXTestActivity extends AppCompatActivity {
             CameraX cameraX = CameraX.getOrCreateInstance(this).get();
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
-            mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras.iterator().next(), cameras,
+            mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras,
                     cameraX.getCameraDeviceSurfaceManager(), cameraX.getDefaultConfigFactory());
             mCameraUseCaseAdapter.addUseCases(Collections.singleton(mPreview));
         } catch (InterruptedException | ExecutionException e) {

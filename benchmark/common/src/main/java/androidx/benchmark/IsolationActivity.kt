@@ -61,6 +61,7 @@ class IsolationActivity : android.app.Activity() {
 
         if (firstInit) {
             if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
+                @Suppress("SyntheticAccessor")
                 sustainedPerformanceModeInUse = true
             }
             application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
@@ -99,11 +100,13 @@ class IsolationActivity : android.app.Activity() {
 
     override fun onResume() {
         super.onResume()
+        @Suppress("SyntheticAccessor")
         resumed = true
     }
 
     override fun onPause() {
         super.onPause()
+        @Suppress("SyntheticAccessor")
         resumed = false
     }
 
@@ -183,9 +186,9 @@ class IsolationActivity : android.app.Activity() {
                     @Suppress("DEPRECATION")
                     activity.window.addFlags(
                         WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                                or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                                or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                                or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                            or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     )
                 }
             }

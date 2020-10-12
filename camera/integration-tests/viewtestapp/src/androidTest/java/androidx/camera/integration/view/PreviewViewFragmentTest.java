@@ -187,7 +187,8 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END));
 
         // Stop the fragment
         scenario.moveToState(Lifecycle.State.CREATED);
