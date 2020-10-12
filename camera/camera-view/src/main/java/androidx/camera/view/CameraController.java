@@ -187,7 +187,7 @@ abstract class CameraController {
                 ProcessCameraProvider.getInstance(mAppContext),
                 provider -> {
                     mCameraProvider = provider;
-                    startCamera();
+                    startCameraAndTrackStates();
                     return null;
                 }, CameraXExecutors.mainThreadExecutor());
 
@@ -245,7 +245,7 @@ abstract class CameraController {
 
     private void checkUseCasesAttachedToCamera() {
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(isCameraAttached(), PREVIEW_VIEW_NOT_ATTACHED);
+        Preconditions.checkState(isCameraAttached(), CAMERA_NOT_ATTACHED);
     }
 
     // ------------------
