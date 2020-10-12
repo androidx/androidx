@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat.quirk.device;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.Quirks;
 
@@ -54,7 +55,7 @@ public class DeviceQuirks {
      * @return A device {@link Quirk} instance of the provided type, or {@code null} if it isn't
      * found.
      */
-    @NonNull
+    @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {
         return QUIRKS.get(quirkClass);
     }
