@@ -80,6 +80,9 @@ public class DeviceQuirks {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all device specific quirks
+        if (ImageCapturePixelHDRPlusQuirk.load()) {
+            quirks.add(new ImageCapturePixelHDRPlusQuirk());
+        }
 
         sQuirks = new Quirks(quirks);
     }
