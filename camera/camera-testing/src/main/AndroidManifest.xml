@@ -14,4 +14,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<manifest package="androidx.camera.testing" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.camera.testing">
+
+    <application>
+        <activity
+            android:name="androidx.camera.testing.activity.ForegroundTestActivity"
+            android:label="ForegroundTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
