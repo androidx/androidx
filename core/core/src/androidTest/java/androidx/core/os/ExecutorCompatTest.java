@@ -29,21 +29,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests for {@link HandlerExecutor}.
+ * Tests for {@link ExecutorCompat}.
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class HandlerExecutorTest {
+public class ExecutorCompatTest {
 
     private static final long TIMEOUT_MS = 5000;
 
     @Test
     public void testExecutor() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        HandlerExecutor executor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
+        Executor executor = ExecutorCompat.create(new Handler(Looper.getMainLooper()));
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -56,7 +57,7 @@ public class HandlerExecutorTest {
     @Test
     public void testConstructor_Null() {
         try {
-            new HandlerExecutor(null);
+            ExecutorCompat.create(null);
             fail();
         } catch (NullPointerException e) {
             // pass
@@ -65,7 +66,7 @@ public class HandlerExecutorTest {
 
     @Test
     public void testExecute_Null() {
-        HandlerExecutor executor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
+        Executor executor = ExecutorCompat.create(new Handler(Looper.getMainLooper()));
         try {
             executor.execute(null);
             fail();

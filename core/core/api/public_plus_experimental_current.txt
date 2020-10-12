@@ -1541,15 +1541,14 @@ package androidx.core.os {
     field public static final String MEDIA_UNKNOWN = "unknown";
   }
 
+  public final class ExecutorCompat {
+    method public static java.util.concurrent.Executor create(android.os.Handler);
+  }
+
   public final class HandlerCompat {
     method public static android.os.Handler createAsync(android.os.Looper);
     method public static android.os.Handler createAsync(android.os.Looper, android.os.Handler.Callback);
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
-  }
-
-  public class HandlerExecutor implements java.util.concurrent.Executor {
-    ctor public HandlerExecutor(android.os.Handler);
-    method public void execute(Runnable);
   }
 
   public final class LocaleListCompat {

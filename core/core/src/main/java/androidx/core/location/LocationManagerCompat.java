@@ -32,7 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.collection.SimpleArrayMap;
-import androidx.core.os.HandlerExecutor;
+import androidx.core.os.ExecutorCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.concurrent.Callable;
@@ -85,7 +85,7 @@ public final class LocationManagerCompat {
     public static boolean registerGnssStatusCallback(@NonNull LocationManager locationManager,
             @NonNull GnssStatusCompat.Callback callback, @NonNull Handler handler) {
         if (VERSION.SDK_INT >= VERSION_CODES.R) {
-            return registerGnssStatusCallback(locationManager, new HandlerExecutor(handler),
+            return registerGnssStatusCallback(locationManager, ExecutorCompat.create(handler),
                 callback);
         } else {
             return registerGnssStatusCallback(locationManager, new InlineHandlerExecutor(handler),
