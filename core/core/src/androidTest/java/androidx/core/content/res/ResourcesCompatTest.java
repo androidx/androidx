@@ -327,9 +327,9 @@ public class ResourcesCompatTest {
     @Test
     public void testGetFont_fontFile_cached() {
         TypefaceCompat.clearCache();
-        assertNull(ResourcesCompat.getFont(mContext, R.font.samplefont, true));
+        assertNull(ResourcesCompat.getCachedFont(mContext, R.font.samplefont));
         Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
-        Typeface cachedFont = ResourcesCompat.getFont(mContext, R.font.samplefont, true);
+        Typeface cachedFont = ResourcesCompat.getCachedFont(mContext, R.font.samplefont);
         assertNotNull(cachedFont);
         assertSame(font, cachedFont);
     }
