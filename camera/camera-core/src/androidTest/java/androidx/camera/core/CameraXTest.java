@@ -25,7 +25,6 @@ import android.content.Context;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -33,7 +32,7 @@ import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -68,10 +67,7 @@ public final class CameraXTest {
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
 
-        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
-        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                () -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
-        mUseCaseConfigFactory = defaultConfigFactory;
+        mUseCaseConfigFactory = new FakeUseCaseConfigFactory();
         mFakeCameraFactory = new FakeCameraFactory();
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
