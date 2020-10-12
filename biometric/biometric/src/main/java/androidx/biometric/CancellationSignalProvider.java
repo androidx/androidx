@@ -18,6 +18,7 @@ package androidx.biometric;
 
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,8 @@ import androidx.annotation.VisibleForTesting;
  */
 @SuppressWarnings("deprecation")
 class CancellationSignalProvider {
+    private static final String TAG = "CancelSignalProvider";
+
     /**
      * An injector for various class dependencies. Used for testing.
      */
@@ -146,11 +149,21 @@ class CancellationSignalProvider {
     void cancel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && mBiometricCancellationSignal != null) {
-            Api16Impl.cancel(mBiometricCancellationSignal);
+            try {
+                Api16Impl.cancel(mBiometricCancellationSignal);
+            } catch (NullPointerException e) {
+                // Catch and handle NPE if thrown by framework call to cancel() (b/151316421).
+                Log.e(TAG, "Got NPE while canceling biometric authentication.", e);
+            }
             mBiometricCancellationSignal = null;
         }
         if (mFingerprintCancellationSignal != null) {
-            mFingerprintCancellationSignal.cancel();
+            try {
+                mFingerprintCancellationSignal.cancel();
+            } catch (NullPointerException e) {
+                // Catch and handle NPE if thrown by framework call to cancel() (b/151316421).
+                Log.e(TAG, "Got NPE while canceling fingerprint authentication.", e);
+            }
             mFingerprintCancellationSignal = null;
         }
     }

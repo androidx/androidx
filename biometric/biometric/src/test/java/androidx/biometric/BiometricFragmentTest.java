@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +34,6 @@ import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.CancellationSignal;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
@@ -54,6 +54,7 @@ import java.util.concurrent.Executor;
 @LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class BiometricFragmentTest {
     private static final Executor EXECUTOR = new Executor() {
         @Override
@@ -63,10 +64,9 @@ public class BiometricFragmentTest {
     };
 
     @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
-    @Mock private Handler mHandler;
-    @Mock private androidx.core.hardware.fingerprint.FingerprintManagerCompat
-            mFingerprintManagerCompat;
     @Mock private Context mContext;
+    @Mock private Handler mHandler;
+    @Mock private androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
 
     @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
@@ -135,31 +135,48 @@ public class BiometricFragmentTest {
 
     @Test
     public void testAuthenticateWithFingerprint_DoesShowErrorAndDismiss_WhenNPEThrown() {
+        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+        final String errString = "test string";
+
         mViewModel.setClientExecutor(EXECUTOR);
         mViewModel.setClientCallback(mAuthenticationCallback);
         mViewModel.setAwaitingResult(true);
 
-        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
-        final String errString = "test string";
-
-        doThrow(NullPointerException.class).when(mFingerprintManagerCompat).authenticate(
+        doThrow(NullPointerException.class).when(mFingerprintManager).authenticate(
                 nullable(androidx.core.hardware.fingerprint.FingerprintManagerCompat
                         .CryptoObject.class),
                 anyInt(),
-                any(CancellationSignal.class),
+                any(androidx.core.os.CancellationSignal.class),
                 any(androidx.core.hardware.fingerprint.FingerprintManagerCompat
                         .AuthenticationCallback.class),
-                nullable(Handler.class)
-        );
-
-        // Configure mock context to return test string
+                nullable(Handler.class));
         when(mContext.getString(anyInt())).thenReturn(errString);
 
-        // Have authentication via BiometricPrompt run, and have it invoke the mFingerprintCompat
-        // authenticate call
-        mFragment.authenticateWithFingerprint(mFingerprintManagerCompat, mContext);
+        mFragment.authenticateWithFingerprint(mFingerprintManager, mContext);
 
-        // Verify that authentication should fail and we should receive onError
+        verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.P)
+    public void testAuthenticateWithBiometricPrompt_DoesShowErrorAndDismiss_WhenNPEThrown() {
+        final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+        final String errString = "test string";
+
+        mViewModel.setClientExecutor(EXECUTOR);
+        mViewModel.setClientCallback(mAuthenticationCallback);
+        mViewModel.setAwaitingResult(true);
+
+        final android.hardware.biometrics.BiometricPrompt biometricPrompt =
+                mock(android.hardware.biometrics.BiometricPrompt.class);
+        doThrow(NullPointerException.class).when(biometricPrompt).authenticate(
+                any(android.os.CancellationSignal.class),
+                any(Executor.class),
+                any(android.hardware.biometrics.BiometricPrompt.AuthenticationCallback.class));
+        when(mContext.getString(anyInt())).thenReturn(errString);
+
+        mFragment.authenticateWithBiometricPrompt(biometricPrompt, mContext);
+
         verify(mAuthenticationCallback).onAuthenticationError(eq(errMsgId), anyString());
     }
 
