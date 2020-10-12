@@ -122,7 +122,9 @@ public class CameraControllerFragment extends Fragment {
         mSensorRotationListener = new RotationListener(requireContext());
         mSensorRotationListener.enable();
         mCameraController = new LifecycleCameraController(requireContext());
-        mCameraController.bindToLifecycle(getViewLifecycleOwner());
+        checkFailedFuture(mCameraController.getInitializationFuture());
+        runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
+
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
         mPreviewView = view.findViewById(R.id.preview_view);
@@ -151,14 +153,16 @@ public class CameraControllerFragment extends Fragment {
         // Set up the front/back camera toggle.
         mCameraToggle = view.findViewById(R.id.camera_toggle);
         mCameraToggle.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setCameraSelector(value
-                        ? CameraSelector.DEFAULT_BACK_CAMERA
-                        : CameraSelector.DEFAULT_FRONT_CAMERA));
+                (compoundButton, value) ->
+                        runSafely(() -> mCameraController.setCameraSelector(value
+                                ? CameraSelector.DEFAULT_BACK_CAMERA
+                                : CameraSelector.DEFAULT_FRONT_CAMERA)));
 
         // Image Capture enable switch.
         ToggleButton captureEnabled = view.findViewById(R.id.capture_enabled);
         captureEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setImageCaptureEnabled(value));
+                (compoundButton, value) -> runSafely(
+                        () -> mCameraController.setImageCaptureEnabled(value)));
         captureEnabled.setChecked(mCameraController.isImageCaptureEnabled());
 
         // Flash mode for image capture.
@@ -205,7 +209,8 @@ public class CameraControllerFragment extends Fragment {
         // Set up analysis UI.
         ToggleButton analysisEnabled = view.findViewById(R.id.analysis_enabled);
         analysisEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setImageAnalysisEnabled(value));
+                (compoundButton, value) ->
+                        runSafely(() -> mCameraController.setImageAnalysisEnabled(value)));
         analysisEnabled.setChecked(mCameraController.isImageAnalysisEnabled());
 
         ToggleButton analyzerSet = view.findViewById(R.id.analyzer_set);
@@ -223,7 +228,7 @@ public class CameraControllerFragment extends Fragment {
         mVideoEnabledToggle = view.findViewById(R.id.video_enabled);
         mVideoEnabledToggle.setOnCheckedChangeListener(
                 (compoundButton, checked) -> {
-                    mCameraController.setVideoCaptureEnabled(checked);
+                    runSafely(() -> mCameraController.setVideoCaptureEnabled(checked));
                     updateUiText();
                 });
 
@@ -275,14 +280,14 @@ public class CameraControllerFragment extends Fragment {
                 (compoundButton, checked) -> mCameraController.setTapToFocusEnabled(checked));
 
         ((ToggleButton) view.findViewById(R.id.torch_toggle)).setOnCheckedChangeListener(
-                (compoundButton, checked) -> logFailedFuture(
+                (compoundButton, checked) -> checkFailedFuture(
                         mCameraController.enableTorch(checked)));
 
         ((SeekBar) view.findViewById(R.id.linear_zoom_slider)).setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-                        logFailedFuture(mCameraController.setLinearZoom(
+                        checkFailedFuture(mCameraController.setLinearZoom(
                                 (float) progress / seekBar.getMax()));
                     }
 
@@ -320,7 +325,7 @@ public class CameraControllerFragment extends Fragment {
         mSensorRotationListener.disable();
     }
 
-    void logFailedFuture(ListenableFuture<Void> voidFuture) {
+    void checkFailedFuture(ListenableFuture<Void> voidFuture) {
         Futures.addCallback(voidFuture, new FutureCallback<Void>() {
 
             @Override
@@ -330,7 +335,7 @@ public class CameraControllerFragment extends Fragment {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e(TAG, "Future failed. ", t);
+                toast(t.getMessage());
             }
         }, CameraXExecutors.mainThreadExecutor());
     }
@@ -402,6 +407,17 @@ public class CameraControllerFragment extends Fragment {
             mCameraController.setImageAnalysisAnalyzer(mExecutorService, mAnalyzer);
         } else {
             mCameraController.clearImageAnalysisAnalyzer();
+        }
+    }
+
+    /**
+     * Executes the runnable and catches {@link IllegalStateException}.
+     */
+    private void runSafely(@NonNull Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (IllegalStateException ex) {
+            toast("Failed to bind use cases.");
         }
     }
 
