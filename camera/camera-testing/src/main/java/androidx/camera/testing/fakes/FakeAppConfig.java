@@ -22,7 +22,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 
 /**
  * Convenience class for generating a fake {@link CameraXConfig}.
@@ -59,8 +58,7 @@ public final class FakeAppConfig {
                 new CameraXConfig.Builder()
                         .setCameraFactoryProvider(cameraFactoryProvider)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactoryProvider(ignored ->
-                                new ExtendableUseCaseConfigFactory());
+                        .setUseCaseConfigFactoryProvider(ignored -> new FakeUseCaseConfigFactory());
 
         return appConfigBuilder.build();
     }

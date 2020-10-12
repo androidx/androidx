@@ -20,21 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.Camera2CameraFactory;
 import androidx.camera.camera2.internal.Camera2DeviceSurfaceManager;
-import androidx.camera.camera2.internal.ImageAnalysisConfigProvider;
-import androidx.camera.camera2.internal.ImageCaptureConfigProvider;
-import androidx.camera.camera2.internal.PreviewConfigProvider;
-import androidx.camera.camera2.internal.VideoCaptureConfigProvider;
+import androidx.camera.camera2.internal.Camera2UseCaseConfigFactory;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.VideoCaptureConfig;
 
 /**
  * Convenience class for generating a pre-populated Camera2 {@link CameraXConfig}.
@@ -64,18 +56,8 @@ public final class Camera2Config {
                 };
 
         // Create default configuration factory
-        UseCaseConfigFactory.Provider configFactoryProvider = context -> {
-            ExtendableUseCaseConfigFactory factory = new ExtendableUseCaseConfigFactory();
-            factory.installDefaultProvider(
-                    ImageAnalysisConfig.class, new ImageAnalysisConfigProvider(context));
-            factory.installDefaultProvider(
-                    ImageCaptureConfig.class, new ImageCaptureConfigProvider(context));
-            factory.installDefaultProvider(
-                    VideoCaptureConfig.class, new VideoCaptureConfigProvider(context));
-            factory.installDefaultProvider(
-                    PreviewConfig.class, new PreviewConfigProvider(context));
-            return factory;
-        };
+        UseCaseConfigFactory.Provider configFactoryProvider =
+                context -> new Camera2UseCaseConfigFactory(context);
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()

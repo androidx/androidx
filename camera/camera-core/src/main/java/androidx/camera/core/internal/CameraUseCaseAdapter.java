@@ -368,8 +368,8 @@ public final class CameraUseCaseAdapter implements Camera {
             UseCaseConfigFactory extendedFactory, UseCaseConfigFactory cameraFactory) {
         Map<UseCase, ConfigPair> configs = new HashMap<>();
         for (UseCase useCase : useCases) {
-            configs.put(useCase, new ConfigPair(useCase.getDefaultConfig(extendedFactory),
-                    useCase.getDefaultConfig(cameraFactory)));
+            configs.put(useCase, new ConfigPair(useCase.getDefaultConfig(false, extendedFactory),
+                    useCase.getDefaultConfig(true, cameraFactory)));
         }
         return configs;
     }
