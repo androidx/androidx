@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit
  *
  * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
-class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
+public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
@@ -61,7 +61,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    var traceUniqueName = "benchmark"
+    public var traceUniqueName: String = "benchmark"
 
     private var warmupRepeats = 0 // number of warmup repeats that occurred
 
@@ -114,7 +114,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun getMinTimeNanos(): Long {
+    public fun getMinTimeNanos(): Long {
         checkState() // this method is not triggerable externally, but that could change
         return stats.first { it.name == "timeNs" }.min
     }
@@ -158,7 +158,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      *
      * @see resumeTiming
      */
-    fun pauseTiming() {
+    public fun pauseTiming() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
         if (state != RUNNING_WARMUP_STAGE) {
             // only pause/resume metrics during non-warmup stages.
@@ -194,7 +194,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      *
      * @see pauseTiming
      */
-    fun resumeTiming() {
+    public fun resumeTiming() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
         if (state != RUNNING_WARMUP_STAGE) {
             // only pause/resume metrics during non-warmup stages. See pauseTiming.
@@ -315,7 +315,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      */
     @Suppress("NOTHING_TO_INLINE")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    inline fun keepRunningInline(): Boolean {
+    public inline fun keepRunningInline(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -333,7 +333,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      * }
      * ```
      */
-    fun keepRunning(): Boolean {
+    public fun keepRunning(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -509,7 +509,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun report(
+    public fun report(
         fullClassName: String,
         simpleClassName: String,
         methodName: String
@@ -529,7 +529,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         )
     }
 
-    companion object {
+    public companion object {
         internal const val TAG = "Benchmark"
 
         private const val NOT_STARTED = -1 // The benchmark has not started yet.
@@ -574,7 +574,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         @Experimental
         @Retention(AnnotationRetention.BINARY)
         @Target(AnnotationTarget.FUNCTION)
-        annotation class ExperimentalExternalReport
+        public annotation class ExperimentalExternalReport
 
         /**
          * Hooks for benchmarks not using [androidx.benchmark.junit4.BenchmarkRule] to register
@@ -595,7 +595,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
          */
         @JvmStatic
         @ExperimentalExternalReport
-        fun reportData(
+        public fun reportData(
             className: String,
             testName: String,
             @IntRange(from = 0) totalRunTimeNs: Long,

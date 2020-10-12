@@ -22,4 +22,4 @@ package androidx.compose.animation.tooling
  * @property label The property text representation.
  * @property value The value associated with the property at a given time.
  */
-data class ComposeAnimatedProperty(val label: String, val value: Any)
+public data class ComposeAnimatedProperty(val label: String, val value: Any)

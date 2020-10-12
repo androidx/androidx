@@ -23,10 +23,10 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import androidx.arch.core.executor.ArchTaskExecutor
 import java.util.concurrent.Executor
 
-class ContentAccess {
-    companion object {
+public class ContentAccess {
+    public companion object {
         @Suppress("UNCHECKED_CAST")
-        fun <T : Any> getAccessor(
+        public fun <T : Any> getAccessor(
             contentAccessObject: KClass<T>,
             contentResolver: ContentResolver,
             queryExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()

@@ -22,5 +22,5 @@ import android.view.View
  * Locates the [SavedStateRegistryOwner] associated with this [View], if present.
  * This may be used to save and restore the state associated with this view.
  */
-fun View.findViewTreeSavedStateRegistryOwner(): SavedStateRegistryOwner? =
+public fun View.findViewTreeSavedStateRegistryOwner(): SavedStateRegistryOwner? =
     ViewTreeSavedStateRegistryOwner.get(this)

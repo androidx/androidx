@@ -59,6 +59,7 @@ androidx {
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
+    legacyDisableKotlinStrictApiMode = true
 }
 
 // Allow usage of Kotlin's @OptIn.

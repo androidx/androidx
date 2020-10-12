@@ -21,7 +21,7 @@ package androidx.compose.animation.tooling
  * `TransitionAnimation` (represented by [TRANSITION_ANIMATION]) has a set of states associated
  * with it.
  */
-enum class ComposeAnimationType {
+public enum class ComposeAnimationType {
     TRANSITION_ANIMATION, ANIMATED_VALUE
 }
 
@@ -30,25 +30,25 @@ enum class ComposeAnimationType {
  * Android Studio. Since both ends communicate mostly using bytecode manipulation and reflection,
  * being able to parse these objects into a common type makes
  */
-interface ComposeAnimation {
+public interface ComposeAnimation {
 
     /**
      * The animation type. Ideally, the type should be checked before accessing properties
      * specific to a certain type, e.g. [states].
      */
-    val type: ComposeAnimationType
+    public val type: ComposeAnimationType
 
     /**
      * The actual animation object.
      */
-    val animationObject: Any
+    public val animationObject: Any
 
     /**
      * All the available states of a `TransitionAnimation`.
      *
      * @throws UnsupportedOperationException if [type] does not return `TRANSITION_ANIMATION`.
      */
-    val states: Set<Any>
+    public val states: Set<Any>
         @Suppress("DocumentExceptions")
         get() =
             throw UnsupportedOperationException(
@@ -59,6 +59,6 @@ interface ComposeAnimation {
      * A label which can be used to represent the animation as text in Android Studio.
      * Null if the label is not set or if it can't be inferred from the animation states.
      */
-    val label: String?
+    public val label: String?
         get() = null
 }

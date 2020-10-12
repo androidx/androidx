@@ -29,7 +29,7 @@ import java.io.File
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.TESTS)
-var argumentSource: Bundle? = null
+public var argumentSource: Bundle? = null
 
 internal object Arguments {
     val testOutputDir: File
