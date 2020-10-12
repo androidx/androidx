@@ -1166,5 +1166,3 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:paging:paging:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :wear:wear-complications-data:generateApi
-src\/main\/java\/androidx\/wear\/complications\/ComplicationProviderService\.java\:[0-9]+\: warning\: Parameter retailModeProvider references hidden type androidx\.wear\.complications\.ComplicationProviderService\.RetailModeProvider\. \[HiddenTypeParameter\]
