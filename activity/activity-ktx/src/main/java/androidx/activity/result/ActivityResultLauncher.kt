@@ -21,12 +21,14 @@ import androidx.core.app.ActivityOptionsCompat
 /**
  * Convenience method to launch a no-argument registered call without needing to pass in `null`.
  */
-fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) =
+public fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) {
     launch(null, options)
+}
 
 /**
  * Convenience method to launch a no-argument registered call without needing to pass in `Unit`.
  */
 @JvmName("launchUnit")
-fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) =
+public fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
     launch(null, options)
+}

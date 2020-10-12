@@ -28,7 +28,7 @@ import androidx.core.app.ActivityOptionsCompat
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-fun <I, O> ActivityResultCaller.registerForActivityResult(
+public fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     registry: ActivityResultRegistry,
@@ -45,7 +45,7 @@ fun <I, O> ActivityResultCaller.registerForActivityResult(
  *
  * @see ActivityResultCaller.registerForActivityResult
  */
-fun <I, O> ActivityResultCaller.registerForActivityResult(
+public fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     callback: (O) -> Unit
