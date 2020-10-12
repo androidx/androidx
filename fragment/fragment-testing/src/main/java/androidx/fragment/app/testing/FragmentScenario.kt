@@ -28,21 +28,24 @@ import androidx.lifecycle.Lifecycle
     "Superseded by launchFragment that takes an initialState",
     level = DeprecationLevel.HIDDEN
 ) // Binary API compatibility.
-inline fun <reified F : Fragment> launchFragment(
+public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
-) = launchFragment<F>(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
+): FragmentScenario<F> = launchFragment(
+    fragmentArgs, themeResId, Lifecycle.State.RESUMED,
+    factory
+)
 
 @Deprecated(
     "Superseded by launchFragment that takes an initialState",
     level = DeprecationLevel.HIDDEN
 ) // Binary API compatibility.
-inline fun <reified F : Fragment> launchFragment(
+public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     crossinline instantiate: () -> F
-) = launchFragment(fragmentArgs, themeResId) {
+): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId) {
     instantiate()
 }
 
@@ -50,21 +53,24 @@ inline fun <reified F : Fragment> launchFragment(
     "Superseded by launchFragmentInContainer that takes an initialState",
     level = DeprecationLevel.HIDDEN
 ) // Binary API compatibility.
-inline fun <reified F : Fragment> launchFragmentInContainer(
+public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
-) = launchFragmentInContainer<F>(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
+): FragmentScenario<F> = launchFragmentInContainer(
+    fragmentArgs, themeResId, Lifecycle.State.RESUMED,
+    factory
+)
 
 @Deprecated(
     "Superseded by launchFragmentInContainer that takes an initialState",
     level = DeprecationLevel.HIDDEN
 ) // Binary API compatibility.
-inline fun <reified F : Fragment> launchFragmentInContainer(
+public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     crossinline instantiate: () -> F
-) = launchFragmentInContainer(fragmentArgs, themeResId) {
+): FragmentScenario<F> = launchFragmentInContainer(fragmentArgs, themeResId) {
     instantiate()
 }
 
@@ -80,12 +86,15 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
  * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
  * @param factory a fragment factory to use or null to use default factory
  */
-inline fun <reified F : Fragment> launchFragment(
+public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     factory: FragmentFactory? = null
-) = FragmentScenario.launch(F::class.java, fragmentArgs, themeResId, initialState, factory)
+): FragmentScenario<F> = FragmentScenario.launch(
+    F::class.java, fragmentArgs, themeResId, initialState,
+    factory
+)
 
 /**
  * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using
@@ -99,12 +108,12 @@ inline fun <reified F : Fragment> launchFragment(
  * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
  * @param instantiate method which will be used to instantiate the Fragment.
  */
-inline fun <reified F : Fragment> launchFragment(
+public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-) = FragmentScenario.launch(
+): FragmentScenario<F> = FragmentScenario.launch(
     F::class.java, fragmentArgs, themeResId, initialState,
     object : FragmentFactory() {
         override fun instantiate(
@@ -129,12 +138,12 @@ inline fun <reified F : Fragment> launchFragment(
  * [Lifecycle.State.CREATED], [Lifecycle.State.STARTED], or [Lifecycle.State.RESUMED].
  * @param factory a fragment factory to use or null to use default factory
  */
-inline fun <reified F : Fragment> launchFragmentInContainer(
+public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     factory: FragmentFactory? = null
-) = FragmentScenario.launchInContainer(
+): FragmentScenario<F> = FragmentScenario.launchInContainer(
     F::class.java, fragmentArgs, themeResId, initialState,
     factory
 )
@@ -154,12 +163,12 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
  * simplification of the [FragmentFactory] interface for cases where only a single class
  * needs a custom constructor called.
  */
-inline fun <reified F : Fragment> launchFragmentInContainer(
+public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-) = FragmentScenario.launchInContainer(
+): FragmentScenario<F> = FragmentScenario.launchInContainer(
     F::class.java, fragmentArgs, themeResId, initialState,
     object : FragmentFactory() {
         override fun instantiate(
@@ -178,7 +187,7 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
  * If any exceptions are raised while running [block], they are rethrown.
  */
 @SuppressWarnings("DocumentExceptions")
-inline fun <reified F : Fragment, T : Any> FragmentScenario<F>.withFragment(
+public inline fun <reified F : Fragment, T : Any> FragmentScenario<F>.withFragment(
     crossinline block: F.() -> T
 ): T {
     lateinit var value: T
