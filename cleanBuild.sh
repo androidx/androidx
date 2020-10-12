@@ -67,6 +67,9 @@ function removeCaches() {
   rm -rf .gradle
   rm -rf buildSrc/.gradle
   rm -f local.properties
+  // AGP should (also) do this automatically (b/170640263)
+  rm -rf appsearch/appsearch/.cxx
+  rm -rf appsearch/local-backend/.cxx
   rm -rf $OUT_DIR
 }
 removeCaches
