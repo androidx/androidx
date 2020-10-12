@@ -19,10 +19,12 @@ package androidx.room.compiler.processing.ksp
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
 import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
+import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 import org.jetbrains.kotlin.ksp.symbol.Variance
 
@@ -42,7 +44,13 @@ internal fun KSTypeReference?.typeName(): TypeName {
     return if (this == null) {
         ERROR_TYPE_NAME
     } else {
-        requireType().typeName()
+        val resolvedType = try {
+            requireType()
+        } catch (illegalState: IllegalStateException) {
+            // workaround for https://github.com/google/ksp/issues/101
+            null
+        }
+        resolvedType?.typeName() ?: ERROR_TYPE_NAME
     }
 }
 
@@ -62,15 +70,32 @@ internal fun KSDeclaration.typeName(): ClassName {
     return ClassName.get(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
 }
 
+internal fun KSTypeArgument.typeName(
+    param: KSTypeParameter
+): TypeName {
+    return when (variance) {
+        Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(type.typeName())
+        Variance.COVARIANT -> WildcardTypeName.subtypeOf(type.typeName())
+        Variance.STAR -> {
+            // for star projected types, JavaPoet uses the name from the declaration if
+            // * is not given explicitly
+            if (type == null) {
+                // explicit *
+                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            } else {
+                TypeVariableName.get(param.name.asString(), type.typeName())
+            }
+        }
+        else -> type.typeName()
+    }
+}
+
 internal fun KSType.typeName(): TypeName {
     return if (this.arguments.isNotEmpty()) {
-        val args: Array<TypeName> = this.arguments.map {
-            when (it.variance) {
-                Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(it.type.typeName())
-                Variance.COVARIANT -> WildcardTypeName.subtypeOf(it.type.typeName())
-                Variance.STAR -> WildcardTypeName.subtypeOf(TypeName.OBJECT)
-                else -> it.type.typeName()
-            }
+        val args: Array<TypeName> = this.arguments.mapIndexed { index, typeArg ->
+            typeArg.typeName(
+                this.declaration.typeParameters[index]
+            )
         }.toTypedArray()
         val className = declaration.typeName()
         ParameterizedTypeName.get(
@@ -95,6 +120,13 @@ internal fun KSDeclaration.getNormalizedPackageName(): String {
     }
 }
 
+/**
+ * see: https://github.com/google/ksp/issues/101
+ * Wildcard resolution might throw. We are not catching it here as we don't have a good fallback,
+ * instead, catching it in the caller when we have an option to handle. And callers which do not
+ * have a way to handle will just crash for now until the issue is resolved.
+ */
+@Throws(IllegalStateException::class)
 internal fun KSTypeReference.requireType(): KSType {
     return checkNotNull(resolve()) {
         "Resolve in type reference should not have returned null, please file a bug. $this"

@@ -42,4 +42,8 @@ internal class KspRawType private constructor(
     override fun hashCode(): Int {
         return typeName.hashCode()
     }
+
+    override fun toString(): String {
+        return typeName.toString()
+    }
 }

@@ -29,6 +29,8 @@ import org.jetbrains.kotlin.ksp.processing.KSPLogger
 import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
+import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
+import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 import org.jetbrains.kotlin.ksp.symbol.Variance
 
@@ -73,7 +75,21 @@ internal class KspProcessingEnv(
     }
 
     override fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType {
-        TODO("Not yet implemented")
+        check(type is KspTypeElement) {
+            "Unexpected type element type: $type"
+        }
+        val typeArguments = types.map { argType ->
+            check(argType is KspType) {
+                "$argType is not an instance of KspType"
+            }
+            resolver.getTypeArgument(
+                argType.ksType.createTypeReference(),
+                variance = Variance.INVARIANT
+            )
+        }
+        return wrap(
+            type.declaration.asType(typeArguments)
+        )
     }
 
     override fun getArrayType(type: XType): XArrayType {
@@ -93,22 +109,27 @@ internal class KspProcessingEnv(
         )
     }
 
-    fun wrap(ksType: KSType): KspType {
+    fun wrap(ksType: KSType): KspDeclaredType {
         return if (ksType.declaration.qualifiedName?.asString() == KOTLIN_ARRAY_Q_NAME) {
             KspArrayType(
                 env = this,
                 ksType = ksType
             )
         } else {
-            KspType(
-                env = this,
-                ksType = ksType
-            )
+            KspDeclaredType(this, ksType)
         }
     }
 
-    fun wrap(ksTypeReference: KSTypeReference): KspType {
+    fun wrap(ksTypeReference: KSTypeReference): KspDeclaredType {
         return wrap(ksTypeReference.requireType())
+    }
+
+    fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspTypeArgumentType {
+        return KspTypeArgumentType(
+            env = this,
+            typeArg = ksTypeArgument,
+            typeParam = ksTypeParam
+        )
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {

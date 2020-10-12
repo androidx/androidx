@@ -208,7 +208,7 @@ class KSTypeExtTest {
         }
         // make sure we grabbed some values to ensure test is working
         assertThat(golden).isNotEmpty()
-        assertThat(golden).containsExactlyEntriesIn(kspResults)
+        assertThat(kspResults).containsExactlyEntriesIn(golden)
     }
 
     private fun runTest(
