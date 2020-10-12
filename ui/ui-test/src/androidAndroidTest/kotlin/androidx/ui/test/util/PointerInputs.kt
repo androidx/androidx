@@ -74,12 +74,10 @@ class RecordingFilter(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
         bounds: IntSize
-    ): List<PointerInputChange> {
-
+    ) {
         if (pass == PointerEventPass.Initial) {
             record(pointerEvent.changes)
         }
-        return pointerEvent.changes
     }
 
     override fun onCancel() {
