@@ -26,7 +26,7 @@ import androidx.navigation.NavController
  *
  * @return True if the [NavController] was able to navigate up.
  */
-fun NavController.navigateUp(drawerLayout: Openable?): Boolean =
+public fun NavController.navigateUp(drawerLayout: Openable?): Boolean =
     NavigationUI.navigateUp(
         this,
         AppBarConfiguration(graph, drawerLayout)
@@ -37,5 +37,5 @@ fun NavController.navigateUp(drawerLayout: Openable?): Boolean =
  *
  * @return True if the [NavController] was able to navigate up.
  */
-fun NavController.navigateUp(appBarConfiguration: AppBarConfiguration): Boolean =
+public fun NavController.navigateUp(appBarConfiguration: AppBarConfiguration): Boolean =
     NavigationUI.navigateUp(this, appBarConfiguration)

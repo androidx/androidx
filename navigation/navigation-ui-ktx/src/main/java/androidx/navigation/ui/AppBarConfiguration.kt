@@ -38,11 +38,11 @@ import androidx.navigation.NavGraph
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     navGraph: NavGraph,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(navGraph)
+): AppBarConfiguration = AppBarConfiguration.Builder(navGraph)
     .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
@@ -63,11 +63,11 @@ inline fun AppBarConfiguration(
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     topLevelMenu: Menu,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(topLevelMenu)
+): AppBarConfiguration = AppBarConfiguration.Builder(topLevelMenu)
     .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
@@ -88,11 +88,11 @@ inline fun AppBarConfiguration(
  * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
-inline fun AppBarConfiguration(
+public inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-) = AppBarConfiguration.Builder(topLevelDestinationIds)
+): AppBarConfiguration = AppBarConfiguration.Builder(topLevelDestinationIds)
     .setOpenableLayout(drawerLayout)
     .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()

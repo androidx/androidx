@@ -26,6 +26,6 @@ import com.google.android.material.navigation.NavigationView
  * The selected item in the NavigationView will automatically be updated when the destination
  * changes.
  */
-fun NavigationView.setupWithNavController(navController: NavController) {
+public fun NavigationView.setupWithNavController(navController: NavController) {
     NavigationUI.setupWithNavController(this, navController)
 }

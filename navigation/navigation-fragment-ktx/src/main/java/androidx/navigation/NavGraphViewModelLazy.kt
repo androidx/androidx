@@ -48,7 +48,7 @@ import androidx.navigation.fragment.findNavController
  * @param navGraphId ID of a NavGraph that exists on the {@link NavController} back stack
  */
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
+public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
     noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
