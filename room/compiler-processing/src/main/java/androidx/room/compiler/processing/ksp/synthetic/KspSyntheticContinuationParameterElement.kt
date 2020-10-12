@@ -29,7 +29,7 @@ import androidx.room.compiler.processing.ksp.KspType
 import androidx.room.compiler.processing.ksp.requireContinuationClass
 import androidx.room.compiler.processing.ksp.returnTypeAsMemberOf
 import androidx.room.compiler.processing.ksp.swapResolvedType
-import org.jetbrains.kotlin.ksp.symbol.Variance
+import com.google.devtools.ksp.symbol.Variance
 
 /**
  * XProcessing adds an additional argument to each suspend function for the continiuation because

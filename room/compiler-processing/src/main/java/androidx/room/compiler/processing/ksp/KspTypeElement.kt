@@ -27,16 +27,16 @@ import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companio
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.squareup.javapoet.ClassName
-import org.jetbrains.kotlin.ksp.getAllSuperTypes
-import org.jetbrains.kotlin.ksp.getDeclaredFunctions
-import org.jetbrains.kotlin.ksp.getDeclaredProperties
-import org.jetbrains.kotlin.ksp.isOpen
-import org.jetbrains.kotlin.ksp.symbol.ClassKind
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
-import org.jetbrains.kotlin.ksp.symbol.Modifier
-import org.jetbrains.kotlin.ksp.symbol.Origin
+import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.isOpen
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin
 
 internal class KspTypeElement(
     env: KspProcessingEnv,
@@ -77,7 +77,7 @@ internal class KspTypeElement(
 
     override val superType: XType? by lazy {
         declaration.superTypes.firstOrNull {
-            val type = it.resolve()?.declaration as? KSClassDeclaration ?: return@firstOrNull false
+            val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
             type.classKind == ClassKind.CLASS
         }?.let {
             env.wrap(it)
@@ -260,7 +260,7 @@ internal class KspTypeElement(
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {
         return declaration.superTypes.asSequence().mapNotNull {
-            it.resolve()?.declaration
+            it.resolve().declaration
         }.filterIsInstance<KSClassDeclaration>()
             .filter {
                 it.classKind == ClassKind.INTERFACE

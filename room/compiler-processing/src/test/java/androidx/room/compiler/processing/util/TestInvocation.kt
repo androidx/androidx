@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.Resolver
 import javax.lang.model.util.Elements
 
 class TestInvocation(

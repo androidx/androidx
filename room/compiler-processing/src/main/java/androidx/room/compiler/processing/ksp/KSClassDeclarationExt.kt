@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 
 internal fun KSClassDeclaration.findCompanionObject(): KSClassDeclaration? {
     return declarations.firstOrNull {
