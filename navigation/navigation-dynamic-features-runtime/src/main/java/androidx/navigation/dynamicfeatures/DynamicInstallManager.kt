@@ -40,7 +40,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
  *
  * Enables installation of dynamic features for both installed and instant apps.
  */
-open class DynamicInstallManager(
+public open class DynamicInstallManager(
     private val context: Context,
     private val splitInstallManager: SplitInstallManager
 ) {
@@ -62,7 +62,7 @@ open class DynamicInstallManager(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun performInstall(
+    public fun performInstall(
         destination: NavDestination,
         args: Bundle?,
         extras: DynamicExtras?,
@@ -95,7 +95,7 @@ open class DynamicInstallManager(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun needsInstall(module: String): Boolean {
+    public fun needsInstall(module: String): Boolean {
         return !splitInstallManager.installedModules.contains(module)
     }
 
@@ -164,7 +164,7 @@ open class DynamicInstallManager(
             }
     }
 
-    private class SplitInstallListenerWrapper internal constructor(
+    private class SplitInstallListenerWrapper(
         private val context: Context,
         private val status: MutableLiveData<SplitInstallSessionState>,
         private val installMonitor: DynamicInstallMonitor

@@ -29,29 +29,29 @@ import androidx.navigation.get
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
-inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
+public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int
-) = fragment<F>(id) {}
+): Unit = fragment<F>(id) {}
 
 /**
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
-inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
+public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
-) = fragment(id, F::class.java.name, builder)
+): Unit = fragment(id, F::class.java.name, builder)
 
 /**
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
  */
-inline fun DynamicNavGraphBuilder.fragment(
+public inline fun DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     fragmentClassName: String,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
-) = destination(
+): Unit = destination(
     DynamicFragmentNavigatorDestinationBuilder(
         provider[DynamicFragmentNavigator::class],
         id,
@@ -63,15 +63,15 @@ inline fun DynamicNavGraphBuilder.fragment(
  * DSL for constructing a new [DynamicFragmentNavigator.Destination]
  */
 @NavDestinationDsl
-class DynamicFragmentNavigatorDestinationBuilder(
+public class DynamicFragmentNavigatorDestinationBuilder(
     navigator: DynamicFragmentNavigator,
     @IdRes id: Int,
     private val fragmentClassName: String
 ) : NavDestinationBuilder<FragmentNavigator.Destination>(navigator, id) {
 
-    var moduleName: String? = null
+    public var moduleName: String? = null
 
-    override fun build() =
+    override fun build(): DynamicFragmentNavigator.Destination =
         (super.build() as DynamicFragmentNavigator.Destination).also { destination ->
             destination.className = fragmentClassName
             destination.moduleName = moduleName

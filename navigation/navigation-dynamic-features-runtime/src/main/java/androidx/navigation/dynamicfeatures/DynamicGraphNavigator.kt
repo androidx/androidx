@@ -37,7 +37,7 @@ import androidx.navigation.NavigatorProvider
  * by setting the `app:progressDestinationId` attribute in your navigation XML file.
  */
 @Navigator.Name("navigation")
-class DynamicGraphNavigator(
+public class DynamicGraphNavigator(
     private val navigatorProvider: NavigatorProvider,
     private val installManager: DynamicInstallManager
 ) : NavGraphNavigator(navigatorProvider) {
@@ -96,7 +96,7 @@ class DynamicGraphNavigator(
      *
      * @param progressDestinationSupplier The default progress destination supplier.
      */
-    fun installDefaultProgressDestination(
+    public fun installDefaultProgressDestination(
         progressDestinationSupplier: () -> NavDestination
     ) {
         this.defaultProgressDestinationSupplier = progressDestinationSupplier
@@ -166,7 +166,7 @@ class DynamicGraphNavigator(
     /**
      * The [NavGraph] for dynamic features.
      */
-    class DynamicNavGraph(
+    public class DynamicNavGraph(
         /**
          * @hide
          */
@@ -200,13 +200,13 @@ class DynamicGraphNavigator(
         /**
          * The dynamic feature's module name.
          */
-        var moduleName: String? = null
+        public var moduleName: String? = null
 
         /**
          * Resource id of progress destination. This will be preferred over any
          * default progress destination set by [installDefaultProgressDestination].
          */
-        var progressDestination: Int = 0
+        public var progressDestination: Int = 0
 
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)

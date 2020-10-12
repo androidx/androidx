@@ -33,11 +33,11 @@ import androidx.navigation.get
  * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
  * must not be an empty string.
  */
-inline fun DynamicNavGraphBuilder.includeDynamic(
+public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
     graphResourceName: String
-) = includeDynamic(id, moduleName, graphResourceName) {}
+): Unit = includeDynamic(id, moduleName, graphResourceName) {}
 
 /**
  * Construct a new [DynamicIncludeGraphNavigator.DynamicIncludeNavGraph].
@@ -49,12 +49,12 @@ inline fun DynamicNavGraphBuilder.includeDynamic(
  * must not be an empty string.
  * @param builder Another builder for chaining.
  */
-inline fun DynamicNavGraphBuilder.includeDynamic(
+public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
     graphResourceName: String,
     builder: DynamicIncludeNavGraphBuilder.() -> Unit
-) = destination(
+): Unit = destination(
     DynamicIncludeNavGraphBuilder(
         provider[DynamicIncludeGraphNavigator::class],
         id,
@@ -74,7 +74,7 @@ inline fun DynamicNavGraphBuilder.includeDynamic(
  * must not be an empty string.
  */
 @NavDestinationDsl
-class DynamicIncludeNavGraphBuilder(
+public class DynamicIncludeNavGraphBuilder(
     private val dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
     @IdRes id: Int,
     private val moduleName: String,
@@ -88,7 +88,7 @@ class DynamicIncludeNavGraphBuilder(
      *
      * This cannot be an empty string.
      */
-    var graphPackage: String? = null
+    public var graphPackage: String? = null
 
     /**
      * @return The [DynamicGraphNavigator.DynamicNavGraph]
