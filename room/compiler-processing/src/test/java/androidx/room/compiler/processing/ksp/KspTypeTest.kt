@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.WildcardTypeName
 import org.jetbrains.kotlin.ksp.getClassDeclarationByName
 import org.jetbrains.kotlin.ksp.getDeclaredFunctions
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
@@ -488,12 +489,16 @@ class KspTypeTest {
             val paramType = invocation.wrap(method.parameters.first().type!!)
             val arg1 = paramType.typeArguments.single()
             assertThat(arg1.typeName)
-                .isEqualTo(ClassName.get("kotlin", "Number"))
+                .isEqualTo(
+                    WildcardTypeName.subtypeOf(
+                        ClassName.get("kotlin", "Number")
+                    )
+                )
             assertThat(arg1.extendsBound()).isNull()
         }
     }
 
-    private fun TestInvocation.requirePropertyType(name: String): KspType {
+    private fun TestInvocation.requirePropertyType(name: String): KspDeclaredType {
         (processingEnv as KspProcessingEnv).resolver.getAllFiles().forEach { file ->
             val prop = file.declarations.first {
                 it.simpleName.asString() == name
@@ -509,7 +514,7 @@ class KspTypeTest {
         throw IllegalStateException("cannot find any property with name $name")
     }
 
-    private fun TestInvocation.wrap(typeRef: KSTypeReference): KspType {
+    private fun TestInvocation.wrap(typeRef: KSTypeReference): KspDeclaredType {
         return (processingEnv as KspProcessingEnv).wrap(typeRef)
     }
 }
