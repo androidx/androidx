@@ -17,8 +17,8 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.ext.RoomTypeNames
 import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.ext.RoomTypeNames
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Dao
@@ -64,7 +64,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 }
         """) { _, _ ->
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
+                .withErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
     }
 
     @Test

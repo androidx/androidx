@@ -102,10 +102,10 @@ class MissingTestSizeAnnotation : Detector(), SourceCodeScanner {
             "MissingTestSizeAnnotation",
             "Missing test size annotation",
             "All tests require a valid test size annotation, on the class or per method." +
-                    "\nYou must use at least one of: @SmallTest, @MediumTest or @LargeTest." +
-                    "\nUse @SmallTest for tests that run in under 200ms, @MediumTest for tests " +
-                    "that run in under 1000ms, and @LargeTest for tests that run for more " +
-                    "than a second.",
+                "\nYou must use at least one of: @SmallTest, @MediumTest or @LargeTest." +
+                "\nUse @SmallTest for tests that run in under 200ms, @MediumTest for tests " +
+                "that run in under 1000ms, and @LargeTest for tests that run for more " +
+                "than a second.",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(
                 MissingTestSizeAnnotation::class.java,

@@ -40,6 +40,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -104,7 +105,9 @@ public final class ZoomControlDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristics,
+        CameraCharacteristicsCompat cameraCharacteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mZoomControl = mCamera2CameraControlImpl.getZoomControl();

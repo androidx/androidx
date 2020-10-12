@@ -53,7 +53,7 @@ public final class FakeAppConfig {
         };
 
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                ignored -> new FakeCameraDeviceSurfaceManager();
+                (context, cameraManager) -> new FakeCameraDeviceSurfaceManager();
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()

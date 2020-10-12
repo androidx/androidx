@@ -96,7 +96,7 @@ public class CustomTabsClient {
      *                    #onCustomTabsServiceConnected(ComponentName, CustomTabsClient)}
      * @return Whether the binding was successful.
      */
-    public static boolean bindCustomTabServicePreservePriority(@NonNull Context context,
+    public static boolean bindCustomTabsServicePreservePriority(@NonNull Context context,
             @Nullable String packageName, @NonNull CustomTabsServiceConnection connection) {
         connection.setApplicationContext(context.getApplicationContext());
         Intent intent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);

@@ -23,10 +23,15 @@ import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExperimentalCameraFilter;
@@ -40,6 +45,9 @@ import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
+import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
+import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
 
 import java.util.Collection;
 import java.util.List;
@@ -130,47 +138,56 @@ public abstract class PreviewExtender {
         mImpl.init(cameraId, cameraCharacteristics);
 
         PreviewExtenderAdapter previewExtenderAdapter;
+        // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+        @SuppressWarnings("deprecation")
+        Context context = CameraX.getContext();
         switch (mImpl.getProcessorType()) {
             case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
                 AdaptingRequestUpdateProcessor adaptingRequestUpdateProcessor =
                         new AdaptingRequestUpdateProcessor(mImpl);
                 mBuilder.setImageInfoProcessor(adaptingRequestUpdateProcessor);
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, mEffectMode,
-                        adaptingRequestUpdateProcessor);
+                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl,
+                        context, adaptingRequestUpdateProcessor);
                 break;
             case PROCESSOR_TYPE_IMAGE_PROCESSOR:
                 AdaptingPreviewProcessor adaptingPreviewProcessor = new
                         AdaptingPreviewProcessor((PreviewImageProcessorImpl) mImpl.getProcessor());
                 mBuilder.setCaptureProcessor(adaptingPreviewProcessor);
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, mEffectMode,
-                        adaptingPreviewProcessor);
+                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl,
+                        context, adaptingPreviewProcessor);
                 break;
             default:
-                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, mEffectMode, null);
+                previewExtenderAdapter = new PreviewExtenderAdapter(mImpl, context, null);
         }
 
         new Camera2ImplConfig.Extender<>(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(previewExtenderAdapter));
         mBuilder.setUseCaseEventCallback(previewExtenderAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_PREVIEW_EXTENDER_MODE, mEffectMode);
-        setSupportedResolutions();
-    }
-
-    private void setSupportedResolutions() {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-            return;
-        }
-
-        List<Pair<Integer, Size[]>> supportedResolutions = null;
-
-        try {
-            supportedResolutions = mImpl.getSupportedResolutions();
-        } catch (NoSuchMethodError e) {
-            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
-        }
-
+        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(mImpl);
         if (supportedResolutions != null) {
             mBuilder.setSupportedResolutions(supportedResolutions);
+        }
+    }
+
+    /**
+     * Get the resolutions.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
+    public static List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @NonNull PreviewExtenderImpl impl) {
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+            return null;
+        }
+
+        try {
+            return impl.getSupportedResolutions();
+        } catch (NoSuchMethodError e) {
+            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
+            return null;
         }
     }
 
@@ -206,12 +223,16 @@ public abstract class PreviewExtender {
 
     /**
      * An implementation to adapt the OEM provided implementation to core.
+     *
+     * @hide
      */
-    private static class PreviewExtenderAdapter extends CameraEventCallback implements
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static class PreviewExtenderAdapter extends CameraEventCallback implements
             UseCase.EventCallback {
-        final EffectMode mEffectMode;
-
+        @NonNull
         final PreviewExtenderImpl mImpl;
+        @NonNull
+        private final Context mContext;
 
         final CloseableProcessor mCloseableProcessor;
 
@@ -224,29 +245,28 @@ public abstract class PreviewExtender {
         @GuardedBy("mLock")
         private volatile boolean mUnbind = false;
 
-        PreviewExtenderAdapter(PreviewExtenderImpl impl, EffectMode effectMode,
-                CloseableProcessor closeableProcessor) {
+        public PreviewExtenderAdapter(@NonNull PreviewExtenderImpl impl,
+                @NonNull Context context, @Nullable CloseableProcessor closeableProcessor) {
             mImpl = impl;
-            mEffectMode = effectMode;
+            mContext = context;
             mCloseableProcessor = closeableProcessor;
         }
 
+        @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
         @Override
-        public void onBind(@NonNull String cameraId) {
+        public void onAttach(@NonNull CameraInfo cameraInfo) {
             synchronized (mLock) {
                 if (mActive) {
+                    String cameraId = Camera2CameraInfo.fromCameraInfo(cameraInfo).getCameraId();
                     CameraCharacteristics cameraCharacteristics =
-                            CameraUtil.getCameraCharacteristics(cameraId);
-                    // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
-                    @SuppressWarnings("deprecation")
-                    Context context = CameraX.getContext();
-                    mImpl.onInit(cameraId, cameraCharacteristics, context);
+                            Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
+                    mImpl.onInit(cameraId, cameraCharacteristics, mContext);
                 }
             }
         }
 
         @Override
-        public void onUnbind() {
+        public void onDetach() {
             synchronized (mLock) {
                 mUnbind = true;
                 if (mEnabledSessionCount == 0) {
@@ -268,6 +288,7 @@ public abstract class PreviewExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onPresetSession() {
             synchronized (mLock) {
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
@@ -280,6 +301,7 @@ public abstract class PreviewExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onEnableSession() {
             try {
                 synchronized (mLock) {
@@ -300,6 +322,7 @@ public abstract class PreviewExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onDisableSession() {
             try {
                 synchronized (mLock) {
@@ -323,6 +346,7 @@ public abstract class PreviewExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onRepeating() {
             synchronized (mLock) {
                 if (mActive) {
@@ -340,8 +364,11 @@ public abstract class PreviewExtender {
     /**
      * A processor that can be closed so that the underlying processing implementation is skipped,
      * if it has been closed.
+     *
+     * @hide
      */
-    interface CloseableProcessor {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public interface CloseableProcessor {
         void close();
     }
 }

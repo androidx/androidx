@@ -84,13 +84,15 @@ class FragmentReorderingTest(private val stateManager: StateManager) {
         lateinit var replaceStateWhenStopped: Lifecycle.State
         lateinit var replaceStateWhenPopStarted: Lifecycle.State
         instrumentation.runOnMainSync {
-            fragment1.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_STOP) {
-                    replaceStateWhenStopped = fragment2.lifecycle.currentState
-                } else if (event == Lifecycle.Event.ON_START) {
-                    replaceStateWhenPopStarted = fragment2.lifecycle.currentState
+            fragment1.lifecycle.addObserver(
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        replaceStateWhenStopped = fragment2.lifecycle.currentState
+                    } else if (event == Lifecycle.Event.ON_START) {
+                        replaceStateWhenPopStarted = fragment2.lifecycle.currentState
+                    }
                 }
-            })
+            )
         }
         fm.beginTransaction()
             .replace(R.id.fragmentContainer, fragment2)
@@ -99,14 +101,18 @@ class FragmentReorderingTest(private val stateManager: StateManager) {
             .commit()
         activityRule.executePendingTransactions()
 
-        assertWithMessage("Fragment1 should be stopped before Fragment2 moves to " +
-                replaceStateWhenStopped)
+        assertWithMessage(
+            "Fragment1 should be stopped before Fragment2 moves to " +
+                replaceStateWhenStopped
+        )
             .that(replaceStateWhenStopped).isLessThan(Lifecycle.State.STARTED)
 
         activityRule.popBackStackImmediate()
 
-        assertWithMessage("Fragment1 should be started only after Fragment2 moves from " +
-                replaceStateWhenPopStarted)
+        assertWithMessage(
+            "Fragment1 should be started only after Fragment2 moves from " +
+                replaceStateWhenPopStarted
+        )
             .that(replaceStateWhenPopStarted).isLessThan(Lifecycle.State.STARTED)
     }
 

@@ -229,7 +229,6 @@ public final class ComplicationDrawable extends Drawable {
     private boolean mLowBitAmbient;
     private boolean mBurnInProtection;
     private boolean mHighlighted;
-    private boolean mIsStyleUpToDate;
     private boolean mRangedValueProgressHidden;
 
     private boolean mIsInflatedFromXml;
@@ -262,7 +261,6 @@ public final class ComplicationDrawable extends Drawable {
         mLowBitAmbient = drawable.mLowBitAmbient;
         mBurnInProtection = drawable.mBurnInProtection;
         mHighlighted = false;
-        mIsStyleUpToDate = false;
         mRangedValueProgressHidden = drawable.mRangedValueProgressHidden;
         mIsInflatedFromXml = drawable.mIsInflatedFromXml;
         mAlreadyStyled = true;
@@ -367,7 +365,6 @@ public final class ComplicationDrawable extends Drawable {
         }
         mComplicationRenderer.setRangedValueProgressHidden(mRangedValueProgressHidden);
         mComplicationRenderer.setBounds(getBounds());
-        mIsStyleUpToDate = true;
     }
 
     /**
@@ -551,7 +548,6 @@ public final class ComplicationDrawable extends Drawable {
                         "Unknown element: " + name + " for ComplicationDrawable " + this);
             }
         }
-        mIsStyleUpToDate = false;
     }
 
     /**
@@ -827,10 +823,11 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /** Builds styles and syncs them with the complication renderer. */
-    private void updateStyleIfRequired() {
-        if (!mIsStyleUpToDate) {
+    void updateStyleIfRequired() {
+        if (mActiveStyle.isDirty() || mAmbientStyle.isDirty()) {
             mComplicationRenderer.updateStyle(mActiveStyle, mAmbientStyle);
-            mIsStyleUpToDate = true;
+            mActiveStyle.clearDirtyFlag();
+            mAmbientStyle.clearDirtyFlag();
         }
     }
 

@@ -42,8 +42,10 @@ class OnBackPressedCallbackTest {
                 onBackPressed()
                 finishCountDownLatch
             }
-            assertWithMessage("Activity should be finishing after onBackPressed() " +
-                    "on an empty back stack")
+            assertWithMessage(
+                "Activity should be finishing after onBackPressed() " +
+                    "on an empty back stack"
+            )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -185,8 +187,10 @@ class OnBackPressedCallbackTest {
                     .isNull()
                 finishCountDownLatch
             }
-            assertWithMessage("Activity should be finishing after onBackPressed() " +
-                    "on an empty back stack")
+            assertWithMessage(
+                "Activity should be finishing after onBackPressed() " +
+                    "on an empty back stack"
+            )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -239,8 +243,10 @@ class OnBackPressedCallbackTest {
                 onBackPressed()
             }
 
-            assertWithMessage("Grand child fragment should be called before callbacks " +
-                    "registered on the parent Fragment")
+            assertWithMessage(
+                "Grand child fragment should be called before callbacks " +
+                    "registered on the parent Fragment"
+            )
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
             assertWithMessage("Grand child Fragment should be popped by onBackPressed()")

@@ -31,10 +31,13 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -47,7 +50,6 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.util.Preconditions;
@@ -61,9 +63,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The abstract base camera controller class.
  *
- * <p> The controller is a high level API manages the entire CameraX stack. This base class is
- * responsible for 1) initializing camera stack and 2) creating use cases based on user inputs.
- * Subclass this class to bind the use cases to camera.
+ * <p> This a high level controller that provides most of the CameraX core features
+ * in a single class. It handles camera initialization, creates and configures {@link UseCase}s.
+ * It also listens to device motion sensor and set the target rotation for the use cases.
+ *
+ * <p> The controller is required to be used with a {@link PreviewView}. {@link PreviewView}
+ * provides the UI elements to display camera preview. The layout of the {@link PreviewView} is
+ * used to set the crop rect so the output from other use cases matches the preview display in a
+ * WYSIWYG way. The controller also listens to {@link PreviewView}'s touch events to handle
+ * tap-to-focus and pinch-to-zoom features.
  */
 abstract class CameraController {
 
@@ -97,6 +105,18 @@ abstract class CameraController {
     // ImageCapture is enabled by default.
     private boolean mImageCaptureEnabled = true;
 
+    // ImageAnalysis is enabled by default.
+    private boolean mImageAnalysisEnabled = true;
+
+    @Nullable
+    private Executor mAnalysisExecutor;
+
+    @Nullable
+    private ImageAnalysis.Analyzer mAnalysisAnalyzer;
+
+    @NonNull
+    private ImageAnalysis mImageAnalysis;
+
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @NonNull
@@ -120,7 +140,6 @@ abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @Nullable
     ProcessCameraProvider mCameraProvider;
-
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -153,29 +172,23 @@ abstract class CameraController {
 
     private final Context mAppContext;
 
+    @NonNull
+    private final ListenableFuture<Void> mInitializationFuture;
+
     CameraController(@NonNull Context context) {
         mAppContext = context.getApplicationContext();
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
+        mImageAnalysis = new ImageAnalysis.Builder().build();
         mVideoCapture = new VideoCapture.Builder().build();
+
         // Wait for camera to be initialized before binding use cases.
-        Futures.addCallback(
+        mInitializationFuture = Futures.transform(
                 ProcessCameraProvider.getInstance(mAppContext),
-                new FutureCallback<ProcessCameraProvider>() {
-
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onSuccess(@Nullable ProcessCameraProvider provider) {
-                        mCameraProvider = provider;
-                        startCameraAndTrackStates();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        // TODO(b/148791439): fail gracefully and notify caller.
-                        throw new RuntimeException("CameraX failed to initialize.", t);
-                    }
-
+                provider -> {
+                    mCameraProvider = provider;
+                    startCamera();
+                    return null;
                 }, CameraXExecutors.mainThreadExecutor());
 
         // Listen to display rotation and set target rotation for Preview.
@@ -190,6 +203,26 @@ abstract class CameraController {
                 mVideoCapture.setTargetRotation(rotation);
             }
         };
+    }
+
+    /**
+     * Gets a {@link ListenableFuture} that completes when camera initialization completes and
+     * use cases are attached.
+     *
+     * <p> This future may fail with an {@link InitializationException} and associated cause that
+     * can be retrieved by {@link Throwable#getCause()). The cause will be a
+     * {@link CameraUnavailableException} if it fails to access any camera during initialization.
+     *
+     * <p> In the rare case that the future fails with {@link CameraUnavailableException}, the
+     * camera will become unusable. This could happen for various reasons, for example hardware
+     * failure or the camera being held by another process. If the failure is temporary, killing
+     * and restarting the app might fix the issue.
+     *
+     * @see ProcessCameraProvider#getInstance
+     */
+    @NonNull
+    public ListenableFuture<Void> getInitializationFuture() {
+        return mInitializationFuture;
     }
 
     /**
@@ -236,6 +269,9 @@ abstract class CameraController {
         mViewPort = viewPort;
         mPreviewDisplay = display;
         startListeningToRotationEvents();
+        // TODO(b/148791439): startCameraAndTrackStates can be triggered by Preview layout
+        //  change and the exception cannot be caught by the app. We need to set Preview with a
+        //  wrapped SurfaceProvider so that startCameraAndTrackStates() is not called here.
         startCameraAndTrackStates();
     }
 
@@ -281,6 +317,9 @@ abstract class CameraController {
     /**
      * Checks if {@link ImageCapture} is enabled.
      *
+     * <p> {@link ImageCapture} is enabled by default. It has to be enabled before
+     * {@link #takePicture} can be called.
+     *
      * @see ImageCapture
      */
     @MainThread
@@ -297,6 +336,9 @@ abstract class CameraController {
     @MainThread
     public void setImageCaptureEnabled(boolean imageCaptureEnabled) {
         Threads.checkMainThread();
+        if (mImageCaptureEnabled == imageCaptureEnabled) {
+            return;
+        }
         mImageCaptureEnabled = imageCaptureEnabled;
         startCameraAndTrackStates();
     }
@@ -304,13 +346,12 @@ abstract class CameraController {
     /**
      * Gets the flash mode for {@link ImageCapture}.
      *
-     * @return the flashMode. Value is {@link ImageCapture.FlashMode##FLASH_MODE_AUTO},
-     * {@link ImageCapture.FlashMode##FLASH_MODE_ON}, or
-     * {@link ImageCapture.FlashMode##FLASH_MODE_OFF}.
-     * @see ImageCapture.FlashMode
+     * @return the flashMode. Value is {@link ImageCapture#FLASH_MODE_AUTO},
+     * {@link ImageCapture#FLASH_MODE_ON}, or {@link ImageCapture#FLASH_MODE_OFF}.
+     * @see ImageCapture
      */
-    @ImageCapture.FlashMode
     @MainThread
+    @ImageCapture.FlashMode
     public int getImageCaptureFlashMode() {
         Threads.checkMainThread();
         return mImageCapture.getFlashMode();
@@ -319,10 +360,9 @@ abstract class CameraController {
     /**
      * Sets the flash mode for {@link ImageCapture}.
      *
-     * <p>If not set, the flash mode will default to {@link ImageCapture.FlashMode#FLASH_MODE_OFF}.
+     * <p>If not set, the flash mode will default to {@link ImageCapture#FLASH_MODE_OFF}.
      *
-     * @param flashMode the {@link ImageCapture.FlashMode} for {@link ImageCapture}.
-     * @see ImageCapture.FlashMode
+     * @param flashMode the flash mode for {@link ImageCapture}.
      */
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         Threads.checkMainThread();
@@ -343,9 +383,9 @@ abstract class CameraController {
      */
     @MainThread
     public void takePicture(
-            ImageCapture.OutputFileOptions outputFileOptions,
-            Executor executor,
-            ImageCapture.OnImageSavedCallback imageSavedCallback) {
+            @NonNull ImageCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor,
+            @NonNull ImageCapture.OnImageSavedCallback imageSavedCallback) {
         Threads.checkMainThread();
         checkUseCasesAttachedToCamera();
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
@@ -369,8 +409,8 @@ abstract class CameraController {
      */
     @MainThread
     public void takePicture(
-            Executor executor,
-            ImageCapture.OnImageCapturedCallback callback) {
+            @NonNull Executor executor,
+            @NonNull ImageCapture.OnImageCapturedCallback callback) {
         Threads.checkMainThread();
         checkUseCasesAttachedToCamera();
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
@@ -379,13 +419,170 @@ abstract class CameraController {
     }
 
     // -----------------
+    // Image analysis
+    // -----------------
+
+    /**
+     * Checks if {@link ImageAnalysis} is enabled.
+     *
+     * @see ImageAnalysis
+     */
+    @MainThread
+    public boolean isImageAnalysisEnabled() {
+        Threads.checkMainThread();
+        return mImageAnalysisEnabled;
+    }
+
+    /**
+     * Enables or disables {@link ImageAnalysis} use case.
+     *
+     * @see ImageAnalysis
+     */
+    @MainThread
+    public void setImageAnalysisEnabled(boolean imageAnalysisEnabled) {
+        Threads.checkMainThread();
+        if (mImageAnalysisEnabled == imageAnalysisEnabled) {
+            return;
+        }
+        mImageAnalysisEnabled = imageAnalysisEnabled;
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Sets an analyzer to receive and analyze images.
+     *
+     * <p>Applications can process or copy the image by implementing the
+     * {@link ImageAnalysis.Analyzer}. The image needs to be closed by calling
+     * {@link ImageProxy#close()} when the analyzing is done.
+     *
+     * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
+     * set at any time.
+     *
+     * @param executor The executor in which the
+     *                 {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} will be run.
+     * @param analyzer of the images.
+     * @see ImageAnalysis#setAnalyzer(Executor, ImageAnalysis.Analyzer)
+     */
+    @MainThread
+    public void setImageAnalysisAnalyzer(@NonNull Executor executor,
+            @NonNull ImageAnalysis.Analyzer analyzer) {
+        Threads.checkMainThread();
+        if (mAnalysisAnalyzer == analyzer && mAnalysisExecutor == executor) {
+            return;
+        }
+        mAnalysisExecutor = executor;
+        mAnalysisAnalyzer = analyzer;
+        mImageAnalysis.setAnalyzer(executor, analyzer);
+    }
+
+    /**
+     * Removes a previously set analyzer.
+     *
+     * <p>This will stop data from streaming to the {@link ImageAnalysis}.
+     *
+     * @see ImageAnalysis#clearAnalyzer().
+     */
+    @MainThread
+    public void clearImageAnalysisAnalyzer() {
+        Threads.checkMainThread();
+        mAnalysisExecutor = null;
+        mAnalysisAnalyzer = null;
+        mImageAnalysis.clearAnalyzer();
+    }
+
+    /**
+     * Returns the mode with which images are acquired.
+     *
+     * <p> If not set, it defaults to {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     *
+     * @return The backpressure strategy applied to the image producer.
+     * @see ImageAnalysis.Builder#getBackpressureStrategy()
+     */
+    @MainThread
+    @ImageAnalysis.BackpressureStrategy
+    public int getImageAnalysisBackpressureStrategy() {
+        Threads.checkMainThread();
+        return mImageAnalysis.getBackpressureStrategy();
+    }
+
+    /**
+     * Sets the backpressure strategy to apply to the image producer to deal with scenarios
+     * where images may be produced faster than they can be analyzed.
+     *
+     * <p>The available values are {@link ImageAnalysis#STRATEGY_BLOCK_PRODUCER} and
+     * {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}. If not set, the backpressure strategy
+     * will default to {@link ImageAnalysis#STRATEGY_KEEP_ONLY_LATEST}.
+     *
+     * @param strategy The strategy to use.
+     * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
+     */
+    @MainThread
+    public void setImageAnalysisBackpressureStrategy(
+            @ImageAnalysis.BackpressureStrategy int strategy) {
+        Threads.checkMainThread();
+        if (mImageAnalysis.getBackpressureStrategy() == strategy) {
+            return;
+        }
+
+        unbindImageAnalysisAndRecreate(strategy, mImageAnalysis.getImageQueueDepth());
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Sets the number of images available to the camera pipeline.
+     *
+     * @param depth The total number of images available to the camera.
+     * @see ImageAnalysis.Builder#setImageQueueDepth(int)
+     */
+    @MainThread
+    public void setImageAnalysisImageQueueDepth(int depth) {
+        Threads.checkMainThread();
+        if (mImageAnalysis.getImageQueueDepth() == depth) {
+            return;
+        }
+        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(), depth);
+        startCameraAndTrackStates();
+    }
+
+    /**
+     * Gets the number of images available to the camera pipeline.
+     *
+     * @see ImageAnalysis#getImageQueueDepth()
+     */
+    @MainThread
+    public int getImageAnalysisImageQueueDepth() {
+        Threads.checkMainThread();
+        return mImageAnalysis.getImageQueueDepth();
+    }
+
+    /**
+     * Unbinds {@link ImageAnalysis} and recreates with the given parameters.
+     *
+     * <p> This is necessary because unlike other use cases, {@link ImageAnalysis}'s parameters
+     * cannot be updated without recreating the use case.
+     */
+    private void unbindImageAnalysisAndRecreate(int strategy, int imageQueueDepth) {
+        if (isCameraInitialized()) {
+            mCameraProvider.unbind(mImageAnalysis);
+        }
+        mImageAnalysis = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(strategy)
+                .setImageQueueDepth(imageQueueDepth)
+                .build();
+        if (mAnalysisExecutor != null && mAnalysisAnalyzer != null) {
+            mImageAnalysis.setAnalyzer(mAnalysisExecutor, mAnalysisAnalyzer);
+        }
+    }
+
+    // -----------------
     // Video capture
     // -----------------
 
     /**
-     * Checks if {@link VideoCapture} is use case.
+     * Checks if video capture is enabled.
      *
-     * @see ImageCapture
+     * <p> Video capture is disabled by default. It has to be enabled before
+     * {@link #startRecording} can be called.
      */
     @MainThread
     public boolean isVideoCaptureEnabled() {
@@ -394,17 +591,15 @@ abstract class CameraController {
     }
 
     /**
-     * Enables or disables {@link VideoCapture} use case.
-     *
-     * <p> Note that using both {@link #setVideoCaptureEnabled} and
-     * {@link #setImageCaptureEnabled} simultaneously true may not work on lower end devices.
-     *
-     * @see ImageCapture
+     * Enables or disables video capture use case.
      */
     @MainThread
     public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
         Threads.checkMainThread();
-        if (mVideoCaptureEnabled && !videoCaptureEnabled) {
+        if (mVideoCaptureEnabled == videoCaptureEnabled) {
+            return;
+        }
+        if (!videoCaptureEnabled) {
             stopRecording();
         }
         mVideoCaptureEnabled = videoCaptureEnabled;
@@ -419,8 +614,8 @@ abstract class CameraController {
      * @param callback          Callback which will receive success or failure.
      */
     @MainThread
-    public void startRecording(VideoCapture.OutputFileOptions outputFileOptions,
-            Executor executor, final VideoCapture.OnVideoSavedCallback callback) {
+    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor, final @NonNull VideoCapture.OnVideoSavedCallback callback) {
         Threads.checkMainThread();
         checkUseCasesAttachedToCamera();
         Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
@@ -469,27 +664,36 @@ abstract class CameraController {
     // -----------------
 
     /**
-     * Sets the {@link CameraSelector}. The default value is
-     * {@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     * Sets the {@link CameraSelector}.
+     *
+     * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
      * @see CameraSelector
      */
     @MainThread
     public void setCameraSelector(@NonNull CameraSelector cameraSelector) {
         Threads.checkMainThread();
-        // Try to unbind everything if camera is switched.
-        if (mCameraProvider != null && mCameraSelector != cameraSelector) {
-            mCameraProvider.unbindAll();
+        if (mCameraSelector == cameraSelector) {
+            return;
         }
         mCameraSelector = cameraSelector;
+
+        if (mCameraProvider == null) {
+            return;
+        }
+        mCameraProvider.unbindAll();
+
         startCameraAndTrackStates();
     }
 
     /**
      * Gets the {@link CameraSelector}.
      *
+     * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     *
      * @see CameraSelector
      */
+    @NonNull
     @MainThread
     public CameraSelector getCameraSelector() {
         Threads.checkMainThread();
@@ -663,6 +867,7 @@ abstract class CameraController {
      * {@link IllegalArgumentException}. Cancellation of this future is a no-op.
      * @see CameraControl#setLinearZoom(float)
      */
+    @NonNull
     @MainThread
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
         Threads.checkMainThread();
@@ -682,6 +887,7 @@ abstract class CameraController {
      * @return a {@link LiveData} containing current torch state.
      * @see CameraInfo#getTorchState()
      */
+    @NonNull
     @MainThread
     public LiveData<Integer> getTorchState() {
         Threads.checkMainThread();
@@ -699,6 +905,7 @@ abstract class CameraController {
      * this future is a no-op.
      * @see CameraControl#enableTorch(boolean)
      */
+    @NonNull
     @MainThread
     public ListenableFuture<Void> enableTorch(boolean torchEnabled) {
         Threads.checkMainThread();
@@ -708,8 +915,6 @@ abstract class CameraController {
         }
         return mCamera.getCameraControl().enableTorch(torchEnabled);
     }
-
-    // TODO(b/148791439): Give user a way to tell if the camera provider is ready.
 
     /**
      * Binds use cases, gets a new {@link Camera} instance and tracks the state of the camera.
@@ -749,6 +954,12 @@ abstract class CameraController {
             builder.addUseCase(mImageCapture);
         } else {
             mCameraProvider.unbind(mImageCapture);
+        }
+
+        if (mImageAnalysisEnabled) {
+            builder.addUseCase(mImageAnalysis);
+        } else {
+            mCameraProvider.unbind(mImageAnalysis);
         }
 
         if (mVideoCaptureEnabled) {

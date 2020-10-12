@@ -23,6 +23,7 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -30,12 +31,12 @@ import androidx.core.util.Preconditions;
 final class CropRegionZoomImpl implements ZoomControl.ZoomImpl {
     public static final float MIN_DIGITAL_ZOOM = 1.0f;
 
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompat mCameraCharacteristics;
     private Rect mCurrentCropRect = null;
     private CallbackToFutureAdapter.Completer<Void> mPendingZoomRatioCompleter;
     private Rect mPendingZoomCropRegion = null;
 
-    CropRegionZoomImpl(@NonNull CameraCharacteristics cameraCharacteristics) {
+    CropRegionZoomImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         mCameraCharacteristics = cameraCharacteristics;
     }
 

@@ -34,6 +34,7 @@ import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
@@ -321,6 +322,16 @@ public class ResourcesCompatTest {
             assertEquals(100, tf.getWeight());
         }
         assertEquals(Typeface.ITALIC, tf.getStyle());
+    }
+
+    @Test
+    public void testGetFont_fontFile_cached() {
+        TypefaceCompat.clearCache();
+        assertNull(ResourcesCompat.getFont(mContext, R.font.samplefont, true));
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplefont);
+        Typeface cachedFont = ResourcesCompat.getFont(mContext, R.font.samplefont, true);
+        assertNotNull(cachedFont);
+        assertSame(font, cachedFont);
     }
 
     private static final class FontCallback extends ResourcesCompat.FontCallback {

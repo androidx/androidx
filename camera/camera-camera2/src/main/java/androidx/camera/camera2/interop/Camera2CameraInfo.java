@@ -96,7 +96,7 @@ public final class Camera2CameraInfo {
      */
     @Nullable
     public <T> T getCameraCharacteristic(@NonNull CameraCharacteristics.Key<T> key) {
-        return mCamera2CameraInfoImpl.getCameraCharacteristics().get(key);
+        return mCamera2CameraInfoImpl.getCameraCharacteristicsCompat().get(key);
     }
 
     /**
@@ -122,6 +122,6 @@ public final class Camera2CameraInfo {
         Preconditions.checkState(cameraInfo instanceof Camera2CameraInfoImpl, "CameraInfo does "
                 + "not contain any Camera2 information.");
         Camera2CameraInfoImpl impl = (Camera2CameraInfoImpl) cameraInfo;
-        return impl.getCameraCharacteristics();
+        return impl.getCameraCharacteristicsCompat().toCameraCharacteristics();
     }
 }

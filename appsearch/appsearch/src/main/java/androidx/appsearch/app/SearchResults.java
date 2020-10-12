@@ -16,73 +16,57 @@
 
 package androidx.appsearch.app;
 
-import android.util.Log;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 /**
  * SearchResults are a returned object from a query API. It contains multiple pages of
  * {@link Result}.
+ *
  * <p>Each {@link Result} contains a document and may contain other fields like snippets based on
  * request.
+ *
  * <p>Should close this object after finish fetching results.
+ *
  * <p>This class is not thread safe.
  */
 public final class SearchResults implements Closeable {
-
-    private static final String TAG = "AppSearch-SearchResults";
-    private final ExecutorService mExecutorService;
     private final AppSearchBackend.BackendSearchResults mBackendSearchResults;
 
     /** @hide */
-    public SearchResults(@NonNull ExecutorService executorService,
-            @NonNull AppSearchBackend.BackendSearchResults backendSearchResults)  {
-        mExecutorService = executorService;
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    SearchResults(AppSearchBackend.BackendSearchResults backendSearchResults) {
         mBackendSearchResults = backendSearchResults;
     }
 
     /**
-     * Gets a whole page of {@link Result}.
-     * <p>Re-called this method to get next page of {@link Result}, until it return an empty list.
-     * <p>The page size is set by {@link SearchSpec.Builder#setNumPerPage(int)}.
+     * Gets a whole page of {@link Result}s.
+     *
+     * <p>Re-call this method to get next page of {@link Result}s, until it returns an empty
+     * list.
+     *
+     * <p>The page size is set by {@link SearchSpec.Builder#setNumPerPage}.
+     *
      * @return The pending result of performing this operation.
      */
     @NonNull
     public ListenableFuture<AppSearchResult<List<Result>>> getNextPage() {
-        ResolvableFuture<AppSearchResult<List<Result>>> future = ResolvableFuture.create();
-        mExecutorService.execute(() -> {
-            if (!future.isCancelled()) {
-                try {
-                    future.set(mBackendSearchResults.getNextPage());
-                } catch (Throwable t) {
-                    future.setException(t);
-                }
-            }
-        });
-        return future;
+        return mBackendSearchResults.getNextPage();
     }
 
     @Override
     public void close() {
-        // Close the SearchResult in the backend thread. No future is needed here since the
-        // method is void.
-        mExecutorService.execute(() -> {
-            try {
-                mBackendSearchResults.close();
-            } catch (IOException e) {
-                Log.w(TAG, "Fail to close the SearchResults.", e);
-            }
-        });
+        mBackendSearchResults.close();
     }
 
     /**
@@ -90,8 +74,25 @@ public final class SearchResults implements Closeable {
      * which matched the specified query string and specifications.
      */
     public static final class Result {
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String DOCUMENT_FIELD = "document";
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public static final String MATCHES_FIELD = "matches";
+
         @NonNull
-        private final GenericDocument mDocument;
+        private final Bundle mBundle;
+
+        @NonNull
+        private final Bundle mDocumentBundle;
+
+        @Nullable
+        private GenericDocument mDocument;
+
+        @Nullable
+        private final List<Bundle> mMatchBundles;
 
         /**
          * Contains a list of Snippets that matched the request. Only populated when requested in
@@ -101,13 +102,21 @@ public final class SearchResults implements Closeable {
          * @see #getMatches()
          */
         @Nullable
-        private final List<MatchInfo> mMatches;
+        private List<MatchInfo> mMatches;
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matches) {
-            mDocument = document;
-            mMatches = matches;
+        public Result(@NonNull Bundle bundle) {
+            mBundle = Preconditions.checkNotNull(bundle);
+            mDocumentBundle = Preconditions.checkNotNull(bundle.getBundle(DOCUMENT_FIELD));
+            mMatchBundles = bundle.getParcelableArrayList(MATCHES_FIELD);
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Bundle getBundle() {
+            return mBundle;
         }
 
         /**
@@ -116,6 +125,9 @@ public final class SearchResults implements Closeable {
          */
         @NonNull
         public GenericDocument getDocument() {
+            if (mDocument == null) {
+                mDocument = new GenericDocument(mDocumentBundle);
+            }
             return mDocument;
         }
 
@@ -132,6 +144,13 @@ public final class SearchResults implements Closeable {
          */
         @Nullable
         public List<MatchInfo> getMatches() {
+            if (mMatchBundles != null && mMatches == null) {
+                mMatches = new ArrayList<>(mMatchBundles.size());
+                for (int i = 0; i < mMatchBundles.size(); i++) {
+                    MatchInfo matchInfo = new MatchInfo(getDocument(), mMatchBundles.get(i));
+                    mMatches.add(matchInfo);
+                }
+            }
             return mMatches;
         }
     }

@@ -48,11 +48,14 @@ class PrivateConstructorForUtilityClass : Detector(), Detector.UastScanner {
                 return
             }
             // If all constructors are already private or if not all methods are static then return
-            if ((node.constructors.all { it.isPrivateOrParameterInPrivateMethod() } && node
-                    .constructors.isNotEmpty()) ||
+            if ((
+                node.constructors.all { it.isPrivateOrParameterInPrivateMethod() } && node
+                    .constructors.isNotEmpty()
+                ) ||
                 node.methods.any { !it.isStatic && !it.isConstructor } ||
                 node.methods.none { !it.isConstructor } ||
-                node.fields.any { !it.isStatic }) {
+                node.fields.any { !it.isStatic }
+            ) {
                 return
             }
             // This is a utility class with a non private constructor
@@ -66,12 +69,14 @@ class PrivateConstructorForUtilityClass : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create("PrivateConstructorForUtilityClass",
+        val ISSUE = Issue.create(
+            "PrivateConstructorForUtilityClass",
             "Utility classes should have a private constructor",
             "Classes which are not intended to be instantiated should be made non-instantiable " +
-                    "with a private constructor. This includes utility classes (classes with " +
-                    "only static members), and the main class.",
+                "with a private constructor. This includes utility classes (classes with " +
+                "only static members), and the main class.",
             Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(PrivateConstructorForUtilityClass::class.java, Scope.JAVA_FILE_SCOPE))
+            Implementation(PrivateConstructorForUtilityClass::class.java, Scope.JAVA_FILE_SCOPE)
+        )
     }
 }

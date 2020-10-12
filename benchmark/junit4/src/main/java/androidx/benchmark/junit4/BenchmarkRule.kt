@@ -112,7 +112,7 @@ class BenchmarkRule internal constructor(
         if (!applied) {
             throw IllegalStateException(
                 "Cannot get state before BenchmarkRule is applied to a test. Check that your " +
-                        "BenchmarkRule is annotated correctly (@Rule in Java, @get:Rule in Kotlin)."
+                    "BenchmarkRule is annotated correctly (@Rule in Java, @get:Rule in Kotlin)."
             )
         }
         return internalState
@@ -193,10 +193,10 @@ class BenchmarkRule internal constructor(
                     invokeMethodName.length > 5
                 )
                 invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
-                        invokeMethodName.substring(5)
+                    invokeMethodName.substring(5)
             }
             internalState.traceUniqueName = description.testClass.simpleName + "_" +
-                    invokeMethodName
+                invokeMethodName
 
             trace(description.displayName) {
                 base.evaluate()

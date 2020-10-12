@@ -210,6 +210,50 @@ class ComposeViewAdapterTest {
         )
     }
 
+    /**
+     * Check that no re-composition happens without forcing it.
+     */
+    @Test
+    fun testNoInvalidation() {
+        compositionCount.set(0)
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.TestInvalidationPreviewKt",
+                "CounterPreview",
+                forceCompositionInvalidation = false
+            )
+            assertEquals(1, compositionCount.get())
+        }
+        activityTestRule.runOnUiThread {
+            assertEquals(1, compositionCount.get())
+        }
+        activityTestRule.runOnUiThread {
+            assertEquals(1, compositionCount.get())
+        }
+    }
+
+    /**
+     * Check re-composition happens when forced.
+     */
+    @Test
+    fun testInvalidation() {
+        compositionCount.set(0)
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.TestInvalidationPreviewKt",
+                "CounterPreview",
+                forceCompositionInvalidation = true
+            )
+            assertEquals(1, compositionCount.get())
+        }
+        activityTestRule.runOnUiThread {
+            assertEquals(2, compositionCount.get())
+        }
+        activityTestRule.runOnUiThread {
+            assertEquals(3, compositionCount.get())
+        }
+    }
+
     companion object {
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {

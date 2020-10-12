@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
 
 /**
- * A DoubleRangeUserStyleCategory represents a category with a {@link Double} value in the range
- * [minimumValue .. maximumValue].
+ * A DoubleRangeUserStyleCategory represents a category with a [Double] value in the range
+ * `[minimumValue .. maximumValue]`.
  */
 class DoubleRangeUserStyleCategory : UserStyleCategory {
 
@@ -71,12 +71,9 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
         defaultValue: Double,
 
         /**
-         * Used by the style configuration UI. Describes which rendering layer this style affects.
-         * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
-         * combination  of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
-         * #LAYER_UPPER}.
+         * Used by the style configuration UI. Describes which rendering layers this style affects.
          */
-        layerFlags: Int
+        affectsLayers: Collection<Layer>
     ) : super(
         id,
         displayName,
@@ -88,7 +85,7 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
             minimumValue -> 0
             else -> 1
         },
-        layerFlags
+        affectsLayers
     )
 
     internal constructor(wireFormat: DoubleRangeUserStyleCategoryWireFormat) : super(wireFormat)
@@ -103,11 +100,11 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
             icon,
             getWireFormatOptionsList(),
             defaultOptionIndex,
-            layerFlags
+            affectsLayers.map { it.ordinal }
         )
 
     /**
-     * Represents an option as a {@link Double} in the range [minimumValue .. maximumValue].
+     * Represents an option as a [Double] in the range [minimumValue .. maximumValue].
      */
     class DoubleRangeOption : Option {
         /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */

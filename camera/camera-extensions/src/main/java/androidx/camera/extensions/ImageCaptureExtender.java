@@ -23,10 +23,15 @@ import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExperimentalCameraFilter;
@@ -42,6 +47,8 @@ import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
+import androidx.camera.extensions.internal.AdaptingCaptureStage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -142,30 +149,40 @@ public abstract class ImageCaptureExtender {
             mBuilder.setMaxCaptureStages(mImpl.getMaxCaptureStage());
         }
 
-        ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl, mEffectMode);
+        // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+        @SuppressWarnings("deprecation")
+        ImageCaptureAdapter imageCaptureAdapter = new ImageCaptureAdapter(mImpl,
+                CameraX.getContext());
         new Camera2ImplConfig.Extender<>(mBuilder).setCameraEventCallback(
                 new CameraEventCallbacks(imageCaptureAdapter));
         mBuilder.setUseCaseEventCallback(imageCaptureAdapter);
         mBuilder.setCaptureBundle(imageCaptureAdapter);
         mBuilder.getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_EXTENDER_MODE, mEffectMode);
-        setSupportedResolutions();
-    }
 
-    private void setSupportedResolutions() {
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-            return;
-        }
-
-        List<Pair<Integer, Size[]>> supportedResolutions = null;
-
-        try {
-            supportedResolutions = mImpl.getSupportedResolutions();
-        } catch (NoSuchMethodError e) {
-            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
-        }
-
+        List<Pair<Integer, Size[]>> supportedResolutions = getSupportedResolutions(mImpl);
         if (supportedResolutions != null) {
             mBuilder.setSupportedResolutions(supportedResolutions);
+        }
+    }
+
+    /**
+     * Get the supported resolutions.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Nullable
+    public static List<Pair<Integer, Size[]>> getSupportedResolutions(
+            @NonNull ImageCaptureExtenderImpl impl) {
+        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+            return null;
+        }
+
+        try {
+            return impl.getSupportedResolutions();
+        } catch (NoSuchMethodError e) {
+            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
+            return null;
         }
     }
 
@@ -200,11 +217,17 @@ public abstract class ImageCaptureExtender {
 
     /**
      * An implementation to adapt the OEM provided implementation to core.
+     *
+     * @hide
      */
-    static class ImageCaptureAdapter extends CameraEventCallback implements UseCase.EventCallback,
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static class ImageCaptureAdapter extends CameraEventCallback implements
+            UseCase.EventCallback,
             CaptureBundle {
-        final EffectMode mEffectMode;
+        @NonNull
         private final ImageCaptureExtenderImpl mImpl;
+        @NonNull
+        private final Context mContext;
         private final AtomicBoolean mActive = new AtomicBoolean(true);
         private final Object mLock = new Object();
         @GuardedBy("mLock")
@@ -212,25 +235,25 @@ public abstract class ImageCaptureExtender {
         @GuardedBy("mLock")
         private volatile boolean mUnbind = false;
 
-        ImageCaptureAdapter(ImageCaptureExtenderImpl impl, EffectMode effectMode) {
+        public ImageCaptureAdapter(@NonNull ImageCaptureExtenderImpl impl,
+                @NonNull Context context) {
             mImpl = impl;
-            mEffectMode = effectMode;
+            mContext = context;
         }
 
+        @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
         @Override
-        public void onBind(@NonNull String cameraId) {
+        public void onAttach(@NonNull CameraInfo cameraInfo) {
             if (mActive.get()) {
-                CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(
-                        cameraId);
-                // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
-                @SuppressWarnings("deprecation")
-                Context context = CameraX.getContext();
-                mImpl.onInit(cameraId, cameraCharacteristics, context);
+                String cameraId = Camera2CameraInfo.fromCameraInfo(cameraInfo).getCameraId();
+                CameraCharacteristics cameraCharacteristics =
+                        Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
+                mImpl.onInit(cameraId, cameraCharacteristics, mContext);
             }
         }
 
         @Override
-        public void onUnbind() {
+        public void onDetach() {
             synchronized (mLock) {
                 mUnbind = true;
                 if (mEnabledSessionCount == 0) {
@@ -247,6 +270,7 @@ public abstract class ImageCaptureExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onPresetSession() {
             if (mActive.get()) {
                 CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
@@ -258,6 +282,7 @@ public abstract class ImageCaptureExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onEnableSession() {
             try {
                 if (mActive.get()) {
@@ -276,6 +301,7 @@ public abstract class ImageCaptureExtender {
         }
 
         @Override
+        @Nullable
         public CaptureConfig onDisableSession() {
             try {
                 if (mActive.get()) {
@@ -297,6 +323,7 @@ public abstract class ImageCaptureExtender {
         }
 
         @Override
+        @Nullable
         public List<CaptureStage> getCaptureStages() {
             if (mActive.get()) {
                 List<CaptureStageImpl> captureStages = mImpl.getCaptureStages();
@@ -312,5 +339,4 @@ public abstract class ImageCaptureExtender {
             return null;
         }
     }
-
 }

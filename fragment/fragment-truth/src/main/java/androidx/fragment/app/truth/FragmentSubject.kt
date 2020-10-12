@@ -47,7 +47,9 @@ class FragmentSubject private constructor(
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
         val factory = Factory<FragmentSubject, Fragment> {
-                metadata, actual -> FragmentSubject(metadata, actual) }
+            metadata, actual ->
+            FragmentSubject(metadata, actual)
+        }
 
         @JvmStatic
         fun assertThat(actual: Fragment): FragmentSubject {

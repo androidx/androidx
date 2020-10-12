@@ -38,6 +38,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -56,6 +57,12 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
             PreviewView.ImplementationMode.COMPATIBLE,
             PreviewView.ImplementationMode.PERFORMANCE
         )
+
+        @BeforeClass
+        @JvmStatic
+        fun classSetUp() {
+            CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        }
     }
 
     private lateinit var mPreviewView: PreviewView

@@ -60,6 +60,10 @@ import kotlin.annotation.Target
 `</pre> *
  *
  */
+@Deprecated(
+    "This annotation has been replaced by `@RequiresOptIn`",
+    ReplaceWith("RequiresOptIn", "androidx.annotation.RequiresOptIn")
+)
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 annotation class Experimental(

@@ -469,7 +469,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
          * @param referencePeriodStartMillis The start of the reference period (in milliseconds
          *     since the epoch) from which the time difference will be calculated.
          * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
-         *     the epoch) from whichthe time difference will be calculated.
+         *     the epoch) from which the time difference will be calculated.
          */
         public TimeDifferenceBuilder(long referencePeriodStartMillis, long referencePeriodEndMillis) {
             mReferencePeriodStartMillis = referencePeriodStartMillis;

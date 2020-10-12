@@ -21,13 +21,13 @@ For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/release\-n
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
 Daemon will be stopped at the end of the build stopping after processing
 # > Task :buildSrc:build
-> Configure project :appsearch:appsearch\-local\-backend
+# > Configure project :appsearch:appsearch\-local\-backend
 WARNING: NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
 NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
 Configuration on demand is an incubating feature\.
-> Configure project :
+# > Configure project :
 updated local\.properties
-> Configure project :compose:test\-utils
+# > Configure project :compose:test\-utils
 Kotlin Multiplatform Projects are an Alpha feature\.
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
 \* androidAndroidTestRelease
@@ -1149,3 +1149,11 @@ Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml
 ZipFile closed
 # > Task :compose:internal-lint-checks:lint
 Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
+# > Task :leanback:leanback-paging:generateApi
+w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
+w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
+w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
+# > Task :compose:paging:paging:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path 'META\-INF/paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :wear:wear-complications-data:generateApi
+src\/main\/java\/androidx\/wear\/complications\/ComplicationProviderService\.java\:[0-9]+\: warning\: Parameter retailModeProvider references hidden type androidx\.wear\.complications\.ComplicationProviderService\.RetailModeProvider\. \[HiddenTypeParameter\]

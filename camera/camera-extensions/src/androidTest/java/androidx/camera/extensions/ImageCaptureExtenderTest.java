@@ -115,7 +115,8 @@ public class ImageCaptureExtenderTest {
         when(mockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(captureStages);
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
+                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl,
+                        mContext);
         ImageCapture.Builder builder =
                 new ImageCapture.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventCallback(
@@ -170,7 +171,8 @@ public class ImageCaptureExtenderTest {
         when(mockImageCaptureExtenderImpl.getCaptureStages()).thenReturn(captureStages);
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl, null);
+                new ImageCaptureExtender.ImageCaptureAdapter(mockImageCaptureExtenderImpl,
+                        mContext);
         ImageCapture.Builder configBuilder = new ImageCapture.Builder().setCaptureBundle(
                 imageCaptureAdapter).setUseCaseEventCallback(
                 imageCaptureAdapter).setCaptureProcessor(

@@ -46,8 +46,11 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
             if (node.selector is USimpleNameReferenceExpression) {
                 val name = node.selector as USimpleNameReferenceExpression
                 if (CONCURRENT_HASHMAP.equals(name.identifier)) {
-                    context.report(ISSUE, node, context.getLocation(node), "Detected " +
-                            "ConcurrentHashMap usage.")
+                    context.report(
+                        ISSUE, node, context.getLocation(node),
+                        "Detected " +
+                            "ConcurrentHashMap usage."
+                    )
                 }
             }
         }
@@ -62,22 +65,29 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
                     resolved = resolved.containingClass
                 }
                 if (resolved is PsiClass && CONCURRENT_HASHMAP_QUALIFIED_NAME
-                        .equals(resolved.qualifiedName)) {
-                    context.report(ISSUE, node, context.getLocation(node), "Detected " +
-                            "ConcurrentHashMap usage.")
+                    .equals(resolved.qualifiedName)
+                ) {
+                    context.report(
+                        ISSUE, node, context.getLocation(node),
+                        "Detected " +
+                            "ConcurrentHashMap usage."
+                    )
                 }
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create("BanConcurrentHashMap",
+        val ISSUE = Issue.create(
+            "BanConcurrentHashMap",
             "ConcurrentHashMap usage is not allowed",
             "ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost" +
-                    " updates under thread contention.",
+                " updates under thread contention.",
             Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanConcurrentHashMap::class.java,
-                Scope.JAVA_FILE_SCOPE)
+            Implementation(
+                BanConcurrentHashMap::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
         )
         val CONCURRENT_HASHMAP_QUALIFIED_NAME = "java.util.concurrent.ConcurrentHashMap"
         val CONCURRENT_HASHMAP = "ConcurrentHashMap"

@@ -58,7 +58,7 @@ class PixelPerfectMatcher : BitmapMatcher {
         if (different > 0) {
             val diff = Bitmap.createBitmap(diffArray, width, height, Bitmap.Config.ARGB_8888)
             val stats = "[PixelPerfect] Same pixels: $same, " +
-                    "Different pixels: $different"
+                "Different pixels: $different"
             return MatchResult(matches = false, diff = diff, comparisonStatistics = stats)
         }
 

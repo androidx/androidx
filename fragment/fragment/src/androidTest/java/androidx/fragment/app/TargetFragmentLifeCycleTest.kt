@@ -50,8 +50,10 @@ class TargetFragmentLifeCycleTest {
             three.setTargetFragment(one, 0)
             Assert.fail("creating a fragment target cycle did not throw IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertThat(e).hasMessageThat().contains("Setting $one as the target of $three would" +
-                    " create a target cycle")
+            assertThat(e).hasMessageThat().contains(
+                "Setting $one as the target of $three would" +
+                    " create a target cycle"
+            )
         }
     }
 

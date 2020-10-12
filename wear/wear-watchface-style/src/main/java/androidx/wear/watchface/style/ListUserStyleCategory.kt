@@ -41,12 +41,9 @@ open class ListUserStyleCategory : UserStyleCategory {
         options: List<ListOption>,
 
         /**
-         * Used by the style configuration UI. Describes which rendering layer this style affects.
-         * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
-         * combination of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
-         * #LAYER_UPPER}.
+         * Used by the style configuration UI. Describes which rendering layers this style affects.
          */
-        layerFlags: Int,
+        affectsLayers: Collection<Layer>,
 
         /** The default option, used when data isn't persisted. */
         defaultOption: ListOption = options.first()
@@ -57,7 +54,7 @@ open class ListUserStyleCategory : UserStyleCategory {
         icon,
         options,
         options.indexOf(defaultOption),
-        layerFlags
+        affectsLayers
     )
 
     internal constructor(wireFormat: ListUserStyleCategoryWireFormat) : super(wireFormat)
@@ -72,11 +69,11 @@ open class ListUserStyleCategory : UserStyleCategory {
             icon,
             getWireFormatOptionsList(),
             defaultOptionIndex,
-            layerFlags
+            affectsLayers.map { it.ordinal }
         )
 
     /**
-     * Represents choice within a {@link ListUserStyleCategory}, these must be enumerated up front.
+     * Represents choice within a [ListUserStyleCategory], these must be enumerated up front.
      */
     open class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */

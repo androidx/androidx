@@ -17,12 +17,15 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * The camera interface is used to control the flow of data to use cases, control the
@@ -72,10 +75,42 @@ public interface Camera {
      * However, it will be transparent to the {@link CameraControl} and {@link CameraInfo}
      * retrieved from {@link #getCameraControl()} and {@link #getCameraInfo()}.
      *
+     * <p> The CameraInternal are returned in the order of preference. The
+     * {@link CameraConfig} that is set via {@link #setExtendedConfig(CameraConfig)} can filter
+     * out specific instances of the CameraInternal. The remaining CameraInternal that comes
+     * first in this ordering will be used.
+     *
      * <p> The set of CameraInternal should be static for the lifetime of the Camera.
      * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    Collection<CameraInternal> getCameraInternals();
+    LinkedHashSet<CameraInternal> getCameraInternals();
+
+    /**
+     * Get the currently set extended config of the Camera.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    CameraConfig getExtendedConfig();
+
+    /**
+     * Set the extended config of the Camera and potentially reconfigure the camera.
+     *
+     * <p> This is used to apply additional configs that modifying the behavior of the camera and
+     * any attached {@link UseCase}. For example, this may limit the instances of CameraInternal
+     * that are used or configure the {@link ImageCapture} to use a
+     * {@link androidx.camera.core.impl.CaptureProcessor} in order to implement effects such as
+     * HDR or bokeh.
+
+     * <p> This can cause the underlying camera to be reopen.
+     * @param cameraConfig if the null then it will reset the camera to an empty config.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
+            CameraUseCaseAdapter.CameraException;
 }

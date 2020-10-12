@@ -17,6 +17,7 @@
 package androidx.window;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -260,5 +261,10 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
     public void testOnDeviceStateListenersChanged() {
         mExtensionCompat.onDeviceStateListenersChanged(true);
         verify(mExtensionCompat.mWindowExtension).onDeviceStateListenersChanged(eq(true));
+    }
+
+    @Test
+    public void testValidateExtensionInterface() {
+        assertTrue(mExtensionCompat.validateExtensionInterface());
     }
 }

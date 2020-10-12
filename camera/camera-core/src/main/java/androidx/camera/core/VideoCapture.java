@@ -967,18 +967,23 @@ public final class VideoCapture extends UseCase {
         CamcorderProfile profile;
         boolean isCamcorderProfileFound = false;
 
-        for (int quality : CamcorderQuality) {
-            if (CamcorderProfile.hasProfile(Integer.parseInt(cameraId), quality)) {
-                profile = CamcorderProfile.get(Integer.parseInt(cameraId), quality);
-                if (currentResolution.getWidth() == profile.videoFrameWidth
-                        && currentResolution.getHeight() == profile.videoFrameHeight) {
-                    mAudioChannelCount = profile.audioChannels;
-                    mAudioSampleRate = profile.audioSampleRate;
-                    mAudioBitRate = profile.audioBitRate;
-                    isCamcorderProfileFound = true;
-                    break;
+        try {
+            for (int quality : CamcorderQuality) {
+                if (CamcorderProfile.hasProfile(Integer.parseInt(cameraId), quality)) {
+                    profile = CamcorderProfile.get(Integer.parseInt(cameraId), quality);
+                    if (currentResolution.getWidth() == profile.videoFrameWidth
+                            && currentResolution.getHeight() == profile.videoFrameHeight) {
+                        mAudioChannelCount = profile.audioChannels;
+                        mAudioSampleRate = profile.audioSampleRate;
+                        mAudioBitRate = profile.audioBitRate;
+                        isCamcorderProfileFound = true;
+                        break;
+                    }
                 }
             }
+        } catch (NumberFormatException e) {
+            Logger.i(TAG, "The camera Id is not an integer because the camera may be a removable "
+                    + "device. Use the default values for the audio related settings.");
         }
 
         // In case no corresponding camcorder profile can be founded, * get default value from

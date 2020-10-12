@@ -254,9 +254,11 @@ class NestedLifecycleFragmentParent : StrictFragment(), FragmentOnAttachListener
     }
 
     init {
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            archLifecycleActivity.collectedEvents.add("parent" to event)
-        })
+        lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                archLifecycleActivity.collectedEvents.add("parent" to event)
+            }
+        )
     }
 
     override fun onAttach(context: Context) {
@@ -274,9 +276,11 @@ class NestedLifecycleFragmentParent : StrictFragment(), FragmentOnAttachListener
     }
 
     override fun onAttachFragment(fragmentManager: FragmentManager, childFragment: Fragment) {
-        childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            archLifecycleActivity.collectedEvents.add("child" to event)
-        })
+        childFragment.lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                archLifecycleActivity.collectedEvents.add("child" to event)
+            }
+        )
     }
 }
 

@@ -162,10 +162,12 @@ class FragmentScenarioTest {
     @Test
     fun launchWithCrossInlineFactoryFunction() {
         var numberOfInstantiations = 0
-        with(launchFragment {
-            numberOfInstantiations++
-            NoDefaultConstructorFragment("my constructor arg")
-        }) {
+        with(
+            launchFragment {
+                numberOfInstantiations++
+                NoDefaultConstructorFragment("my constructor arg")
+            }
+        ) {
             assertThat(numberOfInstantiations).isEqualTo(1)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -178,10 +180,12 @@ class FragmentScenarioTest {
     @Test
     fun launchInContainerWithCrossInlineFactoryFunction() {
         var numberOfInstantiations = 0
-        with(launchFragmentInContainer {
-            numberOfInstantiations++
-            NoDefaultConstructorFragment("my constructor arg")
-        }) {
+        with(
+            launchFragmentInContainer {
+                numberOfInstantiations++
+                NoDefaultConstructorFragment("my constructor arg")
+            }
+        ) {
             assertThat(numberOfInstantiations).isEqualTo(1)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -195,21 +199,26 @@ class FragmentScenarioTest {
     @Test
     fun launchInContainerWithEarlyLifecycleCallbacks() {
         var tagSetBeforeOnStart = false
-        with(launchFragmentInContainer {
-            StateRecordingFragment().also { fragment ->
-                fragment.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
-                    if (viewLifecycleOwner != null) {
-                        fragment.requireView().setTag(view_tag_id, "fakeNavController")
+        with(
+            launchFragmentInContainer {
+                StateRecordingFragment().also { fragment ->
+                    fragment.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
+                        if (viewLifecycleOwner != null) {
+                            fragment.requireView().setTag(view_tag_id, "fakeNavController")
+                        }
                     }
+                    fragment.lifecycle.addObserver(
+                        LifecycleEventObserver { _, event ->
+                            if (event == Lifecycle.Event.ON_START) {
+                                tagSetBeforeOnStart =
+                                    fragment.requireView().getTag(view_tag_id) ==
+                                        "fakeNavController"
+                            }
+                        }
+                    )
                 }
-                fragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_START) {
-                        tagSetBeforeOnStart =
-                            fragment.requireView().getTag(view_tag_id) == "fakeNavController"
-                    }
-                })
             }
-        }) {
+        ) {
             assertThat(tagSetBeforeOnStart).isTrue()
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
@@ -405,10 +414,12 @@ class FragmentScenarioTest {
     @Test
     fun recreateFragmentWithFragmentFactory() {
         var numberOfInstantiations = 0
-        with(launchFragment {
-            numberOfInstantiations++
-            NoDefaultConstructorFragment("my constructor arg")
-        }) {
+        with(
+            launchFragment {
+                numberOfInstantiations++
+                NoDefaultConstructorFragment("my constructor arg")
+            }
+        ) {
             assertThat(numberOfInstantiations).isEqualTo(1)
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)

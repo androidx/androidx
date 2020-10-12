@@ -18,6 +18,7 @@ package androidx.ui.test.util
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.util.VelocityTracker
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -69,15 +70,16 @@ class MultiPointerInputRecorder : PointerInputModifier {
 class RecordingFilter(
     private val record: (List<PointerInputChange>) -> Unit
 ) : PointerInputFilter() {
-    override fun onPointerInput(
-        changes: List<PointerInputChange>,
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
         pass: PointerEventPass,
         bounds: IntSize
     ): List<PointerInputChange> {
+
         if (pass == PointerEventPass.Initial) {
-            record(changes)
+            record(pointerEvent.changes)
         }
-        return changes
+        return pointerEvent.changes
     }
 
     override fun onCancel() {

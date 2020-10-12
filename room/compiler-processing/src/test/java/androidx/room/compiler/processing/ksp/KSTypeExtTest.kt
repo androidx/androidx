@@ -16,17 +16,23 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.safeTypeName
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import org.jetbrains.kotlin.ksp.getDeclaredFunctions
 import org.jetbrains.kotlin.ksp.getDeclaredProperties
 import org.jetbrains.kotlin.ksp.processing.Resolver
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import javax.lang.model.util.ElementFilter
 
 @RunWith(JUnit4::class)
 class KSTypeExtTest {
@@ -139,6 +145,66 @@ class KSTypeExtTest {
                     )
                 )
         }
+    }
+
+    /**
+     * Compare against what KAPT returns.
+     */
+    @Test
+    fun kaptGoldenTest() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            class MyType
+            class MyGeneric<T>
+            class Subject {
+                // Don't use kotlin types that have jvm translations here. They will show up
+                // different, we don't care about that right now. That might change during
+                // integration testing
+                fun method1():MyGeneric<MyType> = TODO()
+                fun method2(items: MyGeneric<in MyType>): MyType = TODO()
+                fun method3(items: MyGeneric<out MyType>): MyType = TODO()
+                fun method4(items: MyGeneric<MyType>): MyType = TODO()
+                fun method5(): MyGeneric<out MyType> = TODO()
+                fun method6(): MyGeneric<in MyType> = TODO()
+                fun method7(): MyGeneric<MyType> = TODO()
+                fun method8(): MyGeneric<*> = TODO()
+            }
+        """.trimIndent()
+        )
+        // methodName -> returnType, ...paramTypes
+        val golden = mutableMapOf<String, List<TypeName>>()
+        runKaptTest(
+            sources = listOf(src),
+            succeed = true
+        ) { invocation ->
+            val env = (invocation.processingEnv as JavacProcessingEnv)
+            val subject = env.delegate.elementUtils.getTypeElement("Subject")
+            ElementFilter.methodsIn(subject.enclosedElements).map { method ->
+                val types = listOf(method.returnType.safeTypeName()) +
+                        method.parameters.map {
+                            it.asType().safeTypeName()
+                        }
+                golden[method.simpleName.toString()] = types
+            }
+        }
+        val kspResults = mutableMapOf<String, List<TypeName>>()
+        runKspTest(
+            sources = listOf(src),
+            succeed = true
+        ) { invocation ->
+            val env = (invocation.processingEnv as KspProcessingEnv)
+            val subject = env.resolver.requireClass("Subject")
+            subject.getDeclaredFunctions().forEach { method ->
+                val types = listOf(method.returnType.typeName()) +
+                        method.parameters.map {
+                            it.type.typeName()
+                        }
+                kspResults[method.simpleName.asString()] = types
+            }
+        }
+        // make sure we grabbed some values to ensure test is working
+        assertThat(golden).isNotEmpty()
+        assertThat(golden).containsExactlyEntriesIn(kspResults)
     }
 
     private fun runTest(

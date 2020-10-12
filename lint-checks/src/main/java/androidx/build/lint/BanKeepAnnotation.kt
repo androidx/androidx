@@ -32,8 +32,10 @@ import org.jetbrains.uast.UElement
 class BanKeepAnnotation : Detector(), Detector.UastScanner {
 
     override fun applicableAnnotations(): List<String>? {
-        return listOf("android.support.annotation.Keep",
-                "androidx.annotation.Keep")
+        return listOf(
+            "android.support.annotation.Keep",
+            "androidx.annotation.Keep"
+        )
     }
 
     override fun visitAnnotationUsage(
@@ -48,16 +50,21 @@ class BanKeepAnnotation : Detector(), Detector.UastScanner {
         allClassAnnotations: List<UAnnotation>,
         allPackageAnnotations: List<UAnnotation>
     ) {
-        context.report(ISSUE, annotation, context.getNameLocation(annotation), "Uses @Keep" +
-                " annotation")
+        context.report(
+            ISSUE, annotation, context.getNameLocation(annotation),
+            "Uses @Keep" +
+                " annotation"
+        )
     }
 
     companion object {
-        val ISSUE = Issue.create("BanKeepAnnotation",
-                "Uses @Keep annotation",
-                "Use of @Keep annotation is not allowed, please use a conditional " +
-                        "keep rule in proguard-rules.pro.",
-                Category.CORRECTNESS, 5, Severity.ERROR,
-                Implementation(BanKeepAnnotation::class.java, Scope.JAVA_FILE_SCOPE))
+        val ISSUE = Issue.create(
+            "BanKeepAnnotation",
+            "Uses @Keep annotation",
+            "Use of @Keep annotation is not allowed, please use a conditional " +
+                "keep rule in proguard-rules.pro.",
+            Category.CORRECTNESS, 5, Severity.ERROR,
+            Implementation(BanKeepAnnotation::class.java, Scope.JAVA_FILE_SCOPE)
+        )
     }
 }

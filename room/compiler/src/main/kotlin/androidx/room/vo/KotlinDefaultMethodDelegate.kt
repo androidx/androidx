@@ -23,6 +23,6 @@ import androidx.room.compiler.processing.XMethodElement
  * in a Kotlin interface.
  */
 data class KotlinDefaultMethodDelegate(
-    val element: XMethodElement,
-    val delegateElement: XMethodElement
+    // the original element, not the stub that is generated for DefaultImpls
+    val element: XMethodElement
 )

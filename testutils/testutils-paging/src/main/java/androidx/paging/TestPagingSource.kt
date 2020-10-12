@@ -38,7 +38,7 @@ class TestPagingSource(
         if (!counted) {
             throw NotImplementedError(
                 "TODO: Implement this for uncounted case, and add " +
-                        "appropriate test cases to PageFetcher, Pager, and PagerState."
+                    "appropriate test cases to PageFetcher, Pager, and PagerState."
             )
         }
     }

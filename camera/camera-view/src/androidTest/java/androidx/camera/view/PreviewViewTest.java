@@ -34,6 +34,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
@@ -57,6 +58,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.SurfaceFormatUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -77,6 +79,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -97,6 +100,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PreviewViewTest {
 
     private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
+    private static final Rect DEFAULT_CROP_RECT = new Rect(0, 0, 640, 480);
+    private static final Rect SMALLER_CROP_RECT = new Rect(20, 20, 600, 400);
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -104,7 +109,7 @@ public class PreviewViewTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     @Rule
     public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
-            FakeActivity.class);
+            FakeActivity.class, false, false);
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
@@ -127,6 +132,12 @@ public class PreviewViewTest {
         SurfaceRequest surfaceRequest = new SurfaceRequest(size, fakeCamera, isRGBA8888Required);
         mSurfaceRequestList.add(surfaceRequest);
         return surfaceRequest;
+    }
+
+    @Before
+    public void setUp() {
+        CoreAppTestUtil.clearDeviceUI(mInstrumentation);
+        mActivityRule.launchActivity(null);
     }
 
     @After
@@ -160,7 +171,7 @@ public class PreviewViewTest {
                 android.os.Build.MODEL.contains("Cuttlefish"));
 
         // Arrange.
-        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         Semaphore semaphore = new Semaphore(0);
         CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
             @Override
@@ -178,14 +189,15 @@ public class PreviewViewTest {
             PreviewView previewView = new PreviewView(mContext);
             previewView.setController(fakeController);
             previewView.setImplementationMode(COMPATIBLE);
-            previewViewReference.set(previewView);
+            notifyLatchWhenLayoutReady(previewView, countDownLatch);
             setContentView(previewView);
         });
-        waitForLayoutReady(previewViewReference.get());
+        // Wait for layout ready
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-        // Act: pinch-in 50% in 20 steps.
+        // Act: pinch-in 80% in 100 steps.
         UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0))
-                .pinchIn(50, 20);
+                .pinchIn(80, 100);
 
         // Assert: pinch-to-zoom is called.
         assertThat(semaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
@@ -195,7 +207,7 @@ public class PreviewViewTest {
     public void previewViewClicked_tapToFocusInvokedOnController()
             throws InterruptedException, UiObjectNotFoundException {
         // Arrange.
-        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         Semaphore semaphore = new Semaphore(0);
         CameraController fakeController = new CameraController(mInstrumentation.getContext()) {
             @Override
@@ -212,10 +224,11 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             PreviewView previewView = new PreviewView(mContext);
             previewView.setController(fakeController);
-            previewViewReference.set(previewView);
+            notifyLatchWhenLayoutReady(previewView, countDownLatch);
             setContentView(previewView);
         });
-        waitForLayoutReady(previewViewReference.get());
+        // Wait for layout ready
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView
         UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
@@ -229,14 +242,15 @@ public class PreviewViewTest {
             throws InterruptedException, UiObjectNotFoundException {
         // Arrange.
         Semaphore semaphore = new Semaphore(0);
-        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         mInstrumentation.runOnMainSync(() -> {
             PreviewView previewView = new PreviewView(mContext);
             previewView.setOnClickListener(view -> semaphore.release());
-            previewViewReference.set(previewView);
+            notifyLatchWhenLayoutReady(previewView, countDownLatch);
             setContentView(previewView);
         });
-        waitForLayoutReady(previewViewReference.get());
+        // Wait for layout ready
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
         // Act: click on PreviewView.
         UiDevice.getInstance(mInstrumentation).findObject(new UiSelector().index(0)).click();
@@ -393,14 +407,18 @@ public class PreviewViewTest {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         mInstrumentation.runOnMainSync(() -> {
             mPreviewView = new PreviewView(mContext);
+            notifyLatchWhenLayoutReady(mPreviewView, countDownLatch);
             setContentView(mPreviewView);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
+        // Wait for layout ready
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
 
-        waitForLayoutReady(mPreviewView);
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
         MeteringPoint point = factory.createPoint(100, 100);
@@ -425,12 +443,12 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         changeViewSize(mPreviewView, 1000, 1000);
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
         changeViewSize(mPreviewView, 500, 400);
-
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
@@ -473,13 +491,17 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
+
         // Surface resolution is 640x480 , set a different size for PreviewView.
         changeViewSize(mPreviewView, 800, 700);
 
-        mPreviewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+        mInstrumentation.runOnMainSync(
+                () -> mPreviewView.setScaleType(PreviewView.ScaleType.FILL_CENTER));
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
-        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START);
+        mInstrumentation.runOnMainSync(
+                () -> mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START));
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
@@ -489,7 +511,7 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void meteringPointFactoryAutoAdjusted_whenSurfaceRequestChanged() throws Exception {
+    public void meteringPointFactoryAutoAdjusted_whenTransformationInfoChanged() throws Exception {
         final CameraInfo cameraInfo1 = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
         final CameraInfo cameraInfo2 = createCameraInfo(270,
@@ -504,6 +526,7 @@ public class PreviewViewTest {
         });
 
         changeViewSize(mPreviewView, 1000, 1000);
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         // get a MeteringPoint from a non-center point.
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 120);
@@ -513,6 +536,7 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo2));
         });
+        updateCropRectAndWaitForIdle(SMALLER_CROP_RECT);
 
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 120);
 
@@ -526,8 +550,8 @@ public class PreviewViewTest {
         assertThat(point1.getX() != point2.getX() || point1.getY() != point2.getY()).isTrue();
     }
 
-    private void waitForLayoutReady(PreviewView previewView) throws InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+    private void notifyLatchWhenLayoutReady(PreviewView previewView,
+            CountDownLatch countDownLatch) {
         previewView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
@@ -539,7 +563,6 @@ public class PreviewViewTest {
                 }
             }
         });
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
@@ -754,6 +777,14 @@ public class PreviewViewTest {
 
     private void setContentView(View view) {
         mActivityRule.getActivity().setContentView(view);
+    }
+
+    private void updateCropRectAndWaitForIdle(Rect cropRect) {
+        for (SurfaceRequest surfaceRequest : mSurfaceRequestList) {
+            surfaceRequest.updateTransformationInfo(
+                    SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0));
+        }
+        mInstrumentation.waitForIdleSync();
     }
 
     /**

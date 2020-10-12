@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.onGloballyPositioned
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy
@@ -74,7 +74,7 @@ class TimeOutTest {
         Box {
             val infiniteCounter = remember { mutableStateOf(0) }
             Box(
-                Modifier.onPositioned {
+                Modifier.onGloballyPositioned {
                     infiniteCounter.value += 1
                 }
             ) {

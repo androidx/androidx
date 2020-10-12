@@ -88,7 +88,7 @@ internal class CompositionAwaiter {
 
     @OptIn(ExperimentalComposeApi::class)
     private fun isIdle(): Boolean {
-        return !Snapshot.current.hasPendingChanges() && !Recomposer.current().hasPendingChanges()
+        return !Snapshot.current.hasPendingChanges() && !Recomposer.current().hasInvalidations()
     }
 
     private val callback = object : Runnable, Choreographer.FrameCallback {

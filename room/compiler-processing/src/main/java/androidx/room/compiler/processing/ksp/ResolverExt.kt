@@ -25,3 +25,5 @@ internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
 internal fun Resolver.requireClass(qName: String) = checkNotNull(findClass(qName)) {
     "cannot find class $qName"
 }
+
+internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutines.Continuation")

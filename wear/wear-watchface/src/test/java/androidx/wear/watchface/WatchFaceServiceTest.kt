@@ -32,12 +32,12 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
-import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
@@ -46,6 +46,8 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -106,7 +108,7 @@ class WatchFaceServiceTest {
         "Watchface colorization", /* icon = */
         null,
         colorStyleList,
-        UserStyleCategory.LAYER_WATCH_FACE_BASE
+        listOf(Layer.BASE_LAYER)
     )
 
     private val classicStyleOption =
@@ -127,7 +129,7 @@ class WatchFaceServiceTest {
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
-        UserStyleCategory.LAYER_WATCH_FACE_UPPER
+        listOf(Layer.TOP_LAYER)
     )
 
     private val badStyleOption =
@@ -136,7 +138,7 @@ class WatchFaceServiceTest {
     private val leftComplication =
         Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
@@ -157,7 +159,7 @@ class WatchFaceServiceTest {
     private val rightComplication =
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
@@ -178,7 +180,7 @@ class WatchFaceServiceTest {
     private val backgroundComplication =
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
@@ -219,7 +221,9 @@ class WatchFaceServiceTest {
         @WatchFaceType watchFaceType: Int,
         complications: List<Complication>,
         userStyleCategories: List<UserStyleCategory>,
-        apiVersion: Int = 2
+        apiVersion: Int = 2,
+        hasLowBitAmbient: Boolean = false,
+        hasBurnInProtection: Boolean = false
     ) {
         this.complicationsManager = ComplicationsManager(complications)
         userStyleRepository =
@@ -236,9 +240,13 @@ class WatchFaceServiceTest {
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
-        // Trigger watch face creation.
+
+        // Trigger watch face creation by sending the SurfceHolder, setting the binder and the
+        // immutable properties.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion)
+        sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
+
         watchFace = testWatchFaceService.watchFace
     }
 
@@ -257,6 +265,17 @@ class WatchFaceServiceTest {
             },
             false
         )
+    }
+
+    private fun sendImmutableProperties(
+        engine: WatchFaceService.EngineWrapper,
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean
+    ) {
+        engine.onPropertiesChanged(Bundle().apply {
+            putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
+            putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
+        })
     }
 
     private fun sendRequestStyle() {
@@ -305,34 +324,34 @@ class WatchFaceServiceTest {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
         watchState.isAmbient.value = false
 
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = false
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_NONE
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.MUTE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
 
         // Ambient takes precidence over interruption filter.
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
         watchState.interruptionFilter.value = 0
         watchFace.maybeUpdateDrawMode()
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
     }
 
     @Test
@@ -733,7 +752,7 @@ class WatchFaceServiceTest {
     @Test
     fun getStoredUserStyleNotSupported_userStyle_isPersisted() {
         // The style should get persisted in a file because the API is old and
-        // {@link WatchFaceHostApi#getStoredUserStyle} returns null.
+        // [WatchFaceHostApi.getStoredUserStyle] returns null.
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(null)
 
         initEngine(
@@ -744,10 +763,12 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(hashMapOf(
-            colorStyleCategory to blueStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        userStyleRepository.userStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to blueStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -769,12 +790,13 @@ class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
+        sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
-            blueStyleOption
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
+            blueStyleOption.id
         )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
-            gothicStyleOption
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
+            gothicStyleOption.id
         )
     }
 
@@ -800,10 +822,12 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(hashMapOf(
-            colorStyleCategory to blueStyleOption,
-            watchHandStyleCategory to gothicStyleOption
-        ))
+        userStyleRepository.userStyle = UserStyle(
+            hashMapOf(
+                colorStyleCategory to blueStyleOption,
+                watchHandStyleCategory to gothicStyleOption
+            )
+        )
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -825,12 +849,13 @@ class WatchFaceServiceTest {
         val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 3)
+        sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
-            blueStyleOption
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
+            blueStyleOption.id
         )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
-            gothicStyleOption
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
+            gothicStyleOption.id
         )
     }
 
@@ -870,12 +895,12 @@ class WatchFaceServiceTest {
         val isInTheaterModeObserver = mock<Observer<Boolean>>()
         val isGpsActiveObserver = mock<Observer<Boolean>>()
         val isKeyguardLockedObserver = mock<Observer<Boolean>>()
-        watchState.isCharging.observe(isChargingObserver)
-        watchState.inAirplaneMode.observe(inAirplaneModeObserver)
-        watchState.isConnectedToCompanion.observe(isConnectedToCompanionObserver)
-        watchState.isInTheaterMode.observe(isInTheaterModeObserver)
-        watchState.isGpsActive.observe(isGpsActiveObserver)
-        watchState.isKeyguardLocked.observe(isKeyguardLockedObserver)
+        watchState.isCharging.addObserver(isChargingObserver)
+        watchState.inAirplaneMode.addObserver(inAirplaneModeObserver)
+        watchState.isConnectedToCompanion.addObserver(isConnectedToCompanionObserver)
+        watchState.isInTheaterMode.addObserver(isInTheaterModeObserver)
+        watchState.isGpsActive.addObserver(isGpsActiveObserver)
+        watchState.isKeyguardLocked.addObserver(isKeyguardLockedObserver)
 
         // Every indicator onXyz method should be called upon the initial update.
         engineWrapper.onBackgroundAction(Bundle().apply {
@@ -910,22 +935,19 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun onPropertiesChanged_issuesCorrectApiCalls() {
-        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList())
-        val bundle = Bundle().apply {
-            putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, true)
-            putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, false)
-        }
+    fun immutablePropertiesSetCorrectly() {
+        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, true, false)
 
-        val hasLowBitAmbientObserver = mock<Observer<Boolean>>()
-        val hasBurnInProtectionObserver = mock<Observer<Boolean>>()
-        watchState.hasLowBitAmbient.observe(hasLowBitAmbientObserver)
-        watchState.hasBurnInProtection.observe(hasBurnInProtectionObserver)
+        assertTrue(watchState.hasLowBitAmbient)
+        assertFalse(watchState.hasBurnInProtection)
+    }
 
-        // Check all the right methods are called on initial onPropertiesChanged call.
-        engineWrapper.onPropertiesChanged(bundle)
-        verify(hasLowBitAmbientObserver).onChanged(true)
-        verify(hasBurnInProtectionObserver).onChanged(false)
+    @Test
+    fun immutablePropertiesSetCorrectly2() {
+        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, false, true)
+
+        assertFalse(watchState.hasLowBitAmbient)
+        assertTrue(watchState.hasBurnInProtection)
     }
 
     @Test
@@ -1032,15 +1054,19 @@ class WatchFaceServiceTest {
 
         assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
-            Rect(30, 30, 50, 50))
+            Rect(30, 30, 50, 50)
+        )
 
         assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
-            Rect(70, 75, 90, 95))
+            Rect(70, 75, 90, 95)
+        )
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
@@ -1110,6 +1136,7 @@ class WatchFaceServiceTest {
         // Trigger watch face creation.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
+        sendImmutableProperties(engineWrapper, false, false)
         watchFace = service.watchFace
 
         val argument = ArgumentCaptor.forClass(WatchFaceStyle::class.java)
@@ -1122,7 +1149,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
+            CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
@@ -1147,7 +1174,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
+            CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
@@ -1185,7 +1212,7 @@ class WatchFaceServiceTest {
     fun setComplicationDetails_called() {
         initEngine(
             WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
+            listOf(leftComplication, rightComplication, backgroundComplication),
             emptyList(),
             apiVersion = 4
         )
@@ -1194,21 +1221,54 @@ class WatchFaceServiceTest {
 
         val complicationId = ArgumentCaptor.forClass(Int::class.java)
         val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
-        verify(iWatchFaceService, times(2)).setComplicationDetails(
+        verify(iWatchFaceService, times(3)).setComplicationDetails(
             complicationId.capture(), complicationDetails.capture()
         )
 
         assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
-            Rect(20, 40, 40, 60))
+            Rect(20, 40, 40, 60)
+        )
+        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
 
         assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
-            ComplicationBoundsType.ROUND_RECT)
+            ComplicationBoundsType.ROUND_RECT
+        )
         assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
-            Rect(60, 40, 80, 60))
+            Rect(60, 40, 80, 60)
+        )
+        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
+
+        assertThat(complicationId.allValues[2]).isEqualTo(BACKGROUND_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[2].boundsType).isEqualTo(
+            ComplicationBoundsType.BACKGROUND
+        )
+        assertThat(complicationDetails.allValues[2].bounds).isEqualTo(
+            Rect(0, 0, 100, 100)
+        )
+        assertThat(complicationDetails.allValues[2].supportedTypes).isEqualTo(
+            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
+        )
     }
 
     @Test
@@ -1236,53 +1296,17 @@ class WatchFaceServiceTest {
         // Trigger watch face creation.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
+        sendImmutableProperties(engineWrapper, false, false)
         watchFace = service.watchFace
 
         // Enter ambient mode.
         watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
-        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+        assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         // Simulate enter ambient animation finishing.
         testRenderer.animate = false
         watchFace.maybeUpdateDrawMode()
-        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
-    }
-
-    @Test
-    fun setComplicationSupportedTypes_called() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication, backgroundComplication),
-            emptyList(),
-            apiVersion = 4
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            LEFT_COMPLICATION_ID,
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
-            )
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            RIGHT_COMPLICATION_ID,
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
-            )
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            BACKGROUND_COMPLICATION_ID,
-            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
-        )
+        assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
     }
 }

@@ -31,6 +31,7 @@ dependencies {
     api(project(":navigation:navigation-runtime-ktx"))
 
     androidTestImplementation(project(":internal-testutils-navigation"))
+    androidTestImplementation(project(":navigation:navigation-fragment-ktx"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_TRUTH)

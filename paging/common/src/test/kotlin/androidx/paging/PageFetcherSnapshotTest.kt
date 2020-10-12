@@ -3032,6 +3032,56 @@ class PageFetcherSnapshotTest {
 
         runBlocking { deferred.await() }
     }
+
+    @Test
+    fun generationalViewportHint_shouldPrioritizeOver_presenterUpdates() {
+        val prependHint = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = -10,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+        val prependHintWithPresenterUpdate = GenerationalViewportHint(
+            generationId = 0, hint = ViewportHint(
+                pageOffset = -10,
+                indexInPage = 0,
+                presentedItemsBefore = -5,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = -10,
+                originalPageOffsetLast = 0
+            )
+        )
+        assertTrue { prependHintWithPresenterUpdate.shouldPrioritizeOver(prependHint, PREPEND) }
+
+        val appendHint = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 0,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = -10,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+        val appendHintWithPresenterUpdate = GenerationalViewportHint(
+            generationId = 0,
+            hint = ViewportHint(
+                pageOffset = 10,
+                indexInPage = 0,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = -5,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 10
+            )
+        )
+        assertTrue { appendHintWithPresenterUpdate.shouldPrioritizeOver(appendHint, APPEND) }
+    }
 }
 
 internal class CollectedPageEvents<T : Any>(val pageEvents: ArrayList<PageEvent<T>>) {

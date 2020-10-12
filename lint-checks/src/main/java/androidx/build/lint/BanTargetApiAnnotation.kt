@@ -38,18 +38,22 @@ class BanTargetApiAnnotation : Detector(), Detector.UastScanner {
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
             if (node.qualifiedName == "android.annotation.TargetApi") {
-                context.report(ISSUE, node, context.getNameLocation(node),
-                    "Uses @TargetApi annotation")
+                context.report(
+                    ISSUE, node, context.getNameLocation(node),
+                    "Uses @TargetApi annotation"
+                )
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create("BanTargetApiAnnotation",
-                "Uses @TargetApi annotation",
-                "Use of @TargetApi annotation is not allowed, please consider " +
-                        "using the @RequiresApi annotation instead.",
-                Category.CORRECTNESS, 5, Severity.ERROR,
-                Implementation(BanTargetApiAnnotation::class.java, Scope.JAVA_FILE_SCOPE))
+        val ISSUE = Issue.create(
+            "BanTargetApiAnnotation",
+            "Uses @TargetApi annotation",
+            "Use of @TargetApi annotation is not allowed, please consider " +
+                "using the @RequiresApi annotation instead.",
+            Category.CORRECTNESS, 5, Severity.ERROR,
+            Implementation(BanTargetApiAnnotation::class.java, Scope.JAVA_FILE_SCOPE)
+        )
     }
 }

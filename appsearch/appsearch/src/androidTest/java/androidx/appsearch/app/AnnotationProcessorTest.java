@@ -41,12 +41,12 @@ public class AnnotationProcessorTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).getResultValue();
+        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
         mAppSearchManager = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb").setBackend(backend).build());
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().getResultValue();
+        backend.resetAllDatabases().get().getResultValue();
     }
 
     @AppSearchDocument
@@ -159,9 +159,7 @@ public class AnnotationProcessorTest {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @AppSearchDocument annotation
         checkIsResultSuccess(mAppSearchManager.setSchema(
-                new AppSearchManager.SetSchemaRequest.Builder()
-                        .addDataClass(Gift.class)
-                        .build()));
+                new SetSchemaRequest.Builder().addDataClass(Gift.class).build()));
 
         // Create a Gift object and assign values.
         Gift inputDataClass = new Gift();
@@ -212,8 +210,7 @@ public class AnnotationProcessorTest {
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mAppSearchManager.putDocuments(
-                new AppSearchManager.PutDocumentsRequest.Builder()
-                        .addDataClass(inputDataClass).build()));
+                new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
         List<GenericDocument> searchResults = doQuery(mAppSearchManager, "");
         assertThat(searchResults).hasSize(1);
 

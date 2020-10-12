@@ -24,35 +24,11 @@ import org.junit.Test;
 
 public class LocalBackendTest {
     @Test
-    public void testSameInstance() {
+    public void testSameInstance() throws Exception {
         LocalBackend b1 = LocalBackend.getInstance(ApplicationProvider.getApplicationContext())
-                .getResultValue();
+                .get().getResultValue();
         LocalBackend b2 = LocalBackend.getInstance(ApplicationProvider.getApplicationContext())
-                .getResultValue();
+                .get().getResultValue();
         assertThat(b1).isSameInstanceAs(b2);
-    }
-
-    @Test
-    public void testInitBlocking() {
-        LocalBackend backend = LocalBackend.getInstance(ApplicationProvider.getApplicationContext())
-                .getResultValue();
-        assertThat(backend.isInitialized()).isFalse();
-        Thread t = new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            backend.initialize().getResultValue();
-        });
-        t.setDaemon(true);
-        t.setName("startInit");
-        long startNs = System.nanoTime();
-        t.start();
-        backend.removeAll("db").getResultValue();
-        long endNs = System.nanoTime();
-        long elapsedMs = (endNs - startNs) / 1000 / 1000;
-        assertThat(elapsedMs).isAtLeast(1000);
-        assertThat(backend.isInitialized()).isTrue();
     }
 }

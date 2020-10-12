@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.core.animation {
 
   public class AccelerateDecelerateInterpolator implements androidx.core.animation.Interpolator {

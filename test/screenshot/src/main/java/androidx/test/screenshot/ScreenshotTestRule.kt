@@ -111,8 +111,10 @@ open class ScreenshotTestRule(
         override fun evaluate() {
             // We currently only support Cuttlefish API 29 because of the storage access.
             Assume.assumeTrue("Requires Cuttlefish", Build.MODEL.contains("Cuttlefish"))
-            Assume.assumeTrue("Requires SDK 29.",
-                Build.VERSION.SDK_INT == 29 && !BuildCompat.isAtLeastR())
+            Assume.assumeTrue(
+                "Requires SDK 29.",
+                Build.VERSION.SDK_INT == 29 && !BuildCompat.isAtLeastR()
+            )
             base.evaluate()
         }
     }
@@ -168,7 +170,8 @@ open class ScreenshotTestRule(
         if (!goldenIdentifier.matches("^[A-Za-z0-9_-]+$".toRegex())) {
             throw IllegalArgumentException(
                 "The given golden identifier '$goldenIdentifier' does not satisfy the naming " +
-                        "requirement. Allowed characters are: '[A-Za-z0-9_-]'")
+                    "requirement. Allowed characters are: '[A-Za-z0-9_-]'"
+            )
         }
 
         val expected = fetchExpectedImage(goldenIdentifier)
@@ -178,9 +181,11 @@ open class ScreenshotTestRule(
                 goldenIdentifier = goldenIdentifier,
                 actual = actual
             )
-            throw AssertionError("Missing golden image " +
+            throw AssertionError(
+                "Missing golden image " +
                     "'${goldenIdentifierResolver(goldenIdentifier)}'. " +
-                    "Did you mean to check in a new image?")
+                    "Did you mean to check in a new image?"
+            )
         }
 
         if (actual.width != expected.width || actual.height != expected.height) {
@@ -190,8 +195,10 @@ open class ScreenshotTestRule(
                 actual = actual,
                 expected = expected
             )
-            throw AssertionError("Sizes are different! Expected: [${expected.width}, ${expected
-                .height}], Actual: [${actual.width}, ${actual.height}]")
+            throw AssertionError(
+                "Sizes are different! Expected: [${expected.width}, ${expected
+                    .height}], Actual: [${actual.width}, ${actual.height}]"
+            )
         }
 
         val comparisonResult = matcher.compareBitmaps(
@@ -217,8 +224,10 @@ open class ScreenshotTestRule(
         )
 
         if (!comparisonResult.matches) {
-            throw AssertionError("Image mismatch! Comparison stats: '${comparisonResult
-                .comparisonStatistics}'")
+            throw AssertionError(
+                "Image mismatch! Comparison stats: '${comparisonResult
+                    .comparisonStatistics}'"
+            )
         }
     }
 
@@ -276,22 +285,24 @@ open class ScreenshotTestRule(
     }
 
     private fun writeToDevice(fileType: OutputFileType, writeAction: (FileOutputStream) -> Unit):
-            String {
-        if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
-            throw IOException("Could not create folder.")
-        }
-
-        var file = getPathOnDeviceFor(fileType)
-        try {
-            FileOutputStream(file).use {
-                writeAction(it)
+        String {
+            if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
+                throw IOException("Could not create folder.")
             }
-        } catch (e: Exception) {
-            throw IOException("Could not write file to storage (path: ${file.absolutePath}). " +
-                    " Stacktrace: " + e.stackTrace)
+
+            var file = getPathOnDeviceFor(fileType)
+            try {
+                FileOutputStream(file).use {
+                    writeAction(it)
+                }
+            } catch (e: Exception) {
+                throw IOException(
+                    "Could not write file to storage (path: ${file.absolutePath}). " +
+                        " Stacktrace: " + e.stackTrace
+                )
+            }
+            return file.name
         }
-        return file.name
-    }
 
     private fun getDeviceModel(): String {
         var model = android.os.Build.MODEL.toLowerCase()

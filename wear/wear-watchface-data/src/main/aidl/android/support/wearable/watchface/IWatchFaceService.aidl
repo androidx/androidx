@@ -33,7 +33,7 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 interface IWatchFaceService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 15
+    // Next Id: 14
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -101,7 +101,7 @@ interface IWatchFaceService {
     int getApiVersion() = 7;
 
     /**
-      * Updates the {@link ComplicationDetails}  associated with a complication slot.
+      * Updates the {@link ComplicationDetails} associated with a complication slot.
       *
       * @since API version 3.
       * @param id The complication id
@@ -110,20 +110,13 @@ interface IWatchFaceService {
     void setComplicationDetails(int id, in ComplicationDetails complicationDetails) = 8;
 
     /**
-     * Updates the supported types for a complication, required for remote configuration.
-     *
-     * @since API version 3.
-     */
-    void setComplicationSupportedTypes(in int id, in int[] types) = 9;
-
-    /**
       * Registers the user style schema which the companion will use to construct the style
       * configuration UI.
       *
       * @since API version 3.
       * @param styleSchema A {@link StyleSchemaWireFormat}.
       */
-    void registerUserStyleSchema(in UserStyleSchemaWireFormat styleSchema) = 10;
+    void registerUserStyleSchema(in UserStyleSchemaWireFormat styleSchema) = 9;
 
     /**
      * Called when the user selects the user style for the watch. For some types of UI widget,
@@ -133,7 +126,7 @@ interface IWatchFaceService {
      * @since API version 3.
      * @param style A {@link UserStyleWireFormat}.
      */
-    void setCurrentUserStyle(in UserStyleWireFormat style) = 11;
+    void setCurrentUserStyle(in UserStyleWireFormat style) = 10;
 
     /**
      * Returns the user style (set by {@link #setCurrentUserStyle} if there is one or null
@@ -141,7 +134,7 @@ interface IWatchFaceService {
      *
      * @since API version 3.
      */
-    UserStyleWireFormat getStoredUserStyle() = 12;
+    UserStyleWireFormat getStoredUserStyle() = 11;
 
     /**
      * Registers whether the watch face is digital or analog with the system.
@@ -150,7 +143,7 @@ interface IWatchFaceService {
      * @param watchFaceType The {@link WatchFaceType} which describes whether the watch face is
      *     digital or analog
      */
-    void registerWatchFaceType(int watchFaceType) = 13;
+    void registerWatchFaceType(int watchFaceType) = 12;
 
     /**
      * Registers the {@link IWatchFaceCommand} with the system. This is a cleaner alternative to the
@@ -158,5 +151,5 @@ interface IWatchFaceService {
      *
      * @since API version 3.
      */
-    void registerIWatchFaceCommand(in Bundle bundle) = 14;
+    void registerIWatchFaceCommand(in Bundle bundle) = 13;
 }

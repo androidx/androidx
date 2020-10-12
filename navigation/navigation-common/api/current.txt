@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation {
 
   public final class ActionOnlyNavDirections implements androidx.navigation.NavDirections {

@@ -19,6 +19,7 @@ package androidx.camera.testing.fakes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
@@ -30,7 +31,11 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
     @Nullable
     @Override
+    @SuppressWarnings("unchecked") // Ok to cast FakeUseCaseConfig since we know the type
     public <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType) {
+        if (configType.equals(FakeUseCaseConfig.class)) {
+            return (C) new FakeUseCaseConfig(MutableOptionsBundle.create());
+        }
         return null;
     }
 }

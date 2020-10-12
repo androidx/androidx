@@ -24,16 +24,20 @@ import androidx.fragment.app.FragmentFactory
 import androidx.fragment.testing.R
 import androidx.lifecycle.Lifecycle
 
-@Deprecated("Superseded by launchFragment that takes an initialState",
-    level = DeprecationLevel.HIDDEN) // Binary API compatibility.
+@Deprecated(
+    "Superseded by launchFragment that takes an initialState",
+    level = DeprecationLevel.HIDDEN
+) // Binary API compatibility.
 inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
 ) = launchFragment<F>(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
-@Deprecated("Superseded by launchFragment that takes an initialState",
-    level = DeprecationLevel.HIDDEN) // Binary API compatibility.
+@Deprecated(
+    "Superseded by launchFragment that takes an initialState",
+    level = DeprecationLevel.HIDDEN
+) // Binary API compatibility.
 inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
@@ -42,16 +46,20 @@ inline fun <reified F : Fragment> launchFragment(
     instantiate()
 }
 
-@Deprecated("Superseded by launchFragmentInContainer that takes an initialState",
-    level = DeprecationLevel.HIDDEN) // Binary API compatibility.
+@Deprecated(
+    "Superseded by launchFragmentInContainer that takes an initialState",
+    level = DeprecationLevel.HIDDEN
+) // Binary API compatibility.
 inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
 ) = launchFragmentInContainer<F>(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
-@Deprecated("Superseded by launchFragmentInContainer that takes an initialState",
-    level = DeprecationLevel.HIDDEN) // Binary API compatibility.
+@Deprecated(
+    "Superseded by launchFragmentInContainer that takes an initialState",
+    level = DeprecationLevel.HIDDEN
+) // Binary API compatibility.
 inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
@@ -96,7 +104,8 @@ inline fun <reified F : Fragment> launchFragment(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-) = FragmentScenario.launch(F::class.java, fragmentArgs, themeResId, initialState,
+) = FragmentScenario.launch(
+    F::class.java, fragmentArgs, themeResId, initialState,
     object : FragmentFactory() {
         override fun instantiate(
             classLoader: ClassLoader,
@@ -105,7 +114,8 @@ inline fun <reified F : Fragment> launchFragment(
             F::class.java.name -> instantiate()
             else -> super.instantiate(classLoader, className)
         }
-    })
+    }
+)
 
 /**
  * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
@@ -124,8 +134,10 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     factory: FragmentFactory? = null
-) = FragmentScenario.launchInContainer(F::class.java, fragmentArgs, themeResId, initialState,
-    factory)
+) = FragmentScenario.launchInContainer(
+    F::class.java, fragmentArgs, themeResId, initialState,
+    factory
+)
 
 /**
  * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
@@ -147,7 +159,8 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-) = FragmentScenario.launchInContainer(F::class.java, fragmentArgs, themeResId, initialState,
+) = FragmentScenario.launchInContainer(
+    F::class.java, fragmentArgs, themeResId, initialState,
     object : FragmentFactory() {
         override fun instantiate(
             classLoader: ClassLoader,
@@ -156,7 +169,8 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
             F::class.java.name -> instantiate()
             else -> super.instantiate(classLoader, className)
         }
-    })
+    }
+)
 
 /**
  * Run [block] using [FragmentScenario.onFragment], returning the result of the [block].

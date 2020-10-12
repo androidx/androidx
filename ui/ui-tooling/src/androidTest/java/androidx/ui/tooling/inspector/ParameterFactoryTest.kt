@@ -28,6 +28,9 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +46,7 @@ import androidx.compose.ui.graphics.colorspace.ColorModel
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -71,11 +75,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@ExperimentalLayoutNodeApi
 @SmallTest
 @RunWith(JUnit4::class)
 class ParameterFactoryTest {
     private val node = MutableInspectorNode()
-    private val factory = ParameterFactory()
+    private val factory = ParameterFactory(InlineClassConverter())
+    private val api = android.os.Build.VERSION.SDK_INT
 
     @Before
     fun before() {
@@ -168,18 +174,47 @@ class ParameterFactoryTest {
     fun testBorder() {
         validate(factory.create(node, "borderstroke", BorderStroke(2.0.dp, Color.Magenta))!!) {
             parameter("borderstroke", ParameterType.String, "BorderStroke") {
-                parameter("width", ParameterType.DimensionDp, 2.0f)
                 parameter("brush", ParameterType.Color, Color.Magenta.toArgb())
+                parameter("width", ParameterType.DimensionDp, 2.0f)
             }
         }
     }
 
     @Test
     fun testBrush() {
+        val preAPI26 = { api <= 26 }
+        val preAPI28 = { api <= 28 }
         assertThat(lookup(SolidColor(Color.Red)))
             .isEqualTo(ParameterType.Color to Color.Red.toArgb())
-        assertThat(lookup(LinearGradient(listOf(Color.Red, Color.Blue), 0.0f, 0.5f, 5.0f, 10.0f)))
-            .isEqualTo(ParameterType.String to "LinearGradient")
+        validate(factory.create(
+            node,
+            "brush",
+            LinearGradient(listOf(Color.Red, Color.Blue), 0.0f, 0.5f, 5.0f, 10.0f))!!
+        ) {
+            parameter("brush", ParameterType.String, "LinearGradient") {
+                parameter("colors", ParameterType.String, "") {
+                    parameter("0", ParameterType.Color, Color.Red.toArgb())
+                    parameter("1", ParameterType.Color, Color.Blue.toArgb())
+                }
+                parameter("endX", ParameterType.Float, 5.0f)
+                parameter("endY", ParameterType.Float, 10.0f)
+                parameter("shader", ParameterType.String, "LinearGradient") {
+                    parameter("mColor0", ParameterType.Int32, 0)
+                    parameter("mColor1", ParameterType.Int32, 0)
+                    optional("mColors", ParameterType.String, "IntArray", preAPI28)
+                    optional("mNativeInstance", ParameterType.Int64, 0L, preAPI26)
+                    parameter("mTileMode", ParameterType.String, "CLAMP")
+                    optional("mType", ParameterType.Int32, 1, preAPI26)
+                    parameter("mX0", ParameterType.Float, 0.0f)
+                    parameter("mX1", ParameterType.Float, 5.0f)
+                    parameter("mY0", ParameterType.Float, 0.5f)
+                    parameter("mY1", ParameterType.Float, 10.0f)
+                }
+                parameter("startX", ParameterType.Float, 0.0f)
+                parameter("startY", ParameterType.Float, 0.5f)
+                parameter("tileMode", ParameterType.String, "Clamp")
+            }
+        }
         // TODO: add tests for RadialGradient & ShaderBrush
     }
 
@@ -188,7 +223,7 @@ class ParameterFactoryTest {
         assertThat(lookup(Color.Blue)).isEqualTo(ParameterType.Color to 0xff0000ff.toInt())
         assertThat(lookup(Color.Red)).isEqualTo(ParameterType.Color to 0xffff0000.toInt())
         assertThat(lookup(Color.Transparent)).isEqualTo(ParameterType.Color to 0x00000000)
-        assertThat(lookup(Color.Unset)).isEqualTo(ParameterType.String to "Unset")
+        assertThat(lookup(Color.Unspecified)).isEqualTo(ParameterType.String to "Unspecified")
     }
 
     @Test
@@ -200,33 +235,33 @@ class ParameterFactoryTest {
             )!!
         ) {
             parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
-                parameter("topLeft", ParameterType.DimensionDp, 2.0f)
-                parameter("topRight", ParameterType.DimensionDp, 0.5f)
                 parameter("bottomLeft", ParameterType.DimensionDp, 0.7f)
                 parameter("bottomRight", ParameterType.DimensionDp, 2.5f)
+                parameter("topLeft", ParameterType.DimensionDp, 2.0f)
+                parameter("topRight", ParameterType.DimensionDp, 0.5f)
             }
         }
         validate(factory.create(node, "corner", CutCornerShape(2))!!) {
             parameter("corner", ParameterType.String, CutCornerShape::class.java.simpleName) {
-                parameter("topLeft", ParameterType.DimensionDp, 5.0f)
-                parameter("topRight", ParameterType.DimensionDp, 5.0f)
                 parameter("bottomLeft", ParameterType.DimensionDp, 5.0f)
                 parameter("bottomRight", ParameterType.DimensionDp, 5.0f)
+                parameter("topLeft", ParameterType.DimensionDp, 5.0f)
+                parameter("topRight", ParameterType.DimensionDp, 5.0f)
             }
         }
         validate(factory.create(node, "corner", RoundedCornerShape(1.0f, 10.0f, 2.0f, 3.5f))!!) {
             parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
-                parameter("topLeft", ParameterType.DimensionDp, 0.5f)
-                parameter("topRight", ParameterType.DimensionDp, 5.0f)
                 parameter("bottomLeft", ParameterType.DimensionDp, 1.75f)
                 parameter("bottomRight", ParameterType.DimensionDp, 1.0f)
+                parameter("topLeft", ParameterType.DimensionDp, 0.5f)
+                parameter("topRight", ParameterType.DimensionDp, 5.0f)
             }
         }
     }
 
     @Test
     fun testCornerSize() {
-        assertThat(lookup(ZeroCornerSize)).isEqualTo(ParameterType.DimensionDp to 0.0f)
+        assertThat(lookup(ZeroCornerSize)).isEqualTo(ParameterType.String to "ZeroCornerSize")
         assertThat(lookup(CornerSize(2.4.dp))).isEqualTo(ParameterType.DimensionDp to 2.4f)
         assertThat(lookup(CornerSize(2.4f))).isEqualTo(ParameterType.DimensionDp to 1.2f)
         assertThat(lookup(CornerSize(3))).isEqualTo(ParameterType.DimensionDp to 7.5f)
@@ -282,34 +317,34 @@ class ParameterFactoryTest {
 
     @Test
     fun testFontWeight() {
-        assertThat(lookup(FontWeight.Thin)).isEqualTo(ParameterType.String to "Thin")
-        assertThat(lookup(FontWeight.ExtraLight)).isEqualTo(ParameterType.String to "ExtraLight")
-        assertThat(lookup(FontWeight.Light)).isEqualTo(ParameterType.String to "Light")
-        assertThat(lookup(FontWeight.Normal)).isEqualTo(ParameterType.String to "Normal")
-        assertThat(lookup(FontWeight.Medium)).isEqualTo(ParameterType.String to "Medium")
-        assertThat(lookup(FontWeight.SemiBold)).isEqualTo(ParameterType.String to "SemiBold")
-        assertThat(lookup(FontWeight.Bold)).isEqualTo(ParameterType.String to "Bold")
-        assertThat(lookup(FontWeight.ExtraBold)).isEqualTo(ParameterType.String to "ExtraBold")
-        assertThat(lookup(FontWeight.Black)).isEqualTo(ParameterType.String to "Black")
-        assertThat(lookup(FontWeight.W100)).isEqualTo(ParameterType.String to "Thin")
-        assertThat(lookup(FontWeight.W200)).isEqualTo(ParameterType.String to "ExtraLight")
-        assertThat(lookup(FontWeight.W300)).isEqualTo(ParameterType.String to "Light")
-        assertThat(lookup(FontWeight.W400)).isEqualTo(ParameterType.String to "Normal")
-        assertThat(lookup(FontWeight.W500)).isEqualTo(ParameterType.String to "Medium")
-        assertThat(lookup(FontWeight.W600)).isEqualTo(ParameterType.String to "SemiBold")
-        assertThat(lookup(FontWeight.W700)).isEqualTo(ParameterType.String to "Bold")
-        assertThat(lookup(FontWeight.W800)).isEqualTo(ParameterType.String to "ExtraBold")
-        assertThat(lookup(FontWeight.W900)).isEqualTo(ParameterType.String to "Black")
+        assertThat(lookup(FontWeight.Thin)).isEqualTo(ParameterType.String to "W100")
+        assertThat(lookup(FontWeight.ExtraLight)).isEqualTo(ParameterType.String to "W200")
+        assertThat(lookup(FontWeight.Light)).isEqualTo(ParameterType.String to "W300")
+        assertThat(lookup(FontWeight.Normal)).isEqualTo(ParameterType.String to "W400")
+        assertThat(lookup(FontWeight.Medium)).isEqualTo(ParameterType.String to "W500")
+        assertThat(lookup(FontWeight.SemiBold)).isEqualTo(ParameterType.String to "W600")
+        assertThat(lookup(FontWeight.Bold)).isEqualTo(ParameterType.String to "W700")
+        assertThat(lookup(FontWeight.ExtraBold)).isEqualTo(ParameterType.String to "W800")
+        assertThat(lookup(FontWeight.Black)).isEqualTo(ParameterType.String to "W900")
+        assertThat(lookup(FontWeight.W100)).isEqualTo(ParameterType.String to "W100")
+        assertThat(lookup(FontWeight.W200)).isEqualTo(ParameterType.String to "W200")
+        assertThat(lookup(FontWeight.W300)).isEqualTo(ParameterType.String to "W300")
+        assertThat(lookup(FontWeight.W400)).isEqualTo(ParameterType.String to "W400")
+        assertThat(lookup(FontWeight.W500)).isEqualTo(ParameterType.String to "W500")
+        assertThat(lookup(FontWeight.W600)).isEqualTo(ParameterType.String to "W600")
+        assertThat(lookup(FontWeight.W700)).isEqualTo(ParameterType.String to "W700")
+        assertThat(lookup(FontWeight.W800)).isEqualTo(ParameterType.String to "W800")
+        assertThat(lookup(FontWeight.W900)).isEqualTo(ParameterType.String to "W900")
     }
 
     @Test
     fun testPaddingValues() {
         validate(factory.create(node, "padding", PaddingValues(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))!!) {
             parameter("padding", ParameterType.String, PaddingValues::class.java.simpleName) {
-                parameter("start", ParameterType.DimensionDp, 2.0f)
-                parameter("end", ParameterType.DimensionDp, 2.5f)
-                parameter("top", ParameterType.DimensionDp, 0.5f)
                 parameter("bottom", ParameterType.DimensionDp, 0.7f)
+                parameter("end", ParameterType.DimensionDp, 2.5f)
+                parameter("start", ParameterType.DimensionDp, 2.0f)
+                parameter("top", ParameterType.DimensionDp, 0.5f)
             }
         }
     }
@@ -327,8 +362,12 @@ class ParameterFactoryTest {
 
     @Test
     fun testLocaleList() {
-        assertThat(lookup(LocaleList(Locale("fr-ca"), Locale("fr-be"))))
-            .isEqualTo(ParameterType.String to "fr-CA, fr-BE")
+        validate(factory.create(node, "locales", LocaleList(Locale("fr-ca"), Locale("fr-be")))!!) {
+            parameter("locales", ParameterType.String, "") {
+                parameter("0", ParameterType.String, "fr-CA")
+                parameter("1", ParameterType.String, "fr-BE")
+            }
+        }
     }
 
     @Test
@@ -354,9 +393,9 @@ class ParameterFactoryTest {
         ) {
             parameter("modifier", ParameterType.String, "") {
                 parameter("background", ParameterType.Color, Color.Blue.toArgb()) {
-                    parameter("color", ParameterType.Color, Color.Blue.toArgb())
                     parameter("alpha", ParameterType.Float, 1.0f)
-                    parameter("shape", ParameterType.String, "Shape")
+                    parameter("color", ParameterType.Color, Color.Blue.toArgb())
+                    parameter("shape", ParameterType.String, "RectangleShape")
                 }
                 // TODO(b/163494569)
                 /*parameter("border", ParameterType.Color, Color.Red.toArgb()) {
@@ -364,12 +403,7 @@ class ParameterFactoryTest {
                     parameter("width", ParameterType.DimensionDp, 5.0f)
                     parameter("shape", ParameterType.String, "Shape")
                 }*/
-                parameter("padding", ParameterType.DimensionDp, 2.0f) {
-                    parameter("start", ParameterType.DimensionDp, 2.0f)
-                    parameter("top", ParameterType.DimensionDp, 2.0f)
-                    parameter("end", ParameterType.DimensionDp, 2.0f)
-                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
-                }
+                parameter("padding", ParameterType.DimensionDp, 2.0f)
                 parameter("fillMaxWidth", ParameterType.String, "")
                 parameter("wrapContentHeight", ParameterType.String, "") {
                     parameter("alignment", ParameterType.String, "Bottom")
@@ -377,11 +411,26 @@ class ParameterFactoryTest {
                 parameter("preferredWidth", ParameterType.DimensionDp, 30.0f) {
                     parameter("width", ParameterType.DimensionDp, 30.0f)
                 }
-                // TODO: Map Painter, ContentScale, ColorFilter
                 parameter("paint", ParameterType.String, "") {
-                    parameter("sizeToIntrinsics", ParameterType.Boolean, true)
                     parameter("alignment", ParameterType.String, "Center")
                     parameter("alpha", ParameterType.Float, 1.0f)
+                    parameter("contentScale", ParameterType.String, "Inside")
+                    parameter("painter", ParameterType.String, "TestPainter") {
+                        parameter("alpha", ParameterType.Float, 1.0f)
+                        parameter("color", ParameterType.Color, Color.Red.toArgb())
+                        parameter("height", ParameterType.Float, 20.0f)
+                        parameter("intrinsicSize", ParameterType.String, "Size") {
+                            parameter("height", ParameterType.Float, 20.0f)
+                            parameter("maxDimension", ParameterType.Float, 20.0f)
+                            parameter("minDimension", ParameterType.Float, 10.0f)
+                            parameter("packedValue", ParameterType.Int64, 4692750812821061632L)
+                            parameter("width", ParameterType.Float, 10.0f)
+                        }
+                        parameter("layoutDirection", ParameterType.String, "Ltr")
+                        parameter("useLayer", ParameterType.Boolean, false)
+                        parameter("width", ParameterType.Float, 10.0f)
+                    }
+                    parameter("sizeToIntrinsics", ParameterType.Boolean, true)
                 }
             }
         }
@@ -391,11 +440,20 @@ class ParameterFactoryTest {
     fun testSingleModifier() {
         validate(factory.create(node, "modifier", Modifier.padding(2.0.dp))!!) {
             parameter("modifier", ParameterType.String, "") {
-                parameter("padding", ParameterType.DimensionDp, 2.0f) {
-                    parameter("start", ParameterType.DimensionDp, 2.0f)
+                parameter("padding", ParameterType.DimensionDp, 2.0f)
+            }
+        }
+    }
+
+    @Test
+    fun testSingleModifierWithParameters() {
+        validate(factory.create(node, "modifier", Modifier.padding(1.dp, 2.dp, 3.dp, 4.dp))!!) {
+            parameter("modifier", ParameterType.String, "") {
+                parameter("padding", ParameterType.String, "") {
+                    parameter("bottom", ParameterType.DimensionDp, 4.0f)
+                    parameter("end", ParameterType.DimensionDp, 3.0f)
+                    parameter("start", ParameterType.DimensionDp, 1.0f)
                     parameter("top", ParameterType.DimensionDp, 2.0f)
-                    parameter("end", ParameterType.DimensionDp, 2.0f)
-                    parameter("bottom", ParameterType.DimensionDp, 2.0f)
                 }
             }
         }
@@ -410,9 +468,36 @@ class ParameterFactoryTest {
             }
         }
         validate(factory.create(node, "offset", Offset.Zero)!!) {
-            parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
-                parameter("x", ParameterType.DimensionDp, 0.0f)
-                parameter("y", ParameterType.DimensionDp, 0.0f)
+            parameter("offset", ParameterType.String, "Zero")
+        }
+    }
+
+    @Test
+    fun testRecursiveStructure() {
+        val v1 = MyClass()
+        val v2 = MyClass()
+        v1.other = v2
+        v2.other = v1
+        val name = MyClass::class.java.simpleName
+        validate(factory.create(node, "mine", v1)!!) {
+            parameter("mine", ParameterType.String, name) {
+                parameter("other", ParameterType.String, name) {
+                    parameter("other", ParameterType.String, name) {
+                        parameter("other", ParameterType.String, name) {
+                            parameter("other", ParameterType.String, name) {
+                                parameter("other", ParameterType.String, name) {
+                                    parameter("other", ParameterType.String, name) {
+                                        parameter("other", ParameterType.String, name) {
+                                            parameter("other", ParameterType.String, name) {
+                                                parameter("other", ParameterType.String, name)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -422,29 +507,26 @@ class ParameterFactoryTest {
         assertThat(lookup(Shadow.None)).isEqualTo(ParameterType.String to "None")
         validate(factory.create(node, "shadow", Shadow(Color.Cyan, Offset.Zero, 2.5f))!!) {
             parameter("shadow", ParameterType.String, Shadow::class.java.simpleName) {
-                parameter("color", ParameterType.Color, Color.Cyan.toArgb())
-                parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
-                    parameter("x", ParameterType.DimensionDp, 0.0f)
-                    parameter("y", ParameterType.DimensionDp, 0.0f)
-                }
                 parameter("blurRadius", ParameterType.DimensionDp, 1.25f)
+                parameter("color", ParameterType.Color, Color.Cyan.toArgb())
+                parameter("offset", ParameterType.String, "Zero")
             }
         }
         validate(factory.create(node, "shadow", Shadow(Color.Blue, Offset(1.0f, 4.0f), 1.5f))!!) {
             parameter("shadow", ParameterType.String, Shadow::class.java.simpleName) {
+                parameter("blurRadius", ParameterType.DimensionDp, 0.75f)
                 parameter("color", ParameterType.Color, Color.Blue.toArgb())
                 parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
                     parameter("x", ParameterType.DimensionDp, 0.5f)
                     parameter("y", ParameterType.DimensionDp, 2.0f)
                 }
-                parameter("blurRadius", ParameterType.DimensionDp, 0.75f)
             }
         }
     }
 
     @Test
     fun testShape() {
-        assertThat(lookup(RectangleShape)).isEqualTo(ParameterType.String to "Shape")
+        assertThat(lookup(RectangleShape)).isEqualTo(ParameterType.String to "RectangleShape")
     }
 
     @Test
@@ -459,9 +541,8 @@ class ParameterFactoryTest {
             .isEqualTo(ParameterType.String to "LineThrough")
         assertThat(lookup(TextDecoration.Underline))
             .isEqualTo(ParameterType.String to "Underline")
-
-        // TODO: Return a representation of lineThrough & Underline:
-        assertThat(lookup(TextDecoration.LineThrough + TextDecoration.Underline)).isNull()
+        assertThat(lookup(TextDecoration.LineThrough + TextDecoration.Underline))
+            .isEqualTo(ParameterType.String to "LineThrough+Underline")
     }
 
     @Test
@@ -497,12 +578,12 @@ class ParameterFactoryTest {
         )
         validate(factory.create(node, "style", style)!!) {
             parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
+                parameter("background", ParameterType.String, "Unspecified")
                 parameter("color", ParameterType.Color, Color.Red.toArgb())
                 parameter("fontSize", ParameterType.String, "Inherit")
                 parameter("letterSpacing", ParameterType.String, "Inherit")
-                parameter("background", ParameterType.String, "Unset")
-                parameter("textDecoration", ParameterType.String, "Underline")
                 parameter("lineHeight", ParameterType.String, "Inherit")
+                parameter("textDecoration", ParameterType.String, "Underline")
             }
         }
     }
@@ -518,6 +599,12 @@ class ParameterFactoryTest {
         assertThat(lookup(TextUnit.Em(2.0f))).isEqualTo(ParameterType.DimensionEm to 2.0f)
         assertThat(lookup(TextUnit.Em(1))).isEqualTo(ParameterType.DimensionEm to 1.0f)
         assertThat(lookup(TextUnit.Em(3.0))).isEqualTo(ParameterType.DimensionEm to 3.0f)
+    }
+
+    @Test
+    fun testVectorAssert() {
+        assertThat(lookup(Icons.Filled.Call)).isEqualTo(ParameterType.String to "Filled.Call")
+        assertThat(lookup(Icons.Rounded.Add)).isEqualTo(ParameterType.String to "Rounded.Add")
     }
 
     private fun lookup(value: Any): Pair<ParameterType, Any?>? {
@@ -560,19 +647,40 @@ class ParameterValidationReceiver(val parameterIterator: Iterator<NodeParameter>
         name: String,
         type: ParameterType,
         value: Any?,
-        children: ParameterValidationReceiver.() -> Unit = {}
+        block: ParameterValidationReceiver.() -> Unit = {}
     ) {
         assertWithMessage("No such element found: $name").that(parameterIterator.hasNext()).isTrue()
         val parameter = parameterIterator.next()
         assertThat(parameter.name).isEqualTo(name)
         assertWithMessage(name).that(parameter.type).isEqualTo(type)
         assertWithMessage(name).that(parameter.value).isEqualTo(value)
-        val elements = ParameterValidationReceiver(parameter.elements.listIterator())
-        elements.children()
-        if (elements.parameterIterator.hasNext()) {
+        var elements: List<NodeParameter> = parameter.elements
+        if (name != "modifier") {
+            // Do not sort modifiers: the order is important
+            elements = elements.sortedBy { it.name }
+        }
+        val children = ParameterValidationReceiver(elements.listIterator())
+        children.block()
+        if (children.parameterIterator.hasNext()) {
             val elementNames = mutableListOf<String>()
-            elements.parameterIterator.forEachRemaining { elementNames.add(it.name) }
+            children.parameterIterator.forEachRemaining { elementNames.add(it.name) }
             error("$name: has more elements like: ${elementNames.joinToString()}")
         }
     }
+
+    fun optional(
+        name: String,
+        type: ParameterType,
+        value: Any?,
+        condition: () -> Boolean,
+        children: ParameterValidationReceiver.() -> Unit = {}
+    ) {
+        if (condition()) {
+            parameter(name, type, value, children)
+        }
+    }
+}
+
+class MyClass {
+    var other: MyClass? = null
 }

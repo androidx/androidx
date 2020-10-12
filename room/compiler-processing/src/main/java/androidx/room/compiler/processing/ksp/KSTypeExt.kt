@@ -19,10 +19,12 @@ package androidx.room.compiler.processing.ksp
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
 import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
+import org.jetbrains.kotlin.ksp.symbol.Variance
 
 internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
@@ -63,7 +65,12 @@ internal fun KSDeclaration.typeName(): ClassName {
 internal fun KSType.typeName(): TypeName {
     return if (this.arguments.isNotEmpty()) {
         val args: Array<TypeName> = this.arguments.map {
-            it.type.typeName()
+            when (it.variance) {
+                Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(it.type.typeName())
+                Variance.COVARIANT -> WildcardTypeName.subtypeOf(it.type.typeName())
+                Variance.STAR -> WildcardTypeName.subtypeOf(TypeName.OBJECT)
+                else -> it.type.typeName()
+            }
         }.toTypedArray()
         val className = declaration.typeName()
         ParameterizedTypeName.get(

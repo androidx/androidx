@@ -18,15 +18,19 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
-import androidx.compose.runtime.resetSourceInfo
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material.Button
+import androidx.compose.material.ModalDrawerLayout
 import androidx.compose.material.Surface
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.resetSourceInfo
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.SmallTest
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.R
@@ -34,10 +38,8 @@ import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.ToolingTest
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.position
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -52,7 +54,6 @@ private const val DEBUG = false
 class LayoutInspectorTreeTest : ToolingTest() {
     private lateinit var density: Density
     private lateinit var view: View
-    private lateinit var source: String
 
     @Before
     fun density() {
@@ -86,269 +87,410 @@ class LayoutInspectorTreeTest : ToolingTest() {
         val builder = LayoutInspectorTree()
         val nodes = builder.convert(view)
         dumpNodes(nodes)
-        val nodeIterator = nodes.flatMap { flatten(it) }.iterator()
 
-        fun validate(
-            isRenderNode: Boolean = false,
-            name: String,
-            fileName: String,
-            lineNumber: Int = -1,
-            left: Dp,
-            top: Dp,
-            width: Dp,
-            height: Dp,
-            children: List<String> = emptyList(),
-            block: ParameterValidationReceiver.() -> Unit = {}
-        ) {
-            assertThat(nodeIterator.hasNext()).isTrue()
-            val node = nodeIterator.next()
-            if (isRenderNode) {
-                assertThat(node.id).isGreaterThan(0L)
-            } else {
-                assertThat(node.id).isLessThan(0L)
+        validate(nodes, checkParameters = true) {
+            node(
+                name = "Box",
+                fileName = "Box.kt",
+                left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
+                children = listOf("Column")
+            ) {
+                parameter(name = "shape", type = ParameterType.String, value = "Shape")
+                parameter(name = "backgroundColor", type = ParameterType.Color, value = 0x0)
+                parameter(name = "padding", type = ParameterType.DimensionDp, value = 0.0f)
+                parameter(
+                    name = "paddingStart",
+                    type = ParameterType.DimensionDp,
+                    value = Float.NaN
+                )
+                parameter(name = "paddingTop", type = ParameterType.DimensionDp, value = Float.NaN)
+                parameter(name = "paddingEnd", type = ParameterType.DimensionDp, value = Float.NaN)
+                parameter(
+                    name = "paddingBottom",
+                    type = ParameterType.DimensionDp,
+                    value = Float.NaN
+                )
+                parameter(name = "gravity", type = ParameterType.String, value = "TopStart")
             }
-            assertThat(node.name).isEqualTo(name)
-            if (fileName == "LayoutInspectorTreeTest.kt") {
-                assertThat(node.fileName).isEqualTo(fileName)
-            }
-            if (lineNumber != -1) {
-                assertThat(node.lineNumber).isEqualTo(lineNumber)
-            }
-            with(density) {
-                assertThat(node.left.toDp().value).isWithin(2.0f).of(left.value)
-                assertThat(node.top.toDp().value).isWithin(2.0f).of(top.value)
-                assertThat(node.width.toDp().value).isWithin(2.0f).of(width.value)
-                assertThat(node.height.toDp().value).isWithin(2.0f).of(height.value)
-            }
-            assertThat(node.children.map { it.name }).containsExactlyElementsIn(children).inOrder()
 
-            val receiver = ParameterValidationReceiver(node.parameters.listIterator())
-            receiver.block()
-            assertThat(receiver.parameterIterator.hasNext()).isFalse()
-        }
-
-        validate(
-            name = "Box",
-            fileName = "Box.kt",
-            left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
-            children = listOf("Column")
-        ) {
-            parameter(name = "shape", type = ParameterType.String, value = "Shape")
-            parameter(name = "backgroundColor", type = ParameterType.Color, value = 0x0)
-            parameter(name = "padding", type = ParameterType.DimensionDp, value = 0.0f)
-            parameter(name = "paddingStart", type = ParameterType.DimensionDp, value = Float.NaN)
-            parameter(name = "paddingTop", type = ParameterType.DimensionDp, value = Float.NaN)
-            parameter(name = "paddingEnd", type = ParameterType.DimensionDp, value = Float.NaN)
-            parameter(name = "paddingBottom", type = ParameterType.DimensionDp, value = Float.NaN)
-            parameter(name = "gravity", type = ParameterType.String, value = "TopStart")
-        }
-        validate(
-            name = "Column",
-            fileName = "Box.kt",
-            left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
-            children = listOf("Column")
-        )
-        validate(
-            name = "Column",
-            fileName = "LayoutInspectorTreeTest.kt",
-            left = 0.0.dp,
-            top = 0.0.dp, width = 70.5.dp, height = 54.9.dp, children = listOf("Text", "Surface")
-        ) {
-            parameter(name = "verticalArrangement", type = ParameterType.String, value = "Top")
-            parameter(name = "horizontalGravity", type = ParameterType.String, value = "Start")
-        }
-        validate(
-            name = "Text",
-            fileName = "LayoutInspectorTreeTest.kt",
-            left = 0.0.dp,
-            top = 0.0.dp, width = 70.5.dp, height = 18.9.dp, children = listOf("Text")
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "Hello World")
-            parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
-            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
-            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
-            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
-        }
-        validate(
-            name = "Text",
-            fileName = "Text.kt",
-            left = 0.0.dp,
-            top = 0.0.dp, width = 70.5.dp, height = 18.9.dp, children = listOf("CoreText")
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "Hello World")
-            parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
-            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
-            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
-            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
-        }
-        validate(
-            name = "CoreText",
-            fileName = "CoreText.kt",
-            isRenderNode = true,
-            left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "Hello World")
-            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+            node(
+                name = "Column",
+                fileName = "Box.kt",
+                left = 0.0.dp, top = 0.0.dp, width = viewWidth, height = viewHeight,
+                children = listOf("Column")
+            )
+            node(
+                name = "Column",
+                fileName = "LayoutInspectorTreeTest.kt",
+                left = 0.0.dp,
+                top = 0.0.dp,
+                width = 70.5.dp,
+                height = 54.9.dp,
+                children = listOf("Text", "Surface")
+            ) {
+                parameter(name = "verticalArrangement", type = ParameterType.String, value = "Top")
+                parameter(name = "horizontalGravity", type = ParameterType.String, value = "Start")
+            }
+            node(
+                name = "Text",
+                fileName = "LayoutInspectorTreeTest.kt",
+                left = 0.0.dp,
+                top = 0.0.dp, width = 70.5.dp, height = 18.9.dp, children = listOf("Text")
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "Hello World")
                 parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
                 parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
                 parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
-                parameter(name = "background", type = ParameterType.String, value = "Unset")
                 parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
             }
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
-        }
-        validate(
-            name = "Surface",
-            fileName = "LayoutInspectorTreeTest.kt",
-            isRenderNode = true,
-            left = 0.0.dp,
-            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Button")
-        ) {
-            parameter(name = "shape", type = ParameterType.String, value = "Shape")
-            parameter(name = "color", type = ParameterType.Color, value = 0xffffffff.toInt())
-            parameter(name = "contentColor", type = ParameterType.Color, value = 0xff000000.toInt())
-            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 0.0f)
-        }
-        validate(
-            name = "Button",
-            fileName = "LayoutInspectorTreeTest.kt",
-            left = 0.0.dp,
-            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Surface")
-        ) {
-            parameter(name = "enabled", type = ParameterType.Boolean, value = true)
-            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
-            parameter(name = "disabledElevation", type = ParameterType.DimensionDp, value = 0.0f)
-            parameter(name = "shape", type = ParameterType.String, value = "RoundedCornerShape") {
-                parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
-            }
-            parameter(
-                name = "backgroundColor", type = ParameterType.Color,
-                value = 0xff6200ee.toInt()
-            )
-            parameter(
-                name = "disabledBackgroundColor", type = ParameterType.Color,
-                value = 0xffe0e0e0.toInt()
-            )
-            parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
-            parameter(name = "disabledContentColor", type = ParameterType.Color, value = 0x61000000)
-            parameter(name = "padding", type = ParameterType.String, value = "PaddingValues") {
-                parameter(name = "start", type = ParameterType.DimensionDp, value = 16.0f)
-                parameter(name = "end", type = ParameterType.DimensionDp, value = 16.0f)
-                parameter(name = "top", type = ParameterType.DimensionDp, value = 8.0f)
-                parameter(name = "bottom", type = ParameterType.DimensionDp, value = 8.0f)
-            }
-        }
-        validate(
-            name = "Surface",
-            fileName = "Button.kt",
-            isRenderNode = true,
-            left = 0.0.dp,
-            top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("ProvideTextStyle")
-        ) {
-            parameter(name = "shape", type = ParameterType.String, value = "RoundedCornerShape") {
-                parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
-                parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
-            }
-            parameter(name = "color", type = ParameterType.Color, value = 0xff6200ee.toInt())
-            parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
-            parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
-        }
-        validate(
-            name = "ProvideTextStyle",
-            fileName = "Button.kt",
-            left = 16.0.dp,
-            top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("Row")
-        ) {
-            parameter(name = "value", type = ParameterType.String, value = "TextStyle") {
-                parameter(name = "color", type = ParameterType.String, value = "Unset")
-                parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
-                parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
-                parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
-                parameter(name = "letterSpacing", type = ParameterType.DimensionSp, value = 1.25f)
-                parameter(name = "background", type = ParameterType.String, value = "Unset")
+            node(
+                name = "Text",
+                fileName = "Text.kt",
+                left = 0.0.dp,
+                top = 0.0.dp, width = 70.5.dp, height = 18.9.dp, children = listOf("CoreText")
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "Hello World")
+                parameter(name = "color", type = ParameterType.Color, value = 0xff00ff00.toInt())
+                parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
                 parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
             }
-        }
-        validate(
-            name = "Row",
-            fileName = "Button.kt",
-            left = 16.0.dp,
-            top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("Text")
-        ) {
-            parameter(name = "horizontalArrangement", type = ParameterType.String, value = "Center")
-            parameter(
-                name = "verticalGravity", type = ParameterType.String,
-                value = "CenterVertically"
-            )
-        }
-        validate(
-            name = "Text",
-            fileName = "LayoutInspectorTreeTest.kt",
-            left = 21.8.dp,
-            top = 27.6.dp, width = 20.4.dp, height = 18.9.dp, children = listOf("Text")
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "OK")
-            parameter(name = "color", type = ParameterType.String, value = "Unset")
-            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
-            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
-            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
-        }
-        validate(
-            name = "Text",
-            fileName = "Text.kt",
-            left = 21.8.dp,
-            top = 27.6.dp, width = 20.4.dp, height = 18.9.dp, children = listOf("CoreText")
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "OK")
-            parameter(name = "color", type = ParameterType.String, value = "Unset")
-            parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
-            parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
-            parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
-        }
-        validate(
-            name = "CoreText",
-            fileName = "CoreText.kt",
-            isRenderNode = true,
-            left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
-        ) {
-            parameter(name = "text", type = ParameterType.String, value = "OK")
-            parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+            node(
+                name = "CoreText",
+                fileName = "CoreText.kt",
+                isRenderNode = true,
+                left = 0.0.dp, top = 0.0.dp, width = 70.5.dp, height = 18.9.dp
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "Hello World")
+                parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                    parameter(
+                        name = "color",
+                        type = ParameterType.Color,
+                        value = 0xff00ff00.toInt()
+                    )
+                    parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                    parameter(
+                        name = "letterSpacing",
+                        type = ParameterType.String,
+                        value = "Inherit"
+                    )
+                    parameter(name = "background", type = ParameterType.String, value = "Unset")
+                    parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                }
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            }
+            node(
+                name = "Surface",
+                fileName = "LayoutInspectorTreeTest.kt",
+                isRenderNode = true,
+                left = 0.0.dp,
+                top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Button")
+            ) {
+                parameter(name = "shape", type = ParameterType.String, value = "Shape")
                 parameter(name = "color", type = ParameterType.Color, value = 0xffffffff.toInt())
-                parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
-                parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
-                parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
-                parameter(name = "letterSpacing", type = ParameterType.DimensionSp, value = 1.25f)
-                parameter(name = "background", type = ParameterType.String, value = "Unset")
-                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                parameter(
+                    name = "contentColor",
+                    type = ParameterType.Color,
+                    value = 0xff000000.toInt()
+                )
+                parameter(name = "elevation", type = ParameterType.DimensionDp, value = 0.0f)
             }
-            parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
-            parameter(name = "overflow", type = ParameterType.String, value = "Clip")
-            parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            node(
+                name = "Button",
+                fileName = "LayoutInspectorTreeTest.kt",
+                left = 0.0.dp,
+                top = 18.9.dp, width = 64.0.dp, height = 36.0.dp, children = listOf("Surface")
+            ) {
+                parameter(name = "enabled", type = ParameterType.Boolean, value = true)
+                parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
+                parameter(
+                    name = "disabledElevation",
+                    type = ParameterType.DimensionDp,
+                    value = 0.0f
+                )
+                parameter(
+                    name = "shape",
+                    type = ParameterType.String,
+                    value = "RoundedCornerShape"
+                ) {
+                    parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
+                }
+                parameter(
+                    name = "backgroundColor", type = ParameterType.Color,
+                    value = 0xff6200ee.toInt()
+                )
+                parameter(
+                    name = "disabledBackgroundColor", type = ParameterType.Color,
+                    value = 0xffe0e0e0.toInt()
+                )
+                parameter(
+                    name = "contentColor",
+                    type = ParameterType.Color,
+                    value = 0xffffffff.toInt()
+                )
+                parameter(
+                    name = "disabledContentColor",
+                    type = ParameterType.Color,
+                    value = 0x61000000
+                )
+                parameter(name = "padding", type = ParameterType.String, value = "PaddingValues") {
+                    parameter(name = "start", type = ParameterType.DimensionDp, value = 16.0f)
+                    parameter(name = "end", type = ParameterType.DimensionDp, value = 16.0f)
+                    parameter(name = "top", type = ParameterType.DimensionDp, value = 8.0f)
+                    parameter(name = "bottom", type = ParameterType.DimensionDp, value = 8.0f)
+                }
+            }
+            node(
+                name = "Surface",
+                fileName = "Button.kt",
+                isRenderNode = true,
+                left = 0.0.dp,
+                top = 18.9.dp,
+                width = 64.0.dp,
+                height = 36.0.dp,
+                children = listOf("ProvideTextStyle")
+            ) {
+                parameter(
+                    name = "shape",
+                    type = ParameterType.String,
+                    value = "RoundedCornerShape"
+                ) {
+                    parameter(name = "topLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "topRight", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "bottomLeft", type = ParameterType.DimensionDp, value = 4.0f)
+                    parameter(name = "bottomRight", type = ParameterType.DimensionDp, value = 4.0f)
+                }
+                parameter(name = "color", type = ParameterType.Color, value = 0xff6200ee.toInt())
+                parameter(
+                    name = "contentColor",
+                    type = ParameterType.Color,
+                    value = 0xffffffff.toInt()
+                )
+                parameter(name = "elevation", type = ParameterType.DimensionDp, value = 2.0f)
+            }
+            node(
+                name = "ProvideTextStyle",
+                fileName = "Button.kt",
+                left = 16.0.dp,
+                top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("Row")
+            ) {
+                parameter(name = "value", type = ParameterType.String, value = "TextStyle") {
+                    parameter(name = "color", type = ParameterType.String, value = "Unset")
+                    parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
+                    parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
+                    parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
+                    parameter(
+                        name = "letterSpacing",
+                        type = ParameterType.DimensionSp,
+                        value = 1.25f
+                    )
+                    parameter(name = "background", type = ParameterType.String, value = "Unset")
+                    parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                }
+            }
+            node(
+                name = "Row",
+                fileName = "Button.kt",
+                left = 16.0.dp,
+                top = 26.9.dp, width = 32.0.dp, height = 20.0.dp, children = listOf("Text")
+            ) {
+                parameter(
+                    name = "horizontalArrangement",
+                    type = ParameterType.String,
+                    value = "Center"
+                )
+                parameter(
+                    name = "verticalGravity", type = ParameterType.String,
+                    value = "CenterVertically"
+                )
+            }
+            node(
+                name = "Text",
+                fileName = "LayoutInspectorTreeTest.kt",
+                left = 21.8.dp,
+                top = 27.6.dp, width = 20.4.dp, height = 18.9.dp, children = listOf("Text")
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "OK")
+                parameter(name = "color", type = ParameterType.String, value = "Unset")
+                parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            }
+            node(
+                name = "Text",
+                fileName = "Text.kt",
+                left = 21.8.dp,
+                top = 27.6.dp, width = 20.4.dp, height = 18.9.dp, children = listOf("CoreText")
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "OK")
+                parameter(name = "color", type = ParameterType.String, value = "Unset")
+                parameter(name = "fontSize", type = ParameterType.String, value = "Inherit")
+                parameter(name = "letterSpacing", type = ParameterType.String, value = "Inherit")
+                parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            }
+            node(
+                name = "CoreText",
+                fileName = "CoreText.kt",
+                isRenderNode = true,
+                left = 21.8.dp, top = 27.6.dp, width = 20.4.dp, height = 18.9.dp
+            ) {
+                parameter(name = "text", type = ParameterType.String, value = "OK")
+                parameter(name = "style", type = ParameterType.String, value = "TextStyle") {
+                    parameter(
+                        name = "color",
+                        type = ParameterType.Color,
+                        value = 0xffffffff.toInt()
+                    )
+                    parameter(name = "fontSize", type = ParameterType.DimensionSp, value = 14.0f)
+                    parameter(name = "fontWeight", type = ParameterType.String, value = "Medium")
+                    parameter(name = "fontFamily", type = ParameterType.String, value = "Default")
+                    parameter(
+                        name = "letterSpacing",
+                        type = ParameterType.DimensionSp,
+                        value = 1.25f
+                    )
+                    parameter(name = "background", type = ParameterType.String, value = "Unset")
+                    parameter(name = "lineHeight", type = ParameterType.String, value = "Inherit")
+                }
+                parameter(name = "softWrap", type = ParameterType.Boolean, value = true)
+                parameter(name = "overflow", type = ParameterType.String, value = "Clip")
+                parameter(name = "maxLines", type = ParameterType.Int32, value = 2147483647)
+            }
         }
-        assertThat(nodeIterator.hasNext()).isFalse()
     }
 
-    private fun readMySelf(): String {
-        return "hello"
+    @Test
+    fun testStitchTreeFromModelDrawerLayout() {
+        val slotTableRecord = SlotTableRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                ModalDrawerLayout(
+                    drawerContent = { Text("Something") },
+                    bodyContent = {
+                        Column {
+                            Text(text = "Hello World", color = Color.Green)
+                            Button(onClick = {}) { Text(text = "OK") }
+                        }
+                    }
+                )
+            }
+        }
+        view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        dumpSlotTableSet(slotTableRecord)
+        val builder = LayoutInspectorTree()
+        val nodes = builder.convert(view)
+        dumpNodes(nodes)
+
+        if (DEBUG) {
+            validate(nodes, checkParameters = false) {
+                node("Box", children = listOf("ModalDrawerLayout"))
+                node("ModalDrawerLayout", children = listOf("WithConstraints"))
+                node("WithConstraints", children = listOf("SubcomposeLayout"))
+                node("SubcomposeLayout", children = listOf("Box"))
+                node("Box", children = listOf("Box", "Canvas", "Surface"))
+                node("Box", children = listOf("Column"))
+                node("Column", children = listOf("Text", "Button"))
+                node("Text", children = listOf("Text"))
+                node("Text", children = listOf("CoreText"))
+                node("CoreText", children = listOf())
+                node("Button", children = listOf("Surface"))
+                node("Surface", children = listOf("ProvideTextStyle"))
+                node("ProvideTextStyle", children = listOf("Row"))
+                node("Row", children = listOf("Text"))
+                node("Text", children = listOf("Text"))
+                node("Text", children = listOf("CoreText"))
+                node("CoreText", children = listOf())
+                node("Canvas", children = listOf("Spacer"))
+                node("Spacer", children = listOf())
+                node("Surface", children = listOf("Column"))
+                node("Column", children = listOf("Text"))
+                node("Text", children = listOf("Text"))
+                node("Text", children = listOf("CoreText"))
+                node("CoreText", children = listOf())
+            }
+        }
+        assertThat(nodes.size).isEqualTo(1)
+    }
+
+    private fun validate(
+        result: List<InspectorNode>,
+        checkParameters: Boolean,
+        block: TreeValidationReceiver.() -> Unit = {}
+    ) {
+        val nodes = result.flatMap { flatten(it) }.iterator()
+        val tree = TreeValidationReceiver(nodes, density, checkParameters)
+        tree.block()
+    }
+
+    private class TreeValidationReceiver(
+        val nodeIterator: Iterator<InspectorNode>,
+        val density: Density,
+        val checkParameters: Boolean
+    ) {
+        fun node(
+            name: String,
+            fileName: String? = null,
+            lineNumber: Int = -1,
+            isRenderNode: Boolean? = null,
+            left: Dp = Dp.Unspecified,
+            top: Dp = Dp.Unspecified,
+            width: Dp = Dp.Unspecified,
+            height: Dp = Dp.Unspecified,
+            children: List<String> = listOf(),
+            block: ParameterValidationReceiver.() -> Unit = {}
+        ) {
+            assertWithMessage("No such node found: $name").that(nodeIterator.hasNext()).isTrue()
+            val node = nodeIterator.next()
+            assertThat(node.name).isEqualTo(name)
+            assertThat(node.children.map { it.name }).containsExactlyElementsIn(children).inOrder()
+            fileName?.let { assertThat(node.fileName).isEqualTo(fileName) }
+            if (lineNumber != -1) {
+                assertThat(node.lineNumber).isEqualTo(lineNumber)
+            }
+            if (isRenderNode != null) {
+                if (isRenderNode) {
+                    assertThat(node.id).isGreaterThan(0L)
+                } else {
+                    assertThat(node.id).isLessThan(0L)
+                }
+            }
+            if (left != Dp.Unspecified) {
+                with(density) {
+                    assertThat(node.left.toDp().value).isWithin(2.0f).of(left.value)
+                    assertThat(node.top.toDp().value).isWithin(2.0f).of(top.value)
+                    assertThat(node.width.toDp().value).isWithin(2.0f).of(width.value)
+                    assertThat(node.height.toDp().value).isWithin(2.0f).of(height.value)
+                }
+            }
+
+            if (checkParameters) {
+                val params = ParameterValidationReceiver(node.parameters.listIterator())
+                params.block()
+                if (params.parameterIterator.hasNext()) {
+                    val elementNames = mutableListOf<String>()
+                    params.parameterIterator.forEachRemaining { elementNames.add(it.name) }
+                    error("$name: has more parameters like: ${elementNames.joinToString()}")
+                }
+            }
+        }
     }
 
     private fun flatten(node: InspectorNode): List<InspectorNode> =

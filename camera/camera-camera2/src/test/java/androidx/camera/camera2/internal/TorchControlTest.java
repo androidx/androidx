@@ -36,6 +36,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -90,25 +91,29 @@ public class TorchControlTest {
         CameraCharacteristics cameraCharacteristics0 =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
 
+        CameraCharacteristicsCompat characteristicsCompat0 =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics0);
         Camera2CameraControlImpl camera2CameraControl0 =
-                spy(new Camera2CameraControlImpl(cameraCharacteristics0,
+                spy(new Camera2CameraControlImpl(characteristicsCompat0,
                         CameraXExecutors.mainThreadExecutor(),
                         CameraXExecutors.mainThreadExecutor(),
                         mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mNoFlashUnitTorchControl = new TorchControl(camera2CameraControl0, cameraCharacteristics0,
+        mNoFlashUnitTorchControl = new TorchControl(camera2CameraControl0, characteristicsCompat0,
                 CameraXExecutors.mainThreadExecutor());
         mNoFlashUnitTorchControl.setActive(true);
 
         /* Prepare CameraControl 1 which flash is available */
         CameraCharacteristics cameraCharacteristics1 =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
+        CameraCharacteristicsCompat characteristicsCompat1 =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics1);
 
         Camera2CameraControlImpl camera2CameraControlImpl1 =
-                spy(new Camera2CameraControlImpl(cameraCharacteristics1,
+                spy(new Camera2CameraControlImpl(characteristicsCompat1,
                         CameraXExecutors.mainThreadExecutor(),
                         CameraXExecutors.mainThreadExecutor(),
                         mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mTorchControl = new TorchControl(camera2CameraControlImpl1, cameraCharacteristics1,
+        mTorchControl = new TorchControl(camera2CameraControlImpl1, characteristicsCompat1,
                 CameraXExecutors.mainThreadExecutor());
         mTorchControl.setActive(true);
 

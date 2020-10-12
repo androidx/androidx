@@ -132,8 +132,6 @@ public class ExtensionTest {
 
     @Test
     public void testCanBindToLifeCycleAndTakePicture() {
-
-
         ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
 

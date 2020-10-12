@@ -619,8 +619,6 @@ MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(a
     Missing nullability on parameter `safeInsets` in method `DisplayCutoutCompat`
 MissingNullability: androidx.core.view.DisplayCutoutCompat#DisplayCutoutCompat(android.graphics.Rect, java.util.List<android.graphics.Rect>) parameter #1:
     Missing nullability on parameter `boundingRects` in method `DisplayCutoutCompat`
-MissingNullability: androidx.core.view.DisplayCutoutCompat#getBoundingRects():
-    Missing nullability on method `getBoundingRects` return
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #0:
     Missing nullability on parameter `view` in method `DragStartHelper`
 MissingNullability: androidx.core.view.DragStartHelper#DragStartHelper(android.view.View, androidx.core.view.DragStartHelper.OnDragStartListener) parameter #1:
@@ -1589,6 +1587,10 @@ OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
 OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #2:
     Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #1:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(int icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorArgument: androidx.core.app.NotificationCompat.Action.Builder#Builder(int, CharSequence, android.app.PendingIntent) parameter #2:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(int icon, CharSequence title, android.app.PendingIntent intent)
 
 
 PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():

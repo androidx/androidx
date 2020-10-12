@@ -29,6 +29,10 @@ limitations under the License.
     <string name="toggle_video_disabled">Video disabled</string>
     <string name="toggle_capture_enabled">Capture enabled</string>
     <string name="toggle_capture_disabled">Capture disabled</string>
+    <string name="toggle_analysis_enabled">Analysis enabled</string>
+    <string name="toggle_analysis_disabled">Analysis disabled</string>
+    <string name="toggle_analyzer_set">Analyzer set</string>
+    <string name="toggle_analyzer_not_set">Analyzer not set</string>
     <string name="toggle_camera_front">Front</string>
     <string name="toggle_camera_back">Back</string>
     <string name="btn_remove_or_add">Remove/Add</string>

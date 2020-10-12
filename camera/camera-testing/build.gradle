@@ -29,6 +29,7 @@ dependencies {
     implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
     api("androidx.annotation:annotation:1.0.0")
+    implementation(ESPRESSO_CORE)
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))

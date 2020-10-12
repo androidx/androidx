@@ -269,7 +269,7 @@ def collapse_tasks_having_no_output(lines):
     pending_task = None
     pending_blanks = []
     for line in lines:
-        is_task = line.startswith("> Task ")
+        is_task = line.startswith("> Task ") or line.startswith("> Configure project ")
         if is_task:
             pending_task = line
             pending_blanks = []
@@ -384,7 +384,7 @@ def generate_suggested_exemptions(messages, config_lines):
             continue
         # save task name
         is_task = False
-        if line.startswith("> Task :"):
+        if line.startswith("> Task :") or line.startswith("> Configure project "):
             # If a task creates output, we record its name
             line = "# " + line
             pending_task_line = line
@@ -482,11 +482,11 @@ def main():
             print("Please fix or suppress these new messages in the tool that generates them.")
             print("If you cannot, then you can exempt them by doing:")
             print("")
-            print("  1. cp " + new_exemptions_path + " " + get_exemptions_path())
-            print("  2. modify the new lines to be appropriately generalized")
+            print("  1. cp " + new_exemptions_path + " " + get_exemptions_path() + " # or, if this script is running on the build server, you may download this file from there")
+            print("  2. modify the new lines to be more generalized (they are regular expressions) if it is more important to preemptively exempt similar messages than to be notified of new, similar messages")
             print("")
-            print("Note that if you exempt these messages by updating the exemption file, it will only take affect for CI builds and not for Android Studio.")
-            print("Additionally, adding more exemptions to this exemption file runs more slowly than fixing or suppressing the message where it is generated.")
+            print("Note that if you exempt these messages by updating the exemption file, this will suppress these messages in the output of CI builds but not in Android Studio.")
+            print("Additionally, adding more exemptions to this exemption file will cause the build to run more slowly than fixing or suppressing the message where it is generated.")
             exit(1)
     elif arguments.update:
         if len(lines) != 0:

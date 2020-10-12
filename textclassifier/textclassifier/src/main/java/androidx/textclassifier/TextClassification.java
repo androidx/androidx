@@ -35,7 +35,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -83,10 +82,6 @@ public final class TextClassification {
     private static final IconCompat NO_ICON =
             IconCompat.createWithData(new byte[0], 0, 0);
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     static final TextClassification EMPTY = new TextClassification.Builder().build();
 
     @Nullable private final String mText;
@@ -220,10 +215,6 @@ public final class TextClassification {
     }
 
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(26)
     @SuppressWarnings("deprecation") // To support O
     @NonNull
@@ -290,13 +281,8 @@ public final class TextClassification {
         return remoteAction;
     }
 
-    /**
-     * @hide
-     */
-    // Lint does not know @EntityType in platform and here are same.
     @SuppressWarnings("deprecation") // To support O
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @SuppressLint("WrongConstant")
+    @SuppressLint("WrongConstant") // Lint doesn't know @EntityType in platform and here are same.
     @RequiresApi(26)
     @NonNull
     Object toPlatform(@NonNull Context context) {
@@ -519,10 +505,6 @@ public final class TextClassification {
             return BundleUtils.deepCopy(mExtras);
         }
 
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @NonNull
         static TextClassification.Request fromPlatform(
@@ -534,10 +516,6 @@ public final class TextClassification {
                     .build();
         }
 
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @NonNull
         Object toPlatform() {

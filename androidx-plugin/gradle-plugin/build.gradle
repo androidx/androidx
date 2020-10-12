@@ -1,6 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.attributes.Attribute
-import org.gradle.api.attributes.Bundling
 
 plugins {
     id "kotlin"
@@ -30,7 +28,7 @@ dependencies {
 
     // Not really sure about these:
     implementation "androidx.benchmark:benchmark-gradle-plugin:1.0.0"
-    implementation "com.google.protobuf:protobuf-gradle-plugin:0.8.12"
+    implementation "com.google.protobuf:protobuf-gradle-plugin:0.8.13"
     implementation "org.anarres.jarjar:jarjar-gradle:1.0.1"
 }
 

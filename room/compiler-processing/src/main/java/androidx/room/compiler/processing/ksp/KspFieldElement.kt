@@ -16,18 +16,23 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.FIELD
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
     val containing: KspTypeElement
-) : KspElement(env, declaration), XFieldElement, XHasModifiers by KspHasModifiers(declaration) {
+) : KspElement(env, declaration),
+    XFieldElement,
+    XHasModifiers by KspHasModifiers(declaration),
+    XAnnotated by KspAnnotated.create(env, declaration, FIELD) {
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(declaration, containing)
@@ -42,7 +47,7 @@ internal class KspFieldElement(
     }
 
     override val type: XType by lazy {
-        env.wrap(declaration.typeAsMemberOf(containing.type.ksType))
+        env.wrap(declaration.typeAsMemberOf(env.resolver, containing.type.ksType))
     }
 
     override fun asMemberOf(other: XDeclaredType): XType {
@@ -50,7 +55,13 @@ internal class KspFieldElement(
             return type
         }
         check(other is KspType)
-        val asMember = declaration.typeAsMemberOf(other.ksType)
+        val asMember = declaration.typeAsMemberOf(env.resolver, other.ksType)
         return env.wrap(asMember)
     }
+
+    fun copyTo(newContaining: KspTypeElement) = KspFieldElement(
+        env = env,
+        declaration = declaration,
+        containing = newContaining
+    )
 }

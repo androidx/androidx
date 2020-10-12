@@ -189,10 +189,6 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 
     override fun getApiVersion() = iWatchFaceService.apiVersion
 
-    override fun setComplicationSupportedTypes(id: Int, types: IntArray?) {
-        iWatchFaceService.setComplicationSupportedTypes(id, types)
-    }
-
     override fun registerWatchFaceType(watchFaceType: Int) {
         iWatchFaceService.registerWatchFaceType(watchFaceType)
     }
@@ -209,7 +205,7 @@ open class TestRenderer(
 ) :
     CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
     var lastOnDrawCalendar: Calendar? = null
-    var lastDrawMode = DrawMode.INTERACTIVE
+    var lastRenderParamaters = RenderParameters.DEFAULT_INTERACTIVE
 
     override fun render(
         canvas: Canvas,
@@ -217,7 +213,7 @@ open class TestRenderer(
         calendar: Calendar
     ) {
         lastOnDrawCalendar = calendar
-        lastDrawMode = drawMode
+        lastRenderParamaters = renderParameters
     }
 }
 
