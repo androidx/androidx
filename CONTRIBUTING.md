@@ -11,6 +11,7 @@ The Android team has been exploring how we could make it easier to develop libra
 You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
   - [Fragment](https://developer.android.com/guide/components/fragments)
+  - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
   - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
