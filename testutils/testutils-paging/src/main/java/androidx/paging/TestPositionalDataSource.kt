@@ -19,7 +19,7 @@ package androidx.paging
 import java.util.ArrayList
 
 @Suppress("DEPRECATION")
-class ListDataSource<T : Any>(list: List<T>) : PositionalDataSource<T>() {
+class TestPositionalDataSource<T : Any>(list: List<T>) : PositionalDataSource<T>() {
     private val list: List<T> = ArrayList(list)
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
