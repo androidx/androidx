@@ -1226,3 +1226,8 @@ Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/ja
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
+# > Task :compose:animation:animation-core:testDebugUnitTest
+androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
+kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
+[0-9]+ tests completed\, [0-9]+ failed
+There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
