@@ -48,12 +48,12 @@ android {
         // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         // Listener List
         testInstrumentationRunnerArgument 'listener',
-                //'android.device.collectors.CpuUsageListener,' +
+                        'android.device.collectors.CpuUsageListener,' +
                         'android.device.collectors.ProcLoadListener,' +
                         'android.device.collectors.PerfettoListener,' +
-                        // 'android.device.collectors.AppStartupListener,' +
+                        'android.device.collectors.AppStartupListener,' +
                         'android.device.collectors.JankListener,' +
-                        // 'android.device.collectors.CrashListener,' +
+                        'android.device.collectors.CrashListener,' +
                         'android.device.collectors.ScreenshotOnFailureCollector,' +
                         'android.device.collectors.LogcatOnFailureCollector,' +
                         'android.device.collectors.IncidentReportListener,' +
@@ -83,19 +83,18 @@ dependencies {
     api(JUNIT)
     api(KOTLIN_STDLIB)
     api("androidx.annotation:annotation:1.1.0")
-
     // TODO: remove, once we remove the minor usages in CrystalBall
     implementation(GUAVA_ANDROID)
     androidTestImplementation("com.android:collector-device-lib:0.1.0")
+    androidTestImplementation("com.android:collector-device-lib-platform:0.1.0")
     androidTestImplementation("com.android:collector-helper-utilities:0.1.0")
     androidTestImplementation("com.android:jank-helper:0.1.0")
     androidTestImplementation("com.android:memory-helper:0.1.0")
     androidTestImplementation("com.android:perfetto-helper:0.1.0")
-    // androidTestImplementation("com.android:platform-test-composers:0.1.0")
+    androidTestImplementation("com.android:platform-test-composers:0.1.0")
     androidTestImplementation("com.android:power-helper:0.1.0")
     androidTestImplementation("com.android:simpleperf-helper:0.1.0")
-    // statsd-helper seems to cause a failure to resolve `android.content.Intent`
-    // androidTestImplementation("com.android:statsd-helper:0.1.0") b/169700662
+    androidTestImplementation("com.android:statsd-helper:0.1.0")
     androidTestImplementation("com.android:system-metric-helper:0.1.0")
     androidTestImplementation("com.android:test-composers:0.1.0")
     androidTestImplementation("com.android:platform-test-rules:0.1.0")
