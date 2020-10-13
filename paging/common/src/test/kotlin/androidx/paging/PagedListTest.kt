@@ -52,7 +52,7 @@ class PagedListTest {
     @Test
     fun createLegacy() {
         @Suppress("DEPRECATION")
-        val pagedList = PagedList.Builder(ListDataSource(ITEMS), 100)
+        val pagedList = PagedList.Builder(TestPositionalDataSource(ITEMS), 100)
             .setNotifyExecutor(TestExecutor())
             .setFetchExecutor(TestExecutor())
             .build()

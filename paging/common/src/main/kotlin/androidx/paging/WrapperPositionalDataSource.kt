@@ -26,11 +26,13 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
     override val isInvalid
         get() = source.isInvalid
 
-    override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) =
+    override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         source.addInvalidatedCallback(onInvalidatedCallback)
+    }
 
-    override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) =
+    override fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         source.removeInvalidatedCallback(onInvalidatedCallback)
+    }
 
     override fun invalidate() = source.invalidate()
 

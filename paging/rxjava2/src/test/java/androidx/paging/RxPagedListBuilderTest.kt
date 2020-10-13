@@ -45,7 +45,7 @@ class RxPagedListBuilderTest {
             override fun create(): DataSource<Int, String> {
                 val currentList = localData.first()
                 localData = localData.drop(1)
-                return ListDataSource(currentList)
+                return TestPositionalDataSource(currentList)
             }
         }
     }
