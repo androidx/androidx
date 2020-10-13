@@ -19,7 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.rawTypeName
 import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSType
 
 internal class KspRawType private constructor(
     private val ksType: KSType,

@@ -18,7 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XFiler
 import com.squareup.javapoet.JavaFile
-import org.jetbrains.kotlin.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.CodeGenerator
 
 internal class KspFiler(
     private val delegate: CodeGenerator

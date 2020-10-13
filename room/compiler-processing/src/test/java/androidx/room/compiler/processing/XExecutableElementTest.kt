@@ -352,9 +352,9 @@ class XExecutableElementTest {
                 base: XTypeElement,
                 baseMethodName: String = ownerMethodName
             ): Boolean {
-                val overridee = owner.getMethod(ownerMethodName)
+                val overrider = owner.getMethod(ownerMethodName)
                 val overridden = base.getMethod(baseMethodName)
-                return overridee.overrides(
+                return overrider.overrides(
                     overridden, owner
                 )
             }
@@ -402,6 +402,15 @@ class XExecutableElementTest {
                         ownerMethodName = "setY",
                         base = base,
                         baseMethodName = "getY"
+                    )
+                ).isFalse()
+
+                Truth.assertWithMessage(subject.className.canonicalName()).that(
+                    overrides(
+                        owner = subject,
+                        ownerMethodName = "setY",
+                        base = subject,
+                        baseMethodName = "setY"
                     )
                 ).isFalse()
             }

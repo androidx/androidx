@@ -24,10 +24,10 @@ import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.WildcardTypeName
-import org.jetbrains.kotlin.ksp.getClassDeclarationByName
-import org.jetbrains.kotlin.ksp.getDeclaredFunctions
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeReference
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -503,13 +503,7 @@ class KspTypeTest {
             val prop = file.declarations.first {
                 it.simpleName.asString() == name
             } as KSPropertyDeclaration
-            return checkNotNull(
-                prop.type?.let {
-                    wrap(it)
-                }
-            ) {
-                "cannot find type for $name"
-            }
+            return wrap(prop.type)
         }
         throw IllegalStateException("cannot find any property with name $name")
     }

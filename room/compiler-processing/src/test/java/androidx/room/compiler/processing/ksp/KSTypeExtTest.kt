@@ -25,10 +25,10 @@ import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.getDeclaredFunctions
-import org.jetbrains.kotlin.ksp.getDeclaredProperties
-import org.jetbrains.kotlin.ksp.processing.Resolver
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

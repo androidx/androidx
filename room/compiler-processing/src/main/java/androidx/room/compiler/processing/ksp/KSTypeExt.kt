@@ -21,12 +21,12 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
-import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
-import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
-import org.jetbrains.kotlin.ksp.symbol.Variance
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Variance
 
 internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
@@ -44,13 +44,7 @@ internal fun KSTypeReference?.typeName(): TypeName {
     return if (this == null) {
         ERROR_TYPE_NAME
     } else {
-        val resolvedType = try {
-            requireType()
-        } catch (illegalState: IllegalStateException) {
-            // workaround for https://github.com/google/ksp/issues/101
-            null
-        }
-        resolvedType?.typeName() ?: ERROR_TYPE_NAME
+        resolve().typeName()
     }
 }
 
@@ -120,21 +114,8 @@ internal fun KSDeclaration.getNormalizedPackageName(): String {
     }
 }
 
-/**
- * see: https://github.com/google/ksp/issues/101
- * Wildcard resolution might throw. We are not catching it here as we don't have a good fallback,
- * instead, catching it in the caller when we have an option to handle. And callers which do not
- * have a way to handle will just crash for now until the issue is resolved.
- */
-@Throws(IllegalStateException::class)
-internal fun KSTypeReference.requireType(): KSType {
-    return checkNotNull(resolve()) {
-        "Resolve in type reference should not have returned null, please file a bug. $this"
-    }
-}
-
 internal fun KSTypeArgument.requireType(): KSType {
-    return checkNotNull(type?.requireType()) {
+    return checkNotNull(type?.resolve()) {
         "KSTypeArgument.type should not have been null, please file a bug. $this"
     }
 }

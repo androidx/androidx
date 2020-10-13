@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSType
 
 internal class KspArrayType(
     env: KspProcessingEnv,

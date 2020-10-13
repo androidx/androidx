@@ -18,10 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
-import org.jetbrains.kotlin.ksp.symbol.KSAnnotated
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import java.util.Locale
 
 internal abstract class KspElement(

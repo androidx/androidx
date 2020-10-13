@@ -34,6 +34,7 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.overrides
 import java.util.Locale
 
 /**
@@ -88,6 +89,10 @@ internal sealed class KspSyntheticPropertyMethodElement(
         return XEquality.hashCode(equalityItems)
     }
 
+    final override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
+        return env.resolver.overrides(this, other)
+    }
+
     internal class Getter(
         env: KspProcessingEnv,
         field: KspFieldElement
@@ -127,11 +132,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         override fun kindName(): String {
             return "synthetic property getter"
-        }
-
-        override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-            return other is Getter &&
-                field.declaration.overrides(other.field.declaration)
         }
 
         override fun copyTo(newContainer: XTypeElement): XMethodElement {
@@ -190,11 +190,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         override fun kindName(): String {
             return "synthetic property getter"
-        }
-
-        override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-            return other is Setter &&
-                field.declaration.overrides(other.field.declaration)
         }
 
         override fun copyTo(newContainer: XTypeElement): XMethodElement {
