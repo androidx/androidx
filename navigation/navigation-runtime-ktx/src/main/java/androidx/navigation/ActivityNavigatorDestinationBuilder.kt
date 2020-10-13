@@ -27,10 +27,10 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [ActivityNavigator.Destination]
  */
-inline fun NavGraphBuilder.activity(
+public inline fun NavGraphBuilder.activity(
     @IdRes id: Int,
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
-) = destination(
+): Unit = destination(
     ActivityNavigatorDestinationBuilder(
         provider[ActivityNavigator::class],
         id
@@ -41,21 +41,21 @@ inline fun NavGraphBuilder.activity(
  * DSL for constructing a new [ActivityNavigator.Destination]
  */
 @NavDestinationDsl
-class ActivityNavigatorDestinationBuilder(
+public class ActivityNavigatorDestinationBuilder(
     navigator: ActivityNavigator,
     @IdRes id: Int
 ) : NavDestinationBuilder<ActivityNavigator.Destination>(navigator, id) {
     private val context = navigator.context
 
-    var targetPackage: String? = null
+    public var targetPackage: String? = null
 
-    var activityClass: KClass<out Activity>? = null
+    public var activityClass: KClass<out Activity>? = null
 
-    var action: String? = null
+    public var action: String? = null
 
-    var data: Uri? = null
+    public var data: Uri? = null
 
-    var dataPattern: String? = null
+    public var dataPattern: String? = null
 
     override fun build(): ActivityNavigator.Destination =
         super.build().also { destination ->
