@@ -91,7 +91,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
-public class PreviewView extends FrameLayout {
+public final class PreviewView extends FrameLayout {
 
     private static final String TAG = "PreviewView";
 
@@ -341,10 +341,14 @@ public class PreviewView extends FrameLayout {
 
     /**
      * Applies a {@link ScaleType} to the preview.
-     * <p>
-     * Note that the {@link ScaleType#FILL_CENTER} is applied to the preview by default.
+     *
+     * <p> Once applied, the transformation will take immediate effect. This value can also be set
+     * in the layout XML file via the {@code app:scaleType} attribute.
+     *
+     * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
      * @param scaleType A {@link ScaleType} to apply to the preview.
+     * @attr name app:scaleType
      */
     @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
@@ -354,8 +358,8 @@ public class PreviewView extends FrameLayout {
 
     /**
      * Returns the {@link ScaleType} currently applied to the preview.
-     * <p>
-     * By default, {@link ScaleType#FILL_CENTER} is applied to the preview.
+     *
+     * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
      * @return The {@link ScaleType} currently applied to the preview.
      */
@@ -409,7 +413,6 @@ public class PreviewView extends FrameLayout {
      * state with {@link LiveData#getValue()}, or register an observer with
      * {@link LiveData#observe} .
      */
-    @UiThread
     @NonNull
     public LiveData<StreamState> getPreviewStreamState() {
         return mPreviewStreamStateLiveData;
@@ -426,6 +429,10 @@ public class PreviewView extends FrameLayout {
      * ({@link View#onDraw(Canvas)} for instance).
      * <p>
      * If an error occurs during the copy, an empty {@link Bitmap} will be returned.
+     * <p>
+     * If the preview hasn't started yet, the method may return null or an empty {@link Bitmap}. Use
+     * {@link #getPreviewStreamState()} to get the {@link StreamState} and wait for
+     * {@link StreamState#STREAMING} to make sure the preview is started.
      *
      * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
      * displayed on the {@link PreviewView}, or null if the camera preview hasn't started yet.
@@ -444,6 +451,7 @@ public class PreviewView extends FrameLayout {
      * the {@link UseCase}s in the {@link UseCaseGroup} will have the same output image that also
      * matches the aspect ratio of the {@link PreviewView}.
      *
+     * @return null if the view is not currently attached or the view's width/height is zero.
      * @see ViewPort
      * @see UseCaseGroup
      */
@@ -493,6 +501,7 @@ public class PreviewView extends FrameLayout {
      *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                       {@link Surface#ROTATION_180}, or
      *                       {@link Surface#ROTATION_270}.
+     * @return null if the view's width/height is zero.
      * @see ImplementationMode
      */
     @UiThread
@@ -644,7 +653,8 @@ public class PreviewView extends FrameLayout {
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the start of the view, which is the
          * top left corner in a left-to-right (LTR) layout, or the top right corner in a
-         * right-to-left (RTL) layout.
+         * right-to-left (RTL) layout. The background area not covered by the preview stream
+         * will be black or the background of the {@link PreviewView}
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -652,7 +662,8 @@ public class PreviewView extends FrameLayout {
         FIT_START(3),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-         * within the {@link PreviewView}, and center it inside the view.
+         * within the {@link PreviewView}, and center it inside the view. The background area not
+         * covered by the preview stream will be black or the background of the {@link PreviewView}.
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -662,7 +673,8 @@ public class PreviewView extends FrameLayout {
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the end of the view, which is the
          * bottom right corner in a left-to-right (LTR) layout, or the bottom left corner in a
-         * right-to-left (RTL) layout.
+         * right-to-left (RTL) layout. The background area not covered by the preview stream
+         * will be black or the background of the {@link PreviewView}.
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -702,7 +714,7 @@ public class PreviewView extends FrameLayout {
          * {@link ImplementationMode#COMPATIBLE}. When in {@link ImplementationMode#PERFORMANCE}
          * mode, it is possible that the preview becomes visible slightly after the state has
          * changed. For apps requiring a precise signal for when the preview starts, please set
-         * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
+         * {@link ImplementationMode#COMPATIBLE} mode via {@link #setImplementationMode}.
          */
         STREAMING
     }
