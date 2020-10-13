@@ -29,7 +29,7 @@ import android.location.Location
  * val (lat, lon) = myLocation
  * ```
  */
-inline operator fun Location.component1() = this.latitude
+public inline operator fun Location.component1(): Double = this.latitude
 
 /**
  * Returns the longitude of this [Location].
@@ -40,4 +40,4 @@ inline operator fun Location.component1() = this.latitude
  * val (lat, lon) = myLocation
  * ```
  */
-inline operator fun Location.component2() = this.longitude
+public inline operator fun Location.component2(): Double = this.longitude

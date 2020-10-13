@@ -39,7 +39,7 @@ private fun TypedArray.checkAttribute(@StyleableRes index: Int) {
  * @see TypedArray.hasValue
  * @see TypedArray.getBoolean
  */
-fun TypedArray.getBooleanOrThrow(@StyleableRes index: Int): Boolean {
+public fun TypedArray.getBooleanOrThrow(@StyleableRes index: Int): Boolean {
     checkAttribute(index)
     return getBoolean(index, false)
 }
@@ -52,7 +52,7 @@ fun TypedArray.getBooleanOrThrow(@StyleableRes index: Int): Boolean {
  * @see TypedArray.getColor
  */
 @ColorInt
-fun TypedArray.getColorOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getColorOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getColor(index, 0)
 }
@@ -64,7 +64,7 @@ fun TypedArray.getColorOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.hasValue
  * @see TypedArray.getColorStateList
  */
-fun TypedArray.getColorStateListOrThrow(@StyleableRes index: Int): ColorStateList {
+public fun TypedArray.getColorStateListOrThrow(@StyleableRes index: Int): ColorStateList {
     checkAttribute(index)
     return checkNotNull(getColorStateList(index)) {
         "Attribute value was not a color or color state list."
@@ -78,7 +78,7 @@ fun TypedArray.getColorStateListOrThrow(@StyleableRes index: Int): ColorStateLis
  * @see TypedArray.hasValue
  * @see TypedArray.getDimension
  */
-fun TypedArray.getDimensionOrThrow(@StyleableRes index: Int): Float {
+public fun TypedArray.getDimensionOrThrow(@StyleableRes index: Int): Float {
     checkAttribute(index)
     return getDimension(index, 0f)
 }
@@ -91,7 +91,7 @@ fun TypedArray.getDimensionOrThrow(@StyleableRes index: Int): Float {
  * @see TypedArray.getDimensionPixelOffset
  */
 @Dimension
-fun TypedArray.getDimensionPixelOffsetOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getDimensionPixelOffsetOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getDimensionPixelOffset(index, 0)
 }
@@ -104,7 +104,7 @@ fun TypedArray.getDimensionPixelOffsetOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.getDimensionPixelSize
  */
 @Dimension
-fun TypedArray.getDimensionPixelSizeOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getDimensionPixelSizeOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getDimensionPixelSize(index, 0)
 }
@@ -116,7 +116,7 @@ fun TypedArray.getDimensionPixelSizeOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.hasValue
  * @see TypedArray.getDrawable
  */
-fun TypedArray.getDrawableOrThrow(@StyleableRes index: Int): Drawable {
+public fun TypedArray.getDrawableOrThrow(@StyleableRes index: Int): Drawable {
     checkAttribute(index)
     return getDrawable(index)!!
 }
@@ -128,7 +128,7 @@ fun TypedArray.getDrawableOrThrow(@StyleableRes index: Int): Drawable {
  * @see TypedArray.hasValue
  * @see TypedArray.getFloat
  */
-fun TypedArray.getFloatOrThrow(@StyleableRes index: Int): Float {
+public fun TypedArray.getFloatOrThrow(@StyleableRes index: Int): Float {
     checkAttribute(index)
     return getFloat(index, 0f)
 }
@@ -141,7 +141,7 @@ fun TypedArray.getFloatOrThrow(@StyleableRes index: Int): Float {
  * @see TypedArray.getFont
  */
 @RequiresApi(26)
-fun TypedArray.getFontOrThrow(@StyleableRes index: Int): Typeface {
+public fun TypedArray.getFontOrThrow(@StyleableRes index: Int): Typeface {
     checkAttribute(index)
     return getFont(index)!!
 }
@@ -153,7 +153,7 @@ fun TypedArray.getFontOrThrow(@StyleableRes index: Int): Typeface {
  * @see TypedArray.hasValue
  * @see TypedArray.getInt
  */
-fun TypedArray.getIntOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getIntOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getInt(index, 0)
 }
@@ -165,7 +165,7 @@ fun TypedArray.getIntOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.hasValue
  * @see TypedArray.getInteger
  */
-fun TypedArray.getIntegerOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getIntegerOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getInteger(index, 0)
 }
@@ -178,7 +178,7 @@ fun TypedArray.getIntegerOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.getResourceId
  */
 @AnyRes
-fun TypedArray.getResourceIdOrThrow(@StyleableRes index: Int): Int {
+public fun TypedArray.getResourceIdOrThrow(@StyleableRes index: Int): Int {
     checkAttribute(index)
     return getResourceId(index, 0)
 }
@@ -190,7 +190,7 @@ fun TypedArray.getResourceIdOrThrow(@StyleableRes index: Int): Int {
  * @see TypedArray.hasValue
  * @see TypedArray.getString
  */
-fun TypedArray.getStringOrThrow(@StyleableRes index: Int): String {
+public fun TypedArray.getStringOrThrow(@StyleableRes index: Int): String {
     checkAttribute(index)
     return checkNotNull(getString(index)) {
         "Attribute value could not be coerced to String."
@@ -204,7 +204,7 @@ fun TypedArray.getStringOrThrow(@StyleableRes index: Int): String {
  * @see TypedArray.hasValue
  * @see TypedArray.getText
  */
-fun TypedArray.getTextOrThrow(@StyleableRes index: Int): CharSequence {
+public fun TypedArray.getTextOrThrow(@StyleableRes index: Int): CharSequence {
     checkAttribute(index)
     return checkNotNull(getText(index)) {
         "Attribute value could not be coerced to CharSequence."
@@ -218,7 +218,7 @@ fun TypedArray.getTextOrThrow(@StyleableRes index: Int): CharSequence {
  * @see TypedArray.hasValue
  * @see TypedArray.getTextArray
  */
-fun TypedArray.getTextArrayOrThrow(@StyleableRes index: Int): Array<CharSequence> {
+public fun TypedArray.getTextArrayOrThrow(@StyleableRes index: Int): Array<CharSequence> {
     checkAttribute(index)
     return getTextArray(index)
 }
@@ -228,7 +228,7 @@ fun TypedArray.getTextArrayOrThrow(@StyleableRes index: Int): Array<CharSequence
  *
  * @see kotlin.io.use
  */
-inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
+public inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
     return block(this).also {
         recycle()
     }

@@ -34,7 +34,7 @@ import androidx.core.graphics.applyCanvas
  *
  * @see doOnLayout
  */
-inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) {
+public inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) {
     addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
         override fun onLayoutChange(
             view: View,
@@ -62,7 +62,7 @@ inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) {
  *
  * @see doOnNextLayout
  */
-inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
+public inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
     if (ViewCompat.isLaidOut(this) && !isLayoutRequested) {
         action(this)
     } else {
@@ -77,9 +77,9 @@ inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
  *
  * The action will only be invoked once prior to the next draw and then removed.
  */
-inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit): OneShotPreDrawListener {
-    return OneShotPreDrawListener.add(this) { action(this) }
-}
+public inline fun View.doOnPreDraw(
+    crossinline action: (view: View) -> Unit
+): OneShotPreDrawListener = OneShotPreDrawListener.add(this) { action(this) }
 
 /**
  * Performs the given action when this view is attached to a window. If the view is already
@@ -90,7 +90,7 @@ inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit): OneShotPr
  *
  * @see doOnDetach
  */
-inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
+public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
     if (ViewCompat.isAttachedToWindow(this)) {
         action(this)
     } else {
@@ -114,7 +114,7 @@ inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
  *
  * @see doOnAttach
  */
-inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
+public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
     if (!ViewCompat.isAttachedToWindow(this)) {
         action(this)
     } else {
@@ -136,7 +136,7 @@ inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
  * @see View.setPaddingRelative
  */
 @RequiresApi(17)
-inline fun View.updatePaddingRelative(
+public inline fun View.updatePaddingRelative(
     @Px start: Int = paddingStart,
     @Px top: Int = paddingTop,
     @Px end: Int = paddingEnd,
@@ -151,7 +151,7 @@ inline fun View.updatePaddingRelative(
  *
  * @see View.setPadding
  */
-inline fun View.updatePadding(
+public inline fun View.updatePadding(
     @Px left: Int = paddingLeft,
     @Px top: Int = paddingTop,
     @Px right: Int = paddingRight,
@@ -165,7 +165,7 @@ inline fun View.updatePadding(
  *
  * @see View.setPadding
  */
-inline fun View.setPadding(@Px size: Int) {
+public inline fun View.setPadding(@Px size: Int) {
     setPadding(size, size, size, size)
 }
 
@@ -181,7 +181,7 @@ inline fun View.setPadding(@Px size: Int) {
  *
  * @return the created Runnable
  */
-inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -> Unit): Runnable {
+public inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -> Unit): Runnable {
     val runnable = Runnable { action() }
     postDelayed(runnable, delayInMillis)
     return runnable
@@ -200,7 +200,7 @@ inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -> Unit)
  * @return the created Runnable
  */
 @RequiresApi(16)
-inline fun View.postOnAnimationDelayed(
+public inline fun View.postOnAnimationDelayed(
     delayInMillis: Long,
     crossinline action: () -> Unit
 ): Runnable {
@@ -223,7 +223,7 @@ inline fun View.postOnAnimationDelayed(
  *
  * @param config Bitmap config of the desired bitmap. Defaults to [Bitmap.Config.ARGB_8888].
  */
-fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
+public fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
     if (!ViewCompat.isLaidOut(this)) {
         throw IllegalStateException("View needs to be laid out before calling drawToBitmap()")
     }
@@ -248,7 +248,7 @@ fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
  * view.isVisible = true
  * ```
  */
-inline var View.isVisible: Boolean
+public inline var View.isVisible: Boolean
     get() = visibility == View.VISIBLE
     set(value) {
         visibility = if (value) View.VISIBLE else View.GONE
@@ -269,7 +269,7 @@ inline var View.isVisible: Boolean
  * view.isInvisible = true
  * ```
  */
-inline var View.isInvisible: Boolean
+public inline var View.isInvisible: Boolean
     get() = visibility == View.INVISIBLE
     set(value) {
         visibility = if (value) View.INVISIBLE else View.VISIBLE
@@ -290,7 +290,7 @@ inline var View.isInvisible: Boolean
  * view.isGone = true
  * ```
  */
-inline var View.isGone: Boolean
+public inline var View.isGone: Boolean
     get() = visibility == View.GONE
     set(value) {
         visibility = if (value) View.GONE else View.VISIBLE
@@ -303,7 +303,7 @@ inline var View.isGone: Boolean
  * @see View.getLayoutParams
  * @see View.setLayoutParams
  **/
-inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Unit) {
+public inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Unit) {
     updateLayoutParams<ViewGroup.LayoutParams>(block)
 }
 
@@ -315,7 +315,9 @@ inline fun View.updateLayoutParams(block: ViewGroup.LayoutParams.() -> Unit) {
  * @see View.setLayoutParams
  **/
 @JvmName("updateLayoutParamsTyped")
-inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(block: T.() -> Unit) {
+public inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(
+    block: T.() -> Unit
+) {
     val params = layoutParams as T
     block(params)
     layoutParams = params
@@ -327,7 +329,7 @@ inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(block: T
  *
  * @see ViewGroup.MarginLayoutParams
  */
-inline val View.marginLeft: Int
+public inline val View.marginLeft: Int
     get() = (layoutParams as? MarginLayoutParams)?.leftMargin ?: 0
 
 /**
@@ -336,7 +338,7 @@ inline val View.marginLeft: Int
  *
  * @see ViewGroup.MarginLayoutParams
  */
-inline val View.marginTop: Int
+public inline val View.marginTop: Int
     get() = (layoutParams as? MarginLayoutParams)?.topMargin ?: 0
 
 /**
@@ -345,7 +347,7 @@ inline val View.marginTop: Int
  *
  * @see ViewGroup.MarginLayoutParams
  */
-inline val View.marginRight: Int
+public inline val View.marginRight: Int
     get() = (layoutParams as? MarginLayoutParams)?.rightMargin ?: 0
 
 /**
@@ -354,7 +356,7 @@ inline val View.marginRight: Int
  *
  * @see ViewGroup.MarginLayoutParams
  */
-inline val View.marginBottom: Int
+public inline val View.marginBottom: Int
     get() = (layoutParams as? MarginLayoutParams)?.bottomMargin ?: 0
 
 /**
@@ -364,7 +366,7 @@ inline val View.marginBottom: Int
  * @see ViewGroup.MarginLayoutParams
  * @see MarginLayoutParamsCompat.getMarginStart
  */
-inline val View.marginStart: Int
+public inline val View.marginStart: Int
     get() {
         val lp = layoutParams
         return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginStart(lp) else 0
@@ -377,7 +379,7 @@ inline val View.marginStart: Int
  * @see ViewGroup.MarginLayoutParams
  * @see MarginLayoutParamsCompat.getMarginEnd
  */
-inline val View.marginEnd: Int
+public inline val View.marginEnd: Int
     get() {
         val lp = layoutParams
         return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginEnd(lp) else 0
@@ -389,7 +391,7 @@ inline val View.marginEnd: Int
  *
  * @see ViewGroup.descendants
  */
-val View.ancestors: Sequence<ViewParent>
+public val View.ancestors: Sequence<ViewParent>
     get() = generateSequence(parent, ViewParent::getParent)
 
 /**
@@ -399,7 +401,7 @@ val View.ancestors: Sequence<ViewParent>
  *
  * @see ViewGroup.descendants
  */
-val View.allViews: Sequence<View>
+public val View.allViews: Sequence<View>
     get() = sequence {
         yield(this@allViews)
         if (this@allViews is ViewGroup) {

@@ -30,7 +30,7 @@ import android.os.Handler
  *
  * @return the created Runnable
  */
-inline fun Handler.postDelayed(
+public inline fun Handler.postDelayed(
     delayInMillis: Long,
     token: Any? = null,
     crossinline action: () -> Unit
@@ -57,7 +57,7 @@ inline fun Handler.postDelayed(
  * @param token An optional object with which the posted message will be associated.
  * @return the created Runnable
  */
-inline fun Handler.postAtTime(
+public inline fun Handler.postAtTime(
     uptimeMillis: Long,
     token: Any? = null,
     crossinline action: () -> Unit

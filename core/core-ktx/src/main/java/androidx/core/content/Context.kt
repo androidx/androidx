@@ -27,7 +27,7 @@ import androidx.annotation.StyleRes
  *
  * @see ContextCompat.getSystemService
  */
-inline fun <reified T : Any> Context.getSystemService(): T? =
+public inline fun <reified T : Any> Context.getSystemService(): T? =
     ContextCompat.getSystemService(this, T::class.java)
 
 /**
@@ -49,7 +49,7 @@ inline fun <reified T : Any> Context.getSystemService(): T? =
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes
  */
-inline fun Context.withStyledAttributes(
+public inline fun Context.withStyledAttributes(
     set: AttributeSet? = null,
     attrs: IntArray,
     @AttrRes defStyleAttr: Int = 0,
@@ -68,7 +68,7 @@ inline fun Context.withStyledAttributes(
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes
  */
-inline fun Context.withStyledAttributes(
+public inline fun Context.withStyledAttributes(
     @StyleRes resourceId: Int,
     attrs: IntArray,
     block: TypedArray.() -> Unit

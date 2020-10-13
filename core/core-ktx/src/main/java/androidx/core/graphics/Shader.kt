@@ -22,7 +22,7 @@ import android.graphics.Shader
 /**
  * Wrap the specified [block] in calls to [Shader.getLocalMatrix] and [Shader.setLocalMatrix].
  */
-inline fun Shader.transform(block: Matrix.() -> Unit) {
+public inline fun Shader.transform(block: Matrix.() -> Unit) {
     val matrix = Matrix()
     getLocalMatrix(matrix)
     block(matrix)
