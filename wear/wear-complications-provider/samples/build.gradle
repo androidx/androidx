@@ -25,7 +25,7 @@ plugins {
 dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.1.0")
-    api(project(":wear:wear-complications-data"))
+    api(project(":wear:wear-complications-provider"))
     api(GUAVA_ANDROID)
     api(KOTLIN_STDLIB)
 }
