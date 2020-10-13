@@ -629,6 +629,21 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
+    public void defaultImplementationMode_isPerformance() {
+        PreviewView previewView = new PreviewView(mContext);
+        assertThat(previewView.getImplementationMode()).isEqualTo(PERFORMANCE);
+    }
+
+    @Test
+    @UiThreadTest
+    public void getsImplementationModeFromXmlLayout() {
+        PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_implementation_mode_compatible, null);
+        assertThat(previewView.getImplementationMode()).isEqualTo(COMPATIBLE);
+    }
+
+    @Test
+    @UiThreadTest
     public void redrawsPreview_whenScaleTypeChanges() {
         final PreviewView previewView = new PreviewView(mContext);
         final PreviewViewImplementation implementation = mock(TestPreviewViewImplementation.class);

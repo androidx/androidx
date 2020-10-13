@@ -24,6 +24,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 
+import android.app.Instrumentation;
+
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
@@ -63,11 +65,13 @@ public final class PreviewViewFragmentTest {
     public GrantPermissionRule mAudioPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+
     @Before
     public void setup() {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+        CoreAppTestUtil.clearDeviceUI(mInstrumentation);
     }
 
     @Test
@@ -187,7 +191,7 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+        mInstrumentation.runOnMainSync(
                 () -> getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END));
 
         // Stop the fragment
@@ -203,8 +207,9 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        getPreviewView(scenario).setImplementationMode(
-                PreviewView.ImplementationMode.COMPATIBLE);
+        mInstrumentation.runOnMainSync(
+                () -> getPreviewView(scenario).setImplementationMode(
+                        PreviewView.ImplementationMode.COMPATIBLE));
 
         // Stop the fragment
         scenario.moveToState(Lifecycle.State.CREATED);
