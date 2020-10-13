@@ -39,7 +39,7 @@ import androidx.core.graphics.component4
  * @param config Bitmap config of the desired bitmap. Null attempts to use the native config, if
  * any. Defaults to [Config.ARGB_8888] otherwise.
  */
-fun Drawable.toBitmap(
+public fun Drawable.toBitmap(
     @Px width: Int = intrinsicWidth,
     @Px height: Int = intrinsicHeight,
     config: Config? = null
@@ -71,7 +71,7 @@ fun Drawable.toBitmap(
  *
  * @see Drawable.setBounds
  */
-fun Drawable.updateBounds(
+public fun Drawable.updateBounds(
     @Px left: Int = bounds.left,
     @Px top: Int = bounds.top,
     @Px right: Int = bounds.right,

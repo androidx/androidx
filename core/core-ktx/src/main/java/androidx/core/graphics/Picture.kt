@@ -32,7 +32,7 @@ import android.graphics.Picture
  * }
  * ```
  */
-inline fun Picture.record(width: Int, height: Int, block: Canvas.() -> Unit): Picture {
+public inline fun Picture.record(width: Int, height: Int, block: Canvas.() -> Unit): Picture {
     val c = beginRecording(width, height)
     try {
         c.block()

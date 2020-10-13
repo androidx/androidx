@@ -23,7 +23,7 @@ import android.database.sqlite.SQLiteDatabase
  *
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
  */
-inline fun <T> SQLiteDatabase.transaction(
+public inline fun <T> SQLiteDatabase.transaction(
     exclusive: Boolean = true,
     body: SQLiteDatabase.() -> T
 ): T {

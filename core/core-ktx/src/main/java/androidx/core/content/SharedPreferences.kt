@@ -36,7 +36,7 @@ import android.content.SharedPreferences
  * ```
  */
 @SuppressLint("ApplySharedPref")
-inline fun SharedPreferences.edit(
+public inline fun SharedPreferences.edit(
     commit: Boolean = false,
     action: SharedPreferences.Editor.() -> Unit
 ) {
