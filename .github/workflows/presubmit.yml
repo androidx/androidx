@@ -67,9 +67,12 @@ jobs:
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
         run: |
-          cd paging && ./gradlew :buildOnServer &&  \
-          cd ../room && ./gradlew :buildOnServer && \
-          cd ../work && ./gradlew :buildOnServer
+          cd activity      && ./gradlew :buildOnServer && \
+          cd ../fragment   && ./gradlew :buildOnServer && \
+          cd ../navigation && ./gradlew :buildOnServer && \
+          cd ../paging     && ./gradlew :buildOnServer && \
+          cd ../room       && ./gradlew :buildOnServer && \
+          cd ../work       && ./gradlew :buildOnServer
         id: gradlew_bos
       - name: Upload Results
         if: always()

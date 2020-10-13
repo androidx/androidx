@@ -30,16 +30,16 @@ dependencies {
     api("androidx.core:core-ktx:1.1.0") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(project(":lifecycle:lifecycle-runtime-ktx")) {
+    api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx")) {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
-    api(project(":savedstate:savedstate-ktx")) {
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
+    api(projectOrArtifact(":savedstate:savedstate-ktx")) {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(KOTLIN_STDLIB)
 
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

@@ -12,7 +12,13 @@ You can learn more about using it from [Android Jetpack landing page](https://de
 
 For contributions via GitHub, see the [GitHub Contribution Guide](CONTRIBUTING.md).
 
-Note: The contributions workflow via GitHub is currently experimental - only contributions to [Paging](paging), [Room](room) and [WorkManager](work) are being accepted at this time.
+Note: The contributions workflow via GitHub is currently experimental - only contributions to the following projects are being accepted at this time:
+* [Activity](activity)
+* [Fragment](fragment)
+* [Navigation](navigation)
+* [Paging](paging)
+* [Room](room)
+* [WorkManager](work)
 
 ## Code Review Etiquette
 When contributing to Jetpack, follow the [code review etiquette](code-review.md).
