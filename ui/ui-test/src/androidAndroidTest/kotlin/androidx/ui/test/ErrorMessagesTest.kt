@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.filters.MediumTest
 import androidx.ui.test.util.expectErrorMessage
+import androidx.ui.test.util.expectErrorMessageMatches
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
 import org.junit.Test
@@ -49,19 +50,17 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage(
+        expectErrorMessageMatches(
             "" +
-                "Failed to assert the following: (OnClick is defined)\n" +
+                "Failed to assert the following: \\(OnClick is defined\\)\n" +
                 "Semantics of the node:\n" +
-                "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
-                "Disabled = 'kotlin.Unit'\n" +
+                "Node #X at \\(X, X, X, X\\)px, Tag: 'MyButton'\n" +
+                "Disabled = 'kotlin\\.Unit'\n" +
                 "Text = 'Toggle'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.compose.ui.text.TextLayoutResult>, " +
-                "java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "MergeDescendants = 'true'\n" +
                 "Has 1 sibling\n" +
-                "Selector used: (TestTag = 'MyButton')"
+                "Selector used: \\(TestTag = 'MyButton'\\)"
         ) {
             rule.onNodeWithTag("MyButton")
                 .assertHasClickAction()
@@ -238,17 +237,15 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage(
+        expectErrorMessageMatches(
             "" +
                 "Failed to perform a gesture.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at (X, X, X, X)px\n" +
+                "Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
-                " java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' (ignoreCase: false)"
+                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
         ) {
             node.performClick()
         }
@@ -267,17 +264,15 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage(
+        expectErrorMessageMatches(
             "" +
                 "Failed: assertExists.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at (X, X, X, X)px\n" +
+                "Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
-                " java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' (ignoreCase: false)"
+                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
         ) {
             node.assertExists()
         }
@@ -296,17 +291,15 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage(
+        expectErrorMessageMatches(
             "" +
-                "Failed to assert the following: (OnClick is defined)\n" +
+                "Failed to assert the following: \\(OnClick is defined\\)\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
-                "Node #X at (X, X, X, X)px\n" +
+                "Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<" +
-                "java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
-                " java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling\n" +
-                "Original selector: Text = 'Hello' (ignoreCase: false)"
+                "Original selector: Text = 'Hello' \\(ignoreCase: false\\)"
         ) {
             node.assertHasClickAction()
         }
