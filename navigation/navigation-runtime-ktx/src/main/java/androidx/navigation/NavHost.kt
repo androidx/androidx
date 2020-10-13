@@ -21,7 +21,7 @@ import androidx.annotation.IdRes
 /**
  * Construct a new [NavGraph]
  */
-inline fun NavHost.createGraph(
+public inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit

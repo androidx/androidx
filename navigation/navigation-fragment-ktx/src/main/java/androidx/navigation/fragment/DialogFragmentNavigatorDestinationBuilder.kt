@@ -27,15 +27,17 @@ import kotlin.reflect.KClass
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
-inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(@IdRes id: Int) = dialog<F>(id) {}
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
+    @IdRes id: Int
+): Unit = dialog<F>(id) {}
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  */
-inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
-) = destination(
+): Unit = destination(
     DialogFragmentNavigatorDestinationBuilder(
         provider[DialogFragmentNavigator::class],
         id,
@@ -47,7 +49,7 @@ inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
  * DSL for constructing a new [DialogFragmentNavigator.Destination]
  */
 @NavDestinationDsl
-class DialogFragmentNavigatorDestinationBuilder(
+public class DialogFragmentNavigatorDestinationBuilder(
     navigator: DialogFragmentNavigator,
     @IdRes id: Int,
     private val fragmentClass: KClass<out DialogFragment>

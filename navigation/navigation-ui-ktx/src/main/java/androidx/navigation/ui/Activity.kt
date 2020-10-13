@@ -40,7 +40,7 @@ import androidx.navigation.NavController
  *                      in the title of the action bar.
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
  */
-fun AppCompatActivity.setupActionBarWithNavController(
+public fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,
     drawerLayout: DrawerLayout?
 ) {
@@ -69,7 +69,7 @@ fun AppCompatActivity.setupActionBarWithNavController(
  * @param configuration Additional configuration options for customizing the behavior of the
  *                      ActionBar
  */
-fun AppCompatActivity.setupActionBarWithNavController(
+public fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,
     configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
 ) {
