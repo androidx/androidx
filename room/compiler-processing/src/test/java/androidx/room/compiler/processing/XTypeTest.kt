@@ -30,7 +30,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import org.jetbrains.kotlin.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.getClassDeclarationByName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

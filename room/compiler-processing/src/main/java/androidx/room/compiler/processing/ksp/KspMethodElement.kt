@@ -23,12 +23,10 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
-import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import org.jetbrains.kotlin.ksp.symbol.ClassKind
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
-import org.jetbrains.kotlin.ksp.symbol.Modifier
-import org.jetbrains.kotlin.ksp.symbol.Origin
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 
 internal sealed class KspMethodElement(
     env: KspProcessingEnv,
@@ -77,39 +75,7 @@ internal sealed class KspMethodElement(
     }
 
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-        if (other is KspMethodElement) {
-            return try {
-                declaration.overrides(other.declaration)
-            } catch (castException: ClassCastException) {
-                // TODO remove the try catch once that bug is fixed.
-                // see https://github.com/google/ksp/issues/94
-                false
-            }
-        }
-        // TODO https://github.com/google/ksp/issues/93
-        //  remove this custom implementation when KSP supports this out of the box
-        // if our declaration is coming from java, it can override property getters/setters as well
-        val checkForJavaToKotlinOverride = other.isOverrideableIgnoringContainer() &&
-            (declaration.origin == Origin.JAVA || declaration.origin == Origin.CLASS)
-        return if (checkForJavaToKotlinOverride && name == other.name) {
-            when (other) {
-                is KspSyntheticPropertyMethodElement.Getter -> {
-                    return parameters.isEmpty() &&
-                        asMemberOf(owner.type).returnType.isSameType(
-                            other.asMemberOf(owner.type).returnType
-                        )
-                }
-                is KspSyntheticPropertyMethodElement.Setter -> {
-                    return parameters.size == 1 &&
-                        parameters.first().asMemberOf(owner.type).isSameType(
-                            other.parameters.first().asMemberOf(owner.type)
-                        )
-                }
-                else -> false
-            }
-        } else {
-            false
-        }
+        return env.resolver.overrides(this, other)
     }
 
     override fun copyTo(newContainer: XTypeElement): KspMethodElement {

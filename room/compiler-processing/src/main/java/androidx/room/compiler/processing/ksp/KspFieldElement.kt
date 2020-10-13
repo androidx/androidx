@@ -23,7 +23,7 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.FIELD
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 
 internal class KspFieldElement(
     env: KspProcessingEnv,

@@ -16,19 +16,19 @@
 
 package androidx.room.compiler.processing.ksp
 
-import org.jetbrains.kotlin.ksp.closestClassDeclaration
-import org.jetbrains.kotlin.ksp.getAllSuperTypes
-import org.jetbrains.kotlin.ksp.processing.Resolver
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSName
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
-import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
-import org.jetbrains.kotlin.ksp.symbol.KSVariableParameter
-import org.jetbrains.kotlin.ksp.symbol.Nullability
+import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSName
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Nullability
 
 /**
  * Returns the type of a property as if it is member of the given [ksType].
@@ -38,18 +38,18 @@ import org.jetbrains.kotlin.ksp.symbol.Nullability
  * TODO: remove once https://github.com/android/kotlin/issues/26 is implemented
  */
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
-    val myType: KSType = checkNotNull(type?.requireType()) {
+    val myType: KSType = checkNotNull(type.resolve()) {
         "Cannot find type of Kotlin property: $this"
     }
     return myType.asMemberOf(resolver, this, ksType)
 }
 
-internal fun KSVariableParameter.typeAsMemberOf(
+internal fun KSValueParameter.typeAsMemberOf(
     resolver: Resolver,
     functionDeclaration: KSFunctionDeclaration,
     ksType: KSType
 ): KSType {
-    val myType: KSType = checkNotNull(type?.requireType()) {
+    val myType: KSType = checkNotNull(type?.resolve()) {
         "Cannot find type of method parameter: $this"
     }
     return myType.asMemberOf(resolver, functionDeclaration, ksType)
@@ -59,7 +59,7 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
     ksType: KSType
 ): KSType {
-    val myType: KSType = checkNotNull(returnType?.requireType()) {
+    val myType: KSType = checkNotNull(returnType?.resolve()) {
         "Cannot resolve return type of $this"
     }
     return myType.asMemberOf(resolver, this, ksType)

@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 
 /**
  * Finds the class that contains this declaration and throws [IllegalStateException] if it cannot

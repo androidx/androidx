@@ -24,15 +24,15 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
-import org.jetbrains.kotlin.ksp.processing.CodeGenerator
-import org.jetbrains.kotlin.ksp.processing.KSPLogger
-import org.jetbrains.kotlin.ksp.processing.Resolver
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
-import org.jetbrains.kotlin.ksp.symbol.KSTypeParameter
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
-import org.jetbrains.kotlin.ksp.symbol.Variance
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Variance
 
 internal class KspProcessingEnv(
     override val options: Map<String, String>,
@@ -121,7 +121,7 @@ internal class KspProcessingEnv(
     }
 
     fun wrap(ksTypeReference: KSTypeReference): KspDeclaredType {
-        return wrap(ksTypeReference.requireType())
+        return wrap(ksTypeReference.resolve())
     }
 
     fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspTypeArgumentType {

@@ -22,12 +22,12 @@ import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
-import org.jetbrains.kotlin.ksp.symbol.KSVariableParameter
+import com.google.devtools.ksp.symbol.KSValueParameter
 
 internal class KspExecutableParameterElement(
     val env: KspProcessingEnv,
     val method: KspExecutableElement,
-    val parameter: KSVariableParameter
+    val parameter: KSValueParameter
 ) : XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(env, parameter, METHOD_PARAMETER) {

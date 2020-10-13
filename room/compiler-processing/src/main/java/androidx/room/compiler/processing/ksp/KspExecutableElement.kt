@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
