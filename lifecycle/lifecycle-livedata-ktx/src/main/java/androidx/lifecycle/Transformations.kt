@@ -32,7 +32,7 @@ package androidx.lifecycle
  * val userFullNameLD: LiveData<String> = userLD.map { user -> user.firstName + user.lastName }
  * ```
  */
-inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> =
+public inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> =
     Transformations.map(this) { transform(it) }
 
 /**
@@ -74,7 +74,7 @@ inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> 
  * }
  * ```
  */
-inline fun <X, Y> LiveData<X>.switchMap(
+public inline fun <X, Y> LiveData<X>.switchMap(
     crossinline transform: (X) -> LiveData<Y>
 ): LiveData<Y> = Transformations.switchMap(this) { transform(it) }
 
@@ -83,5 +83,5 @@ inline fun <X, Y> LiveData<X>.switchMap(
  * has been changed.  The value is considered changed if `equals()` yields `false`.
  */
 @Suppress("NOTHING_TO_INLINE")
-inline fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> =
+public inline fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> =
     Transformations.distinctUntilChanged(this)

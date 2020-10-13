@@ -68,7 +68,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
 @JvmOverloads
-fun <T> Flow<T>.asLiveData(
+public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT
 ): LiveData<T> = liveData(context, timeoutInMs) {
@@ -88,7 +88,7 @@ fun <T> Flow<T>.asLiveData(
  * BackPressure: the returned flow is conflated. There is no mechanism to suspend an emission by
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
-fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
+public fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
     val channel = Channel<T>(Channel.CONFLATED)
     val observer = Observer<T> {
         channel.offer(it)
@@ -142,7 +142,7 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
  * ([LiveData.hasActiveObservers]. Defaults to [DEFAULT_TIMEOUT].
  */
 @RequiresApi(Build.VERSION_CODES.O)
-fun <T> Flow<T>.asLiveData(
+public fun <T> Flow<T>.asLiveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration
 ): LiveData<T> = asLiveData(context, timeout.toMillis())
