@@ -432,7 +432,7 @@ internal class ComposeViewAdapter : FrameLayout {
                 }
             }
         }
-        composition = setContent(Recomposer.current(), null, previewComposition)
+        composition = setContent(Recomposer.current(), previewComposition)
     }
 
     /**
