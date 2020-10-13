@@ -1166,3 +1166,63 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:paging:paging:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
+Html results of .* zipped into.*\.zip
+# > Task :annotation:annotation-experimental-lint:test
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
+WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
+WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\-alpha\-[0-9]+/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to field java\.lang\.reflect\.Field\.modifiers
+WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
+# > Task :compose:compiler:compiler-hosted:integration-tests:test
+wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
+# > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
+# > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
+Note\: \$SUPPORT\/biometric\/biometric\/src\/test\/java\/androidx\/biometric\/BiometricFragmentTest\.java uses or overrides a deprecated API\.
+Note: \$SUPPORT/biometric/biometric/src/test/java/androidx/biometric/KeyguardUtilsTest\.java uses unchecked or unsafe operations\.
+# > Task :lifecycle:lifecycle-process:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/lifecycle/lifecycle\-process/src/test/java/androidx/lifecycle/DispatcherActivityCallbackTest\.java uses or overrides a deprecated API\.
+# > Task :lifecycle:lifecycle-viewmodel:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/lifecycle/lifecycle\-viewmodel/src/test/java/androidx/lifecycle/ViewModelProviderTest\.java uses unchecked or unsafe operations\.
+# > Task :ipc:ipc-compiler:kaptTestKotlin
+Annotation processors discovery from compile classpath is deprecated\.
+Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
+Run the build with '\-\-info' for more details\.
+# > Task :camera:camera-view:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/camera/camera\-view/src/test/java/androidx/camera/view/PreviewViewTest\.java uses or overrides a deprecated API\.
+# > Task :camera:camera-core:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/ProcessingImageReaderTest\.java uses or overrides a deprecated API\.
+Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/DeferrableSurfaceTest\.java uses unchecked or unsafe operations\.
+# > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
+# > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+d[0-9]+f[0-9]+v[0-9]+oad[0-9]+otf[0-9]+s[0-9]+jaexg[0-9]+h\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+d[0-9]+f[0-9]+v[0-9]+oad[0-9]+otf[0-9]+s[0-9]+jaexg[0-9]+h\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+d[0-9]+f[0-9]+v[0-9]+oad[0-9]+otf[0-9]+s[0-9]+jaexg[0-9]+h\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+d[0-9]+f[0-9]+v[0-9]+oad[0-9]+otf[0-9]+s[0-9]+jaexg[0-9]+h\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR/\.gradle/wrapper/dists/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin/[0-9]+auwcq[0-9]+tao[0-9]+ls[0-9]+p[0-9]+gdrq[0-9]+vhk/gradle\-[0-9]+\.[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR/\.gradle/wrapper/dists/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin/[0-9]+auwcq[0-9]+tao[0-9]+ls[0-9]+p[0-9]+gdrq[0-9]+vhk/gradle\-[0-9]+\.[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR/\.gradle/wrapper/dists/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin/[0-9]+auwcq[0-9]+tao[0-9]+ls[0-9]+p[0-9]+gdrq[0-9]+vhk/gradle\-[0-9]+\.[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR/\.gradle/wrapper/dists/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin/[0-9]+auwcq[0-9]+tao[0-9]+ls[0-9]+p[0-9]+gdrq[0-9]+vhk/gradle\-[0-9]+\.[0-9]+\.[0-9]+/lib/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+w: Consider providing an explicit dependency on kotlin\-reflect [0-9]+\.[0-9]+ to prevent strange errors
+# > Task :wear:wear-complications-rendering:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/wear/wear\-complications\-rendering/src/test/java/androidx/wear/complications/rendering/RoundedDrawableTest\.java uses or overrides a deprecated API\.
+# > Task :contentaccess:contentaccess-compiler:test
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-embeddable/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
+# > Task :room:room-compiler:test
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
+# > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
+Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/java\/androidx\/wear\/watchface\/complications\/rendering\/RoundedDrawableTest\.java uses or overrides a deprecated API\.
+# > Task :wear:wear-watchface:testDebugUnitTest
+System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
+System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
