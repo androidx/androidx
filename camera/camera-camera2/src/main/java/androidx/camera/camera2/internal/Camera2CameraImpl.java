@@ -825,7 +825,8 @@ final class Camera2CameraImpl implements CameraInternal {
             if (captureConfig.getSurfaces().isEmpty()) {
                 // Create the MeteringRepeating UseCase
                 if (mMeteringRepeatingSession == null) {
-                    mMeteringRepeatingSession = new MeteringRepeatingSession();
+                    mMeteringRepeatingSession = new MeteringRepeatingSession(
+                            mCameraInfoInternal.getCameraCharacteristicsCompat());
                 }
                 addMeteringRepeating();
             } else {
