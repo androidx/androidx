@@ -19,10 +19,10 @@
 package androidx.collection
 
 /** Returns an empty new [ArraySet]. */
-inline fun <T> arraySetOf(): ArraySet<T> = ArraySet()
+public inline fun <T> arraySetOf(): ArraySet<T> = ArraySet()
 
 /** Returns a new [ArraySet] with the specified contents. */
-fun <T> arraySetOf(vararg values: T): ArraySet<T> {
+public fun <T> arraySetOf(vararg values: T): ArraySet<T> {
     val set = ArraySet<T>(values.size)
     @Suppress("LoopToCallChain") // Causes needless copy to a list.
     for (value in values) {
