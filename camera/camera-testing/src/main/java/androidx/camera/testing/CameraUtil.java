@@ -53,6 +53,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.AssumptionViolatedException;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -580,7 +581,7 @@ public final class CameraUtil {
                     }
                 });
         if (shouldRunPreTest()) {
-            rule.around(
+            rule = rule.around(
                     new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
         }
         return rule;
@@ -644,12 +645,11 @@ public final class CameraUtil {
                         if (mThrowOnError) {
                             throw new RuntimeException(
                                     "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
-                        } else {
-                            // Ignore the test, so we only print a log without calling
-                            Logger.w(LOG_TAG,
-                                    "Camera fail, on test " + description.getDisplayName());
-                            base.evaluate();
                         }
+
+                        // Ignore the test, throw the AssumptionViolatedException.
+                        throw new AssumptionViolatedException("Ignore the test since the camera "
+                                + "failed, on test " + description.getDisplayName());
                     }
                 }
             };
