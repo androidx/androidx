@@ -35,7 +35,7 @@ import android.graphics.Region
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun Rect.component1() = this.left
+public inline operator fun Rect.component1(): Int = this.left
 
 /**
  * Returns "top", the second component of the rectangle.
@@ -46,7 +46,7 @@ inline operator fun Rect.component1() = this.left
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun Rect.component2() = this.top
+public inline operator fun Rect.component2(): Int = this.top
 
 /**
  * Returns "right", the third component of the rectangle.
@@ -57,7 +57,7 @@ inline operator fun Rect.component2() = this.top
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun Rect.component3() = this.right
+public inline operator fun Rect.component3(): Int = this.right
 
 /**
  * Returns "bottom", the fourth component of the rectangle.
@@ -68,7 +68,7 @@ inline operator fun Rect.component3() = this.right
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun Rect.component4() = this.bottom
+public inline operator fun Rect.component4(): Int = this.bottom
 
 /**
  * Returns "left", the first component of the rectangle.
@@ -79,7 +79,7 @@ inline operator fun Rect.component4() = this.bottom
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun RectF.component1() = this.left
+public inline operator fun RectF.component1(): Float = this.left
 
 /**
  * Returns "top", the second component of the rectangle.
@@ -90,7 +90,7 @@ inline operator fun RectF.component1() = this.left
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun RectF.component2() = this.top
+public inline operator fun RectF.component2(): Float = this.top
 
 /**
  * Returns "right", the third component of the rectangle.
@@ -101,7 +101,7 @@ inline operator fun RectF.component2() = this.top
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun RectF.component3() = this.right
+public inline operator fun RectF.component3(): Float = this.right
 
 /**
  * Returns "bottom", the fourth component of the rectangle.
@@ -112,13 +112,13 @@ inline operator fun RectF.component3() = this.right
  * val (left, top, right, bottom) = myRectangle
  * ```
  */
-inline operator fun RectF.component4() = this.bottom
+public inline operator fun RectF.component4(): Float = this.bottom
 
 /**
  * Performs the union of this rectangle and the specified rectangle and returns
  * the result as a new rectangle.
  */
-inline operator fun Rect.plus(r: Rect): Rect {
+public inline operator fun Rect.plus(r: Rect): Rect {
     return Rect(this).apply {
         union(r)
     }
@@ -128,7 +128,7 @@ inline operator fun Rect.plus(r: Rect): Rect {
  * Performs the union of this rectangle and the specified rectangle and returns
  * the result as a new rectangle.
  */
-inline operator fun RectF.plus(r: RectF): RectF {
+public inline operator fun RectF.plus(r: RectF): RectF {
     return RectF(this).apply {
         union(r)
     }
@@ -138,7 +138,7 @@ inline operator fun RectF.plus(r: RectF): RectF {
  * Returns a new rectangle representing this rectangle offset by the specified
  * amount on both X and Y axis.
  */
-inline operator fun Rect.plus(xy: Int): Rect {
+public inline operator fun Rect.plus(xy: Int): Rect {
     return Rect(this).apply {
         offset(xy, xy)
     }
@@ -148,7 +148,7 @@ inline operator fun Rect.plus(xy: Int): Rect {
  * Returns a new rectangle representing this rectangle offset by the specified
  * amount on both X and Y axis.
  */
-inline operator fun RectF.plus(xy: Float): RectF {
+public inline operator fun RectF.plus(xy: Float): RectF {
     return RectF(this).apply {
         offset(xy, xy)
     }
@@ -158,7 +158,7 @@ inline operator fun RectF.plus(xy: Float): RectF {
  * Returns a new rectangle representing this rectangle offset by the specified
  * point.
  */
-inline operator fun Rect.plus(xy: Point): Rect {
+public inline operator fun Rect.plus(xy: Point): Rect {
     return Rect(this).apply {
         offset(xy.x, xy.y)
     }
@@ -168,7 +168,7 @@ inline operator fun Rect.plus(xy: Point): Rect {
  * Returns a new rectangle representing this rectangle offset by the specified
  * point.
  */
-inline operator fun RectF.plus(xy: PointF): RectF {
+public inline operator fun RectF.plus(xy: PointF): RectF {
     return RectF(this).apply {
         offset(xy.x, xy.y)
     }
@@ -177,7 +177,7 @@ inline operator fun RectF.plus(xy: PointF): RectF {
 /**
  * Returns the difference of this rectangle and the specified rectangle as a new region.
  */
-inline operator fun Rect.minus(r: Rect): Region {
+public inline operator fun Rect.minus(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.DIFFERENCE)
     }
@@ -187,7 +187,7 @@ inline operator fun Rect.minus(r: Rect): Region {
  * Returns the difference of this rectangle and the specified rectangle as a new region.
  * This rectangle is first converted to a [Rect] using [RectF.toRect].
  */
-inline operator fun RectF.minus(r: RectF): Region {
+public inline operator fun RectF.minus(r: RectF): Region {
     return Region(this.toRect()).apply {
         op(r.toRect(), Region.Op.DIFFERENCE)
     }
@@ -197,7 +197,7 @@ inline operator fun RectF.minus(r: RectF): Region {
  * Returns a new rectangle representing this rectangle offset by the negation
  * of the specified amount on both X and Y axis.
  */
-inline operator fun Rect.minus(xy: Int): Rect {
+public inline operator fun Rect.minus(xy: Int): Rect {
     return Rect(this).apply {
         offset(-xy, -xy)
     }
@@ -207,7 +207,7 @@ inline operator fun Rect.minus(xy: Int): Rect {
  * Returns a new rectangle representing this rectangle offset by the negation
  * of the specified amount on both X and Y axis.
  */
-inline operator fun RectF.minus(xy: Float): RectF {
+public inline operator fun RectF.minus(xy: Float): RectF {
     return RectF(this).apply {
         offset(-xy, -xy)
     }
@@ -217,7 +217,7 @@ inline operator fun RectF.minus(xy: Float): RectF {
  * Returns a new rectangle representing this rectangle offset by the negation of
  * the specified point.
  */
-inline operator fun Rect.minus(xy: Point): Rect {
+public inline operator fun Rect.minus(xy: Point): Rect {
     return Rect(this).apply {
         offset(-xy.x, -xy.y)
     }
@@ -227,7 +227,7 @@ inline operator fun Rect.minus(xy: Point): Rect {
  * Returns a new rectangle representing this rectangle offset by the negation of
  * the specified point.
  */
-inline operator fun RectF.minus(xy: PointF): RectF {
+public inline operator fun RectF.minus(xy: PointF): RectF {
     return RectF(this).apply {
         offset(-xy.x, -xy.y)
     }
@@ -236,7 +236,7 @@ inline operator fun RectF.minus(xy: PointF): RectF {
 /**
  * Returns a new rectangle representing this rectangle's components each scaled by [factor].
  */
-inline operator fun Rect.times(factor: Int): Rect {
+public inline operator fun Rect.times(factor: Int): Rect {
     return Rect(this).apply {
         top *= factor
         left *= factor
@@ -248,12 +248,12 @@ inline operator fun Rect.times(factor: Int): Rect {
 /**
  * Returns a new rectangle representing this rectangle's components each scaled by [factor].
  */
-inline operator fun RectF.times(factor: Int): RectF = times(factor.toFloat())
+public inline operator fun RectF.times(factor: Int): RectF = times(factor.toFloat())
 
 /**
  * Returns a new rectangle representing this rectangle's components each scaled by [factor].
  */
-inline operator fun RectF.times(factor: Float): RectF {
+public inline operator fun RectF.times(factor: Float): RectF {
     return RectF(this).apply {
         top *= factor
         left *= factor
@@ -265,12 +265,12 @@ inline operator fun RectF.times(factor: Float): RectF {
 /**
  * Returns the union of two rectangles as a new rectangle.
  */
-inline infix fun Rect.or(r: Rect) = this + r
+public inline infix fun Rect.or(r: Rect): Rect = this + r
 
 /**
  * Returns the union of two rectangles as a new rectangle.
  */
-inline infix fun RectF.or(r: RectF) = this + r
+public inline infix fun RectF.or(r: RectF): RectF = this + r
 
 /**
  * Returns the intersection of two rectangles as a new rectangle.
@@ -278,7 +278,7 @@ inline infix fun RectF.or(r: RectF) = this + r
  * rectangle.
  */
 @SuppressLint("CheckResult")
-inline infix fun Rect.and(r: Rect): Rect {
+public inline infix fun Rect.and(r: Rect): Rect {
     return Rect(this).apply {
         intersect(r)
     }
@@ -290,7 +290,7 @@ inline infix fun Rect.and(r: Rect): Rect {
  * rectangle.
  */
 @SuppressLint("CheckResult")
-inline infix fun RectF.and(r: RectF): RectF {
+public inline infix fun RectF.and(r: RectF): RectF {
     return RectF(this).apply {
         intersect(r)
     }
@@ -299,7 +299,7 @@ inline infix fun RectF.and(r: RectF): RectF {
 /**
  * Returns the union minus the intersection of two rectangles as a new region.
  */
-inline infix fun Rect.xor(r: Rect): Region {
+public inline infix fun Rect.xor(r: Rect): Region {
     return Region(this).apply {
         op(r, Region.Op.XOR)
     }
@@ -309,7 +309,7 @@ inline infix fun Rect.xor(r: Rect): Region {
  * Returns the union minus the intersection of two rectangles as a new region.
  * The two rectangles are first converted to [Rect] using [RectF.toRect].
  */
-inline infix fun RectF.xor(r: RectF): Region {
+public inline infix fun RectF.xor(r: RectF): Region {
     return Region(this.toRect()).apply {
         op(r.toRect(), Region.Op.XOR)
     }
@@ -321,7 +321,7 @@ inline infix fun RectF.xor(r: RectF): Region {
  * This means that for a point to be contained: left <= x < right and top <= y < bottom.
  * An empty rectangle never contains any point.
  */
-inline operator fun Rect.contains(p: Point) = contains(p.x, p.y)
+public inline operator fun Rect.contains(p: Point): Boolean = contains(p.x, p.y)
 
 /**
  * Returns true if the specified point is inside the rectangle.
@@ -329,18 +329,18 @@ inline operator fun Rect.contains(p: Point) = contains(p.x, p.y)
  * This means that for a point to be contained: left <= x < right and top <= y < bottom.
  * An empty rectangle never contains any point.
  */
-inline operator fun RectF.contains(p: PointF) = contains(p.x, p.y)
+public inline operator fun RectF.contains(p: PointF): Boolean = contains(p.x, p.y)
 
 /**
  * Returns a [RectF] representation of this rectangle.
  */
-inline fun Rect.toRectF(): RectF = RectF(this)
+public inline fun Rect.toRectF(): RectF = RectF(this)
 
 /**
  * Returns a [Rect] representation of this rectangle. The resulting rect will be sized such
  * that this rect can fit within it.
  */
-inline fun RectF.toRect(): Rect {
+public inline fun RectF.toRect(): Rect {
     val r = Rect()
     roundOut(r)
     return r
@@ -349,16 +349,16 @@ inline fun RectF.toRect(): Rect {
 /**
  * Returns a [Region] representation of this rectangle.
  */
-inline fun Rect.toRegion() = Region(this)
+public inline fun Rect.toRegion(): Region = Region(this)
 
 /**
  * Returns a [Region] representation of this rectangle. The resulting rect will be sized such
  * that this rect can fit within it.
  */
-inline fun RectF.toRegion() = Region(this.toRect())
+public inline fun RectF.toRegion(): Region = Region(this.toRect())
 
 /**
  * Transform this rectangle in place using the supplied [Matrix] and returns
  * this rectangle.
  */
-inline fun RectF.transform(m: Matrix) = apply { m.mapRect(this@transform) }
+public inline fun RectF.transform(m: Matrix): RectF = apply { m.mapRect(this@transform) }

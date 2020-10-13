@@ -30,7 +30,7 @@ import android.os.Trace
     )
 )
 @Suppress("DEPRECATION")
-inline fun <T> trace(sectionName: String, block: () -> T): T {
+public inline fun <T> trace(sectionName: String, block: () -> T): T {
     TraceCompat.beginSection(sectionName)
     try {
         return block()

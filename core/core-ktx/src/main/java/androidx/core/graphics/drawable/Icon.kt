@@ -29,7 +29,7 @@ import androidx.annotation.RequiresApi
  * @see Icon.createWithAdaptiveBitmap
  */
 @RequiresApi(26)
-inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)
+public inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)
 
 /**
  * Create an [Icon] from this [Bitmap].
@@ -37,7 +37,7 @@ inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)
  * @see Icon.createWithBitmap
  */
 @RequiresApi(26)
-inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)
+public inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)
 
 /**
  * Create an [Icon] from this [Uri].
@@ -45,7 +45,7 @@ inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)
  * @see Icon.createWithContentUri
  */
 @RequiresApi(26)
-inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)
+public inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)
 
 /**
  * Create an [Icon] from this [ByteArray].
@@ -53,4 +53,4 @@ inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)
  * @see Icon.createWithData
  */
 @RequiresApi(26)
-inline fun ByteArray.toIcon(): Icon = Icon.createWithData(this, 0, size)
+public inline fun ByteArray.toIcon(): Icon = Icon.createWithData(this, 0, size)
