@@ -40,6 +40,18 @@ internal fun expectErrorMessage(expectedErrorMessage: String, block: () -> Unit)
     throw AssertionError("No AssertionError thrown!")
 }
 
+internal fun expectErrorMessageMatches(expectedErrorMessage: String, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: AssertionError) {
+        val received = obfuscateNodesInfo(e.localizedMessage!!)
+        Truth.assertThat(received).matches(expectedErrorMessage.trim())
+        return
+    }
+
+    throw AssertionError("No AssertionError thrown!")
+}
+
 internal fun expectErrorMessageStartsWith(expectedErrorMessage: String, block: () -> Unit) {
     try {
         block()

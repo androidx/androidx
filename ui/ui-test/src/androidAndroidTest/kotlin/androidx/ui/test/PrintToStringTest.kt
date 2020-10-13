@@ -66,12 +66,11 @@ class PrintToStringTest {
         val result = rule.onNodeWithText("Hello")
             .printToString(maxDepth = 0)
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+        assertThat(obfuscateNodesInfo(result)).matches(
             "" +
-                "Node #X at (X, X, X, X)px\n" +
+                "Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling"
         )
     }
@@ -86,17 +85,15 @@ class PrintToStringTest {
             .onChildren()
             .printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+        assertThat(obfuscateNodesInfo(result)).matches(
             "" +
-                "1) Node #X at (X, X, X, X)px\n" +
+                "1\\) Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'Hello'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling\n" +
-                "2) Node #X at (X, X, X, X)px\n" +
+                "2\\) Node #X at \\(X, X, X, X\\)px\n" +
                 "Text = 'World'\n" +
-                "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
-                ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
+                "GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
                 "Has 1 sibling"
         )
     }
@@ -117,28 +114,22 @@ class PrintToStringTest {
         val result = rule.onRoot()
             .printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+        assertThat(obfuscateNodesInfo(result)).matches(
             "" +
-                "Node #X at (X, X, X, X)px\n" +
-                " |-Node #X at (X, X, X, X)px, Tag: 'column'\n" +
+                "Node #X at \\(X, X, X, X\\)px\n" +
+                " ..*Node #X at \\(X, X, X, X\\)px, Tag: 'column'\n" +
                 "   Disabled = 'kotlin.Unit'\n" +
-                "    |-Node #X at (X, X, X, X)px, Tag: 'box'\n" +
-                "    | Disabled = 'kotlin.Unit'\n" +
-                "    |  |-Node #X at (X, X, X, X)px\n" +
-                "    |    OnClick = 'AccessibilityAction(label=null, action=Function0" +
-                "<java.lang.Boolean>)'\n" +
-                "    |    Text = 'Button'\n" +
-                "    |    GetTextLayoutResult = 'AccessibilityAction(label=null, " +
-                "action=Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
-                " java.lang" +
-                ".Boolean>)'\n" +
-                "    |    MergeDescendants = 'true'\n" +
-                "    |-Node #X at (X, X, X, X)px\n" +
+                "    .-Node #X at \\(X, X, X, X\\)px, Tag: 'box'\n" +
+                "    . Disabled = 'kotlin.Unit'\n" +
+                "    .  .-Node #X at \\(X, X, X, X\\)px\n" +
+                "    .    OnClick = 'AccessibilityAction\\(label=null, action=.*\\)'\n" +
+                "    .    Text = 'Button'\n" +
+                "    .    GetTextLayoutResult = 'AccessibilityAction\\(label=null, " +
+                "action=.*\\)'\n" +
+                "    .    MergeDescendants = 'true'\n" +
+                "    .-Node #X at \\(X, X, X, X\\)px\n" +
                 "      Text = 'Hello'\n" +
-                "      GetTextLayoutResult = 'AccessibilityAction(label=null, " +
-                "action=Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
-                " java.lang" +
-                ".Boolean>)'"
+                "      GetTextLayoutResult = 'AccessibilityAction\\(label=null, action=.*\\).*'"
         )
     }
 
