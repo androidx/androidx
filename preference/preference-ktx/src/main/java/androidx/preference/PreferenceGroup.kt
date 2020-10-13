@@ -21,7 +21,7 @@ package androidx.preference
 /**
  * Returns the preference with `key`, or `null` if no preference with `key` is found.
  */
-inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T? =
+public inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T? =
     findPreference(key)
 
 /**
@@ -29,11 +29,11 @@ inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T? 
  *
  * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
  */
-operator fun PreferenceGroup.get(index: Int): Preference = getPreference(index)
+public operator fun PreferenceGroup.get(index: Int): Preference = getPreference(index)
     ?: throw IndexOutOfBoundsException("Index: $index, Size: $preferenceCount")
 
 /** Returns `true` if `preference` is found in this preference group. */
-operator fun PreferenceGroup.contains(preference: Preference): Boolean {
+public operator fun PreferenceGroup.contains(preference: Preference): Boolean {
     for (index in 0 until preferenceCount) {
         if (getPreference(index) == preference) {
             return true
@@ -43,40 +43,46 @@ operator fun PreferenceGroup.contains(preference: Preference): Boolean {
 }
 
 /** Adds `preference` to this preference group. */
-inline operator fun PreferenceGroup.plusAssign(preference: Preference) {
+public inline operator fun PreferenceGroup.plusAssign(preference: Preference) {
     addPreference(preference)
 }
 
 /** Removes `preference` from this preference group. */
-inline operator fun PreferenceGroup.minusAssign(preference: Preference) {
+public inline operator fun PreferenceGroup.minusAssign(preference: Preference) {
     removePreference(preference)
 }
 
 /** Returns the number of preferences in this preference group. */
-inline val PreferenceGroup.size: Int get() = preferenceCount
+public inline val PreferenceGroup.size: Int get() = preferenceCount
 
 /** Returns true if this preference group contains no preferences. */
-inline fun PreferenceGroup.isEmpty(): Boolean = size == 0
+public inline fun PreferenceGroup.isEmpty(): Boolean = size == 0
 
 /** Returns true if this preference group contains one or more preferences. */
-inline fun PreferenceGroup.isNotEmpty(): Boolean = size != 0
+public inline fun PreferenceGroup.isNotEmpty(): Boolean = size != 0
 
 /** Performs the given action on each preference in this preference group. */
-inline fun PreferenceGroup.forEach(action: (preference: Preference) -> Unit) {
+public inline fun PreferenceGroup.forEach(action: (preference: Preference) -> Unit) {
     for (index in 0 until preferenceCount) {
         action(get(index))
     }
 }
 
-/** Performs the given action on each preference in this preference group, providing its sequential index. */
-inline fun PreferenceGroup.forEachIndexed(action: (index: Int, preference: Preference) -> Unit) {
+/**
+ * Performs the given action on each preference in this preference group,
+ * providing its sequential index.
+ */
+public inline fun PreferenceGroup.forEachIndexed(
+    action: (index: Int, preference: Preference) -> Unit
+) {
     for (index in 0 until preferenceCount) {
         action(index, get(index))
     }
 }
 
 /** Returns a [MutableIterator] over the preferences in this preference group. */
-operator fun PreferenceGroup.iterator() = object : MutableIterator<Preference> {
+public operator fun PreferenceGroup.iterator(
+): Iterator<Preference> = object : MutableIterator<Preference> {
     private var index = 0
     override fun hasNext() = index < size
     override fun next() = getPreference(index++) ?: throw IndexOutOfBoundsException()
@@ -86,7 +92,7 @@ operator fun PreferenceGroup.iterator() = object : MutableIterator<Preference> {
 }
 
 /** Returns a [Sequence] over the preferences in this preference group. */
-val PreferenceGroup.children: Sequence<Preference>
+public val PreferenceGroup.children: Sequence<Preference>
     get() = object : Sequence<Preference> {
         override fun iterator() = this@children.iterator()
     }
