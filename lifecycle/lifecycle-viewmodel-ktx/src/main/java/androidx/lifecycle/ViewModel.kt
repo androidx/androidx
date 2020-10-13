@@ -32,7 +32,7 @@ private const val JOB_KEY = "androidx.lifecycle.ViewModelCoroutineScope.JOB_KEY"
  * This scope is bound to
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
  */
-val ViewModel.viewModelScope: CoroutineScope
+public val ViewModel.viewModelScope: CoroutineScope
     get() {
         val scope: CoroutineScope? = this.getTag(JOB_KEY)
         if (scope != null) {
