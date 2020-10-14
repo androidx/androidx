@@ -19,6 +19,7 @@ package androidx.datastore.handlers
 import androidx.datastore.CorruptionException
 import androidx.datastore.CorruptionHandler
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * A corruption handler that attempts to replace the on-disk data with data from produceNewData.
@@ -31,7 +32,7 @@ import java.io.IOException
  * callback fails, nothing will be written to disk. Since the exception will be swallowed after
  * writing the data, this is a good place to log the exception.
  */
-class ReplaceFileCorruptionHandler<T>(
+public class ReplaceFileCorruptionHandler<T>(
     private val produceNewData: (CorruptionException) -> T
 ) : CorruptionHandler<T> {
 

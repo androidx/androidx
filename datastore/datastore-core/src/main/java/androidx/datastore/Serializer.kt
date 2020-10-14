@@ -27,16 +27,16 @@ import java.io.OutputStream
  *
  * TODO(b/151635324): consider changing InputStream to File.
  */
-interface Serializer<T> {
+public interface Serializer<T> {
 
     /**
      * Unmarshal object from stream. This must be able to handle an empty input stream - which is
      * passed in as a default value.
      */
-    fun readFrom(input: InputStream): T
+    public fun readFrom(input: InputStream): T
 
     /** Marshal object to a stream. */
-    fun writeTo(t: T, output: OutputStream)
+    public fun writeTo(t: T, output: OutputStream)
 }
 
 /**
@@ -44,5 +44,5 @@ interface Serializer<T> {
  * to data format corruption. This exception should not be thrown when the IOException is
  * due to a transient IO issue or permissions issue.
  */
-class CorruptionException(message: String, cause: Throwable? = null) :
+public class CorruptionException(message: String, cause: Throwable? = null) :
     IOException(message, cause)

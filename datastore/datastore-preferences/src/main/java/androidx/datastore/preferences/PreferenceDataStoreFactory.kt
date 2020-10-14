@@ -30,7 +30,7 @@ import java.io.File
 /**
  * Public factory for creating PreferenceDataStore instances.
  */
-object PreferenceDataStoreFactory {
+public object PreferenceDataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
      * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
@@ -47,7 +47,7 @@ object PreferenceDataStoreFactory {
      * migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
      */
-    fun create(
+    public fun create(
         produceFile: () -> File,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),
@@ -85,7 +85,7 @@ object PreferenceDataStoreFactory {
  * migration failed or a write to disk failed.)
  * @param scope The scope in which IO operations and transform functions will execute.
  */
-fun Context.createDataStore(
+public fun Context.createDataStore(
     name: String,
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
     migrations: List<DataMigration<Preferences>> = listOf(),

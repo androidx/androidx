@@ -40,7 +40,7 @@ import androidx.datastore.migrations.SharedPreferencesMigration
  * TODO(rohitsat): determine whether to remove the deleteEmptyPreferences option.
  */
 @JvmOverloads // Generate methods for default params for java users.
-fun SharedPreferencesMigration(
+public fun SharedPreferencesMigration(
     context: Context,
     sharedPreferencesName: String,
     keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS,
