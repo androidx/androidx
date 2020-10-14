@@ -134,13 +134,20 @@ public class IconCompat extends CustomVersionedParcelable {
     private static final int KEY_SHADOW_ALPHA = 61;
     private static final int AMBIENT_SHADOW_ALPHA = 30;
 
-    private static final String EXTRA_TYPE = "type";
-    private static final String EXTRA_OBJ = "obj";
-    private static final String EXTRA_INT1 = "int1";
-    private static final String EXTRA_INT2 = "int2";
-    private static final String EXTRA_TINT_LIST = "tint_list";
-    private static final String EXTRA_TINT_MODE = "tint_mode";
-    private static final String EXTRA_STRING1 = "string1";
+    @VisibleForTesting
+    static final String EXTRA_TYPE = "type";
+    @VisibleForTesting
+    static final String EXTRA_OBJ = "obj";
+    @VisibleForTesting
+    static final String EXTRA_INT1 = "int1";
+    @VisibleForTesting
+    static final String EXTRA_INT2 = "int2";
+    @VisibleForTesting
+    static final String EXTRA_TINT_LIST = "tint_list";
+    @VisibleForTesting
+    static final String EXTRA_TINT_MODE = "tint_mode";
+    @VisibleForTesting
+    static final String EXTRA_STRING1 = "string1";
 
     /**
      * @hide
@@ -405,6 +412,12 @@ public class IconCompat extends CustomVersionedParcelable {
         }
         if (mType != TYPE_RESOURCE) {
             throw new IllegalStateException("called getResPackage() on " + this);
+        }
+        // Before aosp/1307777, we don't put the package name to mString1. Try to get the
+        // package name from the full resource name string. Note that this is not always the same
+        // as "the package used to create this icon" and this was what aosp/1307777 tried to fix.
+        if (TextUtils.isEmpty(mString1)) {
+            return ((String) mObj1).split(":", -1)[0];
         }
         // The name of the getResPackage() API is a bit confusing. It actually returns
         // the app package name rather than the package name in the resource table.

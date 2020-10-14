@@ -394,6 +394,33 @@ public class IconCompatTest {
         verifyClippedCircle(result, Color.RED, 100);
     }
 
+    @Test
+    public void testResourceTypeIcon_oldFormat() {
+        // Before ag/1307777, package name is not in mString1.
+        Bundle bundle = new Bundle();
+        bundle.putInt(IconCompat.EXTRA_TYPE, IconCompat.TYPE_RESOURCE);
+        bundle.putString(IconCompat.EXTRA_OBJ, "androidx.core.test:drawable/test_drawable_green");
+        bundle.putInt(IconCompat.EXTRA_INT1, /*resourceId=*/ 2131165303);
+        bundle.putInt(IconCompat.EXTRA_INT2, /*data length=*/ 0);
+
+        IconCompat icon = IconCompat.createFromBundle(bundle);
+        Drawable actualDrawable = icon.loadDrawable(mContext);
+
+        assertNotNull(actualDrawable);
+        Bitmap actualBitmap = drawDrawableToBitmap(actualDrawable);
+        Drawable expectedDrawable =
+                ContextCompat.getDrawable(mContext, R.drawable.test_drawable_green);
+        Bitmap expectedBitmap = drawDrawableToBitmap(expectedDrawable);
+        assertTrue(actualBitmap.sameAs(expectedBitmap));
+    }
+
+    private static Bitmap drawDrawableToBitmap(Drawable drawable) {
+        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+        drawable.setBounds(0, 0, 200, 200);
+        drawable.draw(new Canvas(bitmap));
+        return bitmap;
+    }
+
     private void writeSampleImage(Bitmap bitmap, File imageFile) throws IOException {
         try (OutputStream target = new FileOutputStream(imageFile)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 0, target);
