@@ -13,6 +13,4 @@ impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.validateNoUnrecognizedMessages \
     -Pandroidx.allWarningsAsErrors "$@"
 
-python3 impl/merge_outputs.py mergeExecutionData
-
 echo "Completing $0 at $(date)"
