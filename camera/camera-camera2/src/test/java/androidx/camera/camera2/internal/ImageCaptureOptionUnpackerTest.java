@@ -21,7 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.quirk.device.DeviceQuirks;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeviceProperties;
@@ -34,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.util.ReflectionHelpers;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -94,7 +97,7 @@ public final class ImageCaptureOptionUnpackerTest {
         CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
         ImageCaptureConfig imageCaptureConfig = new ImageCapture.Builder().getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
+        setDeviceProperty(PROPERTIES_PIXEL_2_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -112,7 +115,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
+        setDeviceProperty(PROPERTIES_PIXEL_2_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -130,7 +133,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_API26);
+        setDeviceProperty(PROPERTIES_PIXEL_2_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -148,7 +151,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
+        setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -166,7 +169,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
+        setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -184,7 +187,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_API26);
+        setDeviceProperty(PROPERTIES_PIXEL_3_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -202,7 +205,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_API26);
+        setDeviceProperty(PROPERTIES_PIXEL_3_API26);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -220,7 +223,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
+        setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -238,7 +241,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
+        setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -256,7 +259,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_NOT_GOOGLE);
+        setDeviceProperty(PROPERTIES_NOT_GOOGLE);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -274,7 +277,7 @@ public final class ImageCaptureOptionUnpackerTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .getUseCaseConfig();
 
-        mUnpacker.setDeviceProperty(PROPERTIES_NOT_SUPPORT_MODEL);
+        setDeviceProperty(PROPERTIES_NOT_SUPPORT_MODEL);
         mUnpacker.unpack(imageCaptureConfig, captureBuilder);
 
         CaptureConfig captureConfig = captureBuilder.build();
@@ -283,5 +286,14 @@ public final class ImageCaptureOptionUnpackerTest {
         assertThat(camera2Config.getCaptureRequestOption(
                 CaptureRequest.CONTROL_ENABLE_ZSL, null))
                 .isNull();
+    }
+
+    private void setDeviceProperty(@NonNull final DeviceProperties properties) {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", properties.manufacturer());
+        ReflectionHelpers.setStaticField(Build.class, "MODEL", properties.model());
+        ReflectionHelpers.setStaticField(Build.VERSION.class, "SDK_INT", properties.sdkVersion());
+
+        // Reload the device specific quirks since the device properties were updated
+        DeviceQuirks.reload();
     }
 }
