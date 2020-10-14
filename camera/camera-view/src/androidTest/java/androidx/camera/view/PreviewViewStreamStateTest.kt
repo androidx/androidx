@@ -101,7 +101,9 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
             mPreviewView = PreviewView(context)
         }
         setContentView(mPreviewView)
-        mPreviewView.implementationMode = implMode
+        mInstrumentation.runOnMainSync {
+            mPreviewView.implementationMode = implMode
+        }
 
         mCameraProvider = ProcessCameraProvider.getInstance(context).get()
     }

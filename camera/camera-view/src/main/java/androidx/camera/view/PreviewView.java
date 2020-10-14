@@ -220,6 +220,11 @@ public final class PreviewView extends FrameLayout {
                     R.styleable.PreviewView_scaleType,
                     mPreviewTransform.getScaleType().getId());
             setScaleType(ScaleType.fromId(scaleTypeId));
+
+            int implementationModeId =
+                    attributes.getInteger(R.styleable.PreviewView_implementationMode,
+                            DEFAULT_IMPL_MODE.getId());
+            setImplementationMode(ImplementationMode.fromId(implementationModeId));
         } finally {
             attributes.recycle();
         }
@@ -298,9 +303,14 @@ public final class PreviewView extends FrameLayout {
      * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
      * attributes (e.g. API level, camera hardware support level). If not set, the default mode
      * is {@link ImplementationMode#PERFORMANCE}.
+     *
+     * <p> This method needs to be called before the {@link Preview.SurfaceProvider} is set on
+     * {@link Preview}. Once changed, {@link Preview.SurfaceProvider} needs to be set again. e.g.
+     * {@code preview.setSurfaceProvider(previewView.getSurfaceProvider())}.
      */
     @UiThread
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
+        Threads.checkMainThread();
         mImplementationMode = implementationMode;
     }
 
@@ -611,12 +621,31 @@ public final class PreviewView extends FrameLayout {
          * @see CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
          * @see StreamState#STREAMING
          */
-        PERFORMANCE,
+        PERFORMANCE(0),
 
         /**
          * Use a {@link TextureView} for the preview.
          */
-        COMPATIBLE
+        COMPATIBLE(1);
+
+        private final int mId;
+
+        ImplementationMode(int id) {
+            mId = id;
+        }
+
+        int getId() {
+            return mId;
+        }
+
+        static ImplementationMode fromId(int id) {
+            for (ImplementationMode implementationMode : values()) {
+                if (implementationMode.mId == id) {
+                    return implementationMode;
+                }
+            }
+            throw new IllegalArgumentException("Unknown implementation mode id " + id);
+        }
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
