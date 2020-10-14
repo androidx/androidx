@@ -1200,6 +1200,10 @@ Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/Defe
 # > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+jxfl[0-9]+bpr[0-9]+n[0-9]+ie[0-9]+t[0-9]+mbogjj\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+jxfl[0-9]+bpr[0-9]+n[0-9]+ie[0-9]+t[0-9]+mbogjj\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+jxfl[0-9]+bpr[0-9]+n[0-9]+ie[0-9]+t[0-9]+mbogjj\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+jxfl[0-9]+bpr[0-9]+n[0-9]+ie[0-9]+t[0-9]+mbogjj\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 \$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9]+hg[0-9]+cwdjis[0-9]+evrsfeibqx[0-9]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
