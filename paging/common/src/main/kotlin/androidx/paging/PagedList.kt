@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
@@ -122,7 +123,8 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open val pagingSource: PagingSource<*, T>,
-
+    internal val coroutineScope: CoroutineScope,
+    internal val notifyDispatcher: CoroutineDispatcher,
     internal val storage: PagedStorage<T>,
 
     /**
@@ -478,8 +480,7 @@ abstract class PagedList<T : Any> internal constructor(
         @Suppress("DEPRECATION")
         fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
-            val pagingSource = pagingSource
-                ?: dataSource?.let { LegacyPagingSource { it } }
+            val pagingSource = pagingSource ?: dataSource?.let { LegacyPagingSource { it } }
 
             check(pagingSource != null) {
                 "PagedList cannot be built without a PagingSource or DataSource"
@@ -1075,9 +1076,11 @@ abstract class PagedList<T : Any> internal constructor(
         this.refreshRetryCallback = refreshRetryCallback
     }
 
-    internal fun dispatchStateChange(type: LoadType, state: LoadState) {
-        loadStateListeners.removeAll { it.get() == null }
-        loadStateListeners.forEach { it.get()?.invoke(type, state) }
+    internal fun dispatchStateChangeAsync(type: LoadType, state: LoadState) {
+        coroutineScope.launch(notifyDispatcher) {
+            loadStateListeners.removeAll { it.get() == null }
+            loadStateListeners.forEach { it.get()?.invoke(type, state) }
+        }
     }
 
     /**

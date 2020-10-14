@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
     final override val pagingSource: PagingSource<K, V>,
-    internal val coroutineScope: CoroutineScope,
-    internal val notifyDispatcher: CoroutineDispatcher,
+    coroutineScope: CoroutineScope,
+    notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
@@ -45,8 +45,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
     private val initialLastKey: K?
 ) : PagedList<V>(
     pagingSource,
+    coroutineScope,
+    notifyDispatcher,
     PagedStorage<V>(),
-    config
+    config,
 ),
     PagedStorage.Callback,
     LegacyPageFetcher.PageConsumer<V> {
@@ -186,8 +188,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         return continueLoading
     }
 
-    override fun onStateChanged(type: LoadType, state: LoadState) =
-        dispatchStateChange(type, state)
+    override fun onStateChanged(type: LoadType, state: LoadState) {
+        dispatchStateChangeAsync(type, state)
+    }
 
     private fun triggerBoundaryCallback(type: LoadType, page: List<V>) {
         if (boundaryCallback != null) {

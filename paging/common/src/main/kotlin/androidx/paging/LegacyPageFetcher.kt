@@ -39,6 +39,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     @Suppress("DEPRECATION")
     var loadStateManager = object : PagedList.LoadStateManager() {
         override fun onStateChanged(type: LoadType, state: LoadState) {
+            // Don't need to post - PagedList will already have done that
             pageConsumer.onStateChanged(type, state)
         }
     }
