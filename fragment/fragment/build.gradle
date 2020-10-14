@@ -37,11 +37,11 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api(project(":activity:activity"))
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-    api(project(":savedstate:savedstate"))
+    api(projectOrArtifact(":activity:activity"))
+    api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+    api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api(projectOrArtifact(":savedstate:savedstate"))
     api("androidx.annotation:annotation-experimental:1.0.0")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
