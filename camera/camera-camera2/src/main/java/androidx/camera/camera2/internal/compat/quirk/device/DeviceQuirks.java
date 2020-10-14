@@ -84,6 +84,10 @@ public class DeviceQuirks {
             quirks.add(new ImageCapturePixelHDRPlusQuirk());
         }
 
+        if (SamsungPreviewTargetAspectRatioQuirk.load()) {
+            quirks.add(new SamsungPreviewTargetAspectRatioQuirk());
+        }
+
         sQuirks = new Quirks(quirks);
     }
 }
