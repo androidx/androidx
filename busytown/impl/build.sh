@@ -27,5 +27,8 @@ function run() {
   fi
 }
 
+# Confirm the existence of .git dirs. TODO(b/170634430) remove this
+(cd frameworks/support && echo "top commit:" && git log -1)
+
 run OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace -Pandroidx.summarizeStderr "$@"
 run OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace -Pandroidx.summarizeStderr "$@"
