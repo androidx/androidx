@@ -43,10 +43,9 @@ private fun getComponentName(context: Context) = ComponentName(
 /**
  * The [Complication]s associated with the [WatchFace]. Dynamic creation of
  * complications isn't supported, however complications can be enabled and disabled, perhaps as
- * part of a user style see [androidx.wear.watchface.style.UserStyleCategory] and
- * [Renderer.onStyleChanged].
+ * part of a user style see [androidx.wear.watchface.style.UserStyleCategory].
  */
-class ComplicationsManager(
+public class ComplicationsManager(
     /**
      * The complications associated with the watch face, may be empty.
      */
@@ -58,13 +57,13 @@ class ComplicationsManager(
      */
     private val userStyleRepository: UserStyleRepository
 ) {
-    interface TapListener {
+    public interface TapListener {
         /**
          * Called when the user single taps on a complication.
          *
          * @param complicationId The watch face's id for the complication single tapped
          */
-        fun onComplicationSingleTapped(complicationId: Int) {}
+        public fun onComplicationSingleTapped(complicationId: Int) {}
 
         /**
          * Called when the user double taps on a complication, launches the complication
@@ -72,7 +71,7 @@ class ComplicationsManager(
          *
          * @param complicationId The watch face's id for the complication double tapped
          */
-        fun onComplicationDoubleTapped(complicationId: Int) {}
+        public fun onComplicationDoubleTapped(complicationId: Int) {}
     }
 
     private lateinit var watchFaceHostApi: WatchFaceHostApi
@@ -81,7 +80,7 @@ class ComplicationsManager(
     private lateinit var pendingUpdate: CancellableUniqueTask
 
     // A map of IDs to complications.
-    val complications: Map<Int, Complication> =
+    public val complications: Map<Int, Complication> =
         complicationCollection.associateBy(Complication::id)
 
     private class InitialComplicationConfig(
@@ -188,7 +187,7 @@ class ComplicationsManager(
     }
 
     /** Returns the [Complication] corresponding to id or null. */
-    operator fun get(id: Int) = complications[id]
+    public operator fun get(id: Int): Complication? = complications[id]
 
     internal fun scheduleUpdate() {
         if (!pendingUpdate.isPending()) {
@@ -304,7 +303,7 @@ class ComplicationsManager(
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
     @UiThread
-    fun bringAttentionToComplication(complicationId: Int) {
+    public fun bringAttentionToComplication(complicationId: Int) {
         val complication = requireNotNull(complications[complicationId]) {
             "No complication found with ID $complicationId"
         }
@@ -329,23 +328,21 @@ class ComplicationsManager(
      * @param y The y coordinate of the point to perform a hit test
      * @return The complication at coordinates x, y or {@code null} if there isn't one
      */
-    fun getComplicationAt(x: Int, y: Int): Complication? {
-        return complications.entries.firstOrNull {
+    public fun getComplicationAt(x: Int, y: Int): Complication? =
+        complications.entries.firstOrNull {
             it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
                 it.value.computeBounds(renderer.screenBounds).contains(x, y)
         }?.value
-    }
 
     /**
      * Returns the background complication if there is one or {@code null} otherwise.
      *
      * @return The background complication if there is one or {@code null} otherwise
      */
-    fun getBackgroundComplication(): Complication? {
-        return complications.entries.firstOrNull {
+    public fun getBackgroundComplication(): Complication? =
+        complications.entries.firstOrNull {
             it.value.boundsType == ComplicationBoundsType.BACKGROUND
         }?.value
-    }
 
     /**
      * Called when the user single taps on a complication, invokes the permission request helper
@@ -414,15 +411,15 @@ class ComplicationsManager(
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    fun addTapListener(tapListener: TapListener) {
+    public fun addTapListener(tapListener: TapListener) {
         complicationListeners.add(tapListener)
     }
 
     /**
-     * Removes a [TapListener] previously added by [addComplicationListener].
+     * Removes a [TapListener] previously added by [addTapListener].
      */
     @UiThread
-    fun removeTapListener(tapListener: TapListener) {
+    public fun removeTapListener(tapListener: TapListener) {
         complicationListeners.remove(tapListener)
     }
 }

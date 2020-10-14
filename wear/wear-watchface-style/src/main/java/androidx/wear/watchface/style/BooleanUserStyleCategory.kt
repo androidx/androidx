@@ -19,11 +19,12 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat
 
 /** A BooleanUserStyleCategory represents a category with a true and a false setting. */
-class BooleanUserStyleCategory : UserStyleCategory {
+public class BooleanUserStyleCategory : UserStyleCategory {
 
-    constructor (
+    public constructor (
         /** Identifier for the element, must be unique. */
         id: String,
 
@@ -60,7 +61,7 @@ class BooleanUserStyleCategory : UserStyleCategory {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat() =
+    override fun toWireFormat(): BooleanUserStyleCategoryWireFormat =
         BooleanUserStyleCategoryWireFormat(
             id,
             displayName,
@@ -74,25 +75,22 @@ class BooleanUserStyleCategory : UserStyleCategory {
     /**
      * Returns the default value.
      */
-    fun getDefaultValue() = (options[defaultOptionIndex] as BooleanOption).value
+    public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
 
     /** Represents a true or false option in the [BooleanUserStyleCategory]. */
-    open class BooleanOption : Option {
-        val value: Boolean
+    public open class BooleanOption : Option {
+        public val value: Boolean
 
-        constructor(value: Boolean) : super(value.toString()) {
+        public constructor(value: Boolean) : super(value.toString()) {
             this.value = value
         }
 
-        internal constructor(
-            wireFormat: BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat
-        ) : super(wireFormat.mId) {
+        internal constructor(wireFormat: BooleanOptionWireFormat) : super(wireFormat.mId) {
             value = wireFormat.mValue
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat() =
-            BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat(id, value)
+        override fun toWireFormat(): BooleanOptionWireFormat = BooleanOptionWireFormat(id, value)
     }
 }

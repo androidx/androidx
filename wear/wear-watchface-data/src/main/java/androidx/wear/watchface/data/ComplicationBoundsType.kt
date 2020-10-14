@@ -28,15 +28,15 @@ import androidx.annotation.RestrictTo
     ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class ComplicationBoundsType {
-    companion object {
+public annotation class ComplicationBoundsType {
+    public companion object {
         /** The default, most complications are either circular or rounded rectangles. */
-        const val ROUND_RECT = 0
+        public const val ROUND_RECT: Int = 0
 
         /** For full screen image complications drawn behind the watch face. */
-        const val BACKGROUND = 1
+        public const val BACKGROUND: Int = 1
 
         /** For edge of screen complications. */
-        const val EDGE = 2
+        public const val EDGE: Int = 2
     }
 }

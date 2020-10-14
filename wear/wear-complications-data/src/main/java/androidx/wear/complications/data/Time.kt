@@ -17,32 +17,33 @@
 package androidx.wear.complications.data
 
 /** A range of time, that may be unbounded on either side. */
-class TimeRange internal constructor(
-    val startDateTimeMillis: Long,
-    val endDateTimeMillis: Long
+public class TimeRange internal constructor(
+    public val startDateTimeMillis: Long,
+    public val endDateTimeMillis: Long
 ) {
     /** Returns whether the [TimeRange] contains a given point in time. */
-    operator fun contains(dateTimeMillis: Long) =
+    public operator fun contains(dateTimeMillis: Long): Boolean =
         (dateTimeMillis >= startDateTimeMillis) and (dateTimeMillis <= endDateTimeMillis)
 
-    companion object {
+    public companion object {
         /** The [TimeRange] that includes every point in time. */
         @JvmField
-        val ALWAYS = TimeRange(0, Long.MAX_VALUE)
+        public val ALWAYS: TimeRange = TimeRange(0, Long.MAX_VALUE)
 
         /** Constructs a time range after a given point in time. */
         @JvmStatic
-        fun after(startDateTimeMillis: Long) = TimeRange(startDateTimeMillis, Long.MAX_VALUE)
+        public fun after(startDateTimeMillis: Long): TimeRange =
+            TimeRange(startDateTimeMillis, Long.MAX_VALUE)
 
         /** Constructs a time range until a given point in time. */
         @JvmStatic
-        fun before(endDateTimeMillis: Long) = TimeRange(0, endDateTimeMillis)
+        public fun before(endDateTimeMillis: Long): TimeRange = TimeRange(0, endDateTimeMillis)
 
         /** Constructs a time range between two points in time, inclusive of the points
          * themselves.
          */
         @JvmStatic
-        fun between(startDateTimeMillis: Long, endDateTimeMillis: Long) =
+        public fun between(startDateTimeMillis: Long, endDateTimeMillis: Long): TimeRange =
             TimeRange(startDateTimeMillis, endDateTimeMillis)
     }
 }
@@ -53,26 +54,27 @@ class TimeRange internal constructor(
  * It defines one of [endDateTimeMillis] or [startDateTimeMillis] to express the corresponding
  * time differences relative before or after the givene point in time.
  */
-class TimeReference internal constructor(
-    val endDateTimeMillis: Long,
-    val startDateTimeMillis: Long
+public class TimeReference internal constructor(
+    public val endDateTimeMillis: Long,
+    public val startDateTimeMillis: Long
 ) {
-    fun hasStartDateTimeMillis() = startDateTimeMillis != NONE
-    fun hasEndDateTimeMillis() = endDateTimeMillis != NONE
+    public fun hasStartDateTimeMillis(): Boolean = startDateTimeMillis != NONE
+    public fun hasEndDateTimeMillis(): Boolean = endDateTimeMillis != NONE
 
-    companion object {
+    public companion object {
         private const val NONE = -1L
 
         /**
          * Creates a [TimeReference] for the time difference ending at the given [dateTimeMillis].
          */
         @JvmStatic
-        fun ending(dateTimeMillis: Long) = TimeReference(dateTimeMillis, NONE)
+        public fun ending(dateTimeMillis: Long): TimeReference = TimeReference(dateTimeMillis, NONE)
 
         /**
          * Creates a [TimeReference] for the time difference starting at the given [dateTimeMillis].
          */
         @JvmStatic
-        fun starting(dateTimeMillis: Long) = TimeReference(NONE, dateTimeMillis)
+        public fun starting(dateTimeMillis: Long): TimeReference =
+            TimeReference(NONE, dateTimeMillis)
     }
 }

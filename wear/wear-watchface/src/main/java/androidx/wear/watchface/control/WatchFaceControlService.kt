@@ -41,12 +41,12 @@ import androidx.wear.watchface.runOnHandler
  *  @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class WatchFaceControlService : Service() {
+public class WatchFaceControlService : Service() {
     private val watchFaceInstanceServiceStub = IWatchFaceInstanceServiceStub(this)
 
     /** @hide */
-    companion object {
-        const val ACTION_WATCHFACE_CONTROL_SERVICE =
+    public companion object {
+        public const val ACTION_WATCHFACE_CONTROL_SERVICE: String =
             "com.google.android.wearable.action.WATCH_FACE_CONTROL"
     }
 

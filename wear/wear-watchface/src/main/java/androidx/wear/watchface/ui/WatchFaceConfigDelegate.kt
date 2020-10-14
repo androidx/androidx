@@ -32,41 +32,41 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
  * @hide
  */
 @RestrictTo(LIBRARY)
-interface WatchFaceConfigDelegate {
+public interface WatchFaceConfigDelegate {
     /**  Returns the style schema. */
-    fun getUserStyleSchema(): UserStyleSchemaWireFormat
+    public fun getUserStyleSchema(): UserStyleSchemaWireFormat
 
     /** Returns the current user style. */
-    fun getUserStyle(): UserStyleWireFormat
+    public fun getUserStyle(): UserStyleWireFormat
 
     /** Sets the user style map. */
-    fun setUserStyle(userStyle: UserStyleWireFormat)
+    public fun setUserStyle(userStyle: UserStyleWireFormat)
 
     /** Returns the id of the background complication or null if there isn't one. */
-    fun getBackgroundComplicationId(): Int?
+    public fun getBackgroundComplicationId(): Int?
 
     /**
      * Returns a map of complication IDs to complications.
      *
      * TODO(alexclarke): These should be passed as bundles.
      */
-    fun getComplicationsMap(): Map<Int, Complication>
+    public fun getComplicationsMap(): Map<Int, Complication>
 
     /** Returns the current [Calendar]. */
-    fun getCalendar(): Calendar
+    public fun getCalendar(): Calendar
 
     /**
      * Returns the id of the complication at the given coordinates.
      */
-    fun getComplicationIdAt(tapX: Int, tapY: Int): Int?
+    public fun getComplicationIdAt(tapX: Int, tapY: Int): Int?
 
     /**
      * Requests that the specified complication is highlighted for a short duration.
      */
-    fun brieflyHighlightComplicationId(complicationId: Int)
+    public fun brieflyHighlightComplicationId(complicationId: Int)
 
     /** Requests a screenshot of the watch face. */
-    fun takeScreenshot(
+    public fun takeScreenshot(
         drawRect: Rect,
         calendar: Calendar,
         renderParameters: RenderParametersWireFormat

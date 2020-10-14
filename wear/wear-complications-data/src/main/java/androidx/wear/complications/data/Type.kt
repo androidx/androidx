@@ -19,7 +19,7 @@ package androidx.wear.complications.data
 import androidx.annotation.RestrictTo
 
 /** The possible complication data types. */
-enum class ComplicationType(private val wireType: Int) {
+public enum class ComplicationType(private val wireType: Int) {
     NO_DATA(WireComplicationData.TYPE_NO_DATA),
     EMPTY(WireComplicationData.TYPE_EMPTY),
     NOT_CONFIGURED(WireComplicationData.TYPE_NOT_CONFIGURED),
@@ -39,9 +39,9 @@ enum class ComplicationType(private val wireType: Int) {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun asWireComplicationType(): Int = wireType
+    public fun asWireComplicationType(): Int = wireType
 
-    companion object {
+    public companion object {
         /**
          * Converts the integer value used for serialization into a [ComplicationType].
          *
@@ -51,7 +51,7 @@ enum class ComplicationType(private val wireType: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun fromWireType(wireType: Int) =
+        public fun fromWireType(wireType: Int): ComplicationType =
             when (wireType) {
                 NO_DATA.wireType -> NO_DATA
                 EMPTY.wireType -> EMPTY
@@ -78,7 +78,7 @@ enum class ComplicationType(private val wireType: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun toWireTypes(types: Collection<ComplicationType>) = types.asWireTypes()
+        public fun toWireTypes(types: Collection<ComplicationType>): IntArray = types.asWireTypes()
 
         /**
          * Converts an array of integer values uses for serialization into the corresponding array
@@ -92,7 +92,8 @@ enum class ComplicationType(private val wireType: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun fromWireTypes(types: IntArray) = types.asApiComplicationTypes()
+        public fun fromWireTypes(types: IntArray): Array<ComplicationType> =
+            types.asApiComplicationTypes()
     }
 }
 
@@ -105,7 +106,7 @@ enum class ComplicationType(private val wireType: Int) {
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Collection<ComplicationType>.asWireTypes() =
+public fun Collection<ComplicationType>.asWireTypes(): IntArray =
     this.map { it.asWireComplicationType() }.toIntArray()
 
 /**
@@ -117,5 +118,5 @@ fun Collection<ComplicationType>.asWireTypes() =
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun IntArray.asApiComplicationTypes() =
+public fun IntArray.asApiComplicationTypes(): Array<ComplicationType> =
     this.map { ComplicationType.fromWireType(it) }.toTypedArray()

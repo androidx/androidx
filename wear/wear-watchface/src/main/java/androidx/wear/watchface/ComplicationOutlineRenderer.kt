@@ -27,8 +27,8 @@ import kotlin.math.sin
  * Helper for rendering a dashed outline around a complication. Intended for use with
  * [LayerMode#DRAW_HIGHLIGHTED].
  */
-class ComplicationOutlineRenderer {
-    companion object {
+public class ComplicationOutlineRenderer {
+    public companion object {
         // Dashed lines are used for complication selection.
         internal val DASH_WIDTH = 10.0f
         internal var DASH_GAP = 2.0f
@@ -43,7 +43,7 @@ class ComplicationOutlineRenderer {
 
         /** Draws a thick dotted line around the complication with the given bounds. */
         @JvmStatic
-        fun drawComplicationSelectOutline(canvas: Canvas, bounds: Rect) {
+        public fun drawComplicationSelectOutline(canvas: Canvas, bounds: Rect) {
             if (bounds.width() == bounds.height()) {
                 drawCircleDashBorder(canvas, bounds)
                 return

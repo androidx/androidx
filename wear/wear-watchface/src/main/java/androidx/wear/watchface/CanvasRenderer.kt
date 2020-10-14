@@ -33,16 +33,16 @@ import androidx.wear.watchface.style.UserStyleRepository
         CanvasType.HARDWARE
     ]
 )
-annotation class CanvasType {
-    companion object {
+public annotation class CanvasType {
+    public companion object {
         /** A software canvas will be requested. */
-        const val SOFTWARE = 0
+        public const val SOFTWARE: Int = 0
 
         /**
          * A hardware canvas will be requested. This is usually faster than software rendering,
          * however it can sometimes increase battery usage by rendering at a higher frame rate.
          */
-        const val HARDWARE = 1
+        public const val HARDWARE: Int = 1
     }
 }
 
@@ -50,7 +50,7 @@ annotation class CanvasType {
  * Watch faces that require [Canvas] rendering should extend their [Renderer] from this
  * class.
  */
-abstract class CanvasRenderer(
+public abstract class CanvasRenderer(
     /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
@@ -113,7 +113,7 @@ abstract class CanvasRenderer(
      * @param calendar The current [Calendar]
      */
     @UiThread
-    abstract fun render(
+    public abstract fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar
