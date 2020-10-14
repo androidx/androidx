@@ -23,7 +23,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.internal.compat.quirk.device.DeviceQuirks;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeviceProperties;
@@ -292,8 +291,5 @@ public final class ImageCaptureOptionUnpackerTest {
         ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", properties.manufacturer());
         ReflectionHelpers.setStaticField(Build.class, "MODEL", properties.model());
         ReflectionHelpers.setStaticField(Build.VERSION.class, "SDK_INT", properties.sdkVersion());
-
-        // Reload the device specific quirks since the device properties were updated
-        DeviceQuirks.reload();
     }
 }
