@@ -44,6 +44,9 @@ The list of folders that can be contributed to, using the GitHub repository are:
 
 ```
 androidx
+  -- activity
+  -- fragment
+  -- navigation
   -- paging
   -- room
   -- work
