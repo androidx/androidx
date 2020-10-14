@@ -16,11 +16,13 @@
 
 package androidx.security.identity.cts;
 
+import android.content.Context;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.security.identity.IdentityCredentialStore;
 import androidx.security.identity.ResultData;
 
 import java.io.ByteArrayInputStream;
@@ -88,9 +90,21 @@ import co.nstant.in.cbor.model.UnsignedInteger;
 class Util {
     private static final String TAG = "Util";
 
-    // TODO: comment
-    static boolean isHalOptional() {
-        return false;
+    static IdentityCredentialStore getIdentityCredentialStore(@NonNull Context context) {
+        // We generally want to run all tests against the software implementation since
+        // hardware-based implementations are already tested against CTS and VTS and the bulk
+        // of the code in the Jetpack is the software implementation. This also helps avoid
+        // whatever bugs or flakiness that may exist in hardware implementations.
+        //
+        // Occasionally it's useful for a developer to test that the hardware-backed paths
+        // (HardwareIdentityCredentialStore + friends) work as intended. This can be done by
+        // uncommenting the line below and making sure it runs on a device with the appropriate
+        // hardware support.
+        //
+        // See b/164480361 for more discussion.
+        //
+        //return IdentityCredentialStore.getHardwareIdentityCredentialStore(context);
+        return IdentityCredentialStore.getSoftwareIdentityCredentialStore(context);
     }
 
     static byte[] canonicalizeCbor(byte[] encodedCbor) throws CborException {

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.util.Log;
@@ -359,10 +358,7 @@ public class ProvisioningTest {
     @Test
     public void alreadyPersonalized() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         createCredential(store, "test");
@@ -379,10 +375,7 @@ public class ProvisioningTest {
     @Test
     public void nonExistent() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         IdentityCredential credential = store.getCredentialByName("test",
@@ -393,10 +386,7 @@ public class ProvisioningTest {
     @Test
     public void defaultStoreSupportsAnyDocumentType() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         String[] supportedDocTypes = store.getSupportedDocTypes();
         assertEquals(0, supportedDocTypes.length);
@@ -406,10 +396,7 @@ public class ProvisioningTest {
     public void deleteCredential()
             throws IdentityCredentialException, CborException, CertificateEncodingException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         assertNull(store.deleteCredentialByName("test"));
@@ -444,10 +431,7 @@ public class ProvisioningTest {
     @Test
     public void testProvisionAndRetrieve() throws IdentityCredentialException, CborException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredential(store, "test");
@@ -537,10 +521,7 @@ public class ProvisioningTest {
     public void testProvisionAndRetrieveMultipleTimes() throws IdentityCredentialException,
             InvalidKeyException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         // This checks we can do multiple getEntries() calls
 
@@ -597,10 +578,7 @@ public class ProvisioningTest {
     @Test
     public void testProvisionAndRetrieveWithFiltering() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredential(store, "test");
@@ -650,10 +628,7 @@ public class ProvisioningTest {
     @Test
     public void testProvisionAndRetrieveElementWithNoACP() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredential(store, "test");
@@ -691,10 +666,7 @@ public class ProvisioningTest {
     @Test
     public void testProvisionAndRetrieveWithEntryNotInRequest() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredential(store, "test");
@@ -747,10 +719,7 @@ public class ProvisioningTest {
     @Test
     public void nonExistentEntries() throws IdentityCredentialException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredential(store, "test");
@@ -792,10 +761,7 @@ public class ProvisioningTest {
     @Test
     public void multipleNamespaces() throws IdentityCredentialException, CborException {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         store.deleteCredentialByName("test");
         Collection<X509Certificate> certChain = createCredentialMultipleNamespaces(
