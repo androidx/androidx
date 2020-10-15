@@ -36,49 +36,49 @@ import java.security.InvalidParameterException
  *
  * Not to be confused with complication provider selection.
  */
-class ComplicationsUserStyleCategory : UserStyleCategory {
+public class ComplicationsUserStyleCategory : UserStyleCategory {
 
     /**
      * Overrides to be applied to the corresponding complication's initial config (as specified in
      * [androidx.wear.watchface.Complication]) when the category is selected.
      */
-    class ComplicationOverride internal constructor(
+    public class ComplicationOverride internal constructor(
         /** The id of the complication to configure. */
-        val complicationId: Int,
+        public val complicationId: Int,
 
         /**
          * If non null, whether the complication should be enabled for this configuration. If null
          * then no changes are made.
          */
         @get:JvmName("isEnabled")
-        val enabled: Boolean?,
+        public val enabled: Boolean?,
 
         /**
          * If non null, the new unit square screen space complication bounds for this configuration.
          * If null then no changes are made.
          */
-        val bounds: RectF?,
+        public val bounds: RectF?,
 
         /**
          * If non null, the new types of complication supported by this complication for this
          * configuration. If null then no changes are made.
          */
-        val supportedTypes: IntArray?,
+        public val supportedTypes: IntArray?,
 
         /**
          * If non null, the new default complication provider for this configuration. If null then
          * no changes are made.
          */
-        val defaultProviderPolicy: DefaultComplicationProviderPolicy?,
+        public val defaultProviderPolicy: DefaultComplicationProviderPolicy?,
 
         /**
          * If non null, the new default complication provider data type. See
          * [ComplicationData .ComplicationType].  If null then no changes are made.
          */
         @get:SuppressWarnings("AutoBoxing")
-        val defaultProviderType: Int?
+        public val defaultProviderType: Int?
     ) {
-        class Builder(
+        public class Builder(
             /** The id of the complication to configure. */
             private val complicationId: Int
         ) {
@@ -89,24 +89,24 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
             private var defaultComplicationProviderType: Int? = null
 
             /** Overrides the complication's enabled flag. */
-            fun setEnabled(enabled: Boolean) = apply {
+            public fun setEnabled(enabled: Boolean): Builder = apply {
                 this.enabled = enabled
             }
 
             /** Overrides the complication's unit-square screen space bounds. */
-            fun setBounds(bounds: RectF) = apply {
+            public fun setBounds(bounds: RectF): Builder = apply {
                 this.bounds = bounds
             }
 
             /** Overrides the complication's supported complication types. */
-            fun setSupportedTypes(supportedTypes: IntArray) = apply {
+            public fun setSupportedTypes(supportedTypes: IntArray): Builder = apply {
                 this.supportedTypes = supportedTypes
             }
 
             /** Overrides the complication's [DefaultComplicationProviderPolicy]. */
-            fun setDefaultProviderPolicy(
+            public fun setDefaultProviderPolicy(
                 defaultComplicationProviderPolicy: DefaultComplicationProviderPolicy?
-            ) = apply {
+            ): Builder = apply {
                 this.defaultComplicationProviderPolicy = defaultComplicationProviderPolicy
             }
 
@@ -114,13 +114,13 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
              * Overrides the default complication provider data type. See
              * [ComplicationData.ComplicationType]
              */
-            fun setDefaultProviderType(
+            public fun setDefaultProviderType(
                 @ComplicationData.ComplicationType defaultComplicationProviderType: Int
-            ) = apply {
+            ): Builder = apply {
                 this.defaultComplicationProviderType = defaultComplicationProviderType
             }
 
-            fun build() = ComplicationOverride(
+            public fun build(): ComplicationOverride = ComplicationOverride(
                 complicationId,
                 enabled,
                 bounds,
@@ -168,7 +168,7 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
             )
     }
 
-    constructor (
+    public constructor (
         /** Identifier for the element, must be unique. */
         id: String,
 
@@ -207,7 +207,7 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat() =
+    override fun toWireFormat(): ComplicationsUserStyleCategoryWireFormat =
         ComplicationsUserStyleCategoryWireFormat(
             id,
             displayName,
@@ -219,20 +219,20 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
         )
 
     /** Represents an override to the initial complication configuration. */
-    open class ComplicationsOption : Option {
+    public open class ComplicationsOption : Option {
         /**
          * Overrides to be applied when this ComplicationsOption is selected. If this is empty
          * then the net result is the initial complication configuration.
          */
-        val complications: Collection<ComplicationOverride>
+        public val complications: Collection<ComplicationOverride>
 
         /** Localized human readable name for the setting, used in the style selection UI. */
-        val displayName: String
+        public val displayName: String
 
         /** Icon for use in the style selection UI. */
-        val icon: Icon?
+        public val icon: Icon?
 
-        constructor(
+        public constructor(
             id: String,
             displayName: String,
             icon: Icon?,
@@ -251,7 +251,7 @@ class ComplicationsUserStyleCategory : UserStyleCategory {
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat() =
+        override fun toWireFormat(): ComplicationsOptionWireFormat =
             ComplicationsOptionWireFormat(
                 id,
                 displayName,

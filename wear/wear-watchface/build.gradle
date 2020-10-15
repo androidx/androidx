@@ -79,5 +79,4 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface"
-    legacyDisableKotlinStrictApiMode = true
 }

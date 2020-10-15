@@ -19,12 +19,13 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat
 
 /**
  * A LongRangeUserStyleCategory represents a category with a [Long] value in the range
  * [minimumValue .. maximumValue].
  */
-class LongRangeUserStyleCategory : UserStyleCategory {
+public class LongRangeUserStyleCategory : UserStyleCategory {
 
     internal companion object {
         internal fun createOptionsList(
@@ -51,7 +52,7 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         }
     }
 
-    constructor (
+    public constructor (
         /** Identifier for the element, must be unique. */
         id: String,
 
@@ -95,7 +96,7 @@ class LongRangeUserStyleCategory : UserStyleCategory {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat() =
+    override fun toWireFormat(): LongRangeUserStyleCategoryWireFormat =
         LongRangeUserStyleCategoryWireFormat(
             id,
             displayName,
@@ -109,11 +110,11 @@ class LongRangeUserStyleCategory : UserStyleCategory {
     /**
      * Represents an option a [Long] in the range [minimumValue .. maximumValue].
      */
-    class LongRangeOption : Option {
+    public class LongRangeOption : Option {
         /* The value for this option. Must be within the range [minimumValue..maximumValue]. */
-        val value: Long
+        public val value: Long
 
-        constructor(value: Long) : super(value.toString()) {
+        public constructor(value: Long) : super(value.toString()) {
             this.value = value
         }
 
@@ -121,37 +122,35 @@ class LongRangeUserStyleCategory : UserStyleCategory {
             internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
         }
 
-        internal constructor(
-            wireFormat: LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat
-        ) : super(wireFormat.mId) {
+        internal constructor(wireFormat: LongRangeOptionWireFormat) : super(wireFormat.mId) {
             value = wireFormat.mValue
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat() =
-            LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat(id, value)
+        override fun toWireFormat(): LongRangeOptionWireFormat =
+            LongRangeOptionWireFormat(id, value)
     }
 
     /**
      * Returns the minimum value.
      */
-    fun getMinimumValue() = (options.first() as LongRangeOption).value
+    public fun getMinimumValue(): Long = (options.first() as LongRangeOption).value
 
     /**
      * Returns the maximum value.
      */
-    fun getMaximumValue() = (options.last() as LongRangeOption).value
+    public fun getMaximumValue(): Long = (options.last() as LongRangeOption).value
 
     /**
      * Returns the default value.
      */
-    fun getDefaultValue() = (options[defaultOptionIndex] as LongRangeOption).value
+    public fun getDefaultValue(): Long = (options[defaultOptionIndex] as LongRangeOption).value
 
     /**
      * We support all values in the range [min ... max] not just min & max.
      */
-    override fun getOptionForId(optionId: String) =
+    override fun getOptionForId(optionId: String): Option =
         options.find { it.id == optionId } ?: checkedOptionForId(optionId)
 
     private fun checkedOptionForId(optionId: String): LongRangeOption {

@@ -37,19 +37,19 @@ import androidx.annotation.RestrictTo
  */
 @SuppressWarnings("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-open class WatchFaceStyle(
-    val component: ComponentName,
-    val viewProtectionMode: Int,
-    val statusBarGravity: Int,
-    @ColorInt val accentColor: Int,
-    val showUnreadCountIndicator: Boolean,
-    val hideNotificationIndicator: Boolean,
-    val acceptsTapEvents: Boolean,
+public open class WatchFaceStyle(
+    public val component: ComponentName,
+    public val viewProtectionMode: Int,
+    public val statusBarGravity: Int,
+    @ColorInt public val accentColor: Int,
+    public val showUnreadCountIndicator: Boolean,
+    public val hideNotificationIndicator: Boolean,
+    public val acceptsTapEvents: Boolean,
     /**
      * Escape hatch needed by WearOS to implement backwards compatibility. Note WearOS support for
      * obsolete WatchFaceStyle properties may be removed without notice.
      */
-    val compatBundle: Bundle? = null
+    public val compatBundle: Bundle? = null
 ) : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -66,7 +66,7 @@ open class WatchFaceStyle(
         )
     }
 
-    override fun describeContents() = 0
+    override fun describeContents(): Int = 0
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -96,46 +96,47 @@ open class WatchFaceStyle(
         return result
     }
 
-    companion object {
+    public companion object {
 
-        const val DEFAULT_ACCENT_COLOR = Color.WHITE
+        public const val DEFAULT_ACCENT_COLOR: Int = Color.WHITE
 
         /**
          * Whether to put a semi-transparent black background behind the status bar to make it visible
          * on white backgrounds.
          */
-        const val PROTECT_STATUS_BAR = 0x1
+        public const val PROTECT_STATUS_BAR: Int = 0x1
 
         /**
          * Whether to put a semi-transparent black background behind the "Ok Google" string to make it
          * visible on a white background.
          */
-        const val PROTECT_HOTWORD_INDICATOR = 0x2
+        public const val PROTECT_HOTWORD_INDICATOR: Int = 0x2
 
         /**
          * Whether to dim the entire watch face background slightly so the time and icons are always
          * visible.
          */
-        const val PROTECT_WHOLE_SCREEN = 0x4
+        public const val PROTECT_WHOLE_SCREEN: Int = 0x4
 
         /** Parcelable Creator */
         @JvmField
-        val CREATOR = object : Parcelable.Creator<WatchFaceStyle> {
-            override fun createFromParcel(parcel: Parcel): WatchFaceStyle {
-                val bundle = parcel.readBundle(this::class.java.classLoader)!!
-                return WatchFaceStyle(
-                    bundle.getParcelable(Constants.KEY_COMPONENT)!!,
-                    bundle.getInt(Constants.KEY_VIEW_PROTECTION_MODE),
-                    bundle.getInt(Constants.KEY_STATUS_BAR_GRAVITY),
-                    bundle.getInt(Constants.KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR),
-                    bundle.getBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR),
-                    bundle.getBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR),
-                    bundle.getBoolean(Constants.KEY_ACCEPTS_TAPS),
-                    bundle
-                )
-            }
+        public val CREATOR: Parcelable.Creator<WatchFaceStyle> =
+            object : Parcelable.Creator<WatchFaceStyle> {
+                override fun createFromParcel(parcel: Parcel): WatchFaceStyle {
+                    val bundle = parcel.readBundle(this::class.java.classLoader)!!
+                    return WatchFaceStyle(
+                        bundle.getParcelable(Constants.KEY_COMPONENT)!!,
+                        bundle.getInt(Constants.KEY_VIEW_PROTECTION_MODE),
+                        bundle.getInt(Constants.KEY_STATUS_BAR_GRAVITY),
+                        bundle.getInt(Constants.KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR),
+                        bundle.getBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR),
+                        bundle.getBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR),
+                        bundle.getBoolean(Constants.KEY_ACCEPTS_TAPS),
+                        bundle
+                    )
+                }
 
-            override fun newArray(size: Int) = arrayOfNulls<WatchFaceStyle?>(size)
-        }
+                override fun newArray(size: Int) = arrayOfNulls<WatchFaceStyle?>(size)
+            }
     }
 }

@@ -75,24 +75,24 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
         TapType.TAP
     ]
 )
-annotation class TapType {
-    companion object {
+public annotation class TapType {
+    public companion object {
         /** Used in onTapCommand to indicate a "down" touch event on the watch face. */
-        const val TOUCH = 0
+        public const val TOUCH: Int = 0
 
         /**
          * Used in onTapCommand to indicate that a previous TapType.TOUCH touch event has been
          * canceled. This generally happens when the watch face is touched but then a move or long
          * press occurs.
          */
-        const val TOUCH_CANCEL = 1
+        public const val TOUCH_CANCEL: Int = 1
 
         /**
          * Used in onTapCommaned to indicate that an "up" event on the watch face has occurred that
          * has not been consumed by another activity. A TapType.TOUCH will always occur first.
          * This event will not occur if a TapType.TOUCH_CANCEL is sent.
          */
-        const val TAP = 2
+        public const val TAP: Int = 2
     }
 }
 
@@ -182,7 +182,7 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  */
 @TargetApi(26)
-abstract class WatchFaceService : WallpaperService() {
+public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
     private companion object {
@@ -202,7 +202,7 @@ abstract class WatchFaceService : WallpaperService() {
         watchState: WatchState
     ): WatchFace
 
-    final override fun onCreateEngine() = EngineWrapper(getHandler()) as Engine
+    final override fun onCreateEngine(): Engine = EngineWrapper(getHandler())
 
     // This is open to allow mocking.
     internal open fun getHandler() = Handler(Looper.getMainLooper())

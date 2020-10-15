@@ -21,7 +21,7 @@ import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
 
 /* Used to parameterize watch face drawing based on the current system state. */
-enum class DrawMode {
+public enum class DrawMode {
     /** This mode is used when the user is interacting with the watch face. */
     INTERACTIVE,
 
@@ -43,7 +43,7 @@ enum class DrawMode {
 }
 
 /** Used to parameterize per layer drawing. */
-enum class LayerMode {
+public enum class LayerMode {
     /** This layer should be rendered normally. */
     DRAW,
 
@@ -55,30 +55,32 @@ enum class LayerMode {
 }
 
 /** Used to parameterize watch face rendering. */
-class RenderParameters(
+public class RenderParameters(
     /** The overall drawing parameters based on system state. */
-    val drawMode: DrawMode,
+    public val drawMode: DrawMode,
 
     /**
      * Parameters for rendering individual layers. Generally these will all be [LayerMode#DRAW]
      * in normal operation, but the editor may make more complicated requests which need to be
      * honored to function properly.
      */
-    val layerParameters: Map<Layer, LayerMode>
+    public val layerParameters: Map<Layer, LayerMode>
 ) {
-    companion object {
+    public companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
         @JvmField
-        val DRAW_ALL_LAYERS = Layer.values().associateBy({ it }, { LayerMode.DRAW })
+        public val DRAW_ALL_LAYERS: Map<Layer, LayerMode> =
+            Layer.values().associateBy({ it }, { LayerMode.DRAW })
 
         /** Default RenderParameters which draws everything in interactive mode. */
         @JvmField
-        val DEFAULT_INTERACTIVE = RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS)
+        public val DEFAULT_INTERACTIVE: RenderParameters =
+            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS)
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    constructor(wireFormat: RenderParametersWireFormat) : this(
+    public constructor(wireFormat: RenderParametersWireFormat) : this(
         DrawMode.values()[wireFormat.drawMode],
         wireFormat.layerParameters.associateBy(
             { Layer.values()[it.layer] },
@@ -88,7 +90,7 @@ class RenderParameters(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun toWireFormat() = RenderParametersWireFormat(
+    public fun toWireFormat(): RenderParametersWireFormat = RenderParametersWireFormat(
         drawMode.ordinal,
         layerParameters.map {
             RenderParametersWireFormat.LayerParameterWireFormat(

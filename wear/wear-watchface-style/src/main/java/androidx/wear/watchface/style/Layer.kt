@@ -16,7 +16,7 @@
 
 package androidx.wear.watchface.style
 
-enum class Layer {
+public enum class Layer {
     BASE_LAYER,
     COMPLICATIONS,
     TOP_LAYER

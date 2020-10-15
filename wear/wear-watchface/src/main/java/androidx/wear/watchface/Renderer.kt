@@ -25,7 +25,7 @@ import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** The base class for [CanvasRenderer] and [GlesRenderer]. */
-abstract class Renderer(
+public abstract class Renderer(
     /** The [SurfaceHolder] that [renderInternal] will draw into. */
     _surfaceHolder: SurfaceHolder,
 
@@ -35,36 +35,36 @@ abstract class Renderer(
     /** The associated [WatchState]. */
     internal val watchState: WatchState
 ) {
-    protected var surfaceHolder = _surfaceHolder
+    protected var surfaceHolder: SurfaceHolder = _surfaceHolder
         private set
 
-    var screenBounds: Rect = surfaceHolder.surfaceFrame
+    public var screenBounds: Rect = surfaceHolder.surfaceFrame
         private set
 
-    var centerX: Float = screenBounds.exactCenterX()
+    public var centerX: Float = screenBounds.exactCenterX()
         private set
 
-    var centerY: Float = screenBounds.exactCenterY()
+    public var centerY: Float = screenBounds.exactCenterY()
         private set
-
-    private var _renderParameters: RenderParameters? = null
 
     /** The current DrawMode. Updated before every onDraw call. */
-    var renderParameters: RenderParameters
-        get() = _renderParameters ?: RenderParameters.DEFAULT_INTERACTIVE
+    public var renderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
+        /** @hide */
         internal set(value) {
-            if (value != _renderParameters) {
-                _renderParameters = value
+            if (value != field) {
+                field = value
                 onRenderParametersChanged(value)
             }
         }
 
     /** Called when the Renderer is destroyed. */
     @UiThread
-    open fun onDestroy() {}
+    public open fun onDestroy() {
+    }
 
     @UiThread
-    open fun onSurfaceDestroyed(holder: SurfaceHolder) {}
+    public open fun onSurfaceDestroyed(holder: SurfaceHolder) {
+    }
 
     /**
      * Renders the watch face into the [surfaceHolder] using the current [renderParameters]
@@ -95,7 +95,8 @@ abstract class Renderer(
      * call to onDraw().
      */
     @UiThread
-    protected open fun onRenderParametersChanged(renderParameters: RenderParameters) {}
+    protected open fun onRenderParametersChanged(renderParameters: RenderParameters) {
+    }
 
     /**
      * This method is used for accessibility support to describe the portion of the screen
@@ -106,7 +107,7 @@ abstract class Renderer(
      * @return A [Rect] describing the bounds of the watch faces' main clock element
      */
     @UiThread
-    open fun getMainClockElementBounds(): Rect {
+    public open fun getMainClockElementBounds(): Rect {
         val quarterX = centerX / 2
         val quarterY = centerY / 2
         return Rect(
@@ -126,7 +127,7 @@ abstract class Renderer(
      */
     @CallSuper
     @UiThread
-    open fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+    public open fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         screenBounds = holder.surfaceFrame
         centerX = screenBounds.exactCenterX()
         centerY = screenBounds.exactCenterY()
@@ -145,5 +146,6 @@ abstract class Renderer(
      * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
      */
     @UiThread
-    open fun shouldAnimate() = watchState.isVisible.value && !watchState.isAmbient.value
+    public open fun shouldAnimate(): Boolean =
+        watchState.isVisible.value && !watchState.isAmbient.value
 }

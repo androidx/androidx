@@ -19,12 +19,13 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat.ListOptionWireFormat
 
 /** A ListStyleCategory represents a category with options selected from a List. */
-open class ListUserStyleCategory : UserStyleCategory {
+public open class ListUserStyleCategory : UserStyleCategory {
 
     @JvmOverloads
-    constructor (
+    public constructor (
         /** Identifier for the element, must be unique. */
         id: String,
 
@@ -61,7 +62,7 @@ open class ListUserStyleCategory : UserStyleCategory {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat() =
+    override fun toWireFormat(): ListUserStyleCategoryWireFormat =
         ListUserStyleCategoryWireFormat(
             id,
             displayName,
@@ -75,28 +76,26 @@ open class ListUserStyleCategory : UserStyleCategory {
     /**
      * Represents choice within a [ListUserStyleCategory], these must be enumerated up front.
      */
-    open class ListOption : Option {
+    public open class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */
-        val displayName: String
+        public val displayName: String
 
         /** Icon for use in the style selection UI. */
-        val icon: Icon?
+        public val icon: Icon?
 
-        constructor(id: String, displayName: String, icon: Icon?) : super(id) {
+        public constructor(id: String, displayName: String, icon: Icon?) : super(id) {
             this.displayName = displayName
             this.icon = icon
         }
 
-        internal constructor(
-            wireFormat: ListUserStyleCategoryWireFormat.ListOptionWireFormat
-        ) : super(wireFormat.mId) {
+        internal constructor(wireFormat: ListOptionWireFormat) : super(wireFormat.mId) {
             displayName = wireFormat.mDisplayName
             icon = wireFormat.mIcon
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat() =
-            ListUserStyleCategoryWireFormat.ListOptionWireFormat(id, displayName, icon)
+        override fun toWireFormat(): ListOptionWireFormat =
+            ListOptionWireFormat(id, displayName, icon)
     }
 }

@@ -29,19 +29,19 @@ import java.util.ArrayList
  *
  * If the DefaultComplicationProviderPolicy is empty then no default is set.
  */
-class DefaultComplicationProviderPolicy {
+public class DefaultComplicationProviderPolicy {
     /** List of up to two non-system providers to be tried in turn. This may be empty. */
-    val primaryProvider: ComponentName?
+    public val primaryProvider: ComponentName?
 
-    val secondaryProvider: ComponentName?
+    public val secondaryProvider: ComponentName?
 
     /** Fallback in case none of the non-system providers could be used. */
     @SystemProviders.ProviderId
-    val systemProviderFallback: Int
+    public val systemProviderFallback: Int
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
+    public constructor(
         providers: List<ComponentName>,
         systemProviderFallback: Int
     ) {
@@ -51,7 +51,7 @@ class DefaultComplicationProviderPolicy {
     }
 
     /** No default complication provider. */
-    constructor() {
+    public constructor() {
         primaryProvider = null
         secondaryProvider = null
         systemProviderFallback = NO_DEFAULT_PROVIDER
@@ -60,7 +60,7 @@ class DefaultComplicationProviderPolicy {
     /**
      * Uses systemProvider as the default complication provider.
      */
-    constructor(systemProvider: Int) {
+    public constructor(systemProvider: Int) {
         primaryProvider = null
         secondaryProvider = null
         systemProviderFallback = systemProvider
@@ -70,7 +70,7 @@ class DefaultComplicationProviderPolicy {
      * Attempts to use provider as the default complication provider, if not present then
      * systemProviderFallback will be used instead.
      */
-    constructor(provider: ComponentName, systemProviderFallback: Int) {
+    public constructor(provider: ComponentName, systemProviderFallback: Int) {
         primaryProvider = provider
         secondaryProvider = null
         this.systemProviderFallback = systemProviderFallback
@@ -81,7 +81,7 @@ class DefaultComplicationProviderPolicy {
      * secondaryProvider will be tried and if that's not present then systemProviderFallback
      * will be used instead.
      */
-    constructor(
+    public constructor(
         primaryProvider: ComponentName,
         secondaryProvider: ComponentName,
         systemProviderFallback: Int
@@ -92,17 +92,17 @@ class DefaultComplicationProviderPolicy {
     }
 
     /** Whether or not this DefaultComplicationProviderPolicy contains a default provider. */
-    fun isEmpty() =
+    public fun isEmpty(): Boolean =
         primaryProvider == null && systemProviderFallback == NO_DEFAULT_PROVIDER
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun providersAsList() = ArrayList<ComponentName>().apply {
+    public fun providersAsList(): ArrayList<ComponentName> = ArrayList<ComponentName>().apply {
         primaryProvider?.let { add(it) }
         secondaryProvider?.let { add(it) }
     }
 
-    companion object {
+    internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
     }
 }

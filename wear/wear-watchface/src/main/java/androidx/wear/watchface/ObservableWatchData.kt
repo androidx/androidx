@@ -23,26 +23,25 @@ import androidx.annotation.UiThread
  *
  * @param <T> The type of data hold by this instance
  */
-open class ObservableWatchData<T : Any> protected constructor(internal var _value: T?) {
+public open class ObservableWatchData<T : Any> protected constructor(internal var _value: T?) {
 
     private var iterating = false
     private val observers = ArrayList<Observer<T>>()
     private val toBeRemoved = HashSet<Observer<T>>()
 
     /** Whether or not this ObservableWatchData contains a value. */
-    fun hasValue() = _value != null
+    public fun hasValue(): Boolean = _value != null
 
     /** Returns the value contained within this ObservableWatchData or default if there isn't one. */
-    fun getValueOr(default: T) = if (_value != null) {
+    public fun getValueOr(default: T): T = if (_value != null) {
         _value!!
     } else {
         default
     }
 
-    open var value: T
+    public open var value: T
         @UiThread
         get() = _value!!
-
         @UiThread
         protected set(v) {
             require(!iterating)
@@ -70,7 +69,7 @@ open class ObservableWatchData<T : Any> protected constructor(internal var _valu
      * observer.
      */
     @UiThread
-    fun addObserver(observer: Observer<T>) {
+    public fun addObserver(observer: Observer<T>) {
         require(!observers.contains(observer))
         observers.add(observer)
         // We want to dispatch a callback when added, and if we're iterating then adding to the end
@@ -82,7 +81,7 @@ open class ObservableWatchData<T : Any> protected constructor(internal var _valu
 
     /** Removes an observer previously added by [addObserver]. */
     @UiThread
-    fun removeObserver(observer: Observer<T>) {
+    public fun removeObserver(observer: Observer<T>) {
         require(observers.contains(observer))
 
         if (iterating) {
@@ -99,13 +98,13 @@ open class ObservableWatchData<T : Any> protected constructor(internal var _valu
  * @param <T> The type of data hold by this instance
  */
 @SuppressWarnings("WeakerAccess")
-class MutableObservableWatchData<T : Any>(initialValue: T?) : ObservableWatchData<T>(initialValue) {
-    constructor() : this(null)
+public class MutableObservableWatchData<T : Any>(initialValue: T?) :
+    ObservableWatchData<T>(initialValue) {
+    public constructor() : this(null)
 
     override var value: T
         @UiThread
         get() = _value!!
-
         @UiThread
         public set(v) {
             super.value = v

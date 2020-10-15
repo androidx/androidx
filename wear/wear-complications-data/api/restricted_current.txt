@@ -174,10 +174,6 @@ package androidx.wear.complications {
     property public final android.content.ComponentName? primaryProvider;
     property public final android.content.ComponentName? secondaryProvider;
     property public final int systemProviderFallback;
-    field public static final androidx.wear.complications.DefaultComplicationProviderPolicy.Companion Companion;
-  }
-
-  public static final class DefaultComplicationProviderPolicy.Companion {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ProviderChooserIntent {

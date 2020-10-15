@@ -25,8 +25,8 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 
 /** Helper for rendering a complication to a GLES20 texture. */
-class GlesTextureComplication(
-    val renderer: CanvasComplicationRenderer,
+public class GlesTextureComplication(
+    public val renderer: CanvasComplicationRenderer,
     textureWidth: Int,
     textureHeight: Int,
 
@@ -43,7 +43,7 @@ class GlesTextureComplication(
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
     /** Renders the complication to an OpenGL texture. */
-    fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
+    public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
         renderer.render(canvas, bounds, calendar, renderParameters)
         bind()
@@ -51,7 +51,7 @@ class GlesTextureComplication(
     }
 
     /** Bind the texture to the active texture target. */
-    fun bind() {
+    public fun bind() {
         GLES20.glBindTexture(textureType, texture)
     }
 
