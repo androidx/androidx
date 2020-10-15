@@ -19,6 +19,7 @@ package androidx.work
 import android.content.Context
 import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,7 +35,7 @@ import kotlinx.coroutines.launch
  * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
  * [ListenableWorker.Result].  After this time has expired, the worker will be signalled to stop.
  */
-abstract class CoroutineWorker(
+public abstract class CoroutineWorker(
     appContext: Context,
     params: WorkerParameters
 ) : ListenableWorker(appContext, params) {
@@ -57,10 +58,10 @@ abstract class CoroutineWorker(
      * The coroutine context on which [doWork] will run. By default, this is [Dispatchers.Default].
      */
     @Deprecated(message = "use withContext(...) inside doWork() instead.")
-    open val coroutineContext = Dispatchers.Default
+    public open val coroutineContext: CoroutineDispatcher = Dispatchers.Default
 
     @Suppress("DEPRECATION")
-    final override fun startWork(): ListenableFuture<Result> {
+    public final override fun startWork(): ListenableFuture<Result> {
 
         val coroutineScope = CoroutineScope(coroutineContext + job)
         coroutineScope.launch {
@@ -86,7 +87,7 @@ abstract class CoroutineWorker(
      * @return The [ListenableWorker.Result] of the result of the background work; note that
      * dependent work will not execute if you return [ListenableWorker.Result.failure]
      */
-    abstract suspend fun doWork(): Result
+    public abstract suspend fun doWork(): Result
 
     /**
      * Updates the progress for the [CoroutineWorker]. This is a suspending function unlike the
@@ -94,7 +95,7 @@ abstract class CoroutineWorker(
      *
      * @param data The progress [Data]
      */
-    suspend fun setProgress(data: Data) {
+    public suspend fun setProgress(data: Data) {
         setProgressAsync(data).await()
     }
 
@@ -105,11 +106,11 @@ abstract class CoroutineWorker(
      *
      * @param foregroundInfo The [ForegroundInfo]
      */
-    suspend fun setForeground(foregroundInfo: ForegroundInfo) {
+    public suspend fun setForeground(foregroundInfo: ForegroundInfo) {
         setForegroundAsync(foregroundInfo).await()
     }
 
-    final override fun onStopped() {
+    public final override fun onStopped() {
         super.onStopped()
         future.cancel(false)
     }
