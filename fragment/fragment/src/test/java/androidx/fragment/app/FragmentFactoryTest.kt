@@ -16,7 +16,7 @@
 
 package androidx.fragment.app
 
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
 class FragmentFactoryTest {
@@ -27,7 +27,10 @@ class FragmentFactoryTest {
         val classLoader = CountingClassLoader()
         factory.instantiate(classLoader, TestFragment::class.java.name)
         factory.instantiate(classLoader, TestFragment::class.java.name)
-        assertEquals(1, classLoader.loadCount)
+
+        assertWithMessage("Fragment class should only be looked up once")
+            .that(classLoader.loadCount)
+            .isEqualTo(1)
     }
 
     @Test
@@ -36,8 +39,14 @@ class FragmentFactoryTest {
         val secondClassLoader = CountingClassLoader()
         factory.instantiate(firstClassLoader, TestFragment::class.java.name)
         factory.instantiate(secondClassLoader, TestFragment::class.java.name)
-        assertEquals(1, firstClassLoader.loadCount)
-        assertEquals(1, secondClassLoader.loadCount)
+
+        assertWithMessage("Fragment class should only be looked up once")
+            .that(firstClassLoader.loadCount)
+            .isEqualTo(1)
+
+        assertWithMessage("Fragment class should be looked up again for different class loaders")
+            .that(secondClassLoader.loadCount)
+            .isEqualTo(1)
     }
 
     class TestFragment : Fragment()
