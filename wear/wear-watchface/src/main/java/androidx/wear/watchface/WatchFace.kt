@@ -63,13 +63,13 @@ private const val MIN_PERCEPTABLE_DELAY_MILLIS = 100
         WatchFaceType.ANALOG
     ]
 )
-annotation class WatchFaceType {
-    companion object {
+public annotation class WatchFaceType {
+    public companion object {
         /* The WatchFace has an analog time display. */
-        const val ANALOG = 0
+        public const val ANALOG: Int = 0
 
         /* The WatchFace has a digital time display. */
-        const val DIGITAL = 1
+        public const val DIGITAL: Int = 1
     }
 }
 
@@ -105,7 +105,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * styling, complications and state observers.
  */
 @SuppressLint("SyntheticAccessor")
-class WatchFace private constructor(
+public class WatchFace private constructor(
     @WatchFaceType private val watchFaceType: Int,
     private var interactiveUpdateRateMillis: Long,
     internal val userStyleRepository: UserStyleRepository,
@@ -123,9 +123,9 @@ class WatchFace private constructor(
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    interface SystemTimeProvider {
+    public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
-        fun getSystemTimeMillis(): Long
+        public fun getSystemTimeMillis(): Long
     }
 
     /**
@@ -134,7 +134,7 @@ class WatchFace private constructor(
      * If unreadCountIndicator or notificationIndicator are hidden then the WatchState class will
      * receive updates necessary for the watch to draw its own indicators.
      */
-    class Builder(
+    public class Builder(
         /** The type of watch face, whether it's digital or analog. */
         @WatchFaceType private val watchFaceType: Int,
 
@@ -181,7 +181,7 @@ class WatchFace private constructor(
          *     [PROTECT_WHOLE_SCREEN].
          * @throws IllegalArgumentException if viewProtectionMode has an unexpected value
          */
-        fun setViewProtectionMode(viewProtectionMode: Int) = apply {
+        public fun setViewProtectionMode(viewProtectionMode: Int): Builder = apply {
             if (viewProtectionMode < 0 ||
                 viewProtectionMode >
                 WatchFaceStyle.PROTECT_STATUS_BAR + WatchFaceStyle.PROTECT_HOTWORD_INDICATOR +
@@ -204,7 +204,7 @@ class WatchFace private constructor(
          *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
          *     only the vertical gravity is respected.
          */
-        fun setStatusBarGravity(statusBarGravity: Int) = apply {
+        public fun setStatusBarGravity(statusBarGravity: Int): Builder = apply {
             this.statusBarGravity = statusBarGravity
         }
 
@@ -212,7 +212,7 @@ class WatchFace private constructor(
          * Sets the accent color which can be set by developers to customise watch face. It will be
          * used when drawing the unread notification indicator. Default color is white.
          */
-        fun setAccentColor(@ColorInt accentColor: Int) = apply {
+        public fun setAccentColor(@ColorInt accentColor: Int): Builder = apply {
             this.accentColor = accentColor
         }
 
@@ -222,9 +222,8 @@ class WatchFace private constructor(
          *
          * @param showUnreadCountIndicator if true an indicator will be shown
          */
-        fun setShowUnreadCountIndicator(showUnreadCountIndicator: Boolean) = apply {
-            this.showUnreadCountIndicator = showUnreadCountIndicator
-        }
+        public fun setShowUnreadCountIndicator(showUnreadCountIndicator: Boolean): Builder =
+            apply { this.showUnreadCountIndicator = showUnreadCountIndicator }
 
         /**
          * Sets whether to hide the dot indicator that is displayed at the bottom of the watch face
@@ -235,9 +234,8 @@ class WatchFace private constructor(
          * @param hideNotificationIndicator if true an indicator will be hidden
          * @hide
          */
-        fun setHideNotificationIndicator(hideNotificationIndicator: Boolean) = apply {
-            this.hideNotificationIndicator = hideNotificationIndicator
-        }
+        public fun setHideNotificationIndicator(hideNotificationIndicator: Boolean): Builder =
+            apply { this.hideNotificationIndicator = hideNotificationIndicator }
 
         /**
          * Sets whether this watchface accepts tap events. The default is false.
@@ -249,18 +247,18 @@ class WatchFace private constructor(
          *
          * @param acceptsTapEvents whether to receive touch events.
          */
-        fun setAcceptsTapEvents(acceptsTapEvents: Boolean) = apply {
+        public fun setAcceptsTapEvents(acceptsTapEvents: Boolean): Builder = apply {
             this.acceptsTapEvents = acceptsTapEvents
         }
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
-        fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider) = apply {
+        public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): Builder = apply {
             this.systemTimeProvider = systemTimeProvider
         }
 
         /** Constructs the [WatchFace]. */
-        fun build(): WatchFace {
+        public fun build(): WatchFace {
             val componentName =
                 ComponentName(
                     watchFaceHost.api!!.getContext().packageName,
@@ -335,7 +333,7 @@ class WatchFace private constructor(
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val calendar: Calendar = Calendar.getInstance()
+    public val calendar: Calendar = Calendar.getInstance()
 
     private val pendingSingleTap: CancellableUniqueTask =
         CancellableUniqueTask(watchFaceHostApi.getHandler())
@@ -359,10 +357,7 @@ class WatchFace private constructor(
         }
     }
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val batteryLevelReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    internal val batteryLevelReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
             val isBatteryLowAndNotCharging =
@@ -380,12 +375,8 @@ class WatchFace private constructor(
      * We listen for MOCK_TIME_INTENTs which we interpret as a request to modify time. E.g. speeding
      * up or slowing down time, and providing support for making time loop between two instants.
      * This is intended to help implement animations which may occur infrequently (e.g. hourly).
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val mockTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    internal val mockTimeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
             mockTime.speed = intent.getFloatExtra(
@@ -490,12 +481,10 @@ class WatchFace private constructor(
                     // Ensure we render a frame if the Complication needs rendering, e.g. because it
                     // loaded an image. However if we're animating there's no need to trigger an
                     // extra invalidation.
-                    if (renderer.shouldAnimate() &&
-                        computeDelayTillNextFrame(
-                                nextDrawTimeMillis,
-                                systemTimeProvider.getSystemTimeMillis()
-                            )
-                        < MIN_PERCEPTABLE_DELAY_MILLIS
+                    if (renderer.shouldAnimate() && computeDelayTillNextFrame(
+                            nextDrawTimeMillis,
+                            systemTimeProvider.getSystemTimeMillis()
+                        ) < MIN_PERCEPTABLE_DELAY_MILLIS
                     ) {
                         return
                     }
@@ -695,30 +684,32 @@ class WatchFace private constructor(
 
     /** @hide */
     @UiThread
-    internal fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long):
-        Long {
-            // Limit update rate to conserve power when the battery is low and not charging.
-            val updateRateMillis =
-                if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
-                    max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
-                } else {
-                    interactiveUpdateRateMillis
-                }
-            // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
-            // to compute min(beginFrameTimeMillis, currentTimeMillis).
-            var nextFrameTimeMillis =
-                Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
-            // Drop frames if needed (happens when onDraw is slow).
-            if (nextFrameTimeMillis <= currentTimeMillis) {
-                // Compute the next runtime after currentTimeMillis with the same phase as
-                //  beginFrameTimeMillis to keep the animation smooth.
-                val phaseAdjust =
-                    updateRateMillis +
-                        ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
-                nextFrameTimeMillis = currentTimeMillis + phaseAdjust
+    internal fun computeDelayTillNextFrame(
+        beginFrameTimeMillis: Long,
+        currentTimeMillis: Long
+    ): Long {
+        // Limit update rate to conserve power when the battery is low and not charging.
+        val updateRateMillis =
+            if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
+                max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
+            } else {
+                interactiveUpdateRateMillis
             }
-            return nextFrameTimeMillis - currentTimeMillis
+        // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
+        // to compute min(beginFrameTimeMillis, currentTimeMillis).
+        var nextFrameTimeMillis =
+            Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
+        // Drop frames if needed (happens when onDraw is slow).
+        if (nextFrameTimeMillis <= currentTimeMillis) {
+            // Compute the next runtime after currentTimeMillis with the same phase as
+            //  beginFrameTimeMillis to keep the animation smooth.
+            val phaseAdjust =
+                updateRateMillis +
+                    ((nextFrameTimeMillis - currentTimeMillis) % updateRateMillis)
+            nextFrameTimeMillis = currentTimeMillis + phaseAdjust
         }
+        return nextFrameTimeMillis - currentTimeMillis
+    }
 
     /**
      * Called when new complication data is received.
@@ -832,7 +823,7 @@ class WatchFace private constructor(
 
     /** Schedules a call to [onDraw] to draw the next frame. */
     @UiThread
-    fun invalidate() {
+    public fun invalidate() {
         watchFaceHostApi.invalidate()
     }
 
@@ -840,7 +831,7 @@ class WatchFace private constructor(
      * Posts a message to schedule a call to [onDraw] to draw the next frame. Unlike
      * [invalidate], this method is thread-safe and may be called on any thread.
      */
-    fun postInvalidate() {
+    public fun postInvalidate() {
         watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }
     }
 }

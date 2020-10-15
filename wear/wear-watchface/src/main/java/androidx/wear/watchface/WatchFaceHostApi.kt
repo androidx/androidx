@@ -34,27 +34,27 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface WatchFaceHostApi {
+public interface WatchFaceHostApi {
     /** Returns the watch face's [Context]. */
-    fun getContext(): Context
+    public fun getContext(): Context
 
     /** Returns the main thread [Handler]. */
-    fun getHandler(): Handler
+    public fun getHandler(): Handler
 
     /** Registers whether the watch face has an analog or digital display. */
-    fun registerWatchFaceType(@WatchFaceType watchFaceType: Int)
+    public fun registerWatchFaceType(@WatchFaceType watchFaceType: Int)
 
     /** Registers the watch face's user style schema with the system. */
-    fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat)
+    public fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat)
 
     /** Registers the watch face's current user style with the system. */
-    fun setCurrentUserStyle(userStyle: UserStyleWireFormat)
+    public fun setCurrentUserStyle(userStyle: UserStyleWireFormat)
 
     /** Returns the user style stored by the system if there is one or null otherwise. */
-    fun getStoredUserStyle(): UserStyleWireFormat?
+    public fun getStoredUserStyle(): UserStyleWireFormat?
 
     /** Registers details of the complications with the system. */
-    fun setComplicationDetails(
+    public fun setComplicationDetails(
         complicationId: Int,
         bounds: Rect,
         @ComplicationBoundsType boundsType: Int,
@@ -79,7 +79,7 @@ interface WatchFaceHostApi {
      * onDraw()).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
+    public fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
 
     /**
      * Sets the complications which are active in the watchface. Complication data will be
@@ -94,7 +94,7 @@ interface WatchFaceHostApi {
      * <p>Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
      */
-    fun setActiveComplications(watchFaceComplicationIds: IntArray)
+    public fun setActiveComplications(watchFaceComplicationIds: IntArray)
 
     /**
      * Accepts a list of custom providers to attempt to set as the default provider for the
@@ -125,21 +125,21 @@ interface WatchFaceHostApi {
      * @param type The type of complication data that should be provided. Must be one of the
      *     types defined in [ComplicationData]
      */
-    fun setDefaultComplicationProviderWithFallbacks(
+    public fun setDefaultComplicationProviderWithFallbacks(
         watchFaceComplicationId: Int,
         providers: List<ComponentName>?,
         @SystemProviders.ProviderId fallbackSystemProvider: Int,
         type: Int
     )
 
-    /** Schedules a call to [Renderer.onDraw] to draw the next frame. */
+    /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
-    fun invalidate()
+    public fun invalidate()
 }
 
 /**
  * An opaque holder for the internal API [WatchFace] for it's host service.
  */
-class WatchFaceHost {
+public class WatchFaceHost {
     internal var api: WatchFaceHostApi? = null
 }

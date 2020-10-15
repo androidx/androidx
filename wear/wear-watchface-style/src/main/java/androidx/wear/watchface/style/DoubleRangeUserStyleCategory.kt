@@ -19,12 +19,13 @@ package androidx.wear.watchface.style
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat
 
 /**
  * A DoubleRangeUserStyleCategory represents a category with a [Double] value in the range
  * `[minimumValue .. maximumValue]`.
  */
-class DoubleRangeUserStyleCategory : UserStyleCategory {
+public class DoubleRangeUserStyleCategory : UserStyleCategory {
 
     internal companion object {
         internal fun createOptionsList(
@@ -48,7 +49,7 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
         }
     }
 
-    constructor (
+    public constructor (
         /** Identifier for the element, must be unique. */
         id: String,
 
@@ -92,7 +93,7 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat() =
+    override fun toWireFormat(): DoubleRangeUserStyleCategoryWireFormat =
         DoubleRangeUserStyleCategoryWireFormat(
             id,
             displayName,
@@ -106,11 +107,11 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
     /**
      * Represents an option as a [Double] in the range [minimumValue .. maximumValue].
      */
-    class DoubleRangeOption : Option {
+    public class DoubleRangeOption : Option {
         /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
-        val value: Double
+        public val value: Double
 
-        constructor(value: Double) : super(value.toString()) {
+        public constructor(value: Double) : super(value.toString()) {
             this.value = value
         }
 
@@ -126,29 +127,29 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat() =
-            DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat(id, value)
+        override fun toWireFormat(): DoubleRangeOptionWireFormat =
+            DoubleRangeOptionWireFormat(id, value)
     }
 
     /**
      * Returns the minimum value.
      */
-    fun getMinimumValue() = (options.first() as DoubleRangeOption).value
+    public fun getMinimumValue(): Double = (options.first() as DoubleRangeOption).value
 
     /**
      * Returns the maximum value.
      */
-    fun getMaximumValue() = (options.last() as DoubleRangeOption).value
+    public fun getMaximumValue(): Double = (options.last() as DoubleRangeOption).value
 
     /**
      * Returns the default value.
      */
-    fun getDefaultValue() = (options[defaultOptionIndex] as DoubleRangeOption).value
+    public fun getDefaultValue(): Double = (options[defaultOptionIndex] as DoubleRangeOption).value
 
     /**
      * We support all values in the range [min ... max] not just min & max.
      */
-    override fun getOptionForId(optionId: String) =
+    override fun getOptionForId(optionId: String): Option =
         options.find { it.id == optionId } ?: checkedOptionForId(optionId)
 
     private fun checkedOptionForId(optionId: String): DoubleRangeOption {

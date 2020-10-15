@@ -55,7 +55,7 @@ private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
  * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
  * class.
  */
-abstract class GlesRenderer (
+public abstract class GlesRenderer (
     /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
@@ -108,10 +108,10 @@ abstract class GlesRenderer (
      * an RGBAB8888 back buffer.
      */
     @SuppressWarnings("SyntheticAccessor")
-    protected open fun getConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
+    protected open fun getConfigAttribList(): IntArray = EGL_CONFIG_ATTRIB_LIST
 
     /**
-     * Chooses the EGLConfig to use, by default this calls [getEglConfigAttribList] to get
+     * Chooses the EGLConfig to use, by default this calls [.getEglConfigAttribList] to get
      * the attributes list to pass to [EGL14.eglChooseConfig].
      * @throws RuntimeException if [EGL14.eglChooseConfig] fails
      */
@@ -142,7 +142,7 @@ abstract class GlesRenderer (
      * is empty.
      */
     @SuppressWarnings("SyntheticAccessor")
-    protected open fun getSurfaceAttribList() = EGL_SURFACE_ATTRIB_LIST
+    protected open fun getSurfaceAttribList(): IntArray = EGL_SURFACE_ATTRIB_LIST
 
     private fun createWindowSurface(
         eglDisplay: EGLDisplay,
@@ -227,7 +227,7 @@ abstract class GlesRenderer (
 
     /** Called when a new GL context is created. It's safe to use GL APIs in this method. */
     @UiThread
-    open fun onGlContextCreated() {}
+    public open fun onGlContextCreated() {}
 
     /**
      * Called when a new GL surface is created. It's safe to use GL APIs in this method.
@@ -236,7 +236,7 @@ abstract class GlesRenderer (
      * @param height height of surface in pixels
      */
     @UiThread
-    open fun onGlSurfaceCreated(width: Int, height: Int) {}
+    public open fun onGlSurfaceCreated(width: Int, height: Int) {}
 
     internal override fun renderInternal(
         calendar: Calendar
@@ -300,5 +300,5 @@ abstract class GlesRenderer (
      * @param calendar The current [Calendar]
      */
     @UiThread
-    abstract fun render(calendar: Calendar)
+    public abstract fun render(calendar: Calendar)
 }

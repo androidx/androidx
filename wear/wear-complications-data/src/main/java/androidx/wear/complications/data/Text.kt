@@ -37,14 +37,14 @@ private typealias WireComplicationTextTimeFormatBuilder =
  * text to show with [getTextAt] but also a way to know whether the text needs to be
  * re-rendered, by means of [returnsSameText], [getNextChangeTime], and [isAlwaysEmpty].
  */
-interface ComplicationText {
+public interface ComplicationText {
     /**
      * Returns the text that should be displayed for the given timestamp.
      *
      * @param resources [Resources] from the current context
      * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
      */
-    fun getTextAt(
+    public fun getTextAt(
         resources: Resources,
         dateTimeMillis: Long
     ): CharSequence
@@ -53,15 +53,15 @@ interface ComplicationText {
      * Returns true if the result of [getTextAt] will be the same for both [firstDateTimeMillis]
      * and [secondDateTimeMillis].
      */
-    fun returnsSameText(
+    public fun returnsSameText(
         firstDateTimeMillis: Long,
         secondDateTimeMillis: Long
     ): Boolean
 
     /** Returns the next time after [fromDateTimeMillis] at which the text may change.  */
-    fun getNextChangeTime(fromDateTimeMillis: Long): Long
+    public fun getNextChangeTime(fromDateTimeMillis: Long): Long
 
-    fun isAlwaysEmpty(): Boolean
+    public fun isAlwaysEmpty(): Boolean
 
     /**
      * Converts this value to [WireComplicationText] object used for serialization.
@@ -69,12 +69,12 @@ interface ComplicationText {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun asWireComplicationText(): WireComplicationText
+    public fun asWireComplicationText(): WireComplicationText
 
-    companion object {
+    public companion object {
         /** Returns a [ComplicationText] that represent a plain [CharSequence]. */
         @JvmStatic
-        fun plain(text: CharSequence): ComplicationText =
+        public fun plain(text: CharSequence): ComplicationText =
             WireComplicationText.plainText(text).asApiComplicationText()
 
         /**
@@ -84,7 +84,10 @@ interface ComplicationText {
          * @param[style] the style of the time difference to be displayed.
          */
         @JvmStatic
-        fun timeDifferenceBuilder(style: TimeDifferenceStyle, reference: TimeReference) =
+        public fun timeDifferenceBuilder(
+            style: TimeDifferenceStyle,
+            reference: TimeReference
+        ): TimeDifferenceComplicationText.Builder =
             TimeDifferenceComplicationText.Builder(style, reference)
 
         /**
@@ -94,12 +97,13 @@ interface ComplicationText {
          * as used by [java.text.SimpleDateFormat].
          */
         @JvmStatic
-        fun timeFormatBuilder(format: String) = TimeFormatComplicationText.Builder(format)
+        public fun timeFormatBuilder(format: String): TimeFormatComplicationText.Builder =
+            TimeFormatComplicationText.Builder(format)
     }
 }
 
 /** The styling used for showing a time different by [ComplicationText.timeDifferenceBuilder]. */
-enum class TimeDifferenceStyle(internal var wireStyle: Int) {
+public enum class TimeDifferenceStyle(internal var wireStyle: Int) {
 
     /**
      * Style for time differences shown in a numeric fashion like a timer.
@@ -194,7 +198,7 @@ enum class TimeDifferenceStyle(internal var wireStyle: Int) {
 }
 
 /** A [ComplicationText] that represents a time difference. */
-class TimeDifferenceComplicationText internal constructor(
+public class TimeDifferenceComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
     /**
@@ -202,7 +206,10 @@ class TimeDifferenceComplicationText internal constructor(
      *
      * Requires setting a [TimeDifferenceStyle].
      */
-    class Builder(private val style: TimeDifferenceStyle, private val reference: TimeReference) {
+    public class Builder(
+        private val style: TimeDifferenceStyle,
+        private val reference: TimeReference
+    ) {
         private var text: CharSequence? = null
         private var displayAsNow: Boolean? = null
         private var minimumUnit: TimeUnit? = null
@@ -220,7 +227,7 @@ class TimeDifferenceComplicationText internal constructor(
          * The allowed spans are [ForegroundColorSpan], [LocaleSpan], [SubscriptSpan],
          * [SuperscriptSpan], [StyleSpan], [StrikethroughSpan], [TypefaceSpan] and [UnderlineSpan].
          */
-        fun setText(text: CharSequence?) = apply { this.text = text }
+        public fun setText(text: CharSequence?): Builder = apply { this.text = text }
 
         /**
          * Sets whether time difference should be displayed as "now" (appropriately localized)
@@ -229,7 +236,8 @@ class TimeDifferenceComplicationText internal constructor(
          *
          * The default is true for all styles except for [TimeDifferenceStyle.STOPWATCH].
          */
-        fun setDisplayAsNow(displayAsNow: Boolean) = apply { this.displayAsNow = displayAsNow }
+        public fun setDisplayAsNow(displayAsNow: Boolean): Builder =
+            apply { this.displayAsNow = displayAsNow }
 
         /**
          * Sets the smallest unit that may be shown in the time difference text. If specified, units
@@ -246,10 +254,11 @@ class TimeDifferenceComplicationText internal constructor(
          * [TimeDifferenceStyle.SHORT_SINGLE_UNIT], then a minimum unit of [TimeUnit.SECONDS] will
          * have no effect.
          */
-        fun setMinimumUnit(minimumUnit: TimeUnit?) = apply { this.minimumUnit = minimumUnit }
+        public fun setMinimumUnit(minimumUnit: TimeUnit?): Builder =
+            apply { this.minimumUnit = minimumUnit }
 
         /** Builds a [TimeDifferenceComplicationText]. */
-        fun build() = TimeDifferenceComplicationText(
+        public fun build(): TimeDifferenceComplicationText = TimeDifferenceComplicationText(
             WireComplicationTextTimeDifferenceBuilder().apply {
                 setStyle(style.wireStyle)
                 setSurroundingText(text)
@@ -267,14 +276,14 @@ class TimeDifferenceComplicationText internal constructor(
 }
 
 /** The format in which the time should be displayed. */
-enum class TimeFormatStyle(internal var wireStyle: Int) {
+public enum class TimeFormatStyle(internal var wireStyle: Int) {
     DEFAULT(WireComplicationText.FORMAT_STYLE_DEFAULT),
     UPPER_CASE(WireComplicationText.FORMAT_STYLE_UPPER_CASE),
     LOWER_CASE(WireComplicationText.FORMAT_STYLE_LOWER_CASE);
 }
 
 /** A [ComplicationText] that shows a formatted time. */
-class TimeFormatComplicationText internal constructor(
+public class TimeFormatComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
     /**
@@ -283,7 +292,7 @@ class TimeFormatComplicationText internal constructor(
      * @param[format] the format in which the time should be displayed. This should be a pattern
      * as used by [java.text.SimpleDateFormat].
      */
-    class Builder(private var format: String) {
+    public class Builder(private var format: String) {
         private var style: TimeFormatStyle? = null
         private var text: CharSequence? = null
         private var timeZone: TimeZone? = null
@@ -294,7 +303,7 @@ class TimeFormatComplicationText internal constructor(
          * If not set, defaults to [TimeFormatStyle.DEFAULT], which leaves the formatted date
          * unchanged.
          */
-        fun setStyle(style: TimeFormatStyle) = apply { this.style = style }
+        public fun setStyle(style: TimeFormatStyle): Builder = apply { this.style = style }
 
         /**
          * Sets the text within which the time difference will be displayed.
@@ -309,16 +318,16 @@ class TimeFormatComplicationText internal constructor(
          * The allowed spans are [ForegroundColorSpan], [LocaleSpan], [SubscriptSpan],
          * [SuperscriptSpan], [StyleSpan], [StrikethroughSpan], [TypefaceSpan] and [UnderlineSpan].
          */
-        fun setText(text: CharSequence) = apply { this.text = text }
+        public fun setText(text: CharSequence): Builder = apply { this.text = text }
 
         /**
          * Sets the time zone that will be used for the formatted time. If not set, the system's
          * default time zone will be used.
          */
-        fun setTimeZone(timeZone: TimeZone) = apply { this.timeZone = timeZone }
+        public fun setTimeZone(timeZone: TimeZone): Builder = apply { this.timeZone = timeZone }
 
         /** Builds a [TimeFormatComplicationText]. */
-        fun build() = TimeFormatComplicationText(
+        public fun build(): TimeFormatComplicationText = TimeFormatComplicationText(
             WireComplicationTextTimeFormatBuilder().apply {
                 setFormat(format)
                 setStyle(style?.wireStyle ?: WireComplicationText.FORMAT_STYLE_DEFAULT)

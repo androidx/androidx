@@ -61,5 +61,4 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_COMPLICATIONS
     inceptionYear = "2020"
     description = "Android Wear Complications"
-    legacyDisableKotlinStrictApiMode = true
 }

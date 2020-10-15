@@ -26,10 +26,10 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
  * The users style choices represented as a map of [UserStyleCategory] to
  * [UserStyleCategory.Option].
  */
-class UserStyle(val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
+public class UserStyle(public val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    constructor(
+    public constructor(
         userStyle: UserStyleWireFormat,
         userStyleCategories: List<UserStyleCategory>
     ) : this(
@@ -43,7 +43,7 @@ class UserStyle(val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun toWireFormat() =
+    public fun toWireFormat(): UserStyleWireFormat =
         UserStyleWireFormat(options.entries.associate { it.key.id to it.value.id })
 }
 
@@ -51,19 +51,19 @@ class UserStyle(val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
  * In memory storage for user style choices which allows listeners to be registered to observe
  * style changes.
  */
-class UserStyleRepository(
+public class UserStyleRepository(
     /**
      * The style categories (i.e the style schema) associated with this watch face, that the user
      * can configure. May be empty. The first entry in each Option list is that category's default
      * value.
      */
-    val userStyleCategories: List<UserStyleCategory>
+    public val userStyleCategories: List<UserStyleCategory>
 ) {
     /** A listener for observing user style changes. */
-    interface UserStyleListener {
+    public interface UserStyleListener {
         /** Called whenever the user style changes. */
         @UiThread
-        fun onUserStyleChanged(userStyle: UserStyle)
+        public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
     private val styleListeners = HashSet<UserStyleListener>()
@@ -79,7 +79,7 @@ class UserStyleRepository(
     )
 
     /** The current user controlled style for rendering etc... */
-    var userStyle: UserStyle
+    public var userStyle: UserStyle
         @UiThread
         get() = _style
         @UiThread
@@ -109,7 +109,7 @@ class UserStyleRepository(
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    fun addUserStyleListener(userStyleListener: UserStyleListener) {
+    public fun addUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.add(userStyleListener)
         userStyleListener.onUserStyleChanged(_style)
     }
@@ -117,12 +117,12 @@ class UserStyleRepository(
     /** Removes a [UserStyleListener] previously added by [addUserStyleListener]. */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    fun removeUserStyleListener(userStyleListener: UserStyleListener) {
+    public fun removeUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.remove(userStyleListener)
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun toSchemaWireFormat() =
+    public fun toSchemaWireFormat(): UserStyleSchemaWireFormat =
         UserStyleSchemaWireFormat(userStyleCategories.map { it.toWireFormat() })
 }

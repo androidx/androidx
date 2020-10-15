@@ -69,7 +69,8 @@ internal interface FragmentController {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @TargetApi(16)
-@SuppressWarnings("ForbiddenSuperClass") // Not intended to be composable.
+@SuppressWarnings("ForbiddenSuperClass")
+public // Not intended to be composable.
 class WatchFaceConfigActivity : FragmentActivity() {
     internal lateinit var watchFaceConfigDelegate: WatchFaceConfigDelegate
         private set
@@ -85,7 +86,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     internal var backgroundComplicationId: Int? = null
         private set
 
-    companion object {
+    public companion object {
         private const val TAG = "WatchFaceConfigActivity"
 
         private val sComponentNameToIWatchFaceConfig =
@@ -94,7 +95,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         /** @hide */
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
-        fun registerWatchFace(
+        public fun registerWatchFace(
             componentName: ComponentName,
             watchFaceConfigDelegate: WatchFaceConfigDelegate
         ) {
@@ -103,7 +104,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
-        fun unregisterWatchFace(componentName: ComponentName) {
+        public fun unregisterWatchFace(componentName: ComponentName) {
             sComponentNameToIWatchFaceConfig.remove(componentName)
         }
 
