@@ -143,7 +143,7 @@ public final class PreviewView extends FrameLayout {
                         right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
                 if (isSizeChanged) {
                     redrawPreview();
-                    attachToControllerIfReady();
+                    attachToControllerIfReady(true);
                 }
             };
 
@@ -246,7 +246,7 @@ public final class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
-        attachToControllerIfReady();
+        attachToControllerIfReady(true);
     }
 
     @Override
@@ -783,7 +783,7 @@ public final class PreviewView extends FrameLayout {
             mCameraController.clearPreviewSurface();
         }
         mCameraController = cameraController;
-        attachToControllerIfReady();
+        attachToControllerIfReady(false);
     }
 
     /**
@@ -800,12 +800,22 @@ public final class PreviewView extends FrameLayout {
     }
 
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    private void attachToControllerIfReady() {
+    private void attachToControllerIfReady(boolean shouldFailSilently) {
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();
         if (mCameraController != null && viewPort != null && isAttachedToWindow()
                 && display != null) {
-            mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+            try {
+                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+            } catch (IllegalStateException ex) {
+                if (shouldFailSilently) {
+                    // Swallow the exception and fail silently if the method is invoked by View
+                    // events.
+                    Logger.e(TAG, ex.getMessage(), ex);
+                } else {
+                    throw ex;
+                }
+            }
         }
     }
 }
