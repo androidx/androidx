@@ -37,6 +37,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -363,7 +364,8 @@ final class SupportedSurfaceCombination {
         Rational aspectRatio = getCorrectedAspectRatio();
         if (aspectRatio == null) {
             if (imageOutputConfig.hasTargetAspectRatio()) {
-                @AspectRatio.Ratio int targetAspectRatio = imageOutputConfig.getTargetAspectRatio();
+                @AspectRatio.Ratio int targetAspectRatio = new TargetAspectRatio().get(
+                        imageOutputConfig);
                 switch (targetAspectRatio) {
                     case AspectRatio.RATIO_4_3:
                         aspectRatio =
@@ -1221,7 +1223,7 @@ final class SupportedSurfaceCombination {
 
         Arrays.sort(videoSizeArr, new CompareSizesByArea(true));
 
-        for (Size size: videoSizeArr) {
+        for (Size size : videoSizeArr) {
             // Returns the largest supported size under 1080P
             if (size.getWidth() <= QUALITY_1080P_SIZE.getWidth()
                     && size.getHeight() <= QUALITY_1080P_SIZE.getHeight()) {
