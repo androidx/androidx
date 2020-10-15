@@ -10,7 +10,6 @@ impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \
     -Pandroidx.coverageEnabled=true \
-    -Pandroidx.validateNoUnrecognizedMessages \
     -Pandroidx.allWarningsAsErrors "$@"
 
 python3 impl/merge_outputs.py mergeExecutionData
