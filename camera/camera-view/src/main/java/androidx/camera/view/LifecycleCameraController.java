@@ -17,6 +17,7 @@
 package androidx.camera.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -81,6 +82,8 @@ public final class LifecycleCameraController extends CameraController {
      * and closed. When the {@link LifecycleOwner}'s state is start or greater, the controller
      * receives camera data. It stops once the {@link LifecycleOwner} is destroyed.
      *
+     * @throws IllegalStateException If the provided camera selector is unable to resolve a
+     *                               camera to be used for the given use cases.
      * @see ProcessCameraProvider#bindToLifecycle
      */
     @SuppressLint("MissingPermission")
@@ -88,7 +91,7 @@ public final class LifecycleCameraController extends CameraController {
     public void bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner) {
         Threads.checkMainThread();
         mLifecycleOwner = lifecycleOwner;
-        startCamera();
+        startCameraAndTrackStates();
     }
 
     /**
@@ -131,5 +134,17 @@ public final class LifecycleCameraController extends CameraController {
             return null;
         }
         return mCameraProvider.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCaseGroup);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(TESTS)
+    @SuppressWarnings("FutureReturnValueIgnored")
+    void shutDownForTests() {
+        if (mCameraProvider != null) {
+            mCameraProvider.unbindAll();
+            mCameraProvider.shutdown();
+        }
     }
 }

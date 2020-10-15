@@ -79,7 +79,6 @@ abstract class CameraController {
 
     // Externally visible error messages.
     private static final String CAMERA_NOT_INITIALIZED = "Camera not initialized.";
-    private static final String PREVIEW_VIEW_NOT_ATTACHED = "PreviewView not attached.";
     private static final String CAMERA_NOT_ATTACHED = "Use cases not attached to camera.";
     private static final String IMAGE_CAPTURE_DISABLED = "ImageCapture disabled.";
     private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
@@ -149,7 +148,16 @@ abstract class CameraController {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    Preview.SurfaceProvider mSurfaceProvider;
+    Preview.SurfaceProvider mPreviewViewSurfaceProvider;
+
+    // A wrapper around the PreviewView's SurfaceProvider that allows binding before PreviewView
+    // is ready.
+    @NonNull
+    Preview.SurfaceProvider mForwardingSurfaceProvider = request -> {
+        if (mPreviewViewSurfaceProvider != null) {
+            mPreviewViewSurfaceProvider.onSurfaceRequested(request);
+        }
+    };
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -187,6 +195,7 @@ abstract class CameraController {
                 ProcessCameraProvider.getInstance(mAppContext),
                 provider -> {
                     mCameraProvider = provider;
+                    mPreview.setSurfaceProvider(mForwardingSurfaceProvider);
                     startCameraAndTrackStates();
                     return null;
                 }, CameraXExecutors.mainThreadExecutor());
@@ -235,17 +244,8 @@ abstract class CameraController {
         return mCameraProvider != null;
     }
 
-    private boolean isPreviewViewAttached() {
-        return mSurfaceProvider != null && mViewPort != null && mPreviewDisplay != null;
-    }
-
     private boolean isCameraAttached() {
         return mCamera != null;
-    }
-
-    private void checkUseCasesAttachedToCamera() {
-        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(isCameraAttached(), CAMERA_NOT_ATTACHED);
     }
 
     // ------------------
@@ -261,17 +261,12 @@ abstract class CameraController {
     void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
             @NonNull ViewPort viewPort, @NonNull Display display) {
         Threads.checkMainThread();
-        if (mSurfaceProvider != surfaceProvider) {
-            // Avoid setting provider unnecessarily which restarts Preview pipeline.
-            mSurfaceProvider = surfaceProvider;
-            mPreview.setSurfaceProvider(surfaceProvider);
+        if (mPreviewViewSurfaceProvider != surfaceProvider) {
+            mPreviewViewSurfaceProvider = surfaceProvider;
         }
         mViewPort = viewPort;
         mPreviewDisplay = display;
         startListeningToRotationEvents();
-        // TODO(b/148791439): startCameraAndTrackStates can be triggered by Preview layout
-        //  change and the exception cannot be caught by the app. We need to set Preview with a
-        //  wrapped SurfaceProvider so that startCameraAndTrackStates() is not called here.
         startCameraAndTrackStates();
     }
 
@@ -285,9 +280,8 @@ abstract class CameraController {
             // Preview is required. Unbind everything if Preview is down.
             mCameraProvider.unbindAll();
         }
-        mPreview.setSurfaceProvider(null);
         mCamera = null;
-        mSurfaceProvider = null;
+        mPreviewViewSurfaceProvider = null;
         mViewPort = null;
         mPreviewDisplay = null;
         stopListeningToRotationEvents();
@@ -331,6 +325,11 @@ abstract class CameraController {
     /**
      * Enables or disables {@link ImageCapture}.
      *
+     * <p> {@link ImageCapture} might not work with video capture depending on device
+     * limitations. In that case, the method will fail with {@link IllegalStateException}.
+     *
+     * @throws IllegalArgumentException If the current camera selector is unable to resolve a
+     *                                  camera to be used for the enabled use cases.
      * @see ImageCapture
      */
     @MainThread
@@ -339,8 +338,9 @@ abstract class CameraController {
         if (mImageCaptureEnabled == imageCaptureEnabled) {
             return;
         }
+        boolean oldImageCaptureEnabled = mImageCaptureEnabled;
         mImageCaptureEnabled = imageCaptureEnabled;
-        startCameraAndTrackStates();
+        startCameraAndTrackStates(() -> mImageAnalysisEnabled = oldImageCaptureEnabled);
     }
 
     /**
@@ -367,7 +367,6 @@ abstract class CameraController {
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         Threads.checkMainThread();
         mImageCapture.setFlashMode(flashMode);
-        startCameraAndTrackStates();
     }
 
     /**
@@ -387,7 +386,7 @@ abstract class CameraController {
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageSavedCallback imageSavedCallback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
 
         // Mirror the image for front camera.
@@ -412,7 +411,7 @@ abstract class CameraController {
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageCapturedCallback callback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
 
         mImageCapture.takePicture(executor, callback);
@@ -436,6 +435,11 @@ abstract class CameraController {
     /**
      * Enables or disables {@link ImageAnalysis} use case.
      *
+     * <p> {@link ImageAnalysis} might not work with video capture depending on device
+     * limitations. In that case, the method will fail with {@link IllegalStateException}.
+     *
+     * @throws IllegalStateException If the current camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
      * @see ImageAnalysis
      */
     @MainThread
@@ -444,8 +448,9 @@ abstract class CameraController {
         if (mImageAnalysisEnabled == imageAnalysisEnabled) {
             return;
         }
+        boolean oldImageAnalysisEnabled = mImageAnalysisEnabled;
         mImageAnalysisEnabled = imageAnalysisEnabled;
-        startCameraAndTrackStates();
+        startCameraAndTrackStates(() -> mImageAnalysisEnabled = oldImageAnalysisEnabled);
     }
 
     /**
@@ -592,6 +597,13 @@ abstract class CameraController {
 
     /**
      * Enables or disables video capture use case.
+     *
+     * <p> Due to hardware limitations, video capture might not work when {@link ImageAnalysis}
+     * and/or {@link ImageCapture} is enabled. In that case, this method will fail with an
+     * {@link IllegalStateException}.
+     *
+     * @throws IllegalStateException If the current camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
      */
     @MainThread
     public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
@@ -602,8 +614,9 @@ abstract class CameraController {
         if (!videoCaptureEnabled) {
             stopRecording();
         }
+        boolean oldVideoCaptureEnabled = mVideoCaptureEnabled;
         mVideoCaptureEnabled = videoCaptureEnabled;
-        startCameraAndTrackStates();
+        startCameraAndTrackStates(() -> mVideoCaptureEnabled = oldVideoCaptureEnabled);
     }
 
     /**
@@ -617,7 +630,7 @@ abstract class CameraController {
     public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
             @NonNull Executor executor, final @NonNull VideoCapture.OnVideoSavedCallback callback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
 
         mVideoCapture.startRecording(outputFileOptions, executor,
@@ -668,6 +681,8 @@ abstract class CameraController {
      *
      * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
+     * @throws IllegalStateException If the provided camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
      * @see CameraSelector
      */
     @MainThread
@@ -676,14 +691,15 @@ abstract class CameraController {
         if (mCameraSelector == cameraSelector) {
             return;
         }
-        mCameraSelector = cameraSelector;
 
         if (mCameraProvider == null) {
             return;
         }
         mCameraProvider.unbindAll();
 
-        startCameraAndTrackStates();
+        CameraSelector oldCameraSelector = mCameraSelector;
+        mCameraSelector = cameraSelector;
+        startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
     }
 
     /**
@@ -920,7 +936,28 @@ abstract class CameraController {
      * Binds use cases, gets a new {@link Camera} instance and tracks the state of the camera.
      */
     void startCameraAndTrackStates() {
-        mCamera = startCamera();
+        startCameraAndTrackStates(null);
+    }
+
+    /**
+     * @param restoreStateRunnable runnable to restore the controller to the previous good state if
+     *                             the binding fails.
+     * @throws IllegalStateException if binding fails.
+     */
+    void startCameraAndTrackStates(@Nullable Runnable restoreStateRunnable) {
+        try {
+            mCamera = startCamera();
+        } catch (IllegalArgumentException exception) {
+            if (restoreStateRunnable != null) {
+                restoreStateRunnable.run();
+            }
+            // Catches the core exception and throw a more readable one.
+            String errorMessage =
+                    "The selected camera does not support the enabled use cases. Please "
+                            + "disable use case and/or select a different camera. e.g. "
+                            + "#setVideoCaptureEnabled(false)";
+            throw new IllegalStateException(errorMessage, exception);
+        }
         if (!isCameraAttached()) {
             Logger.d(TAG, CAMERA_NOT_ATTACHED);
             return;
@@ -940,11 +977,6 @@ abstract class CameraController {
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
-            return null;
-        }
-        if (!isPreviewViewAttached()) {
-            // Preview is required. Return early if preview Surface is not ready.
-            Logger.d(TAG, PREVIEW_VIEW_NOT_ATTACHED);
             return null;
         }
 
@@ -968,7 +1000,9 @@ abstract class CameraController {
             mCameraProvider.unbind(mVideoCapture);
         }
 
-        builder.setViewPort(mViewPort);
+        if (mViewPort != null) {
+            builder.setViewPort(mViewPort);
+        }
         return builder.build();
     }
 
