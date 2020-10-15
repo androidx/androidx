@@ -55,6 +55,7 @@ class FragmentInjectionTest {
                     assertThat(fragment.myAndroidViewModel).isNotNull()
                     assertThat(fragment.myViewModel).isNotNull()
                     assertThat(fragment.myInjectedViewModel).isNotNull()
+                    assertThat(fragment.myInjectedViewModelWithSavedState).isNotNull()
                 }
             }
         }
@@ -119,6 +120,7 @@ class FragmentInjectionTest {
         val myAndroidViewModel by viewModels<MyAndroidViewModel>()
         val myViewModel by viewModels<MyViewModel>()
         val myInjectedViewModel by viewModels<MyInjectedViewModel>()
+        val myInjectedViewModelWithSavedState by viewModels<MyInjectedViewModelWithSavedState>()
         val myActivityLevelInjectedViewModel by activityViewModels<MyInjectedViewModel>()
     }
 

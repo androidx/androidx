@@ -34,9 +34,9 @@ import dagger.hilt.GeneratesRootInput;
  * <p>
  * Example:
  * <pre>
- * public class DonutViewModel {
+ * public class DonutViewModel extends ViewModel {
  *     &#64;ViewModelInject
- *     public DonutViewModel(&#64;Assisted SavedStateHandle handle, RecipeRepository repository) {
+ *     public DonutViewModel(SavedStateHandle handle, RecipeRepository repository) {
  *         // ...
  *     }
  * }
@@ -50,15 +50,13 @@ import dagger.hilt.GeneratesRootInput;
  * }
  * </pre>
  * <p>
- * Only one constructor in the {@code ViewModel} must be annotated with {@code ViewModelInject}. The
- * constructor can optionally define a {@link androidx.hilt.Assisted}-annotated
- * {@link androidx.lifecycle.SavedStateHandle} parameter along with any other dependency. The
- * {@code SavedStateHandle} must not be a type param of {@link javax.inject.Provider} nor
- * {@link dagger.Lazy} and must not be qualified.
+ * Only one constructor in the {@code ViewModel} must be annotated with {@code ViewModelInject}.
  * <p>
- * Only dependencies available in the
- * {@link dagger.hilt.android.components.ActivityRetainedComponent} can be injected into the
- * {@code ViewModel}.
+ * Only dependencies available in the {@link androidx.hilt.lifecycle.ViewModelComponent} can be
+ * injected into the {@code ViewModel}.
+ * <p>
+ *
+ * @see androidx.hilt.lifecycle.ViewModelComponent
  */
 @Target(ElementType.CONSTRUCTOR)
 @Retention(RetentionPolicy.CLASS)
