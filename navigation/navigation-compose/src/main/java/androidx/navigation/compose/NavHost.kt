@@ -109,9 +109,10 @@ internal fun NavHost(navController: NavHostController, graph: NavGraph) {
             Providers(
                 AmbientNavController provides navController,
                 ViewModelStoreOwnerAmbient provides currentNavBackStackEntry!!,
-                LifecycleOwnerAmbient provides currentNavBackStackEntry!!,
-                children = destination.content
-            )
+                LifecycleOwnerAmbient provides currentNavBackStackEntry!!
+            ) {
+                destination.content(currentNavBackStackEntry!!)
+            }
         }
     }
 }

@@ -18,6 +18,7 @@ package androidx.navigation.compose
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
@@ -58,6 +59,6 @@ public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: ComposeNavigator,
-        internal val content: @Composable () -> Unit
+        internal val content: @Composable (NavBackStackEntry) -> Unit
     ) : NavDestination(navigator)
 }

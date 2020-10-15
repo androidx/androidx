@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.navigation.compose
+package androidx.navigation.compose.demos
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.get
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.samples.Dashboard
+import androidx.navigation.compose.samples.ProfileWithArgs
 
-/**
- * Add the [Composable] to the [NavGraphBuilder]
- *
- * @param id id for the destination
- * @param content composable for the destination
- */
-public fun NavGraphBuilder.composable(id: Any, content: @Composable (NavBackStackEntry) -> Unit) {
-    addDestination(
-        ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
-            setId(generateId(id))
+@Composable
+fun NavWithArgsDemo() {
+    NavHost(startDestination = "Profile") {
+        composable("Profile") { ProfileWithArgs() }
+        composable("Dashboard") { backStackEntry ->
+            Dashboard(backStackEntry.arguments?.get("args") as? String)
         }
-    )
+    }
 }
