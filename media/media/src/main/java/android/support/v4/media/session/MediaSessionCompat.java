@@ -82,6 +82,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -3873,6 +3874,20 @@ public class MediaSessionCompat {
         public void release() {
             mDestroyed = true;
             mExtraControllerCallbacks.kill();
+            if (Build.VERSION.SDK_INT == 27) {
+                // This is a workaround for framework MediaSession's bug in API 27.
+                try {
+                    Field callback = mSessionFwk.getClass().getDeclaredField("mCallback");
+                    callback.setAccessible(true);
+                    Handler handler = (Handler) callback.get(mSessionFwk);
+                    if (handler != null) {
+                        handler.removeCallbacksAndMessages(null);
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "Exception happened while accessing MediaSession.mCallback.",
+                            e);
+                }
+            }
             // Prevent from receiving callbacks from released session.
             mSessionFwk.setCallback(null);
             mSessionFwk.release();
