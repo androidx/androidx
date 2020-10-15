@@ -31,12 +31,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.core.content.ContextCompat;
 
 import java.io.File;
@@ -98,6 +101,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user taps. */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     private void onTap() {
         if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
@@ -138,6 +142,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user holds (long presses). */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     private void onHold() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
@@ -145,10 +150,10 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
             final File saveFile = createNewFile(VIDEO_EXTENSION);
             mCameraView.startRecording(saveFile,
                     ContextCompat.getMainExecutor(mCameraView.getContext()),
-                    new VideoCapture.OnVideoSavedCallback() {
+                    new OnVideoSavedCallback() {
                         @Override
                         public void onVideoSaved(
-                                @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                                @NonNull OutputFileResults outputFileResults) {
                             report("Video saved to " + outputFileResults.getSavedUri());
                         }
 
@@ -162,6 +167,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     /** Called when the user releases. */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     private void onRelease() {
         if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
                 || mCameraView.getCaptureMode() == CaptureMode.MIXED) {

@@ -52,6 +52,10 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileOptions;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
@@ -589,6 +593,7 @@ abstract class CameraController {
      * <p> Video capture is disabled by default. It has to be enabled before
      * {@link #startRecording} can be called.
      */
+    @ExperimentalVideo
     @MainThread
     public boolean isVideoCaptureEnabled() {
         Threads.checkMainThread();
@@ -605,6 +610,7 @@ abstract class CameraController {
      * @throws IllegalStateException If the current camera selector is unable to resolve a
      *                               camera to be used for the enabled use cases.
      */
+    @ExperimentalVideo
     @MainThread
     public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
         Threads.checkMainThread();
@@ -626,20 +632,22 @@ abstract class CameraController {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback which will receive success or failure.
      */
+    @ExperimentalVideo
     @MainThread
-    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
-            @NonNull Executor executor, final @NonNull VideoCapture.OnVideoSavedCallback callback) {
+    public void startRecording(@NonNull OutputFileOptions outputFileOptions,
+            @NonNull Executor executor, final @NonNull OnVideoSavedCallback callback) {
         Threads.checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
 
-        mVideoCapture.startRecording(outputFileOptions, executor,
+        mVideoCapture.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
                     public void onVideoSaved(
                             @NonNull VideoCapture.OutputFileResults outputFileResults) {
                         mVideoIsRecording.set(false);
-                        callback.onVideoSaved(outputFileResults);
+                        callback.onVideoSaved(
+                                OutputFileResults.create(outputFileResults.getSavedUri()));
                     }
 
                     @Override
@@ -655,6 +663,7 @@ abstract class CameraController {
     /**
      * Stops a in progress video recording.
      */
+    @ExperimentalVideo
     @MainThread
     public void stopRecording() {
         Threads.checkMainThread();
@@ -666,6 +675,7 @@ abstract class CameraController {
     /**
      * Returns whether there is a in progress video recording.
      */
+    @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
         Threads.checkMainThread();
