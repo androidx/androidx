@@ -35,6 +35,8 @@ dependencies {
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(AUTO_VALUE_ANNOTATIONS)
+    annotationProcessor(AUTO_VALUE)
 
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(MOCKITO_CORE)

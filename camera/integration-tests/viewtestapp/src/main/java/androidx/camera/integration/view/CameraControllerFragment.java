@@ -38,11 +38,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -50,6 +50,10 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.SensorRotationListener;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileOptions;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -114,6 +118,7 @@ public class CameraControllerFragment extends Fragment {
 
     @NonNull
     @Override
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
@@ -240,15 +245,13 @@ public class CameraControllerFragment extends Fragment {
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
                 contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
                 contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
-                VideoCapture.OutputFileOptions outputFileOptions =
-                        new VideoCapture.OutputFileOptions.Builder(resolver,
-                                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                                contentValues).build();
+                OutputFileOptions outputFileOptions = OutputFileOptions.builder(resolver,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues).build();
                 mCameraController.startRecording(outputFileOptions, mExecutorService,
-                        new VideoCapture.OnVideoSavedCallback() {
+                        new OnVideoSavedCallback() {
                             @Override
                             public void onVideoSaved(
-                                    @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                                    @NonNull OutputFileResults outputFileResults) {
                                 toast("Video saved to: "
                                         + outputFileResults.getSavedUri());
                             }
@@ -366,6 +369,7 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Updates UI text based on the state of {@link #mCameraController}.
      */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
         mCameraToggle.setChecked(mCameraController.getCameraSelector().getLensFacing()
