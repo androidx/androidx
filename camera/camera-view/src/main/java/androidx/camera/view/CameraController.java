@@ -77,7 +77,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * WYSIWYG way. The controller also listens to {@link PreviewView}'s touch events to handle
  * tap-to-focus and pinch-to-zoom features.
  */
-abstract class CameraController {
+public abstract class CameraController {
 
     private static final String TAG = "CameraController";
 
@@ -845,6 +845,7 @@ abstract class CameraController {
      *
      * @see CameraInfo#getZoomState()
      */
+    @NonNull
     @MainThread
     public LiveData<ZoomState> getZoomState() {
         Threads.checkMainThread();
@@ -867,6 +868,7 @@ abstract class CameraController {
      * @see #getZoomState()
      * @see CameraControl#setZoomRatio(float)
      */
+    @NonNull
     @MainThread
     public ListenableFuture<Void> setZoomRatio(float zoomRatio) {
         Threads.checkMainThread();

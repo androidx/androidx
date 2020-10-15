@@ -16,7 +16,6 @@
 
 package androidx.camera.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.Manifest;
@@ -60,10 +59,7 @@ import androidx.lifecycle.LifecycleOwner;
  *     // Camera control features
  *     controller.setZoomRatio(.5F);
  * </code></pre>
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 public final class LifecycleCameraController extends CameraController {
 
     private static final String TAG = "CamLifecycleController";
