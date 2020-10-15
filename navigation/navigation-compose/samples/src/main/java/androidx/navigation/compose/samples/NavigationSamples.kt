@@ -16,9 +16,13 @@
 
 package androidx.navigation.compose.samples
 
+import android.os.Bundle
 import androidx.annotation.Sampled
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,11 +36,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 
 sealed class Screen(val title: String) {
     object Profile : Screen("Profile")
@@ -66,10 +73,37 @@ fun Profile() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class) // for BaseTextField
 @Composable
-fun Dashboard() {
+fun ProfileWithArgs() {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = Screen.Dashboard.title)
+        Text(text = Screen.Profile.title)
+        Divider(color = Color.Black)
+        val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+        Box {
+            BaseTextField(
+                value = state.value,
+                onValueChange = { state.value = it }
+            )
+            if (state.value.text.isEmpty()) {
+                Text(
+                    text = "Enter args here"
+                )
+            }
+        }
+        Divider(color = Color.Black)
+        NavigateButton(
+            Screen.Dashboard,
+            bundleOf("args" to state.value.text),
+            "Dashboard with Args"
+        )
+    }
+}
+
+@Composable
+fun Dashboard(title: String? = null) {
+    Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
+        Text(text = title ?: Screen.Dashboard.title)
         Spacer(Modifier.weight(1f))
         NavigateBackButton()
     }
@@ -90,14 +124,14 @@ fun Scrollable() {
 
 @Sampled
 @Composable
-fun NavigateButton(screen: Screen) {
+fun NavigateButton(screen: Screen, args: Bundle? = null, text: String = screen.title) {
     val navController = AmbientNavController.current
     Button(
-        onClick = { navController.navigate(screen.title) },
+        onClick = { navController.navigate(screen.title, args) },
         colors = ButtonConstants.defaultButtonColors(backgroundColor = LightGray),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "Navigate to " + screen.title)
+        Text(text = "Navigate to $text")
     }
 }
 
