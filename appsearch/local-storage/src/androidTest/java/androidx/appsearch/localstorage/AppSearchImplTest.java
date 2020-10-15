@@ -25,6 +25,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
@@ -42,18 +43,33 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AppSearchImplTest {
     @Rule
     public TemporaryFolder mTemporaryFolder = new TemporaryFolder();
     private AppSearchImpl mAppSearchImpl;
+    private SchemaTypeConfigProto mVisibilitySchemaProto;
 
     @Before
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder());
+
+        AppSearchSchema visibilityAppSearchSchema =
+                new AppSearchSchema.Builder(
+                        VisibilityStore.DATABASE_NAME + AppSearchImpl.DATABASE_DELIMITER
+                                + VisibilityStore.SCHEMA_TYPE)
+                        .addProperty(new AppSearchSchema.PropertyConfig.Builder(
+                                VisibilityStore.PLATFORM_HIDDEN_PROPERTY)
+                                .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                                .build())
+                        .build();
+        mVisibilitySchemaProto = SchemaToProtoConverter.convert(visibilityAppSearchSchema);
     }
 
     /**
@@ -62,8 +78,14 @@ public class AppSearchImplTest {
      * schema.
      */
     @Test
-    public void testRewriteSchema() throws Exception {
-        SchemaProto.Builder existingSchemaBuilder = mAppSearchImpl.getSchemaProto().toBuilder();
+    public void testRewriteSchema_AddType() throws Exception {
+        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("existingDatabase/Foo").build());
+
+        // Create a copy so we can modify it.
+        List<SchemaTypeConfigProto> existingTypes =
+                new ArrayList<>(existingSchemaBuilder.getTypesList());
 
         SchemaProto newSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
@@ -90,15 +112,20 @@ public class AppSearchImplTest {
                         ).build()
                 ).build();
 
-        Set<String> newTypes = mAppSearchImpl.rewriteSchema("databaseName", existingSchemaBuilder,
+        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
+                "newDatabase", existingSchemaBuilder,
                 newSchema);
-        assertThat(newTypes).containsExactly("databaseName/Foo", "databaseName/TestType");
+
+        // We rewrote all the new types that were added. And nothing was removed.
+        assertThat(rewrittenSchemaResults.mRewrittenQualifiedTypes)
+                .containsExactly("newDatabase/Foo", "newDatabase/TestType");
+        assertThat(rewrittenSchemaResults.mDeletedQualifiedTypes).isEmpty();
 
         SchemaProto expectedSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("databaseName/Foo").build())
+                        .setSchemaType("newDatabase/Foo").build())
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("databaseName/TestType")
+                        .setSchemaType("newDatabase/TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
                                 .setPropertyName("subject")
                                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
@@ -114,10 +141,75 @@ public class AppSearchImplTest {
                                 .setPropertyName("link")
                                 .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
                                 .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setSchemaType("databaseName/RefType")
+                                .setSchemaType("newDatabase/RefType")
                                 .build()
                         ).build())
                 .build();
+
+        existingTypes.addAll(expectedSchema.getTypesList());
+        assertThat(existingSchemaBuilder.getTypesList()).containsExactlyElementsIn(existingTypes);
+    }
+
+    /**
+     * Ensure that we track all types that were rewritten in the input schema. Even if they were
+     * not technically "added" to the existing schema.
+     */
+    @Test
+    public void testRewriteSchema_RewriteType() throws Exception {
+        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("existingDatabase/Foo").build());
+
+        SchemaProto newSchema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("Foo").build())
+                .build();
+
+        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
+                "existingDatabase", existingSchemaBuilder, newSchema);
+
+        // Nothing was removed, but the method did rewrite the type name.
+        assertThat(rewrittenSchemaResults.mRewrittenQualifiedTypes)
+                .containsExactly("existingDatabase/Foo");
+        assertThat(rewrittenSchemaResults.mDeletedQualifiedTypes).isEmpty();
+
+        // Same schema since nothing was added.
+        SchemaProto expectedSchema = existingSchemaBuilder.build();
+        assertThat(existingSchemaBuilder.getTypesList())
+                .containsExactlyElementsIn(expectedSchema.getTypesList());
+    }
+
+    /**
+     * Ensure that we track which types from the existing schema are deleted when a new schema is
+     * set.
+     */
+    @Test
+    public void testRewriteSchema_DeleteType() throws Exception {
+        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("existingDatabase/Foo").build());
+
+        SchemaProto newSchema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("Bar").build())
+                .build();
+
+        AppSearchImpl.RewrittenSchemaResults rewrittenSchemaResults = mAppSearchImpl.rewriteSchema(
+                "existingDatabase", existingSchemaBuilder, newSchema);
+
+        // Bar type was rewritten, but Foo ended up being deleted since it wasn't included in the
+        // new schema.
+        assertThat(rewrittenSchemaResults.mRewrittenQualifiedTypes)
+                .containsExactly("existingDatabase/Bar");
+        assertThat(rewrittenSchemaResults.mDeletedQualifiedTypes)
+                .containsExactly("existingDatabase/Foo");
+
+        // Same schema since nothing was added.
+        SchemaProto expectedSchema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("existingDatabase/Bar").build())
+                .build();
+
         assertThat(existingSchemaBuilder.getTypesList())
                 .containsExactlyElementsIn(expectedSchema.getTypesList());
     }
@@ -154,7 +246,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRemoveDocumentTypePrefixes() {
+    public void testRemoveDocumentTypePrefixes() throws Exception {
         DocumentProto insideDocument = DocumentProto.newBuilder()
                 .setUri("inside-uri")
                 .setSchema("databaseName1/type")
@@ -326,12 +418,37 @@ public class AppSearchImplTest {
         // Set schema Email to AppSearch database1
         mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
 
-        // Create excepted schemaType proto.
-        SchemaProto exceptedProto = SchemaProto.newBuilder()
+        // Create expected schemaType proto.
+        SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
                 .build();
+
+        List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
+        expectedTypes.add(mVisibilitySchemaProto);
+        expectedTypes.addAll(expectedProto.getTypesList());
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
-                .containsExactlyElementsIn(exceptedProto.getTypesList());
+                .containsExactlyElementsIn(expectedTypes);
+    }
+
+    @Test
+    public void testSetSchema_ExistingSchemaRetainsVisibilitySetting() throws Exception {
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "schema1").build()), /*forceOverride=*/false);
+        mAppSearchImpl.setVisibility("database", Set.of("schema1"));
+
+        // "schema1" is platform hidden now
+        assertThat(mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas(
+                "database")).containsExactly("database/schema1");
+
+        // Add a new schema, and include the already-existing "schema1"
+        mAppSearchImpl.setSchema("database", Set.of(new AppSearchSchema.Builder(
+                "schema1").build(), new AppSearchSchema.Builder(
+                "schema2").build()), /*forceOverride=*/false);
+
+        // Check that "schema1" is still platform hidden, but "schema2" is the default platform
+        // visible.
+        assertThat(mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas(
+                "database")).containsExactly("database/schema1");
     }
 
     @Test
@@ -342,15 +459,18 @@ public class AppSearchImplTest {
         // Set schema Email and Document to AppSearch database1
         mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
 
-        // Create excepted schemaType proto.
-        SchemaProto exceptedProto = SchemaProto.newBuilder()
+        // Create expected schemaType proto.
+        SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Document"))
                 .build();
 
         // Check both schema Email and Document saved correctly.
+        List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
+        expectedTypes.add(mVisibilitySchemaProto);
+        expectedTypes.addAll(expectedProto.getTypesList());
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
-                .containsExactlyElementsIn(exceptedProto.getTypesList());
+                .containsExactlyElementsIn(expectedTypes);
 
         final Set<AppSearchSchema> finalSchemas = Collections.singleton(new AppSearchSchema.Builder(
                 "Email").build());
@@ -364,15 +484,19 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("database1", finalSchemas, /*forceOverride=*/true);
 
         // Check Document schema is removed.
-        exceptedProto = SchemaProto.newBuilder()
+        expectedProto = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
                 .build();
+
+        expectedTypes = new ArrayList<>();
+        expectedTypes.add(mVisibilitySchemaProto);
+        expectedTypes.addAll(expectedProto.getTypesList());
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
-                .containsExactlyElementsIn(exceptedProto.getTypesList());
+                .containsExactlyElementsIn(expectedTypes);
     }
 
     @Test
-    public void testRemoveSchema_differentDataBase() throws Exception {
+    public void testRemoveSchema_DifferentDataBase() throws Exception {
         // Create schemas
         Set<AppSearchSchema> schemas = new HashSet<>();
         schemas.add(new AppSearchSchema.Builder("Email").build());
@@ -382,8 +506,8 @@ public class AppSearchImplTest {
         mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
         mAppSearchImpl.setSchema("database2", schemas, /*forceOverride=*/false);
 
-        // Create excepted schemaType proto.
-        SchemaProto exceptedProto = SchemaProto.newBuilder()
+        // Create expected schemaType proto.
+        SchemaProto expectedProto = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Document"))
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Email"))
@@ -391,23 +515,114 @@ public class AppSearchImplTest {
                 .build();
 
         // Check Email and Document is saved in database 1 and 2 correctly.
+        List<SchemaTypeConfigProto> expectedTypes = new ArrayList<>();
+        expectedTypes.add(mVisibilitySchemaProto);
+        expectedTypes.addAll(expectedProto.getTypesList());
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
-                .containsExactlyElementsIn(exceptedProto.getTypesList());
+                .containsExactlyElementsIn(expectedTypes);
 
         // Save only Email to database1 this time.
         schemas = Collections.singleton(new AppSearchSchema.Builder("Email").build());
         mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/true);
 
-        // Create excepted schemaType list, database 1 should only contain Email but database 2
+        // Create expected schemaType list, database 1 should only contain Email but database 2
         // remains in same.
-        exceptedProto = SchemaProto.newBuilder()
+        expectedProto = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Email"))
                 .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Document"))
                 .build();
 
         // Check nothing changed in database2.
+        expectedTypes = new ArrayList<>();
+        expectedTypes.add(mVisibilitySchemaProto);
+        expectedTypes.addAll(expectedProto.getTypesList());
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
-                .containsExactlyElementsIn(exceptedProto.getTypesList());
+                .containsExactlyElementsIn(expectedTypes);
+    }
+
+
+    @Test
+    public void testRemoveSchema_RemovedFromVisibilityStore() throws Exception {
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "schema1").build()), /*forceOverride=*/false);
+        mAppSearchImpl.setVisibility("database", Set.of("schema1"));
+
+        // "schema1" is platform hidden now
+        assertThat(mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas(
+                "database")).containsExactly("database/schema1");
+
+        // Remove "schema1" by force overriding
+        mAppSearchImpl.setSchema("database", Collections.emptySet(), /*forceOverride=*/true);
+
+        // Check that "schema1" is no longer considered platform hidden
+        assertThat(
+                mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas("database")).isEmpty();
+
+        // Add "schema1" back, it gets default visibility settings which means it's not platform
+        // hidden.
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "schema1").build()), /*forceOverride=*/false);
+        assertThat(
+                mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas("database")).isEmpty();
+    }
+
+    @Test
+    public void testSetVisibility_DefaultPlatformVisible() throws Exception {
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "Schema").build()), /*forceOverride=*/false);
+        assertThat(
+                mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas("database")).isEmpty();
+    }
+
+    @Test
+    public void testSetVisibility_PlatformHidden() throws Exception {
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "Schema").build()), /*forceOverride=*/false);
+        mAppSearchImpl.setVisibility("database", Set.of("Schema"));
+        assertThat(mAppSearchImpl.getVisibilityStore().getPlatformHiddenSchemas(
+                "database")).containsExactly("database/Schema");
+    }
+
+    @Test
+    public void testSetVisibility_UnknownSchema() throws Exception {
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "Schema").build()), /*forceOverride=*/false);
+
+        // We'll throw an exception if a client tries to set visibility on a schema we don't know
+        // about.
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.setVisibility("database", Set.of("UnknownSchema")));
+        assertThat(e).hasMessageThat().contains("Unknown schema(s)");
+    }
+
+    @Test
+    public void testHasSchemaType() throws Exception {
+        // Nothing exists yet
+        assertThat(mAppSearchImpl.hasSchemaType("database", "Schema")).isFalse();
+
+        mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
+                "Schema").build()), /*forceOverride=*/false);
+        assertThat(mAppSearchImpl.hasSchemaType("database", "Schema")).isTrue();
+
+        assertThat(mAppSearchImpl.hasSchemaType("database", "UnknownSchema")).isFalse();
+    }
+
+    @Test
+    public void testGetDatabases() throws Exception {
+        // No client databases exist yet, but the VisibilityStore's does
+        assertThat(mAppSearchImpl.getDatabases()).containsExactly(VisibilityStore.DATABASE_NAME);
+
+        // Has database1
+        mAppSearchImpl.setSchema("database1", Collections.singleton(new AppSearchSchema.Builder(
+                "schema").build()), /*forceOverride=*/false);
+        assertThat(mAppSearchImpl.getDatabases()).containsExactly(
+                VisibilityStore.DATABASE_NAME, "database1");
+
+        // Has both databases
+        mAppSearchImpl.setSchema("database2", Collections.singleton(new AppSearchSchema.Builder(
+                "schema").build()), /*forceOverride=*/false);
+        assertThat(mAppSearchImpl.getDatabases()).containsExactly(
+                VisibilityStore.DATABASE_NAME, "database1", "database2");
     }
 }

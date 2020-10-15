@@ -39,7 +39,6 @@ import java.util.Set;
 public class GlobalSearchSessionTest {
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
-    private AppSearchSession mDefaultDb;
 
     private GlobalSearchSession mGlobalAppSearchManager;
 
@@ -52,8 +51,6 @@ public class GlobalSearchSessionTest {
         mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
                 new LocalStorage.SearchContext.Builder(context)
                         .setDatabaseName("testDb2").build()));
-        mDefaultDb = checkIsResultSuccess(LocalStorage.createSearchSession(
-                new LocalStorage.SearchContext.Builder(context).build()));
 
         mGlobalAppSearchManager = checkIsResultSuccess(LocalStorage.createGlobalSearchSession(
                 new LocalStorage.GlobalSearchContext.Builder(context).build()));
@@ -63,8 +60,6 @@ public class GlobalSearchSessionTest {
                 mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
         checkIsResultSuccess(
                 mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
-        checkIsResultSuccess(mDefaultDb.setSchema(
-                        new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @Test
