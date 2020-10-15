@@ -61,6 +61,16 @@ We recommend cloning using blob filter to reduce checkout size:
 git clone https://github.com/YOUR_USERNAME/androidx.git
 ```
 
+---
+
+> NOTE: If you are low on disk space, then you can use the following command to save some space in your checkout. :point_left:
+
+```bash
+# Filters any blob > 10M
+git clone --filter=blob:limit=10M https://github.com/YOUR_USERNAME/androidx.git
+```
+---
+
 Let’s assume that you want to make a contribution to Room. The first step is to launch Android Studio and import the Room project.
 
 First launch Android Studio using:
