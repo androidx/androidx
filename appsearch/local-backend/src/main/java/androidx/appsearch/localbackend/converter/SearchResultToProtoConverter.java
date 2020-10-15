@@ -29,29 +29,21 @@ import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResults}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {
-    private SearchResultToProtoConverter() {}
-
-    /** Translates a {@link SearchResultProto} into a list of {@link SearchResults.Result}. */
-    @NonNull
-    public static List<SearchResults.Result> convert(@NonNull SearchResultProto searchResultProto) {
-        List<SearchResults.Result> results = new ArrayList<>(searchResultProto.getResultsCount());
-        for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
-            results.add(convertSearchResult(searchResultProto.getResults(i)));
-        }
-        return results;
+    private SearchResultToProtoConverter() {
     }
 
     /** Translate a {@link SearchResultProto.ResultProto} into {@link SearchResults.Result}. */
     @NonNull
-    static SearchResults.Result convertSearchResult(@NonNull SearchResultProto.ResultProto proto) {
+    public static SearchResults.Result convertSearchResult(
+            @NonNull SearchResultProto.ResultProtoOrBuilder proto) {
         Bundle bundle = new Bundle();
         GenericDocument document = GenericDocumentToProtoConverter.convert(proto.getDocument());
         bundle.putBundle(SearchResults.Result.DOCUMENT_FIELD, document.getBundle());

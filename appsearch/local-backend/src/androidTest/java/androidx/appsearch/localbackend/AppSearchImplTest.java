@@ -20,6 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -27,13 +30,9 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
-import com.google.android.icing.proto.ResultSpecProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.ScoringSpecProto;
-import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
-import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableSet;
 
@@ -43,6 +42,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AppSearchImplTest {
@@ -187,21 +187,17 @@ public class AppSearchImplTest {
     @Test
     public void testOptimize() throws Exception {
         // Insert schema
-        SchemaProto schema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("type").build())
-                .build();
-        mAppSearchImpl.setSchema("database", schema, /*forceOverride=*/false);
+        Set<AppSearchSchema> schemas =
+                Collections.singleton(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("database", schemas, /*forceOverride=*/false);
 
         // Insert enough documents.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
                 + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
-            DocumentProto insideDocument = DocumentProto.newBuilder()
-                    .setUri("inside-uri" + i)
-                    .setSchema("type")
-                    .setNamespace("namespace")
-                    .build();
-            mAppSearchImpl.putDocument("database", insideDocument);
+            GenericDocument document =
+                    new GenericDocument.Builder("uri" + i, "type").setNamespace(
+                            "namespace").build();
+            mAppSearchImpl.putDocument("database", document);
         }
 
         // Check optimize() will release 0 docs since there is no deletion.
@@ -211,7 +207,7 @@ public class AppSearchImplTest {
         // delete 999 documents , we will reach the threshold to trigger optimize() in next
         // deletion.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT - 1; i++) {
-            mAppSearchImpl.remove("database", "namespace", "inside-uri" + i);
+            mAppSearchImpl.remove("database", "namespace", "uri" + i);
         }
 
         // optimize() still not be triggered since we are in the interval to call getOptimizeInfo()
@@ -223,7 +219,7 @@ public class AppSearchImplTest {
         for (int i = AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT;
                 i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
                         + AppSearchImpl.CHECK_OPTIMIZE_INTERVAL; i++) {
-            mAppSearchImpl.remove("database", "namespace", "inside-uri" + i);
+            mAppSearchImpl.remove("database", "namespace", "uri" + i);
         }
 
         // Verify optimize() is triggered
@@ -238,17 +234,13 @@ public class AppSearchImplTest {
                 SearchSpecProto.newBuilder().setQuery("");
 
         // Insert schema
-        SchemaProto schema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("type").build())
-                .build();
-        mAppSearchImpl.setSchema("database", schema, /*forceOverride=*/false);
+        Set<AppSearchSchema> schemas =
+                Collections.singleton(new AppSearchSchema.Builder("type").build());
+        mAppSearchImpl.setSchema("database", schemas, /*forceOverride=*/false);
+
         // Insert document
-        DocumentProto document = DocumentProto.newBuilder()
-                .setUri("inside-uri")
-                .setSchema("type")
-                .setNamespace("namespace")
-                .build();
+        GenericDocument document = new GenericDocument.Builder("uri", "type").setNamespace(
+                "namespace").build();
         mAppSearchImpl.putDocument("database", document);
 
         // Rewrite SearchSpec
@@ -264,28 +256,19 @@ public class AppSearchImplTest {
                 SearchSpecProto.newBuilder().setQuery("");
 
         // Insert schema
-        SchemaProto schema = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("typeA").build())
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("typeB").build())
-                .build();
-        mAppSearchImpl.setSchema("database1", schema, /*forceOverride=*/false);
-        mAppSearchImpl.setSchema("database2", schema, /*forceOverride=*/false);
+        Set<AppSearchSchema> schemas = Set.of(
+                new AppSearchSchema.Builder("typeA").build(),
+                new AppSearchSchema.Builder("typeB").build());
+        mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database2", schemas, /*forceOverride=*/false);
 
         // Insert documents
-        DocumentProto document1 = DocumentProto.newBuilder()
-                .setUri("inside-uri")
-                .setSchema("typeA")
-                .setNamespace("namespace")
-                .build();
+        GenericDocument document1 = new GenericDocument.Builder("uri", "typeA").setNamespace(
+                "namespace").build();
         mAppSearchImpl.putDocument("database1", document1);
 
-        DocumentProto document2 = DocumentProto.newBuilder()
-                .setUri("inside-uri")
-                .setSchema("typeB")
-                .setNamespace("namespace")
-                .build();
+        GenericDocument document2 = new GenericDocument.Builder("uri", "typeB").setNamespace(
+                "namespace").build();
         mAppSearchImpl.putDocument("database2", document2);
 
         // Rewrite SearchSpec
@@ -299,42 +282,48 @@ public class AppSearchImplTest {
 
     @Test
     public void testQueryEmptyDatabase() throws Exception {
-        SearchResultProto searchResultProto = mAppSearchImpl.query("EmptyDatabase",
-                SearchSpecProto.getDefaultInstance(),
-                ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
-        assertThat(searchResultProto.getResultsCount()).isEqualTo(0);
-        assertThat(searchResultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+        SearchSpec searchSpec =
+                new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
+        AppSearchImpl.SearchResultPage searchResultPage = mAppSearchImpl.query(
+                "EmptyDatabase",
+                "", searchSpec);
+        assertThat(searchResultPage.getResults()).isEmpty();
     }
 
     @Test
     public void testGlobalQueryEmptyDatabase() throws Exception {
-        SearchResultProto searchResultProto = mAppSearchImpl.globalQuery(
-                SearchSpecProto.getDefaultInstance(),
-                ResultSpecProto.getDefaultInstance(), ScoringSpecProto.getDefaultInstance());
-        assertThat(searchResultProto.getResultsCount()).isEqualTo(0);
-        assertThat(searchResultProto.getStatus().getCode()).isEqualTo(StatusProto.Code.OK);
+        SearchSpec searchSpec =
+                new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
+        AppSearchImpl.SearchResultPage searchResultPage = mAppSearchImpl.query(
+                "EmptyDatabase",
+                "", searchSpec);
+        assertThat(searchResultPage.getResults()).isEmpty();
     }
 
     @Test
     public void testRemoveEmptyDatabase_NoExceptionThrown() throws Exception {
+        SearchSpec searchSpec =
+                new SearchSpec.Builder().setSchemaTypes("FakeType").setTermMatch(
+                        TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("EmptyDatabase",
-                SearchSpecProto.newBuilder().addSchemaTypeFilters("FakeType")
-                        .setTermMatchType(TermMatchType.Code.PREFIX).build());
+                "", searchSpec);
+
+        searchSpec =
+                new SearchSpec.Builder().setNamespaces("FakeNamespace").setTermMatch(
+                        TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("EmptyDatabase",
-                SearchSpecProto.newBuilder().addNamespaceFilters("FakeNamespace")
-                        .setTermMatchType(TermMatchType.Code.PREFIX).build());
-        mAppSearchImpl.removeByQuery("EmptyDatabase",  SearchSpecProto.newBuilder()
-                .setTermMatchType(TermMatchType.Code.PREFIX).build());
+                "", searchSpec);
+
+        searchSpec = new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
+        mAppSearchImpl.removeByQuery("EmptyDatabase", "", searchSpec);
     }
 
     @Test
     public void testSetSchema() throws Exception {
-        // Create schemas
-        SchemaProto schemaProto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email")).build();
-
+        Set<AppSearchSchema> schemas =
+                Collections.singleton(new AppSearchSchema.Builder("Email").build());
         // Set schema Email to AppSearch database1
-        mAppSearchImpl.setSchema("database1", schemaProto, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
 
         // Create excepted schemaType proto.
         SchemaProto exceptedProto = SchemaProto.newBuilder()
@@ -346,13 +335,11 @@ public class AppSearchImplTest {
 
     @Test
     public void testRemoveSchema() throws Exception {
-        // Create schemas
-        SchemaProto schemaProto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Document")).build();
-
+        Set<AppSearchSchema> schemas = new HashSet<>();
+        schemas.add(new AppSearchSchema.Builder("Email").build());
+        schemas.add(new AppSearchSchema.Builder("Document").build());
         // Set schema Email and Document to AppSearch database1
-        mAppSearchImpl.setSchema("database1", schemaProto, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
 
         // Create excepted schemaType proto.
         SchemaProto exceptedProto = SchemaProto.newBuilder()
@@ -364,19 +351,16 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
                 .containsExactlyElementsIn(exceptedProto.getTypesList());
 
-        // Save only Email this time.
-        schemaProto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email")).build();
-
+        final Set<AppSearchSchema> finalSchemas = Collections.singleton(new AppSearchSchema.Builder(
+                "Email").build());
         // Check the incompatible error has been thrown.
-        SchemaProto finalSchemaProto = schemaProto;
         AppSearchException e = assertThrows(AppSearchException.class, () ->
-                mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/false));
+                mAppSearchImpl.setSchema("database1", finalSchemas, /*forceOverride=*/false));
         assertThat(e).hasMessageThat().contains("Schema is incompatible");
         assertThat(e).hasMessageThat().contains("Deleted types: [database1/Document]");
 
         // ForceOverride to delete.
-        mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/true);
+        mAppSearchImpl.setSchema("database1", finalSchemas, /*forceOverride=*/true);
 
         // Check Document schema is removed.
         exceptedProto = SchemaProto.newBuilder()
@@ -389,13 +373,13 @@ public class AppSearchImplTest {
     @Test
     public void testRemoveSchema_differentDataBase() throws Exception {
         // Create schemas
-        SchemaProto emailAndDocSchemaProto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Document")).build();
+        Set<AppSearchSchema> schemas = new HashSet<>();
+        schemas.add(new AppSearchSchema.Builder("Email").build());
+        schemas.add(new AppSearchSchema.Builder("Document").build());
 
         // Set schema Email and Document to AppSearch database1 and 2
-        mAppSearchImpl.setSchema("database1", emailAndDocSchemaProto, /*forceOverride=*/false);
-        mAppSearchImpl.setSchema("database2", emailAndDocSchemaProto, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database2", schemas, /*forceOverride=*/false);
 
         // Create excepted schemaType proto.
         SchemaProto exceptedProto = SchemaProto.newBuilder()
@@ -410,10 +394,8 @@ public class AppSearchImplTest {
                 .containsExactlyElementsIn(exceptedProto.getTypesList());
 
         // Save only Email to database1 this time.
-        SchemaProto emailSchemaProto = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
-                .build();
-        mAppSearchImpl.setSchema("database1", emailSchemaProto, /*forceOverride=*/true);
+        schemas = Collections.singleton(new AppSearchSchema.Builder("Email").build());
+        mAppSearchImpl.setSchema("database1", schemas, /*forceOverride=*/true);
 
         // Create excepted schemaType list, database 1 should only contain Email but database 2
         // remains in same.
