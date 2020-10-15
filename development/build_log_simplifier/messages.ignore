@@ -1223,3 +1223,5 @@ androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuring
 kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
 [0-9]+ tests completed\, [0-9]+ failed
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
+# > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path 'META\-INF/benchmark-perfetto_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.

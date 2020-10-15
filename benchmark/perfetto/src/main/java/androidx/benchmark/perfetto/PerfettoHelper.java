@@ -35,21 +35,15 @@ import java.nio.file.Paths;
 @RequiresApi(28)
 class PerfettoHelper {
     private static final String LOG_TAG = PerfettoHelper.class.getSimpleName();
-    private static final String PERFETTO_ROOT_DIR = "/data/misc/perfetto-traces/";
     // Command to start the perfetto tracing in the background.
     // perfetto -b -c /data/misc/perfetto-traces/trace_config.pb -o
     // /data/misc/perfetto-traces/trace_output.pb
-    private static final String PERFETTO_START_CMD = "perfetto --background -c %s%s -o %s";
     private static final String PERFETTO_TMP_OUTPUT_FILE =
             "/data/misc/perfetto-traces/trace_output.pb";
     // Additional arg to indicate that the perfetto config file is text format.
     private static final String PERFETTO_TXT_PROTO_ARG = " --txt";
-    // Command to stop (i.e kill) the perfetto tracing.
-    private static final String PERFETTO_STOP_CMD = "pkill -INT perfetto";
     // Command to check the perfetto process id.
     private static final String PERFETTO_PROC_ID_CMD = "pidof perfetto";
-    // Remove the trace output file /data/misc/perfetto-traces/trace_output.pb
-    private static final String REMOVE_CMD = "rm %s";
     // Command to move the perfetto output trace file to given folder.
     private static final String MOVE_CMD = "mv %s %s";
     // Max wait count for checking if perfetto is stopped successfully
@@ -57,21 +51,21 @@ class PerfettoHelper {
     // Check if perfetto is stopped every 5 secs.
     private static final long PERFETTO_KILL_WAIT_TIME = 5000;
 
-    private UiDevice mUIDevice;
+    private UiDevice mUIDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
 
     /**
-     * Start the perfetto tracing in background using the given config file and write the output to
-     * /data/misc/perfetto-traces/trace_output.pb. Perfetto has access only to
-     * /data/misc/perfetto-traces/ folder. So the config file has to be under
-     * /data/misc/perfetto-traces/ folder in the device.
+     * Start the perfetto tracing in background using the given config file.
      *
-     * @param configFileName used for collecting the perfetto trace.
+     * The output will be written to /data/misc/perfetto-traces/trace_output.pb. Perfetto has
+     * write access only to /data/misc/perfetto-traces/ folder. The config file may be anywhere
+     * readable by shell.
+     *
+     * @param configFilePath used for collecting the perfetto trace.
      * @param isTextProtoConfig true if the config file is textproto format otherwise false.
      * @return true if trace collection started successfully otherwise return false.
      */
-    public boolean startCollecting(String configFileName, boolean isTextProtoConfig) {
-        mUIDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        if (configFileName == null || configFileName.isEmpty()) {
+    public boolean startCollecting(String configFilePath, boolean isTextProtoConfig) {
+        if (configFilePath == null || configFilePath.isEmpty()) {
             Log.e(LOG_TAG, "Perfetto config file name is null or empty.");
             return false;
         }
@@ -86,20 +80,19 @@ class PerfettoHelper {
             }
 
             // Remove already existing temporary output trace file if any.
-            String output = mUIDevice.executeShellCommand(String.format(REMOVE_CMD,
-                    PERFETTO_TMP_OUTPUT_FILE));
+            String output = mUIDevice.executeShellCommand("rm " + PERFETTO_TMP_OUTPUT_FILE);
             Log.i(LOG_TAG, String.format("Perfetto output file cleanup - %s", output));
 
-            String perfettoCmd = String.format(PERFETTO_START_CMD,
-                    PERFETTO_ROOT_DIR, configFileName, PERFETTO_TMP_OUTPUT_FILE);
-
+            // Start perfetto tracing. Note that we need to use executeShellScript to be able to
+            // pipe the input via cat, as **Perfetto cannot read from the filesystem without root**.
+            String perfettoCmd = "cat " + configFilePath
+                    + " | perfetto --background -c - -o " + PERFETTO_TMP_OUTPUT_FILE;
             if (isTextProtoConfig) {
                 perfettoCmd = perfettoCmd + PERFETTO_TXT_PROTO_ARG;
             }
+            Log.i(LOG_TAG, "Starting perfetto tracing with cmd: " + perfettoCmd);
+            String startOutput = ShellUtilsKt.executeShellScript(mUIDevice, perfettoCmd, null);
 
-            // Start perfetto tracing.
-            Log.i(LOG_TAG, "Starting perfetto tracing.");
-            String startOutput = mUIDevice.executeShellCommand(perfettoCmd);
             Log.i(LOG_TAG, String.format("Perfetto start command output - %s", startOutput));
             // TODO : Once the output status is available use that for additional validation.
             if (!isPerfettoRunning()) {
@@ -132,6 +125,7 @@ class PerfettoHelper {
         Log.i(LOG_TAG, "Stopping perfetto.");
         try {
             if (stopPerfetto()) {
+                Log.i(LOG_TAG, String.format("Writing to %s.", destinationFile));
                 if (!copyFileOutput(destinationFile)) {
                     return false;
                 }
@@ -152,7 +146,7 @@ class PerfettoHelper {
      * @return true if perfetto is stopped successfully.
      */
     public boolean stopPerfetto() throws IOException {
-        String stopOutput = mUIDevice.executeShellCommand(PERFETTO_STOP_CMD);
+        String stopOutput = mUIDevice.executeShellCommand("kill -INT " + perfettoPid());
         Log.i(LOG_TAG, String.format("Perfetto stop command output - %s", stopOutput));
         int waitCount = 0;
         while (isPerfettoRunning()) {
@@ -170,22 +164,29 @@ class PerfettoHelper {
     }
 
     /**
-     * Check if perfetto process is running or not.
-     *
-     * @return true if perfetto is running otherwise false.
+     * Returns perfetto process pid if running, or null otherwise.
      */
-    private boolean isPerfettoRunning() {
+    private String perfettoPid() {
         try {
             String perfettoProcId = mUIDevice.executeShellCommand(PERFETTO_PROC_ID_CMD);
             Log.i(LOG_TAG, String.format("Perfetto process id - %s", perfettoProcId));
             if (perfettoProcId.isEmpty()) {
-                return false;
+                return null;
             }
+            return perfettoProcId;
         } catch (IOException ioe) {
             Log.e(LOG_TAG, "Not able to check the perfetto status due to:" + ioe.getMessage());
-            return false;
+            return null;
         }
-        return true;
+    }
+
+    /**
+     * Check if perfetto process is running or not.
+     *
+     * @return true if perfetto is running otherwise false.
+     */
+    public boolean isPerfettoRunning() {
+        return perfettoPid() != null;
     }
 
     /**
