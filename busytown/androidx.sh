@@ -11,6 +11,7 @@ impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
+    -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.allWarningsAsErrors --profile "$@"
 
 # Merge some output files
