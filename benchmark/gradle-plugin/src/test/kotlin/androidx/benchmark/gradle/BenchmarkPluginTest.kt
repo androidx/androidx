@@ -72,7 +72,7 @@ class BenchmarkPluginTest {
             """.trimIndent()
         )
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
     }
@@ -93,7 +93,7 @@ class BenchmarkPluginTest {
             """.trimIndent()
         )
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
     }
@@ -131,7 +131,7 @@ class BenchmarkPluginTest {
             suffix = ""
         )
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
     }
@@ -147,7 +147,7 @@ class BenchmarkPluginTest {
             """.trimIndent()
         )
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
     }
@@ -176,14 +176,16 @@ class BenchmarkPluginTest {
         projectSetup.gradlePropertiesFile.appendText("android.enableAdditionalTestOutput=true")
         versionPropertiesFile.writeText("buildVersion=3.6.0-alpha05")
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
 
         // Should depend on AGP to pull benchmark reports via additionalTestOutputDir.
         assertFalse { output.output.contains("benchmarkReport - ") }
 
-        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        val testBuildTypeOutput = gradleRunner
+            .withArguments("printTestBuildType", "--stacktrace")
+            .build()
         assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
@@ -214,7 +216,7 @@ class BenchmarkPluginTest {
 
         versionPropertiesFile.writeText("buildVersion=3.5.0-rc03")
 
-        val output = gradleRunner.withArguments("tasks").build()
+        val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
 
