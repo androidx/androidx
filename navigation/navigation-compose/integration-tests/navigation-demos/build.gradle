@@ -34,8 +34,8 @@ dependencies {
     implementation project(":compose:integration-tests:demos:common")
     implementation project(":compose:foundation:foundation")
     implementation project(":compose:material:material")
-    implementation project(":compose:navigation:navigation")
-    implementation project(":compose:navigation:navigation:navigation-samples")
+    implementation project(":navigation:navigation-compose")
+    implementation project(":navigation:navigation-compose:navigation-compose-samples")
 }
 
 android {
