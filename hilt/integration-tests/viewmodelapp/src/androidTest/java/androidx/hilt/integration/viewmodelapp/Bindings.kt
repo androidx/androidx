@@ -16,8 +16,21 @@
 
 package androidx.hilt.integration.viewmodelapp
 
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Inject
+import javax.inject.Named
 
 class Foo @Inject constructor()
 
-class Bar @Inject constructor()
+class Bar
+
+@Module
+@InstallIn(SingletonComponent::class)
+object StringModule {
+    @Provides
+    @Named("SayMyName")
+    fun provide() = "Heisenberg"
+}
