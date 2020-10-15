@@ -35,7 +35,7 @@ dependencies {
 
     implementation project(":annotation:annotation-sampled")
     implementation project(":compose:foundation:foundation")
-    implementation project(":compose:navigation:navigation")
+    implementation project(":navigation:navigation-compose")
     implementation project(":compose:material:material")
 }
 
@@ -50,8 +50,8 @@ android {
 androidx {
     name = "AndroidX Compose UI Navigation Integration Samples"
     type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.COMPOSE_NAVIGATION
-    mavenGroup = LibraryGroups.Compose.NAVIGATION
+    mavenVersion = LibraryVersions.NAVIGATION_COMPOSE
+    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"
 }
