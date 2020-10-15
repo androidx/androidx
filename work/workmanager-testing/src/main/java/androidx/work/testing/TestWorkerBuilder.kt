@@ -35,7 +35,7 @@ import java.util.concurrent.Executor
  * @param triggeredContentAuthorities The list of triggered content authorities
  * @return The instance of [TestWorkerBuilder]
  */
-inline fun <reified W : Worker> TestWorkerBuilder(
+public inline fun <reified W : Worker> TestWorkerBuilder(
     context: Context,
     executor: Executor,
     inputData: Data = Data.EMPTY,
