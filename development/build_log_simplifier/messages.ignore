@@ -149,8 +149,8 @@ More than one file was found with OS independent path 'META\-INF/runtime\-liveda
 More than one file was found with OS independent path 'META\-INF/foundation\-text_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:runtime:runtime:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:navigation:navigation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :navigation:navigation-compose:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path 'META\-INF/navigation\-compose_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:foundation:foundation:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/foundation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:runtime:runtime-rxjava2:mergeDebugAndroidTestJavaResource

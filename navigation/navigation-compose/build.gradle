@@ -47,8 +47,8 @@ dependencies {
 androidx {
     name = "Compose Navigation"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.COMPOSE_NAVIGATION
-    mavenGroup = LibraryGroups.Compose.NAVIGATION
+    mavenVersion = LibraryVersions.NAVIGATION_COMPOSE
+    mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     runApiTasks = new RunApiTasks.Yes()
