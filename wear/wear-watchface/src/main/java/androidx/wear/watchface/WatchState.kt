@@ -42,14 +42,6 @@ public class WatchState(
     public val isAmbient: ObservableWatchData<Boolean>,
 
     /**
-     * Whether or not the watch is in airplane mode. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val inAirplaneMode: ObservableWatchData<Boolean>,
-
-    /**
      * Whether or not we should conserve power due to a low battery which isn't charging. Only
      * valid if [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is
      * true.
@@ -58,54 +50,8 @@ public class WatchState(
      */
     public val isBatteryLowAndNotCharging: ObservableWatchData<Boolean>,
 
-    /**
-     * Whether or not the watch is charging. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val isCharging: ObservableWatchData<Boolean>,
-
-    /**
-     * Whether or not the watch is connected to the companion phone. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val isConnectedToCompanion: ObservableWatchData<Boolean>,
-
-    /**
-     * Whether or not GPS is active on the watch. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val isGpsActive: ObservableWatchData<Boolean>,
-
-    /**
-     * Whether or not the watch's keyguard (lock screen) is locked. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val isKeyguardLocked: ObservableWatchData<Boolean>,
-
-    /**
-     * Whether or not the watch is in theater mode. Only valid if
-     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
-     *
-     * @hide
-     */
-    public val isInTheaterMode: ObservableWatchData<Boolean>,
-
     /** Whether or not the watch face is visible. */
     public val isVisible: ObservableWatchData<Boolean>,
-
-    /** The total number of notification cards in the stream. */
-    public val notificationCount: ObservableWatchData<Int>,
-
-    /** The total number of unread notification cards in the stream. */
-    public val unreadNotificationCount: ObservableWatchData<Int>,
 
     /** Whether or not the watch hardware supports low bit ambient support. */
     public val hasLowBitAmbient: Boolean,
@@ -134,20 +80,9 @@ public class WatchState(
 public class MutableWatchState {
     public var interruptionFilter: MutableObservableWatchData<Int> = MutableObservableWatchData()
     public val isAmbient: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
-    public val inAirplaneMode: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
     public val isBatteryLowAndNotCharging: MutableObservableWatchData<Boolean> =
         MutableObservableWatchData()
-    public val isCharging: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
-    public val isConnectedToCompanion: MutableObservableWatchData<Boolean> =
-        MutableObservableWatchData()
-    public val isGpsActive: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
-    public val isKeyguardLocked: MutableObservableWatchData<Boolean> =
-        MutableObservableWatchData()
-    public val isInTheaterMode: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
     public val isVisible: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
-    public val notificationCount: MutableObservableWatchData<Int> = MutableObservableWatchData()
-    public val unreadNotificationCount: MutableObservableWatchData<Int> =
-        MutableObservableWatchData()
     public var hasLowBitAmbient: Boolean = false
     public var hasBurnInProtection: Boolean = false
     public var screenShape: Int = 0
@@ -155,16 +90,8 @@ public class MutableWatchState {
     public fun asWatchState(): WatchState = WatchState(
         interruptionFilter = interruptionFilter,
         isAmbient = isAmbient,
-        inAirplaneMode = inAirplaneMode,
         isBatteryLowAndNotCharging = isBatteryLowAndNotCharging,
-        isCharging = isCharging,
-        isConnectedToCompanion = isConnectedToCompanion,
-        isGpsActive = isGpsActive,
-        isKeyguardLocked = isKeyguardLocked,
-        isInTheaterMode = isInTheaterMode,
         isVisible = isVisible,
-        notificationCount = notificationCount,
-        unreadNotificationCount = unreadNotificationCount,
         hasLowBitAmbient = hasLowBitAmbient,
         hasBurnInProtection = hasBurnInProtection,
         screenShape = screenShape
