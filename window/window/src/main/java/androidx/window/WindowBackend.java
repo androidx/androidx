@@ -28,18 +28,6 @@ import java.util.concurrent.Executor;
  * supplier.
  */
 public interface WindowBackend {
-    /**
-     * Gets current window layout information for the provided {@link Context}. Must be called
-     * only after the it is attached to the window and the layout pass has happened.
-     */
-    @NonNull
-    WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
-
-    /**
-     * Gets the current device state.
-     */
-    @NonNull
-    DeviceState getDeviceState();
 
     /**
      * Registers a callback for layout changes of the window of the current visual {@link Context}.

@@ -38,14 +38,9 @@ interface ExtensionInterfaceCompat {
     void setExtensionCallback(@NonNull ExtensionCallbackInterface extensionCallback);
 
     /**
-     * Gets current information about the display features present within the application window.
-     */
-    @NonNull
-    WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
-
-    /**
      * Notifies extension that a listener for display feature layout changes was registered for the
-     * given activity or window context.
+     * given activity or window context. Should notify the {@link ExtensionCallbackInterface} of
+     * the initial {@link WindowLayoutInfo} when it is available.
      */
     void onWindowLayoutChangeListenerAdded(@NonNull Context context);
 
@@ -56,14 +51,8 @@ interface ExtensionInterfaceCompat {
     void onWindowLayoutChangeListenerRemoved(@NonNull Context context);
 
     /**
-     * Gets current device state.
-     * @see #onDeviceStateListenersChanged(boolean)
-     */
-    @NonNull
-    DeviceState getDeviceState();
-
-    /**
-     * Notifies the extension that a device state change listener was updated.
+     * Notifies the extension that a device state change listener was updated. Should notify the
+     * {@link ExtensionCallbackInterface} of the initial {@link DeviceState} when it is available.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
     void onDeviceStateListenersChanged(boolean isEmpty);

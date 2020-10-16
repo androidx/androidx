@@ -16,6 +16,8 @@
 
 package androidx.window;
 
+import static org.mockito.Mockito.mock;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
@@ -35,8 +37,16 @@ import androidx.annotation.Nullable;
 
 /** Stub implementation of {@link Window} for use in tests. */
 public class TestWindow extends Window {
+
+    private final View mDecorView;
+
     public TestWindow(Context context) {
+        this(context, mock(View.class));
+    }
+
+    public TestWindow(Context context, View decorView) {
         super(context);
+        mDecorView = decorView;
     }
 
     @Override
@@ -111,7 +121,7 @@ public class TestWindow extends Window {
     @NonNull
     @Override
     public View getDecorView() {
-        return null;
+        return mDecorView;
     }
 
     @Override

@@ -16,15 +16,12 @@
 
 package androidx.window;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.content.ContextWrapper;
-import android.graphics.Rect;
 
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
@@ -36,7 +33,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
 import java.util.concurrent.Executor;
 
 /** Tests for {@link WindowManager} class. */
@@ -65,31 +61,8 @@ public final class WindowManagerTest extends WindowTestBase {
     }
 
     @Test
-    public void testGetWindowLayoutInfo() {
-        WindowBackend backend = mock(WindowBackend.class);
-        Activity activity = mock(Activity.class);
-        WindowManager wm = new WindowManager(activity, backend);
-
-        wm.getWindowLayoutInfo();
-        verify(backend).getWindowLayoutInfo(eq(activity));
-    }
-
-    @Test
-    public void testGetDeviceState() {
-        WindowBackend backend = mock(WindowBackend.class);
-        WindowManager wm = new WindowManager(mock(Activity.class), backend);
-
-        wm.getDeviceState();
-        verify(backend).getDeviceState();
-    }
-
-    @Test
     public void testRegisterLayoutChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        Rect rect = new Rect(1, 0, 1, 4);
-        DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
-        WindowLayoutInfo info = new WindowLayoutInfo(Collections.singletonList(feature));
-        when(backend.getWindowLayoutInfo(any())).thenReturn(info);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
@@ -105,8 +78,6 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterDeviceStateChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        DeviceState state = new DeviceState(DeviceState.POSTURE_CLOSED);
-        when(backend.getDeviceState()).thenReturn(state);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
