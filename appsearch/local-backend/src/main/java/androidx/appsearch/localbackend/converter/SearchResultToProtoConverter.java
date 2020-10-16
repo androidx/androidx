@@ -21,8 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.MatchInfo;
-import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchResult;
 
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SnippetMatchProto;
@@ -31,26 +30,24 @@ import com.google.android.icing.proto.SnippetProto;
 import java.util.ArrayList;
 
 /**
- * Translates a {@link SearchResultProto} into {@link SearchResults}.
+ * Translates a {@link SearchResultProto} into {@link SearchResult}s.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {
-    private SearchResultToProtoConverter() {
-    }
+    private SearchResultToProtoConverter() {}
 
-    /** Translate a {@link SearchResultProto.ResultProto} into {@link SearchResults.Result}. */
+    /** Translate a {@link SearchResultProto.ResultProto} into {@link SearchResult}. */
     @NonNull
-    public static SearchResults.Result convertSearchResult(
+    public static SearchResult convertSearchResult(
             @NonNull SearchResultProto.ResultProtoOrBuilder proto) {
         Bundle bundle = new Bundle();
         GenericDocument document = GenericDocumentToProtoConverter.convert(proto.getDocument());
-        bundle.putBundle(SearchResults.Result.DOCUMENT_FIELD, document.getBundle());
+        bundle.putBundle(SearchResult.DOCUMENT_FIELD, document.getBundle());
 
-        ArrayList<Bundle> matchList = null;
+        ArrayList<Bundle> matchList = new ArrayList<>();
         if (proto.hasSnippet()) {
-            matchList = new ArrayList<>();
             for (int i = 0; i < proto.getSnippet().getEntriesCount(); i++) {
                 SnippetProto.EntryProto entry = proto.getSnippet().getEntries(i);
                 for (int j = 0; j < entry.getSnippetMatchesCount(); j++) {
@@ -60,27 +57,28 @@ public class SearchResultToProtoConverter {
                 }
             }
         }
-        bundle.putParcelableArrayList(SearchResults.Result.MATCHES_FIELD, matchList);
+        bundle.putParcelableArrayList(SearchResult.MATCHES_FIELD, matchList);
 
-        return new SearchResults.Result(bundle);
+        return new SearchResult(bundle);
     }
 
     private static Bundle convertToMatchInfoBundle(
             SnippetMatchProto snippetMatchProto, String propertyPath) {
         Bundle bundle = new Bundle();
-        bundle.putString(MatchInfo.PROPERTY_PATH_FIELD, propertyPath);
-        bundle.putInt(MatchInfo.VALUES_INDEX_FIELD, snippetMatchProto.getValuesIndex());
+        bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, propertyPath);
         bundle.putInt(
-                MatchInfo.EXACT_MATCH_POSITION_LOWER_FIELD,
+                SearchResult.MatchInfo.VALUES_INDEX_FIELD, snippetMatchProto.getValuesIndex());
+        bundle.putInt(
+                SearchResult.MatchInfo.EXACT_MATCH_POSITION_LOWER_FIELD,
                 snippetMatchProto.getExactMatchPosition());
         bundle.putInt(
-                MatchInfo.EXACT_MATCH_POSITION_UPPER_FIELD,
+                SearchResult.MatchInfo.EXACT_MATCH_POSITION_UPPER_FIELD,
                 snippetMatchProto.getExactMatchPosition() + snippetMatchProto.getExactMatchBytes());
         bundle.putInt(
-                MatchInfo.WINDOW_POSITION_LOWER_FIELD,
+                SearchResult.MatchInfo.WINDOW_POSITION_LOWER_FIELD,
                 snippetMatchProto.getWindowPosition());
         bundle.putInt(
-                MatchInfo.WINDOW_POSITION_UPPER_FIELD,
+                SearchResult.MatchInfo.WINDOW_POSITION_UPPER_FIELD,
                 snippetMatchProto.getWindowPosition() + snippetMatchProto.getWindowBytes());
         return bundle;
     }

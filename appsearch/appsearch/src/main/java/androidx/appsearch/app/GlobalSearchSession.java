@@ -70,5 +70,5 @@ public interface GlobalSearchSession {
      * @return The search result of performing this operation.
      */
     @NonNull
-    SearchResultsHack globalQuery(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+    SearchResults globalQuery(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 }

@@ -37,20 +37,6 @@ package androidx.appsearch.app {
     method public boolean isSuccess();
   }
 
-  public class AppSearchManager {
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putDocuments(androidx.appsearch.app.PutDocumentsRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeByUri(androidx.appsearch.app.RemoveByUriRequest);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.lang.Void!>!> setSchema(androidx.appsearch.app.SetSchemaRequest);
-    field public static final String DEFAULT_DATABASE_NAME = "";
-  }
-
-  public static final class AppSearchManager.Builder {
-    ctor public AppSearchManager.Builder();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<androidx.appsearch.app.AppSearchManager!>!> build();
-    method public androidx.appsearch.app.AppSearchManager.Builder setDatabaseName(String);
-  }
-
   public final class AppSearchResult<ValueType> {
     method public String? getErrorMessage();
     method public int getResultCode();
@@ -100,6 +86,14 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setIndexingType(int);
     method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setSchemaType(String);
     method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setTokenizerType(int);
+  }
+
+  public interface AppSearchSession {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getByUri(androidx.appsearch.app.GetByUriRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putDocuments(androidx.appsearch.app.PutDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.lang.Void!>!> removeByQuery(String, androidx.appsearch.app.SearchSpec);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> removeByUri(androidx.appsearch.app.RemoveByUriRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.lang.Void!>!> setSchema(androidx.appsearch.app.SetSchemaRequest);
   }
 
   public interface DataClassFactory<T> {
@@ -160,20 +154,6 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetByUriRequest.Builder setNamespace(String);
   }
 
-  public final class MatchInfo {
-    method public CharSequence getExactMatch();
-    method public androidx.appsearch.app.MatchInfo.MatchRange getExactMatchPosition();
-    method public String getFullText();
-    method public String getPropertyPath();
-    method public CharSequence getSnippet();
-    method public androidx.appsearch.app.MatchInfo.MatchRange getSnippetPosition();
-  }
-
-  public static class MatchInfo.MatchRange {
-    method public int getEnd();
-    method public int getStart();
-  }
-
   public final class PutDocumentsRequest {
   }
 
@@ -197,14 +177,28 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.RemoveByUriRequest.Builder setNamespace(String);
   }
 
-  public final class SearchResults implements java.io.Closeable {
-    method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.util.List<androidx.appsearch.app.SearchResults.Result!>!>!> getNextPage();
+  public final class SearchResult {
+    method public androidx.appsearch.app.GenericDocument getDocument();
+    method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatches();
   }
 
-  public static final class SearchResults.Result {
-    method public androidx.appsearch.app.GenericDocument getDocument();
-    method public java.util.List<androidx.appsearch.app.MatchInfo!>? getMatches();
+  public static final class SearchResult.MatchInfo {
+    method public CharSequence getExactMatch();
+    method public androidx.appsearch.app.SearchResult.MatchRange getExactMatchPosition();
+    method public String getFullText();
+    method public String getPropertyPath();
+    method public CharSequence getSnippet();
+    method public androidx.appsearch.app.SearchResult.MatchRange getSnippetPosition();
+  }
+
+  public static final class SearchResult.MatchRange {
+    method public int getEnd();
+    method public int getStart();
+  }
+
+  public interface SearchResults extends java.io.Closeable {
+    method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.util.List<androidx.appsearch.app.SearchResult!>!>!> getNextPage();
   }
 
   public final class SearchSpec {
@@ -249,6 +243,7 @@ package androidx.appsearch.app {
 package androidx.appsearch.exceptions {
 
   public class AppSearchException extends java.lang.Exception {
+    method public int getResultCode();
     method public <T> androidx.appsearch.app.AppSearchResult<T!> toAppSearchResult();
   }
 

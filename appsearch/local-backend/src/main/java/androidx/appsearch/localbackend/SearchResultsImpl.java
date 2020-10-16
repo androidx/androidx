@@ -19,8 +19,8 @@ package androidx.appsearch.localbackend;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
-import androidx.appsearch.app.SearchResultsHack;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.localbackend.util.FutureUtil;
 import androidx.core.util.Preconditions;
@@ -30,7 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-class SearchResultsImpl implements SearchResultsHack {
+class SearchResultsImpl implements SearchResults {
     private final AppSearchImpl mAppSearchImpl;
 
     private final ExecutorService mExecutorService;
@@ -61,7 +61,7 @@ class SearchResultsImpl implements SearchResultsHack {
 
     @Override
     @NonNull
-    public ListenableFuture<AppSearchResult<List<SearchResults.Result>>> getNextPage() {
+    public ListenableFuture<AppSearchResult<List<SearchResult>>> getNextPage() {
         return FutureUtil.execute(mExecutorService, () -> {
             try {
                 AppSearchImpl.SearchResultPage searchResultPage;
