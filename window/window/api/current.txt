@@ -31,8 +31,6 @@ package androidx.window {
   }
 
   public interface WindowBackend {
-    method public androidx.window.DeviceState getDeviceState();
-    method public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.content.Context);
     method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
     method public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
     method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
@@ -52,8 +50,6 @@ package androidx.window {
   public final class WindowManager {
     ctor public WindowManager(android.content.Context);
     ctor public WindowManager(android.content.Context, androidx.window.WindowBackend);
-    method public androidx.window.DeviceState getDeviceState();
-    method public androidx.window.WindowLayoutInfo getWindowLayoutInfo();
     method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
     method public void registerLayoutChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
     method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);

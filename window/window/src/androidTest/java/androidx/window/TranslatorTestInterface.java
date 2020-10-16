@@ -17,16 +17,14 @@
 package androidx.window;
 
 /**
- * Base interface for tests of {@link ExtensionInterfaceCompat} implementations, contains methods
- * that each test of the device extension should include.
- * <p>Most tests of the extension compatibility wrappers require mocked extension, they are
- * listed in {@link CompatTestInterface}. This interface defines only the tests that can be
- * implemented to use the extension provided on the device.
- *
- * @see CompatTestInterface the definition of all tests that every implementation of
- * {@link ExtensionInterfaceCompat} should pass.
+ * An interface to ensure the same tests are run for translating from value objects in
+ * window.sidecar or window.extensions to window.window.
  */
-interface CompatDeviceTestInterface {
-    void testDeviceStateCallback();
-    void testWindowLayoutCallback();
+public interface TranslatorTestInterface {
+    void testTranslate_validFeature();
+    void testTranslateDeviceState();
+    void testTranslateWindowLayoutInfo_filterRemovesEmptyBoundsFeature();
+    void testTranslateWindowLayoutInfo_filterRemovesNonEmptyAreaFoldFeature();
+    void testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension();
+    void testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension();
 }

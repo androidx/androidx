@@ -16,17 +16,24 @@
 
 package androidx.window;
 
+import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
+import static androidx.window.TestBoundUtil.invalidFoldBounds;
+import static androidx.window.TestBoundUtil.invalidHingeBounds;
+import static androidx.window.TestBoundUtil.validFoldBound;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.window.extensions.ExtensionDeviceState;
@@ -51,37 +58,24 @@ import java.util.List;
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
+public final class ExtensionCompatTest extends WindowTestBase
         implements CompatTestInterface {
-    private static final Rect WINDOW_BOUNDS = new Rect(1, 1, 50, 100);
+    private static final Rect WINDOW_BOUNDS = new Rect(0, 0, 50, 100);
 
+    ExtensionCompat mExtensionCompat;
     private ExtensionInterface mMockExtensionInterface;
     private Activity mActivity;
 
     @Before
     public void setUp() {
         mMockExtensionInterface = mock(ExtensionInterface.class);
-        mExtensionCompat = new ExtensionCompat(mMockExtensionInterface);
+        mExtensionCompat = new ExtensionCompat(mMockExtensionInterface, new ExtensionAdapter());
         mActivity = mock(Activity.class);
 
         TestWindowBoundsHelper mWindowBoundsHelper = new TestWindowBoundsHelper();
         mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS);
         WindowBoundsHelper.setForTesting(mWindowBoundsHelper);
 
-        // Setup mocked extension responses
-        ExtensionDeviceState defaultDeviceState =
-                new ExtensionDeviceState(ExtensionDeviceState.POSTURE_HALF_OPENED);
-        when(mExtensionCompat.mWindowExtension.getDeviceState()).thenReturn(defaultDeviceState);
-
-        Rect bounds = new Rect(0, 1, WINDOW_BOUNDS.width(), 1);
-        ExtensionDisplayFeature extensionDisplayFeatureDisplayFeature =
-                new ExtensionDisplayFeature(bounds, ExtensionDisplayFeature.TYPE_HINGE);
-        List<ExtensionDisplayFeature> displayFeatures = new ArrayList<>();
-        displayFeatures.add(extensionDisplayFeatureDisplayFeature);
-        ExtensionWindowLayoutInfo extensionWindowLayoutInfo =
-                new ExtensionWindowLayoutInfo(displayFeatures);
-        when(mExtensionCompat.mWindowExtension.getWindowLayoutInfo(any()))
-                .thenReturn(extensionWindowLayoutInfo);
     }
 
     @After
@@ -90,108 +84,34 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
     }
 
     @Test
-    public void testGetWindowLayout_featureWithEmptyBounds() {
-        // Add a feature with an empty bounds to the reported list
-        List<ExtensionDisplayFeature> features = new ArrayList<>();
-        ExtensionDisplayFeature emptyRectFeature = new ExtensionDisplayFeature(new Rect(),
-                ExtensionDisplayFeature.TYPE_HINGE);
-        features.add(emptyRectFeature);
-        ExtensionWindowLayoutInfo infoWithEmptyRect = new ExtensionWindowLayoutInfo(features);
-        when(mMockExtensionInterface.getWindowLayoutInfo(any()))
-                .thenReturn(infoWithEmptyRect);
+    @Override
+    public void testGetDeviceState() {
+        FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
+        ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
+        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
+        compat.setExtensionCallback(mockCallback);
+        compat.onWindowLayoutChangeListenerAdded(mock(Activity.class));
+        ExtensionDeviceState deviceState =
+                new ExtensionDeviceState(ExtensionDeviceState.POSTURE_OPENED);
 
-        // Verify that this feature is skipped.
-        WindowLayoutInfo windowLayoutInfo = mExtensionCompat.getWindowLayoutInfo(mActivity);
+        fakeExtensionImp.triggerDeviceState(deviceState);
 
-        assertEquals(features.size() - 1,
-                windowLayoutInfo.getDisplayFeatures().size());
+        verify(mockCallback).onDeviceStateChanged(new DeviceState(DeviceState.POSTURE_OPENED));
     }
 
     @Test
-    public void testGetWindowLayout_foldWithNonZeroArea() {
-        List<ExtensionDisplayFeature> features = new ArrayList<>();
-        ExtensionWindowLayoutInfo originalWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(mActivity);
-        List<ExtensionDisplayFeature> extensionDisplayFeatures =
-                originalWindowLayoutInfo.getDisplayFeatures();
-        // Original features.
-        features.addAll(extensionDisplayFeatures);
-        // Horizontal fold.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width(), 2),
-                        ExtensionDisplayFeature.TYPE_FOLD));
-        // Vertical fold.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height()),
-                        ExtensionDisplayFeature.TYPE_FOLD));
+    @Override
+    public void testGetWindowLayout() {
+        FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
+        ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
+        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
+        compat.setExtensionCallback(mockCallback);
+        compat.onWindowLayoutChangeListenerAdded(mock(Activity.class));
 
-        when(mMockExtensionInterface.getWindowLayoutInfo(any()))
-                .thenReturn(new ExtensionWindowLayoutInfo(features));
+        fakeExtensionImp.triggerValidSignal();
 
-        // Verify that these features are skipped.
-        WindowLayoutInfo windowLayoutInfo =
-                mExtensionCompat.getWindowLayoutInfo(mActivity);
-
-        assertEquals(features.size() - 2,
-                windowLayoutInfo.getDisplayFeatures().size());
-    }
-
-    @Test
-    public void testGetWindowLayout_hingeNotSpanningEntireWindow() {
-        List<ExtensionDisplayFeature> features = new ArrayList<>();
-        ExtensionWindowLayoutInfo originalWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(mActivity);
-        List<ExtensionDisplayFeature> extensionDisplayFeatures =
-                originalWindowLayoutInfo.getDisplayFeatures();
-        // Original features.
-        features.addAll(extensionDisplayFeatures);
-        // Horizontal hinge.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                        ExtensionDisplayFeature.TYPE_HINGE));
-        // Vertical hinge.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                        ExtensionDisplayFeature.TYPE_HINGE));
-
-        when(mMockExtensionInterface.getWindowLayoutInfo(any()))
-                .thenReturn(new ExtensionWindowLayoutInfo(features));
-
-        // Verify that these features are skipped.
-        WindowLayoutInfo windowLayoutInfo =
-                mExtensionCompat.getWindowLayoutInfo(mActivity);
-
-        assertEquals(features.size() - 2,
-                windowLayoutInfo.getDisplayFeatures().size());
-    }
-
-    @Test
-    public void testGetWindowLayout_foldNotSpanningEntireWindow() {
-        List<ExtensionDisplayFeature> features = new ArrayList<>();
-        ExtensionWindowLayoutInfo originalWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(mActivity);
-        List<ExtensionDisplayFeature> extensionDisplayFeatures =
-                originalWindowLayoutInfo.getDisplayFeatures();
-        // Original features.
-        features.addAll(extensionDisplayFeatures);
-        // Horizontal fold.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                        ExtensionDisplayFeature.TYPE_FOLD));
-        // Vertical fold.
-        features.add(
-                new ExtensionDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                        ExtensionDisplayFeature.TYPE_FOLD));
-
-        when(mMockExtensionInterface.getWindowLayoutInfo(any()))
-                .thenReturn(new ExtensionWindowLayoutInfo(features));
-
-        // Verify that these features are skipped.
-        WindowLayoutInfo windowLayoutInfo =
-                mExtensionCompat.getWindowLayoutInfo(mActivity);
-
-        assertEquals(features.size() - 2,
-                windowLayoutInfo.getDisplayFeatures().size());
+        verify(mockCallback).onWindowLayoutChanged(any(),
+                argThat(windowLayoutInfo -> !windowLayoutInfo.getDisplayFeatures().isEmpty()));
     }
 
     @Test
@@ -201,8 +121,8 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
                 ArgumentCaptor.forClass(ExtensionInterface.ExtensionCallback.class);
 
         // Verify that the extension got the callback set
-        ExtensionInterfaceCompat.ExtensionCallbackInterface callback =
-                mock(ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
+        ExtensionCallbackInterface callback =
+                mock(ExtensionCallbackInterface.class);
         mExtensionCompat.setExtensionCallback(callback);
 
         verify(mExtensionCompat.mWindowExtension).setExtensionCallback(
@@ -220,7 +140,7 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         // Verify that the callback set for extension propagates the window layout callback when
         // a listener has been registered.
         mExtensionCompat.onWindowLayoutChangeListenerAdded(mActivity);
-        Rect bounds = new Rect(0, 1, WINDOW_BOUNDS.width(), 1);
+        Rect bounds = new Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.width(), 1);
         ExtensionDisplayFeature extensionDisplayFeature =
                 new ExtensionDisplayFeature(bounds, ExtensionDisplayFeature.TYPE_HINGE);
         List<ExtensionDisplayFeature> displayFeatures = new ArrayList<>();
@@ -239,6 +159,20 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         DisplayFeature capturedDisplayFeature = capturedLayout.getDisplayFeatures().get(0);
         assertEquals(DisplayFeature.TYPE_HINGE, capturedDisplayFeature.getType());
         assertEquals(bounds, capturedDisplayFeature.getBounds());
+    }
+
+    @Override
+    public void testExtensionCallback_filterRemovesInvalidValues() {
+        FakeExtensionImp fakeExtensionImp = new FakeExtensionImp();
+        ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
+        ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
+        compat.setExtensionCallback(mockCallback);
+        compat.onWindowLayoutChangeListenerAdded(mock(Context.class));
+
+        fakeExtensionImp.triggerMalformedSignal();
+
+        verify(mockCallback).onWindowLayoutChanged(any(),
+                argThat(windowLayoutInfo -> windowLayoutInfo.getDisplayFeatures().isEmpty()));
     }
 
     @Test
@@ -266,5 +200,89 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
     @Test
     public void testValidateExtensionInterface() {
         assertTrue(mExtensionCompat.validateExtensionInterface());
+    }
+
+    private static final class FakeExtensionImp implements ExtensionInterface {
+
+        private ExtensionCallback mCallback;
+        private final List<Context> mContexts = new ArrayList<>();
+
+        FakeExtensionImp() {
+            mCallback = new ExtensionCallback() {
+                @Override
+                public void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState) {
+
+                }
+
+                @Override
+                public void onWindowLayoutChanged(@NonNull Context context,
+                        @NonNull ExtensionWindowLayoutInfo newLayout) {
+
+                }
+            };
+        }
+
+        @Override
+        public void setExtensionCallback(@NonNull ExtensionCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
+            mContexts.add(context);
+        }
+
+        @Override
+        public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
+            mContexts.remove(context);
+        }
+
+        @Override
+        public void onDeviceStateListenersChanged(boolean isEmpty) {
+
+        }
+
+        void triggerMalformedSignal() {
+            triggerSignal(malformedWindowLayoutInfo());
+        }
+
+        void triggerValidSignal() {
+            triggerSignal(validWindowLayoutInfo());
+        }
+
+        void triggerSignal(ExtensionWindowLayoutInfo info) {
+            for (Context context: mContexts) {
+                mCallback.onWindowLayoutChanged(context, info);
+            }
+        }
+
+        public void triggerDeviceState(ExtensionDeviceState state) {
+            mCallback.onDeviceStateChanged(state);
+        }
+
+        private ExtensionWindowLayoutInfo malformedWindowLayoutInfo() {
+            List<ExtensionDisplayFeature> malformedFeatures = new ArrayList<>();
+
+            for (Rect malformedBound : invalidFoldBounds(WINDOW_BOUNDS)) {
+                malformedFeatures.add(new ExtensionDisplayFeature(malformedBound,
+                        ExtensionDisplayFeature.TYPE_FOLD));
+            }
+
+            for (Rect malformedBound : invalidHingeBounds(WINDOW_BOUNDS)) {
+                malformedFeatures.add(new ExtensionDisplayFeature(malformedBound,
+                        ExtensionDisplayFeature.TYPE_HINGE));
+            }
+
+            return new ExtensionWindowLayoutInfo(malformedFeatures);
+        }
+
+        private ExtensionWindowLayoutInfo validWindowLayoutInfo() {
+            List<ExtensionDisplayFeature> validFeatures = new ArrayList<>();
+
+            validFeatures.add(new ExtensionDisplayFeature(validFoldBound(WINDOW_BOUNDS),
+                    ExtensionDisplayFeature.TYPE_FOLD));
+
+            return new ExtensionWindowLayoutInfo(validFeatures);
+        }
     }
 }

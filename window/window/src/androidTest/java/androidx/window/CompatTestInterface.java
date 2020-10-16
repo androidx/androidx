@@ -22,10 +22,7 @@ package androidx.window;
 interface CompatTestInterface {
     void testGetDeviceState();
     void testGetWindowLayout();
-    void testGetWindowLayout_featureWithEmptyBounds();
-    void testGetWindowLayout_foldWithNonZeroArea();
-    void testGetWindowLayout_hingeNotSpanningEntireWindow();
-    void testGetWindowLayout_foldNotSpanningEntireWindow();
+    void testExtensionCallback_filterRemovesInvalidValues();
     void testSetExtensionCallback();
     void testOnWindowLayoutChangeListenerAdded();
     void testOnWindowLayoutChangeListenerRemoved();

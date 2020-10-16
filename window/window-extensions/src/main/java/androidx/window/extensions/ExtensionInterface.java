@@ -37,14 +37,6 @@ public interface ExtensionInterface {
     void setExtensionCallback(@NonNull ExtensionCallback callback);
 
     /**
-     * Gets current information about the display features present within the application window.
-     *
-     * @param context an instance of {@link android.app.Activity}
-     */
-    @NonNull
-    ExtensionWindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
-
-    /**
      * Notifies extension that a listener for display feature layout changes was registered for the
      * given activity context.
      *
@@ -61,13 +53,6 @@ public interface ExtensionInterface {
     void onWindowLayoutChangeListenerRemoved(@NonNull Context context);
 
     /**
-     * Gets current device state.
-     * @see #onDeviceStateListenersChanged(boolean)
-     */
-    @NonNull
-    ExtensionDeviceState getDeviceState();
-
-    /**
      * Notifies the extension that a device state change listener was updated.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
@@ -79,12 +64,16 @@ public interface ExtensionInterface {
      */
     interface ExtensionCallback {
         /**
-         * Called by extension when the device state changes.
+         * Called by extension when the device state changes. Initial value should be provided
+         * through this callback as soon as possible after the first device state change listener
+         * was added and the Extension was notified via
+         * {@link #onDeviceStateListenersChanged(boolean)}.
          */
         void onDeviceStateChanged(@NonNull ExtensionDeviceState newDeviceState);
 
         /**
-         * Called by extension when the feature layout inside the window changes.
+         * Called by extension when the feature layout inside the window changes. Initial value
+         * should be provided as soon as possible.
          */
         void onWindowLayoutChanged(@NonNull Context context,
                 @NonNull ExtensionWindowLayoutInfo newLayout);

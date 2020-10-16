@@ -53,11 +53,11 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         SHORT_DIMENSION
     }
 
-    override fun getDeviceState(): DeviceState {
+    private fun getDeviceState(): DeviceState {
         return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
     }
 
-    override fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
+    private fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
         val activity = context.getActivityExt() ?: throw IllegalArgumentException(
             "Used non-visual Context used with WindowManager. Please use an Activity or a " +
                 "ContextWrapper around an Activity instead."
@@ -100,7 +100,9 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     override fun registerDeviceStateChangeCallback(
         executor: Executor,
         callback: Consumer<DeviceState>
-    ) {}
+    ) {
+        executor.execute { callback.accept(getDeviceState()) }
+    }
 
     override fun unregisterDeviceStateChangeCallback(callback: Consumer<DeviceState>) {
     }
@@ -109,7 +111,9 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         context: Context,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
-    ) {}
+    ) {
+        executor.execute { callback.accept(getWindowLayoutInfo(context)) }
+    }
 
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
     }
