@@ -34,8 +34,7 @@ dependencies {
     compileOnly(projectOrArtifact(":inspection:inspection"))
     compileOnly(projectOrArtifact(':lifecycle:lifecycle-runtime'))
     compileOnly(project(':work:work-runtime'))
-    compileOnly(projectOrArtifact(':room:room-runtime'))
-
+    compileOnly("androidx.room:room-runtime:2.2.5")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(':work:work-runtime'))
     androidTestImplementation(project(':work:work-runtime-ktx'))
