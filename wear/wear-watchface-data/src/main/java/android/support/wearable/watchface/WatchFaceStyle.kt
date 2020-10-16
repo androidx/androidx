@@ -62,6 +62,9 @@ public open class WatchFaceStyle(
                 putBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR, showUnreadCountIndicator)
                 putBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR, hideNotificationIndicator)
                 putBoolean(Constants.KEY_ACCEPTS_TAPS, acceptsTapEvents)
+                compatBundle?.let {
+                    putAll(compatBundle)
+                }
             }
         )
     }
