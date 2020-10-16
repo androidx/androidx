@@ -145,13 +145,13 @@ public class ComplicationsManager(
         // automatically apply them.
         if (complicationsStyleCategory != null) {
             var previousOption =
-                userStyleRepository.userStyle.options[complicationsStyleCategory] as
+                userStyleRepository.userStyle.selectedOptions[complicationsStyleCategory] as
                     ComplicationsUserStyleCategory.ComplicationsOption
             userStyleRepository.addUserStyleListener(
                 object : UserStyleRepository.UserStyleListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
-                            userStyle.options[complicationsStyleCategory] as
+                            userStyle.selectedOptions[complicationsStyleCategory] as
                                 ComplicationsUserStyleCategory.ComplicationsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption

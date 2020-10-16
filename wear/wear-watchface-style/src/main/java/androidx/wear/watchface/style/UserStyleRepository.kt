@@ -26,7 +26,9 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
  * The users style choices represented as a map of [UserStyleCategory] to
  * [UserStyleCategory.Option].
  */
-public class UserStyle(public val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
+public class UserStyle(
+    public val selectedOptions: Map<UserStyleCategory, UserStyleCategory.Option>
+) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public constructor(
@@ -44,7 +46,7 @@ public class UserStyle(public val options: Map<UserStyleCategory, UserStyleCateg
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleWireFormat =
-        UserStyleWireFormat(options.entries.associate { it.key.id to it.value.id })
+        UserStyleWireFormat(selectedOptions.entries.associate { it.key.id to it.value.id })
 }
 
 /**
@@ -85,10 +87,11 @@ public class UserStyleRepository(
         @UiThread
         set(style) {
             var changed = false
-            val hashmap = _style.options as HashMap<UserStyleCategory, UserStyleCategory.Option>
-            for ((category, option) in style.options) {
+            val hashmap =
+                _style.selectedOptions as HashMap<UserStyleCategory, UserStyleCategory.Option>
+            for ((category, option) in style.selectedOptions) {
                 // Ignore an unrecognized category.
-                val styleCategory = _style.options[category] ?: continue
+                val styleCategory = _style.selectedOptions[category] ?: continue
                 if (styleCategory.id != option.id) {
                     changed = true
                 }

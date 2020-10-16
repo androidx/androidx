@@ -97,9 +97,9 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyle {
-    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleCategory,? extends androidx.wear.watchface.style.UserStyleCategory.Option> options);
-    method public java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> getOptions();
-    property public final java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> options;
+    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleCategory,? extends androidx.wear.watchface.style.UserStyleCategory.Option> selectedOptions);
+    method public java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> getSelectedOptions();
+    property public final java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> selectedOptions;
   }
 
   public abstract class UserStyleCategory {
