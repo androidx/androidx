@@ -23,16 +23,14 @@ import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationDataTest {
     private var mPendingIntent: PendingIntent? = PendingIntent.getBroadcast(
         ApplicationProvider.getApplicationContext(),
@@ -1095,7 +1093,6 @@ public class ComplicationDataTest {
         Truth.assertThat(data.isTimeDependent).isTrue()
     }
 
-    @DoNotInstrument
     private companion object {
         private val TEST_CONTENT_DESCRIPTION: CharSequence = "This is a test description!"
         private const val TEST_LONG_TITLE = "what a long title such a long title"
