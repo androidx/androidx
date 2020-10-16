@@ -41,11 +41,11 @@ import java.util.List;
  * <p>This class is not thread safe.
  */
 public final class SearchResults implements Closeable {
-    private final AppSearchBackend.BackendSearchResults mBackendSearchResults;
+    private final SearchResultsHack mBackendSearchResults;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    SearchResults(AppSearchBackend.BackendSearchResults backendSearchResults) {
+    SearchResults(SearchResultsHack backendSearchResults) {
         mBackendSearchResults = backendSearchResults;
     }
 

@@ -36,17 +36,17 @@ import java.util.Collection;
 import java.util.List;
 
 public class AnnotationProcessorTest {
-    private AppSearchManager mAppSearchManager;
+    private AppSearchSession mSession;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
-        mAppSearchManager = checkIsResultSuccess(new AppSearchManager.Builder()
-                .setDatabaseName("testDb").setBackend(backend).build());
+        mSession = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context).build()));
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().get().getResultValue();
+        checkIsResultSuccess(
+                mSession.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @AppSearchDocument
@@ -158,7 +158,7 @@ public class AnnotationProcessorTest {
     public void testAnnotationProcessor() throws Exception {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @AppSearchDocument annotation
-        checkIsResultSuccess(mAppSearchManager.setSchema(
+        checkIsResultSuccess(mSession.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(Gift.class).build()));
 
         // Create a Gift object and assign values.
@@ -209,9 +209,9 @@ public class AnnotationProcessorTest {
         inputDataClass.mGift = innerGift1;
 
         // Index the Gift document and query it.
-        checkIsBatchResultSuccess(mAppSearchManager.putDocuments(
+        checkIsBatchResultSuccess(mSession.putDocuments(
                 new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
-        SearchResults searchResults = mAppSearchManager.query("", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mSession.query("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);

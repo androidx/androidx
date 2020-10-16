@@ -23,8 +23,6 @@ import static androidx.appsearch.app.AppSearchTestUtils.doGet;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.content.Context;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -40,21 +38,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AppSearchManagerTest {
-    private AppSearchManager mDb1;
-    private AppSearchManager mDb2;
+public class AppSearchSessionTest {
+    private AppSearchSession mDb1;
+    private AppSearchSession mDb2;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
-        mDb1 = checkIsResultSuccess(new AppSearchManager.Builder()
-                .setDatabaseName("testDb1").setBackend(backend).build());
-        mDb2 = checkIsResultSuccess(new AppSearchManager.Builder()
-                .setDatabaseName("testDb2").setBackend(backend).build());
+        mDb1 = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context)
+                        .setDatabaseName("testDb1").build()));
+        mDb2 = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context)
+                        .setDatabaseName("testDb2").build()));
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().get().getResultValue();
+        checkIsResultSuccess(
+                mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        checkIsResultSuccess(
+                mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @Test
@@ -412,7 +414,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -450,7 +452,7 @@ public class AppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
-        SearchResults searchResults = mDb1.query("body",
+        SearchResultsHack searchResults = mDb1.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
@@ -505,7 +507,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
 
         // Query for the documents
-        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -552,7 +554,7 @@ public class AppSearchManagerTest {
                         .addGenericDocument(expectedEmail, unexpectedEmail).build()));
 
         // Query for all namespaces
-        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -601,7 +603,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query for instance 1.
-        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -643,7 +645,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document).build()));
 
         // Query for the document
-        SearchResults searchResults = mDb1.query("foo",
+        SearchResultsHack searchResults = mDb1.query("foo",
                 new SearchSpec.Builder()
                         .setSchemaTypes("Generic")
                         .setSnippetCount(1)
@@ -1136,7 +1138,7 @@ public class AppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3, email4).build()));
 
         // Check the presence of the documents
-        SearchResults searchResults = mDb1.query("", new SearchSpec.Builder()
+        SearchResultsHack searchResults = mDb1.query("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -1215,20 +1217,5 @@ public class AppSearchManagerTest {
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
-    }
-
-    @Test
-    public void testDatabaseName() throws Exception {
-        // Test special character can present in AppSearchManager's name. When a special
-        // character is banned in instance'name, add checker in AppSearchManager.builder and
-        // reflect it in java doc.
-        AppSearchManager.Builder appSearchBuilder = new AppSearchManager.Builder();
-
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> appSearchBuilder.setDatabaseName("testDatabaseNameEndWith/"));
-        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
-        e = assertThrows(IllegalArgumentException.class,
-                () -> appSearchBuilder.setDatabaseName("/testDatabaseNameStartWith"));
-        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
     }
 }
