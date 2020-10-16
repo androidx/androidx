@@ -13,15 +13,16 @@ Composable functions are built using a custom Kotlin compiler plugin. More infor
 ## Getting started
 To try out Jetpack Compose you need to set up the toolchain for AndroidX development. Follow the process [here](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/README.md) to check out the code.
 
-To start the required version of Android Studio, you need to run the studiow command from the `/ui` subfolder
+To start the required version of Android Studio, you need to run the `ANDROIDX_PROJECTS=COMPOSE ./gradlew studio`
 
-    cd path/to/checkout/frameworks/support/ui/
-    ./studiow
+    cd path/to/checkout/frameworks/support/
+    ANDROIDX_PROJECTS=COMPOSE ./gradlew studio
 
-Also if you would like to build from the command line, all gradle commands need to be run from the `/ui` subfolder.  E.g. to build the demo app, run:
+Also if you would like to build from the command line, all gradle commands need to be run from the
+`frameworks/support` folder.  E.g. to build the demo app, run:
 
-    cd path/to/checkout/frameworks/support/ui/
-    ./gradlew ui:integration-tests:demos:installDebug
+    cd path/to/checkout/frameworks/support/
+    ./gradlew :compose:integration-tests:demos:installDebug
 
 ## Currently available components
 Jetpack Compose is in very early stages of development. Developers wanting to build sample apps will probably want to include the material, layout and framework modules. You can see how to setup your dependencies in `material/integration-tests/material-studies/build.gradle`.
