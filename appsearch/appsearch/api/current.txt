@@ -102,6 +102,13 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder setTokenizerType(int);
   }
 
+  public interface DataClassFactory<T> {
+    method public T fromGenericDocument(androidx.appsearch.app.GenericDocument) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.AppSearchSchema getSchema() throws androidx.appsearch.exceptions.AppSearchException;
+    method public String getSchemaType();
+    method public androidx.appsearch.app.GenericDocument toGenericDocument(T) throws androidx.appsearch.exceptions.AppSearchException;
+  }
+
   public class GenericDocument {
     ctor protected GenericDocument(androidx.appsearch.app.GenericDocument);
     method public long getCreationTimestampMillis();
