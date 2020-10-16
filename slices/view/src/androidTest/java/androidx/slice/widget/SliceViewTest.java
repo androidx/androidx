@@ -19,30 +19,37 @@ package androidx.slice.widget;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.slice.Slice;
+import androidx.slice.SliceMetadata;
 import androidx.slice.SliceProvider;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
 import androidx.slice.render.SliceRenderActivity;
+import androidx.slice.view.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -529,6 +536,94 @@ public class SliceViewTest {
 
         RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
         assertTrue(row.hasActionDivider());
+    }
+
+    @Test
+    public void testSetRowStyleFactory() {
+        // Create a slice with an unchecked and a checked SliceAction.
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice s = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .addRow(new ListBuilder.RowBuilder()
+                        .setTitle("Header"))
+                .addRow(new ListBuilder.RowBuilder()
+                        .setTitle("Unchecked")
+                        .setSubtitle("Unchecked Subtitle")
+                        .setTitleItem(
+                                SliceAction.createToggle(getIntent("Check"), "checkbox", false)))
+                .addRow(new ListBuilder.RowBuilder()
+                        .setTitle("Checked")
+                        .setSubtitle("Checked Subtitle")
+                        .setTitleItem(
+                                SliceAction.createToggle(getIntent("Uncheck"), "checkbox", true)))
+                .build();
+
+        // Use an alternative style for checked items.
+        mSliceView.setRowStyleFactory(sliceItem -> {
+            androidx.slice.core.SliceAction action = SliceMetadata.from(
+                    mContext, sliceItem.getSlice()).getPrimaryAction();
+            if (action != null && action.isToggle() && action.isChecked()) {
+                return R.style.CheckedSliceRowStyle;
+            }
+            // Use the default style otherwise.
+            return 0;
+        });
+
+        mSliceView.setSlice(s);
+
+        // Lay out the SliceView to initialize the row views.
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mSliceView.measure(View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.UNSPECIFIED));
+                mSliceView.layout(0, 0, 500, 1000);
+            }
+        });
+
+        // Expected colors for checked items.
+        int checkedTitleColor = mContext.getResources().getColor(
+                R.color.checkedItemTitleColor, mContext.getTheme());
+        int checkedSubtitleColor = mContext.getResources().getColor(
+                R.color.checkedItemSubtitleColor, mContext.getTheme());
+
+        // Expected colors for unchecked items (the default theme colors).
+        int themeTitleColor = getThemeColor(android.R.attr.textColorPrimary);
+        int themeSubtitleColor = getThemeColor(android.R.attr.textColorSecondary);
+
+        RecyclerView recyclerView = (RecyclerView) find(mSliceView, RecyclerView.class);
+        assertNotNull(recyclerView);
+
+        // The checked item has the checked row style.
+        TextView checkedTitleView = recyclerView.findViewHolderForAdapterPosition(2)
+                .itemView.findViewById(android.R.id.title);
+        assertEquals("Checked", checkedTitleView.getText());
+        assertEquals(checkedTitleColor, checkedTitleView.getCurrentTextColor());
+
+        TextView checkedSubtitleView = recyclerView.findViewHolderForAdapterPosition(2)
+                .itemView.findViewById(android.R.id.summary);
+        assertEquals("Checked Subtitle", checkedSubtitleView.getText());
+        assertEquals(checkedSubtitleColor, checkedSubtitleView.getCurrentTextColor());
+
+        // The unchecked item has the default style.
+        TextView uncheckedTitleView = recyclerView.findViewHolderForAdapterPosition(1)
+                .itemView.findViewById(android.R.id.title);
+        assertEquals("Unchecked", uncheckedTitleView.getText());
+        assertEquals(themeTitleColor, uncheckedTitleView.getCurrentTextColor());
+
+        TextView uncheckedSubtitleView = recyclerView.findViewHolderForAdapterPosition(1)
+                .itemView.findViewById(android.R.id.summary);
+        assertEquals("Unchecked Subtitle", uncheckedSubtitleView.getText());
+        assertEquals(themeSubtitleColor, uncheckedSubtitleView.getCurrentTextColor());
+    }
+
+    private int getThemeColor(int colorRes) {
+        TypedValue typedValue = new TypedValue();
+        mContext.getTheme().resolveAttribute(colorRes, typedValue, true);
+        TypedArray arr = mContext.obtainStyledAttributes(typedValue.data, new int[]{
+                colorRes});
+        int themeColor = arr.getColor(0, -1);
+        assertNotSame(-1, themeColor);
+        return themeColor;
     }
 
     private View find(View v, Class<?> desiredClass) {

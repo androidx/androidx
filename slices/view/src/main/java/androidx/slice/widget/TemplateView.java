@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -167,18 +168,13 @@ public class TemplateView extends SliceChildView implements
     }
 
     @Override
-    public void setStyle(SliceStyle style) {
-        super.setStyle(style);
+    public void setStyle(SliceStyle style, @NonNull RowStyle rowStyle) {
+        super.setStyle(style, rowStyle);
         mAdapter.setStyle(style);
-        applyRowStyle();
+        applyRowStyle(rowStyle);
     }
 
-    private void applyRowStyle() {
-        if (mSliceStyle == null || mSliceStyle.getRowStyle() == null) {
-            return;
-        }
-
-        final RowStyle rowStyle = mSliceStyle.getRowStyle();
+    private void applyRowStyle(RowStyle rowStyle) {
         if (rowStyle.getDisableRecyclerViewItemAnimator()) {
             mRecyclerView.setItemAnimator(null);
         }

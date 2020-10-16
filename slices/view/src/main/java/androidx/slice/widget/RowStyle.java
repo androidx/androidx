@@ -19,8 +19,11 @@ package androidx.slice.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleableRes;
 import androidx.slice.view.R;
 
 /**
@@ -32,72 +35,93 @@ import androidx.slice.view.R;
 public class RowStyle {
     public static final int UNBOUNDED = -1;
 
-    private int mTitleItemStartPadding;
-    private int mTitleItemEndPadding;
-    private int mContentStartPadding;
-    private int mContentEndPadding;
-    private int mTitleStartPadding;
-    private int mTitleEndPadding;
-    private int mSubContentStartPadding;
-    private int mSubContentEndPadding;
-    private int mEndItemStartPadding;
-    private int mEndItemEndPadding;
-    private int mBottomDividerStartPadding;
-    private int mBottomDividerEndPadding;
-    private int mActionDividerHeight;
-    private int mSeekBarInlineWidth;
-    private int mProgressBarInlineWidth;
-    private int mProgressBarStartPadding;
-    private int mProgressBarEndPadding;
-    private int mIconSize;
-    private boolean mDisableRecyclerViewItemAnimator;
+    private final SliceStyle mSliceStyle;
+
+    private int mTitleItemStartPadding = UNBOUNDED;
+    private int mTitleItemEndPadding = UNBOUNDED;
+    private int mContentStartPadding = UNBOUNDED;
+    private int mContentEndPadding = UNBOUNDED;
+    private int mTitleStartPadding = UNBOUNDED;
+    private int mTitleEndPadding = UNBOUNDED;
+    private int mSubContentStartPadding = UNBOUNDED;
+    private int mSubContentEndPadding = UNBOUNDED;
+    private int mEndItemStartPadding = UNBOUNDED;
+    private int mEndItemEndPadding = UNBOUNDED;
+    private int mBottomDividerStartPadding = UNBOUNDED;
+    private int mBottomDividerEndPadding = UNBOUNDED;
+    private int mActionDividerHeight = UNBOUNDED;
+    private int mSeekBarInlineWidth = UNBOUNDED;
+    private int mProgressBarInlineWidth = UNBOUNDED;
+    private int mProgressBarStartPadding = UNBOUNDED;
+    private int mProgressBarEndPadding = UNBOUNDED;
+    private int mIconSize = UNBOUNDED;
+    private boolean mDisableRecyclerViewItemAnimator = false;
     private int mImageSize;
 
-    public RowStyle(Context context, int resId) {
+    // The following values override the ones in SliceStyle.
+    @Nullable private Integer mTintColor;
+    @Nullable private Integer mTitleColor;
+    @Nullable private Integer mSubtitleColor;
+
+    /** Initializes with default values. */
+    public RowStyle(@NonNull Context context, @NonNull SliceStyle sliceStyle) {
+        mSliceStyle = sliceStyle;
+        mImageSize = context.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_small_image_size);
+    }
+
+    public RowStyle(Context context, int resId, @NonNull SliceStyle sliceStyle) {
+        mSliceStyle = sliceStyle;
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
         try {
             mTitleItemStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleItemStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_titleItemStartPadding, mTitleItemStartPadding);
             mTitleItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleItemEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_titleItemEndPadding, mTitleItemEndPadding);
             mContentStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_contentStartPadding, mContentStartPadding);
             mContentEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_contentEndPadding, mContentEndPadding);
             mTitleStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_titleStartPadding, mTitleStartPadding);
             mTitleEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_titleEndPadding, mTitleEndPadding);
             mSubContentStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_subContentStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_subContentStartPadding, mSubContentStartPadding);
             mSubContentEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_subContentEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_subContentEndPadding, mSubContentEndPadding);
             mEndItemStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_endItemStartPadding, mEndItemStartPadding);
             mEndItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_endItemEndPadding, mEndItemEndPadding);
             mBottomDividerStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_bottomDividerStartPadding, mBottomDividerStartPadding);
             mBottomDividerEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_bottomDividerEndPadding, mBottomDividerEndPadding);
             mActionDividerHeight = (int) a.getDimension(
-                    R.styleable.RowStyle_actionDividerHeight, UNBOUNDED);
+                    R.styleable.RowStyle_actionDividerHeight, mActionDividerHeight);
             mSeekBarInlineWidth = (int) a.getDimension(
-                    R.styleable.RowStyle_seekBarInlineWidth, UNBOUNDED);
+                    R.styleable.RowStyle_seekBarInlineWidth, mSeekBarInlineWidth);
             mProgressBarInlineWidth = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarInlineWidth, UNBOUNDED);
+                    R.styleable.RowStyle_progressBarInlineWidth, mProgressBarInlineWidth);
             mProgressBarStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarStartPadding, UNBOUNDED);
+                    R.styleable.RowStyle_progressBarStartPadding, mProgressBarStartPadding);
             mProgressBarEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarEndPadding, UNBOUNDED);
+                    R.styleable.RowStyle_progressBarEndPadding, mProgressBarEndPadding);
             mIconSize = (int) a.getDimension(
-                    R.styleable.RowStyle_iconSize, UNBOUNDED);
+                    R.styleable.RowStyle_iconSize, mIconSize);
             mDisableRecyclerViewItemAnimator = a.getBoolean(
-                    R.styleable.RowStyle_disableRecyclerViewItemAnimator, false);
+                    R.styleable.RowStyle_disableRecyclerViewItemAnimator,
+                    mDisableRecyclerViewItemAnimator);
             mImageSize = (int) a.getDimension(
                     R.styleable.RowStyle_imageSize,
                     context.getResources().getDimensionPixelSize(
                         R.dimen.abc_slice_small_image_size));
+
+            // These override the corresponding styles from SliceView.
+            mTintColor = getOptionalColor(a, R.styleable.RowStyle_tintColor);
+            mTitleColor = getOptionalColor(a, R.styleable.RowStyle_titleColor);
+            mSubtitleColor = getOptionalColor(a, R.styleable.RowStyle_subtitleColor);
         } finally {
             a.recycle();
         }
@@ -182,4 +206,22 @@ public class RowStyle {
     public int getImageSize() {
         return mImageSize;
     }
+
+    public int getTintColor() {
+        return mTintColor != null ? mTintColor : mSliceStyle.getTintColor();
+    }
+
+    public int getTitleColor() {
+        return mTitleColor != null ? mTitleColor : mSliceStyle.getTitleColor();
+    }
+
+    public int getSubtitleColor() {
+        return mSubtitleColor != null ? mSubtitleColor : mSliceStyle.getSubtitleColor();
+    }
+
+    @Nullable
+    private static Integer getOptionalColor(TypedArray a, @StyleableRes int colorRes) {
+        return a.hasValue(colorRes) ? a.getColor(colorRes, 0) : null;
+    }
+
 }

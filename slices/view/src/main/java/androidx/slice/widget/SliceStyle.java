@@ -25,10 +25,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
@@ -80,7 +83,11 @@ public class SliceStyle {
     private final boolean mExpandToAvailableHeight;
     private final boolean mHideHeaderRow;
 
-    private RowStyle mRowStyle;
+    private final int mDefaultRowStyleRes;
+    private final SparseArray<RowStyle> mResourceToRowStyle = new SparseArray<>();
+    private RowStyleFactory mRowStyleFactory;
+
+    private final Context mContext;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -114,10 +121,7 @@ public class SliceStyle {
             mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
             mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridBottomPadding, 0);
 
-            int rowStyleRes = a.getResourceId(R.styleable.SliceView_rowStyle, 0);
-            if (rowStyleRes != 0) {
-                mRowStyle = new RowStyle(context, rowStyleRes);
-            }
+            mDefaultRowStyleRes = a.getResourceId(R.styleable.SliceView_rowStyle, 0);
 
             int defaultRowMinHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_min_height);
@@ -149,6 +153,8 @@ public class SliceStyle {
                     R.styleable.SliceView_expandToAvailableHeight, false);
 
             mHideHeaderRow = a.getBoolean(R.styleable.SliceView_hideHeaderRow, false);
+
+            mContext = context;
         } finally {
             a.recycle();
         }
@@ -248,8 +254,38 @@ public class SliceStyle {
         return mGridBottomPadding;
     }
 
-    public RowStyle getRowStyle() {
-        return mRowStyle;
+    /**
+     * Returns the {@link RowStyle} to use for the given {@link SliceItem}.
+     */
+    @NonNull
+    public RowStyle getRowStyle(@Nullable SliceItem sliceItem) {
+        int rowStyleRes = mDefaultRowStyleRes;
+
+        if (sliceItem != null && mRowStyleFactory != null) {
+            int maybeStyleRes = mRowStyleFactory.getRowStyleRes(sliceItem);
+            if (maybeStyleRes != 0) {
+                rowStyleRes = maybeStyleRes;
+            }
+        }
+
+        if (rowStyleRes == 0) {
+            // Return default values.
+            return new RowStyle(mContext, this);
+        }
+
+        RowStyle rowStyle = mResourceToRowStyle.get(rowStyleRes);
+        if (rowStyle == null) {
+            rowStyle = new RowStyle(mContext, rowStyleRes, this);
+            mResourceToRowStyle.put(rowStyleRes, rowStyle);
+        }
+        return rowStyle;
+    }
+
+    /**
+     * Sets the {@link RowStyleFactory} which allows multiple children to have different styles.
+     */
+    public void setRowStyleFactory(@Nullable RowStyleFactory rowStyleFactory) {
+        mRowStyleFactory = rowStyleFactory;
     }
 
     public int getRowRangeHeight() {
@@ -466,4 +502,5 @@ public class SliceStyle {
         return getHideHeaderRow() && rowItems.size() > 1 && rowItems.get(0) instanceof RowContent
                 && ((RowContent) rowItems.get(0)).getIsHeader();
     }
+
 }
