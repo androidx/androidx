@@ -291,10 +291,22 @@ public int supportsFormat\(Format format\) \{
 [0-9]+ warnings
 # > Task :appsearch:appsearch-local-storage:externalNativeBuildRelease
 ninja: .*
+\[[0-9]+/[0-9]+\] Re\-running CMake\.\.\.
 Build icing_.*
 \[[0-9]+/[0-9]+\] Building CXX object .*
 \[[0-9]+/[0-9]+\] Linking CXX static library .*
 \[[0-9]+/[0-9]+\] Linking CXX shared library .*
+\-\- Build files have been written to: \$SUPPORT/appsearch/local\-storage/\.cxx/cmake/.*
+\-\- Using prebuilt protoc at: \$CHECKOUT/external/icing/\.\./\.\./prebuilts/protobuf/linux\-x[0-9]+_[0-9]+/protoc
+\-\-
+\-\- [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+\-\- ICU_CC_SOURCES=.*
+\-\- ICU_CC_SHIM_SOURCES=.*
+\-\- Icing_PROTO_FILES=.*
+\-\- Icing_PROTO_SOURCES=.*
+\-\- Icing_CC_SOURCES=.*
+\-\- Configuring done
+\-\- Generating done
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc:[0-9]+:
 \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'StartObject' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
 virtual JsonObjectWriter\* StartObject\(StringPiece name\);
