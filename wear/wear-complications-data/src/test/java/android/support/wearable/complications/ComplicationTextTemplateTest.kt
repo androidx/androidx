@@ -20,17 +20,15 @@ import android.content.Context
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.GregorianCalendar
 import java.util.concurrent.TimeUnit
 
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationTextTemplateTest {
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
 
@@ -267,7 +265,6 @@ public class ComplicationTextTemplateTest {
             .isEqualTo(60000060000L)
     }
 
-    @DoNotInstrument
     private companion object {
         private const val TEST_TEXT1 = "Hello"
         private const val TEST_TEXT2 = "darkness"

@@ -18,17 +18,14 @@ package android.support.wearable.complications
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.internal.DoNotInstrument
 import java.util.concurrent.TimeUnit
 
-@Suppress("UNCHECKED_CAST")
-@RunWith(RobolectricTestRunner::class)
-@DoNotInstrument
+@RunWith(SharedRobolectricTestRunner::class)
 public class TimeDifferenceTextTest {
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
 
