@@ -608,6 +608,13 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * Sets the {@link RowStyleFactory} which allows multiple children to have different styles.
+     */
+    public void setRowStyleFactory(@Nullable RowStyleFactory rowStyleFactory) {
+        mSliceStyle.setRowStyleFactory(rowStyleFactory);
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -749,7 +756,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
 
     private void applyConfigurations() {
         mCurrentView.setSliceActionListener(mSliceObserver);
-        mCurrentView.setStyle(mSliceStyle);
+        mCurrentView.setStyle(mSliceStyle, mSliceStyle.getRowStyle(/* sliceItem= */ null));
         mCurrentView.setTint(getTintColor());
 
         if (mListContent != null && mListContent.getLayoutDir() != -1) {
