@@ -68,7 +68,7 @@ shift
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
   if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
     if $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2; then
-      echo No unrecognized messages found in build log >&2
+      echo No unrecognized messages found in build log
     else
       echo >&2
       echo "Build log validation, enabled by the argument $validateArgument, failed" >&2
