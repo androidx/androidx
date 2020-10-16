@@ -36,6 +36,11 @@ import kotlin.jvm.Throws
 internal object PreferencesSerializer : Serializer<Preferences> {
     val fileExtension = "preferences_pb"
 
+    override val defaultValue: Preferences
+        get() {
+            return emptyPreferences()
+        }
+
     @Throws(IOException::class, CorruptionException::class)
     override fun readFrom(input: InputStream): Preferences {
         val preferencesProto = PreferencesMapCompat.readFrom(input)

@@ -30,12 +30,24 @@ import java.io.OutputStream
 public interface Serializer<T> {
 
     /**
-     * Unmarshal object from stream. This must be able to handle an empty input stream - which is
-     * passed in as a default value.
+     * Value to return if there is no data on disk.
+     */
+    public val defaultValue: T
+
+    /**
+     * Unmarshal object from stream.
+     *
+     * @param input the InputStream with the data to deserialize
      */
     public fun readFrom(input: InputStream): T
 
-    /** Marshal object to a stream. */
+    /**
+     *  Marshal object to a stream. writeTo should not close [output], doing so will result in an
+     *  exception.
+     *
+     *  @param t the data to write to output
+     *  @output the OutputStream to serialize data to
+     */
     public fun writeTo(t: T, output: OutputStream)
 }
 

@@ -57,19 +57,19 @@ class SingleProcessDataStoreTest {
     val tempFolder = TemporaryFolder()
 
     private lateinit var store: DataStore<Byte>
-    private lateinit var serializer: TestingSerializer
+    private lateinit var testingSerializer: TestingSerializer
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
 
     @Before
     fun setUp() {
-        serializer = TestingSerializer()
+        testingSerializer = TestingSerializer()
         testFile = tempFolder.newFile()
         dataStoreScope = TestCoroutineScope(TestCoroutineDispatcher() + Job())
         store =
             SingleProcessDataStore<Byte>(
                 { testFile },
-                serializer,
+                testingSerializer,
                 scope = dataStoreScope
             )
     }
@@ -169,7 +169,7 @@ class SingleProcessDataStoreTest {
     @Test
     fun testReadAfterTransientBadWrite() = runBlockingTest {
         store.updateData { 1 }
-        serializer.failingWrite = true
+        testingSerializer.failingWrite = true
 
         assertThrows<IOException> { store.updateData { 2 } }
 
@@ -222,7 +222,7 @@ class SingleProcessDataStoreTest {
 
         val newStore = SingleProcessDataStore(
             fileProducer,
-            serializer = serializer,
+            serializer = testingSerializer,
             scope = dataStoreScope,
             initTasksList = listOf()
         )
@@ -255,11 +255,11 @@ class SingleProcessDataStoreTest {
 
     @Test
     fun testWriteAfterTransientBadRead() = runBlockingTest {
-        serializer.failingRead = true
+        testingSerializer.failingRead = true
 
         assertThrows<IOException> { store.data.first() }
 
-        serializer.failingRead = false
+        testingSerializer.failingRead = false
 
         store.updateData { 1 }
         assertThat(store.data.first()).isEqualTo(1)
@@ -267,7 +267,7 @@ class SingleProcessDataStoreTest {
 
     @Test
     fun testWriteWithBadReadFails() = runBlockingTest {
-        serializer.failingRead = true
+        testingSerializer.failingRead = true
 
         assertThrows<IOException> { store.updateData { 1 } }
     }
@@ -306,10 +306,10 @@ class SingleProcessDataStoreTest {
     fun testInitTaskFailsFirstTimeDueToReadFail() = runBlockingTest {
         store = newDataStore(initTasksList = listOf { api -> api.updateData { 1 } })
 
-        serializer.failingRead = true
+        testingSerializer.failingRead = true
         assertThrows<IOException> { store.updateData { 2 } }
 
-        serializer.failingRead = false
+        testingSerializer.failingRead = false
         store.updateData { it.inc().inc() }
 
         assertThat(store.data.first()).isEqualTo(3)
@@ -447,10 +447,10 @@ class SingleProcessDataStoreTest {
 
         val store = newDataStore(initTasksList = listOf(initializer))
 
-        serializer.failingWrite = true
+        testingSerializer.failingWrite = true
         assertThrows<IOException> { store.data.first() }
 
-        serializer.failingWrite = false
+        testingSerializer.failingWrite = false
         assertThat(store.data.first()).isEqualTo(123)
     }
 
@@ -583,7 +583,7 @@ class SingleProcessDataStoreTest {
         store.updateData { 1 } // Pre-seed the data so the file exists.
 
         val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
-        serializer.failingRead = true
+        testingSerializer.failingRead = true
         store = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
         assertThrows<IOException> { store.updateData { 2 } }
@@ -597,7 +597,7 @@ class SingleProcessDataStoreTest {
         store.updateData { 1 } // Pre-seed the data so the file exists.
 
         val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
-        serializer.failReadWithCorruptionException = true
+        testingSerializer.failReadWithCorruptionException = true
         store = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
         assertThrows<IOException> { store.data.first() }.hasMessageThat().contains(
@@ -612,7 +612,7 @@ class SingleProcessDataStoreTest {
         store.updateData { 1 } // Pre-seed the data so the file exists.
 
         val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
-        serializer.failReadWithCorruptionException = true
+        testingSerializer.failReadWithCorruptionException = true
         store = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
         assertThrows<IOException> { store.updateData { 1 } }.hasMessageThat().contains(
@@ -627,7 +627,7 @@ class SingleProcessDataStoreTest {
         store.updateData { 1 } // Pre-seed the data so the file exists.
 
         val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler(replaceWith = 10)
-        serializer.failReadWithCorruptionException = true
+        testingSerializer.failReadWithCorruptionException = true
         store = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
         assertThat(store.data.first()).isEqualTo(10)
@@ -651,10 +651,44 @@ class SingleProcessDataStoreTest {
         }
     }
 
+    @Test
+    fun testDefaultValueUsedWhenNoDataOnDisk() = runBlockingTest {
+        val dataStore = DataStoreFactory.create(
+            produceFile = { testFile },
+            scope = dataStoreScope,
+            serializer = TestingSerializer(defaultValue = 99)
+        )
+
+        assertThat(testFile.delete()).isTrue()
+
+        assertThat(dataStore.data.first()).isEqualTo(99)
+    }
+
+    @Test
+    fun testCantCloseWhenWritingToSerializer() = runBlockingTest {
+        val delegate = TestingSerializer()
+        val serializer = object : Serializer<Byte> by delegate {
+            override fun writeTo(t: Byte, output: OutputStream) {
+                delegate.writeTo(t, output)
+                output.close() // This should throw IllegalStateException
+            }
+        }
+
+        val dataStore = newDataStore(serializer = serializer)
+
+        // Shouldn't throw:
+        dataStore.data.first()
+
+        assertThrows<IllegalStateException> { dataStore.updateData { it.inc() } }
+    }
+
     // Mutable wrapper around a byte
     data class ByteWrapper(var byte: Byte) {
-        internal class ByteWrapperSerializer : Serializer<ByteWrapper> {
-            val delegate = TestingSerializer()
+        internal class ByteWrapperSerializer() : Serializer<ByteWrapper> {
+            private val delegate = TestingSerializer()
+
+            override val defaultValue = ByteWrapper(delegate.defaultValue)
+
             override fun readFrom(input: InputStream): ByteWrapper {
                 return ByteWrapper(delegate.readFrom(input))
             }
@@ -685,6 +719,7 @@ class SingleProcessDataStoreTest {
 
     private fun newDataStore(
         file: File = testFile,
+        serializer: Serializer<Byte> = testingSerializer,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()

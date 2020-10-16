@@ -37,12 +37,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReference
 
@@ -252,9 +252,7 @@ internal class SingleProcessDataStore<T>(
             if (file.exists()) {
                 throw ex
             }
-            ByteArrayInputStream(byteArrayOf()).use {
-                return serializer.readFrom(it)
-            }
+            return serializer.defaultValue
         }
     }
 
@@ -295,11 +293,12 @@ internal class SingleProcessDataStore<T>(
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
         try {
             FileOutputStream(scratchFile).use { stream ->
-                serializer.writeTo(newData, stream)
+                serializer.writeTo(newData, UncloseableOutputStream(stream))
                 stream.fd.sync()
                 // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
                 //  result in reverting to a previous state.
             }
+
             if (!scratchFile.renameTo(file)) {
                 throw IOException("$scratchFile could not be renamed to $file")
             }
@@ -319,6 +318,31 @@ internal class SingleProcessDataStore<T>(
             if (!it.isDirectory) {
                 throw IOException("Unable to create parent directories of $this")
             }
+        }
+    }
+
+    // Wrapper on FileOutputStream to prevent users from closing it in their serializer.
+    private class UncloseableOutputStream(internal val fileOutputStream: FileOutputStream) :
+        OutputStream() {
+
+        override fun write(b: Int) {
+            fileOutputStream.write(b)
+        }
+
+        override fun write(b: ByteArray) {
+            fileOutputStream.write(b)
+        }
+
+        override fun write(bytes: ByteArray, off: Int, len: Int) {
+            fileOutputStream.write(bytes, off, len)
+        }
+
+        override fun close() {
+            throw IllegalStateException("Do not close the OutputStream provided by DataStore")
+        }
+
+        override fun flush() {
+            fileOutputStream.flush()
         }
     }
 

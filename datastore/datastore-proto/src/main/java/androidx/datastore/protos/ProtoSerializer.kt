@@ -27,7 +27,7 @@ import java.io.OutputStream
 /** Serializer for using DataStore with protos. */
 internal class ProtoSerializer<T : MessageLite>(
     /** The default proto of this type, obtained via {@code T.getDefaultInstance()} */
-    private val defaultValue: T,
+    override val defaultValue: T,
     /**
      *  Set the extensionRegistryLite to use when deserializing T. If no extension registry is
      *  necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
