@@ -16,10 +16,12 @@
 
 package androidx.ui.test
 
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.InputSessionToken
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextInputService
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.input.TextInputService
  * accept input from the IME. Here we grab that callback so we can fetch it commands the same
  * way IME would do.
  */
+@OptIn(ExperimentalTextApi::class)
 internal class TextInputServiceForTests(
     platformTextInputService: PlatformTextInputService
 ) : TextInputService(platformTextInputService) {
@@ -42,6 +45,7 @@ internal class TextInputServiceForTests(
         value: TextFieldValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
+        keyboardOptions: KeyboardOptions,
         onEditCommand: (List<EditOperation>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
     ): InputSessionToken {
@@ -51,6 +55,7 @@ internal class TextInputServiceForTests(
             value,
             keyboardType,
             imeAction,
+            keyboardOptions,
             onEditCommand,
             onImeActionPerformed
         )
