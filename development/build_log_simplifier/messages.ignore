@@ -63,7 +63,7 @@ More than one file was found with OS independent path 'META\-INF/tracing\-ktx_de
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml Warning:
 Package name 'androidx\.ui\.tooling\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-\$OUT_DIR/ui/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :generateSdkApi
 javadoc: warning \- The old Doclet and Taglet APIs in the packages
@@ -72,7 +72,7 @@ are planned to be removed in a future JDK release\. These
 components have been superseded by the new APIs in jdk\.javadoc\.doclet\.
 Users are strongly recommended to migrate to the new APIs\.
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
-\$OUT_DIR/ui/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :benchmark:benchmark-junit4:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/benchmark\-junit[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource
@@ -80,14 +80,14 @@ More than one file was found with OS independent path 'META\-INF/benchmark\-comm
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
 \$SUPPORT/compose/integration\-tests/benchmark/src/androidTest/AndroidManifest\.xml Warning:
 Package name 'androidx\.ui\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-\$OUT_DIR/ui/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-geometry:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-geometry/src/commonMain/kotlin/androidx/compose/ui/geometry/Radius\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
 \$SUPPORT/compose/navigation/navigation/src/androidTest/AndroidManifest\.xml Warning:
 Package name 'androidx\.compose\.navigation\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
-\$OUT_DIR/ui/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-dispatch:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/runtime\-dispatch_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
@@ -96,9 +96,9 @@ w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/g
 # > Task :distpublicDocs
 'Wrote API reference to \$DIST_DIR/androidx\-public\-docs\-[0-9]+\.zip
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/ui/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
-\[:compose:material:material\-icons\-extended\] \$OUT_DIR/ui/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
+\[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
 # > Task :compose:ui:ui-text-android:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/ui\-text\-android_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
@@ -1225,3 +1225,5 @@ kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/benchmark-perfetto_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :docs-runner:dokkaJavaTipOfTreeDocs
+\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)

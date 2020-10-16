@@ -79,10 +79,12 @@ To open the project with the specific version of Android Studio recommended for 
 
 ```bash
 cd path/to/checkout/frameworks/support/
-./studiow
+ANDROIDX_PROJECTS=MAIN ./gradlew studio
 ```
 
 and accept the license agreement when prompted. Now you're ready to edit, run, and test!
+
+You can also the following sets of projects: `ALL`, `MAIN`, `COMPOSE`, or `FLAN`
 
 If you get “Unregistered VCS root detected” click “Add root” to enable git integration for Android Studio.
 
