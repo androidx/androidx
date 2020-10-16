@@ -11,6 +11,7 @@ impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
+    -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.allWarningsAsErrors --profile "$@"
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
