@@ -44,10 +44,10 @@ dependencies {
 }
 
 androidx {
-    name = "Compose Paging"
+    name = "Android Paging-Compose"
     publish = Publish.SNAPSHOT_ONLY
-    mavenVersion = LibraryVersions.COMPOSE
-    mavenGroup = LibraryGroups.Compose.PAGING
+    mavenVersion = LibraryVersions.PAGING_COMPOSE
+    mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2020"
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()

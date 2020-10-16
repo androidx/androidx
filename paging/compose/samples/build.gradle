@@ -31,8 +31,8 @@ dependencies {
 
     implementation project(":annotation:annotation-sampled")
     implementation project(":compose:foundation:foundation")
-    implementation project(":compose:paging:paging")
     implementation project(":compose:material:material")
+    implementation project(":paging:paging-compose")
 }
 
 android {
