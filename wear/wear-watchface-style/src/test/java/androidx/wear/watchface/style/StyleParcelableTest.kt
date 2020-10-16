@@ -219,9 +219,9 @@ class StyleParcelableTest {
 
         val unparcelled =
             UserStyle(ParcelUtils.fromParcelable(parceled) as UserStyleWireFormat, schema)
-        assertThat(unparcelled.options.size).isEqualTo(2)
-        assertThat(unparcelled.options[styleCategory1]!!.id).isEqualTo(option2.id)
-        assertThat(unparcelled.options[styleCategory2]!!.id).isEqualTo(option3.id)
+        assertThat(unparcelled.selectedOptions.size).isEqualTo(2)
+        assertThat(unparcelled.selectedOptions[styleCategory1]!!.id).isEqualTo(option2.id)
+        assertThat(unparcelled.selectedOptions[styleCategory2]!!.id).isEqualTo(option3.id)
     }
 
     @Test

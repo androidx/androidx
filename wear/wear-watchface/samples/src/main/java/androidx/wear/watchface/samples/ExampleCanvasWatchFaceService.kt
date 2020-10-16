@@ -291,7 +291,7 @@ class ExampleCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle.options[colorStyleCategory]!!.id
+                            userStyle.selectedOptions[colorStyleCategory]!!.id
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
@@ -303,10 +303,11 @@ class ExampleCanvasRenderer(
                     }
 
                     val drawPipsOption =
-                        userStyle.options[drawPipsStyleCategory]!! as BooleanUserStyleCategory
-                        .BooleanOption
+                        userStyle.selectedOptions[drawPipsStyleCategory]!! as
+                            BooleanUserStyleCategory
+                            .BooleanOption
                     val watchHandLengthOption =
-                        userStyle.options[watchHandLengthStyleCategoryDouble]!! as
+                        userStyle.selectedOptions[watchHandLengthStyleCategoryDouble]!! as
                             DoubleRangeUserStyleCategory.DoubleRangeOption
 
                     drawHourPips = drawPipsOption.value

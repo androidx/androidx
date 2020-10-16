@@ -129,16 +129,16 @@ class UserStyleRepositoryTest {
 
         userStyleRepository.userStyle = newStyle
 
-        assertThat(userStyleRepository.userStyle.options[colorStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory])
             .isEqualTo(greenStyleOption)
-        assertThat(userStyleRepository.userStyle.options[watchHandStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory])
             .isEqualTo(gothicStyleOption)
     }
 
     @Test
     fun defaultValues() {
         val watchHandLengthOption =
-            userStyleRepository.userStyle.options[watchHandLengthStyleCategory]!! as
+            userStyleRepository.userStyle.selectedOptions[watchHandLengthStyleCategory]!! as
                 DoubleRangeUserStyleCategory.DoubleRangeOption
         assertThat(watchHandLengthOption.value).isEqualTo(0.75)
     }
