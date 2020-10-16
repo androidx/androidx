@@ -36,26 +36,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GlobalAppSearchManagerTest {
-    private AppSearchManager mDb1;
-    private AppSearchManager mDb2;
+public class GlobalSearchSessionTest {
+    private AppSearchSession mDb1;
+    private AppSearchSession mDb2;
 
-    private GlobalAppSearchManager mGlobalAppSearchManager;
+    private GlobalSearchSession mGlobalAppSearchManager;
 
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = LocalBackend.getInstance(context).get().getResultValue();
-        mDb1 = checkIsResultSuccess(new AppSearchManager.Builder()
-                .setDatabaseName("testDb1").setBackend(backend).build());
-        mDb2 = checkIsResultSuccess(new AppSearchManager.Builder()
-                .setDatabaseName("testDb2").setBackend(backend).build());
+        mDb1 = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context)
+                        .setDatabaseName("testDb1").build()));
+        mDb2 = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context)
+                        .setDatabaseName("testDb2").build()));
 
-        mGlobalAppSearchManager = checkIsResultSuccess(new GlobalAppSearchManager.Builder()
-                .setBackend(backend).build());
+        mGlobalAppSearchManager = checkIsResultSuccess(LocalBackend.createGlobalSearchSession(
+                new LocalBackend.GlobalSearchContext.Builder(context).build()));
 
         // Remove all documents from any instances that may have been created in the tests.
-        backend.resetAllDatabases().get().getResultValue();
+        checkIsResultSuccess(
+                mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        checkIsResultSuccess(
+                mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @Test
@@ -76,7 +80,7 @@ public class GlobalAppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -123,7 +127,7 @@ public class GlobalAppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query across all instances
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -154,7 +158,7 @@ public class GlobalAppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
@@ -221,7 +225,7 @@ public class GlobalAppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
 
         // Query for all documents across types
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -270,7 +274,7 @@ public class GlobalAppSearchManagerTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
 
         // Query for all namespaces
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());

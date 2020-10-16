@@ -18,6 +18,8 @@ package androidx.appsearch.localbackend;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Test;
@@ -30,5 +32,21 @@ public class LocalBackendTest {
         LocalBackend b2 = LocalBackend.getInstance(ApplicationProvider.getApplicationContext())
                 .get().getResultValue();
         assertThat(b1).isSameInstanceAs(b2);
+    }
+
+    @Test
+    public void testDatabaseName() throws Exception {
+        // Test special character can present in database name. When a special character is banned
+        // in database name, add checker in SearchContext.Builder and reflect it in java doc.
+        LocalBackend.SearchContext.Builder contextBuilder =
+                new LocalBackend.SearchContext.Builder(
+                        ApplicationProvider.getApplicationContext());
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> contextBuilder.setDatabaseName("testDatabaseNameEndWith/"));
+        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
+        e = assertThrows(IllegalArgumentException.class,
+                () -> contextBuilder.setDatabaseName("/testDatabaseNameStartWith"));
+        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
     }
 }

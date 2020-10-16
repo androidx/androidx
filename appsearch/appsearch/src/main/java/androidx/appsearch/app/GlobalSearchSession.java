@@ -18,10 +18,6 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.util.Preconditions;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * This class provides global access to the centralized AppSearch index maintained by the system.
@@ -30,46 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-// TODO(b/148046169): This class header needs a detailed example/tutorial.
-public class GlobalAppSearchManager {
-
-    private final AppSearchBackend mBackend;
-
-    /** Builder class for {@link GlobalAppSearchManager} objects. */
-    public static final class Builder {
-        private AppSearchBackend mBackend;
-        private boolean mBuilt = false;
-
-        /**
-         * Sets the backend where this {@link GlobalAppSearchManager} will retrieve data from.
-         */
-        @NonNull
-        public Builder setBackend(@NonNull AppSearchBackend backend) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(backend);
-            mBackend = backend;
-            return this;
-        }
-
-        /**
-         * Asynchronously connects to the AppSearch backend and returns the initialized instance.
-         */
-        @NonNull
-        public ListenableFuture<AppSearchResult<GlobalAppSearchManager>> build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkState(mBackend != null, "setBackend() has never been called");
-            mBuilt = true;
-            ResolvableFuture<AppSearchResult<GlobalAppSearchManager>> result =
-                    ResolvableFuture.create();
-            result.set(AppSearchResult.newSuccessfulResult(new GlobalAppSearchManager(mBackend)));
-            return result;
-        }
-    }
-
-    GlobalAppSearchManager(@NonNull AppSearchBackend backend) {
-        mBackend = backend;
-    }
-
+public interface GlobalSearchSession {
     /**
      * Searches across all documents in the backend based on a given query string.
      *
@@ -113,13 +70,5 @@ public class GlobalAppSearchManager {
      * @return The search result of performing this operation.
      */
     @NonNull
-    public SearchResults globalQuery(
-            @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec) {
-        Preconditions.checkNotNull(queryExpression);
-        Preconditions.checkNotNull(searchSpec);
-        AppSearchBackend.BackendSearchResults backendSearchResults =
-                mBackend.globalQuery(queryExpression, searchSpec);
-        return new SearchResults(backendSearchResults);
-    }
+    SearchResultsHack globalQuery(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 }

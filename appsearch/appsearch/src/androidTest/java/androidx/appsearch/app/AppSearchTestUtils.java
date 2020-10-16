@@ -34,10 +34,19 @@ public class AppSearchTestUtils {
         return result.getResultValue();
     }
 
+    public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
+            Future<AppSearchBatchResult<K, V>> future) throws Exception {
+        AppSearchBatchResult<K, V> result = future.get();
+        if (!result.isSuccess()) {
+            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
+        }
+        return result;
+    }
+
     public static List<GenericDocument> doGet(
-            AppSearchManager instance, String namespace, String... uris) throws Exception {
+            AppSearchSession session, String namespace, String... uris) throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                instance.getByUri(
+                session.getByUri(
                         new GetByUriRequest.Builder()
                                 .setNamespace(namespace).addUris(uris).build()));
         assertThat(result.getSuccesses()).hasSize(uris.length);
@@ -49,8 +58,8 @@ public class AppSearchTestUtils {
         return list;
     }
 
-    public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
-            throws Exception {
+    public static List<GenericDocument> convertSearchResultsToDocuments(
+            SearchResultsHack searchResults) throws Exception {
         List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
@@ -60,14 +69,5 @@ public class AppSearchTestUtils {
             results = checkIsResultSuccess(searchResults.getNextPage());
         }
         return documents;
-    }
-
-    public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
-            Future<AppSearchBatchResult<K, V>> future) throws Exception {
-        AppSearchBatchResult<K, V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
-        }
-        return result;
     }
 }

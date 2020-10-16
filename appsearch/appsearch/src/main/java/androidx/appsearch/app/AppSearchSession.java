@@ -17,84 +17,19 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.util.Preconditions;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * This class provides access to the centralized AppSearch index maintained by the system.
+ * Represents a connection to an AppSearch storage system where {@link GenericDocument}s can be
+ * placed and queried.
  *
- * <p>Apps can index structured text documents with AppSearch, which can then be retrieved through
- * the query API.
+ * All implementations of this interface must be thread safe.
+ * @hide
  */
-// TODO(b/148046169): This class header needs a detailed example/tutorial.
-// TODO(b/162450968): Remove this class from Jetpack. It is replaced by
-//  LocalBackend.createSearchSession.
-public class AppSearchManager {
-    /** The default empty database name.*/
-    public static final String DEFAULT_DATABASE_NAME = "";
-
-    private final AppSearchSession mSession;
-
-    /** Builder class for {@link AppSearchManager} objects. */
-    public static final class Builder {
-        private AppSearchSession mSession;
-        private boolean mBuilt = false;
-
-        /**
-         * Sets the name of the database to create or open.
-         *
-         * <p>Databases with different names are fully separate with distinct types, namespaces, and
-         * data.
-         *
-         * <p>Database name cannot contain {@code '/'}.
-         *
-         * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
-         * @param databaseName The name of the database.
-         * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
-         */
-        @NonNull
-        public Builder setDatabaseName(@NonNull String databaseName) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(databaseName);
-            if (databaseName.contains("/")) {
-                throw new IllegalArgumentException("Database name cannot contain '/'");
-            }
-            // TODO(b/162450968): The database name is ignored. This method and entire class must be
-            //   removed. The database is now part of creating the AppSearchSession.
-            return this;
-        }
-
-        /**
-         * Sets the backend where this {@link AppSearchManager} will store its data.
-         * @hide
-         */
-        @NonNull
-        public Builder setSession(@NonNull AppSearchSession session) {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkNotNull(session);
-            mSession = session;
-            return this;
-        }
-
-        /**
-         * Asynchronously connects to the AppSearch backend and returns the initialized instance.
-         */
-        @NonNull
-        public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
-            Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Preconditions.checkState(mSession != null, "setSession() has never been called");
-            mBuilt = true;
-            ResolvableFuture<AppSearchResult<AppSearchManager>> result = ResolvableFuture.create();
-            result.set(AppSearchResult.newSuccessfulResult(new AppSearchManager(mSession)));
-            return result;
-        }
-    }
-
-    AppSearchManager(@NonNull AppSearchSession session) {
-        mSession = session;
-    }
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface AppSearchSession {
 
     /**
      * Sets the schema being used by documents provided to the {@link #putDocuments} method.
@@ -145,10 +80,7 @@ public class AppSearchManager {
      * @return The pending result of performing this operation.
      */
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
-        Preconditions.checkNotNull(request);
-        return mSession.setSchema(request);
-    }
+    ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request);
 
     /**
      * Indexes documents into AppSearch.
@@ -163,11 +95,8 @@ public class AppSearchManager {
      * otherwise.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
-            @NonNull PutDocumentsRequest request) {
-        Preconditions.checkNotNull(request);
-        return mSession.putDocuments(request);
-    }
+    ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
+            @NonNull PutDocumentsRequest request);
 
     /**
      * Retrieves {@link GenericDocument}s by URI.
@@ -180,11 +109,8 @@ public class AppSearchManager {
      * of {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
-            @NonNull GetByUriRequest request) {
-        Preconditions.checkNotNull(request);
-        return mSession.getByUri(request);
-    }
+    ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByUri(
+            @NonNull GetByUriRequest request);
 
     /**
      * Searches a document based on a given query string.
@@ -222,22 +148,16 @@ public class AppSearchManager {
      * </ul>
      *
      * <p> This method is lightweight. The heavy work will be done in
-     *     {@link SearchResults#getNextPage()}.
+     * {@link SearchResults#getNextPage()}.
      *
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
      * @return The search result of performing this operation.
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public SearchResults query(
-            @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec) {
-        Preconditions.checkNotNull(queryExpression);
-        Preconditions.checkNotNull(searchSpec);
-        SearchResultsHack searchResultsHack = mSession.query(queryExpression, searchSpec);
-        return new SearchResults(searchResultsHack);
-    }
+    SearchResultsHack query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 
     /**
      * Removes {@link GenericDocument}s from the index by URI.
@@ -250,11 +170,8 @@ public class AppSearchManager {
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
      */
     @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
-            @NonNull RemoveByUriRequest request) {
-        Preconditions.checkNotNull(request);
-        return mSession.removeByUri(request);
-    }
+    ListenableFuture<AppSearchBatchResult<String, Void>> removeByUri(
+            @NonNull RemoveByUriRequest request);
 
     /**
      * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
@@ -270,12 +187,8 @@ public class AppSearchManager {
      *                   indicates how document will be removed. All specific about how to
      *                   scoring, ordering, snippeting and resulting will be ignored.
      * @return The pending result of performing this operation.
-     * @hide
      */
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> removeByQuery(
-            @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
-        Preconditions.checkNotNull(searchSpec);
-        return mSession.removeByQuery(queryExpression, searchSpec);
-    }
+    ListenableFuture<AppSearchResult<Void>> removeByQuery(
+            @NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 }
