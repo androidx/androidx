@@ -13,16 +13,16 @@ package androidx.navigation.compose {
   }
 
   @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class ComposeNavigator.Destination extends androidx.navigation.NavDestination {
-    ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, internal kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, internal kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
   public final class NavGraphBuilderKt {
-    method public static void composable(androidx.navigation.NavGraphBuilder, Object id, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void composable(androidx.navigation.NavGraphBuilder, Object id, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
   public final class NavHostControllerKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry> currentBackStackEntryAsState(androidx.navigation.NavController);
-    method public static void navigate(androidx.navigation.NavHostController, Object destinationId);
+    method public static void navigate(androidx.navigation.NavHostController, Object destinationId, optional android.os.Bundle? args);
     method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberNavController();
   }
 

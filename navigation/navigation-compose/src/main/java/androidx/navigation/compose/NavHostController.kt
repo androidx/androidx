@@ -91,9 +91,13 @@ private fun NavControllerSaver(
  * Navigate to a destination from the current navigation graph.
  *
  * @param destinationId a id to navigate to
+ * @param args arguments to pass to the destination
  */
-public fun NavHostController.navigate(destinationId: Any) {
-    navigate(generateId(destinationId))
+public fun NavHostController.navigate(
+    destinationId: Any,
+    args: Bundle? = null
+) {
+    navigate(generateId(destinationId), args)
 }
 
 /**

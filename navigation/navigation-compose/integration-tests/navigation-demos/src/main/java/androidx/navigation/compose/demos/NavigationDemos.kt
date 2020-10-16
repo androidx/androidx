@@ -23,6 +23,7 @@ val NavigationDemos = DemoCategory(
     "Navigation",
     listOf(
         ComposableDemo("Basic Nav Demo") { BasicNavDemo() },
-        ComposableDemo("Bottom Bar Nav Demo") { BottomBarNavDemo() }
+        ComposableDemo("Bottom Bar Nav Demo") { BottomBarNavDemo() },
+        ComposableDemo("Navigation with Args") { NavWithArgsDemo() }
     )
 )
