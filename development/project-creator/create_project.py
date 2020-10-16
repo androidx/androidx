@@ -195,15 +195,23 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     the form:
     ./gradlew :foo:bar:bar-qux:<command>
 
+    We special case on compose that we can properly populate the build type
+    of either MAIN or COMPOSE.
+
     Args:
         group_id: group_id of the new library
         artifact_id: group_id of the new library
     """
 
+    build_type = "MAIN"
+    if group_id.contains("compose") or group_id.contains("androidx.ui"):
+        build_type = "COMPOSE"
+
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
     sub_filepath = group_id.replace("androidx.", "").replace(".", "/") + \
                    "/" + artifact_id
-    return "includeProject(\"" + gradle_cmd + "\", \"" + sub_filepath + "\")\n"
+    return "includeProject(\"" + gradle_cmd + \
+           "\", \"" + sub_filepath + "\", [BuildType." + build_type + "])\n"
 
 def update_settings_gradle(group_id, artifact_id):
     """Updates frameworks/support/settings.gradle with the new library.
