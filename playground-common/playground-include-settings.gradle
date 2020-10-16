@@ -79,7 +79,7 @@ def setupPlayground(settings, String relativePathToRoot) {
  *               If filter returns true, it will be included in the build.
  */
 def selectProjectsFromAndroidX(filter) {
-    def includeProjectPattern = ~/.*includeProject\("(?<name>.*)", "(?<path>.*)"\).*/
+    def includeProjectPattern = ~/.*includeProject\("(?<name>.*)", "(?<path>.*)"(.*)\).*/
     def supportSettingsFile = new File(ext.supportRootDir, "settings.gradle")
     supportSettingsFile.eachLine { line ->
         def matcher = (line =~ includeProjectPattern)
