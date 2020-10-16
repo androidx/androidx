@@ -16,8 +16,6 @@
 
 package androidx.camera.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -42,7 +40,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
@@ -770,11 +767,12 @@ public final class PreviewView extends FrameLayout {
      * cases so that the output from other use cases match what the end user sees in
      * {@link PreviewView}. It also enables features like tap-to-focus and pinch-to-zoom.
      *
-     * @hide
-     * @see LifecycleCameraController
+     * @throws IllegalArgumentException If the {@link CameraController}'s camera selector
+     *                                  is unable to resolve a camera to be used for the enabled
+     *                                  use cases.
+     * @see CameraController
      */
     @MainThread
-    @RestrictTo(LIBRARY_GROUP)
     public void setController(@Nullable CameraController cameraController) {
         Threads.checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
@@ -788,12 +786,9 @@ public final class PreviewView extends FrameLayout {
 
     /**
      * Get the {@link CameraController}.
-     *
-     * @hide
      */
     @Nullable
     @MainThread
-    @RestrictTo(LIBRARY_GROUP)
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;
