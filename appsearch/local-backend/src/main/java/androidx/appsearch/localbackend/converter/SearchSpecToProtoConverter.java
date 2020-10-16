@@ -45,7 +45,7 @@ public final class SearchSpecToProtoConverter {
         Bundle bundle = spec.getBundle();
         SearchSpecProto.Builder protoBuilder = SearchSpecProto.newBuilder();
 
-        @SearchSpec.TermMatchCode int termMatchCode =
+        @SearchSpec.TermMatch int termMatchCode =
                 bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD);
         TermMatchType.Code termMatchCodeProto = TermMatchType.Code.forNumber(termMatchCode);
         if (termMatchCodeProto == null || termMatchCodeProto.equals(TermMatchType.Code.UNKNOWN)) {
@@ -88,7 +88,7 @@ public final class SearchSpecToProtoConverter {
         Bundle bundle = spec.getBundle();
         ScoringSpecProto.Builder protoBuilder = ScoringSpecProto.newBuilder();
 
-        @SearchSpec.OrderCode int orderCode = bundle.getInt(SearchSpec.ORDER_FIELD);
+        @SearchSpec.Order int orderCode = bundle.getInt(SearchSpec.ORDER_FIELD);
         ScoringSpecProto.Order.Code orderCodeProto =
                 ScoringSpecProto.Order.Code.forNumber(orderCode);
         if (orderCodeProto == null) {
@@ -96,7 +96,7 @@ public final class SearchSpecToProtoConverter {
         }
         protoBuilder.setOrderBy(orderCodeProto);
 
-        @SearchSpec.RankingStrategyCode int rankingStrategyCode =
+        @SearchSpec.RankingStrategy int rankingStrategyCode =
                 bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD);
         ScoringSpecProto.RankingStrategy.Code rankingStrategyCodeProto =
                 ScoringSpecProto.RankingStrategy.Code.forNumber(rankingStrategyCode);
