@@ -859,12 +859,14 @@ class WatchFaceServiceTest {
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
-            blueStyleOption.id
-        )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
-            gothicStyleOption.id
-        )
+        assertThat(userStyleRepository2.userStyle.selectedOptions[colorStyleCategory]!!.id)
+            .isEqualTo(
+                blueStyleOption.id
+            )
+        assertThat(userStyleRepository2.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+            .isEqualTo(
+                gothicStyleOption.id
+            )
     }
 
     @Test
@@ -918,12 +920,14 @@ class WatchFaceServiceTest {
         sendBinder(engine2, apiVersion = 3)
         sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
-            blueStyleOption.id
-        )
-        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
-            gothicStyleOption.id
-        )
+        assertThat(userStyleRepository2.userStyle.selectedOptions[colorStyleCategory]!!.id)
+            .isEqualTo(
+                blueStyleOption.id
+            )
+        assertThat(userStyleRepository2.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+            .isEqualTo(
+                gothicStyleOption.id
+            )
     }
 
     @Test
@@ -939,7 +943,7 @@ class WatchFaceServiceTest {
             3
         )
 
-        assertThat(testWatchFaceService.lastUserStyle!!.options[watchHandStyleCategory])
+        assertThat(testWatchFaceService.lastUserStyle!!.selectedOptions[watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -1399,7 +1403,7 @@ class WatchFaceServiceTest {
         )
 
         // Select a new style which turns off both complications.
-        val newStyleA = HashMap(userStyleRepository.userStyle.options)
+        val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
         newStyleA[complicationsStyleCategory] = noComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleA)
 
@@ -1417,7 +1421,7 @@ class WatchFaceServiceTest {
         reset(iWatchFaceService)
 
         // Select a new style which turns on only the left complication.
-        val newStyleB = HashMap(userStyleRepository.userStyle.options)
+        val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
         newStyleB[complicationsStyleCategory] = leftComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleB)
 
@@ -1478,7 +1482,7 @@ class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select left complication only.
-        val newStyleA = HashMap(userStyleRepository.userStyle.options)
+        val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
         newStyleA[complicationsStyleCategory] = leftOnlyComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleA)
 
@@ -1488,7 +1492,7 @@ class WatchFaceServiceTest {
         assertFalse(rightComplication.enabled)
 
         // Select right complication only.
-        val newStyleB = HashMap(userStyleRepository.userStyle.options)
+        val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
         newStyleB[complicationsStyleCategory] = rightOnlyComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleB)
 
@@ -1498,7 +1502,7 @@ class WatchFaceServiceTest {
         assertTrue(rightComplication.enabled)
 
         // Select both complications.
-        val newStyleC = HashMap(userStyleRepository.userStyle.options)
+        val newStyleC = HashMap(userStyleRepository.userStyle.selectedOptions)
         newStyleC[complicationsStyleCategory] = bothComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleC)
 

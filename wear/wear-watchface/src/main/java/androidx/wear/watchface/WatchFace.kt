@@ -91,7 +91,7 @@ private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
 
 private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    for ((key, value) in style.options) {
+    for ((key, value) in style.selectedOptions) {
         writer.write(key.id)
         writer.newLine()
         writer.write(value.id)

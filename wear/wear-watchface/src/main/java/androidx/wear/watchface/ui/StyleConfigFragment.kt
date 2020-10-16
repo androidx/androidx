@@ -115,7 +115,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
 
         when {
             booleanUserStyleCategory.isNotEmpty() -> {
-                booleanStyle.isChecked = userStyle.options[styleCategory]!!.id.toBoolean()
+                booleanStyle.isChecked = userStyle.selectedOptions[styleCategory]!!.id.toBoolean()
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(styleCategory.getOptionForId(isChecked.toString()))
                 }
@@ -166,7 +166,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                             DoubleRangeUserStyleCategory.DoubleRangeOption
                         ).value
                 val delta = (maxValue - minValue) / 100.0f
-                val value = userStyle.options[styleCategory]!!.id.toFloat()
+                val value = userStyle.selectedOptions[styleCategory]!!.id.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
                 rangedStyle.setOnSeekBarChangeListener(
                     object : SeekBar.OnSeekBarChangeListener {
@@ -219,7 +219,8 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleCategory.Option) {
-        val hashmap = userStyle.options as HashMap<UserStyleCategory, UserStyleCategory.Option>
+        val hashmap =
+            userStyle.selectedOptions as HashMap<UserStyleCategory, UserStyleCategory.Option>
         hashmap[styleCategory] = userStyleOption
         watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(userStyle.toWireFormat())
     }

@@ -27,14 +27,14 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.Complication
 import androidx.wear.watchface.CanvasComplicationDrawableRenderer
+import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
+import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
@@ -42,8 +42,8 @@ import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -349,8 +349,9 @@ class WatchFaceConfigUiTest {
         assertThat(styleSchemaCaptor.firstValue.size).isEqualTo(1)
         assertThat(styleSchemaCaptor.firstValue.first().id).isEqualTo(colorStyleCategory.id)
 
-        val key = userStyleCaptor.firstValue.options.keys.find { it.id == colorStyleCategory.id }
-        assertThat(userStyleCaptor.firstValue.options[key]!!.id).isEqualTo(
+        val key =
+            userStyleCaptor.firstValue.selectedOptions.keys.find { it.id == colorStyleCategory.id }
+        assertThat(userStyleCaptor.firstValue.selectedOptions[key]!!.id).isEqualTo(
             colorStyleCategory.options.first().id
         )
     }
@@ -375,20 +376,24 @@ class WatchFaceConfigUiTest {
         styleConfigFragment.readOptionsFromArguments()
         styleConfigFragment.watchFaceConfigActivity = configActivity
 
-        assertThat(userStyleRepository.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
-            redStyleOption.id
-        )
-        assertThat(userStyleRepository.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
-            classicStyleOption.id
-        )
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id)
+            .isEqualTo(
+                redStyleOption.id
+            )
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+            .isEqualTo(
+                classicStyleOption.id
+            )
 
         styleConfigFragment.onItemClick(configActivity.styleSchema[categoryIndex].options[1])
 
-        assertThat(userStyleRepository.userStyle.options[colorStyleCategory]!!.id).isEqualTo(
-            greenStyleOption.id
-        )
-        assertThat(userStyleRepository.userStyle.options[watchHandStyleCategory]!!.id).isEqualTo(
-            classicStyleOption.id
-        )
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id)
+            .isEqualTo(
+                greenStyleOption.id
+            )
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+            .isEqualTo(
+                classicStyleOption.id
+            )
     }
 }

@@ -107,11 +107,11 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyle {
-    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleCategory,? extends androidx.wear.watchface.style.UserStyleCategory.Option> options);
+    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleCategory,? extends androidx.wear.watchface.style.UserStyleCategory.Option> selectedOptions);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyle(androidx.wear.watchface.style.data.UserStyleWireFormat userStyle, java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory> userStyleCategories);
-    method public java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> getOptions();
+    method public java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> getSelectedOptions();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleWireFormat toWireFormat();
-    property public final java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> options;
+    property public final java.util.Map<androidx.wear.watchface.style.UserStyleCategory,androidx.wear.watchface.style.UserStyleCategory.Option> selectedOptions;
   }
 
   public abstract class UserStyleCategory {

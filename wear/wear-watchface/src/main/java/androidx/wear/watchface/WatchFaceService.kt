@@ -453,7 +453,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 userStyle: UserStyleWireFormat?
             ): Bundle {
                 return uiThreadHandler.runOnHandler {
-                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
+                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.selectedOptions)
                     if (userStyle != null) {
                         watchFace.onSetStyleInternal(
                             UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
@@ -511,7 +511,8 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                     val complication = watchFace.complicationsManager[complicationId]
                     if (complication != null) {
-                        val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
+                        val oldStyle =
+                            HashMap(watchFace.userStyleRepository.userStyle.selectedOptions)
                         if (userStyle != null) {
                             watchFace.onSetStyleInternal(
                                 UserStyle(
