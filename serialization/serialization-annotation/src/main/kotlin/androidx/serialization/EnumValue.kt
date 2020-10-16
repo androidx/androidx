@@ -50,16 +50,16 @@ import kotlin.annotation.AnnotationTarget.FIELD
  */
 @Retention(BINARY)
 @Target(FIELD)
-annotation class EnumValue(
+public annotation class EnumValue(
     @get:JvmName("value") val id: Int
 ) {
-    companion object {
+    public companion object {
         /**
          * The ID of a default enum value.
          *
          * One value in every enum must be default to be used if a parser encounters an
          * unrecognized or missing enum field.
          */
-        const val DEFAULT = 0
+        public const val DEFAULT: Int = 0
     }
 }
