@@ -183,8 +183,6 @@ class ParameterFactoryTest {
 
     @Test
     fun testBrush() {
-        val preAPI26 = { api <= 26 }
-        val preAPI28 = { api <= 28 }
         assertThat(lookup(SolidColor(Color.Red)))
             .isEqualTo(ParameterType.Color to Color.Red.toArgb())
         validate(
@@ -204,14 +202,15 @@ class ParameterFactoryTest {
                 parameter("shader", ParameterType.String, "LinearGradient") {
                     parameter("mColor0", ParameterType.Int32, 0)
                     parameter("mColor1", ParameterType.Int32, 0)
-                    optional("mColors", ParameterType.String, "IntArray", preAPI28)
-                    optional("mNativeInstance", ParameterType.Int64, 0L, preAPI26)
+                    optional("mColors", ParameterType.String, "IntArray", { api <= 28 })
+                    optional("mNativeInstance", ParameterType.Int64, 0L, { api == 26 })
                     parameter("mTileMode", ParameterType.String, "CLAMP")
-                    optional("mType", ParameterType.Int32, 1, preAPI26)
+                    optional("mType", ParameterType.Int32, 1, { api <= 26 })
                     parameter("mX0", ParameterType.Float, 0.0f)
                     parameter("mX1", ParameterType.Float, 5.0f)
                     parameter("mY0", ParameterType.Float, 0.5f)
                     parameter("mY1", ParameterType.Float, 10.0f)
+                    ignore("native_instance", ParameterType.Int64) { api == 23 }
                 }
                 parameter("startX", ParameterType.Float, 0.0f)
                 parameter("startY", ParameterType.Float, 0.5f)
@@ -665,7 +664,9 @@ class ParameterValidationReceiver(val parameterIterator: Iterator<NodeParameter>
         children.block()
         if (children.parameterIterator.hasNext()) {
             val elementNames = mutableListOf<String>()
-            children.parameterIterator.forEachRemaining { elementNames.add(it.name) }
+            while (children.parameterIterator.hasNext()) {
+                elementNames.add(children.parameterIterator.next().name)
+            }
             error("$name: has more elements like: ${elementNames.joinToString()}")
         }
     }
@@ -679,6 +680,18 @@ class ParameterValidationReceiver(val parameterIterator: Iterator<NodeParameter>
     ) {
         if (condition()) {
             parameter(name, type, value, children)
+        }
+    }
+
+    fun ignore(
+        name: String,
+        type: ParameterType,
+        condition: () -> Boolean,
+    ) {
+        if (condition()) {
+            val parameter = parameterIterator.next()
+            assertThat(parameter.name).isEqualTo(name)
+            assertWithMessage(name).that(parameter.type).isEqualTo(type)
         }
     }
 }
