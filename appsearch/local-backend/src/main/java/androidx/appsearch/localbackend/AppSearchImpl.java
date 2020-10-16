@@ -303,9 +303,7 @@ public final class AppSearchImpl {
 
         DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
         removeDatabasesFromDocument(documentBuilder);
-        GenericDocument document =
-                GenericDocumentToProtoConverter.convert(documentBuilder.build());
-
+        GenericDocument document = GenericDocumentToProtoConverter.convert(documentBuilder.build());
         return document;
     }
 
@@ -765,7 +763,7 @@ public final class AppSearchImpl {
         }
 
         if (statusProto.getCode() == StatusProto.Code.WARNING_DATA_LOSS) {
-            // TODO: May want to propagate WARNING_DATA_LOSS up to AppSearchManager so they can
+            // TODO: May want to propagate WARNING_DATA_LOSS up to AppSearchSession so they can
             //  choose to log the error or potentially pass it on to clients.
             Log.w(TAG, "Encountered WARNING_DATA_LOSS: " + statusProto.getMessage());
             return;
