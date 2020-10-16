@@ -126,7 +126,7 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
  */
 @Retention(BINARY)
 @Target(FIELD, FUNCTION, PROPERTY, VALUE_PARAMETER)
-annotation class Field(
+public annotation class Field(
     @get:JvmName("value")
     val id: Int,
     val protoEncoding: ProtoEncoding = ProtoEncoding.DEFAULT,

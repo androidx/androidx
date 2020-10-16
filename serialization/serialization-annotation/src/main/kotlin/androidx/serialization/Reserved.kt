@@ -40,7 +40,7 @@ import kotlin.annotation.AnnotationTarget.CLASS
  */
 @Retention(SOURCE)
 @Target(CLASS)
-annotation class Reserved(
+public annotation class Reserved(
     vararg val ids: Int = [],
     val names: Array<String> = [],
     val idRanges: Array<IdRange> = []
@@ -60,5 +60,5 @@ annotation class Reserved(
      */
     @Retention(SOURCE)
     @Target(allowedTargets = [])
-    annotation class IdRange(val from: Int, val to: Int)
+    public annotation class IdRange(val from: Int, val to: Int)
 }
