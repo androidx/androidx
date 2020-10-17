@@ -414,7 +414,7 @@ public class AppSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -452,7 +452,7 @@ public class AppSearchSessionTest {
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
-        SearchResultsHack searchResults = mDb1.query("body",
+        SearchResults searchResults = mDb1.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
@@ -460,13 +460,13 @@ public class AppSearchSessionTest {
         List<GenericDocument> documents = new ArrayList<>();
 
         int pageNumber = 0;
-        List<SearchResults.Result> results;
+        List<SearchResult> results;
 
         // keep loading next page until it's empty.
         do {
             results = checkIsResultSuccess(searchResults.getNextPage());
             ++pageNumber;
-            for (SearchResults.Result result : results) {
+            for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
         } while (results.size() > 0);
@@ -507,7 +507,7 @@ public class AppSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
 
         // Query for the documents
-        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -554,7 +554,7 @@ public class AppSearchSessionTest {
                         .addGenericDocument(expectedEmail, unexpectedEmail).build()));
 
         // Query for all namespaces
-        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -603,7 +603,7 @@ public class AppSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query for instance 1.
-        SearchResultsHack searchResults = mDb1.query("body", new SearchSpec.Builder()
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
@@ -645,7 +645,7 @@ public class AppSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document).build()));
 
         // Query for the document
-        SearchResultsHack searchResults = mDb1.query("foo",
+        SearchResults searchResults = mDb1.query("foo",
                 new SearchSpec.Builder()
                         .setSchemaTypes("Generic")
                         .setSnippetCount(1)
@@ -653,20 +653,20 @@ public class AppSearchSessionTest {
                         .setMaxSnippetSize(10)
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                         .build());
-        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
+        List<SearchResult> results = checkIsResultSuccess(searchResults.getNextPage());
         assertThat(results).hasSize(1);
 
-        List<MatchInfo> matchInfos = results.get(0).getMatches();
+        List<SearchResult.MatchInfo> matchInfos = results.get(0).getMatches();
         assertThat(matchInfos).isNotNull();
         assertThat(matchInfos).hasSize(1);
-        MatchInfo matchInfo = matchInfos.get(0);
+        SearchResult.MatchInfo matchInfo = matchInfos.get(0);
         assertThat(matchInfo.getFullText()).isEqualTo("A commonly used fake word is foo. "
                 + "Another nonsense word that’s used a lot is bar");
         assertThat(matchInfo.getExactMatchPosition()).isEqualTo(
-                new MatchInfo.MatchRange(/*lower=*/29,  /*upper=*/32));
+                new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/32));
         assertThat(matchInfo.getExactMatch()).isEqualTo("foo");
         assertThat(matchInfo.getSnippetPosition()).isEqualTo(
-                new MatchInfo.MatchRange(/*lower=*/26,  /*upper=*/33));
+                new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
     }
 
@@ -1138,7 +1138,7 @@ public class AppSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email3, email4).build()));
 
         // Check the presence of the documents
-        SearchResultsHack searchResults = mDb1.query("", new SearchSpec.Builder()
+        SearchResults searchResults = mDb1.query("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);

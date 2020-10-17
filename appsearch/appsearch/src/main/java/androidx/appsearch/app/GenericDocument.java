@@ -681,10 +681,10 @@ public class GenericDocument {
          *
          * @param uri The uri of {@link GenericDocument}.
          * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
-         *        {@code schemaType} must be defined using {@link AppSearchManager#setSchema} prior
+         *        {@code schemaType} must be defined using {@link AppSearchSession#setSchema} prior
          *        to inserting a document of this {@code schemaType} into the AppSearch index using
-         *        {@link AppSearchManager#putDocuments}. Otherwise, the document will be
-         *        rejected by {@link AppSearchManager#putDocuments}.
+         *        {@link AppSearchSession#putDocuments}. Otherwise, the document will be
+         *        rejected by {@link AppSearchSession#putDocuments}.
          */
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {

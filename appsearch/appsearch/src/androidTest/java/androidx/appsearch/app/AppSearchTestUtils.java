@@ -58,12 +58,12 @@ public class AppSearchTestUtils {
         return list;
     }
 
-    public static List<GenericDocument> convertSearchResultsToDocuments(
-            SearchResultsHack searchResults) throws Exception {
-        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
+    public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
+            throws Exception {
+        List<SearchResult> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
-            for (SearchResults.Result result : results) {
+            for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
             results = checkIsResultSuccess(searchResults.getNextPage());

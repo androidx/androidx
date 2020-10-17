@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class AppSearchResult<ValueType> {
     /**
-     * Result codes from {@link AppSearchManager} methods.
+     * Result codes from {@link AppSearchSession} methods.
      * @hide
      */
     @IntDef(value = {
@@ -112,7 +112,7 @@ public final class AppSearchResult<ValueType> {
     /**
      * Returns the result value associated with this result, if it was successful.
      *
-     * <p>See the documentation of the particular {@link AppSearchManager} call producing this
+     * <p>See the documentation of the particular {@link AppSearchSession} call producing this
      * {@link AppSearchResult} for what is placed in the result value by that call.
      *
      * @throws IllegalStateException if this {@link AppSearchResult} is not successful.
@@ -130,7 +130,7 @@ public final class AppSearchResult<ValueType> {
      *
      * <p>If {@link #isSuccess} is {@code true}, the error message is always {@code null}. The error
      * message may be {@code null} even if {@link #isSuccess} is {@code false}. See the
-     * documentation of the particular {@link AppSearchManager} call producing this
+     * documentation of the particular {@link AppSearchSession} call producing this
      * {@link AppSearchResult} for what is returned by {@link #getErrorMessage}.
      */
     @Nullable

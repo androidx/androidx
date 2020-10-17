@@ -26,7 +26,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByUriRequest;
-import androidx.appsearch.app.SearchResultsHack;
+import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localbackend.util.FutureUtil;
@@ -118,7 +118,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
-    public SearchResultsHack query(
+    public SearchResults query(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);

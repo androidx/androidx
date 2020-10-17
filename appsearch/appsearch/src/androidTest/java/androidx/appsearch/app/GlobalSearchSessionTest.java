@@ -80,7 +80,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -127,7 +127,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query across all instances
-        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -158,7 +158,7 @@ public class GlobalSearchSessionTest {
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
-        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
@@ -166,13 +166,13 @@ public class GlobalSearchSessionTest {
         List<GenericDocument> documents = new ArrayList<>();
 
         int pageNumber = 0;
-        List<SearchResults.Result> results;
+        List<SearchResult> results;
 
         // keep loading next page until it's empty.
         do {
             results = checkIsResultSuccess(searchResults.getNextPage());
             ++pageNumber;
-            for (SearchResults.Result result : results) {
+            for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
         } while (results.size() > 0);
@@ -225,7 +225,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
 
         // Query for all documents across types
-        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -274,7 +274,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
 
         // Query for all namespaces
-        SearchResultsHack searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
