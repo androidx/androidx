@@ -84,6 +84,10 @@ public class Constants {
             "com.google.android.wearable.action.SET_BINDER"
 
         @SuppressWarnings("IntentName")
+        public const val COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST: String =
+            "com.google.android.wearable.action.BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST"
+
+        @SuppressWarnings("IntentName")
         public const val COMMAND_SET_PROPERTIES: String =
             "com.google.android.wearable.action.SET_PROPERTIES"
 

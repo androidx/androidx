@@ -46,6 +46,7 @@ import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import androidx.wear.watchface.ui.WatchFaceConfigDelegate
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
+import java.security.InvalidParameterException
 import kotlin.math.max
 
 // Human reaction time is limited to ~100ms.
@@ -106,7 +107,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  */
 @SuppressLint("SyntheticAccessor")
 public class WatchFace private constructor(
-    @WatchFaceType private val watchFaceType: Int,
+    internal val previewReferenceTimeMillis: Long,
     private var interactiveUpdateRateMillis: Long,
     internal val userStyleRepository: UserStyleRepository,
     internal var complicationsManager: ComplicationsManager,
@@ -135,8 +136,11 @@ public class WatchFace private constructor(
      * receive updates necessary for the watch to draw its own indicators.
      */
     public class Builder(
-        /** The type of watch face, whether it's digital or analog. */
-        @WatchFaceType private val watchFaceType: Int,
+        /**
+         * The type of watch face, whether it's digital or analog. Used to determine the
+         * default time for editor preview screenshots.
+         */
+        @WatchFaceType watchFaceType: Int,
 
         /**
          * The interval in milliseconds between frames in interactive mode. To render at 60hz pass in
@@ -165,6 +169,12 @@ public class WatchFace private constructor(
     ) {
         private var viewProtectionMode: Int = 0
         private var statusBarGravity: Int = 0
+        private var previewReferenceTimeMillis: Long =
+            when (watchFaceType) {
+                WatchFaceType.ANALOG -> ANALOG_WATCHFACE_REFERENCE_TIME_MS
+                WatchFaceType.DIGITAL -> DIGITAL_WATCHFACE_REFERENCE_TIME_MS
+                else -> throw InvalidParameterException("Unrecognized watchFaceType")
+            }
 
         @ColorInt
         private var accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
@@ -176,12 +186,26 @@ public class WatchFace private constructor(
         }
 
         /**
+         * Overrides the reference time for editor preview images.
+         *
+         * @param previewReferenceTimeMillis The preview time in milliseconds since the epoch
+         */
+        public fun setPreviewReferenceTimeMillis(
+            previewReferenceTimeMillis: Long
+        ): Builder = apply {
+            this.previewReferenceTimeMillis = previewReferenceTimeMillis
+        }
+
+        /**
+         * Only has an impact on devices running Wear 2.x, on other devices this is a no-op and the
+         * functionality is replaced by... TODO(alexclarke): Design the replacement.
+         *
          * @param viewProtectionMode The view protection mode bit field, must be a combination of
          *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
          *     [PROTECT_WHOLE_SCREEN].
          * @throws IllegalArgumentException if viewProtectionMode has an unexpected value
          */
-        public fun setViewProtectionMode(viewProtectionMode: Int): Builder = apply {
+        public fun setWear2ViewProtectionMode(viewProtectionMode: Int): Builder = apply {
             if (viewProtectionMode < 0 ||
                 viewProtectionMode >
                 WatchFaceStyle.PROTECT_STATUS_BAR + WatchFaceStyle.PROTECT_HOTWORD_INDICATOR +
@@ -198,21 +222,27 @@ public class WatchFace private constructor(
         /**
          * Sets position of status icons (battery state, lack of connection) on the screen.
          *
+         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
+         *
          * @param statusBarGravity This must be any combination of horizontal Gravity constant
          *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
          *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
          *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
          *     only the vertical gravity is respected.
          */
-        public fun setStatusBarGravity(statusBarGravity: Int): Builder = apply {
+        public fun setWear2StatusBarGravity(statusBarGravity: Int): Builder = apply {
             this.statusBarGravity = statusBarGravity
         }
 
         /**
          * Sets the accent color which can be set by developers to customise watch face. It will be
          * used when drawing the unread notification indicator. Default color is white.
+         *
+         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
          */
-        public fun setAccentColor(@ColorInt accentColor: Int): Builder = apply {
+        public fun setWear2AccentColor(@ColorInt accentColor: Int): Builder = apply {
             this.accentColor = accentColor
         }
 
@@ -220,9 +250,12 @@ public class WatchFace private constructor(
          * Sets whether to add an indicator of how many unread cards there are in the stream. The
          * indicator will be displayed next to status icons (battery state, lack of connection).
          *
+         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
+         *
          * @param showUnreadCountIndicator if true an indicator will be shown
          */
-        public fun setShowUnreadCountIndicator(showUnreadCountIndicator: Boolean): Builder =
+        public fun setWear2ShowUnreadCountIndicator(showUnreadCountIndicator: Boolean): Builder =
             apply { this.showUnreadCountIndicator = showUnreadCountIndicator }
 
         /**
@@ -231,14 +264,20 @@ public class WatchFace private constructor(
          * dot will not be displayed if the numerical unread count indicator is being shown (i.e.
          * if [getShowUnreadCountIndicator] is true).
          *
+         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
+         *
          * @param hideNotificationIndicator if true an indicator will be hidden
          * @hide
          */
-        public fun setHideNotificationIndicator(hideNotificationIndicator: Boolean): Builder =
+        public fun setWear2HideNotificationIndicator(hideNotificationIndicator: Boolean): Builder =
             apply { this.hideNotificationIndicator = hideNotificationIndicator }
 
         /**
          * Sets whether this watchface accepts tap events. The default is false.
+         *
+         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
          *
          * <p>Watchfaces that set this {@code true} are indicating they are prepared to receive
          * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH],
@@ -247,7 +286,7 @@ public class WatchFace private constructor(
          *
          * @param acceptsTapEvents whether to receive touch events.
          */
-        public fun setAcceptsTapEvents(acceptsTapEvents: Boolean): Builder = apply {
+        public fun setWear2AcceptsTapEvents(acceptsTapEvents: Boolean): Builder = apply {
             this.acceptsTapEvents = acceptsTapEvents
         }
 
@@ -265,7 +304,7 @@ public class WatchFace private constructor(
                     watchFaceHost.api!!.getContext().javaClass.typeName
                 )
             return WatchFace(
-                watchFaceType,
+                previewReferenceTimeMillis,
                 interactiveUpdateRateMillis,
                 userStyleRepository,
                 complicationsManager,
@@ -288,6 +327,14 @@ public class WatchFace private constructor(
     }
 
     internal companion object {
+        // Reference time for editor screenshots for analog watch faces.
+        // 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
+        internal const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
+
+        // Reference time for editor screenshots for digital watch faces.
+        // 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
+        internal const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
+
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
         internal const val DEFAULT_PROVIDER_TYPE_NONE = -2
 
@@ -399,7 +446,7 @@ public class WatchFace private constructor(
     init {
         // If the system has a stored user style then Home/SysUI is in charge of style
         // persistence, otherwise we need to do our own.
-        val storedUserStyle = watchFaceHostApi.getStoredUserStyle()
+        val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
             userStyleRepository.userStyle =
                 UserStyle(storedUserStyle, userStyleRepository.userStyleCategories)
@@ -424,23 +471,6 @@ public class WatchFace private constructor(
     }
 
     private var inOnSetStyle = false
-
-    private inner class WfUserStyleListener : UserStyleRepository.UserStyleListener {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onUserStyleChanged(userStyle: UserStyle) {
-            // No need to echo the userStyle back.
-            if (!inOnSetStyle) {
-                sendCurrentUserStyle(userStyle)
-            }
-        }
-    }
-
-    private val styleListener = WfUserStyleListener()
-
-    private fun sendCurrentUserStyle(userStyle: UserStyle) {
-        // Sync the user style with the system.
-        watchFaceHostApi.setCurrentUserStyle(userStyle.toWireFormat())
-    }
 
     private val ambientObserver = Observer<Boolean> {
         scheduleDraw()
@@ -529,13 +559,9 @@ public class WatchFace private constructor(
             }
         )
 
-        watchFaceHostApi.registerWatchFaceType(watchFaceType)
-        watchFaceHostApi.registerUserStyleSchema(userStyleRepository.toSchemaWireFormat())
         watchState.isAmbient.addObserver(ambientObserver)
         watchState.interruptionFilter.addObserver(interruptionFilterObserver)
         watchState.isVisible.addObserver(visibilityObserver)
-        userStyleRepository.addUserStyleListener(styleListener)
-        sendCurrentUserStyle(userStyleRepository.userStyle)
 
         initFinished = true
     }
@@ -558,7 +584,6 @@ public class WatchFace private constructor(
         watchState.isAmbient.removeObserver(ambientObserver)
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
-        userStyleRepository.removeUserStyleListener(styleListener)
         WatchFaceConfigActivity.unregisterWatchFace(componentName)
     }
 

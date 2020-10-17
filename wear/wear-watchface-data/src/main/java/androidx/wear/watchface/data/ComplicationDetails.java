@@ -17,17 +17,21 @@
 package androidx.wear.watchface.data;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+
+import java.util.List;
 
 /**
  * Data sent over AIDL for {@link IWatchFaceCommand#setComplicationDetails}.
@@ -51,6 +55,20 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     @ComplicationData.ComplicationType
     int[] mSupportedTypes;
 
+    @ParcelField(4)
+    @Nullable
+    List<ComponentName> mDefaultProvidersToTry;
+
+    @ParcelField(5)
+    int mFallbackSystemProvider;
+
+    @ParcelField(6)
+    @ComplicationData.ComplicationType
+    int mDefaultProviderType;
+
+    @ParcelField(7)
+    boolean mIsEnabled;
+
     /** Used by VersionedParcelable. */
     ComplicationDetails() {
     }
@@ -58,10 +76,18 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     public ComplicationDetails(
             @NonNull Rect bounds,
             @ComplicationBoundsType int boundsType,
-            @NonNull @ComplicationData.ComplicationType int[] supportedTypes) {
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultProvidersToTry,
+            int fallbackSystemProvider,
+            @ComplicationData.ComplicationType int defaultProviderType,
+            boolean isEnabled) {
         mBounds = bounds;
         mBoundsType = boundsType;
         mSupportedTypes = supportedTypes;
+        mDefaultProvidersToTry = defaultProvidersToTry;
+        mFallbackSystemProvider = fallbackSystemProvider;
+        mDefaultProviderType = defaultProviderType;
+        mIsEnabled = isEnabled;
     }
 
     @NonNull
@@ -78,6 +104,24 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     @ComplicationData.ComplicationType
     public int[] getSupportedTypes() {
         return mSupportedTypes;
+    }
+
+    @Nullable
+    List<ComponentName> getDefaultProvidersToTry() {
+        return mDefaultProvidersToTry;
+    }
+
+    public int getFallbackSystemProvider() {
+        return mFallbackSystemProvider;
+    }
+
+    @ComplicationData.ComplicationType
+    public int getDefaultProviderType() {
+        return mDefaultProviderType;
+    }
+
+    public boolean isEnabled() {
+        return mIsEnabled;
     }
 
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */

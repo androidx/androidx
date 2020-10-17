@@ -18,6 +18,7 @@ package androidx.wear.watchface
 
 import android.app.NotificationManager
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.data.DeviceConfig
 
 public class WatchState(
     /**
@@ -110,8 +111,23 @@ public class WatchState(
     public val hasLowBitAmbient: Boolean,
 
     /** Whether or not the watch hardware supports burn in protection. */
-    public val hasBurnInProtection: Boolean
-)
+    public val hasBurnInProtection: Boolean,
+
+    /**
+     * The physical shape of the screen. Should be one of [#SCREEN_SHAPE_ROUND] or
+     * [#SCREEN_SHAPE_RECTANGULAR].
+     */
+    public val screenShape: Int
+) {
+    public companion object {
+        /** The watch has a round (circular) screen. */
+        public const val SCREEN_SHAPE_ROUND: Int = DeviceConfig.SCREEN_SHAPE_ROUND
+
+        /** The watch has a rectangular or square screen. */
+        public const val SCREEN_SHAPE_RECTANGULAR: Int =
+            DeviceConfig.SCREEN_SHAPE_RECTANGULAR
+    }
+}
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -134,6 +150,7 @@ public class MutableWatchState {
         MutableObservableWatchData()
     public var hasLowBitAmbient: Boolean = false
     public var hasBurnInProtection: Boolean = false
+    public var screenShape: Int = 0
 
     public fun asWatchState(): WatchState = WatchState(
         interruptionFilter = interruptionFilter,
@@ -149,6 +166,7 @@ public class MutableWatchState {
         notificationCount = notificationCount,
         unreadNotificationCount = unreadNotificationCount,
         hasLowBitAmbient = hasLowBitAmbient,
-        hasBurnInProtection = hasBurnInProtection
+        hasBurnInProtection = hasBurnInProtection,
+        screenShape = screenShape
     )
 }

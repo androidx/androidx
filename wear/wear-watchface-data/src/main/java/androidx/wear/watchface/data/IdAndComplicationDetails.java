@@ -28,36 +28,45 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Data sent over AIDL for {@link IWatchFaceCommand#setSystemState}.
+ * Wire format to encode a pair of id to {@link ComplicationDetails}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class ImmutableSystemState implements VersionedParcelable, Parcelable {
+public final class IdAndComplicationDetails implements VersionedParcelable, Parcelable {
+    /** The watch's ID for the complication. */
     @ParcelField(1)
-    boolean mHasLowBitAmbient;
+    int mId;
 
+    /** The {@link ComplicationDetails} for the complication. */
     @ParcelField(2)
-    boolean mHasBurnInProtection;
+    @NonNull
+    ComplicationDetails mComplicationDetails;
 
     /** Used by VersionedParcelable. */
-    ImmutableSystemState() {}
-
-    public ImmutableSystemState(
-            boolean hasLowBitAmbient,
-            boolean hasBurnInProtection) {
-        mHasLowBitAmbient = hasLowBitAmbient;
-        mHasBurnInProtection = hasBurnInProtection;
+    IdAndComplicationDetails() {
     }
 
-    public boolean getHasLowBitAmbient() {
-        return mHasLowBitAmbient;
+    public IdAndComplicationDetails(int id, @NonNull ComplicationDetails complicationDetails) {
+        mId = id;
+        mComplicationDetails = complicationDetails;
     }
 
-    public boolean getHasBurnInProtection() {
-        return mHasBurnInProtection;
+    public int getId() {
+        return mId;
+    }
+
+    @NonNull
+    public ComplicationDetails getComplicationDetails() {
+        return mComplicationDetails;
+    }
+
+    /** Serializes this IdAndComplicationDetails to the specified {@link Parcel}. */
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
+        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
     }
 
     @Override
@@ -65,24 +74,18 @@ public final class ImmutableSystemState implements VersionedParcelable, Parcelab
         return 0;
     }
 
-    /** Serializes this ImmutableSystemState to the specified {@link Parcel}. */
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
-    }
-
-    public static final Parcelable.Creator<ImmutableSystemState> CREATOR =
-            new Parcelable.Creator<ImmutableSystemState>() {
+    public static final Parcelable.Creator<IdAndComplicationDetails> CREATOR =
+            new Parcelable.Creator<IdAndComplicationDetails>() {
                 @Override
-                public ImmutableSystemState createFromParcel(Parcel source) {
-                    return ImmutableSystemStateParcelizer.read(
+                public IdAndComplicationDetails createFromParcel(Parcel source) {
+                    return IdAndComplicationDetailsParcelizer.read(
                             ParcelUtils.fromParcelable(source.readParcelable(
                                     getClass().getClassLoader())));
                 }
 
                 @Override
-                public ImmutableSystemState[] newArray(int size) {
-                    return new ImmutableSystemState[size];
+                public IdAndComplicationDetails[] newArray(int size) {
+                    return new IdAndComplicationDetails[size];
                 }
             };
 }
