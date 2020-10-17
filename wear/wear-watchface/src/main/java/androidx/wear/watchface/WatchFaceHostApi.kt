@@ -27,7 +27,6 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.data.UserStyleWireFormat
-import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /**
  * The API [WatchFace] uses to communicate with the system.
@@ -41,17 +40,11 @@ public interface WatchFaceHostApi {
     /** Returns the main thread [Handler]. */
     public fun getHandler(): Handler
 
-    /** Registers whether the watch face has an analog or digital display. */
-    public fun registerWatchFaceType(@WatchFaceType watchFaceType: Int)
-
-    /** Registers the watch face's user style schema with the system. */
-    public fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat)
-
     /** Registers the watch face's current user style with the system. */
     public fun setCurrentUserStyle(userStyle: UserStyleWireFormat)
 
-    /** Returns the user style stored by the system if there is one or null otherwise. */
-    public fun getStoredUserStyle(): UserStyleWireFormat?
+    /** Returns the initial user style stored by the system if there is one or null otherwise. */
+    public fun getInitialUserStyle(): UserStyleWireFormat?
 
     /** Registers details of the complications with the system. */
     public fun setComplicationDetails(

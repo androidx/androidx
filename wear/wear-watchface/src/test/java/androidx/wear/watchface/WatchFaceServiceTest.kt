@@ -36,8 +36,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IWallpaperWatchFaceControlService
+import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
@@ -46,7 +51,6 @@ import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
@@ -266,6 +270,7 @@ class WatchFaceServiceTest {
     private lateinit var watchFace: WatchFace
     private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
+    private lateinit var interactiveWatchFaceInstanceWCS: IInteractiveWatchFaceWCS
 
     private class Task(val runTimeMillis: Long, val runnable: Runnable) : Comparable<Task> {
         override fun compareTo(other: Task) = runTimeMillis.compareTo(other.runTimeMillis)
@@ -313,6 +318,52 @@ class WatchFaceServiceTest {
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
         watchFace = testWatchFaceService.watchFace
+    }
+
+    private fun initWallpaperInteractiveWatchFaceInstance(
+        @WatchFaceType watchFaceType: Int,
+        complications: List<Complication>,
+        userStyleCategories: List<UserStyleCategory>,
+        wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
+    ) {
+        userStyleRepository = UserStyleRepository(userStyleCategories)
+        this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
+        renderer = TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
+        testWatchFaceService = TestWatchFaceService(
+            watchFaceType,
+            this.complicationsManager,
+            renderer,
+            userStyleRepository,
+            watchState,
+            handler,
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+
+        // The [SurfaceHolder] must be sent before binding.
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        val serviceRequest = object : IWallpaperWatchFaceControlServiceRequest.Stub() {
+            override fun getApiVersion() = IWallpaperWatchFaceControlServiceRequest.API_VERSION
+
+            override fun registerWallpaperWatchFaceControlService(
+                service: IWallpaperWatchFaceControlService
+            ) {
+                interactiveWatchFaceInstanceWCS = service.createInteractiveWatchFaceInstance(
+                    wallpaperInteractiveWatchFaceInstanceParams
+                )
+            }
+        }
+
+        engineWrapper.onCommand(
+            Constants.COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST,
+            0,
+            0,
+            0,
+            Bundle().apply { putBinder(Constants.EXTRA_BINDER, serviceRequest.asBinder()) },
+            false
+        )
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -383,6 +434,10 @@ class WatchFaceServiceTest {
 
     @After
     fun validate() {
+        if (this::interactiveWatchFaceInstanceWCS.isInitialized) {
+            interactiveWatchFaceInstanceWCS.release()
+        }
+
         validateMockitoUsage()
     }
 
@@ -818,10 +873,8 @@ class WatchFaceServiceTest {
 
     @Test
     fun getStoredUserStyleNotSupported_userStyle_isPersisted() {
-        // The style should get persisted in a file because the API is old and
-        // [WatchFaceHostApi.getStoredUserStyle] returns null.
-        `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(null)
-
+        // The style should get persisted in a file because this test is set up using the legacy
+        // Wear 2.0 APIs.
         initEngine(
             WatchFaceType.ANALOG,
             emptyList(),
@@ -870,80 +923,60 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun getStoredUserStyleSupported_userStyle_isPersisted() {
-        var persistedStyle: UserStyleWireFormat? = null
-
-        // Mock the behavior of Home/SysUI which should persist the style.
-        doAnswer {
-            persistedStyle
-        }.`when`(iWatchFaceService).getStoredUserStyle()
-
-        `when`(iWatchFaceService.setCurrentUserStyle(any())).then {
-            persistedStyle = it.arguments[0] as UserStyleWireFormat
-            Unit
-        }
-
-        initEngine(
+    fun initWallpaperInteractiveWatchFaceInstanceWithUserStyle() {
+        initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
             listOf(colorStyleCategory, watchHandStyleCategory),
-            3
-        )
-
-        // This should get persisted.
-        userStyleRepository.userStyle = UserStyle(
-            hashMapOf(
-                colorStyleCategory to blueStyleOption,
-                watchHandStyleCategory to gothicStyleOption
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_ROUND
+                ),
+                SystemState(false, 0, 0, 0),
+                UserStyle(
+                    hashMapOf(
+                        colorStyleCategory to blueStyleOption,
+                        watchHandStyleCategory to gothicStyleOption
+                    )
+                ).toWireFormat(),
+                null
             )
         )
 
-        val userStyleRepository2 = UserStyleRepository(
-            listOf(colorStyleCategory, watchHandStyleCategory)
-        )
-
-        val testRenderer2 =
-            TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
-        val service2 = TestWatchFaceService(
-            WatchFaceType.ANALOG,
-            ComplicationsManager(emptyList(), userStyleRepository2),
-            testRenderer2,
-            userStyleRepository2,
-            watchState,
-            handler,
-            INTERACTIVE_UPDATE_RATE_MS
-        )
-
-        // Trigger watch face creation.
-        val engine2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
-        engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-        sendBinder(engine2, apiVersion = 3)
-        sendImmutableProperties(engine2, false, false)
-
-        assertThat(userStyleRepository2.userStyle.selectedOptions[colorStyleCategory]!!.id)
+        // The style option above should get applied during watch face creation.
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(userStyleRepository2.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
     }
 
     @Test
-    fun persistedStyleOptionMismatchIgnored() {
-        `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat()
-        )
-
-        initEngine(
+    fun initWallpaperInteractiveWatchFaceInstanceWithUserStyleThatDoesntMatchSchema() {
+        initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
             listOf(colorStyleCategory, watchHandStyleCategory),
-            3
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    false,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_ROUND
+                ),
+                SystemState(false, 0, 0, 0),
+                UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
+                null
+            )
         )
 
-        assertThat(testWatchFaceService.lastUserStyle!!.selectedOptions[watchHandStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -1010,7 +1043,7 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun immutablePropertiesSetCorrectly() {
+    fun wear2ImmutablePropertiesSetCorrectly() {
         initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, true, false)
 
         assertTrue(watchState.hasLowBitAmbient)
@@ -1018,11 +1051,35 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun immutablePropertiesSetCorrectly2() {
+    fun wear2ImmutablePropertiesSetCorrectly2() {
         initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), 2, false, true)
 
         assertFalse(watchState.hasLowBitAmbient)
         assertTrue(watchState.hasBurnInProtection)
+    }
+
+    @Test
+    fun wallpaperInteractiveWatchFaceImmutablePropertiesSetCorrectly() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            listOf(colorStyleCategory, watchHandStyleCategory),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "interactiveInstanceId",
+                DeviceConfig(
+                    true,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_RECTANGULAR
+                ),
+                SystemState(false, 0, 0, 0),
+                UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
+                null
+            )
+        )
+
+        assertTrue(watchState.hasLowBitAmbient)
+        assertFalse(watchState.hasBurnInProtection)
+        assertThat(watchState.screenShape).isEqualTo(DeviceConfig.SCREEN_SHAPE_RECTANGULAR)
     }
 
     @Test
@@ -1113,44 +1170,54 @@ class WatchFaceServiceTest {
             4
         )
 
-        // Ignore initial setContentDescriptionLabels call.
-        reset(iWatchFaceService)
-
         leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
         rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
 
-        runPostedTasksFor(0)
-
-        val complicationId = ArgumentCaptor.forClass(Int::class.java)
-        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
-        verify(iWatchFaceService, times(2)).setComplicationDetails(
-            complicationId.capture(), complicationDetails.capture()
-        )
-
-        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+        val complicationDetails = engineWrapper.getComplicationDetails()
+        assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails[0].complicationDetails.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+        assertThat(complicationDetails[0].complicationDetails.bounds).isEqualTo(
             Rect(30, 30, 50, 50)
         )
 
-        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+        assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails[1].complicationDetails.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+        assertThat(complicationDetails[1].complicationDetails.bounds).isEqualTo(
             Rect(70, 75, 90, 95)
         )
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
-        val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
-        verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
-        assertThat(argument.value.size).isEqualTo(3)
-        assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
-        assertThat(argument.value[1].bounds).isEqualTo(Rect(30, 30, 50, 50)) // Left complication.
-        assertThat(argument.value[2].bounds).isEqualTo(Rect(70, 75, 90, 95)) // Right complication.
+        val contentDescriptionLabels = watchFace.complicationsManager.getContentDescriptionLabels()
+        assertThat(contentDescriptionLabels.size).isEqualTo(3)
+        assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
+            Rect(
+                25,
+                25,
+                75,
+                75
+            )
+        ) // Clock element.
+        assertThat(contentDescriptionLabels[1].bounds).isEqualTo(
+            Rect(
+                30,
+                30,
+                50,
+                50
+            )
+        ) // Left complication.
+        assertThat(contentDescriptionLabels[2].bounds).isEqualTo(
+            Rect(
+                70,
+                75,
+                90,
+                95
+            )
+        ) // Right complication.
     }
 
     @Test
@@ -1280,19 +1347,21 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun registerWatchFaceType_called() {
-        initEngine(WatchFaceType.DIGITAL, emptyList(), emptyList(), apiVersion = 4)
-        verify(iWatchFaceService).registerWatchFaceType(WatchFaceType.DIGITAL)
+    fun previewReferenceTimeMillisAnalog() {
+        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList(), apiVersion = 4)
+        assertThat(watchFace.previewReferenceTimeMillis)
+            .isEqualTo(WatchFace.ANALOG_WATCHFACE_REFERENCE_TIME_MS)
     }
 
     @Test
-    fun registerIWatchFaceCommand_called() {
+    fun previewReferenceTimeMillisDigital() {
         initEngine(WatchFaceType.DIGITAL, emptyList(), emptyList(), apiVersion = 4)
-        verify(iWatchFaceService).registerIWatchFaceCommand(any())
+        assertThat(watchFace.previewReferenceTimeMillis)
+            .isEqualTo(WatchFace.DIGITAL_WATCHFACE_REFERENCE_TIME_MS)
     }
 
     @Test
-    fun setComplicationDetails_called() {
+    fun getComplicationDetails() {
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, rightComplication, backgroundComplication),
@@ -1300,22 +1369,15 @@ class WatchFaceServiceTest {
             apiVersion = 4
         )
 
-        runPostedTasksFor(0)
-
-        val complicationId = ArgumentCaptor.forClass(Int::class.java)
-        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
-        verify(iWatchFaceService, times(3)).setComplicationDetails(
-            complicationId.capture(), complicationDetails.capture()
-        )
-
-        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+        val complicationDetails = engineWrapper.getComplicationDetails()
+        assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails[0].complicationDetails.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+        assertThat(complicationDetails[0].complicationDetails.bounds).isEqualTo(
             Rect(20, 40, 40, 60)
         )
-        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+        assertThat(complicationDetails[0].complicationDetails.supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -1325,14 +1387,14 @@ class WatchFaceServiceTest {
             )
         )
 
-        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+        assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails[1].complicationDetails.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+        assertThat(complicationDetails[1].complicationDetails.bounds).isEqualTo(
             Rect(60, 40, 80, 60)
         )
-        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+        assertThat(complicationDetails[1].complicationDetails.supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -1342,14 +1404,14 @@ class WatchFaceServiceTest {
             )
         )
 
-        assertThat(complicationId.allValues[2]).isEqualTo(BACKGROUND_COMPLICATION_ID)
-        assertThat(complicationDetails.allValues[2].boundsType).isEqualTo(
+        assertThat(complicationDetails[2].id).isEqualTo(BACKGROUND_COMPLICATION_ID)
+        assertThat(complicationDetails[2].complicationDetails.boundsType).isEqualTo(
             ComplicationBoundsType.BACKGROUND
         )
-        assertThat(complicationDetails.allValues[2].bounds).isEqualTo(
+        assertThat(complicationDetails[2].complicationDetails.bounds).isEqualTo(
             Rect(0, 0, 100, 100)
         )
-        assertThat(complicationDetails.allValues[2].supportedTypes).isEqualTo(
+        assertThat(complicationDetails[2].complicationDetails.supportedTypes).isEqualTo(
             intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
         )
     }

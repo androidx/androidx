@@ -37,9 +37,11 @@ import androidx.versionedparcelable.VersionedParcelize;
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class IdAndComplicationData implements VersionedParcelable, Parcelable {
+    /** The watch's ID for the complication. */
     @ParcelField(1)
     int mId;
 
+    /** The {@link ComplicationData} to set for the complication. */
     @ParcelField(2)
     @NonNull
     ComplicationData mComplicationData;

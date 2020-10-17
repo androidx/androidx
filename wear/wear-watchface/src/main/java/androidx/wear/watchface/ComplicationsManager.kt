@@ -195,8 +195,7 @@ public class ComplicationsManager(
         }
     }
 
-    private fun updateComplications() {
-        val activeKeys = mutableListOf<Int>()
+    internal fun getContentDescriptionLabels(): Array<ContentDescriptionLabel> {
         val labels = mutableListOf<ContentDescriptionLabel>()
 
         // Add a ContentDescriptionLabel for the main clock element.
@@ -208,6 +207,30 @@ public class ComplicationsManager(
                 )
             )
         )
+        // Add a ContentDescriptionLabel for each enabled complication.
+        for ((_, complication) in complications) {
+            if (complication.enabled) {
+                if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
+                    ComplicationBoundsType.BACKGROUND
+                } else {
+                    complication.renderer.getData()?.let {
+                        labels.add(
+                            ContentDescriptionLabel(
+                                watchFaceHostApi.getContext(),
+                                complication.computeBounds(renderer.screenBounds),
+                                it
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        return labels.toTypedArray()
+    }
+
+    private fun updateComplications() {
+        val activeKeys = mutableListOf<Int>()
 
         // Work out what's changed using the dirty flags and issue appropriate watchFaceHostApi
         // calls.
@@ -222,35 +245,6 @@ public class ComplicationsManager(
 
                 labelsDirty =
                     labelsDirty || complication.dataDirty || complication.unitSquareBoundsDirty
-
-                val complicationBounds = complication.computeBounds(renderer.screenBounds)
-
-                // Generate a ContentDescriptionLabel.
-                val data = complication.renderer.getData()
-                val complicationBoundsType =
-                    if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
-                        ComplicationBoundsType.BACKGROUND
-                    } else {
-                        if (data != null) {
-                            labels.add(
-                                ContentDescriptionLabel(
-                                    watchFaceHostApi.getContext(),
-                                    complicationBounds,
-                                    data
-                                )
-                            )
-                        }
-                        ComplicationBoundsType.ROUND_RECT
-                    }
-
-                if (complication.unitSquareBoundsDirty || complication.supportedTypesDirty) {
-                    watchFaceHostApi.setComplicationDetails(
-                        id,
-                        complicationBounds,
-                        complicationBoundsType,
-                        complication.supportedTypes
-                    )
-                }
 
                 if (complication.defaultProviderPolicyDirty ||
                     complication.defaultProviderTypeDirty
@@ -278,7 +272,9 @@ public class ComplicationsManager(
 
         if (labelsDirty) {
             // Register ContentDescriptionLabels which are used to provide accessibility data.
-            watchFaceHostApi.setContentDescriptionLabels(labels.toTypedArray())
+            watchFaceHostApi.setContentDescriptionLabels(
+                getContentDescriptionLabels()
+            )
         }
     }
 
