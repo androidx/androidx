@@ -201,7 +201,7 @@ public @interface AppSearchDocument {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;

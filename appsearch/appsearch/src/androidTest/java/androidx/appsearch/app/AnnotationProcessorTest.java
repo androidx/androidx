@@ -211,7 +211,7 @@ public class AnnotationProcessorTest {
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mSession.putDocuments(
                 new PutDocumentsRequest.Builder().addDataClass(inputDataClass).build()));
-        SearchResultsHack searchResults = mSession.query("", new SearchSpec.Builder()
+        SearchResults searchResults = mSession.query("", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);

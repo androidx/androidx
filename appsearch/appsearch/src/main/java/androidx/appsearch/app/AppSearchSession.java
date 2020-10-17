@@ -26,9 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * placed and queried.
  *
  * All implementations of this interface must be thread safe.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppSearchSession {
 
     /**
@@ -157,7 +155,7 @@ public interface AppSearchSession {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    SearchResultsHack query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+    SearchResults query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 
     /**
      * Removes {@link GenericDocument}s from the index by URI.

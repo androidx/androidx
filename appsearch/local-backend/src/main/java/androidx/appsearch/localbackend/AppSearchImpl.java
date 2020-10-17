@@ -27,7 +27,7 @@ import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localbackend.converter.GenericDocumentToProtoConverter;
@@ -814,8 +814,7 @@ public final class AppSearchImpl {
                     Collections.emptyList());
         }
 
-        List<SearchResults.Result> searchResults =
-                new ArrayList<>(searchResultProto.getResultsCount());
+        List<SearchResult> searchResults = new ArrayList<>(searchResultProto.getResultsCount());
         for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
             if (searchResultProto.getResults(i).hasDocument()) {
                 SearchResultProto.ResultProto.Builder resultBuilder =
@@ -868,10 +867,10 @@ public final class AppSearchImpl {
     }
 
     static class SearchResultPage {
-        private long mNextPageToken;
-        private List<SearchResults.Result> mResults;
+        private final long mNextPageToken;
+        private final List<SearchResult> mResults;
 
-        SearchResultPage(long nextPageToken, List<SearchResults.Result> results) {
+        SearchResultPage(long nextPageToken, List<SearchResult> results) {
             mNextPageToken = nextPageToken;
             mResults = results;
         }
@@ -880,7 +879,7 @@ public final class AppSearchImpl {
             return mNextPageToken;
         }
 
-        public List<SearchResults.Result> getResults() {
+        public List<SearchResult> getResults() {
             return mResults;
         }
     }

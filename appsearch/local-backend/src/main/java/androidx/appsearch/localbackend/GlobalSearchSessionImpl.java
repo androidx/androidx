@@ -19,7 +19,7 @@ package androidx.appsearch.localbackend;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GlobalSearchSession;
-import androidx.appsearch.app.SearchResultsHack;
+import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
@@ -45,7 +45,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @NonNull
     @Override
-    public SearchResultsHack globalQuery(
+    public SearchResults globalQuery(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
