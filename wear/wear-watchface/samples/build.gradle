@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:wear-watchface"))
     api(KOTLIN_STDLIB)
 }
