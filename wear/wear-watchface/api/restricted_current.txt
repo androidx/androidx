@@ -6,22 +6,28 @@ package androidx.wear.watchface {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
     method public android.support.wearable.complications.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
+    method @UiThread public boolean getIsHighlighted();
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void onDetach();
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setData(android.support.wearable.complications.ComplicationData? data);
+    method @UiThread public void setData(android.support.wearable.complications.ComplicationData? value);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
-    method public void setIsHighlighted(boolean highlight);
+    method @UiThread public void setIsHighlighted(boolean value);
+    property public android.support.wearable.complications.ComplicationData? data;
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
+    property @UiThread public boolean isHighlighted;
   }
 
   public interface CanvasComplicationRenderer {
-    method @UiThread public android.support.wearable.complications.ComplicationData? getData();
+    method public android.support.wearable.complications.ComplicationData? getData();
+    method public boolean getIsHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
     method @UiThread public void onDetach();
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method @UiThread public void setData(android.support.wearable.complications.ComplicationData? data);
-    method @UiThread public void setIsHighlighted(boolean highlight);
+    method public void setData(android.support.wearable.complications.ComplicationData? p);
+    method public void setIsHighlighted(boolean p);
+    property public abstract android.support.wearable.complications.ComplicationData? data;
+    property public abstract boolean isHighlighted;
   }
 
   public abstract class CanvasRenderer extends androidx.wear.watchface.Renderer {

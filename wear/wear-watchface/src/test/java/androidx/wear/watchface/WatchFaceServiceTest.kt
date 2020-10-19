@@ -152,7 +152,7 @@ class WatchFaceServiceTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData())
+                data = createComplicationData()
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -173,7 +173,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData())
+                data = createComplicationData()
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -194,7 +194,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                setData(createComplicationData())
+                data = createComplicationData()
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE

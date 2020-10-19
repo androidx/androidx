@@ -63,27 +63,16 @@ public interface CanvasComplicationRenderer {
     )
 
     /**
-     * Sets whether the complication should be drawn highlighted. This is to provide visual
+     * Whether the complication should be drawn highlighted. This is to provide visual
      * feedback when the user taps on a complication.
-     *
-     * @param highlight Whether or not the complication should be drawn highlighted.
      */
-    @UiThread
-    public fun setIsHighlighted(highlight: Boolean)
+    @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+    @get:JvmName("getIsHighlighted")
+    @set:JvmName("setIsHighlighted")
+    public var isHighlighted: Boolean
 
-    /**
-     * Sets the current [ComplicationData].
-     *
-     * @param data The [ComplicationData]
-     */
-    @UiThread
-    public fun setData(data: ComplicationData?)
-
-    /**
-     * Returns the current [ComplicationData] associated with the CanvasComplicationRenderer.
-     */
-    @UiThread
-    public fun getData(): ComplicationData?
+    /** The [ComplicationData] to render. */
+    public var data: ComplicationData?
 }
 
 /**
@@ -91,7 +80,7 @@ public interface CanvasComplicationRenderer {
  * material design style. This renderer can't be shared by multiple complications.
  */
 public open class CanvasComplicationDrawableRenderer(
-    /** The actual complication. */
+    /** The [ComplicationDrawable] to render with. */
     drawable: ComplicationDrawable,
 
     private val watchState: WatchState
@@ -111,6 +100,7 @@ public open class CanvasComplicationDrawableRenderer(
         }
     }
 
+    /** The [ComplicationDrawable] to render with. */
     public var drawable: ComplicationDrawable = drawable
         set(value) {
             field = value
@@ -171,19 +161,25 @@ public open class CanvasComplicationDrawableRenderer(
         ComplicationOutlineRenderer.drawComplicationSelectOutline(canvas, bounds)
     }
 
-    /** {@inheritDoc} */
-    override fun setIsHighlighted(highlight: Boolean) {
-        drawable.highlighted = highlight
-    }
+    override var isHighlighted: Boolean
+        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+        @JvmName("getIsHighlighted")
+        @UiThread
+        get() = drawable.highlighted
 
-    /** {@inheritDoc} */
-    override fun setData(data: ComplicationData?) {
-        drawable.complicationData = data
-        complicationData = data
-    }
+        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+        @JvmName("setIsHighlighted")
+        @UiThread
+        set(value) {
+            drawable.highlighted = value
+        }
 
-    /** {@inheritDoc} */
-    override fun getData(): ComplicationData? = complicationData
+    override var data: ComplicationData? = null
+        @UiThread
+        set(value) {
+            drawable.complicationData = value
+            field = value
+        }
 }
 
 /**
@@ -349,7 +345,7 @@ public class Complication internal constructor(
                 return
             }
             renderer.onDetach()
-            value.setData(renderer.getData())
+            value.data = renderer.data
             _renderer = value
             value.onAttach(this)
         }
@@ -450,7 +446,7 @@ public class Complication internal constructor(
      * @param highlight Whether or not the complication should be drawn highlighted.
      */
     internal fun setIsHighlighted(highlight: Boolean) {
-        renderer.setIsHighlighted(highlight)
+        renderer.isHighlighted = highlight
     }
 
     /**
