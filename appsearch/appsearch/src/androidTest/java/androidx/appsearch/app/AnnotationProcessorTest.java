@@ -42,7 +42,8 @@ public class AnnotationProcessorTest {
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         mSession = checkIsResultSuccess(LocalBackend.createSearchSession(
-                new LocalBackend.SearchContext.Builder(context).build()));
+                new LocalBackend.SearchContext.Builder(context)
+                        .setDatabaseName("testDb1").build()));
 
         // Remove all documents from any instances that may have been created in the tests.
         checkIsResultSuccess(
@@ -224,5 +225,59 @@ public class AnnotationProcessorTest {
         // Convert GenericDocument to Gift and check values.
         Gift outputDataClass = factory.fromGenericDocument(documents.get((0)));
         assertThat(outputDataClass).isEqualTo(inputDataClass);
+    }
+
+    @Test
+    public void testAnnotationProcessor_QueryByType() throws Exception {
+        checkIsResultSuccess(mSession.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addDataClass(Gift.class)
+                        .addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Create documents and index them
+        Gift inputDataClass1 = new Gift();
+        inputDataClass1.mUri = "gift.uri1";
+        Gift inputDataClass2 = new Gift();
+        inputDataClass2.mUri = "gift.uri2";
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri3")
+                        .setNamespace("namespace")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mSession.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addDataClass(inputDataClass1, inputDataClass2)
+                        .addGenericDocument(email1).build()));
+
+        // Query the documents by it's schema type.
+        SearchResults searchResults = mSession.query("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addSchema("Gift", AppSearchEmail.SCHEMA_TYPE)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(3);
+
+        // Query the documents by it's class.
+        searchResults = mSession.query("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addSchemaByDataClass(Gift.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(2);
+
+        // Query the documents by schema type and class mix.
+        searchResults = mSession.query("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addSchema(AppSearchEmail.SCHEMA_TYPE)
+                        .addSchemaByDataClass(Gift.class)
+                        .build());
+        documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(3);
     }
 }

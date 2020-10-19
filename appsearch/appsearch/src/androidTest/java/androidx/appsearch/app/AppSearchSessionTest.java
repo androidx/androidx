@@ -516,7 +516,7 @@ public class AppSearchSessionTest {
 
         // Query only for Document
         searchResults = mDb1.query("body", new SearchSpec.Builder()
-                .setSchemaTypes("Generic")
+                .addSchema("Generic", "Generic") // duplicate type in filter won't matter.
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -564,7 +564,7 @@ public class AppSearchSessionTest {
         // Query only for expectedNamespace
         searchResults = mDb1.query("body",
                 new SearchSpec.Builder()
-                        .setNamespaces("expectedNamespace")
+                        .addNamespace("expectedNamespace")
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -647,7 +647,7 @@ public class AppSearchSessionTest {
         // Query for the document
         SearchResults searchResults = mDb1.query("foo",
                 new SearchSpec.Builder()
-                        .setSchemaTypes("Generic")
+                        .addSchema("Generic")
                         .setSnippetCount(1)
                         .setSnippetCountPerProperty(1)
                         .setMaxSnippetSize(10)
@@ -851,7 +851,7 @@ public class AppSearchSessionTest {
         checkIsResultSuccess(mDb1.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .setSchemaTypes(AppSearchEmail.SCHEMA_TYPE)
+                        .addSchema(AppSearchEmail.SCHEMA_TYPE)
                         .build()));
 
         // Make sure it's really gone
@@ -902,7 +902,7 @@ public class AppSearchSessionTest {
         checkIsResultSuccess(mDb1.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .setSchemaTypes(AppSearchEmail.SCHEMA_TYPE)
+                        .addSchema(AppSearchEmail.SCHEMA_TYPE)
                         .build()));
 
         // Make sure it's really gone in instance 1
@@ -967,7 +967,7 @@ public class AppSearchSessionTest {
         checkIsResultSuccess(mDb1.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .setNamespaces("email")
+                        .addNamespace("email")
                         .build()));
 
         // Make sure it's really gone
@@ -1024,7 +1024,7 @@ public class AppSearchSessionTest {
         checkIsResultSuccess(mDb1.removeByQuery("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                        .setNamespaces("email")
+                        .addNamespace("email")
                         .build()));
 
         // Make sure it's really gone in instance 1

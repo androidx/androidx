@@ -213,13 +213,17 @@ package androidx.appsearch.app {
 
   public static final class SearchSpec.Builder {
     ctor public SearchSpec.Builder();
+    method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addSchema(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder addSchema(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(java.util.Collection<java.lang.Class<?>!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(int);
-    method public androidx.appsearch.app.SearchSpec.Builder setNamespaces(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder setNumPerPage(int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
     method public androidx.appsearch.app.SearchSpec.Builder setRankingStrategy(int);
-    method public androidx.appsearch.app.SearchSpec.Builder setSchemaTypes(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(int);
     method public androidx.appsearch.app.SearchSpec.Builder setSnippetCountPerProperty(int);
     method public androidx.appsearch.app.SearchSpec.Builder setTermMatch(int);
