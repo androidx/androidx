@@ -86,7 +86,7 @@ class SendClickTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val rule = createAndroidComposeRule(config.activityClass, disableTransitions = true)
+    val rule = createAndroidComposeRule(config.activityClass)
 
     private val recordedClicks = mutableListOf<ClickData>()
     private val expectedClickPosition =

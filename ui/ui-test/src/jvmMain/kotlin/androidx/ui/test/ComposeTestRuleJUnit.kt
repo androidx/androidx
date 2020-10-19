@@ -56,7 +56,4 @@ interface ComposeTestRuleJUnit : ComposeTestRule, TestRule {
  * reference to this activity into the manifest file of the corresponding tests (usually in
  * androidTest/AndroidManifest.xml).
  */
-expect fun createComposeRule(
-    disableTransitions: Boolean = false,
-    disableBlinkingCursor: Boolean = true
-): ComposeTestRuleJUnit
+expect fun createComposeRule(): ComposeTestRuleJUnit

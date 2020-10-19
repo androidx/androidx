@@ -28,7 +28,7 @@ package androidx.ui.test {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRuleJUnit {
-    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
+    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @androidx.ui.test.ExperimentalTesting public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
@@ -51,9 +51,9 @@ package androidx.ui.test {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, optional boolean disableTransitions, optional boolean disableBlinkingCursor);
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(optional boolean disableTransitions, optional boolean disableBlinkingCursor);
-    method public static androidx.ui.test.ComposeTestRuleJUnit createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
+    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule();
+    method public static androidx.ui.test.ComposeTestRuleJUnit createComposeRule();
   }
 
   public final class AndroidInputDispatcherKt {
@@ -145,15 +145,19 @@ package androidx.ui.test {
     method @androidx.ui.test.ExperimentalTesting public static <R> void runBlockingWithManualClock(optional boolean compatibleWithManualAnimationClock, kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.animation.core.ManualFrameClock,? super kotlin.coroutines.Continuation<? super R>,?> block);
   }
 
-  public final class DisableTransitions implements org.junit.rules.TestRule {
-    ctor public DisableTransitions();
+  @androidx.ui.test.InternalTestingApi public final class DisableTransitionsTestRule implements org.junit.rules.TestRule {
+    ctor public DisableTransitionsTestRule(boolean disableTransitions);
+    ctor public DisableTransitionsTestRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+  }
+
+  public final class DisableTransitionsTestRuleKt {
   }
 
   public final class ErrorMessagesKt {
   }
 
-  @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed" + " entirely") public @interface ExperimentalTesting {
+  @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") public @interface ExperimentalTesting {
   }
 
   public final class FiltersKt {
@@ -260,6 +264,9 @@ package androidx.ui.test {
     method public static void swipeUp(androidx.ui.test.GestureScope);
     method public static void swipeWithVelocity-HxPTMKA(androidx.ui.test.GestureScope, long start, long end, @FloatRange(from=0.0, to=3.4E38) float endVelocity, optional long duration);
     method public static void up(androidx.ui.test.GestureScope, optional int pointerId);
+  }
+
+  @kotlin.RequiresOptIn(message="This is internal API for Compose modules that may change frequently and without warning.") public @interface InternalTestingApi {
   }
 
   public final class KeyInputHelpersKt {

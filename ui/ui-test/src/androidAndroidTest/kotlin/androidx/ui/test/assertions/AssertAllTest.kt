@@ -35,7 +35,7 @@ import org.junit.runners.JUnit4
 class AssertAllTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun twoNodes_twoSatisfied() {

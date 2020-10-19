@@ -33,7 +33,7 @@ import org.junit.runners.JUnit4
 class HasAnyAncestorTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findByAncestor_oneAncestor_oneMatch() {

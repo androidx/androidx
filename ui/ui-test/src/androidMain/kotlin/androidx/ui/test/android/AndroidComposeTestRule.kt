@@ -35,18 +35,13 @@ import androidx.ui.test.createComposeRule
  */
 @Deprecated(
     "Moved to androidx.ui.test",
-    ReplaceWith(
-        "createAndroidComposeRule(disableTransitions, disableBlinkingCursor)",
-        "androidx.ui.test"
-    )
+    ReplaceWith("androidx.ui.test.createAndroidComposeRule<T>()")
 )
+@Suppress("UNUSED_PARAMETER")
 inline fun <reified T : ComponentActivity> createAndroidComposeRule(
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
-): AndroidComposeTestRule<T> = androidx.ui.test.createAndroidComposeRule(
-    disableTransitions,
-    disableBlinkingCursor
-)
+): AndroidComposeTestRule<T> = androidx.ui.test.createAndroidComposeRule()
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule], for a given
@@ -63,17 +58,11 @@ inline fun <reified T : ComponentActivity> createAndroidComposeRule(
  */
 @Deprecated(
     "Moved to androidx.ui.test",
-    ReplaceWith(
-        "createAndroidComposeRule(activityClass, disableTransitions, disableBlinkingCursor)",
-        "androidx.ui.test"
-    )
+    ReplaceWith("androidx.ui.test.createAndroidComposeRule(activityClass)")
 )
+@Suppress("UNUSED_PARAMETER")
 fun <T : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<T>,
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
-): AndroidComposeTestRule<T> = androidx.ui.test.createAndroidComposeRule(
-    activityClass,
-    disableTransitions,
-    disableBlinkingCursor
-)
+): AndroidComposeTestRule<T> = androidx.ui.test.createAndroidComposeRule(activityClass)
