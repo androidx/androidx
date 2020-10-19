@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
@@ -46,10 +47,10 @@ class XArrayTypeTest {
                 .type
             assertThat(type.isArray()).isTrue()
             assertThat(type.typeName).isEqualTo(
-                ArrayTypeName.of(invocation.types.string)
+                ArrayTypeName.of(String::class.java)
             )
             type.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.UNKNOWN)
             }
         }
@@ -90,18 +91,20 @@ class XArrayTypeTest {
             val nonNull = element.getField("nonNull").type
             val nullable = element.getField("nullable").type
             listOf(nonNull, nullable).forEach {
-                assertThat(nonNull.isArray()).isTrue()
-                assertThat(nonNull.typeName).isEqualTo(
-                    ArrayTypeName.of(invocation.types.string)
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.typeName).isEqualTo(
+                    ArrayTypeName.of(String::class.java)
                 )
             }
 
             nonNull.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(
+                    String::class.typeName()
+                )
                 assertThat(component.nullability).isEqualTo(XNullability.NONNULL)
             }
             nullable.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.NULLABLE)
             }
         }

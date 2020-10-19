@@ -16,20 +16,16 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.util.KotlinTypeNames.INT_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.LIST_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.MAP_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.PAIR_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.STRING_CLASS_NAME
+import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isDeclared
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
-import com.google.devtools.ksp.getDeclaredProperties
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.Nullability
+import com.squareup.javapoet.TypeName
 import org.junit.Test
 
 class KSAsMemberOfTest {
@@ -39,6 +35,7 @@ class KSAsMemberOfTest {
             "Foo.kt",
             """
             open class BaseClass<T, R>(val genericProp : T) {
+                val normalInt:Int = 3
                 val listOfGeneric : List<T> = TODO()
                 val mapOfStringToGeneric2 : Map<String, R> = TODO()
                 val pairOfGenerics : Pair<T, R> = TODO()
@@ -50,35 +47,59 @@ class KSAsMemberOfTest {
         )
 
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
-            val base = invocation.requireClass("BaseClass")
-            val sub = invocation.requireClass("SubClass").asStarProjectedType()
-            base.requireProperty("genericProp").let { prop ->
-                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
-                    .isEqualTo(INT_CLASS_NAME)
+            val base = invocation.processingEnv.requireTypeElement("BaseClass")
+            val sub = invocation.processingEnv.requireType("SubClass").asDeclaredType()
+            base.getField("normalInt").let { prop ->
+                assertThat(
+                    prop.asMemberOf(sub).typeName
+                ).isEqualTo(
+                    TypeName.INT
+                )
             }
-            base.requireProperty("listOfGeneric").let { prop ->
-                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
-                    .isEqualTo(ParameterizedTypeName.get(LIST_CLASS_NAME, INT_CLASS_NAME))
+            base.getField("genericProp").let { prop ->
+                assertThat(
+                    prop.asMemberOf(sub).typeName
+                ).isEqualTo(
+                    TypeName.INT.box()
+                )
+            }
+            base.getField("listOfGeneric").let { prop ->
+                assertThat(
+                    prop.asMemberOf(sub).typeName
+                ).isEqualTo(
+                    ParameterizedTypeName.get(
+                        List::class.className(),
+                        TypeName.INT.box()
+                    )
+                )
             }
 
             val listOfStringsTypeName =
-                ParameterizedTypeName.get(LIST_CLASS_NAME, STRING_CLASS_NAME)
-            base.requireProperty("mapOfStringToGeneric2").let { prop ->
-                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
-                    .isEqualTo(
-                        ParameterizedTypeName.get(
-                            MAP_CLASS_NAME, STRING_CLASS_NAME, listOfStringsTypeName
-                        )
+                ParameterizedTypeName.get(
+                    List::class.className(),
+                    String::class.className()
+                )
+            base.getField("mapOfStringToGeneric2").let { prop ->
+                assertThat(
+                    prop.asMemberOf(sub).typeName
+                ).isEqualTo(
+                    ParameterizedTypeName.get(
+                        Map::class.className(),
+                        String::class.className(),
+                        listOfStringsTypeName
                     )
+                )
             }
 
-            base.requireProperty("pairOfGenerics").let { prop ->
-                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
-                    .isEqualTo(
-                        ParameterizedTypeName.get(
-                            PAIR_CLASS_NAME, INT_CLASS_NAME, listOfStringsTypeName
-                        )
+            base.getField("pairOfGenerics").let { prop ->
+                assertThat(
+                    prop.asMemberOf(sub).typeName
+                ).isEqualTo(
+                    ParameterizedTypeName.get(
+                        Pair::class.className(),
+                        TypeName.INT.box(), listOfStringsTypeName
                     )
+                )
             }
         }
     }
@@ -99,63 +120,58 @@ class KSAsMemberOfTest {
             """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
-            val myInterface = invocation.requireClass("MyInterface")
-            val nonNullSubject = invocation.requireClass("NonNullSubject").asStarProjectedType()
-            val nullableSubject = invocation.requireClass("NullableSubject").asStarProjectedType()
-            val inheritedProp = myInterface.requireProperty("inheritedProp")
+            val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
+            val nonNullSubject = invocation.processingEnv.requireType("NonNullSubject")
+                .asDeclaredType()
+            val nullableSubject = invocation.processingEnv.requireType("NullableSubject")
+                .asDeclaredType()
+            val inheritedProp = myInterface.getField("inheritedProp")
             assertThat(
-                inheritedProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).nullability
-            ).isEqualTo(Nullability.NOT_NULL)
+                inheritedProp.asMemberOf(nonNullSubject).nullability
+            ).isEqualTo(XNullability.NONNULL)
             assertThat(
-                inheritedProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).nullability
-            ).isEqualTo(Nullability.NULLABLE)
+                inheritedProp.asMemberOf(nullableSubject).nullability
+            ).isEqualTo(XNullability.NULLABLE)
 
-            val nullableProp = myInterface.requireProperty("nullableProp")
+            val nullableProp = myInterface.getField("nullableProp")
             assertThat(
-                nullableProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).nullability
-            ).isEqualTo(Nullability.NULLABLE)
+                nullableProp.asMemberOf(nonNullSubject).nullability
+            ).isEqualTo(XNullability.NULLABLE)
             assertThat(
-                nullableProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).nullability
-            ).isEqualTo(Nullability.NULLABLE)
+                nullableProp.asMemberOf(nullableSubject).nullability
+            ).isEqualTo(XNullability.NULLABLE)
 
-            val inheritedGenericProp = myInterface.requireProperty("inheritedGenericProp")
-            inheritedGenericProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).let {
-                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+            val inheritedGenericProp = myInterface.getField("inheritedGenericProp")
+            inheritedGenericProp.asMemberOf(nonNullSubject).let {
+                check(it.isDeclared())
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
-                    it.arguments.first().type?.resolve()?.nullability
-                ).isEqualTo(Nullability.NOT_NULL)
+                    it.typeArguments.first().nullability
+                ).isEqualTo(XNullability.NONNULL)
             }
-            inheritedGenericProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).let {
-                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+            inheritedGenericProp.asMemberOf(nullableSubject).let {
+                check(it.isDeclared())
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
-                    it.arguments.first().type?.resolve()?.nullability
-                ).isEqualTo(Nullability.NULLABLE)
+                    it.typeArguments.first().nullability
+                ).isEqualTo(XNullability.NULLABLE)
             }
 
-            val nullableGenericProp = myInterface.requireProperty("nullableGenericProp")
-            nullableGenericProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).let {
-                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+            val nullableGenericProp = myInterface.getField("nullableGenericProp")
+            nullableGenericProp.asMemberOf(nonNullSubject).let {
+                check(it.isDeclared())
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
-                    it.arguments.first().type?.resolve()?.nullability
-                ).isEqualTo(Nullability.NULLABLE)
+                    it.typeArguments.first().nullability
+                ).isEqualTo(XNullability.NULLABLE)
             }
-            nullableGenericProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).let {
-                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+            nullableGenericProp.asMemberOf(nullableSubject).let {
+                check(it.isDeclared())
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(
-                    it.arguments.first().type?.resolve()?.nullability
-                ).isEqualTo(Nullability.NULLABLE)
+                    it.typeArguments.first().nullability
+                ).isEqualTo(XNullability.NULLABLE)
             }
-        }
-    }
-
-    private fun TestInvocation.requireClass(name: String): KSClassDeclaration {
-        val resolver = (processingEnv as KspProcessingEnv).resolver
-        return resolver.requireClass(name)
-    }
-
-    private fun KSClassDeclaration.requireProperty(name: String): KSPropertyDeclaration {
-        return this.getDeclaredProperties().first {
-            it.simpleName.asString() == name
         }
     }
 }

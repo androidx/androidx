@@ -16,12 +16,15 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.KotlinTypeNames
+import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 
@@ -62,34 +65,34 @@ class XExecutableTypeTest {
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             checkMethods("getT", subject) { type ->
                 assertThat(type.parameterTypes).isEmpty()
-                assertThat(type.returnType.typeName).isEqualTo(invocation.types.string)
+                assertThat(type.returnType.typeName).isEqualTo(String::class.typeName())
             }
             checkMethods("setT", subject) { type ->
                 assertThat(type.parameterTypes).containsExactly(
-                    invocation.processingEnv.requireType(invocation.types.string)
+                    invocation.processingEnv.requireType(String::class)
                 )
                 assertThat(type.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
             }
             checkMethods("suspendGetT", subject) { type ->
                 assertThat(type.parameterTypes.first().typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        KotlinTypeNames.CONTINUATION_CLASS_NAME,
-                        WildcardTypeName.supertypeOf(invocation.types.string)
+                        CONTINUATION_CLASS_NAME,
+                        WildcardTypeName.supertypeOf(String::class.java)
                     )
                 )
-                assertThat(type.returnType.typeName).isEqualTo(invocation.types.objectOrAny)
+                assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
             }
             checkMethods("suspendSetT", subject) { type ->
                 assertThat(type.parameterTypes.first().typeName).isEqualTo(
-                    invocation.types.string
+                    String::class.typeName()
                 )
                 assertThat(type.parameterTypes[1].typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        KotlinTypeNames.CONTINUATION_CLASS_NAME,
-                        WildcardTypeName.supertypeOf(KotlinTypeNames.UNIT_CLASS_NAME)
+                        CONTINUATION_CLASS_NAME,
+                        WildcardTypeName.supertypeOf(UNIT_CLASS_NAME)
                     )
                 )
-                assertThat(type.returnType.typeName).isEqualTo(invocation.types.objectOrAny)
+                assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
             }
         }
     }
@@ -128,7 +131,7 @@ class XExecutableTypeTest {
 
             val subject = invocation.processingEnv.requireTypeElement("Subject")
             checkMethods("getImmutableT", subject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                 if (invocation.isKsp) {
                     // we don't get proper nullable here for kapt
                     // partially related to b/169629272
@@ -139,7 +142,7 @@ class XExecutableTypeTest {
                 assertThat(method.typeVariableNames).isEmpty()
             }
             checkMethods("getMutableT", subject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                 if (invocation.isKsp) {
                     // we don't get proper nullable here for kapt
                     // partially related to b/169629272
@@ -153,14 +156,14 @@ class XExecutableTypeTest {
                 assertThat(method.parameterTypes.first().nullability)
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)
-                    .isEqualTo(invocation.types.string)
+                    .isEqualTo(String::class.typeName())
                 assertThat(method.typeVariableNames).isEmpty()
             }
             checkMethods("getList", subject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        invocation.types.list,
-                        invocation.types.string
+                        List::class.java,
+                        String::class.java
                     )
                 )
                 assertThat(method.returnType.nullability).isEqualTo(
@@ -179,7 +182,7 @@ class XExecutableTypeTest {
             val nullableSubject = invocation.processingEnv.requireTypeElement("NullableSubject")
             // check that nullability is inferred from type parameters as well
             checkMethods("getImmutableT", nullableSubject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                 if (invocation.isKsp) {
                     // we don't get proper nullable here for kapt
                     // partially related to b/169629272
@@ -190,7 +193,7 @@ class XExecutableTypeTest {
             }
 
             checkMethods("getMutableT", nullableSubject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                 if (invocation.isKsp) {
                     // we don't get proper nullable here for kapt
                     // partially related to b/169629272
@@ -205,15 +208,15 @@ class XExecutableTypeTest {
                 assertThat(method.parameterTypes.first().nullability)
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)
-                    .isEqualTo(invocation.types.string)
+                    .isEqualTo(String::class.typeName())
                 assertThat(method.typeVariableNames).isEmpty()
             }
 
             checkMethods("getList", nullableSubject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        invocation.types.list,
-                        invocation.types.string
+                        List::class.java,
+                        String::class.java
                     )
                 )
                 assertThat(method.returnType.nullability).isEqualTo(
@@ -230,8 +233,8 @@ class XExecutableTypeTest {
             checkMethods("getNullableList", subject, nullableSubject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        invocation.types.list,
-                        invocation.types.string
+                        List::class.java,
+                        String::class.java
                     )
                 )
                 assertThat(method.returnType.nullability).isEqualTo(

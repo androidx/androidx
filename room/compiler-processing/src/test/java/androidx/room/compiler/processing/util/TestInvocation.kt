@@ -19,9 +19,8 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import com.google.devtools.ksp.processing.Resolver
+import com.squareup.javapoet.TypeName
 import javax.lang.model.util.Elements
 
 class TestInvocation(
@@ -36,39 +35,19 @@ class TestInvocation(
         get() = (processingEnv as JavacProcessingEnv).elementUtils
 
     val types by lazy {
-        if (processingEnv is KspProcessingEnv) {
-            Types(
-                string = KotlinTypeNames.STRING_CLASS_NAME,
-                voidOrUnit = KotlinTypeNames.UNIT_CLASS_NAME,
-                objectOrAny = KotlinTypeNames.ANY_CLASS_NAME,
-                boxedInt = KotlinTypeNames.INT_CLASS_NAME,
-                list = KotlinTypeNames.LIST_CLASS_NAME,
-                mutableSet = KotlinTypeNames.MUTABLESET_CLASS_NAME
-            )
-        } else {
-            Types(
-                string = ClassName.get("java.lang", "String"),
-                voidOrUnit = TypeName.VOID,
-                objectOrAny = TypeName.OBJECT,
-                boxedInt = TypeName.INT.box(),
-                list = ClassName.get("java.util", "List"),
-                mutableSet = ClassName.get("java.util", "Set")
-            )
-        }
+        Types(
+            voidOrUnit = if (isKsp) {
+                UNIT_CLASS_NAME
+            } else {
+                TypeName.VOID
+            }
+        )
     }
 
     /**
      * Helper class to hold types that change between KSP and Javap.
-     * e.g. Kotlin.String vs java.lang.String
      */
     class Types(
-        val string: ClassName,
-        val voidOrUnit: TypeName,
-        val objectOrAny: ClassName,
-        val boxedInt: TypeName,
-        val int: TypeName = TypeName.INT,
-        val long: TypeName = TypeName.LONG,
-        val list: ClassName,
-        val mutableSet: TypeName
+        val voidOrUnit: TypeName
     )
 }

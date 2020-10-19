@@ -17,8 +17,8 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XArrayType
-import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType

@@ -20,14 +20,16 @@ import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.WildcardTypeName
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -124,13 +126,13 @@ class KspTypeTest {
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
                 assertThat(type.asTypeElement().className).isEqualTo(
-                    ClassName.get("kotlin.collections", "List")
+                    List::class.typeName()
                 )
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.nullability).isEqualTo(NULLABLE)
                     assertThat(
                         typeArg.isAssignableFrom(
-                            invocation.processingEnv.requireType("kotlin.String")
+                            invocation.processingEnv.requireType(String::class)
                         )
                     ).isTrue()
                 }
@@ -143,12 +145,12 @@ class KspTypeTest {
                     assertThat(typeArg.nullability).isEqualTo(NONNULL)
                     assertThat(
                         typeArg.isAssignableFrom(
-                            invocation.processingEnv.requireType("kotlin.Int")
+                            invocation.processingEnv.requireType(Int::class)
                         )
                     ).isTrue()
                 }
                 assertThat(type.asTypeElement().className).isEqualTo(
-                    ClassName.get("kotlin.collections", "List")
+                    List::class.className()
                 )
             }
         }
@@ -226,13 +228,13 @@ class KspTypeTest {
                 assertThat(list.rawType).isNotEqualTo(list)
                 assertThat(list.typeArguments).isNotEmpty()
                 assertThat(list.rawType.typeName)
-                    .isEqualTo(ClassName.get("kotlin.collections", "List"))
+                    .isEqualTo(ClassName.get("java.util", "List"))
             }
             invocation.requireDeclaredPropertyType("map").let { map ->
                 assertThat(map.rawType).isNotEqualTo(map)
                 assertThat(map.typeArguments).hasSize(2)
                 assertThat(map.rawType.typeName)
-                    .isEqualTo(ClassName.get("kotlin.collections", "Map"))
+                    .isEqualTo(ClassName.get("java.util", "Map"))
             }
             invocation.requireDeclaredPropertyType("listOfMaps").let { listOfMaps ->
                 assertThat(listOfMaps.rawType).isNotEqualTo(listOfMaps)
@@ -261,7 +263,11 @@ class KspTypeTest {
                     it.simpleName.asString() == "voidMethod"
                 }
             val returnType = voidMethod.returnType
-            assertThat(returnType?.typeName()).isEqualTo(ClassName.get("kotlin", "Unit"))
+            assertThat(
+                returnType?.typeName(invocation.kspResolver)
+            ).isEqualTo(
+                ClassName.get("kotlin", "Unit")
+            )
         }
     }
 
@@ -497,7 +503,7 @@ class KspTypeTest {
             assertThat(arg1.typeName)
                 .isEqualTo(
                     WildcardTypeName.subtypeOf(
-                        ClassName.get("kotlin", "Number")
+                        Number::class.java
                     )
                 )
             assertThat(arg1.extendsBound()).isNull()

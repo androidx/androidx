@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
 
@@ -30,16 +32,10 @@ internal class KspPrimitiveType(
     env: KspProcessingEnv,
     ksType: KSType
 ) : KspType(env, ksType) {
-    override val typeName: TypeName by lazy {
-        // TODO once we generate type names in java realm, this custom conversion won't be necessary
-        // for now, temporarily, we only do conversion here in place
-        return@lazy checkNotNull(
-            KspTypeMapper.getPrimitiveJavaTypeName(
-                ksType.declaration.qualifiedName!!.asString()
-            )
-        ) {
-            "Internal error. Should've found a java primitive for " +
-                "${ksType.declaration.qualifiedName}"
-        }
+    override val typeName: TypeName
+        get() = ksType.typeName(env.resolver).tryUnbox()
+
+    override fun boxed(): XType {
+        return env.wrapDeclared(ksType)
     }
 }
