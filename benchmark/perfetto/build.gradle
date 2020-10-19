@@ -39,6 +39,7 @@ dependencies {
 
     implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
+    implementation(ANDROIDX_TEST_RULES)
 
     androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
