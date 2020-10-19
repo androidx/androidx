@@ -62,7 +62,7 @@ class SkijaTestAlbum(val config: GoldenConfig) {
             )
         }
 
-        val actual = surface.makeImageSnapshot().encodeToData().bytes
+        val actual = surface.makeImageSnapshot().encodeToData()!!.bytes
 
         val expected = readExpectedImage(id)
         if (expected == null) {
