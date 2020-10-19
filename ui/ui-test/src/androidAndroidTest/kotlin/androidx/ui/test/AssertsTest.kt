@@ -33,7 +33,7 @@ import org.junit.Test
 class AssertsTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun assertIsNotHidden_forVisibleElement_isOk() {

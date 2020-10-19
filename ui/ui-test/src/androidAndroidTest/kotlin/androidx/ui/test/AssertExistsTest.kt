@@ -38,7 +38,7 @@ import org.junit.runners.JUnit4
 class AssertExistsTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     @FlakyTest

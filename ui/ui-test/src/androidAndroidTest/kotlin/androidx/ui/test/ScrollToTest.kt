@@ -43,7 +43,7 @@ class ScrollToTest {
     enum class Orientation { Horizontal, Vertical }
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     private val recorder = mutableListOf<Offset>()
 

@@ -18,8 +18,6 @@ package androidx.ui.test
 
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.core.InternalAnimationApi
-import androidx.compose.animation.transitionsEnabled
 import androidx.compose.foundation.text.blinkingCursorEnabled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
@@ -35,19 +33,13 @@ import androidx.ui.test.android.FirstDrawRegistry
 import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.test.android.registerComposeWithEspresso
 import androidx.ui.test.android.unregisterComposeFromEspresso
+import org.junit.rules.RuleChain
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 
-actual fun createComposeRule(
-    disableTransitions: Boolean,
-    disableBlinkingCursor: Boolean
-): ComposeTestRuleJUnit =
-    createAndroidComposeRule<ComponentActivity>(
-        disableTransitions,
-        disableBlinkingCursor
-    )
+actual fun createComposeRule(): ComposeTestRuleJUnit = createAndroidComposeRule<ComponentActivity>()
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule], for a given
@@ -60,19 +52,12 @@ actual fun createComposeRule(
  * If you don't care about specific activity and just want to test composables in general, see
  * [createComposeRule].
  */
-inline fun <reified T : ComponentActivity> createAndroidComposeRule(
-    disableTransitions: Boolean = false,
-    disableBlinkingCursor: Boolean = true
-): AndroidComposeTestRule<T> {
+inline fun <reified T : ComponentActivity> createAndroidComposeRule(): AndroidComposeTestRule<T> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
     //  already there. This is issue in case the user already set some compose content and decides
     //  to set it again via our API. In such case we won't be able to dispose the old composition.
     //  Other option would be to provide a smaller interface that does not expose these methods.
-    return AndroidComposeTestRule(
-        activityRule = ActivityScenarioRule(T::class.java),
-        disableTransitions = disableTransitions,
-        disableBlinkingCursor = disableBlinkingCursor
-    )
+    return AndroidComposeTestRule(ActivityScenarioRule(T::class.java))
 }
 
 /**
@@ -87,13 +72,9 @@ inline fun <reified T : ComponentActivity> createAndroidComposeRule(
  * [createComposeRule].
  */
 fun <T : ComponentActivity> createAndroidComposeRule(
-    activityClass: Class<T>,
-    disableTransitions: Boolean = false,
-    disableBlinkingCursor: Boolean = true
+    activityClass: Class<T>
 ): AndroidComposeTestRule<T> = AndroidComposeTestRule(
-    ActivityScenarioRule(activityClass),
-    disableTransitions,
-    disableBlinkingCursor
+    ActivityScenarioRule(activityClass)
 )
 
 /**
@@ -102,9 +83,7 @@ fun <T : ComponentActivity> createAndroidComposeRule(
 class AndroidComposeTestRule<T : ComponentActivity>(
     // TODO(b/153623653): Remove activityRule from arguments when AndroidComposeTestRule can
     //  work with any kind of Activity launcher.
-    val activityRule: ActivityScenarioRule<T>,
-    private val disableTransitions: Boolean = false,
-    private val disableBlinkingCursor: Boolean = true
+    val activityRule: ActivityScenarioRule<T>
 ) : ComposeTestRuleJUnit {
 
     private fun getActivity(): T {
@@ -133,9 +112,13 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     }
 
     override fun apply(base: Statement, description: Description?): Statement {
-        val activityTestRuleStatement = activityRule.apply(base, description)
-        val composeTestRuleStatement = AndroidComposeStatement(activityTestRuleStatement)
-        return clockTestRule.apply(composeTestRuleStatement, description)
+        @Suppress("NAME_SHADOWING")
+        @OptIn(InternalTestingApi::class)
+        return RuleChain
+            .outerRule(clockTestRule)
+            .around { base, _ -> AndroidComposeStatement(base) }
+            .around(activityRule)
+            .apply(base, description)
     }
 
     /**
@@ -217,10 +200,10 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalTextApi::class, InternalAnimationApi::class)
+        @OptIn(InternalTextApi::class)
         private fun beforeEvaluate() {
-            transitionsEnabled = !disableTransitions
-            blinkingCursorEnabled = !disableBlinkingCursor
+            @Suppress("DEPRECATION_ERROR")
+            blinkingCursorEnabled = false
             AndroidOwnerRegistry.setupRegistry()
             FirstDrawRegistry.setupRegistry()
             registerComposeWithEspresso()
@@ -230,9 +213,9 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalTextApi::class, InternalAnimationApi::class)
+        @OptIn(InternalTextApi::class)
         private fun afterEvaluate() {
-            transitionsEnabled = true
+            @Suppress("DEPRECATION_ERROR")
             blinkingCursorEnabled = true
             AndroidOwnerRegistry.tearDownRegistry()
             FirstDrawRegistry.tearDownRegistry()

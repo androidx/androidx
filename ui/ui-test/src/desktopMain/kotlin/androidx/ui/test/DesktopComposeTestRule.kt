@@ -34,20 +34,9 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import javax.swing.SwingUtilities.invokeAndWait
 
-actual fun createComposeRule(
-    disableTransitions: Boolean,
-    disableBlinkingCursor: Boolean
-): ComposeTestRuleJUnit {
-    return DesktopComposeTestRule(
-        disableTransitions,
-        disableBlinkingCursor
-    )
-}
+actual fun createComposeRule(): ComposeTestRuleJUnit = DesktopComposeTestRule()
 
-class DesktopComposeTestRule(
-    private val disableTransitions: Boolean = false,
-    private val disableBlinkingCursor: Boolean = true
-) : ComposeTestRuleJUnit {
+class DesktopComposeTestRule : ComposeTestRuleJUnit {
 
     companion object {
         init {

@@ -42,7 +42,7 @@ import org.junit.runners.JUnit4
 class ErrorMessagesTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findByTag_assertHasClickAction_predicateShouldFail() {

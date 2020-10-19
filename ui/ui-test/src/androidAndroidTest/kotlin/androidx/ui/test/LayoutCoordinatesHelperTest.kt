@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
 class LayoutCoordinatesHelperTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun positionInParent_noOffset() {

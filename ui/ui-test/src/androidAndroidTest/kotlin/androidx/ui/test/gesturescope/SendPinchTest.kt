@@ -46,7 +46,7 @@ class SendPinchTest {
     }
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 

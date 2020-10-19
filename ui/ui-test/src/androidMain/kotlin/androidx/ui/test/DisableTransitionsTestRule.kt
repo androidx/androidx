@@ -24,17 +24,19 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * This rule will disable all [transition] animations for the test.
+ * This rule will disable all [transition] animations for the test. As a convenience, the rule
+ * can be turned into a no-op by setting [disableTransitions] to `false`, allowing you to put it
+ * into a rule chain without branching logic.
  */
-class DisableTransitions : TestRule {
+@InternalTestingApi
+class DisableTransitionsTestRule(private val disableTransitions: Boolean = false) : TestRule {
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return DisableTransitionsStatement(base)
+        return if (disableTransitions) DisableTransitionsStatement(base) else base
     }
 
-    private class DisableTransitionsStatement(
-        private val base: Statement
-    ) : Statement() {
+    private class DisableTransitionsStatement(private val base: Statement) : Statement() {
+        @Suppress("DEPRECATION_ERROR")
         @OptIn(InternalAnimationApi::class)
         override fun evaluate() {
             transitionsEnabled = false
@@ -46,3 +48,14 @@ class DisableTransitions : TestRule {
         }
     }
 }
+
+@Deprecated(
+    message = "Renamed to DisableTransitionsTestRule",
+    replaceWith = ReplaceWith(
+        "DisableTransitionsTestRule",
+        "androidx.ui.test.DisableTransitionsTestRule"
+    )
+)
+@Suppress("unused")
+@OptIn(InternalTestingApi::class)
+typealias DisableTransitions = DisableTransitionsTestRule

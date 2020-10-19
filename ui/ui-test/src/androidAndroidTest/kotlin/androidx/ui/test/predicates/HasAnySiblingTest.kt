@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4
 class HasAnySiblingTest {
 
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun findBySibling_oneSubtree_oneSibling_matches() {

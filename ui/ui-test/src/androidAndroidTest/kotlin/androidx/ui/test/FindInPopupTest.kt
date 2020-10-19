@@ -34,7 +34,7 @@ private const val popupTag = "popup"
 @RunWith(JUnit4::class)
 class FindInPopupTest {
     @get:Rule
-    val rule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule()
 
     @Test
     fun test() {
