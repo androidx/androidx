@@ -28,8 +28,6 @@ import com.google.android.icing.proto.ScoringSpecProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.TermMatchType;
 
-import java.util.Arrays;
-
 /**
  * Translates a {@link SearchSpec} into icing search protos.
  * @hide
@@ -43,7 +41,9 @@ public final class SearchSpecToProtoConverter {
     public static SearchSpecProto toSearchSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
         Bundle bundle = spec.getBundle();
-        SearchSpecProto.Builder protoBuilder = SearchSpecProto.newBuilder();
+        SearchSpecProto.Builder protoBuilder = SearchSpecProto.newBuilder()
+                .addAllSchemaTypeFilters(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD))
+                .addAllNamespaceFilters(bundle.getStringArrayList(SearchSpec.NAMESPACE_FIELD));
 
         @SearchSpec.TermMatch int termMatchCode =
                 bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD);
@@ -53,14 +53,6 @@ public final class SearchSpecToProtoConverter {
         }
         protoBuilder.setTermMatchType(termMatchCodeProto);
 
-        String[] schemaTypes = bundle.getStringArray(SearchSpec.SCHEMA_TYPES_FIELD);
-        if (schemaTypes != null) {
-            protoBuilder.addAllSchemaTypeFilters(Arrays.asList(schemaTypes));
-        }
-        String[] namespaces = bundle.getStringArray(SearchSpec.NAMESPACE_FIELD);
-        if (namespaces != null) {
-            protoBuilder.addAllNamespaceFilters(Arrays.asList(namespaces));
-        }
         return protoBuilder.build();
     }
 

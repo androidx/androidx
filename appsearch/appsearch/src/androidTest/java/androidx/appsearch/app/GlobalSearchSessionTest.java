@@ -39,6 +39,7 @@ import java.util.Set;
 public class GlobalSearchSessionTest {
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
+    private AppSearchSession mDefaultDb;
 
     private GlobalSearchSession mGlobalAppSearchManager;
 
@@ -51,6 +52,8 @@ public class GlobalSearchSessionTest {
         mDb2 = checkIsResultSuccess(LocalBackend.createSearchSession(
                 new LocalBackend.SearchContext.Builder(context)
                         .setDatabaseName("testDb2").build()));
+        mDefaultDb = checkIsResultSuccess(LocalBackend.createSearchSession(
+                new LocalBackend.SearchContext.Builder(context).build()));
 
         mGlobalAppSearchManager = checkIsResultSuccess(LocalBackend.createGlobalSearchSession(
                 new LocalBackend.GlobalSearchContext.Builder(context).build()));
@@ -60,6 +63,8 @@ public class GlobalSearchSessionTest {
                 mDb1.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
         checkIsResultSuccess(
                 mDb2.setSchema(new SetSchemaRequest.Builder().setForceOverride(true).build()));
+        checkIsResultSuccess(mDefaultDb.setSchema(
+                        new SetSchemaRequest.Builder().setForceOverride(true).build()));
     }
 
     @Test
@@ -234,7 +239,7 @@ public class GlobalSearchSessionTest {
 
         // Query only for email documents
         searchResults = mGlobalAppSearchManager.globalQuery("body", new SearchSpec.Builder()
-                .setSchemaTypes(AppSearchEmail.SCHEMA_TYPE)
+                .addSchema(AppSearchEmail.SCHEMA_TYPE)
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -284,7 +289,7 @@ public class GlobalSearchSessionTest {
         // Query only for "namespace1"
         searchResults = mGlobalAppSearchManager.globalQuery("body",
                 new SearchSpec.Builder()
-                        .setNamespaces("namespace1")
+                        .addNamespace("namespace1")
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);
