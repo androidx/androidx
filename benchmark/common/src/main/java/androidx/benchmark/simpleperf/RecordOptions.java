@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +178,7 @@ public class RecordOptions {
     }
 
     private String getDefaultOutputFilename() {
-        LocalDateTime time = LocalDateTime.now();
+        LocalDateTime time = LocalDateTime.now(ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("'perf'-MM-dd-HH-mm-ss'.data'");
         return time.format(formatter);
     }
