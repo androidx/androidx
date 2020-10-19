@@ -93,7 +93,7 @@ private fun NavControllerSaver(
  * @param destinationId a id to navigate to
  * @param args arguments to pass to the destination
  */
-public fun NavHostController.navigate(
+public fun NavController.navigate(
     destinationId: Any,
     args: Bundle? = null
 ) {
@@ -107,7 +107,7 @@ public fun NavHostController.navigate(
  * @param startDestination an object to identify a destination
  * @param builder the builder used to construct the graph
  */
-internal fun NavHostController.createGraph(
+internal fun NavController.createGraph(
     id: Int = 0,
     startDestination: Any,
     builder: NavGraphBuilder.() -> Unit
