@@ -61,12 +61,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.reset
-import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
@@ -935,7 +933,7 @@ class WatchFaceServiceTest {
                     false,
                     DeviceConfig.SCREEN_SHAPE_ROUND
                 ),
-                SystemState(false, 0, 0, 0),
+                SystemState(false, 0),
                 UserStyle(
                     hashMapOf(
                         colorStyleCategory to blueStyleOption,
@@ -970,7 +968,7 @@ class WatchFaceServiceTest {
                     false,
                     DeviceConfig.SCREEN_SHAPE_ROUND
                 ),
-                SystemState(false, 0, 0, 0),
+                SystemState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
                 null
             )
@@ -978,68 +976,6 @@ class WatchFaceServiceTest {
 
         assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
-    }
-
-    @Test
-    fun maybeUpdateStatus_issuesCorrectApiCalls() {
-        initEngine(WatchFaceType.ANALOG, emptyList(), emptyList())
-
-        val bundle = Bundle().apply {
-            putBoolean(Constants.STATUS_CHARGING, true)
-            putBoolean(Constants.STATUS_AIRPLANE_MODE, false)
-            putBoolean(Constants.STATUS_CONNECTED, true)
-            putBoolean(Constants.STATUS_THEATER_MODE, false)
-            putBoolean(Constants.STATUS_GPS_ACTIVE, true)
-            putBoolean(Constants.STATUS_KEYGUARD_LOCKED, false)
-        }
-
-        val isChargingObserver = mock<Observer<Boolean>>()
-        val inAirplaneModeObserver = mock<Observer<Boolean>>()
-        val isConnectedToCompanionObserver = mock<Observer<Boolean>>()
-        val isInTheaterModeObserver = mock<Observer<Boolean>>()
-        val isGpsActiveObserver = mock<Observer<Boolean>>()
-        val isKeyguardLockedObserver = mock<Observer<Boolean>>()
-        watchState.isCharging.addObserver(isChargingObserver)
-        watchState.inAirplaneMode.addObserver(inAirplaneModeObserver)
-        watchState.isConnectedToCompanion.addObserver(isConnectedToCompanionObserver)
-        watchState.isInTheaterMode.addObserver(isInTheaterModeObserver)
-        watchState.isGpsActive.addObserver(isGpsActiveObserver)
-        watchState.isKeyguardLocked.addObserver(isKeyguardLockedObserver)
-
-        // Every indicator onXyz method should be called upon the initial update.
-        engineWrapper.onBackgroundAction(
-            Bundle().apply {
-                putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
-            }
-        )
-
-        verify(isChargingObserver).onChanged(true)
-        verify(inAirplaneModeObserver).onChanged(false)
-        verify(isConnectedToCompanionObserver).onChanged(true)
-        verify(isInTheaterModeObserver).onChanged(false)
-        verify(isGpsActiveObserver).onChanged(true)
-        verify(isKeyguardLockedObserver).onChanged(false)
-
-        reset(isChargingObserver)
-        reset(inAirplaneModeObserver)
-        reset(isConnectedToCompanionObserver)
-        reset(isInTheaterModeObserver)
-        reset(isGpsActiveObserver)
-        reset(isKeyguardLockedObserver)
-
-        // Check only the modified setIsCharging state leads to a call.
-        bundle.putBoolean(Constants.STATUS_CHARGING, false)
-        engineWrapper.onBackgroundAction(
-            Bundle().apply {
-                putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
-            }
-        )
-        verify(isChargingObserver).onChanged(false)
-        verify(inAirplaneModeObserver, times(0)).onChanged(anyBoolean())
-        verify(isConnectedToCompanionObserver, times(0)).onChanged(anyBoolean())
-        verify(isInTheaterModeObserver, times(0)).onChanged(anyBoolean())
-        verify(isGpsActiveObserver, times(0)).onChanged(anyBoolean())
-        verify(isKeyguardLockedObserver, times(0)).onChanged(anyBoolean())
     }
 
     @Test
@@ -1071,7 +1007,7 @@ class WatchFaceServiceTest {
                     false,
                     DeviceConfig.SCREEN_SHAPE_RECTANGULAR
                 ),
-                SystemState(false, 0, 0, 0),
+                SystemState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
                 null
             )

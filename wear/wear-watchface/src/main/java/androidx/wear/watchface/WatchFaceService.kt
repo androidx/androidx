@@ -63,7 +63,6 @@ import androidx.wear.watchface.data.IdAndComplicationData
 import androidx.wear.watchface.data.IdAndComplicationDetails
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
-import androidx.wear.watchface.data.IndicatorState
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -340,61 +339,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 mutableWatchState.interruptionFilter.value = systemState.interruptionFilter
             }
 
-            if (firstSetSystemState ||
-                systemState.unreadCount != mutableWatchState.unreadNotificationCount.value
-            ) {
-                mutableWatchState.unreadNotificationCount.value = systemState.unreadCount
-            }
-
-            if (firstSetSystemState ||
-                systemState.notificationCount != mutableWatchState.notificationCount.value
-            ) {
-                mutableWatchState.notificationCount.value = systemState.notificationCount
-            }
-
             firstSetSystemState = false
-        }
-
-        fun setIndicatorState(indicatorState: IndicatorState) {
-            if (firstIndicatorState ||
-                indicatorState.isCharging != mutableWatchState.isCharging.value
-            ) {
-                mutableWatchState.isCharging.value = indicatorState.isCharging
-            }
-
-            if (firstIndicatorState ||
-                indicatorState.inAirplaneMode != mutableWatchState.inAirplaneMode.value
-            ) {
-                mutableWatchState.inAirplaneMode.value = indicatorState.inAirplaneMode
-            }
-
-            if (firstIndicatorState ||
-                indicatorState.isConnectedToCompanion !=
-                mutableWatchState.isConnectedToCompanion.value
-            ) {
-                mutableWatchState.isConnectedToCompanion.value =
-                    indicatorState.isConnectedToCompanion
-            }
-
-            if (firstIndicatorState ||
-                indicatorState.inTheaterMode != mutableWatchState.isInTheaterMode.value
-            ) {
-                mutableWatchState.isInTheaterMode.value = indicatorState.inTheaterMode
-            }
-
-            if (firstIndicatorState ||
-                indicatorState.isGpsActive != mutableWatchState.isGpsActive.value
-            ) {
-                mutableWatchState.isGpsActive.value = indicatorState.isGpsActive
-            }
-
-            if (firstIndicatorState ||
-                indicatorState.isKeyguardLocked != mutableWatchState.isKeyguardLocked.value
-            ) {
-                mutableWatchState.isKeyguardLocked.value = indicatorState.isKeyguardLocked
-            }
-
-            firstIndicatorState = false
         }
 
         @UiThread
@@ -673,31 +618,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     extras.getInt(
                         Constants.EXTRA_INTERRUPTION_FILTER,
                         mutableWatchState.interruptionFilter.getValueOr(0)
-                    ),
-                    extras.getInt(
-                        Constants.EXTRA_UNREAD_COUNT,
-                        mutableWatchState.unreadNotificationCount.getValueOr(0)
-                    ),
-                    extras.getInt(
-                        Constants.EXTRA_NOTIFICATION_COUNT,
-                        mutableWatchState.notificationCount.getValueOr(0)
                     )
                 )
             )
-
-            val statusBundle = extras.getBundle(Constants.EXTRA_INDICATOR_STATUS)
-            if (statusBundle != null) {
-                setIndicatorState(
-                    IndicatorState(
-                        statusBundle.getBoolean(Constants.STATUS_CHARGING),
-                        statusBundle.getBoolean(Constants.STATUS_AIRPLANE_MODE),
-                        statusBundle.getBoolean(Constants.STATUS_CONNECTED),
-                        statusBundle.getBoolean(Constants.STATUS_THEATER_MODE),
-                        statusBundle.getBoolean(Constants.STATUS_GPS_ACTIVE),
-                        statusBundle.getBoolean(Constants.STATUS_KEYGUARD_LOCKED)
-                    )
-                )
-            }
 
             pendingBackgroundAction = null
         }
