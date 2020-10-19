@@ -125,7 +125,7 @@ public class ComplicationsManager(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
         renderer: Renderer,
-        complicationInvalidateCallback: CanvasComplicationRenderer.InvalidateCallback
+        complicationInvalidateCallback: Complication.InvalidateCallback
     ) {
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
