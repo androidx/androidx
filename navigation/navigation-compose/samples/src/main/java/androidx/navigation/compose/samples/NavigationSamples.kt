@@ -31,10 +31,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonConstants
 import androidx.compose.material.Divider
-import androidx.navigation.compose.AmbientNavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
@@ -43,7 +39,13 @@ import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigate
+import androidx.navigation.compose.rememberNavController
 import androidx.core.os.bundleOf
+import androidx.navigation.NavController
 
 sealed class Screen(val title: String) {
     object Profile : Screen("Profile")
@@ -54,28 +56,29 @@ sealed class Screen(val title: String) {
 @Sampled
 @Composable
 fun BasicNav() {
-    NavHost(startDestination = "Profile") {
-        composable("Profile") { Profile() }
-        composable("Dashboard") { Dashboard() }
-        composable("Scrollable") { Scrollable() }
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "Profile") {
+        composable("Profile") { Profile(navController) }
+        composable("Dashboard") { Dashboard(navController) }
+        composable("Scrollable") { Scrollable(navController) }
     }
 }
 
 @Composable
-fun Profile() {
+fun Profile(navController: NavHostController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = Screen.Profile.title)
-        NavigateButton(Screen.Dashboard)
+        NavigateButton(navController, Screen.Dashboard)
         Divider(color = Color.Black)
-        NavigateButton(Screen.Scrollable)
+        NavigateButton(navController, Screen.Scrollable)
         Spacer(Modifier.weight(1f))
-        NavigateBackButton()
+        NavigateBackButton(navController)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class) // for BaseTextField
 @Composable
-fun ProfileWithArgs() {
+fun ProfileWithArgs(navController: NavController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = Screen.Profile.title)
         Divider(color = Color.Black)
@@ -93,6 +96,7 @@ fun ProfileWithArgs() {
         }
         Divider(color = Color.Black)
         NavigateButton(
+            navController,
             Screen.Dashboard,
             bundleOf("args" to state.value.text),
             "Dashboard with Args"
@@ -101,31 +105,34 @@ fun ProfileWithArgs() {
 }
 
 @Composable
-fun Dashboard(title: String? = null) {
+fun Dashboard(navController: NavController, title: String? = null) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = title ?: Screen.Dashboard.title)
         Spacer(Modifier.weight(1f))
-        NavigateBackButton()
+        NavigateBackButton(navController)
     }
 }
 
 @Composable
-fun Scrollable() {
+fun Scrollable(navController: NavController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        NavigateButton(Screen.Dashboard)
+        NavigateButton(navController, Screen.Dashboard)
         ScrollableColumn(Modifier.weight(1f)) {
             phrases.forEach { phrase ->
                 Text(phrase, fontSize = 30.sp)
             }
         }
-        NavigateBackButton()
+        NavigateBackButton(navController)
     }
 }
 
-@Sampled
 @Composable
-fun NavigateButton(screen: Screen, args: Bundle? = null, text: String = screen.title) {
-    val navController = AmbientNavController.current
+fun NavigateButton(
+    navController: NavController,
+    screen: Screen,
+    args: Bundle? = null,
+    text: String = screen.title
+) {
     Button(
         onClick = { navController.navigate(screen.title, args) },
         colors = ButtonConstants.defaultButtonColors(backgroundColor = LightGray),
@@ -136,8 +143,7 @@ fun NavigateButton(screen: Screen, args: Bundle? = null, text: String = screen.t
 }
 
 @Composable
-fun NavigateBackButton() {
-    val navController = AmbientNavController.current
+fun NavigateBackButton(navController: NavController, ) {
     if (navController.previousBackStackEntry != null) {
         Button(
             onClick = { navController.popBackStack() },

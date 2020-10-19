@@ -33,8 +33,8 @@ import androidx.navigation.NavHostController
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
  *
- * Once this is called, any Composable with in given [NavGraphBuilder] can be navigated to from the
- * [AmbientNavController].
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
  *
  * @sample androidx.navigation.compose.samples.BasicNav
  *
@@ -44,7 +44,7 @@ import androidx.navigation.NavHostController
  */
 @Composable
 public fun NavHost(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
     id: Int = 0,
     startDestination: Any,
     builder: NavGraphBuilder.() -> Unit
@@ -60,8 +60,8 @@ public fun NavHost(
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
  *
- * Once this is called, any Composable with in given [NavGraphBuilder] can be navigated to from the
- * [AmbientNavController].
+ * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
+ * the provided [navController].
  *
  * @param navController the navController for this host
  * @param graph the graph for this host
@@ -107,7 +107,6 @@ internal fun NavHost(navController: NavHostController, graph: NavGraph) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             Providers(
-                AmbientNavController provides navController,
                 ViewModelStoreOwnerAmbient provides currentNavBackStackEntry!!,
                 LifecycleOwnerAmbient provides currentNavBackStackEntry!!
             ) {

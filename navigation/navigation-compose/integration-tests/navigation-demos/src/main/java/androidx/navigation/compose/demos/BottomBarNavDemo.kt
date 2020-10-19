@@ -61,9 +61,9 @@ fun BottomBarNavDemo() {
         }
     ) {
         NavHost(navController, startDestination = "Profile") {
-            composable("Profile") { Profile() }
-            composable("Dashboard") { Dashboard() }
-            composable("Scrollable") { Scrollable() }
+            composable("Profile") { Profile(navController) }
+            composable("Dashboard") { Dashboard(navController) }
+            composable("Scrollable") { Scrollable(navController) }
         }
     }
 }

@@ -19,15 +19,17 @@ package androidx.navigation.compose.demos
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.ProfileWithArgs
 
 @Composable
 fun NavWithArgsDemo() {
-    NavHost(startDestination = "Profile") {
-        composable("Profile") { ProfileWithArgs() }
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "Profile") {
+        composable("Profile") { ProfileWithArgs(navController) }
         composable("Dashboard") { backStackEntry ->
-            Dashboard(backStackEntry.arguments?.get("args") as? String)
+            Dashboard(navController, backStackEntry.arguments?.get("args") as? String)
         }
     }
 }
