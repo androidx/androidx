@@ -171,6 +171,14 @@ class XProcessingEnvTest {
     }
 
     @Test
+    fun findGeneratedAnnotation() {
+        runProcessorTestIncludingKsp { invocation ->
+            val generatedAnnotation = invocation.processingEnv.findGeneratedAnnotation()
+            assertThat(generatedAnnotation?.name).isEqualTo("Generated")
+        }
+    }
+
+    @Test
     fun generateCode() {
         val javaSrc = Source.java(
             "foo.bar.AccessGenerated",
