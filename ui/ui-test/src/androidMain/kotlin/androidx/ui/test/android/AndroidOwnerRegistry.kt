@@ -53,7 +53,7 @@ internal object AndroidOwnerRegistry {
                 unregisterOwner(it)
             }
             // Remove all listeners as well, now we've unregistered all owners
-            registryListeners.clear()
+            synchronized(registryListeners) { registryListeners.clear() }
         }
     }
 
@@ -66,7 +66,7 @@ internal object AndroidOwnerRegistry {
      * normally not relevant (like those whose lifecycle state is not RESUMED).
      */
     fun getUnfilteredOwners(): Set<AndroidOwner> {
-        return owners.toSet()
+        return synchronized(owners) { owners.toSet() }
     }
 
     /**
@@ -74,8 +74,11 @@ internal object AndroidOwnerRegistry {
      * This method is almost always preferred over [getUnfilteredOwners].
      */
     fun getOwners(): Set<AndroidOwner> {
-        return owners.filterTo(mutableSetOf()) {
-            it.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState == Lifecycle.State.RESUMED
+        return synchronized(owners) {
+            owners.filterTo(mutableSetOf()) {
+                it.viewTreeOwners?.lifecycleOwner
+                    ?.lifecycle?.currentState == Lifecycle.State.RESUMED
+            }
         }
     }
 
@@ -83,18 +86,18 @@ internal object AndroidOwnerRegistry {
      * Adds the given [listener], to be notified when an [AndroidOwner] registers or unregisters.
      */
     fun addOnRegistrationChangedListener(listener: OnRegistrationChangedListener) {
-        registryListeners.add(listener)
+        synchronized(registryListeners) { registryListeners.add(listener) }
     }
 
     /**
      * Removes the given [listener].
      */
     fun removeOnRegistrationChangedListener(listener: OnRegistrationChangedListener) {
-        registryListeners.remove(listener)
+        synchronized(registryListeners) { registryListeners.remove(listener) }
     }
 
     private fun dispatchOnRegistrationChanged(owner: AndroidOwner, isRegistered: Boolean) {
-        registryListeners.toList().forEach {
+        synchronized(registryListeners) { registryListeners.toList() }.forEach {
             it.onRegistrationChanged(owner, isRegistered)
         }
     }
