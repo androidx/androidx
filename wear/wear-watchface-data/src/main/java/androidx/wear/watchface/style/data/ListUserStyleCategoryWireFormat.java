@@ -39,8 +39,8 @@ public class ListUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat
 
     public ListUserStyleCategoryWireFormat(
             @NonNull String id,
-            @NonNull String displayName,
-            @NonNull String description,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
@@ -60,7 +60,7 @@ public class ListUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat
         /** Localized human readable name for the setting, used in the style selection UI. */
         @ParcelField(2)
         @NonNull
-        public String mDisplayName = "";
+        public CharSequence mDisplayName = "";
 
         /** Icon for use in the style selection UI. */
         @ParcelField(3)
@@ -71,7 +71,7 @@ public class ListUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat
 
         public ListOptionWireFormat(
                 @NonNull String id,
-                @NonNull String displayName,
+                @NonNull CharSequence displayName,
                 @Nullable Icon icon
         ) {
             super(id);

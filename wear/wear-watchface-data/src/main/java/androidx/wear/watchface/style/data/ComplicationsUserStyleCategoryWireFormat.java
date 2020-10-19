@@ -49,8 +49,8 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
 
     public ComplicationsUserStyleCategoryWireFormat(
             @NonNull String id,
-            @NonNull String displayName,
-            @NonNull String description,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
@@ -171,7 +171,7 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
     public static class ComplicationsOptionWireFormat extends OptionWireFormat {
         @ParcelField(2)
         @NonNull
-        public String mDisplayName;
+        public CharSequence mDisplayName;
 
         @ParcelField(3)
         @Nullable
@@ -190,7 +190,7 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
 
         public ComplicationsOptionWireFormat(
                 @NonNull String id,
-                @NonNull String displayName,
+                @NonNull CharSequence displayName,
                 @Nullable Icon icon,
                 @NonNull ComplicationOverlayWireFormat[] complicationOverlays
         ) {

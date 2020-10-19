@@ -35,10 +35,10 @@ public abstract class UserStyleCategory(
     public val id: String,
 
     /** Localized human readable name for the element, used in the userStyle selection UI. */
-    public val displayName: String,
+    public val displayName: CharSequence,
 
     /** Localized description string displayed under the displayName. */
-    public val description: String,
+    public val description: CharSequence,
 
     /** Icon for use in the style selection UI. */
     public val icon: Icon?,

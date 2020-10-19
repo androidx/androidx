@@ -2,7 +2,7 @@
 package androidx.wear.watchface.style {
 
   public final class BooleanUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public BooleanUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, boolean defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public BooleanUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, boolean defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method public boolean getDefaultValue();
   }
 
@@ -13,7 +13,7 @@ package androidx.wear.watchface.style {
   }
 
   public final class ComplicationsUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public ComplicationsUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public ComplicationsUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
   }
 
   public static final class ComplicationsUserStyleCategory.ComplicationOverlay {
@@ -42,17 +42,17 @@ package androidx.wear.watchface.style {
   }
 
   public static final class ComplicationsUserStyleCategory.ComplicationsOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
-    ctor public ComplicationsUserStyleCategory.ComplicationsOption(String id, String displayName, android.graphics.drawable.Icon? icon, java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> complicationOverlays);
+    ctor public ComplicationsUserStyleCategory.ComplicationsOption(String id, CharSequence displayName, android.graphics.drawable.Icon? icon, java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> complicationOverlays);
     method public java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> getComplicationOverlays();
-    method public String getDisplayName();
+    method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
     property public final java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> complicationOverlays;
-    property public final String displayName;
+    property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
   }
 
   public final class DoubleRangeUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public DoubleRangeUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, double minimumValue, double maximumValue, double defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public DoubleRangeUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, double minimumValue, double maximumValue, double defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method public double getDefaultValue();
     method public double getMaximumValue();
     method public double getMinimumValue();
@@ -71,20 +71,20 @@ package androidx.wear.watchface.style {
   }
 
   public class ListUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.ListUserStyleCategory.ListOption defaultOption);
-    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public ListUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.ListUserStyleCategory.ListOption defaultOption);
+    ctor public ListUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
   }
 
   public static final class ListUserStyleCategory.ListOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
-    ctor public ListUserStyleCategory.ListOption(String id, String displayName, android.graphics.drawable.Icon? icon);
-    method public String getDisplayName();
+    ctor public ListUserStyleCategory.ListOption(String id, CharSequence displayName, android.graphics.drawable.Icon? icon);
+    method public CharSequence getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
-    property public final String displayName;
+    property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
   }
 
   public final class LongRangeUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public LongRangeUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, long minimumValue, long maximumValue, long defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public LongRangeUserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, long minimumValue, long maximumValue, long defaultValue, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method public long getDefaultValue();
     method public long getMaximumValue();
     method public long getMinimumValue();
@@ -103,20 +103,20 @@ package androidx.wear.watchface.style {
   }
 
   public abstract class UserStyleCategory {
-    ctor public UserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory.Option> options, int defaultOptionIndex, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public UserStyleCategory(String id, CharSequence displayName, CharSequence description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory.Option> options, int defaultOptionIndex, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method public final java.util.Collection<androidx.wear.watchface.style.Layer> getAffectsLayers();
     method public final androidx.wear.watchface.style.UserStyleCategory.Option getDefaultOption();
     method public final int getDefaultOptionIndex();
-    method public final String getDescription();
-    method public final String getDisplayName();
+    method public final CharSequence getDescription();
+    method public final CharSequence getDisplayName();
     method public final android.graphics.drawable.Icon? getIcon();
     method public final String getId();
     method public androidx.wear.watchface.style.UserStyleCategory.Option getOptionForId(String optionId);
     method public final java.util.List<androidx.wear.watchface.style.UserStyleCategory.Option> getOptions();
     property public final java.util.Collection<androidx.wear.watchface.style.Layer> affectsLayers;
     property public final int defaultOptionIndex;
-    property public final String description;
-    property public final String displayName;
+    property public final CharSequence description;
+    property public final CharSequence displayName;
     property public final android.graphics.drawable.Icon? icon;
     property public final String id;
     property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory.Option> options;
