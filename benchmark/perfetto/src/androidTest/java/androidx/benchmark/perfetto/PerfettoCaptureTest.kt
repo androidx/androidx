@@ -36,7 +36,7 @@ import java.io.File
 @RunWith(AndroidJUnit4::class)
 class PerfettoCaptureTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val traceFile = File(context.getExternalFilesDir(null), "myperfetto1.trace")
+    private val traceFile = File(context.getExternalFilesDir(null), "PerfettoCaptureTest.trace")
     private val traceFilePath = traceFile.absolutePath
 
     @Before

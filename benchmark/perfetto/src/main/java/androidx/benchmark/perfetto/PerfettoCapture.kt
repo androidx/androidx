@@ -21,16 +21,33 @@ import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
+/**
+ * Enables capturing a Perfetto trace from a test on Q+ devices.
+ *
+ * It's possible to support API 28, but there are a few issues to resolve:
+ * - Use binary config protos
+ * - May need to distribute perfetto binary, with atrace workaround
+ * - App tags are not available, due to lack of `<profileable shell=true>`. Can potentially hack
+ * around this for individual tags within test infra as needed.
+ */
 @RequiresApi(29)
 internal class PerfettoCapture {
     private val helper = PerfettoHelper()
 
+    /**
+     * Kill perfetto process, if it is running.
+     */
     fun cancel() {
         if (helper.isPerfettoRunning) {
             helper.stopPerfetto()
         }
     }
 
+    /**
+     * Start collecting perfetto trace.
+     *
+     * TODO: provide configuration options
+     */
     fun start() {
         val context: Context = InstrumentationRegistry.getInstrumentation().context
 
@@ -52,6 +69,12 @@ internal class PerfettoCapture {
         }
     }
 
+    /**
+     * Stop collection, and record trace to the specified file path.
+     *
+     * @param destinationPath Absolute path to write perfetto trace to. Must be shell-writable,
+     * such as result of `context.getExternalFilesDir(null)` or other similar `external` paths.
+     */
     fun stop(destinationPath: String) {
         if (!helper.stopCollecting(50, destinationPath)) {
             // TODO: move internal failures to be exceptions
