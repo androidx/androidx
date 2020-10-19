@@ -32,6 +32,7 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -71,6 +73,7 @@ import androidx.compose.ui.unit.sp
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -89,6 +92,15 @@ class ParameterFactoryTest {
         factory.density = Density(2.0f)
         node.width = 1000
         node.height = 500
+
+        @OptIn(InternalComposeApi::class)
+        isDebugInspectorInfoEnabled = true
+    }
+
+    @After
+    fun after() {
+        @OptIn(InternalComposeApi::class)
+        isDebugInspectorInfoEnabled = false
     }
 
     @Test
