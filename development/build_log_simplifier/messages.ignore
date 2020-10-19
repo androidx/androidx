@@ -40,7 +40,7 @@ The Kotlin source set test was configured but not added to any Kotlin compilatio
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
-BUILD SUCCESSFUL in [0-9]+m [0-9]+s
+BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -1227,3 +1227,5 @@ There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\
 More than one file was found with OS independent path 'META\-INF/benchmark-perfetto_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+# > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
+[0-9]+ actionable tasks: [0-9]+ up\-to\-date
