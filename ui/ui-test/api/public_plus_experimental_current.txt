@@ -197,24 +197,14 @@ package androidx.ui.test {
   }
 
   public final class FindersKt {
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(androidx.ui.test.ComposeTestRule, String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(androidx.ui.test.ComposeTestRule, String testTag, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(String testTag, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(androidx.ui.test.ComposeTestRule, String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(String label, optional boolean ignoreCase, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(androidx.ui.test.ComposeTestRule, String testTag, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(String testTag, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(androidx.ui.test.ComposeTestRule, String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(String text, optional boolean ignoreCase, optional boolean useUnmergedTree);
     method public static androidx.ui.test.SemanticsNodeInteraction onRoot(androidx.ui.test.ComposeTestRule, optional boolean useUnmergedTree);
-    method @Deprecated public static androidx.ui.test.SemanticsNodeInteraction onRoot(optional boolean useUnmergedTree);
   }
 
   public final class GestureScope {
@@ -352,9 +342,6 @@ package androidx.ui.test {
   }
 
   public final class SynchronizationKt {
-    method @Deprecated public static <T> T! runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
-    method @Deprecated public static <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
-    method @Deprecated public static void waitForIdle();
   }
 
   public interface TestAnimationClock extends androidx.compose.animation.core.AnimationClockObservable {
