@@ -140,18 +140,10 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchState asWatchState();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> getInAirplaneMode();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> getNotificationCount();
     method public int getScreenShape();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> getUnreadNotificationCount();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isAmbient();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isCharging();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isConnectedToCompanion();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isGpsActive();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isInTheaterMode();
-    method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isKeyguardLocked();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isVisible();
     method public void setHasBurnInProtection(boolean p);
     method public void setHasLowBitAmbient(boolean p);
@@ -159,19 +151,11 @@ package androidx.wear.watchface {
     method public void setScreenShape(int p);
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> inAirplaneMode;
     property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> interruptionFilter;
     property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isAmbient;
     property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isCharging;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isConnectedToCompanion;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isGpsActive;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isInTheaterMode;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isKeyguardLocked;
     property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isVisible;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> notificationCount;
     property public final int screenShape;
-    property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> unreadNotificationCount;
   }
 
   public class ObservableWatchData<T> {
@@ -237,7 +221,6 @@ package androidx.wear.watchface {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.WatchFace.Builder setSystemTimeProvider(androidx.wear.watchface.WatchFace.SystemTimeProvider systemTimeProvider);
     method public androidx.wear.watchface.WatchFace.Builder setWear2AccentColor(@ColorInt int accentColor);
     method public androidx.wear.watchface.WatchFace.Builder setWear2AcceptsTapEvents(boolean acceptsTapEvents);
-    method public androidx.wear.watchface.WatchFace.Builder setWear2ShowUnreadCountIndicator(boolean showUnreadCountIndicator);
     method public androidx.wear.watchface.WatchFace.Builder setWear2StatusBarGravity(int statusBarGravity);
     method public androidx.wear.watchface.WatchFace.Builder setWear2ViewProtectionMode(int viewProtectionMode);
   }
@@ -275,13 +258,11 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> inAirplaneMode, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isConnectedToCompanion, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isGpsActive, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isKeyguardLocked, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isInTheaterMode, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, androidx.wear.watchface.ObservableWatchData<java.lang.Integer> notificationCount, androidx.wear.watchface.ObservableWatchData<java.lang.Integer> unreadNotificationCount, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape);
+    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape);
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getNotificationCount();
     method public int getScreenShape();
-    method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getUnreadNotificationCount();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
     property public final boolean hasBurnInProtection;
@@ -289,9 +270,7 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible;
-    property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> notificationCount;
     property public final int screenShape;
-    property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> unreadNotificationCount;
     field public static final androidx.wear.watchface.WatchState.Companion Companion;
     field public static final int SCREEN_SHAPE_RECTANGULAR = 2; // 0x2
     field public static final int SCREEN_SHAPE_ROUND = 1; // 0x1

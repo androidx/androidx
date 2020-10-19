@@ -225,19 +225,6 @@ package androidx.wear.watchface.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationDetails!>! CREATOR;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class IndicatorState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public IndicatorState(boolean, boolean, boolean, boolean, boolean, boolean);
-    method public int describeContents();
-    method public boolean getInAirplaneMode();
-    method public boolean getInTheaterMode();
-    method public boolean getIsCharging();
-    method public boolean getIsConnectedToCompanion();
-    method public boolean getIsGpsActive();
-    method public boolean getIsKeyguardLocked();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IndicatorState!>! CREATOR;
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public RenderParametersWireFormat(int, java.util.List<androidx.wear.watchface.data.RenderParametersWireFormat.LayerParameterWireFormat!>);
     method public int describeContents();
@@ -257,12 +244,10 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class SystemState implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public SystemState(boolean, int, int, int);
+    ctor public SystemState(boolean, int);
     method public int describeContents();
     method public boolean getInAmbientMode();
     method public int getInterruptionFilter();
-    method public int getNotificationCount();
-    method public int getUnreadCount();
     method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.SystemState!>! CREATOR;
   }

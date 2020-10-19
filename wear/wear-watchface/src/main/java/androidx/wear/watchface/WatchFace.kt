@@ -178,8 +178,6 @@ public class WatchFace private constructor(
 
         @ColorInt
         private var accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
-        private var showUnreadCountIndicator: Boolean = false
-        private var hideNotificationIndicator: Boolean = false
         private var acceptsTapEvents: Boolean = true
         private var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
             override fun getSystemTimeMillis() = System.currentTimeMillis()
@@ -247,33 +245,6 @@ public class WatchFace private constructor(
         }
 
         /**
-         * Sets whether to add an indicator of how many unread cards there are in the stream. The
-         * indicator will be displayed next to status icons (battery state, lack of connection).
-         *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
-         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
-         *
-         * @param showUnreadCountIndicator if true an indicator will be shown
-         */
-        public fun setWear2ShowUnreadCountIndicator(showUnreadCountIndicator: Boolean): Builder =
-            apply { this.showUnreadCountIndicator = showUnreadCountIndicator }
-
-        /**
-         * Sets whether to hide the dot indicator that is displayed at the bottom of the watch face
-         * if there are any unread notifications. The default value is false, but note that the
-         * dot will not be displayed if the numerical unread count indicator is being shown (i.e.
-         * if [getShowUnreadCountIndicator] is true).
-         *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
-         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
-         *
-         * @param hideNotificationIndicator if true an indicator will be hidden
-         * @hide
-         */
-        public fun setWear2HideNotificationIndicator(hideNotificationIndicator: Boolean): Builder =
-            apply { this.hideNotificationIndicator = hideNotificationIndicator }
-
-        /**
          * Sets whether this watchface accepts tap events. The default is false.
          *
          * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
@@ -316,8 +287,8 @@ public class WatchFace private constructor(
                     viewProtectionMode,
                     statusBarGravity,
                     accentColor,
-                    showUnreadCountIndicator,
-                    hideNotificationIndicator,
+                    false,
+                    false,
                     acceptsTapEvents
                 ),
                 componentName,

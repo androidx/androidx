@@ -142,7 +142,7 @@ class WatchFaceServiceImageTest {
                     false,
                     DeviceConfig.SCREEN_SHAPE_ROUND
                 ),
-                SystemState(false, 0, 0, 0),
+                SystemState(false, 0),
                 null,
                 null
             )
@@ -173,7 +173,7 @@ class WatchFaceServiceImageTest {
                     false,
                     DeviceConfig.SCREEN_SHAPE_ROUND
                 ),
-                SystemState(false, 0, 0, 0),
+                SystemState(false, 0),
                 null,
                 null
             )
@@ -224,15 +224,7 @@ class WatchFaceServiceImageTest {
                 interactiveWatchFaceInstanceWCS.instanceId
             )!!.sysUiApi
 
-        interactiveWatchFaceInstanceSysUi.setSystemState(
-            SystemState(
-                ambient,
-                0,
-                0,
-                0
-            )
-        )
-
+        interactiveWatchFaceInstanceSysUi.setSystemState(SystemState(ambient, 0))
         interactiveWatchFaceInstanceSysUi.release()
     }
 
