@@ -200,6 +200,11 @@ public class Complication internal constructor(
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
     }
 
+    /**
+     * Builder for constructing [Complication]s. Note before [Builder.build] the complication's
+     * bounds & type must be specified by calling one of: [Builder.setUnitSquareBounds] or
+     * [Builder.setAsBackgroundComplication].
+     */
     public class Builder(
         /** The watch face's ID for this complication. */
         private val id: Int,
@@ -220,7 +225,7 @@ public class Complication internal constructor(
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy
     ) {
         @ComplicationBoundsType
-        private var boundsType: Int = ComplicationBoundsType.ROUND_RECT
+        private var boundsType: Int? = null
         private lateinit var unitSquareBounds: RectF
 
         private var defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
@@ -236,8 +241,10 @@ public class Complication internal constructor(
         }
 
         /**
-         * Fractional bounds for the complication, clamped to the unit square [0..1], which get
-         * converted to screen space coordinates. NB 0 and 1 are included in the unit square.
+         * Sets the fractional bounds for the complication and marks it as having type
+         * [ComplicationBoundsType.ROUND_RECT]. The bounds are  clamped to the unit square [0..1],
+         * and subsequently converted to screen space coordinates. NB 0 and 1 are included in the
+         * unit square.
          */
         public fun setUnitSquareBounds(unitSquareBounds: RectF): Builder {
             boundsType = ComplicationBoundsType.ROUND_RECT
@@ -252,19 +259,25 @@ public class Complication internal constructor(
         }
 
         /**
-         * A background complication is for watch faces that wish to have a full screen user
-         * selectable backdrop. This sort of complication isn't clickable and at most one may be
-         * present in the list of complications.
+         * Marks the complication as having type [ComplicationBoundsType.BACKGROUND] and sets
+         * the fractional bounds to cover the entire screen. A background complication is for
+         * watch faces that wish to have a full screen user selectable backdrop. This sort of
+         * complication isn't clickable and at most one may be present in the list of complications.
          */
-        public fun setBackgroundComplication(): Builder {
+        public fun setAsBackgroundComplication(): Builder {
             boundsType = ComplicationBoundsType.BACKGROUND
             this.unitSquareBounds = RectF(0f, 0f, 1f, 1f)
             return this
         }
 
+        /**
+         * Constructs the [Complication].  Note we require the complication's bounds & type to have
+         * been be specified by calling one of: [Builder.setUnitSquareBounds] or
+         * [Builder.setAsBackgroundComplication].
+         */
         public fun build(): Complication = Complication(
             id,
-            boundsType,
+            boundsType!!,
             unitSquareBounds,
             renderer,
             supportedTypes,

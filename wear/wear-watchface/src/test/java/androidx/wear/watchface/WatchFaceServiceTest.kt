@@ -201,7 +201,7 @@ class WatchFaceServiceTest {
             ),
             DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
-            .setBackgroundComplication()
+            .setAsBackgroundComplication()
             .build()
 
     private val leftAndRightComplicationsOption = ComplicationsOption(
