@@ -7,15 +7,15 @@ package androidx.wear.watchface.style {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat toWireFormat();
   }
 
-  public static class BooleanUserStyleCategory.BooleanOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+  public static final class BooleanUserStyleCategory.BooleanOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
     ctor public BooleanUserStyleCategory.BooleanOption(boolean value);
-    method public final boolean getValue();
+    method public boolean getValue();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat toWireFormat();
     property public final boolean value;
   }
 
   public final class ComplicationsUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public ComplicationsUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public ComplicationsUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption> complicationConfig, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat toWireFormat();
   }
 
@@ -44,11 +44,11 @@ package androidx.wear.watchface.style {
     method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setSupportedTypes(int[] supportedTypes);
   }
 
-  public static class ComplicationsUserStyleCategory.ComplicationsOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+  public static final class ComplicationsUserStyleCategory.ComplicationsOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
     ctor public ComplicationsUserStyleCategory.ComplicationsOption(String id, String displayName, android.graphics.drawable.Icon? icon, java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> complications);
-    method public final java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> getComplications();
-    method public final String getDisplayName();
-    method public final android.graphics.drawable.Icon? getIcon();
+    method public java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> getComplications();
+    method public String getDisplayName();
+    method public android.graphics.drawable.Icon? getIcon();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat toWireFormat();
     property public final java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> complications;
     property public final String displayName;
@@ -77,15 +77,15 @@ package androidx.wear.watchface.style {
   }
 
   public class ListUserStyleCategory extends androidx.wear.watchface.style.UserStyleCategory {
-    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.ListUserStyleCategory.ListOption defaultOption);
-    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<? extends androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
+    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers, androidx.wear.watchface.style.ListUserStyleCategory.ListOption defaultOption);
+    ctor public ListUserStyleCategory(String id, String displayName, String description, android.graphics.drawable.Icon? icon, java.util.List<androidx.wear.watchface.style.ListUserStyleCategory.ListOption> options, java.util.Collection<? extends androidx.wear.watchface.style.Layer> affectsLayers);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat toWireFormat();
   }
 
-  public static class ListUserStyleCategory.ListOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
+  public static final class ListUserStyleCategory.ListOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
     ctor public ListUserStyleCategory.ListOption(String id, String displayName, android.graphics.drawable.Icon? icon);
-    method public final String getDisplayName();
-    method public final android.graphics.drawable.Icon? getIcon();
+    method public String getDisplayName();
+    method public android.graphics.drawable.Icon? getIcon();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat.ListOptionWireFormat toWireFormat();
     property public final String displayName;
     property public final android.graphics.drawable.Icon? icon;

@@ -219,7 +219,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         )
 
     /** Represents an override to the initial complication configuration. */
-    public open class ComplicationsOption : Option {
+    public class ComplicationsOption : Option {
         /**
          * Overrides to be applied when this ComplicationsOption is selected. If this is empty
          * then the net result is the initial complication configuration.
