@@ -19,7 +19,7 @@ package androidx.wear.watchface.style {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat toWireFormat();
   }
 
-  public static final class ComplicationsUserStyleCategory.ComplicationOverride {
+  public static final class ComplicationsUserStyleCategory.ComplicationOverlay {
     method public android.graphics.RectF? getBounds();
     method public int getComplicationId();
     method public androidx.wear.complications.DefaultComplicationProviderPolicy? getDefaultProviderPolicy();
@@ -34,23 +34,23 @@ package androidx.wear.watchface.style {
     property public final int[]? supportedTypes;
   }
 
-  public static final class ComplicationsUserStyleCategory.ComplicationOverride.Builder {
-    ctor public ComplicationsUserStyleCategory.ComplicationOverride.Builder(int complicationId);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride build();
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setBounds(android.graphics.RectF bounds);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setDefaultProviderPolicy(androidx.wear.complications.DefaultComplicationProviderPolicy? defaultComplicationProviderPolicy);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setDefaultProviderType(@android.support.wearable.complications.ComplicationData.ComplicationType int defaultComplicationProviderType);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setEnabled(boolean enabled);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride.Builder setSupportedTypes(int[] supportedTypes);
+  public static final class ComplicationsUserStyleCategory.ComplicationOverlay.Builder {
+    ctor public ComplicationsUserStyleCategory.ComplicationOverlay.Builder(int complicationId);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay build();
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay.Builder setBounds(android.graphics.RectF bounds);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay.Builder setDefaultProviderPolicy(androidx.wear.complications.DefaultComplicationProviderPolicy? defaultComplicationProviderPolicy);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay.Builder setDefaultProviderType(@android.support.wearable.complications.ComplicationData.ComplicationType int defaultComplicationProviderType);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay.Builder setEnabled(boolean enabled);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay.Builder setSupportedTypes(int[] supportedTypes);
   }
 
   public static final class ComplicationsUserStyleCategory.ComplicationsOption extends androidx.wear.watchface.style.UserStyleCategory.Option {
-    ctor public ComplicationsUserStyleCategory.ComplicationsOption(String id, String displayName, android.graphics.drawable.Icon? icon, java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> complications);
-    method public java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> getComplications();
+    ctor public ComplicationsUserStyleCategory.ComplicationsOption(String id, String displayName, android.graphics.drawable.Icon? icon, java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> complicationOverlays);
+    method public java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> getComplicationOverlays();
     method public String getDisplayName();
     method public android.graphics.drawable.Icon? getIcon();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat toWireFormat();
-    property public final java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride> complications;
+    property public final java.util.Collection<androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay> complicationOverlays;
     property public final String displayName;
     property public final android.graphics.drawable.Icon? icon;
   }

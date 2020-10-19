@@ -44,7 +44,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
@@ -211,9 +211,9 @@ class WatchFaceServiceTest {
         "Both",
         null,
         listOf(
-            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(true).build(),
-            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(true).build()
         )
     )
@@ -222,9 +222,9 @@ class WatchFaceServiceTest {
         "Both",
         null,
         listOf(
-            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(false).build(),
-            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(false).build()
         )
     )
@@ -233,9 +233,9 @@ class WatchFaceServiceTest {
         "Left",
         null,
         listOf(
-            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(true).build(),
-            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(false).build()
         )
     )
@@ -244,9 +244,9 @@ class WatchFaceServiceTest {
         "Right",
         null,
         listOf(
-            ComplicationOverride.Builder(LEFT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(LEFT_COMPLICATION_ID)
                 .setEnabled(false).build(),
-            ComplicationOverride.Builder(RIGHT_COMPLICATION_ID)
+            ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID)
                 .setEnabled(true).build()
         )
     )
@@ -1506,19 +1506,20 @@ class WatchFaceServiceTest {
             LEFT_AND_RIGHT_COMPLICATIONS,
             "Left And Right",
             null,
+            // An empty list means use the initial config.
             emptyList()
         )
         val leftOnlyComplicationsOption = ComplicationsOption(
             LEFT_COMPLICATION,
             "Left",
             null,
-            listOf(ComplicationOverride.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationOverlay.Builder(RIGHT_COMPLICATION_ID).setEnabled(false).build())
         )
         val rightOnlyComplicationsOption = ComplicationsOption(
             RIGHT_COMPLICATION,
             "Right",
             null,
-            listOf(ComplicationOverride.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
+            listOf(ComplicationOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
         )
         val complicationsStyleCategory = ComplicationsUserStyleCategory(
             "complications_style_category",
