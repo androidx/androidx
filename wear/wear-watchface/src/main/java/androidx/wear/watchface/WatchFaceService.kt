@@ -442,7 +442,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val oldComplicationData =
                 watchFace.complicationsManager.complications.mapValues {
-                    it.value.renderer.getData() ?: ComplicationData.Builder(TYPE_NO_DATA)
+                    it.value.renderer.data ?: ComplicationData.Builder(TYPE_NO_DATA)
                         .build()
                 }
             params.idAndComplicationData?.let {
@@ -499,8 +499,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 var prevComplicationData: ComplicationData? = null
                 if (params.complicationData != null) {
-                    prevComplicationData = it.renderer.getData()
-                    it.renderer.setData(params.complicationData)
+                    prevComplicationData = it.renderer.data
+                    it.renderer.data = params.complicationData
                 }
 
                 it.renderer.render(
@@ -512,7 +512,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.setData(prevComplicationData)
+                    it.renderer.data = prevComplicationData
                 }
 
                 if (newStyle != null) {
