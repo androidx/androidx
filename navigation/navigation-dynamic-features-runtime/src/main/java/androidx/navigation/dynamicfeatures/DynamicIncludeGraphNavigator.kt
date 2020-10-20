@@ -37,7 +37,7 @@ import androidx.navigation.get
  * Use it for navigating to NavGraphs contained within a dynamic feature module.
  */
 @Navigator.Name("include-dynamic")
-class DynamicIncludeGraphNavigator(
+public class DynamicIncludeGraphNavigator(
     private val context: Context,
     private val navigatorProvider: NavigatorProvider,
     private val navInflater: NavInflater,
@@ -48,7 +48,7 @@ class DynamicIncludeGraphNavigator(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val packageName: String = context.packageName
+    public val packageName: String = context.packageName
 
     private val createdDestinations = mutableListOf<DynamicIncludeNavGraph>()
 
@@ -115,7 +115,7 @@ class DynamicIncludeGraphNavigator(
         return includedNav
     }
 
-    override fun popBackStack() = true
+    override fun popBackStack(): Boolean = true
 
     override fun onSaveState(): Bundle? {
         // Return a non-null Bundle to get a callback to onRestoreState
@@ -150,24 +150,24 @@ class DynamicIncludeGraphNavigator(
      * This class contains information to navigate to a DynamicNavGraph which is contained
      * within a dynamic feature module.
      */
-    class DynamicIncludeNavGraph
+    public class DynamicIncludeNavGraph
     internal constructor(navGraphNavigator: Navigator<out NavDestination>) :
         NavDestination(navGraphNavigator) {
 
         /**
          * Resource name of the graph.
          */
-        var graphResourceName: String? = null
+        public var graphResourceName: String? = null
 
         /**
          * The graph's package.
          */
-        var graphPackage: String? = null
+        public var graphPackage: String? = null
 
         /**
          * Name of the module containing the included graph, if set.
          */
-        var moduleName: String? = null
+        public var moduleName: String? = null
 
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)

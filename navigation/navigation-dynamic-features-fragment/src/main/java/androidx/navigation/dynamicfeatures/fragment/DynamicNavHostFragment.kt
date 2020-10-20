@@ -30,7 +30,7 @@ import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 /**
  * The [NavHostFragment] for dynamic features.
  */
-open class DynamicNavHostFragment : NavHostFragment() {
+public open class DynamicNavHostFragment : NavHostFragment() {
 
     override fun onCreateNavHostController(navController: NavHostController) {
         super.onCreateNavHostController(navController)

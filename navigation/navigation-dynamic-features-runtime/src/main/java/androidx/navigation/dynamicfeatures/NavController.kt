@@ -18,12 +18,13 @@ package androidx.navigation.dynamicfeatures
 
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 
 /**
  * Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations
  */
-inline fun NavController.createGraph(
+public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit
-) = navigatorProvider.navigation(id, startDestination, builder)
+): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
