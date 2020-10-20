@@ -17,7 +17,6 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -151,9 +150,7 @@ public interface AppSearchSession {
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
      * @return The search result of performing this operation.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     SearchResults query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 
