@@ -335,27 +335,35 @@ public abstract class ComplicationProviderService extends Service {
      * displayed. If the request can not be fulfilled or no update is needed then null should be
      * passed to the callback.
      *
-     * <p>If provideMockData is true then representative mock data should be returned rather than
-     * the real data. E.g. A date could always be August 1st.
-     *
      * <p>The callback doesn't have be called within onComplicationUpdate but it should be called
      * soon after. If this does not occur within around 20 seconds (exact timeout length subject
      * to change), then the system will unbind from this service which may cause your eventual
      * update to not be received.
      *
-     * @param complicationId  The id of the requested complication. Note this ID is distinct from
-     *                        ids
-     *                        used by the watch face itself.
-     * @param type            The type of complication data requested.
-     * @param provideMockData Whether or not mock or real data should be returned.
-     * @param resultCallback  The callback to pass the result to the system.
+     * @param complicationId     The id of the requested complication. Note this ID is distinct from
+     *                           ids used by the watch face itself.
+     * @param type               The type of complication data requested.
+     * @param resultCallback     The callback to pass the result to the system.
      */
     @UiThread
     public abstract void onComplicationUpdate(
             int complicationId,
             @ComplicationData.ComplicationType int type,
-            boolean provideMockData,
             @NonNull ComplicationUpdateCallback resultCallback);
+
+    /**
+     * A request for representative preview data for the complication, for use in the editor UI.
+     * Preview data is assumed to be static per type. E.g. for a complication that displays the date
+     * and time of an event, rather than returning the real time it should return a fixed date and
+     * time such as 10:10 Aug 1st.
+     *
+     * <p>This will be called on a background thread.
+     *
+     * @param type The type of complication preview data requested.
+     * @return Preview data for the given complication type.
+     */
+    @Nullable
+    public abstract ComplicationData getPreviewData(@ComplicationData.ComplicationType int type);
 
     /** Callback for {@link #onComplicationUpdate}. */
     public interface ComplicationUpdateCallback {
@@ -387,25 +395,32 @@ public abstract class ComplicationProviderService extends Service {
         public void onUpdate(final int complicationId, final int type, IBinder manager) {
             final IComplicationManager iComplicationManager =
                     IComplicationManager.Stub.asInterface(manager);
+            if (mRetailModeProvider.inRetailMode()) {
+                try {
+                    iComplicationManager.updateComplicationData(
+                            complicationId, getPreviewData(type));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                mMainThreadHandler.post(
+                        () -> onComplicationUpdate(complicationId, type,
+                                complicationData -> {
+                                    // This can be run on an arbitrary thread, but that's OK.
+                                    int dataType =
+                                            complicationData != null ? complicationData.getType() :
+                                                    ComplicationData.TYPE_NO_DATA;
+                                    if (dataType == ComplicationData.TYPE_NOT_CONFIGURED
+                                            || dataType == ComplicationData.TYPE_EMPTY) {
+                                        throw new IllegalArgumentException(
+                                                "Cannot send data of TYPE_NOT_CONFIGURED or "
+                                                        + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
+                                    }
 
-            mMainThreadHandler.post(
-                    () -> onComplicationUpdate(complicationId, type,
-                            mRetailModeProvider.inRetailMode(),
-                            complicationData -> {
-                                // This can be run on an arbitrary thread, but that's OK.
-                                int dataType =
-                                        complicationData != null ? complicationData.getType() :
-                                                ComplicationData.TYPE_NO_DATA;
-                                if (dataType == ComplicationData.TYPE_NOT_CONFIGURED
-                                        || dataType == ComplicationData.TYPE_EMPTY) {
-                                    throw new IllegalArgumentException(
-                                            "Cannot send data of TYPE_NOT_CONFIGURED or "
-                                                    + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
-                                }
-
-                                iComplicationManager.updateComplicationData(
-                                        complicationId, complicationData);
-                            }));
+                                    iComplicationManager.updateComplicationData(
+                                            complicationId, complicationData);
+                                }));
+            }
         }
 
         @Override
@@ -423,6 +438,17 @@ public abstract class ComplicationProviderService extends Service {
             mMainThreadHandler.post(
                     () -> ComplicationProviderService.this.onComplicationActivated(
                             complicationId, type));
+        }
+
+        @Override
+        public int getApiVersion() {
+            return IComplicationProvider.API_VERSION;
+        }
+
+        @Override
+        @SuppressLint("SyntheticAccessor")
+        public ComplicationData getComplicationPreviewData(final int type) {
+            return getPreviewData(type);
         }
     }
 }
