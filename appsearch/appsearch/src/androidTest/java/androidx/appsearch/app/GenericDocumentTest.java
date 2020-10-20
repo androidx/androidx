@@ -20,11 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 
-@SmallTest
 public class GenericDocumentTest {
     private static final byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static final byte[] sByteArray2 = new byte[]{(byte) 4, (byte) 5, (byte) 6, (byte) 7};

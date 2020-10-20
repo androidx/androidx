@@ -22,11 +22,8 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 
-@SmallTest
 public class SearchSpecTest {
     @Test
     public void buildSearchSpecWithoutTermMatchType() {

@@ -19,7 +19,6 @@ package androidx.appsearch.localbackend.converter;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchResult;
-import androidx.test.filters.SmallTest;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
@@ -29,7 +28,6 @@ import com.google.android.icing.proto.SnippetProto;
 
 import org.junit.Test;
 
-@SmallTest
 public class SnippetTest {
 
     // TODO(tytytyww): Add tests for Double and Long Snippets.
