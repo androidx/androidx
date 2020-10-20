@@ -21,8 +21,8 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.internal.compat.quirk.device.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.device.ImageCapturePixelHDRPlusQuirk;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.ImageCapturePixelHDRPlusQuirk;
 import androidx.camera.core.ImageCapture;
 
 /**

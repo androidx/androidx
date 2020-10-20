@@ -17,8 +17,8 @@
 package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.internal.compat.quirk.device.DeviceQuirks;
-import androidx.camera.camera2.internal.compat.quirk.device.SamsungPreviewTargetAspectRatioQuirk;
+import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.SamsungPreviewTargetAspectRatioQuirk;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.ImageOutputConfig;
 

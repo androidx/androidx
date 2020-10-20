@@ -14,38 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.compat.quirk.device;
+package androidx.camera.camera2.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.Quirk;
-import androidx.camera.core.impl.Quirks;
+
+import java.util.List;
 
 /**
- * Provider of device specific quirks, which are used for device specific workarounds.
+ * Tests version of main/.../DeviceQuirks.java, which provides device specific quirks, used for
+ * device specific workarounds.
  * <p>
- * Device specific quirks depend on device properties, including the manufacturer
- * ({@link android.os.Build#MANUFACTURER}), model ({@link android.os.Build#MODEL}) and OS
- * level ({@link android.os.Build.VERSION#SDK_INT}).
- * <p>
- * Device specific quirks are lazily loaded, i.e. They are loaded the first time they're needed.
+ * In main/.../DeviceQuirks, Device quirks are loaded the first time a device workaround is
+ * encountered, and remain in memory until the process is killed. When running tests, this means
+ * that the same device quirks are used for all the tests. This causes an issue when tests modify
+ * device properties (using Robolectric for instance). Instead of force-reloading the device
+ * quirks in every test that uses a device workaround, this class internally reloads the quirks
+ * every time a device workaround is needed.
  */
 public class DeviceQuirks {
 
-    @NonNull
-    private static final Quirks QUIRKS;
-
-    static {
-        QUIRKS = new Quirks(DeviceQuirksLoader.loadQuirks());
-    }
-
     private DeviceQuirks() {
-    }
-
-    /** Returns all device specific quirks loaded on the current device. */
-    @NonNull
-    public static Quirks getAll() {
-        return QUIRKS;
     }
 
     /**
@@ -55,8 +45,15 @@ public class DeviceQuirks {
      * @return A device {@link Quirk} instance of the provided type, or {@code null} if it isn't
      * found.
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {
-        return QUIRKS.get(quirkClass);
+        final List<Quirk> quirks = DeviceQuirksLoader.loadQuirks();
+        for (final Quirk quirk : quirks) {
+            if (quirk.getClass() == quirkClass) {
+                return (T) quirk;
+            }
+        }
+        return null;
     }
 }
