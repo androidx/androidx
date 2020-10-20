@@ -35,6 +35,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -53,7 +54,7 @@ import kotlin.concurrent.thread
 @RequiresApi(23) // ViewCompat.getRootWindowInsets()
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class WindowInsetsControllerCompatActivityTest {
+public class WindowInsetsControllerCompatActivityTest {
 
     private lateinit var container: View
     private lateinit var windowInsetsController: WindowInsetsControllerCompat
@@ -176,6 +177,42 @@ class WindowInsetsControllerCompatActivityTest {
         // now be open
         scenario.onActivity { windowInsetsController.show(type) }
         container.assertInsetsVisibility(type, true)
+    }
+
+    @RequiresApi(23)
+    @Test
+    public fun systemBar_light() {
+        scenario.onActivity {
+            windowInsetsController.setAppearanceLightStatusBars(true)
+        }
+        if (Build.VERSION.SDK_INT < 30) {
+            // The view's systemUiVisibility flags are not changed on API 30+
+            val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
+                equalTo(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+            )
+        }
+        assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
+    }
+
+    @RequiresApi(26)
+    @Test
+    public fun navigationBar_light() {
+        scenario.onActivity {
+            windowInsetsController.setAppearanceLightNavigationBars(true)
+        }
+        val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
+        if (Build.VERSION.SDK_INT < 30) {
+            // The view's systemUiVisibility flags are not changed on API 30+
+            assertThat(
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
+                equalTo(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+            )
+        }
+        assertThat(
+            windowInsetsController.isAppearanceLightNavigationBars(), `is`(true)
+        )
     }
 
     /**
