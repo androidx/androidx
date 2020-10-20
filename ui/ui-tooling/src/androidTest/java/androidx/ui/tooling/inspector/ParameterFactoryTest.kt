@@ -32,7 +32,6 @@ import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -92,14 +91,11 @@ class ParameterFactoryTest {
         factory.density = Density(2.0f)
         node.width = 1000
         node.height = 500
-
-        @OptIn(InternalComposeApi::class)
         isDebugInspectorInfoEnabled = true
     }
 
     @After
     fun after() {
-        @OptIn(InternalComposeApi::class)
         isDebugInspectorInfoEnabled = false
     }
 
