@@ -364,7 +364,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     @Test
     public void testConvertUriIconsToBitmapIcons() {
         ArrayList<ShortcutInfoCompat> shortcuts = getShortcutInfoCompats();
-        assertEquals(5, shortcuts.size());
+        assertEquals(6, shortcuts.size());
         ShortcutManagerCompat.convertUriIconsToBitmapIcons(mContext, shortcuts);
         assertEquals(4, shortcuts.size());  // shortcut with invalid icon uri was removed
         for (ShortcutInfoCompat info : shortcuts) {
@@ -491,6 +491,13 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 .setShortLabel("uri adaptive bitmap with invalid uri")
                 .setIcon(IconCompat.createWithAdaptiveBitmapContentUri(
                         "http://non-existing-uri"))
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(4)
+                .build());
+
+        shortcuts.add(new ShortcutInfoCompat.Builder(mContext,
+                "shortcut-without-icon")
+                .setShortLabel("shortcut without icon")
                 .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
                 .setRank(4)
                 .build());
