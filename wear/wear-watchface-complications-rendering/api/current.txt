@@ -32,12 +32,6 @@ package androidx.wear.watchface.complications.rendering {
     method public void setLowBitAmbient(boolean);
     method public void setNoDataText(CharSequence?);
     method public void setRangedValueProgressHidden(boolean);
-    field public static final int BORDER_STYLE_DASHED = 2; // 0x2
-    field public static final int BORDER_STYLE_NONE = 0; // 0x0
-    field public static final int BORDER_STYLE_SOLID = 1; // 0x1
-  }
-
-  @IntDef({androidx.wear.watchface.complications.rendering.ComplicationDrawable.BORDER_STYLE_NONE, androidx.wear.watchface.complications.rendering.ComplicationDrawable.BORDER_STYLE_SOLID, androidx.wear.watchface.complications.rendering.ComplicationDrawable.BORDER_STYLE_DASHED}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ComplicationDrawable.BorderStyle {
   }
 
   public class ComplicationStyle {
@@ -49,7 +43,7 @@ package androidx.wear.watchface.complications.rendering {
     method public int getBorderDashGap();
     method public int getBorderDashWidth();
     method public int getBorderRadius();
-    method @androidx.wear.watchface.complications.rendering.ComplicationDrawable.BorderStyle public int getBorderStyle();
+    method public int getBorderStyle();
     method public int getBorderWidth();
     method @ColorInt public int getHighlightColor();
     method @ColorInt public int getIconColor();
@@ -69,7 +63,7 @@ package androidx.wear.watchface.complications.rendering {
     method public void setBorderDashGap(int);
     method public void setBorderDashWidth(int);
     method public void setBorderRadius(int);
-    method public void setBorderStyle(@androidx.wear.watchface.complications.rendering.ComplicationDrawable.BorderStyle int);
+    method public void setBorderStyle(int);
     method public void setBorderWidth(int);
     method public void setHighlightColor(@ColorInt int);
     method public void setIconColor(@ColorInt int);
@@ -84,6 +78,9 @@ package androidx.wear.watchface.complications.rendering {
     method public void setTitleSize(int);
     method public void setTitleTypeface(android.graphics.Typeface);
     field public static final int BORDER_RADIUS_DEFAULT = 2147483647; // 0x7fffffff
+    field public static final int BORDER_STYLE_DASHED = 2; // 0x2
+    field public static final int BORDER_STYLE_NONE = 0; // 0x0
+    field public static final int BORDER_STYLE_SOLID = 1; // 0x1
   }
 
 }

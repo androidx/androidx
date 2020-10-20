@@ -408,7 +408,7 @@ class ComplicationRenderer {
     }
 
     private void drawBorders(Canvas canvas, PaintSet paintSet) {
-        if (paintSet.mStyle.getBorderStyle() != ComplicationDrawable.BORDER_STYLE_NONE) {
+        if (paintSet.mStyle.getBorderStyle() != ComplicationStyle.BORDER_STYLE_NONE) {
             int radius = getBorderRadius(paintSet.mStyle);
             canvas.drawRoundRect(mBackgroundBoundsF, radius, radius, paintSet.mBorderPaint);
         }
@@ -914,13 +914,13 @@ class ComplicationRenderer {
             mBorderPaint = new Paint();
             mBorderPaint.setStyle(Paint.Style.STROKE);
             mBorderPaint.setColor(style.getBorderColor());
-            if (style.getBorderStyle() == ComplicationDrawable.BORDER_STYLE_DASHED) {
+            if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_DASHED) {
                 mBorderPaint.setPathEffect(
                         new DashPathEffect(
                                 new float[]{style.getBorderDashWidth(), style.getBorderDashGap()},
                                 0));
             }
-            if (style.getBorderStyle() == ComplicationDrawable.BORDER_STYLE_NONE) {
+            if (style.getBorderStyle() == ComplicationStyle.BORDER_STYLE_NONE) {
                 mBorderPaint.setAlpha(0);
             }
             mBorderPaint.setStrokeWidth(style.getBorderWidth());

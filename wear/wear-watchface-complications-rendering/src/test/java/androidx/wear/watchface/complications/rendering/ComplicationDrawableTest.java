@@ -16,8 +16,8 @@
 
 package androidx.wear.watchface.complications.rendering;
 
-import static androidx.wear.watchface.complications.rendering.ComplicationDrawable.BORDER_STYLE_DASHED;
-import static androidx.wear.watchface.complications.rendering.ComplicationDrawable.BORDER_STYLE_NONE;
+import static androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_DASHED;
+import static androidx.wear.watchface.complications.rendering.ComplicationStyle.BORDER_STYLE_NONE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -274,13 +274,11 @@ public class ComplicationDrawableTest {
     @Test
     public void setBorderStyle() {
         mComplicationDrawable.getActiveStyle().setBorderStyle(BORDER_STYLE_NONE);
-        mComplicationDrawable.getAmbientStyle().setBorderStyle(
-                ComplicationDrawable.BORDER_STYLE_DASHED
-        );
+        mComplicationDrawable.getAmbientStyle().setBorderStyle(BORDER_STYLE_DASHED);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderStyle())
                 .isEqualTo(BORDER_STYLE_NONE);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderStyle())
-                .isEqualTo(ComplicationDrawable.BORDER_STYLE_DASHED);
+                .isEqualTo(BORDER_STYLE_DASHED);
     }
 
     @Test

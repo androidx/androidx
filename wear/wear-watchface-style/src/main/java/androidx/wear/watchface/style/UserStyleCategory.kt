@@ -72,8 +72,7 @@ public abstract class UserStyleCategory(
             is ComplicationsUserStyleCategoryWireFormat ->
                 ComplicationsUserStyleCategory(wireFormat)
 
-            is DoubleRangeUserStyleCategoryWireFormat ->
-                DoubleRangeUserStyleCategory(wireFormat)
+            is DoubleRangeUserStyleCategoryWireFormat -> DoubleRangeUserStyleCategory(wireFormat)
 
             is ListUserStyleCategoryWireFormat -> ListUserStyleCategory(wireFormat)
 
