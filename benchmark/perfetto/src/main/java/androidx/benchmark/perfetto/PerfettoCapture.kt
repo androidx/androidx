@@ -18,6 +18,7 @@ package androidx.benchmark.perfetto
 
 import android.content.Context
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
@@ -30,8 +31,9 @@ import java.io.File
  * - App tags are not available, due to lack of `<profileable shell=true>`. Can potentially hack
  * around this for individual tags within test infra as needed.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(29)
-internal class PerfettoCapture {
+class PerfettoCapture {
     private val helper = PerfettoHelper()
 
     /**
