@@ -16,13 +16,10 @@
 
 package androidx.appsearch.app;
 
-import androidx.test.filters.SmallTest;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
-@SmallTest
 public class AppSearchEmailTest {
 
     @Test

@@ -18,7 +18,6 @@ package androidx.appsearch.app.customer;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.GenericDocument;
-import androidx.test.filters.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -31,7 +30,6 @@ import org.junit.Test;
  * <p>This class is intentionally in a different package than {@link GenericDocument} to make sure
  * there are no package-private methods required for external developers to add custom types.
  */
-@SmallTest
 public class CustomerDocumentTest {
 
     private static byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
