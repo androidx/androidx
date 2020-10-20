@@ -2641,6 +2641,10 @@ package androidx.core.view {
     ctor public WindowInsetsControllerCompat(android.view.Window, android.view.View);
     method public int getSystemBarsBehavior();
     method public void hide(int);
+    method public boolean isAppearanceLightNavigationBars();
+    method public boolean isAppearanceLightStatusBars();
+    method public void setAppearanceLightNavigationBars(boolean);
+    method public void setAppearanceLightStatusBars(boolean);
     method public void setSystemBarsBehavior(int);
     method public void show(int);
     method @RequiresApi(30) public static androidx.core.view.WindowInsetsControllerCompat toWindowInsetsControllerCompat(android.view.WindowInsetsController);

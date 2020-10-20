@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -30,6 +31,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -51,6 +53,7 @@ class WindowInsetsControllerPlayground : Activity() {
     private lateinit var editText: EditText
     private lateinit var visibility: TextView
     private lateinit var checkbox: CheckBox
+    private lateinit var buttonsRow: ViewGroup
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +65,7 @@ class WindowInsetsControllerPlayground : Activity() {
         editText = findViewById(R.id.editText)
         visibility = findViewById(R.id.visibility)
         checkbox = findViewById(R.id.decorFitsSystemWindows)
+        buttonsRow = findViewById(R.id.buttonRow)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.getWindowInsetsController(mRoot)!!.systemBarsBehavior =
@@ -84,6 +88,7 @@ class WindowInsetsControllerPlayground : Activity() {
 
         setupTypeSpinner()
         setupHideShowButtons()
+        setupAppearanceButtons()
 
         ViewCompat.setOnApplyWindowInsetsListener(mRoot) { _: View?, insets: WindowInsetsCompat ->
             val systemBarInsets = insets.getInsets(
@@ -103,6 +108,38 @@ class WindowInsetsControllerPlayground : Activity() {
         }
     }
 
+    private fun setupAppearanceButtons() {
+        mapOf<String, (Boolean) -> Unit>(
+            "LIGHT_NAV" to { isLight ->
+                ViewCompat.getWindowInsetsController(mRoot)!!.isAppearanceLightNavigationBars =
+                    isLight
+            },
+            "LIGHT_STAT" to { isLight ->
+                ViewCompat.getWindowInsetsController(mRoot)!!.isAppearanceLightStatusBars = isLight
+            },
+        ).forEach { (name, callback) ->
+            buttonsRow.addView(
+                ToggleButton(this).apply {
+                    text = name
+                    textOn = text
+                    textOff = text
+                    setOnClickListener {
+                        isChecked = true
+                        callback(true)
+
+                        it.postDelayed(
+                            {
+                                isChecked = false
+                                callback(false)
+                            },
+                            2000
+                        )
+                    }
+                }
+            )
+        }
+    }
+
     private var visibilityThreadRunning = true
 
     @SuppressLint("SetTextI18n")
@@ -112,8 +149,7 @@ class WindowInsetsControllerPlayground : Activity() {
             visibilityThreadRunning = true
             while (visibilityThreadRunning) {
                 visibility.post {
-                    visibility.text =
-                        currentType?.let {
+                    visibility.text = currentType?.let {
                         ViewCompat.getRootWindowInsets(mRoot)?.isVisible(it).toString()
                     } + " " + window.attributes.flags + " " + SystemClock.elapsedRealtime()
                 }
