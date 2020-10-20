@@ -205,7 +205,11 @@ class CameraControllerFragmentTest {
 
         val previewTargetDegrees =
             rotationValueToRotationDegrees(fragment.previewView.display.rotation)
-        var previewBitmap = fragment.previewView.bitmap!!
+
+        lateinit var previewBitmap: Bitmap
+        instrumentation.runOnMainSync {
+            previewBitmap = fragment.previewView.bitmap!!
+        }
         previewBitmap = Bitmap.createScaledBitmap(previewBitmap, width, height, true)
 
         // Rotate capture bitmap to match preview orientation
@@ -346,20 +350,19 @@ class CameraControllerFragmentTest {
      *
      * @param colorShift: color component in the format of right shift on Int color.
      */
-    private fun colorComponentToReadableString(bitmap1: Bitmap, colorShift: Int):
-        String {
-            var result = ""
-            for (x in 0 until bitmap1.width) {
-                for (y in 0 until bitmap1.height) {
-                    var color = (bitmap1.getPixel(x, y) shr colorShift and 0xFF).toString()
-                    // 10x10 table Each column is a fixed size of 4.
-                    color += " ".repeat((3 - color.length))
-                    result += "$color "
-                }
-                result += "\n"
+    private fun colorComponentToReadableString(bitmap1: Bitmap, colorShift: Int): String {
+        var result = ""
+        for (x in 0 until bitmap1.width) {
+            for (y in 0 until bitmap1.height) {
+                var color = (bitmap1.getPixel(x, y) shr colorShift and 0xFF).toString()
+                // 10x10 table Each column is a fixed size of 4.
+                color += " ".repeat((3 - color.length))
+                result += "$color "
             }
-            return result
+            result += "\n"
         }
+        return result
+    }
 
     private fun rotationValueToRotationDegrees(rotationValue: Int): Int {
         return when (rotationValue) {
@@ -419,12 +422,11 @@ class CameraControllerFragmentTest {
         }
     }
 
-    private fun FragmentScenario<CameraControllerFragment>.getFragment():
-        CameraControllerFragment {
-            var fragment: CameraControllerFragment? = null
-            this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
-            return fragment!!
-        }
+    private fun FragmentScenario<CameraControllerFragment>.getFragment(): CameraControllerFragment {
+        var fragment: CameraControllerFragment? = null
+        this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
+        return fragment!!
+    }
 
     private fun CameraControllerFragment.assertPreviewIsStreaming() {
         assertPreviewState(PreviewView.StreamState.STREAMING)

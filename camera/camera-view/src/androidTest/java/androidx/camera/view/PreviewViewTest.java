@@ -420,9 +420,11 @@ public class PreviewViewTest {
 
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
-        MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
-        MeteringPoint point = factory.createPoint(100, 100);
-        assertPointIsValid(point);
+        mInstrumentation.runOnMainSync(() -> {
+            MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
+            MeteringPoint point = factory.createPoint(100, 100);
+            assertPointIsValid(point);
+        });
     }
 
     private void assertPointIsValid(MeteringPoint point) {

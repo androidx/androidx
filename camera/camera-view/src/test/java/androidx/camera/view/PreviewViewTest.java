@@ -16,12 +16,15 @@
 
 package androidx.camera.view;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
 import android.os.Build;
@@ -40,7 +43,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowDisplayManager;
@@ -93,12 +95,13 @@ public class PreviewViewTest {
         WindowManager windowManager =
                 (WindowManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.WINDOW_SERVICE);
-        Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
+        shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
         previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        shadowOf(getMainLooper()).idle();
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
 
@@ -119,12 +122,13 @@ public class PreviewViewTest {
         WindowManager windowManager =
                 (WindowManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.WINDOW_SERVICE);
-        Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
+        shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
         previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        shadowOf(getMainLooper()).idle();
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
 

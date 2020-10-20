@@ -199,8 +199,9 @@ public final class PreviewViewFragmentTest {
         scenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
         scenario.moveToState(Lifecycle.State.RESUMED);
-        assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
-                PreviewView.ScaleType.FIT_END);
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
+                        PreviewView.ScaleType.FIT_END));
     }
 
     @Test
@@ -216,8 +217,9 @@ public final class PreviewViewFragmentTest {
         scenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
         scenario.moveToState(Lifecycle.State.RESUMED);
-        assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
-                PreviewView.ImplementationMode.COMPATIBLE);
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
+                        PreviewView.ImplementationMode.COMPATIBLE));
     }
 
     @NonNull
