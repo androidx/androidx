@@ -63,42 +63,16 @@ public interface CanvasComplicationRenderer {
     )
 
     /**
-     * Sets whether the complication should be drawn highlighted. This is to provide visual
+     * Whether the complication should be drawn highlighted. This is to provide visual
      * feedback when the user taps on a complication.
-     *
-     * @param highlight Whether or not the complication should be drawn highlighted.
      */
-    @UiThread
-    public fun setIsHighlighted(highlight: Boolean)
+    @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+    @get:JvmName("getIsHighlighted")
+    @set:JvmName("setIsHighlighted")
+    public var isHighlighted: Boolean
 
-    /**
-     * Sets the current [ComplicationData].
-     *
-     * @param data The [ComplicationData]
-     */
-    @UiThread
-    public fun setData(data: ComplicationData?)
-
-    /**
-     * Returns the current [ComplicationData] associated with the CanvasComplicationRenderer.
-     */
-    @UiThread
-    public fun getData(): ComplicationData?
-
-    public interface InvalidateCallback {
-        /** Requests redraw. */
-        @UiThread
-        public fun onInvalidate()
-    }
-
-    /**
-     * Called by the [WatchFace]
-     *
-     * @param callback The [InvalidateCallback] to register
-     */
-    @UiThread
-    @SuppressLint("ExecutorRegistration")
-    public fun setInvalidateCallback(callback: InvalidateCallback)
+    /** The [ComplicationData] to render. */
+    public var data: ComplicationData?
 }
 
 /**
@@ -106,20 +80,33 @@ public interface CanvasComplicationRenderer {
  * material design style. This renderer can't be shared by multiple complications.
  */
 public open class CanvasComplicationDrawableRenderer(
-    /** The actual complication. */
+    /** The [ComplicationDrawable] to render with. */
     drawable: ComplicationDrawable,
 
     private val watchState: WatchState
 ) : CanvasComplicationRenderer {
-    private var _drawable = drawable
 
-    public var drawable: ComplicationDrawable
-        get() = _drawable
+    init {
+        drawable.callback = object :
+            Drawable.Callback {
+            override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
+
+            @SuppressLint("SyntheticAccessor")
+            override fun invalidateDrawable(who: Drawable) {
+                attachedComplication?.invalidate()
+            }
+
+            override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
+        }
+    }
+
+    /** The [ComplicationDrawable] to render with. */
+    public var drawable: ComplicationDrawable = drawable
         set(value) {
-            _drawable = value
-            _drawable.inAmbientMode = watchState.isAmbient.value
-            _drawable.lowBitAmbient = watchState.hasLowBitAmbient
-            _drawable.setBurnInProtection(watchState.hasBurnInProtection)
+            field = value
+            value.inAmbientMode = watchState.isAmbient.value
+            value.lowBitAmbient = watchState.hasLowBitAmbient
+            value.setBurnInProtection(watchState.hasBurnInProtection)
 
             attachedComplication?.scheduleUpdateComplications()
         }
@@ -129,7 +116,6 @@ public open class CanvasComplicationDrawableRenderer(
     }
 
     private var attachedComplication: Complication? = null
-    private var complicationData: ComplicationData? = null
 
     /** {@inheritDoc} */
     override fun onAttach(complication: Complication) {
@@ -175,34 +161,25 @@ public open class CanvasComplicationDrawableRenderer(
         ComplicationOutlineRenderer.drawComplicationSelectOutline(canvas, bounds)
     }
 
-    /** {@inheritDoc} */
-    override fun setIsHighlighted(highlight: Boolean) {
-        drawable.highlighted = highlight
-    }
+    override var isHighlighted: Boolean
+        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+        @JvmName("getIsHighlighted")
+        @UiThread
+        get() = drawable.highlighted
 
-    /** {@inheritDoc} */
-    override fun setData(data: ComplicationData?) {
-        drawable.complicationData = data
-        complicationData = data
-    }
-
-    /** {@inheritDoc} */
-    override fun getData(): ComplicationData? = complicationData
-
-    /** {@inheritDoc} */
-    @SuppressLint("ExecutorRegistration")
-    override fun setInvalidateCallback(callback: CanvasComplicationRenderer.InvalidateCallback) {
-        drawable.callback = object :
-            Drawable.Callback {
-            override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
-
-            override fun invalidateDrawable(who: Drawable) {
-                callback.onInvalidate()
-            }
-
-            override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
+        @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
+        @JvmName("setIsHighlighted")
+        @UiThread
+        set(value) {
+            drawable.highlighted = value
         }
-    }
+
+    override var data: ComplicationData? = null
+        @UiThread
+        set(value) {
+            drawable.complicationData = value
+            field = value
+        }
 }
 
 /**
@@ -300,8 +277,14 @@ public class Complication internal constructor(
         renderer.onAttach(this)
     }
 
+    internal interface InvalidateCallback {
+        /** Requests redraw. */
+        @UiThread
+        fun onInvalidate()
+    }
+
     private lateinit var complicationsManager: ComplicationsManager
-    private lateinit var invalidateCallback: CanvasComplicationRenderer.InvalidateCallback
+    private lateinit var invalidateCallback: InvalidateCallback
 
     private var _unitSquareBounds = unitSquareBounds
     internal var unitSquareBoundsDirty = true
@@ -362,10 +345,9 @@ public class Complication internal constructor(
                 return
             }
             renderer.onDetach()
-            value.setData(renderer.getData())
+            value.data = renderer.data
             _renderer = value
             value.onAttach(this)
-            initRenderer()
         }
 
     private var _supportedTypes = supportedTypes
@@ -464,24 +446,23 @@ public class Complication internal constructor(
      * @param highlight Whether or not the complication should be drawn highlighted.
      */
     internal fun setIsHighlighted(highlight: Boolean) {
-        renderer.setIsHighlighted(highlight)
+        renderer.isHighlighted = highlight
     }
 
-    private fun initRenderer() {
-        // Renderers may register a user style listener during their initializer which can call
-        // setComplicationRenderer() before complicationInvalidateCallback has been initialized.
-        if (this::invalidateCallback.isInitialized) {
-            renderer.setInvalidateCallback(invalidateCallback)
-        }
+    /**
+     * Requests redraw of the watch face. Useful when initialization is asynchronous, e.g. when
+     * loading a [Drawable].
+     */
+    public fun invalidate() {
+        invalidateCallback.onInvalidate()
     }
 
     internal fun init(
         complicationsManager: ComplicationsManager,
-        invalidateCallback: CanvasComplicationRenderer.InvalidateCallback
+        invalidateCallback: InvalidateCallback
     ) {
         this.complicationsManager = complicationsManager
         this.invalidateCallback = invalidateCallback
-        initRenderer()
     }
 
     internal fun scheduleUpdateComplications() {

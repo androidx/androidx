@@ -125,7 +125,7 @@ public class ComplicationsManager(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
         renderer: Renderer,
-        complicationInvalidateCallback: CanvasComplicationRenderer.InvalidateCallback
+        complicationInvalidateCallback: Complication.InvalidateCallback
     ) {
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
@@ -213,7 +213,7 @@ public class ComplicationsManager(
                 if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
                     ComplicationBoundsType.BACKGROUND
                 } else {
-                    complication.renderer.getData()?.let {
+                    complication.renderer.data?.let {
                         labels.add(
                             ContentDescriptionLabel(
                                 watchFaceHostApi.getContext(),
@@ -257,6 +257,7 @@ public class ComplicationsManager(
                     )
                 }
 
+                complication.dataDirty = false
                 complication.unitSquareBoundsDirty = false
                 complication.supportedTypesDirty = false
                 complication.defaultProviderPolicyDirty = false
@@ -288,8 +289,8 @@ public class ComplicationsManager(
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         val complication = complications[watchFaceComplicationId]!!
-        complication.dataDirty = complication.renderer.getData() != data
-        complication.renderer.setData(data)
+        complication.dataDirty = complication.dataDirty || (complication.renderer.data != data)
+        complication.renderer.data = data
     }
 
     /**
@@ -350,7 +351,7 @@ public class ComplicationsManager(
     @UiThread
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.renderer?.getData() ?: return
+        val data = complications[complicationId]?.renderer?.data ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
@@ -378,7 +379,7 @@ public class ComplicationsManager(
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
-        val data = complication.renderer.getData() ?: return
+        val data = complication.renderer.data ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
