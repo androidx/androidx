@@ -49,12 +49,12 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
     /** Localized human readable name for the element, used in the userStyle selection UI. */
     @ParcelField(2)
     @NonNull
-    public String mDisplayName = "";
+    public CharSequence mDisplayName = "";
 
     /** Localized description string displayed under the displayName. */
     @ParcelField(3)
     @NonNull
-    public String mDescription = "";
+    public CharSequence mDescription = "";
 
     /** Icon for use in the style selection UI. */
     @ParcelField(4)
@@ -91,8 +91,8 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
 
     public UserStyleCategoryWireFormat(
             @NonNull String id,
-            @NonNull String displayName,
-            @NonNull String description,
+            @NonNull CharSequence displayName,
+            @NonNull CharSequence description,
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,

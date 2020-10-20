@@ -118,8 +118,8 @@ internal class ConfigFragment : Fragment() {
                 ConfigOption(
                     id = styleCategory.id,
                     icon = styleCategory.icon,
-                    title = styleCategory.displayName,
-                    summary = styleCategory.description
+                    title = styleCategory.displayName.toString(),
+                    summary = styleCategory.description.toString()
                 )
             )
         }
