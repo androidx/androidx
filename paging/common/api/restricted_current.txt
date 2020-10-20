@@ -472,6 +472,9 @@ package androidx.paging {
     property public final boolean endOfPaginationReached;
   }
 
+  public final class RemoteMediatorAccessorKt {
+  }
+
   public final class SeparatorsKt {
   }
 

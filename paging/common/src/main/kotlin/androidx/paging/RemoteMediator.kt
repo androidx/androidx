@@ -49,7 +49,17 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      *
      * NOTE: A [PagingSource.load] request which is fulfilled by a page that hits a boundary
      * condition in either direction will trigger this callback with [LoadType.PREPEND] or
-     * [LoadType.APPEND] or both. [LoadType.REFRESH] occurs as a result of [initialize].
+     * [LoadType.APPEND] or both. [LoadType.REFRESH] occurs as a result of [initialize] or if
+     * refresh is requested programmatically (e.g. in response to a pull to refresh action).
+     *
+     * This method is never called concurrently *unless* [Pager.flow] has multiple collectors.
+     * Note that Paging might cancel calls to this function if it is currently executing a
+     * [LoadType.PREPEND] or [LoadType.APPEND] and a [LoadType.REFRESH] is requested. In that case,
+     * [LoadType.REFRESH] has higher priority and will be executed after the previous call is
+     * cancelled. If the `load` call with [LoadType.REFRESH] returns an error, Paging will call
+     * `load` with the previously cancelled [LoadType.APPEND] or [LoadType.PREPEND] request. If
+     * the [LoadType.REFRESH] succeeds, it won't make the [LoadType.APPEND] or [LoadType.PREPEND]
+     * requests unless they are necessary again after the [LoadType.REFRESH] is applied to the UI.
      *
      * @param loadType [LoadType] of the boundary condition which triggered this callback.
      *  * [LoadType.PREPEND] indicates a boundary condition at the front of the list.

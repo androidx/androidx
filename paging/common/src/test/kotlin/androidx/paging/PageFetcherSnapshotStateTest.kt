@@ -33,8 +33,7 @@ class PageFetcherSnapshotStateTest {
     @Test
     fun placeholders_uncounted() {
         val pagerState = PageFetcherSnapshotState<Int, Int>(
-            config = PagingConfig(2, enablePlaceholders = false),
-            hasRemoteState = false
+            config = PagingConfig(2, enablePlaceholders = false)
         )
 
         assertEquals(0, pagerState.placeholdersBefore)
@@ -127,8 +126,7 @@ class PageFetcherSnapshotStateTest {
     @Test
     fun placeholders_counted() {
         val pagerState = PageFetcherSnapshotState<Int, Int>(
-            config = PagingConfig(2, enablePlaceholders = true),
-            hasRemoteState = false
+            config = PagingConfig(2, enablePlaceholders = true)
         )
 
         assertEquals(0, pagerState.placeholdersBefore)
@@ -226,7 +224,7 @@ class PageFetcherSnapshotStateTest {
     @Test
     fun currentPagingState() {
         val config = PagingConfig(pageSize = 2)
-        val state = PageFetcherSnapshotState<Int, Int>(config = config, hasRemoteState = false)
+        val state = PageFetcherSnapshotState<Int, Int>(config = config)
 
         val pages = listOf(
             Page(
