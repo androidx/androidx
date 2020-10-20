@@ -23,7 +23,7 @@ import androidx.navigation.NavHost
 /**
  * Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations
  */
-inline fun NavHost.createGraph(
+public inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit

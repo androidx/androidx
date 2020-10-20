@@ -43,7 +43,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
  * The installation process itself is handled within the [AbstractProgressFragment] itself.
  * Navigation to the target destination will occur once the installation is completed.
  */
-abstract class AbstractProgressFragment : Fragment {
+public abstract class AbstractProgressFragment : Fragment {
 
     internal companion object {
         private const val INSTALL_REQUEST_CODE = 1
@@ -61,9 +61,9 @@ abstract class AbstractProgressFragment : Fragment {
     }
     private var navigated = false
 
-    constructor()
+    public constructor()
 
-    constructor(contentLayoutId: Int) : super(contentLayoutId)
+    public constructor(contentLayoutId: Int) : super(contentLayoutId)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -219,5 +219,5 @@ abstract class AbstractProgressFragment : Fragment {
      * Called when requested module has been successfully installed, just before the
      * [NavController][androidx.navigation.NavController] navigates to the final destination.
      */
-    protected open fun onInstalled() = Unit
+    protected open fun onInstalled(): Unit = Unit
 }

@@ -32,18 +32,18 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
  * In order to enable installation and monitoring of progress you'll have to provide an instance
  * of this class to [DynamicExtras].
  */
-class DynamicInstallMonitor {
+public class DynamicInstallMonitor {
 
     /**
      * The occurred exception, if any.
      */
-    var exception: Exception? = null
+    public var exception: Exception? = null
         internal set
 
     /**
      * Get a LiveData of [SplitInstallSessionStatus] with updates on the installation progress.
      */
-    val status: LiveData<SplitInstallSessionState> = MutableLiveData()
+    public val status: LiveData<SplitInstallSessionState> = MutableLiveData()
 
     /**
      * Check whether an installation is required.
@@ -53,7 +53,7 @@ class DynamicInstallMonitor {
      *
      * @return `true` if installation is required, `false` otherwise.
      */
-    var isInstallRequired = false
+    public var isInstallRequired: Boolean = false
         internal set(installRequired) {
             field = installRequired
             if (installRequired) {
@@ -64,7 +64,7 @@ class DynamicInstallMonitor {
     /**
      * The session id from Play Core for this installation session.
      */
-    var sessionId = 0
+    public var sessionId: Int = 0
         internal set
 
     /**
@@ -72,7 +72,7 @@ class DynamicInstallMonitor {
      * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var splitInstallManager: SplitInstallManager? = null
+    public var splitInstallManager: SplitInstallManager? = null
 
     /**
      * `true` if the monitor has been used to request an install, else
@@ -86,7 +86,7 @@ class DynamicInstallMonitor {
     /**
      * Cancel the current split installation session in the SplitInstallManager.
      */
-    fun cancelInstall() {
+    public fun cancelInstall() {
         val splitInstallManager = splitInstallManager
         if (splitInstallManager != null && sessionId != 0) {
             splitInstallManager.cancelInstall(sessionId)

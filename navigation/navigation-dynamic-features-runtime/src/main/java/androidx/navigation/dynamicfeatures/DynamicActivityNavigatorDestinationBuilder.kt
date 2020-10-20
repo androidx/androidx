@@ -30,10 +30,10 @@ import androidx.navigation.get
  * Construct a new [DynamicActivityNavigator.Destination]
  * @param id Destination id.
  */
-inline fun DynamicNavGraphBuilder.activity(
+public inline fun DynamicNavGraphBuilder.activity(
     @IdRes id: Int,
     builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
-) = destination(
+): Unit = destination(
     DynamicActivityNavigatorDestinationBuilder(
         provider[DynamicActivityNavigator::class],
         id
@@ -44,24 +44,24 @@ inline fun DynamicNavGraphBuilder.activity(
  * DSL for constructing a new [DynamicActivityNavigator.Destination]
  */
 @NavDestinationDsl
-class DynamicActivityNavigatorDestinationBuilder(
+public class DynamicActivityNavigatorDestinationBuilder(
     private val activityNavigator: DynamicActivityNavigator,
     @IdRes id: Int
 ) : NavDestinationBuilder<ActivityNavigator.Destination>(activityNavigator, id) {
 
-    var moduleName: String? = null
+    public var moduleName: String? = null
 
-    var targetPackage: String? = null
+    public var targetPackage: String? = null
 
-    var activityClassName: String? = null
+    public var activityClassName: String? = null
 
-    var action: String? = null
+    public var action: String? = null
 
-    var data: Uri? = null
+    public var data: Uri? = null
 
-    var dataPattern: String? = null
+    public var dataPattern: String? = null
 
-    override fun build() =
+    override fun build(): DynamicActivityNavigator.Destination =
         (super.build() as DynamicActivityNavigator.Destination).also { destination ->
             activityClassName?.also {
                 destination.setComponentName(
