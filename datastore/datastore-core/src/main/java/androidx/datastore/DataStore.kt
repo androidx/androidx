@@ -36,7 +36,7 @@ import java.io.IOException
  * 6. Throws runtime exception on parsing errors
  * 7. Exposes mutable references to its internal state
  */
-interface DataStore<T> {
+public interface DataStore<T> {
     /**
      * Provides efficient, cached (when possible) access to the latest durably persisted state.
      * The flow will always either emit a value or throw an exception encountered when attempting
@@ -49,7 +49,7 @@ interface DataStore<T> {
      * @return a flow representing the current state of the data
      * @throws IOException when an exception is encountered when reading data
      */
-    val data: Flow<T>
+    public val data: Flow<T>
 
     /**
      * Updates the data transactionally in an atomic read-modify-write operation. All operations
@@ -64,5 +64,5 @@ interface DataStore<T> {
      * @throws IOException when an exception is encountered when writing data to disk
      * @throws Exception when thrown by the transform function
      */
-    suspend fun updateData(transform: suspend (t: T) -> T): T
+    public suspend fun updateData(transform: suspend (t: T) -> T): T
 }

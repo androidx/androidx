@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import androidx.datastore.DataMigration
 import java.io.File
 import java.io.IOException
+import kotlin.jvm.Throws
 
 /**
  * DataMigration from SharedPreferences to DataStore.
@@ -53,7 +54,7 @@ import java.io.IOException
  * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
  * the current data. The function must return the migrated data.
  */
-class SharedPreferencesMigration<T>
+public class SharedPreferencesMigration<T>
 @JvmOverloads // Generate constructors for default params for java users.
 constructor(
     private val context: Context,
@@ -141,7 +142,7 @@ constructor(
  *  Read-only wrapper around SharedPreferences. This will be passed in to your migration. The
  *  constructor is public to enable easier testing of migrations.
  */
-class SharedPreferencesView(
+public class SharedPreferencesView(
     private val prefs: SharedPreferences,
     private val keySet: Set<String>
 ) {
@@ -151,7 +152,7 @@ class SharedPreferencesView(
      * @param key the name of the preference to check
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    operator fun contains(key: String): Boolean = prefs.contains(checkKey(key))
+    public operator fun contains(key: String): Boolean = prefs.contains(checkKey(key))
 
     /**
      * Retrieves a boolean value from the preferences.
@@ -160,7 +161,7 @@ class SharedPreferencesView(
      * @param defValue value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getBoolean(key: String, defValue: Boolean): Boolean =
+    public fun getBoolean(key: String, defValue: Boolean): Boolean =
         prefs.getBoolean(checkKey(key), defValue)
 
     /**
@@ -170,7 +171,8 @@ class SharedPreferencesView(
      * @param defValue value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getFloat(key: String, defValue: Float): Float = prefs.getFloat(checkKey(key), defValue)
+    public fun getFloat(key: String, defValue: Float): Float =
+        prefs.getFloat(checkKey(key), defValue)
 
     /**
      * Retrieves a int value from the preferences.
@@ -179,7 +181,7 @@ class SharedPreferencesView(
      * @param defValue value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getInt(key: String, defValue: Int): Int = prefs.getInt(checkKey(key), defValue)
+    public fun getInt(key: String, defValue: Int): Int = prefs.getInt(checkKey(key), defValue)
 
     /**
      * Retrieves a long value from the preferences.
@@ -188,7 +190,7 @@ class SharedPreferencesView(
      * @param defValue value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getLong(key: String, defValue: Long): Long = prefs.getLong(checkKey(key), defValue)
+    public fun getLong(key: String, defValue: Long): Long = prefs.getLong(checkKey(key), defValue)
 
     /**
      * Retrieves a string value from the preferences.
@@ -197,7 +199,7 @@ class SharedPreferencesView(
      * @param defValue value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getString(key: String, defValue: String? = null): String? =
+    public fun getString(key: String, defValue: String? = null): String? =
         prefs.getString(checkKey(key), defValue)
 
     /**
@@ -207,11 +209,11 @@ class SharedPreferencesView(
      * @param defValues value to return if this preference does not exist
      * @throws IllegalArgumentException if `key` wasn't specified as part of this migration
      */
-    fun getStringSet(key: String, defValues: Set<String>? = null): Set<String>? =
+    public fun getStringSet(key: String, defValues: Set<String>? = null): Set<String>? =
         prefs.getStringSet(checkKey(key), defValues)?.toMutableSet()
 
     /** Retrieve all values from the preferences that are in the specified keySet. */
-    fun getAll(): Map<String, Any?> = prefs.all.filter { (key, _) ->
+    public fun getAll(): Map<String, Any?> = prefs.all.filter { (key, _) ->
         key in keySet
     }.mapValues { (_, value) ->
         if (value is Set<*>) {
