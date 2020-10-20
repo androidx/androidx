@@ -176,10 +176,10 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         id: String,
 
         /** Localized human readable name for the element, used in the userStyle selection UI. */
-        displayName: String,
+        displayName: CharSequence,
 
         /** Localized description string displayed under the displayName. */
-        description: String,
+        description: CharSequence,
 
         /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
@@ -230,14 +230,14 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         public val complicationOverlays: Collection<ComplicationOverlay>
 
         /** Localized human readable name for the setting, used in the style selection UI. */
-        public val displayName: String
+        public val displayName: CharSequence
 
         /** Icon for use in the style selection UI. */
         public val icon: Icon?
 
         public constructor(
             id: String,
-            displayName: String,
+            displayName: CharSequence,
             icon: Icon?,
             complicationOverlays: Collection<ComplicationOverlay>
         ) : super(id) {

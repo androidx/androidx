@@ -30,10 +30,10 @@ public open class ListUserStyleCategory : UserStyleCategory {
         id: String,
 
         /** Localized human readable name for the element, used in the userStyle selection UI. */
-        displayName: String,
+        displayName: CharSequence,
 
         /** Localized description string displayed under the displayName. */
-        description: String,
+        description: CharSequence,
 
         /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
@@ -78,12 +78,12 @@ public open class ListUserStyleCategory : UserStyleCategory {
      */
     public class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */
-        public val displayName: String
+        public val displayName: CharSequence
 
         /** Icon for use in the style selection UI. */
         public val icon: Icon?
 
-        public constructor(id: String, displayName: String, icon: Icon?) : super(id) {
+        public constructor(id: String, displayName: CharSequence, icon: Icon?) : super(id) {
             this.displayName = displayName
             this.icon = icon
         }
