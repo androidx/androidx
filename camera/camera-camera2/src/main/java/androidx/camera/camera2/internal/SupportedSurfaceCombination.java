@@ -37,6 +37,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -86,6 +87,7 @@ final class SupportedSurfaceCombination {
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristicsCompat mCharacteristics;
+    private final ExcludedSupportedSizesContainer mExcludedSupportedSizesContainer;
     private final int mHardwareLevel;
     private final boolean mIsSensorLandscapeResolution;
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
@@ -102,6 +104,8 @@ final class SupportedSurfaceCombination {
         mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
         WindowManager windowManager =
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        mExcludedSupportedSizesContainer = new ExcludedSupportedSizesContainer(cameraId);
+
         try {
             mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
             Integer keyValue = mCharacteristics.get(
@@ -1239,7 +1243,7 @@ final class SupportedSurfaceCombination {
         List<Size> excludedSizes = mExcludedSizeListCache.get(imageFormat);
 
         if (excludedSizes == null) {
-            excludedSizes = SupportedSizeConstraints.getExcludedSizes(mCameraId, imageFormat);
+            excludedSizes = mExcludedSupportedSizesContainer.get(imageFormat);
             mExcludedSizeListCache.put(imageFormat, excludedSizes);
         }
 

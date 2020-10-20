@@ -45,6 +45,9 @@ public class DeviceQuirksLoader {
         if (SamsungPreviewTargetAspectRatioQuirk.load()) {
             quirks.add(new SamsungPreviewTargetAspectRatioQuirk());
         }
+        if (ExcludedSupportedSizesQuirk.load()) {
+            quirks.add(new ExcludedSupportedSizesQuirk());
+        }
 
         return quirks;
     }
