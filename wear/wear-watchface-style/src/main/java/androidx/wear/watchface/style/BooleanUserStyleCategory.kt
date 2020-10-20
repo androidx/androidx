@@ -78,7 +78,7 @@ public class BooleanUserStyleCategory : UserStyleCategory {
     public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
 
     /** Represents a true or false option in the [BooleanUserStyleCategory]. */
-    public open class BooleanOption : Option {
+    public class BooleanOption : Option {
         public val value: Boolean
 
         public constructor(value: Boolean) : super(value.toString()) {

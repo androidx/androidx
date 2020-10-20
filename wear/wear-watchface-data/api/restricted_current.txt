@@ -269,11 +269,11 @@ package androidx.wear.watchface.style.data {
     ctor public ComplicationsUserStyleCategoryWireFormat(String, String, String, android.graphics.drawable.Icon?, java.util.List<androidx.wear.watchface.style.data.UserStyleCategoryWireFormat.OptionWireFormat!>, int, java.util.List<java.lang.Integer!>);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat(int, Boolean?, android.graphics.RectF?, int[]?, java.util.List<android.content.ComponentName!>?, Integer?, @android.support.wearable.complications.ComplicationData.ComplicationType Integer?);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat(int, Boolean?, android.graphics.RectF?, int[]?, java.util.List<android.content.ComponentName!>?, Integer?, @android.support.wearable.complications.ComplicationData.ComplicationType Integer?);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat!>! CREATOR;
     field public static final int ENABLED_NO = 0; // 0x0
     field public static final int ENABLED_UNKNOWN = -1; // 0xffffffff
     field public static final int ENABLED_YES = 1; // 0x1
@@ -288,8 +288,8 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public static class ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat extends androidx.wear.watchface.style.data.UserStyleCategoryWireFormat.OptionWireFormat {
-    ctor public ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat(String, String, android.graphics.drawable.Icon?, androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat![]);
-    field @androidx.versionedparcelable.ParcelField(100) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat![] mComplications;
+    ctor public ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat(String, String, android.graphics.drawable.Icon?, androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat![]);
+    field @androidx.versionedparcelable.ParcelField(100) public androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat![] mComplicationOverlays;
     field @androidx.versionedparcelable.ParcelField(2) public String mDisplayName;
     field @androidx.versionedparcelable.ParcelField(3) public android.graphics.drawable.Icon? mIcon;
   }

@@ -62,7 +62,7 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @VersionedParcelize
     @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-    public static class ComplicationConfigWireFormat implements VersionedParcelable, Parcelable {
+    public static class ComplicationOverlayWireFormat implements VersionedParcelable, Parcelable {
         public static final int ENABLED_UNKNOWN = -1;
         public static final int ENABLED_YES = 1;
         public static final int ENABLED_NO = 0;
@@ -106,9 +106,9 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
         @ComplicationData.ComplicationType
         public int mDefaultProviderType;
 
-        ComplicationConfigWireFormat() {}
+        ComplicationOverlayWireFormat() {}
 
-        public ComplicationConfigWireFormat(
+        public ComplicationOverlayWireFormat(
                 int complicationId,
                 @Nullable Boolean enabled,
                 @Nullable RectF bounds,
@@ -144,18 +144,18 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
             parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
         }
 
-        public static final Parcelable.Creator<ComplicationConfigWireFormat> CREATOR =
-                new Parcelable.Creator<ComplicationConfigWireFormat>() {
+        public static final Parcelable.Creator<ComplicationOverlayWireFormat> CREATOR =
+                new Parcelable.Creator<ComplicationOverlayWireFormat>() {
                     @Override
-                    public ComplicationConfigWireFormat createFromParcel(Parcel source) {
-                        return ComplicationConfigWireFormatParcelizer.read(
+                    public ComplicationOverlayWireFormat createFromParcel(Parcel source) {
+                        return ComplicationOverlayWireFormatParcelizer.read(
                                 ParcelUtils.fromParcelable(source.readParcelable(
                                         getClass().getClassLoader())));
                     }
 
                     @Override
-                    public ComplicationConfigWireFormat[] newArray(int size) {
-                        return new ComplicationConfigWireFormat[size];
+                    public ComplicationOverlayWireFormat[] newArray(int size) {
+                        return new ComplicationOverlayWireFormat[size];
                     }
                 };
     }
@@ -179,11 +179,11 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
 
         /**
          * Great care should be taken to ensure backwards compatibility of the versioned parcelable
-         * if {@link ComplicationConfigWireFormat} is ever extended.
+         * if {@link ComplicationOverlayWireFormat} is ever extended.
          */
         @ParcelField(100)
         @NonNull
-        public ComplicationConfigWireFormat[] mComplications;
+        public ComplicationOverlayWireFormat[] mComplicationOverlays;
 
         ComplicationsOptionWireFormat() {
         }
@@ -192,12 +192,12 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
                 @NonNull String id,
                 @NonNull String displayName,
                 @Nullable Icon icon,
-                @NonNull ComplicationConfigWireFormat[] complications
+                @NonNull ComplicationOverlayWireFormat[] complicationOverlays
         ) {
             super(id);
             mDisplayName = displayName;
             mIcon = icon;
-            mComplications = complications;
+            mComplicationOverlays = complicationOverlays;
         }
     }
 }

@@ -170,7 +170,7 @@ public class ComplicationsManager(
         styleOption: ComplicationsUserStyleCategory.ComplicationsOption
     ) {
         for ((id, complication) in complications) {
-            val override = styleOption.complications.find { it.complicationId == id }
+            val override = styleOption.complicationOverlays.find { it.complicationId == id }
             val initialConfig = initialComplicationConfigs[id]!!
             // Apply styleOption overrides.
             complication.unitSquareBounds =

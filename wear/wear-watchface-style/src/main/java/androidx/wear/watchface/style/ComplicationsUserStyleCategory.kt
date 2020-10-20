@@ -22,17 +22,20 @@ import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationConfigWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat
 import java.security.InvalidParameterException
 
 /**
  * ComplicationsUserStyleCategory is the recommended [UserStyleCategory] for representing
  * complication configuration options such as the number of active complications, their location,
- * etc...
+ * etc... The [ComplicationsOption] class allows you to apply a list of [ComplicationOverlay]s on
+ * top of the base config as specified by the [androidx.wear.watchface.Complication] constructor.
  *
- * The ComplicationsManager listens for style changes with this category and applies them
- * automatically.
+ * The ComplicationsManager listens for style changes with this category and when a
+ * [ComplicationsOption] is selected the overrides are automatically applied. Note its suggested
+ * that the default [ComplicationOverlay] (the first entry in the list) does not apply any
+ * overrides.
  *
  * Not to be confused with complication provider selection.
  */
@@ -42,7 +45,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
      * Overrides to be applied to the corresponding complication's initial config (as specified in
      * [androidx.wear.watchface.Complication]) when the category is selected.
      */
-    public class ComplicationOverride internal constructor(
+    public class ComplicationOverlay internal constructor(
         /** The id of the complication to configure. */
         public val complicationId: Int,
 
@@ -120,7 +123,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
                 this.defaultComplicationProviderType = defaultComplicationProviderType
             }
 
-            public fun build(): ComplicationOverride = ComplicationOverride(
+            public fun build(): ComplicationOverlay = ComplicationOverlay(
                 complicationId,
                 enabled,
                 bounds,
@@ -131,13 +134,13 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         }
 
         internal constructor(
-            wireFormat: ComplicationConfigWireFormat
+            wireFormat: ComplicationOverlayWireFormat
         ) : this(
             wireFormat.mComplicationId,
             when (wireFormat.mEnabled) {
-                ComplicationConfigWireFormat.ENABLED_UNKNOWN -> null
-                ComplicationConfigWireFormat.ENABLED_YES -> true
-                ComplicationConfigWireFormat.ENABLED_NO -> false
+                ComplicationOverlayWireFormat.ENABLED_UNKNOWN -> null
+                ComplicationOverlayWireFormat.ENABLED_YES -> true
+                ComplicationOverlayWireFormat.ENABLED_NO -> false
                 else -> throw InvalidParameterException(
                     "Unrecognised wireFormat.mEnabled " + wireFormat.mEnabled
                 )
@@ -148,7 +151,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
                 DefaultComplicationProviderPolicy(it, wireFormat.mSystemProviderFallback)
             },
             if (wireFormat.mDefaultProviderType !=
-                ComplicationConfigWireFormat.NO_DEFAULT_PROVIDER_TYPE
+                ComplicationOverlayWireFormat.NO_DEFAULT_PROVIDER_TYPE
             ) {
                 wireFormat.mDefaultProviderType
             } else {
@@ -157,7 +160,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         )
 
         internal fun toWireFormat() =
-            ComplicationConfigWireFormat(
+            ComplicationOverlayWireFormat(
                 complicationId,
                 enabled,
                 bounds,
@@ -219,12 +222,12 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         )
 
     /** Represents an override to the initial complication configuration. */
-    public open class ComplicationsOption : Option {
+    public class ComplicationsOption : Option {
         /**
-         * Overrides to be applied when this ComplicationsOption is selected. If this is empty
+         * Overlays to be applied when this ComplicationsOption is selected. If this is empty
          * then the net result is the initial complication configuration.
          */
-        public val complications: Collection<ComplicationOverride>
+        public val complicationOverlays: Collection<ComplicationOverlay>
 
         /** Localized human readable name for the setting, used in the style selection UI. */
         public val displayName: String
@@ -236,15 +239,15 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
             id: String,
             displayName: String,
             icon: Icon?,
-            complications: Collection<ComplicationOverride>
+            complicationOverlays: Collection<ComplicationOverlay>
         ) : super(id) {
-            this.complications = complications
+            this.complicationOverlays = complicationOverlays
             this.displayName = displayName
             this.icon = icon
         }
 
         internal constructor(wireFormat: ComplicationsOptionWireFormat) : super(wireFormat.mId) {
-            complications = wireFormat.mComplications.map { ComplicationOverride(it) }
+            complicationOverlays = wireFormat.mComplicationOverlays.map { ComplicationOverlay(it) }
             displayName = wireFormat.mDisplayName
             icon = wireFormat.mIcon
         }
@@ -256,7 +259,7 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
                 id,
                 displayName,
                 icon,
-                complications.map { it.toWireFormat() }.toTypedArray()
+                complicationOverlays.map { it.toWireFormat() }.toTypedArray()
             )
     }
 }

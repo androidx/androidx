@@ -43,7 +43,7 @@ import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverride
+import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.Layer
@@ -124,9 +124,9 @@ internal class TestCanvasWatchFaceService(
                     "Both",
                     null,
                     listOf(
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
                             .setEnabled(true).build(),
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
                             .setEnabled(true).build()
                     )
                 ),
@@ -135,9 +135,9 @@ internal class TestCanvasWatchFaceService(
                     "None",
                     null,
                     listOf(
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
                             .setEnabled(false).build(),
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
                             .setEnabled(false).build()
                     )
                 ),
@@ -146,9 +146,9 @@ internal class TestCanvasWatchFaceService(
                     "Left",
                     null,
                     listOf(
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
                             .setEnabled(true).build(),
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
                             .setEnabled(true).build()
                     )
                 ),
@@ -157,9 +157,9 @@ internal class TestCanvasWatchFaceService(
                     "Right",
                     null,
                     listOf(
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
                             .setEnabled(true).build(),
-                        ComplicationOverride.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
+                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
                             .setEnabled(false).build()
                     )
                 )
