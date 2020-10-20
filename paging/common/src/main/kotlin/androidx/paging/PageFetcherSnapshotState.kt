@@ -37,8 +37,7 @@ import kotlinx.coroutines.flow.onStart
  * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow] of [PageEvent].
  */
 internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
-    private val config: PagingConfig,
-    hasRemoteState: Boolean
+    private val config: PagingConfig
 ) {
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
@@ -95,7 +94,9 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
      * two different ways to trigger.
      */
     internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
-    internal val loadStates = MutableLoadStateCollection(hasRemoteState)
+    // only the local load states
+    internal var sourceLoadStates = LoadStates.IDLE
+        private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
@@ -107,6 +108,14 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendLoadIdCh.consumeAsFlow()
             .onStart { appendLoadIdCh.offer(appendLoadId) }
+    }
+
+    fun setSourceLoadState(type: LoadType, newState: LoadState): Boolean {
+        if (sourceLoadStates.get(type) == newState) {
+            return false
+        }
+        sourceLoadStates = sourceLoadStates.modifyState(type, newState)
+        return true
     }
 
     /**
@@ -124,22 +133,33 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
             APPEND -> pages.size - initialPageIndex - 1
         }
         val pages = listOf(TransformablePage(sourcePageIndex, data))
+        // Mediator state is always set to null here because PageFetcherSnapshot is not responsible
+        // for Mediator state. Instead, PageFetcher will inject it if there is a remote mediator.
         return when (loadType) {
             REFRESH -> Refresh(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = loadStates.snapshot()
+                combinedLoadStates = CombinedLoadStates(
+                    source = sourceLoadStates,
+                    mediator = null
+                )
             )
             PREPEND -> Prepend(
                 pages = pages,
                 placeholdersBefore = placeholdersBefore,
-                combinedLoadStates = loadStates.snapshot()
+                combinedLoadStates = CombinedLoadStates(
+                    source = sourceLoadStates,
+                    mediator = null
+                )
             )
             APPEND -> Append(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
-                combinedLoadStates = loadStates.snapshot()
+                combinedLoadStates = CombinedLoadStates(
+                    source = sourceLoadStates,
+                    mediator = null
+                )
             )
         }
     }
@@ -204,7 +224,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
 
         // Reset load state to NotLoading(endOfPaginationReached = false).
         failedHintsByLoadType.remove(event.loadType)
-        loadStates.set(event.loadType, false, NotLoading.Incomplete)
+        sourceLoadStates = sourceLoadStates.modifyState(event.loadType, NotLoading.Incomplete)
 
         when (event.loadType) {
             PREPEND -> {

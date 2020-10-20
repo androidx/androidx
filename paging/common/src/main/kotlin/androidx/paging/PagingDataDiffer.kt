@@ -42,7 +42,7 @@ abstract class PagingDataDiffer<T : Any>(
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
-    private val combinedLoadStates = MutableLoadStateCollection(hasRemoteState = false)
+    private val combinedLoadStates = MutableLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
     private val dataRefreshedListeners = CopyOnWriteArrayList<(isEmpty: Boolean) -> Unit>()
 
