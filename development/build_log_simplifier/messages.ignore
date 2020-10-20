@@ -40,7 +40,7 @@ The Kotlin source set test was configured but not added to any Kotlin compilatio
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
-BUILD SUCCESSFUL in [0-9]+m [0-9]+s
+BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -51,18 +51,12 @@ Note: Recompile with \-Xlint:removal for details\.
 # > Task :test-screenshot:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/test\-screenshot_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
-\$SUPPORT/benchmark/junit[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.junit[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
-\$SUPPORT/benchmark/common/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/tracing/tracing/src/androidTest/java/androidx/tracing/TraceTest\.java uses or overrides a deprecated API\.
 # > Task :tracing:tracing-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/tracing\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ui\.tooling\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :generateSdkApi
@@ -78,14 +72,10 @@ More than one file was found with OS independent path 'META\-INF/benchmark\-juni
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/benchmark\-common_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/compose/integration\-tests/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ui\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-geometry:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-geometry/src/commonMain/kotlin/androidx/compose/ui/geometry/Radius\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
-\$SUPPORT/compose/navigation/navigation/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.compose\.navigation\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:runtime:runtime-dispatch:mergeDebugAndroidTestJavaResource
@@ -622,66 +612,38 @@ Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/life
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :ads-identifier:processDebugAndroidTestManifest
-\$SUPPORT/ads/ads\-identifier/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ads\.identifier\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :sharetarget:integration-tests:testapp:compileDebugJavaWithJavac
 Note: \$SUPPORT/sharetarget/integration\-tests/testapp/src/main/java/androidx/sharetarget/testapp/MainActivity\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
-\$SUPPORT/ads/ads\-identifier\-provider/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ads\.identifier\.provider\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
 Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
-\$SUPPORT/testutils/testutils\-runtime/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.testutils\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/slices/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/internal\-testutils\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :internal-testutils-navigation:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/internal\-testutils\-navigation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :slice-builders-ktx:processDebugAndroidTestManifest
-\$SUPPORT/slices/builders/ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.builders\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-core:processDebugAndroidTestManifest
-\$SUPPORT/slices/core/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.core\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-remotecallback:processDebugAndroidTestManifest
-\$SUPPORT/slices/remotecallback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.remotecallback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-view:processDebugAndroidTestManifest
-\$SUPPORT/slices/view/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.view\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-benchmark:compileReleaseAndroidTestJavaWithJavac
 Note: \$SUPPORT/slices/benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java uses or overrides a deprecated API\.
 # > Task :slice-builders-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/slice\-builders\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :support-media-test-client:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/current/client/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'android\.support\.mediacompat\.client\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-client-previous:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/previous/client/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media-test-service:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/current/service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'android\.support\.mediacompat\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-service-previous:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/previous/service/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media2-test-client:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/client/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.test\.client\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-service:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media/version\-compat\-tests/current/service/src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatCallbackTest\.java uses or overrides a deprecated API\.
 # > Task :support-media2-test-client-previous:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/client/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media2-test-service:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.test\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media2-test-service-previous:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/service/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media-test-client:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media/version\-compat\-tests/current/client/src/androidTest/java/android/support/mediacompat/client/MediaControllerCompatCallbackTest\.java uses or overrides a deprecated API\.
 # > Task :support-media2-test-service:compileDebugAndroidTestJavaWithJavac
@@ -689,36 +651,20 @@ Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/a
 # > Task :support-media2-test-service-previous:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/service/src/androidTest/java/androidx/media[0-9]+/test/service/MockPlayer\.java uses unchecked or unsafe operations\.
 # > Task :activity:activity:processDebugAndroidTestManifest
-\$SUPPORT/activity/activity/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.activity\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appcompat:appcompat:processDebugAndroidTestManifest
 \[:internal\-testutils\-appcompat\] \$OUT_DIR/androidx/internal\-testutils\-appcompat/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime\.
 # > Task :appcompat:appcompat-resources:processDebugAndroidTestManifest
-\$SUPPORT/appcompat/appcompat\-resources/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appcompat\.resources\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appcompat:appcompat-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/appcompat/appcompat\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appcompat\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :activity:activity-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/activity\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-camera2:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-camera[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.camera[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-core:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-core/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.core\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-extensions:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-extensions/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.extensions\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-lifecycle:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-lifecycle/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.lifecycle\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-testing:externalNativeBuildDebug
 Build testing_surface_format_jni_armeabi\-v[0-9]+a
 ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
@@ -752,22 +698,14 @@ static final com\.google\.protobuf\.Internal\.EnumVerifier           INSTANCE = 
 # > Task :camera:camera-camera2-pipe-integration:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe\-integration_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/collection/collection\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.collection\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-extensions:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/extensions/PreviewExtenderTest\.java uses unchecked or unsafe operations\.
 # > Task :camera:camera-camera2-pipe:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :customview:customview:processDebugAndroidTestManifest
-\$SUPPORT/customview/customview/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.customview\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :core:core-ktx:processDebugAndroidTestManifest
-\$SUPPORT/core/core\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.core\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appsearch:appsearch:processDebugAndroidTestManifest
-\$SUPPORT/appsearch/appsearch/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appsearch\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :customview:customview:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
 # > Task :datastore:datastore-core:mergeDebugAndroidTestJavaResource
@@ -779,20 +717,10 @@ More than one file was found with OS independent path 'META\-INF/datastore\-pref
 # > Task :core:core-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/core\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :drawerlayout:drawerlayout:processDebugAndroidTestManifest
-\$SUPPORT/drawerlayout/drawerlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.drawerlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :dynamicanimation:dynamicanimation:processDebugAndroidTestManifest
-\$SUPPORT/dynamic\-animation/dynamic\-animation/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.dynamicanimation\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :dynamicanimation:dynamicanimation-ktx:processDebugAndroidTestManifest
-\$SUPPORT/dynamic\-animation/dynamic\-animation\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.dynamicanimation\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :exifinterface:exifinterface:processDebugAndroidTestManifest
-\$SUPPORT/exifinterface/exifinterface/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.exifinterface\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :fragment:fragment-testing:processDebugAndroidTestManifest
-\$SUPPORT/fragment/fragment\-testing/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.fragment\.testing\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appsearch:appsearch-local-backend:externalNativeBuildDebug
 ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/armeabi\-v[0-9]+a'
 \[[0-9]+/[0-9]+\] Linking CXX static library protobuf\-target/libprotobufd\.a
@@ -804,11 +732,7 @@ ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/
 ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/x[0-9]+_[0-9]+'
 \[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libicing\.so
 # > Task :gridlayout:gridlayout:processDebugAndroidTestManifest
-\$SUPPORT/gridlayout/gridlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.gridlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :heifwriter:heifwriter:processDebugAndroidTestManifest
-\$SUPPORT/heifwriter/heifwriter/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.heifwriter\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :exifinterface:exifinterface:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
@@ -817,16 +741,10 @@ Note: \$SUPPORT/gridlayout/gridlayout/src/androidTest/java/androidx/gridlayout/w
 # > Task :dynamicanimation:dynamicanimation-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/dynamicanimation\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :leanback:leanback:processDebugAndroidTestManifest
-\$SUPPORT/leanback/leanback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.leanback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
-\$SUPPORT/leanback/leanback\-tab/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.leanback\.tab\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-extensions/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.extensions\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :fragment:fragment-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :fragment:fragment-truth:mergeDebugAndroidTestJavaResource
@@ -844,11 +762,7 @@ More than one file was found with OS independent path 'META\-INF/fragment\-testi
 # > Task :leanback:leanback-paging:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/leanback\-paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-viewmodel\-savedstate/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.viewmodel\.savedstate\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/leanback/leanback\-tab/src/androidTest/java/androidx/leanback/tab/app/PagerAdapter\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:lifecycle-runtime-testing:mergeDebugAndroidTestJavaResource
@@ -860,28 +774,16 @@ More than one file was found with OS independent path 'META\-INF/lifecycle\-view
 # > Task :lifecycle:lifecycle-livedata-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/lifecycle\-livedata\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :media2:media2-common:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/common/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.common\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-player:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/player/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.player\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-session:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.session\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-common:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media[0-9]+/common/src/androidTest/java/androidx/media[0-9]+/common/SubtitleDataTest\.java uses or overrides a deprecated API\.
 # > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/navigation/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.navigation\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :media2:media2-widget:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/widget/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.widget\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :loader:loader-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/loader\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
-\$SUPPORT/navigation/navigation\-dynamic\-features\-runtime/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.navigation\.dynamicfeatures\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
 # > Task :navigation:navigation-common-ktx:mergeDebugAndroidTestJavaResource
@@ -895,14 +797,8 @@ More than one file was found with OS independent path 'META\-INF/navigation\-dyn
 # > Task :navigation:navigation-fragment-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/navigation\-fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :palette:palette:processDebugAndroidTestManifest
-\$SUPPORT/palette/palette/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.palette\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
-\$SUPPORT/percentlayout/percentlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.percentlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
-\$SUPPORT/preference/preference\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.preference\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :paging:paging-rxjava2:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/paging\-rxjava[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :navigation:navigation-runtime-ktx:mergeDebugAndroidTestJavaResource
@@ -918,20 +814,14 @@ More than one file was found with OS independent path 'META\-INF/paging\-runtime
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :recyclerview:recyclerview-selection:processDebugAndroidTestManifest
-\$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.recyclerview\.selection\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :preference:preference:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/PreferenceDataStoreTest\.java uses unchecked or unsafe operations\.
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
-\$SUPPORT/remotecallback/remotecallback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.remotecallback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :preference:preference-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/preference\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/java/androidx/recyclerview/selection/DefaultSelectionTrackerTest\.java uses or overrides a deprecated API\.
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
-\$SUPPORT/savedstate/savedstate/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.savedstate\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :savedstate:savedstate-ktx:mergeDebugAndroidTestJavaResource
@@ -949,66 +839,34 @@ Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarge
 # > Task :security:security-crypto-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/security\-crypto\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :appsearch:appsearch-local-backend:processDebugAndroidTestManifest
-\$SUPPORT/appsearch/local\-backend/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appsearch\.localbackend\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :textclassifier:textclassifier:processDebugAndroidTestManifest
-\$SUPPORT/textclassifier/textclassifier/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.textclassifier\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :transition:transition:processDebugAndroidTestManifest
-\$SUPPORT/transition/transition/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.transition\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :transition:transition-ktx:processDebugAndroidTestManifest
-\$SUPPORT/transition/transition\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.transition\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :tvprovider:tvprovider:processDebugAndroidTestManifest
-\$SUPPORT/tv\-provider/tv\-provider/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.tvprovider\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :wear:wear:processDebugAndroidTestManifest
-\$SUPPORT/wear/wear/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.wear\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :vectordrawable:vectordrawable:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :viewpager:viewpager:processDebugAndroidTestManifest
-\$SUPPORT/viewpager/viewpager/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.viewpager\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :vectordrawable:vectordrawable-animated:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable\-animated/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.animated\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :vectordrawable:vectordrawable-seekable:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable\-seekable/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.seekable\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
-\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.viewpager[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :transition:transition-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/transition\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :wear:wear-watchface:processDebugAndroidTestManifest
-\$SUPPORT/wear/wear\-watchface/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.wear\.watchface\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :window:window:processDebugAndroidTestManifest
-\$SUPPORT/window/window/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.window\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :webkit:webkit:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCompatForceDarkTest\.java uses or overrides a deprecated API\.
 # > Task :wear:wear-watchface:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/wear\-watchface_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.work\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :work:work-inspection:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/work\-inspection_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :work:work-runtime-ktx:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/work\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:integration-tests:dry-run-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.integration\.dryrun\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :benchmark:integration-tests:startup-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.integration\.startup\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :work:work-testing:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path 'META\-INF/work\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
@@ -1100,8 +958,6 @@ src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warnin
 src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warning: Parameter dataModel references hidden type androidx\.appcompat\.widget\.ActivityChooserModel\. \[HiddenTypeParameter\]
 src/main/java/androidx/appcompat/widget/Toolbar\.java:[0-9]+: warning: Parameter outerPresenter references hidden type androidx\.appcompat\.widget\.ActionMenuPresenter\. \[HiddenTypeParameter\]
 # > Task :core:core-appdigest:processDebugAndroidTestManifest
-\$SUPPORT/core/core\-appdigest/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.core\.appdigest\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :core:core:generateApi
 src\/main\/java\/androidx\/core\/app\/NotificationCompat\.java\:[0-9]+\: warning\: Builder constructor arguments must be mandatory \(i\.e\. not \@Nullable\)\: parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon\, CharSequence title\, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]See tools\/metalava\/API\-LINT\.md for how to handle these\.
 src/main/java/androidx/core/app/NotificationCompat\.java:[0-9]+: warning: Builder constructor arguments must be mandatory \(i\.e\. not @Nullable\): parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon, CharSequence title, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]
@@ -1149,13 +1005,11 @@ src/main/java/androidx/transition/Transition\.java:[0-9]+: warning: Parameter en
 src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter startValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
 src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter endValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
 # > Task :activity:integration-tests:testapp:processDebugAndroidTestManifest
-\$SUPPORT/activity/integration\-tests/testapp/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.activity\.integration\.testapp\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
+# b/166471969
+.*androidTest.*AndroidManifest.*xml Warning.*:
+Package name.*test' used in: .*AndroidManifest.*xml.*
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :benchmark:benchmark-macro:processDebugAndroidTestManifest
-\$SUPPORT\/benchmark\/macro\/src\/androidTest\/AndroidManifest\.xml Warning\:
-Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml\, manifestMerger[0-9]+\.xml\.
 # > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
 ZipFile closed
 # > Task :compose:internal-lint-checks:lint
@@ -1227,3 +1081,5 @@ There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\
 More than one file was found with OS independent path 'META\-INF/benchmark-perfetto_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+# > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
+[0-9]+ actionable tasks: [0-9]+ up\-to\-date
