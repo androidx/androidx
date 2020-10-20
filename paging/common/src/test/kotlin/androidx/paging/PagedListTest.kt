@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
+import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class PagedListTest {
@@ -148,5 +150,37 @@ class PagedListTest {
         loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
 
         assertEquals(1, onStateChangeCalls)
+    }
+
+    @Test
+    fun dispatchStateChange_dispatchesOnNotifyDispatcher() {
+        val notifyDispatcher = TestDispatcher()
+
+        @Suppress("DEPRECATION")
+        val pagedList = object : PagedList<String>(
+            pagingSource,
+            testCoroutineScope,
+            notifyDispatcher,
+            PagedStorage(),
+            config
+        ) {
+            override val lastKey: Any? = null
+
+            override val isDetached: Boolean = true
+
+            override fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {}
+
+            override fun loadAroundInternal(index: Int) {}
+
+            override fun detach() {}
+        }
+
+        assertTrue { notifyDispatcher.queue.isEmpty() }
+
+        pagedList.dispatchStateChangeAsync(REFRESH, LoadState.Loading)
+        assertEquals(1, notifyDispatcher.queue.size)
+
+        pagedList.dispatchStateChangeAsync(REFRESH, LoadState.NotLoading.Incomplete)
+        assertEquals(2, notifyDispatcher.queue.size)
     }
 }

@@ -38,12 +38,12 @@ import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotSame
+import kotlin.test.assertTrue
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
@@ -190,8 +190,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     private fun PagingSource<Int, Item>.getInitialPage(
         initialKey: Int,
         loadSize: Int,
-        pageSize:
-            Int
+        pageSize: Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
             PagingSource.LoadParams.Refresh(
@@ -1046,6 +1045,19 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
         verify(boundaryCallback).onItemAtFrontLoaded(ITEMS.first())
         verifyNoMoreInteractions(boundaryCallback)
+    }
+
+    @Test
+    fun dispatchStateChange_dispatchesOnNotifyDispatcher() {
+        val pagedList = createCountedPagedList(0)
+
+        assertTrue { mainThread.queue.isEmpty() }
+
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, LoadState.Loading)
+        assertEquals(1, mainThread.queue.size)
+
+        pagedList.dispatchStateChangeAsync(LoadType.REFRESH, LoadState.NotLoading.Incomplete)
+        assertEquals(2, mainThread.queue.size)
     }
 
     private fun drain() {

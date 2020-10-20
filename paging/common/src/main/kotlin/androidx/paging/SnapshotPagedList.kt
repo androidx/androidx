@@ -19,6 +19,8 @@ package androidx.paging
 @Suppress("DEPRECATION")
 internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) : PagedList<T>(
     pagedList.pagingSource,
+    pagedList.coroutineScope,
+    pagedList.notifyDispatcher,
     pagedList.storage.snapshot(),
     pagedList.config
 ) {

@@ -27,14 +27,14 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(JUnit4::class)
