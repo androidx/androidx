@@ -19,6 +19,7 @@ package androidx.slice.widget;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.core.SliceHints.ACTION_WITH_LABEL;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 
 import android.app.PendingIntent;
@@ -31,6 +32,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -78,15 +80,18 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
 
     private int mIconSize;
     private int mImageSize;
+    private int mTextActionPadding;
 
     public SliceActionView(Context context, SliceStyle style, RowStyle rowStyle) {
         super(context);
         Resources res = getContext().getResources();
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
+        mTextActionPadding = 0;
         if (rowStyle != null) {
             mIconSize = rowStyle.getIconSize();
             mImageSize = rowStyle.getImageSize();
+            mTextActionPadding = rowStyle.getTextActionPadding();
         }
     }
 
@@ -150,6 +155,20 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             }
             mActionView = switchView;
 
+        } else if (action.getImageMode() == ACTION_WITH_LABEL) {
+            Button textButton = new Button(getContext());
+            mActionView = textButton;
+            ((Button) mActionView).setText(action.getTitle());
+            addView(mActionView);
+
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mActionView.getLayoutParams();
+            lp.width = LayoutParams.WRAP_CONTENT;
+            lp.height = LayoutParams.WRAP_CONTENT;
+            mActionView.setLayoutParams(lp);
+            int p = mTextActionPadding;
+
+            mActionView.setPadding(p, p, p, p);
+            mActionView.setOnClickListener(this);
         } else if (action.getIcon() != null) {
             if (action.isToggle()) {
                 ImageToggle imageToggle = new ImageToggle(getContext());
