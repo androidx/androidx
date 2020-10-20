@@ -28,19 +28,18 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
-import androidx.camera.core.CameraSelector;
+import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
@@ -55,7 +54,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
@@ -72,31 +70,23 @@ import java.util.concurrent.TimeoutException;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-/** Robolectric test for {@link SupportedSizeConstraints} class */
+/**
+ * Unit tests for {@link ExcludedSupportedSizesContainer}'s usage within
+ * {@link SupportedSurfaceCombination}.
+ */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class SupportedSizeConstraintsTest {
+
     private static final String BACK_CAMERA_ID = "0";
     private static final int DEFAULT_SENSOR_ORIENTATION = 90;
     private static final String TEST_BRAND_NAME = "OnePlus";
     private static final String TEST_DEVICE_NAME = "OnePlus6T";
+
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
-    /**
-     * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
-     * will be mapped to ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes.
-     * Before Android level 23, there is no ImageFormat.PRIVATE. But there is same internal code
-     * 0x22 for internal corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore,
-     * set 0x22 as default image format.
-     */
-    private final int[] mSupportedFormats =
-            new int[]{
-                    ImageFormat.YUV_420_888,
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_JPEG,
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-            };
 
     private final Size[] mSupportedSizes =
             new Size[]{
@@ -112,11 +102,10 @@ public class SupportedSizeConstraintsTest {
                     new Size(320, 240)
             };
 
-    private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
-    private FakeCameraFactory mCameraFactory;
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private final CameraManagerCompat mCameraManager = CameraManagerCompat.from(mContext);
 
     @Before
-    @SuppressWarnings("deprecation") /* defaultDisplay */
     public void setUp() {
         when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
     }
@@ -124,6 +113,102 @@ public class SupportedSizeConstraintsTest {
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void sizesCanBeExcluded_withProperCaseBrandAndDeviceName() throws Exception {
+        sizesCanBeExcluded(TEST_BRAND_NAME, TEST_DEVICE_NAME);
+    }
+
+    @Test
+    public void sizesCanBeExcluded_withLowerCaseBrandAndDeviceName() throws Exception {
+        sizesCanBeExcluded(TEST_BRAND_NAME.toLowerCase(), TEST_DEVICE_NAME.toLowerCase());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void sizesCanBeExcluded(@NonNull String brand, @NonNull String device)
+            throws Exception {
+        // Mock the environment to simulate a device that some supported sizes will be excluded.
+        Map<Field, Object> fieldSettingsMap = new HashMap<>();
+        fieldSettingsMap.put(Build.class.getField("BRAND"), brand);
+        fieldSettingsMap.put(Build.class.getField("DEVICE"), device);
+        setFakeBuildEnvironments(fieldSettingsMap);
+
+        // Setup fake camera with supported sizes.
+        setupCamera();
+
+        final SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(mContext, BACK_CAMERA_ID, mCameraManager,
+                        mMockCamcorderProfileHelper);
+
+        List<Size> excludedSizes = Arrays.asList(
+                new Size[]{new Size(4160, 3120), new Size(4000, 3000)});
+
+        // Check the original mSupportedSizes contains the excluded sizes to avoid
+        // mSupportedSizes modified unexpectedly.
+        assertThat(Arrays.asList(mSupportedSizes)).containsAtLeastElementsIn(excludedSizes);
+
+        // Make the fake use case have JPEG format since those sizes are excluded for JPEG format.
+        final FakeUseCase useCase = new FakeUseCaseConfig.Builder()
+                .setBufferFormat(ImageFormat.JPEG)
+                .build();
+        final List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getCurrentConfig());
+        assertThat(resultList).containsNoneIn(excludedSizes);
+    }
+
+    private void setFakeBuildEnvironments(@NonNull Map<Field, Object> fieldSettingsMap)
+            throws Exception {
+        for (Field field : fieldSettingsMap.keySet()) {
+            field.setAccessible(true);
+            field.set(null, fieldSettingsMap.get(field));
+        }
+    }
+
+    private void setupCamera() {
+        CameraCharacteristics characteristics =
+                ShadowCameraCharacteristics.newCameraCharacteristics();
+        ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
+        shadowCharacteristics.set(CameraCharacteristics.LENS_FACING,
+                CameraCharacteristics.LENS_FACING_BACK);
+        shadowCharacteristics.set(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        shadowCharacteristics.set(
+                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
+
+        CameraManager cameraManager = (CameraManager) ApplicationProvider.getApplicationContext()
+                .getSystemService(Context.CAMERA_SERVICE);
+        ((ShadowCameraManager) Shadow.extract(cameraManager)).addCamera(BACK_CAMERA_ID,
+                characteristics);
+
+        StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+        when(mockMap.getOutputSizes(anyInt())).thenReturn(mSupportedSizes);
+
+        // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
+        // output sizes need to be retrieved via SurfaceTexture.class.
+        when(mockMap.getOutputSizes(SurfaceTexture.class)).thenReturn(mSupportedSizes);
+        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap);
+
+        int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
+                CameraCharacteristics.LENS_FACING_BACK);
+
+        final FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        cameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
+                () -> new FakeCamera(BACK_CAMERA_ID, null,
+                        new Camera2CameraInfoImpl(BACK_CAMERA_ID,
+                                getCameraCharacteristicsCompat(BACK_CAMERA_ID),
+                                mock(Camera2CameraControlImpl.class))));
+
+        initCameraX(cameraFactory);
+    }
+
+    private void initCameraX(final FakeCameraFactory cameraFactory) {
+        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
+                Camera2Config.defaultConfig())
+                .setCameraFactoryProvider((ignored0, ignored1) -> cameraFactory)
+                .build();
+        CameraX.initialize(mContext, cameraXConfig);
     }
 
     private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
@@ -134,137 +219,5 @@ public class SupportedSizeConstraintsTest {
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
                 cameraManager.getCameraCharacteristics(cameraId));
-    }
-
-    @Test
-    public void sizesCanBeExcluded() throws Exception {
-        // Mock the environment to simulate a device that some supported sizes will be excluded.
-        Map<Field, Object> fieldSettingsMap = new HashMap<>();
-        fieldSettingsMap.put(Build.class.getField("BRAND"), TEST_BRAND_NAME);
-        fieldSettingsMap.put(Build.class.getField("DEVICE"), TEST_DEVICE_NAME);
-        setFakeBuildEnvironments(fieldSettingsMap);
-
-        // Setup fake camera with supported sizes.
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, mSupportedSizes,
-                null);
-        CameraCharacteristicsCompat characteristicsCompat =
-                getCameraCharacteristicsCompat(BACK_CAMERA_ID);
-
-        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, BACK_CAMERA_ID, CameraManagerCompat.from(mContext),
-                mMockCamcorderProfileHelper);
-
-        List<Size> excludedSizes = Arrays.asList(
-                new Size[]{new Size(4160, 3120), new Size(4000, 3000)});
-
-        // Check the original mSupportedSizes contains the excluded sizes to avoid
-        // mSupportedSizes modified unexpectedly.
-        assertThat(Arrays.asList(mSupportedSizes).containsAll(excludedSizes)).isTrue();
-        // Make the fake use case have JPEG format since those sizes are excluded for JPEG format.
-        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setBufferFormat(
-                ImageFormat.JPEG).build();
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
-                useCase.getCurrentConfig());
-
-        for (Size size : excludedSizes) {
-            assertThat(resultList.contains(size)).isFalse();
-        }
-    }
-
-    @Test
-    public void sizesCanBeExcluded_withLowerCaseBrandDeviceName() throws Exception {
-        // Mock the environment to simulate a device that some supported sizes will be excluded.
-        Map<Field, Object> fieldSettingsMap = new HashMap<>();
-        fieldSettingsMap.put(Build.class.getField("BRAND"), TEST_BRAND_NAME.toLowerCase());
-        fieldSettingsMap.put(Build.class.getField("DEVICE"), TEST_DEVICE_NAME.toLowerCase());
-        setFakeBuildEnvironments(fieldSettingsMap);
-        // Setup fake camera with supported sizes.
-        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, mSupportedSizes,
-                null);
-        CameraCharacteristicsCompat characteristicsCompat =
-                getCameraCharacteristicsCompat(BACK_CAMERA_ID);
-
-        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, BACK_CAMERA_ID, CameraManagerCompat.from(mContext),
-                mMockCamcorderProfileHelper);
-
-        List<Size> excludedSizes = Arrays.asList(
-                new Size[]{new Size(4160, 3120), new Size(4000, 3000)});
-
-        // Check the original mSupportedSizes contains the excluded sizes to avoid
-        // mSupportedSizes modified unexpectedly.
-        assertThat(Arrays.asList(mSupportedSizes).containsAll(excludedSizes)).isTrue();
-        // Make the fake use case have JPEG format since those sizes are excluded for JPEG format.
-        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setBufferFormat(
-                ImageFormat.JPEG).build();
-        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
-                useCase.getCurrentConfig());
-
-        for (Size size : excludedSizes) {
-            assertThat(resultList.contains(size)).isFalse();
-        }
-    }
-
-    static void setFakeBuildEnvironments(@NonNull Map<Field, Object> fieldSettingsMap)
-            throws Exception {
-        for (Field field : fieldSettingsMap.keySet()) {
-            field.setAccessible(true);
-            field.set(null, fieldSettingsMap.get(field));
-        }
-    }
-
-    private void setupCamera(int hardwareLevel, @NonNull Size[] supportedSizes,
-            @Nullable int[] capabilities) {
-        mCameraFactory = new FakeCameraFactory();
-        CameraCharacteristics characteristics =
-                ShadowCameraCharacteristics.newCameraCharacteristics();
-
-        ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
-        shadowCharacteristics.set(
-                CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK);
-
-        shadowCharacteristics.set(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
-
-        shadowCharacteristics.set(
-                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
-
-        if (capabilities != null) {
-            shadowCharacteristics.set(
-                    CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities);
-        }
-
-        CameraManager cameraManager = (CameraManager) ApplicationProvider.getApplicationContext()
-                .getSystemService(Context.CAMERA_SERVICE);
-
-        ((ShadowCameraManager) Shadow.extract(cameraManager))
-                .addCamera(BACK_CAMERA_ID, characteristics);
-
-        int[] supportedFormats = mSupportedFormats;
-
-        StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
-        when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
-        // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
-        // output sizes need to be retrieved via SurfaceTexture.class.
-        when(mockMap.getOutputSizes(SurfaceTexture.class)).thenReturn(mSupportedSizes);
-        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap);
-
-        @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
-                CameraCharacteristics.LENS_FACING_BACK);
-
-        mCameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
-                () -> new FakeCamera(BACK_CAMERA_ID, null,
-                        new Camera2CameraInfoImpl(BACK_CAMERA_ID,
-                                getCameraCharacteristicsCompat(BACK_CAMERA_ID),
-                                mock(Camera2CameraControlImpl.class))));
-        initCameraX();
-    }
-
-    private void initCameraX() {
-        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                Camera2Config.defaultConfig())
-                .setCameraFactoryProvider((ignored0, ignored1) -> mCameraFactory)
-                .build();
-        CameraX.initialize(mContext, cameraXConfig);
     }
 }
