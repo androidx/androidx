@@ -13,11 +13,11 @@ package androidx.wear.watchface.complications.rendering {
     method public long getCurrentTimeMillis();
     method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context, int);
     method public long getHighlightDuration();
-    method public boolean getHighlighted();
-    method public boolean getInAmbientMode();
-    method public boolean getLowBitAmbient();
     method @Deprecated public int getOpacity();
     method public boolean isBurnInProtectionOn();
+    method public boolean isHighlighted();
+    method public boolean isInAmbientMode();
+    method public boolean isLowBitAmbient();
     method public boolean isRangedValueProgressHidden();
     method public boolean onTap(int, int);
     method public void setAlpha(int);
