@@ -61,7 +61,7 @@ package androidx.wear.watchface {
   public static final class Complication.Builder {
     ctor public Complication.Builder(int id, androidx.wear.watchface.CanvasComplicationRenderer renderer, int[] supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
     method public androidx.wear.watchface.Complication build();
-    method public androidx.wear.watchface.Complication.Builder setBackgroundComplication();
+    method public androidx.wear.watchface.Complication.Builder setAsBackgroundComplication();
     method public androidx.wear.watchface.Complication.Builder setDefaultProviderType(int defaultProviderType);
     method public androidx.wear.watchface.Complication.Builder setUnitSquareBounds(android.graphics.RectF unitSquareBounds);
   }

@@ -174,7 +174,7 @@ class WatchFaceConfigUiTest {
             ),
             DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
-            .setBackgroundComplication()
+            .setAsBackgroundComplication()
             .build()
 
     private val calendar = Calendar.getInstance().apply {
