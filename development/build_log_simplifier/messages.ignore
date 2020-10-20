@@ -1083,3 +1083,11 @@ More than one file was found with OS independent path 'META\-INF/benchmark-perfe
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
+# > Task :benchmark:benchmark-macro-runtime:assemble
+BUILD SUCCESSFUL in [0-9]+s
+# > Task :benchmark:benchmark-macro-runtime:assemble UP-TO-DATE
+[0-9]+ actionable tasks: [0-9]+ up\-to\-date
+# > Task :benchmark:benchmark-macro-runtime:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path 'META\-INF/benchmark\-macro\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :browser:browser:processDebugAndroidTestManifest
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:

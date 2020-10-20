@@ -34,28 +34,36 @@ android {
 dependencies {
     api(JUNIT)
     api(KOTLIN_STDLIB)
+    api(KOTLIN_COROUTINES_ANDROID)
     api("androidx.annotation:annotation:1.1.0")
     implementation(GUAVA_ANDROID)
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
-
-    androidTestImplementation("com.android:collector-device-lib:0.1.0")
+    implementation("com.android:collector-device-lib:0.1.0")
     // Get rid of this dependency eventually
-    androidTestImplementation("com.android:collector-device-lib-platform:0.1.0")
-    androidTestImplementation("com.android:collector-helper-utilities:0.1.0")
-    androidTestImplementation("com.android:jank-helper:0.1.0")
-    androidTestImplementation("com.android:memory-helper:0.1.0")
-    androidTestImplementation("com.android:perfetto-helper:0.1.0")
-    androidTestImplementation("com.android:platform-test-composers:0.1.0")
-    androidTestImplementation("com.android:power-helper:0.1.0")
-    androidTestImplementation("com.android:simpleperf-helper:0.1.0")
-    androidTestImplementation("com.android:statsd-helper:0.1.0")
-    androidTestImplementation("com.android:system-metric-helper:0.1.0")
-    androidTestImplementation("com.android:test-composers:0.1.0")
-    androidTestImplementation("com.android:platform-test-rules:0.1.0")
-    androidTestImplementation("com.android:microbenchmark-device-lib:0.1.0")
+    implementation("com.android:collector-device-lib-platform:0.1.0")
+    implementation("com.android:collector-helper-utilities:0.1.0")
+    implementation("com.android:jank-helper:0.1.0")
+    implementation("com.android:memory-helper:0.1.0")
+    implementation("com.android:perfetto-helper:0.1.0")
+    implementation("com.android:platform-test-composers:0.1.0")
+    implementation("com.android:power-helper:0.1.0")
+    implementation("com.android:simpleperf-helper:0.1.0")
+    implementation("com.android:statsd-helper:0.1.0")
+    implementation("com.android:system-metric-helper:0.1.0")
+    implementation("com.android:test-composers:0.1.0")
+    implementation("com.android:platform-test-rules:0.1.0")
+    implementation("com.android:microbenchmark-device-lib:0.1.0")
+
     androidTestImplementation("androidx.test:rules:1.3.0")
-    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
+    // DexMaker has it"s own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
+    // DexMaker has it"s own MockMaker
 }
 
 androidx {
