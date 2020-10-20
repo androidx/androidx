@@ -18,10 +18,6 @@ package androidx.ui.test
 
 internal actual fun <T> actualRunOnUiThread(action: () -> T): T {
     val result = action()
-    actualWaitForIdle()
-    return result
-}
-
-internal actual fun actualWaitForIdle() {
     DesktopComposeTestRule.current!!.waitForIdle()
+    return result
 }
