@@ -38,7 +38,7 @@ import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
 fun MutableState<ToggleableState>.toggle() {
     value =
@@ -54,7 +54,7 @@ fun MutableState<ToggleableState>.toggle() {
  * Android hierarchy. This also includes showcase of multiple Compose roots.
  */
 @MediumTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class MultipleComposeRootsTest {
 
     @get:Rule
