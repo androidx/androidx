@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.compat.quirk.device;
+package androidx.camera.camera2.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Quirk;

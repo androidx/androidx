@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.compat.quirk.device;
+package androidx.camera.camera2.internal.compat.quirk;
 
 import android.graphics.ImageFormat;
 import android.os.Build;
