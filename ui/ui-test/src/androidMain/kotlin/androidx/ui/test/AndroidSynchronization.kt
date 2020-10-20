@@ -19,7 +19,6 @@ package androidx.ui.test
 import android.annotation.SuppressLint
 import android.os.Looper
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.test.android.SynchronizedTreeCollector
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 
@@ -49,16 +48,4 @@ internal actual fun <T> actualRunOnUiThread(action: () -> T): T {
  */
 internal fun isOnUiThread(): Boolean {
     return Looper.myLooper() == Looper.getMainLooper()
-}
-
-/**
- * Waits for compose to be idle.
- *
- * This is a blocking call. Returns only after compose is idle.
- *
- * Can crash in case Espresso hits time out. This is not supposed to be handled as it
- * surfaces only in incorrect tests.
- */
-internal actual fun actualWaitForIdle() {
-    SynchronizedTreeCollector.waitForIdle()
 }
