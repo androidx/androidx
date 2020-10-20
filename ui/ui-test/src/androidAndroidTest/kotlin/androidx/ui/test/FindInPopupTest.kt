@@ -25,13 +25,13 @@ import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
 private const val contentTag = "content"
 private const val popupTag = "popup"
 
 @MediumTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class FindInPopupTest {
     @get:Rule
     val rule = createComposeRule()
