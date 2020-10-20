@@ -78,11 +78,15 @@ def _TransformCommonCode(contents):
                 'com.android.internal.annotations.VisibleForTesting')
         .replace('androidx.collection.ArraySet', 'android.util.ArraySet')
         .replace(
+                'androidx.core.util.ObjectsCompat',
+                'java.util.Objects')
+        .replace(
                 'androidx.core.util.Preconditions',
                 'com.android.internal.util.Preconditions')
         .replace('import androidx.annotation.RestrictTo;', '')
         .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
-        .replace('androidx', 'android')
+        .replace('ObjectsCompat.', 'Objects.')
+        .replace('androidx.', 'android.')
     )
 
 
@@ -105,10 +109,9 @@ def _TransformAndCopyFolder(
             rel_to_source = os.path.relpath(source_abs_path, source_dir)
             if block_list and rel_to_source in block_list:
                 print('Skipping copy: "%s"' % rel_to_source)
-                continue
-
-            dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
-            _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
+            else:
+                dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
+                _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
 
 
 def _CopyAllApi(source_dir, dest_dir):
@@ -119,9 +122,12 @@ def _CopyAllApi(source_dir, dest_dir):
 
     # Prune existing files
     _PruneDir(api_dest_dir, allow_list=[
+        'AppSearchBatchResult.java',
         'AppSearchManager.java',
         'AppSearchManagerFrameworkInitializer.java',
+        'AppSearchResult.java',
         'IAppSearchManager.aidl',
+        'SearchResults.java',
     ])
     _PruneDir(api_test_dest_dir)
 
@@ -138,7 +144,11 @@ def _CopyAllApi(source_dir, dest_dir):
             # Copy all files, except those in the following block list
             source_abs_path = os.path.join(currentpath, filename)
             rel_to_api = os.path.relpath(source_abs_path, api_source_dir)
-            if rel_to_api in ('app/AppSearchManager.java'):
+            if rel_to_api in (
+                    'app/AppSearchBatchResult.java',
+                    'app/AppSearchManager.java',
+                    'app/AppSearchResult.java',
+                    'app/SearchResults.java'):
                 print('Skipping copy: "%s"' % rel_to_api)
                 continue
 
@@ -173,6 +183,7 @@ def _CopyAllImpl(source_dir, dest_dir):
         contents = (contents
                 .replace('package androidx.appsearch',
                          'package com.android.server.appsearch.external')
+                .replace('com.google.android.icing.protobuf.', 'com.google.protobuf.')
         )
         return _TransformCommonCode(contents)
     _TransformAndCopyFolder(
@@ -180,6 +191,7 @@ def _CopyAllImpl(source_dir, dest_dir):
             transform_func=_TransformImplCode,
             block_list=[
                 'localbackend/LocalBackend.java',
+                'localbackend/util/FutureUtil.java',
             ])
 
     # Copy servicestests
@@ -189,6 +201,8 @@ def _CopyAllImpl(source_dir, dest_dir):
                          'package com.android.server.appsearch.external')
                 .replace('com.google.android.icing.proto.',
                          'com.android.server.appsearch.proto.')
+                .replace('com.google.android.icing.protobuf.',
+                         'com.android.server.appsearch.protobuf.')
         )
         return _TransformTestCode(contents)
     _TransformAndCopyFolder(
