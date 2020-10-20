@@ -140,6 +140,8 @@
         <attr name="progressBarStartPadding" format="dimension" />
         <!-- Padding to the end edge of the progress bar in the row. -->
         <attr name="progressBarEndPadding" format="dimension" />
+        <!-- Padding to the edge of the button in the row. -->
+        <attr name="textActionPadding" format="dimension" />
 
         <!-- Size of icon. -->
         <attr name="iconSize" format="dimension" />

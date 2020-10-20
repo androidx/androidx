@@ -31,6 +31,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.slice.core.SliceHints.ACTION_WITH_LABEL;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.RAW_IMAGE_LARGE;
@@ -90,7 +91,7 @@ public class SliceActionImpl implements SliceAction {
      * {@link SliceHints#LARGE_IMAGE} for actions; these will just be represented as an
      * non-tintable image.
      *
-     * @param action the pending intent to invoke for this action.
+     * @param action  the pending intent to invoke for this action.
      * @param actionIcon the icon to display for this action.
      * @param imageMode the mode this icon should be displayed in.
      * @param actionTitle the title for this action, also used for content description if one hasn't
@@ -99,6 +100,7 @@ public class SliceActionImpl implements SliceAction {
      * @see SliceHints#ICON_IMAGE
      * @see SliceHints#SMALL_IMAGE
      * @see SliceHints#LARGE_IMAGE
+     * @see SliceHints#ACTION_WITH_LABEL
      */
     public SliceActionImpl(@NonNull PendingIntent action, @NonNull IconCompat actionIcon,
             @SliceHints.ImageMode int imageMode, @NonNull CharSequence actionTitle) {
@@ -113,7 +115,7 @@ public class SliceActionImpl implements SliceAction {
      *
      * @param action the pending intent to invoke for this toggle.
      * @param actionIcon the icon to display for this toggle, should have a checked and unchecked
-     *                   state.
+     *                    state.
      * @param actionTitle the title for this toggle, also used for content description if one hasn't
      *                    been set via {@link #setContentDescription(CharSequence)}.
      * @param isChecked the state of the toggle.
@@ -338,9 +340,14 @@ public class SliceActionImpl implements SliceAction {
     private Slice.Builder buildSliceContent(@NonNull Slice.Builder builder) {
         Slice.Builder sb = new Slice.Builder(builder);
         if (mIcon != null) {
-            @Slice.SliceHint String[] hints = mImageMode == ICON_IMAGE
-                    ? new String[] {}
-                    : new String[] {HINT_NO_TINT};
+            @Slice.SliceHint String[] hints;
+            if (mImageMode == ACTION_WITH_LABEL) {
+                hints = new String[]{SliceHints.HINT_SHOW_LABEL};
+            } else {
+                hints = mImageMode == ICON_IMAGE
+                        ? new String[]{}
+                        : new String[]{HINT_NO_TINT};
+            }
             sb.addIcon(mIcon, null, hints);
         }
         if (mTitle != null) {
@@ -378,6 +385,9 @@ public class SliceActionImpl implements SliceAction {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static int parseImageMode(@NonNull SliceItem iconItem) {
+        if (iconItem.hasHint(SliceHints.HINT_SHOW_LABEL)) {
+            return ACTION_WITH_LABEL;
+        }
         if (!iconItem.hasHint(HINT_NO_TINT)) {
             return ICON_IMAGE;
         }

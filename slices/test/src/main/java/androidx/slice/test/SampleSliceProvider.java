@@ -126,7 +126,8 @@ public class SampleSliceProvider extends SliceProvider {
             "loading",
             "selection",
             "notification",
-            "tts"
+            "tts",
+            "textbutton"
     };
 
     @SuppressWarnings("deprecation")
@@ -249,6 +250,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createNotificationSlice(sliceUri);
             case "/tts":
                 return createTtsSlice(sliceUri);
+            case "/textbutton":
+                return createTextButtonSlice(sliceUri);
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
@@ -1441,6 +1444,35 @@ public class SampleSliceProvider extends SliceProvider {
                         .setPrimaryAction(action)
                         .addEndItem(toggleAction))
                 .build();
+    }
+
+    private Slice createTextButtonSlice(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "Test text button"),
+                IconCompat.createWithResource(getContext(), R.drawable.message),
+                LARGE_IMAGE,
+                "Text button");
+        //The drawable passed into SliceAction could be a random one, since it will not be
+        // actually used for text button.
+        ListBuilder slice = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .addRow(new RowBuilder()
+                        .setTitle("Text Button")
+                        .setSubtitle("Click")
+                        .setPrimaryAction(primaryAction))
+                .addAction(
+                        SliceAction.create(
+                                getBroadcastIntent(ACTION_TOAST, "clicked button1"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
+                                ListBuilder.ACTION_WITH_LABEL,
+                                "Button1"))
+                .addAction(
+                        SliceAction.create(
+                                getBroadcastIntent(ACTION_TOAST, "clicked button2"),
+                                IconCompat.createWithResource(getContext(), R.drawable.ic_cast),
+                                ListBuilder.ACTION_WITH_LABEL,
+                                "Button2"));
+
+        return slice.build();
     }
 
     private Slice createTtsSlice(Uri sliceUri) {

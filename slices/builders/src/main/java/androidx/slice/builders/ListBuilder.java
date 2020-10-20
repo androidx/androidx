@@ -148,14 +148,9 @@ public class ListBuilder extends TemplateSliceBuilder {
     private androidx.slice.builders.impl.ListBuilder mImpl;
 
     /**
-     * @hide
+     * Indicates that an button should be presented with text.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ImageMode{}
+    public static final int ACTION_WITH_LABEL = SliceHints.ACTION_WITH_LABEL;
 
     /**
      * Indicates that an image should be presented as an icon and it can be tinted.</p>
@@ -185,6 +180,18 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static final int UNKNOWN_IMAGE = SliceHints.UNKNOWN_IMAGE;
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE,
+            ACTION_WITH_LABEL
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ImageMode {
+    }
+
+    /**
      * Constant representing infinity.
      */
     public static final long INFINITY = SliceHints.INFINITY;
@@ -198,7 +205,7 @@ public class ListBuilder extends TemplateSliceBuilder {
             View.LAYOUT_DIRECTION_LOCALE
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface LayoutDirection{}
+    public @interface LayoutDirection {}
 
     /**
      * Indicates that the progress bar should be presented as a star rating.
@@ -710,7 +717,6 @@ public class ListBuilder extends TemplateSliceBuilder {
          * Sets the progress bar mode, it could be the determinate or indeterminate mode.
          *
          * @param mode the mode that progress bar should represent progress.
-         *
          * @see #RANGE_MODE_DETERMINATE
          * @see #RANGE_MODE_INDETERMINATE
          */
@@ -1068,6 +1074,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         public CharSequence getSubtitle() {
             return mSubtitle;
         }
+
         /**
          * @hide
          */
@@ -1762,7 +1769,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Adds an icon to the end items of the row builder.
          *
-         * @param icon the image to display.
+         * @param icon  the image to display.
          * @param imageMode the mode that image should be displayed in.
          *
          * @see #ICON_IMAGE
