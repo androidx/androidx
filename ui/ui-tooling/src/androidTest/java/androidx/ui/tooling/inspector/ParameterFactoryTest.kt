@@ -403,7 +403,6 @@ class ParameterFactoryTest {
         ) {
             parameter("modifier", ParameterType.String, "") {
                 parameter("background", ParameterType.Color, Color.Blue.toArgb()) {
-                    parameter("alpha", ParameterType.Float, 1.0f)
                     parameter("color", ParameterType.Color, Color.Blue.toArgb())
                     parameter("shape", ParameterType.String, "RectangleShape")
                 }
