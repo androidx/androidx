@@ -25,7 +25,7 @@ package androidx.datastore
  *
  * If you're migrating from SharedPreferences see [SharedPreferencesMigration].
  */
-interface DataMigration<T> {
+public interface DataMigration<T> {
 
     /**
      * Return whether this migration needs to be performed. If this returns false, no migration or
@@ -38,7 +38,7 @@ interface DataMigration<T> {
      * @param currentData the current data (which might already populated from previous runs of this
      * or other migrations)
      */
-    suspend fun shouldMigrate(currentData: T): Boolean
+    public suspend fun shouldMigrate(currentData: T): Boolean
 
     /**
      * Perform the migration. Implementations should be idempotent since this may be called
@@ -53,7 +53,7 @@ interface DataMigration<T> {
      * manual changes before this migration was added to the app)
      * @return The migrated data.
      */
-    suspend fun migrate(currentData: T): T
+    public suspend fun migrate(currentData: T): T
 
     /**
      * Clean up any old state/data that was migrated into the DataStore. This will not be called
@@ -62,5 +62,5 @@ interface DataMigration<T> {
      * result in DataMigrations being attempted again. This method may be run multiple times when
      * any failure is encountered.
      */
-    suspend fun cleanUp()
+    public suspend fun cleanUp()
 }

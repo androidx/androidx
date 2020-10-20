@@ -27,7 +27,7 @@ import java.io.File
 /**
  * Public factory for creating DataStore instances.
  */
-object DataStoreFactory {
+public object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
      * there is never more than one DataStore acting on a file at a time.
@@ -50,7 +50,7 @@ object DataStoreFactory {
      * @param scope The scope in which IO operations and transform functions will execute.
      */
     @JvmOverloads // Generate constructors for default params for java users.
-    fun <T> create(
+    public fun <T> create(
         produceFile: () -> File,
         serializer: Serializer<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
@@ -81,7 +81,7 @@ object DataStoreFactory {
  * migration failed or a write to disk failed.)
  * @param scope The scope in which IO operations and transform functions will execute.
  */
-fun <T> Context.createDataStore(
+public fun <T> Context.createDataStore(
     fileName: String,
     serializer: Serializer<T>,
     corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
