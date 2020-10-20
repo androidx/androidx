@@ -76,7 +76,7 @@ public open class ListUserStyleCategory : UserStyleCategory {
     /**
      * Represents choice within a [ListUserStyleCategory], these must be enumerated up front.
      */
-    public open class ListOption : Option {
+    public class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */
         public val displayName: String
 
