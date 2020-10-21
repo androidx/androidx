@@ -67,7 +67,7 @@ public interface CanvasComplicationRenderer {
      * feedback when the user taps on a complication.
      */
     @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
-    @get:JvmName("getIsHighlighted")
+    @get:JvmName("isHighlighted")
     @set:JvmName("setIsHighlighted")
     public var isHighlighted: Boolean
 
@@ -104,15 +104,15 @@ public open class CanvasComplicationDrawableRenderer(
     public var drawable: ComplicationDrawable = drawable
         set(value) {
             field = value
-            value.inAmbientMode = watchState.isAmbient.value
-            value.lowBitAmbient = watchState.hasLowBitAmbient
+            value.isInAmbientMode = watchState.isAmbient.value
+            value.isLowBitAmbient = watchState.hasLowBitAmbient
             value.setBurnInProtection(watchState.hasBurnInProtection)
 
             attachedComplication?.scheduleUpdateComplications()
         }
 
     private val isAmbientObserver = Observer<Boolean> {
-        drawable.inAmbientMode = it
+        drawable.isInAmbientMode = it
     }
 
     private var attachedComplication: Complication? = null
@@ -163,15 +163,15 @@ public open class CanvasComplicationDrawableRenderer(
 
     override var isHighlighted: Boolean
         @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
-        @JvmName("getIsHighlighted")
+        @JvmName("isHighlighted")
         @UiThread
-        get() = drawable.highlighted
+        get() = drawable.isHighlighted
 
         @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
         @JvmName("setIsHighlighted")
         @UiThread
         set(value) {
-            drawable.highlighted = value
+            drawable.isHighlighted = value
         }
 
     override var data: ComplicationData? = null
