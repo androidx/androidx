@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.os.Build
 import android.util.JsonWriter
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -37,8 +38,17 @@ internal object ResultWriter {
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
             val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
+            Log.d(
+                BenchmarkState.TAG,
+                "writing results to ${file.absolutePath}"
+            )
             writeReport(file, reports)
             InstrumentationResults.reportAdditionalFileToCopy("results_json", file.absolutePath)
+        } else {
+            Log.d(
+                BenchmarkState.TAG,
+                "androidx.benchmark.output.enable not set, not writing results json"
+            )
         }
     }
 
