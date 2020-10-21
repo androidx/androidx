@@ -554,7 +554,7 @@ def main():
             print("Additionally, adding more exemptions to this exemption file will cause the build to run more slowly than fixing or suppressing the message where it is generated.")
             exit(1)
     else:
-        print("".join(lines))
+        print("".join(interesting_lines))
 
 if __name__ == "__main__":
     main()
