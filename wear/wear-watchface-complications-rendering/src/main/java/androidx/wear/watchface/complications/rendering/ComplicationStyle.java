@@ -22,6 +22,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.wearable.complications.ComplicationData;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -68,26 +69,26 @@ public class ComplicationStyle {
     /** Default border radius. */
     public static final int BORDER_RADIUS_DEFAULT = Integer.MAX_VALUE;
 
-    private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
+    @ColorInt private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
     private Drawable mBackgroundDrawable = null;
-    private int mTextColor = PRIMARY_COLOR_DEFAULT;
-    private int mTitleColor = SECONDARY_COLOR_DEFAULT;
+    @ColorInt private int mTextColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt private int mTitleColor = SECONDARY_COLOR_DEFAULT;
     private Typeface mTextTypeface = TYPEFACE_DEFAULT;
     private Typeface mTitleTypeface = TYPEFACE_DEFAULT;
     private int mTextSize = TEXT_SIZE_DEFAULT;
     private int mTitleSize = TEXT_SIZE_DEFAULT;
     private ColorFilter mImageColorFilter = null;
-    private int mIconColor = PRIMARY_COLOR_DEFAULT;
-    private int mBorderColor = BORDER_COLOR_DEFAULT;
+    @ColorInt private int mIconColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt private int mBorderColor = BORDER_COLOR_DEFAULT;
     private int mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
     private int mBorderDashWidth = DASH_WIDTH_DEFAULT;
     private int mBorderDashGap = DASH_GAP_DEFAULT;
     private int mBorderRadius = BORDER_RADIUS_DEFAULT;
     private int mBorderWidth = BORDER_WIDTH_DEFAULT;
     private int mRangedValueRingWidth = RING_WIDTH_DEFAULT;
-    private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
-    private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
-    private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
+    @ColorInt private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
+    @ColorInt private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
     private boolean mDirty = true;
 
     public ComplicationStyle() {
@@ -125,6 +126,7 @@ public class ComplicationStyle {
     }
 
     /** Returns the background color to be used. */
+    @ColorInt
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
@@ -136,11 +138,13 @@ public class ComplicationStyle {
     }
 
     /** Returns the text color. Text color should be used for short and long text. */
+    @ColorInt
     public int getTextColor() {
         return mTextColor;
     }
 
     /** Returns the title color. Title color should be used for short and long title. */
+    @ColorInt
     public int getTitleColor() {
         return mTitleColor;
     }
@@ -155,6 +159,7 @@ public class ComplicationStyle {
     }
 
     /** Returns the color for tinting icons. */
+    @ColorInt
     public int getIconColor() {
         return mIconColor;
     }
@@ -182,6 +187,7 @@ public class ComplicationStyle {
     }
 
     /** Returns the border color. */
+    @ColorInt
     public int getBorderColor() {
         return mBorderColor;
     }
@@ -227,16 +233,19 @@ public class ComplicationStyle {
     }
 
     /** Returns the color to be used when rendering first part of ranged value indicator. */
+    @ColorInt
     public int getRangedValuePrimaryColor() {
         return mRangedValuePrimaryColor;
     }
 
     /** Returns the color to be used when rendering second part of ranged value indicator. */
+    @ColorInt
     public int getRangedValueSecondaryColor() {
         return mRangedValueSecondaryColor;
     }
 
     /** Returns the highlight color to be used when the complication is highlighted. */
+    @ColorInt
     public int getHighlightColor() {
         return mHighlightColor;
     }
@@ -246,7 +255,7 @@ public class ComplicationStyle {
      *
      * @param backgroundColor The color to set
      */
-    public void setBackgroundColor(int backgroundColor) {
+    public void setBackgroundColor(@ColorInt int backgroundColor) {
         this.mBackgroundColor = backgroundColor;
     }
 
@@ -265,7 +274,7 @@ public class ComplicationStyle {
      *
      * @param textColor The color to render the text with
      */
-    public void setTextColor(int textColor) {
+    public void setTextColor(@ColorInt int textColor) {
         this.mTextColor = textColor;
     }
 
@@ -275,7 +284,7 @@ public class ComplicationStyle {
      *
      * @param titleColor The color to render the title with
      */
-    public void setTitleColor(int titleColor) {
+    public void setTitleColor(@ColorInt int titleColor) {
         this.mTitleColor = titleColor;
     }
 
@@ -295,7 +304,7 @@ public class ComplicationStyle {
      *
      * @param iconColor The color to render the icon with
      */
-    public void setIconColor(int iconColor) {
+    public void setIconColor(@ColorInt int iconColor) {
         mIconColor = iconColor;
         mDirty = true;
     }
@@ -345,7 +354,7 @@ public class ComplicationStyle {
      *
      * @param borderColor The color to render the complication border with
      */
-    public void setBorderColor(int borderColor) {
+    public void setBorderColor(@ColorInt int borderColor) {
         mBorderColor = borderColor;
         mDirty = true;
     }
@@ -428,7 +437,7 @@ public class ComplicationStyle {
      *
      * @param rangedValuePrimaryColor The main color to render the ranged value text with
      */
-    public void setRangedValuePrimaryColor(int rangedValuePrimaryColor) {
+    public void setRangedValuePrimaryColor(@ColorInt int rangedValuePrimaryColor) {
         mRangedValuePrimaryColor = rangedValuePrimaryColor;
         mDirty = true;
     }
@@ -438,7 +447,7 @@ public class ComplicationStyle {
      *
      * @param rangedValueSecondaryColor The secondary color to render the ranged value text with
      */
-    public void setRangedValueSecondaryColor(int rangedValueSecondaryColor) {
+    public void setRangedValueSecondaryColor(@ColorInt int rangedValueSecondaryColor) {
         mRangedValueSecondaryColor = rangedValueSecondaryColor;
         mDirty = true;
     }
@@ -448,7 +457,7 @@ public class ComplicationStyle {
      *
      * @param highlightColor The background color to use when the complication is highlighted
      */
-    public void setHighlightColor(int highlightColor) {
+    public void setHighlightColor(@ColorInt int highlightColor) {
         mHighlightColor = highlightColor;
         mDirty = true;
     }
