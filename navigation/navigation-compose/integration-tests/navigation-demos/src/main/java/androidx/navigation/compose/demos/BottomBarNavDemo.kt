@@ -23,6 +23,12 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
@@ -30,18 +36,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.Profile
 import androidx.navigation.compose.samples.Scrollable
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
 @Composable
 fun BottomBarNavDemo() {
     val navController = rememberNavController()
 
     var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("Profile", "Dashboard", "Scrollable")
+    val items = listOf(
+        stringResource(R.string.profile),
+        stringResource(R.string.dashboard),
+        stringResource(R.string.scrollable)
+    )
 
     Scaffold(
         bottomBar = {
