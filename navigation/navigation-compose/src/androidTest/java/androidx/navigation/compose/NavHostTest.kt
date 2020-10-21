@@ -16,17 +16,18 @@
 
 package androidx.navigation.compose
 
-import androidx.annotation.IdRes
+import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.platform.ContextAmbient
+import androidx.core.net.toUri
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.contains
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -49,13 +50,13 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = TestNavHostController(ContextAmbient.current)
 
-            NavHost(navController, startDestination = "First") {
-                test("First")
+            NavHost(navController, startDestination = "first") {
+                test("first")
             }
         }
 
         assertWithMessage("Destination should be added to the graph")
-            .that(generateId("First") in navController.graph)
+            .that("first" in navController.graph)
             .isTrue()
     }
 
@@ -65,23 +66,24 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = TestNavHostController(ContextAmbient.current)
 
-            NavHost(navController, startDestination = "First") {
-                test("First")
-                test("Second")
+            NavHost(navController, startDestination = "first") {
+                test("first")
+                test("second")
             }
         }
 
         assertWithMessage("Destination should be added to the graph")
-            .that(generateId("First") in navController.graph)
+            .that("first" in navController.graph)
             .isTrue()
 
         runOnUiThread {
-            navController.navigate("Second")
+            navController.navigate("second")
         }
 
-        assertWithMessage("Second destination should be current")
-            .that(navController.currentDestination?.id)
-            .isEqualTo(generateId("Second"))
+        assertWithMessage("second destination should be current")
+            .that(
+                navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
+            ).isTrue()
     }
 
     @Test
@@ -90,20 +92,22 @@ class NavHostTest {
         composeTestRule.setContent {
             navController = TestNavHostController(ContextAmbient.current)
 
-            NavHost(navController, startDestination = "First") {
-                test("First")
-                test("Second")
+            NavHost(navController, startDestination = "first") {
+                test("first")
+                test("second")
             }
         }
 
         runOnUiThread {
-            navController.setCurrentDestination(generateId("Second"))
+            navController.setCurrentDestination("second")
             navController.popBackStack()
         }
 
         assertWithMessage("First destination should be current")
-            .that(navController.currentDestination?.id)
-            .isEqualTo(generateId("First"))
+            .that(
+                navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
+            )
+            .isTrue()
     }
 
     @Test
@@ -111,24 +115,25 @@ class NavHostTest {
         lateinit var navController: TestNavHostController
         lateinit var state: MutableState<String>
         composeTestRule.setContent {
-            state = remember { mutableStateOf("First") }
+            state = remember { mutableStateOf("first") }
 
             navController = TestNavHostController(ContextAmbient.current)
 
             NavHost(navController, startDestination = state.value) {
-                test("First")
-                test("Second")
+                test("first")
+                test("second")
             }
         }
 
         runOnUiThread {
-            state.value = "Second"
+            state.value = "second"
         }
 
         composeTestRule.runOnIdle {
             assertWithMessage("Second destination should be current")
-                .that(navController.currentDestination?.id)
-                .isEqualTo(generateId("Second"))
+                .that(
+                    navController.currentDestination?.hasDeepLink(createRoute("second").toUri())
+                ).isTrue()
         }
     }
 
@@ -209,6 +214,14 @@ class NavHostTest {
 }
 
 private inline fun NavGraphBuilder.test(
-    @IdRes id: Any,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { }
-) = test(generateId(id), builder)
+    route: String,
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { deepLink(createRoute(route)) }
+) = test(createRoute(route).hashCode(), builder)
+
+operator fun NavGraph.contains(
+    route: String
+): Boolean = findNode(createRoute(route).hashCode()) != null
+
+private fun TestNavHostController.setCurrentDestination(
+    route: String
+) = setCurrentDestination(createRoute(route).hashCode())
