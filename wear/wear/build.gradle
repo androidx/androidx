@@ -26,6 +26,10 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ROBOLECTRIC)
+
     compileOnly fileTree(dir: '../wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
     implementation "androidx.core:core-ktx:1.5.0-alpha04"
 }
@@ -39,6 +43,9 @@ android {
         main.res.srcDirs += 'src/main/res-public'
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
     }
+
+    // Use Robolectric 4.+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
