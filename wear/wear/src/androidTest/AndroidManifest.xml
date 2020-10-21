@@ -15,11 +15,15 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.wear.test">
+          package="androidx.wear">
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <application android:supportsRtl="true">
+    <application
+        android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true">
         <activity android:name="androidx.wear.widget.LayoutTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

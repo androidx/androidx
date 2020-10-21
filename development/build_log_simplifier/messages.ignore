@@ -844,6 +844,8 @@ More than one file was found with OS independent path 'META\-INF/security\-crypt
 # > Task :transition:transition-ktx:processDebugAndroidTestManifest
 # > Task :tvprovider:tvprovider:processDebugAndroidTestManifest
 # > Task :wear:wear:processDebugAndroidTestManifest
+# > Task :wear:wear:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path 'META\-INF/wear_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :vectordrawable:vectordrawable:processDebugAndroidTestManifest
 # > Task :viewpager:viewpager:processDebugAndroidTestManifest
 # > Task :vectordrawable:vectordrawable-animated:processDebugAndroidTestManifest
