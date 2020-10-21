@@ -42,7 +42,11 @@ class MacroBenchmarkTest {
     @LargeTest
     @Ignore("Not running the test in CI")
     fun basicTest() {
-        val collectors = listOf<Collector<*>>(CpuUsageCollector(), AppStartupCollector())
+        val collectors = listOf<Collector<*>>(
+            CpuUsageCollector(),
+            AppStartupCollector(),
+            PerfettoCollector("basicTest")
+        )
         val loopManager = LoopManager(packageName, instrumentation, collectors)
 
         loopManager.measureRepeated(2) { _ ->
