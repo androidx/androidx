@@ -214,6 +214,101 @@ package androidx.wear.widget {
     method public void onSwipeStarted(androidx.wear.widget.SwipeDismissFrameLayout!);
   }
 
+  @UiThread public final class WearArcLayout extends android.view.ViewGroup {
+    ctor public WearArcLayout(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr, int defStyleRes);
+    ctor public WearArcLayout(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr);
+    ctor public WearArcLayout(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public WearArcLayout(android.content.Context context);
+    method protected androidx.wear.widget.WearArcLayout.LayoutParams generateDefaultLayoutParams();
+    method protected androidx.wear.widget.WearArcLayout.LayoutParams generateLayoutParams(android.view.ViewGroup.LayoutParams p);
+    method public androidx.wear.widget.WearArcLayout.LayoutParams generateLayoutParams(android.util.AttributeSet attrs);
+    method public float getAnchorAngleDegrees();
+    method public int getAnchorType();
+    method public boolean getClockwise();
+    method public void setAnchorAngleDegrees(float value);
+    method public void setAnchorType(int value);
+    method public void setClockwise(boolean value);
+    property public final float anchorAngleDegrees;
+    property public final int anchorType;
+    property public final boolean clockwise;
+    field public static final int ANCHOR_CENTER = 1; // 0x1
+    field public static final int ANCHOR_END = 2; // 0x2
+    field public static final int ANCHOR_START = 0; // 0x0
+    field public static final androidx.wear.widget.WearArcLayout.Companion Companion;
+  }
+
+  public static interface WearArcLayout.ArcLayoutWidget {
+    method public void checkInvalidAttributeAsChild(boolean clockwise);
+    method public float getSweepAngleDegrees();
+    method public int getThicknessPx();
+    method public boolean handleLayoutRotate(float angle);
+  }
+
+  public static final class WearArcLayout.Companion {
+  }
+
+  public static final class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
+    ctor public WearArcLayout.LayoutParams(android.content.Context c, android.util.AttributeSet? attrs);
+    ctor public WearArcLayout.LayoutParams(int width, int height);
+    ctor public WearArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams? source);
+    method public boolean getRotate();
+    method public int getVerticalAlignment();
+    method public void setRotate(boolean p);
+    method public void setVerticalAlignment(int p);
+    property public final boolean rotate;
+    property public final int verticalAlignment;
+    field public static final int VALIGN_CENTER = 1; // 0x1
+    field public static final int VALIGN_INNER = 2; // 0x2
+    field public static final int VALIGN_OUTER = 0; // 0x0
+  }
+
+  public final class WearCurvedTextView extends android.view.View implements androidx.wear.widget.WearArcLayout.ArcLayoutWidget {
+    ctor public WearCurvedTextView(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr, int defStyleRes);
+    ctor public WearCurvedTextView(android.content.Context context, android.util.AttributeSet? attrs, int defStyleAttr);
+    ctor public WearCurvedTextView(android.content.Context context, android.util.AttributeSet? attrs);
+    ctor public WearCurvedTextView(android.content.Context context);
+    method public void checkInvalidAttributeAsChild(boolean clockwise);
+    method public float getAnchorAngleDegrees();
+    method public int getAnchorType();
+    method public boolean getClockwise();
+    method public android.text.TextUtils.TruncateAt? getEllipsize();
+    method public String? getFontFeatureSettings();
+    method public String? getFontVariationSettings();
+    method public float getLetterSpacing();
+    method public float getSweepAngleDegrees();
+    method public float getSweepDegrees();
+    method public String getText();
+    method public int getTextColor();
+    method public float getTextSize();
+    method public int getThicknessPx();
+    method public android.graphics.Typeface? getTypeface();
+    method public boolean handleLayoutRotate(float angle);
+    method public void setAnchorAngleDegrees(float p);
+    method public void setAnchorType(int p);
+    method public void setClockwise(boolean p);
+    method public void setEllipsize(android.text.TextUtils.TruncateAt? p);
+    method public void setFontFeatureSettings(String? p);
+    method public void setFontVariationSettings(String? p);
+    method public void setLetterSpacing(float p);
+    method public void setSweepDegrees(float p);
+    method public void setText(String p);
+    method public void setTextColor(int p);
+    method public void setTextSize(float p);
+    method public void setTypeface(android.graphics.Typeface? p);
+    property public final float anchorAngleDegrees;
+    property public final int anchorType;
+    property public final boolean clockwise;
+    property public final android.text.TextUtils.TruncateAt? ellipsize;
+    property public final String? fontFeatureSettings;
+    property public final String? fontVariationSettings;
+    property public final float letterSpacing;
+    property public final float sweepDegrees;
+    property public final String text;
+    property public final int textColor;
+    property public final float textSize;
+    property public final android.graphics.Typeface? typeface;
+  }
+
   public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {
     ctor public WearableLinearLayoutManager(android.content.Context!, androidx.wear.widget.WearableLinearLayoutManager.LayoutCallback!);
     ctor public WearableLinearLayoutManager(android.content.Context!);
