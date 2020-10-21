@@ -18,8 +18,8 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.TypeName
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.javapoet.TypeName
 
 internal open class KspDeclaredType(
     env: KspProcessingEnv,
