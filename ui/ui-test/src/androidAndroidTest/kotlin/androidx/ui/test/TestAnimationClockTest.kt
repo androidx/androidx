@@ -22,15 +22,14 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
-import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
@@ -123,10 +122,8 @@ class TestAnimationClockTest {
     @Test
     fun testAnimation_manuallyAdvanceClock_resumed() = runBlocking {
         val animationState = mutableStateOf(AnimationStates.From)
-        lateinit var recomposer: Recomposer
+        val recomposer = Recomposer.current()
         rule.setContent {
-            @OptIn(ExperimentalComposeApi::class)
-            recomposer = currentComposer.recomposer
             Ui(animationState)
         }
 
