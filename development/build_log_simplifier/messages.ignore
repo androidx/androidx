@@ -959,3 +959,6 @@ BUILD SUCCESSFUL in [0-9]+s
 # > Task :benchmark:benchmark-macro-runtime:mergeDebugAndroidTestJavaResource
 # > Task :browser:browser:processDebugAndroidTestManifest
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+# > Task :compose:ui:ui:processDebugAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
+Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
