@@ -3,6 +3,20 @@ GenericException: androidx.heifwriter.HeifWriter#stop(long):
     Methods must not throw generic exceptions (`java.lang.Exception`)
 
 
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setGridEnabled(boolean):
+    androidx.heifwriter.HeifWriter does not declare a `isGridEnabled()` method matching method androidx.heifwriter.HeifWriter.Builder.setGridEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setHandler(android.os.Handler):
+    androidx.heifwriter.HeifWriter does not declare a `getHandler()` method matching method androidx.heifwriter.HeifWriter.Builder.setHandler(android.os.Handler)
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setMaxImages(int):
+    androidx.heifwriter.HeifWriter does not declare a `getMaxImages()` method matching method androidx.heifwriter.HeifWriter.Builder.setMaxImages(int)
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setPrimaryIndex(int):
+    androidx.heifwriter.HeifWriter does not declare a `getPrimaryIndex()` method matching method androidx.heifwriter.HeifWriter.Builder.setPrimaryIndex(int)
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setQuality(int):
+    androidx.heifwriter.HeifWriter does not declare a `getQuality()` method matching method androidx.heifwriter.HeifWriter.Builder.setQuality(int)
+MissingGetterMatchingBuilder: androidx.heifwriter.HeifWriter.Builder#setRotation(int):
+    androidx.heifwriter.HeifWriter does not declare a `getRotation()` method matching method androidx.heifwriter.HeifWriter.Builder.setRotation(int)
+
+
 MissingNullability: androidx.heifwriter.HeifWriter.Builder#build():
     Missing nullability on method `build` return
 MissingNullability: androidx.heifwriter.HeifWriter.Builder#setGridEnabled(boolean):

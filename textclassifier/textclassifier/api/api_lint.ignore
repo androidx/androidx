@@ -19,6 +19,22 @@ BuilderSetStyle: androidx.textclassifier.TextClassifier.EntityConfig.Builder#inc
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.textclassifier.TextClassifier.EntityConfig.Builder.includeTypesFromTextClassifier(boolean)
 
 
+MissingGetterMatchingBuilder: androidx.textclassifier.TextClassifier.EntityConfig.Builder#setExcludedTypes(java.util.Collection<java.lang.String>):
+    androidx.textclassifier.TextClassifier.EntityConfig does not declare a `getExcludedTypes()` method matching method androidx.textclassifier.TextClassifier.EntityConfig.Builder.setExcludedTypes(java.util.Collection<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextClassifier.EntityConfig.Builder#setIncludedTypes(java.util.Collection<java.lang.String>):
+    androidx.textclassifier.TextClassifier.EntityConfig does not declare a `getIncludedTypes()` method matching method androidx.textclassifier.TextClassifier.EntityConfig.Builder.setIncludedTypes(java.util.Collection<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextLinksParams.Builder#setApplyStrategy(int):
+    androidx.textclassifier.TextLinksParams does not declare a `getApplyStrategy()` method matching method androidx.textclassifier.TextLinksParams.Builder.setApplyStrategy(int)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextLinksParams.Builder#setDefaultLocales(androidx.core.os.LocaleListCompat):
+    androidx.textclassifier.TextLinksParams does not declare a `getDefaultLocales()` method matching method androidx.textclassifier.TextLinksParams.Builder.setDefaultLocales(androidx.core.os.LocaleListCompat)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextLinksParams.Builder#setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig):
+    androidx.textclassifier.TextLinksParams does not declare a `getEntityConfig()` method matching method androidx.textclassifier.TextLinksParams.Builder.setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextLinksParams.Builder#setReferenceTime(Long):
+    androidx.textclassifier.TextLinksParams does not declare a `getReferenceTime()` method matching method androidx.textclassifier.TextLinksParams.Builder.setReferenceTime(Long)
+MissingGetterMatchingBuilder: androidx.textclassifier.TextLinksParams.Builder#setSpanFactory(androidx.textclassifier.TextLinks.SpanFactory):
+    androidx.textclassifier.TextLinksParams does not declare a `getSpanFactory()` method matching method androidx.textclassifier.TextLinksParams.Builder.setSpanFactory(androidx.textclassifier.TextLinks.SpanFactory)
+
+
 MissingNullability: androidx.textclassifier.TextClassification#getConfidenceScore(String) parameter #0:
     Missing nullability on parameter `entity` in method `getConfidenceScore`
 MissingNullability: androidx.textclassifier.TextClassification.Builder#setEntityType(String, float):

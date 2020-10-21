@@ -97,6 +97,30 @@ KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.
     Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
 
 
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteDescriptor.Builder#addControlFilters(java.util.Collection<android.content.IntentFilter>):
+    androidx.mediarouter.media.MediaRouteDescriptor does not declare a `getControlFilterss()` method matching method androidx.mediarouter.media.MediaRouteDescriptor.Builder.addControlFilters(java.util.Collection<android.content.IntentFilter>)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteDescriptor.Builder#setCanDisconnect(boolean):
+    androidx.mediarouter.media.MediaRouteDescriptor does not declare a `canDisconnect()` method matching method androidx.mediarouter.media.MediaRouteDescriptor.Builder.setCanDisconnect(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteDescriptor.Builder#setIsDynamicGroupRoute(boolean):
+    androidx.mediarouter.media.MediaRouteDescriptor does not declare a `isIsDynamicGroupRoute()` method matching method androidx.mediarouter.media.MediaRouteDescriptor.Builder.setIsDynamicGroupRoute(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsGroupable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsGroupable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsGroupable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsTransferable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsTransferable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsTransferable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder#setIsUnselectable(boolean):
+    androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor does not declare a `isIsUnselectable()` method matching method androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder.setIsUnselectable(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder#addRoutes(java.util.Collection<androidx.mediarouter.media.MediaRouteDescriptor>):
+    androidx.mediarouter.media.MediaRouteProviderDescriptor does not declare a `getRoutess()` method matching method androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder.addRoutes(java.util.Collection<androidx.mediarouter.media.MediaRouteDescriptor>)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder#setSupportsDynamicGroupRoute(boolean):
+    androidx.mediarouter.media.MediaRouteProviderDescriptor does not declare a `isSupportsDynamicGroupRoute()` method matching method androidx.mediarouter.media.MediaRouteProviderDescriptor.Builder.setSupportsDynamicGroupRoute(boolean)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteSelector.Builder#addControlCategories(java.util.Collection<java.lang.String>):
+    androidx.mediarouter.media.MediaRouteSelector does not declare a `getControlCategoriess()` method matching method androidx.mediarouter.media.MediaRouteSelector.Builder.addControlCategories(java.util.Collection<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteSelector.Builder#addControlCategory(String):
+    androidx.mediarouter.media.MediaRouteSelector does not declare a `getControlCategorys()` method matching method androidx.mediarouter.media.MediaRouteSelector.Builder.addControlCategory(String)
+MissingGetterMatchingBuilder: androidx.mediarouter.media.MediaRouteSelector.Builder#addSelector(androidx.mediarouter.media.MediaRouteSelector):
+    androidx.mediarouter.media.MediaRouteSelector does not declare a `getSelectors()` method matching method androidx.mediarouter.media.MediaRouteSelector.Builder.addSelector(androidx.mediarouter.media.MediaRouteSelector)
+
+
 MissingNullability: androidx.mediarouter.app.MediaRouteActionProvider#MediaRouteActionProvider(android.content.Context) parameter #0:
     Missing nullability on parameter `context` in method `MediaRouteActionProvider`
 MissingNullability: androidx.mediarouter.app.MediaRouteActionProvider#onCreateActionView():
