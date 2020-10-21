@@ -96,7 +96,7 @@ class DeviceUtils {
             // Android 11 (API 30) and above may downgrade a sensor's security class at runtime.
             return false;
         }
-        return isModelInPrefixList(context, model, R.array.assume_strong_biometrics_prefixes);
+        return isModelInList(context, model, R.array.assume_strong_biometrics_models);
     }
 
     /**
@@ -106,7 +106,7 @@ class DeviceUtils {
      * @param context The application or activity context.
      * @param vendor Case-insensitive name of the device vendor.
      * @param resId Resource ID for the string array of vendor names to check against.
-     * @return Whether the vendor name matches one in the given string array.
+     * @return Whether the vendor name matches one in the string array.
      */
     private static boolean isVendorInList(@NonNull Context context, String vendor, int resId) {
         if (vendor == null) {
@@ -128,7 +128,7 @@ class DeviceUtils {
      * @param context The application or activity context.
      * @param model Model name of the current device.
      * @param resId Resource ID for the string array of device model prefixes to check against.
-     * @return Whether the model matches one in the given string array.
+     * @return Whether the model matches a prefix in the string array.
      */
     private static boolean isModelInPrefixList(@NonNull Context context, String model, int resId) {
         if (model == null) {
@@ -150,7 +150,7 @@ class DeviceUtils {
      * @param context The application or activity context.
      * @param model Model name of the current device.
      * @param resId Resource ID for the string array of device model prefixes to check against.
-     * @return Whether the model matches one in the given string array.
+     * @return Whether the model matches one in the string array.
      */
     private static boolean isModelInList(@NonNull Context context, String model, int resId) {
         if (model == null) {
