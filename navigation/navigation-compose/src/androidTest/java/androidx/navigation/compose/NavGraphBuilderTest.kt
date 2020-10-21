@@ -16,16 +16,16 @@
 
 package androidx.navigation.compose
 
-import androidx.compose.runtime.Composable
+import android.net.Uri
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.core.os.bundleOf
-import androidx.navigation.NavController
-import androidx.navigation.createGraph
+import androidx.navigation.NavDeepLinkRequest
+import androidx.navigation.navDeepLink
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.ui.test.createComposeRule
-import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Rule
 import org.junit.Test
@@ -40,30 +40,76 @@ class NavGraphBuilderTest {
 
     @Test
     fun testCurrentBackStackEntryNavigate() {
-        lateinit var navController: NavController
+        lateinit var navController: TestNavHostController
+        val key = "key"
+        val arg = "myarg"
         composeTestRule.setContent {
             navController = TestNavHostController(ContextAmbient.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            navController.graph =
-                navController.createGraph(startDestination = generateId(FIRST_DESTINATION)) {
-                    composable(FIRST_DESTINATION) { navBackStackEntry ->
-                        TestWithArgs(navBackStackEntry.arguments?.get("test") as String)
-                    }
-                }
+            NavHost(navController, startDestination = FIRST_DESTINATION) {
+                composable(FIRST_DESTINATION) { }
+                composable(SECOND_DESTINATION) { }
+            }
         }
 
         composeTestRule.runOnUiThread {
-            navController.navigate(generateId(FIRST_DESTINATION), bundleOf("test" to "arg"))
+            navController.navigate(generateId(SECOND_DESTINATION), bundleOf(key to arg))
+            assertThat(navController.currentBackStackEntry!!.arguments!!.getString(key))
+                .isEqualTo(arg)
+        }
+    }
+
+    @Test
+    fun testDefaultArguments() {
+        lateinit var navController: TestNavHostController
+        val key = "key"
+        val defaultArg = "default"
+        composeTestRule.setContent {
+            navController = TestNavHostController(ContextAmbient.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = FIRST_DESTINATION) {
+                composable(FIRST_DESTINATION) { }
+                composable(
+                    SECOND_DESTINATION,
+                    arguments = listOf(navArgument(key) { defaultValue = defaultArg })
+                ) { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(generateId(SECOND_DESTINATION))
+            assertThat(navController.currentBackStackEntry!!.arguments!!.getString(key))
+                .isEqualTo(defaultArg)
+        }
+    }
+
+    @Test
+    fun testDeepLink() {
+        lateinit var navController: TestNavHostController
+        val uriString = "https://www.example.com"
+        val deeplink = NavDeepLinkRequest.Builder.fromUri(Uri.parse(uriString)).build()
+        composeTestRule.setContent {
+            navController = TestNavHostController(ContextAmbient.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = FIRST_DESTINATION) {
+                composable(FIRST_DESTINATION) { }
+                composable(
+                    SECOND_DESTINATION,
+                    deepLinks = listOf(navDeepLink { uriPattern = uriString })
+                ) { }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(Uri.parse(uriString))
+            assertThat(navController.currentBackStackEntry!!.destination.hasDeepLink(deeplink))
+                .isTrue()
         }
     }
 }
 
-@Composable
-fun TestWithArgs(arg: String) {
-    assertWithMessage("args should be passed to TestWithArgs Composable")
-        .that(arg)
-        .isEqualTo("arg")
-}
-
 private const val FIRST_DESTINATION = 1
+private const val SECOND_DESTINATION = 2
