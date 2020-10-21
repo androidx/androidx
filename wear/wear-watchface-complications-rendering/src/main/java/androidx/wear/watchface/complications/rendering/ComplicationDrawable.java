@@ -37,7 +37,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -48,8 +47,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /**
@@ -183,28 +180,6 @@ import java.util.Objects;
  * rectangular bounds might draw the icon to the left of the short text instead.
  */
 public final class ComplicationDrawable extends Drawable {
-
-    /**
-     * Constants used to define border styles for complications.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED})
-    @SuppressWarnings("PublicTypedef")
-    public @interface BorderStyle {
-    }
-
-    /** Style where the borders are not drawn. */
-    public static final int BORDER_STYLE_NONE = 0;
-
-    /** Style where the borders are drawn without any gap. */
-    public static final int BORDER_STYLE_SOLID = 1;
-    /**
-     * Style where the borders are drawn as dashed lines. If this is set as current border style,
-     * dash width and dash gap should also be set via {@link
-     * ComplicationStyle#setBorderDashWidth(int)}, {@link
-     * ComplicationStyle#setBorderDashGap(int)}  or XML attributes, or default values will be used.
-     */
-    public static final int BORDER_STYLE_DASHED = 2;
 
     private Context mContext;
     private ComplicationRenderer mComplicationRenderer;
