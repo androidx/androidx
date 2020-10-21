@@ -11,7 +11,7 @@ pluginManagement {
 rootProject.name = "androidx"
 
 boolean isMultiplatformEnabled() {
-    def mppParameter = startParameter.projectProperties.get("androidx.compose.multiplatformEnabled")
+    def mppParameter = properties.get("androidx.compose.multiplatformEnabled")
     if (mppParameter == null) return false
     return Boolean.parseBoolean(mppParameter)
 }
