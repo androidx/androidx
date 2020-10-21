@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SmallTest
 import androidx.tracing.Trace
 import androidx.tracing.trace
@@ -30,8 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@FlakyTest // Workaround for cuttlefish ignoring @RequiresDevice (b/170960583)
-@RequiresDevice // TODO: sort out emulator support
+@FlakyTest // TODO: remove once verified ignorePerfettoTestIfUnsupportedCuttlefish in postsubmit
 @LargeTest // recording is expensive
 @RunWith(AndroidJUnit4::class)
 class PerfettoRuleTest {

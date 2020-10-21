@@ -19,7 +19,6 @@ package androidx.benchmark.perfetto
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
@@ -46,11 +45,12 @@ class PerfettoCaptureTest {
         traceFile.delete()
     }
 
-    @FlakyTest // Workaround for cuttlefish ignoring @RequiresDevice (b/170960583)
-    @RequiresDevice // TODO: sort out emulator support
+    @FlakyTest // TODO: remove once verified ignorePerfettoTestIfUnsupportedCuttlefish in postsubmit
     @LargeTest
     @Test
     fun traceAndCheckFileSize() {
+        ignorePerfettoTestIfUnsupportedCuttlefish()
+
         val perfettoCapture = PerfettoCapture()
 
         Thread.sleep(100)
