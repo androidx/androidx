@@ -20,15 +20,21 @@ import android.content.ContextWrapper
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
+import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
+import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.compose.ui.platform.ViewModelStoreOwnerAmbient
+import androidx.compose.ui.viewinterop.viewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import java.util.UUID
 
 /**
  * Provides in place in the Compose hierarchy for self contained navigation to occur.
@@ -66,6 +72,7 @@ public fun NavHost(
  * @param navController the navController for this host
  * @param graph the graph for this host
  */
+@OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
 internal fun NavHost(navController: NavHostController, graph: NavGraph) {
     var context = ContextAmbient.current
@@ -94,24 +101,56 @@ internal fun NavHost(navController: NavHostController, graph: NavGraph) {
         navController.graph = graph
     }
 
+    val restorableStateHolder = rememberRestorableStateHolder<UUID>()
+
     // state from the navController back stack
-    val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentNavBackStackEntry = navController.currentBackStackEntryAsState().value
 
     // If the currentNavBackStackEntry is null, we have popped all of the destinations
     // off of the navController back stack and have nothing to show.
     if (currentNavBackStackEntry != null) {
-        val destination = currentNavBackStackEntry!!.destination
+        val destination = currentNavBackStackEntry.destination
         // If the destination is not a compose destination, (e.i. activity, dialog, view, etc)
         // then we do nothing and rely on Navigation to show the proper destination
         if (destination is ComposeNavigator.Destination) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             Providers(
-                ViewModelStoreOwnerAmbient provides currentNavBackStackEntry!!,
-                LifecycleOwnerAmbient provides currentNavBackStackEntry!!
+                ViewModelStoreOwnerAmbient provides currentNavBackStackEntry,
+                LifecycleOwnerAmbient provides currentNavBackStackEntry
             ) {
-                destination.content(currentNavBackStackEntry!!)
+                restorableStateHolder.withRestorableState {
+                    destination.content(currentNavBackStackEntry)
+                }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalRestorableStateHolder::class)
+@Composable
+private fun RestorableStateHolder<UUID>.withRestorableState(content: @Composable () -> Unit) {
+    val viewModel = viewModel<BackStackEntryIdViewModel>()
+    viewModel.restorableStateHolder = this
+    withRestorableState(viewModel.id, content)
+}
+
+@OptIn(ExperimentalRestorableStateHolder::class)
+internal class BackStackEntryIdViewModel(handle: SavedStateHandle) : ViewModel() {
+
+    private val IdKey = "RestorableStateHolder_BackStackEntryKey"
+
+    // we create our own id for each back stack entry to support multiple entries of the same
+    // destination. this id will be restored by SavedStateHandle
+    val id: UUID = handle.get<UUID>(IdKey) ?: UUID.randomUUID().also { handle.set(IdKey, it) }
+
+    var restorableStateHolder: RestorableStateHolder<UUID>? = null
+
+    // onCleared will be called on the entries removed from the back stack. here we notify
+    // RestorableStateHolder that we shouldn't save the state for this id, so when we open this
+    // destination again the state will not be restored.
+    override fun onCleared() {
+        super.onCleared()
+        restorableStateHolder?.removeState(id)
     }
 }
