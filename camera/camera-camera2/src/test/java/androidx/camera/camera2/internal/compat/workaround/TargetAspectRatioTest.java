@@ -86,6 +86,19 @@ public class TargetAspectRatioTest {
         data.add(new Object[]{new Config("Samsung", "SM-T580", false,
                 INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
                 ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Google", "Nexus 4", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_4_3, RATIO_MAX_JPEG,
+                new Range<>(21, 22))});
+        data.add(new Object[]{new Config("Google", "Nexus 4", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_16_9, RATIO_MAX_JPEG,
+                new Range<>(21, 22))});
+        data.add(new Object[]{new Config("Google", "Nexus 4", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_4_3, RATIO_MAX_JPEG,
+                new Range<>(21, 22))});
+        data.add(new Object[]{new Config("Google", "Nexus 4", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, RATIO_16_9, RATIO_MAX_JPEG,
+                new Range<>(21, 22))});
+
         data.add(new Object[]{new Config(null, null, true,
                 INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
         data.add(new Object[]{new Config(null, null, true,
@@ -119,8 +132,8 @@ public class TargetAspectRatioTest {
     @Test
     public void getCorrectedRatio() {
         // Set up device properties
-        if (mConfig.mManufacturer != null) {
-            ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", mConfig.mManufacturer);
+        if (mConfig.mBrand != null) {
+            ReflectionHelpers.setStaticField(Build.class, "BRAND", mConfig.mBrand);
             ReflectionHelpers.setStaticField(Build.class, "MODEL", mConfig.mModel);
         }
 
@@ -161,7 +174,7 @@ public class TargetAspectRatioTest {
 
     static class Config {
         @Nullable
-        final String mManufacturer;
+        final String mBrand;
         @Nullable
         final String mModel;
         final boolean mIsPreview;
@@ -172,11 +185,11 @@ public class TargetAspectRatioTest {
         final int mHardwareLevel;
         final Range<Integer> mAffectedApiLevels;
 
-        Config(@Nullable String manufacturer, @Nullable String model, boolean isPreview,
-                int hardwareLevel, @AspectRatio.Ratio int inputAspectRatio,
+        Config(@Nullable String brand, @Nullable String model, boolean isPreview, int hardwareLevel,
+                @AspectRatio.Ratio int inputAspectRatio,
                 @TargetAspectRatio.Ratio int expectedAspectRatio,
                 @NonNull Range<Integer> affectedApiLevels) {
-            mManufacturer = manufacturer;
+            mBrand = brand;
             mModel = model;
             mIsPreview = isPreview;
             mHardwareLevel = hardwareLevel;
