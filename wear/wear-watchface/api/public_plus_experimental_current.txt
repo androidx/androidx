@@ -104,10 +104,9 @@ package androidx.wear.watchface {
   }
 
   public abstract class GlesRenderer extends androidx.wear.watchface.Renderer {
+    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
+    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int[] eglConfigAttribList);
     ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState);
-    method protected android.opengl.EGLConfig chooseEglConfig(android.opengl.EGLDisplay eglDisplay);
-    method protected int[] getConfigAttribList();
-    method protected int[] getSurfaceAttribList();
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(int width, int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
