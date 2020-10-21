@@ -82,7 +82,7 @@ public final class SetSchemaRequest {
          *
          * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-         * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
+         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */
         @NonNull
@@ -97,7 +97,7 @@ public final class SetSchemaRequest {
          *
          * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
-         * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
+         * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */
         @NonNull
