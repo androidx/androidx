@@ -636,7 +636,7 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /** Returns whether the complication is rendered in ambient mode. */
-    public boolean getInAmbientMode() {
+    public boolean isInAmbientMode() {
         return mInAmbientMode;
     }
 
@@ -652,7 +652,7 @@ public final class ComplicationDrawable extends Drawable {
      * Returns whether the complication, when rendering in ambient mode, should apply a style
      * suitable for low bit ambient mode.
      */
-    public boolean getLowBitAmbient() {
+    public boolean isLowBitAmbient() {
         return mLowBitAmbient;
     }
 
@@ -704,7 +704,7 @@ public final class ComplicationDrawable extends Drawable {
     /**
      * Returns whether the complication is currently highlighted.
      */
-    public boolean getHighlighted() {
+    public boolean isHighlighted() {
         return mHighlighted;
     }
 

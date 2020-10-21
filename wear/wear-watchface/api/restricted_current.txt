@@ -6,7 +6,7 @@ package androidx.wear.watchface {
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
     method public android.support.wearable.complications.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method @UiThread public boolean getIsHighlighted();
+    method @UiThread public boolean isHighlighted();
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void onDetach();
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
@@ -20,7 +20,7 @@ package androidx.wear.watchface {
 
   public interface CanvasComplicationRenderer {
     method public android.support.wearable.complications.ComplicationData? getData();
-    method public boolean getIsHighlighted();
+    method public boolean isHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
     method @UiThread public void onDetach();
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);

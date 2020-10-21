@@ -436,7 +436,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setBounds(new Rect(0, 0, 100, 100));
 
         assertThat(mComplicationDrawable.onTap(50, 50)).isTrue();
-        assertThat(mComplicationDrawable.getHighlighted()).isTrue();
+        assertThat(mComplicationDrawable.isHighlighted()).isTrue();
         verify(mMockDrawableCallback).invalidateDrawable(mComplicationDrawable);
     }
 
@@ -456,16 +456,16 @@ public class ComplicationDrawableTest {
 
         mComplicationDrawable.setHighlightDuration(highlightDuration);
         mComplicationDrawable.onTap(50, 50);
-        assertThat(mComplicationDrawable.getHighlighted()).isTrue();
+        assertThat(mComplicationDrawable.isHighlighted()).isTrue();
 
         verify(mMockDrawableCallback).invalidateDrawable(mComplicationDrawable);
 
         Robolectric.getForegroundThreadScheduler()
                 .advanceBy(highlightDuration - 100, TimeUnit.MILLISECONDS);
-        assertThat(mComplicationDrawable.getHighlighted()).isTrue();
+        assertThat(mComplicationDrawable.isHighlighted()).isTrue();
 
         Robolectric.getForegroundThreadScheduler().advanceBy(200, TimeUnit.MILLISECONDS);
-        assertThat(mComplicationDrawable.getHighlighted()).isFalse();
+        assertThat(mComplicationDrawable.isHighlighted()).isFalse();
         verify(mMockDrawableCallback, times(2)).invalidateDrawable(mComplicationDrawable);
     }
 
@@ -484,7 +484,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setHighlightDuration(highlightDuration);
         mComplicationDrawable.onTap(50, 50);
 
-        assertThat(mComplicationDrawable.getHighlighted()).isFalse();
+        assertThat(mComplicationDrawable.isHighlighted()).isFalse();
     }
 
     @Test

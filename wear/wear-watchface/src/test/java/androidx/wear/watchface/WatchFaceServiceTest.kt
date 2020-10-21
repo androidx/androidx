@@ -581,27 +581,27 @@ class WatchFaceServiceTest {
     fun singleTaps_correctlyDetected_and_highlightComplications() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Tap left complication.
         tapAt(30, 50)
-        assertThat(complicationDrawableLeft.highlighted).isTrue()
+        assertThat(complicationDrawableLeft.isHighlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap right complication.
         testWatchFaceService.reset()
         tapAt(70, 50)
-        assertThat(complicationDrawableRight.highlighted).isTrue()
+        assertThat(complicationDrawableRight.isHighlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap on blank space.
         testWatchFaceService.reset()
@@ -610,32 +610,32 @@ class WatchFaceServiceTest {
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
     }
 
     @Test
     fun doubleTaps_correctlyDetected_and_highlightComplications() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Tap left complication.
         doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
         assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDrawableLeft.highlighted).isTrue()
+        assertThat(complicationDrawableLeft.isHighlighted).isTrue()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap right complication.
         testWatchFaceService.reset()
         doubleTapAt(70, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
         assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDrawableRight.highlighted).isTrue()
+        assertThat(complicationDrawableRight.isHighlighted).isTrue()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Tap on blank space.
         testWatchFaceService.reset()
@@ -643,15 +643,15 @@ class WatchFaceServiceTest {
         assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
     }
 
     @Test
     fun fastTap_onDifferentComplications_ignored() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Rapidly tap left then right complication.
         tapAt(30, 50)
@@ -660,22 +660,22 @@ class WatchFaceServiceTest {
 
         // Both complications get temporarily highlighted but neither onComplicationSingleTapped
         // nor onComplicationDoubleTapped fire.
-        assertThat(complicationDrawableLeft.highlighted).isTrue()
-        assertThat(complicationDrawableRight.highlighted).isTrue()
+        assertThat(complicationDrawableLeft.isHighlighted).isTrue()
+        assertThat(complicationDrawableRight.isHighlighted).isTrue()
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
         assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
     }
 
     @Test
     fun slow_doubleTap_recogisedAsSingleTap() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Slowly tap left complication twice.
         doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() * 2)
@@ -688,8 +688,8 @@ class WatchFaceServiceTest {
     fun tripleTap_recogisedAsDoubleTap() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Quickly tap left complication thrice.
         tripleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
@@ -751,12 +751,12 @@ class WatchFaceServiceTest {
         // Wait a bit for the condition to reset and clear our detection state.
         testWatchFaceService.clearTappedState()
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
-        assertThat(complicationDrawableLeft.highlighted).isFalse()
-        assertThat(complicationDrawableRight.highlighted).isFalse()
+        assertThat(complicationDrawableLeft.isHighlighted).isFalse()
+        assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Tap right complication.
         tapAt(70, 50)
-        assertThat(complicationDrawableRight.highlighted).isTrue()
+        assertThat(complicationDrawableRight.isHighlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
