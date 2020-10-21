@@ -29,6 +29,9 @@ import android.support.wearable.complications.IComplicationManager;
 import android.support.wearable.complications.IComplicationProvider;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,16 +64,25 @@ public class ComplicationProviderServiceTest {
         private CharSequence mText = "Hello";
 
         @Override
-        public void onComplicationUpdate(int complicationId, int type,
-                boolean provideMockData, ComplicationUpdateCallback callback) {
+        public void onComplicationUpdate(
+                int complicationId, int type, @NonNull ComplicationUpdateCallback callback) {
             try {
                 callback.onUpdateComplication(
                         new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                                .setLongText(ComplicationText.plainText("hello " + complicationId))
+                                .setLongText(
+                                        ComplicationText.plainText("hello " + complicationId))
                                 .build());
             } catch (RemoteException e) {
                 Log.e(TAG, "onComplicationUpdate failed with error: ", e);
             }
+        }
+
+        @Nullable
+        @Override
+        public ComplicationData getPreviewData(int type) {
+            return new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                    .setLongText(ComplicationText.plainText("hello preview"))
+                    .build();
         }
     };
 
@@ -88,10 +100,17 @@ public class ComplicationProviderServiceTest {
         int id = 123;
         mComplicationProvider.onUpdate(id, ComplicationData.TYPE_LONG_TEXT, mLocalManager);
         ShadowLooper.runUiThreadTasks();
+
         ArgumentCaptor<ComplicationData> data = ArgumentCaptor.forClass(ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
         assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
                 "hello " + id
         );
+    }
+
+    @Test
+    public void testGetComplicationPreviewData() throws Exception {
+        assertThat(mComplicationProvider.getComplicationPreviewData(ComplicationData.TYPE_LONG_TEXT)
+                .getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
     }
 }

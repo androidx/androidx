@@ -26,7 +26,6 @@ class SynchronousProviderService : ComplicationProviderService() {
     override fun onComplicationUpdate(
         complicationId: Int,
         type: Int,
-        provideMockData: Boolean,
         callback: ComplicationUpdateCallback
     ) {
         callback.onUpdateComplication(
@@ -44,5 +43,19 @@ class SynchronousProviderService : ComplicationProviderService() {
                 else -> null
             }
         )
+    }
+
+    override fun getPreviewData(type: Int) = when (type) {
+        ComplicationData.TYPE_SHORT_TEXT ->
+            ComplicationData.Builder(type)
+                .setShortText(ComplicationText.plainText("# 123"))
+                .build()
+
+        ComplicationData.TYPE_LONG_TEXT ->
+            ComplicationData.Builder(type)
+                .setLongText(ComplicationText.plainText("hello 123"))
+                .build()
+
+        else -> null
     }
 }
