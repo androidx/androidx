@@ -26,7 +26,7 @@ import android.opengl.GLUtils
 
 /** Helper for rendering a complication to a GLES20 texture. */
 public class GlesTextureComplication(
-    public val renderer: CanvasComplicationRenderer,
+    public val renderer: CanvasComplication,
     textureWidth: Int,
     textureHeight: Int,
 

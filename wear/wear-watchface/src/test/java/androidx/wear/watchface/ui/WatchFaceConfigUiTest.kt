@@ -27,7 +27,7 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.CanvasComplicationDrawableRenderer
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
@@ -121,7 +121,7 @@ class WatchFaceConfigUiTest {
     private val leftComplication =
         Complication.Builder(
             LEFT_COMPLICATION_ID,
-            CanvasComplicationDrawableRenderer(
+            CanvasComplicationDrawable(
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
@@ -142,7 +142,7 @@ class WatchFaceConfigUiTest {
     private val rightComplication =
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            CanvasComplicationDrawableRenderer(
+            CanvasComplicationDrawable(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
@@ -163,7 +163,7 @@ class WatchFaceConfigUiTest {
     private val backgroundComplication =
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            CanvasComplicationDrawableRenderer(
+            CanvasComplicationDrawable(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {

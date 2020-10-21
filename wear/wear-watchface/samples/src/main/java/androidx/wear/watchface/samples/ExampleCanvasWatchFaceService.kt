@@ -328,7 +328,7 @@ class ExampleCanvasRenderer(
 
         canvas.drawColor(style.backgroundColor)
 
-        // CanvasComplicationDrawableRenderer already obeys rendererParameters.
+        // CanvasComplicationDrawable already obeys rendererParameters.
         drawComplications(canvas, calendar)
 
         if (renderParameters.layerParameters[Layer.TOP_LAYER] != LayerMode.HIDE) {
