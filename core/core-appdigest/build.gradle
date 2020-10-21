@@ -33,7 +33,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    api("androidx.core:core:1.0.0")
+    implementation project(path: ':core:core')
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

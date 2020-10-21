@@ -22,17 +22,25 @@ import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA1;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA256;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA512;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ApkChecksum;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Parcelable;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -46,6 +54,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -76,6 +85,9 @@ public final class Checksums {
     private static final String ALGO_SHA512 = "SHA512";
 
     private static final int READ_CHUNK_SIZE = 64 * 1024;
+
+    private static final String ACTION_GET_CHECKSUMS_COMPLETE = "androidx.core.appdigest"
+            + ".INTENT_GET_CHECKSUMS_COMPLETE";
 
     private Checksums() {
     }
@@ -115,6 +127,11 @@ public final class Checksums {
         Preconditions.checkNotNull(packageName);
         Preconditions.checkNotNull(trustedInstallers);
         Preconditions.checkNotNull(executor);
+
+        if (BuildCompat.isAtLeastS()) {
+            return ApiSImpl.getChecksums(context, packageName, includeSplits, required,
+                    trustedInstallers, executor);
+        }
 
         final ApplicationInfo applicationInfo =
                 context.getPackageManager().getApplicationInfo(packageName, 0);
@@ -157,6 +174,75 @@ public final class Checksums {
             }
         });
         return result;
+    }
+
+    private static class ApiSImpl {
+        private ApiSImpl() {}
+
+        @ChecksSdkIntAtLeast(codename = "S") static
+        @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
+                @NonNull String packageName, boolean includeSplits, @Checksum.Type int required,
+                @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
+                throws CertificateEncodingException, PackageManager.NameNotFoundException {
+            final ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
+
+            if (trustedInstallers == TRUST_ALL) {
+                trustedInstallers = PackageManager.TRUST_ALL;
+            } else if (trustedInstallers == TRUST_NONE) {
+                trustedInstallers = PackageManager.TRUST_NONE;
+            } else if (trustedInstallers.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "trustedInstallers has to be one of TRUST_ALL/TRUST_NONE or a non-empty "
+                                + "list of certificates.");
+            }
+
+            // Create a single-use broadcast receiver
+            BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    context.unregisterReceiver(this);
+
+                    Parcelable[] parcelables =
+                            intent.getParcelableArrayExtra(PackageManager.EXTRA_CHECKSUMS);
+                    if (parcelables == null) {
+                        result.setException(new IllegalStateException("Checksums extra missing."));
+                        return;
+                    }
+
+                    try {
+                        ApkChecksum[] apkChecksums = Arrays.copyOf(parcelables, parcelables.length,
+                                ApkChecksum[].class);
+                        Checksum[] checksums = new Checksum[apkChecksums.length];
+                        for (int i = 0, size = apkChecksums.length; i < size; ++i) {
+                            ApkChecksum apkChecksum = apkChecksums[i];
+                            checksums[i] = new Checksum(apkChecksum.getSplitName(),
+                                    apkChecksum.getType(), apkChecksum.getValue(),
+                                    apkChecksum.getInstallerPackageName(),
+                                    apkChecksum.getInstallerCertificate());
+                        }
+                        result.set(checksums);
+                    } catch (Throwable e) {
+                        result.setException(e);
+                    }
+                }
+            };
+
+            // Create a matching intent-filter and register the receiver
+            final int resultId = result.hashCode();
+            final String action = ACTION_GET_CHECKSUMS_COMPLETE + "." + resultId;
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(action);
+            context.registerReceiver(broadcastReceiver, intentFilter);
+
+            Intent intent = new Intent(action);
+            PendingIntent sender = PendingIntent.getBroadcast(context, resultId, intent,
+                    PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+
+            context.getPackageManager().requestChecksums(packageName, includeSplits, required,
+                    trustedInstallers, sender.getIntentSender());
+
+            return result;
+        }
     }
 
     private static void getChecksumsSync(@NonNull List<Pair<String, File>> filesToChecksum,
