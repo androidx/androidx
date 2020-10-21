@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXExtension
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -44,7 +42,6 @@ androidx {
     name = "AndroidX Inspection Testing"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.INSPECTION
-    toolingProject = true
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
 }

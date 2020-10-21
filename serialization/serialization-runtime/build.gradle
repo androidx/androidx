@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -38,9 +37,8 @@ dependencies {
 
 androidx {
     name = "AndroidX Serialization - Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SERIALIZATION
-    compilationTarget = CompilationTarget.HOST
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2020"
     description = "Core runtime for AndroidX Serialization"

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -33,9 +32,8 @@ dependencies {
 
 androidx {
     name = "AndroidX Serialization - Protocol Buffers Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SERIALIZATION
-    compilationTarget = CompilationTarget.HOST
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2020"
     description = "Protocol Buffers runtime for AndroidX Serialization"

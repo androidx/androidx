@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-
 
 plugins {
     id("AndroidXPlugin")
@@ -30,9 +29,9 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 
 androidx {
     name = "AndroidX IPC - Annotations"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.IPC
-    compilationTarget = CompilationTarget.HOST
     mavenGroup = LibraryGroups.IPC
     inceptionYear = "2020"
     description = "Annotations for AndroidX AndroidX Inter Process Communication Tools"
