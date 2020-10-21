@@ -237,7 +237,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksums() throws Exception {
         installPackage(TEST_FIXED_APK);
