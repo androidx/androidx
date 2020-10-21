@@ -117,6 +117,8 @@ public class ChecksumsTest {
 
     @After
     public void onAfter() throws Exception {
+        uninstallPackageSilently(V4_PACKAGE_NAME);
+        assertFalse(isAppInstalled(V4_PACKAGE_NAME));
         uninstallPackageSilently(FIXED_PACKAGE_NAME);
         assertFalse(isAppInstalled(FIXED_PACKAGE_NAME));
     }
