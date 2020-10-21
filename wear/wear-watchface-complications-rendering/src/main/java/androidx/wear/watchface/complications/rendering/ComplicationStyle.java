@@ -23,14 +23,43 @@ import android.graphics.drawable.Drawable;
 import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Defines attributes to customize appearance of rendered {@link
  * android.support.wearable.complications.ComplicationData}.
  */
 public class ComplicationStyle {
+
+    /**
+     * Constants used to define border styles for complications.
+     *
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface BorderStyle {
+    }
+
+    /** Style where the borders are not drawn. */
+    public static final int BORDER_STYLE_NONE = 0;
+
+    /** Style where the borders are drawn without any gap. */
+    public static final int BORDER_STYLE_SOLID = 1;
+
+    /**
+     * Style where the borders are drawn as dashed lines. If this is set as current border style,
+     * dash width and dash gap should also be set via {@link #setBorderDashWidth(int)},
+     * {@link #setBorderDashGap(int)}  or XML attributes, or default values will be used.
+     */
+    public static final int BORDER_STYLE_DASHED = 2;
 
     /** Default primary color. */
     private static final int PRIMARY_COLOR_DEFAULT = Color.WHITE;
@@ -69,26 +98,34 @@ public class ComplicationStyle {
     /** Default border radius. */
     public static final int BORDER_RADIUS_DEFAULT = Integer.MAX_VALUE;
 
-    @ColorInt private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
+    @ColorInt
+    private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
     private Drawable mBackgroundDrawable = null;
-    @ColorInt private int mTextColor = PRIMARY_COLOR_DEFAULT;
-    @ColorInt private int mTitleColor = SECONDARY_COLOR_DEFAULT;
+    @ColorInt
+    private int mTextColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt
+    private int mTitleColor = SECONDARY_COLOR_DEFAULT;
     private Typeface mTextTypeface = TYPEFACE_DEFAULT;
     private Typeface mTitleTypeface = TYPEFACE_DEFAULT;
     private int mTextSize = TEXT_SIZE_DEFAULT;
     private int mTitleSize = TEXT_SIZE_DEFAULT;
     private ColorFilter mImageColorFilter = null;
-    @ColorInt private int mIconColor = PRIMARY_COLOR_DEFAULT;
-    @ColorInt private int mBorderColor = BORDER_COLOR_DEFAULT;
-    private int mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
+    @ColorInt
+    private int mIconColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt
+    private int mBorderColor = BORDER_COLOR_DEFAULT;
+    private int mBorderStyle = BORDER_STYLE_SOLID;
     private int mBorderDashWidth = DASH_WIDTH_DEFAULT;
     private int mBorderDashGap = DASH_GAP_DEFAULT;
     private int mBorderRadius = BORDER_RADIUS_DEFAULT;
     private int mBorderWidth = BORDER_WIDTH_DEFAULT;
     private int mRangedValueRingWidth = RING_WIDTH_DEFAULT;
-    @ColorInt private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
-    @ColorInt private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
-    @ColorInt private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
+    @ColorInt
+    private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
+    @ColorInt
+    private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
+    @ColorInt
+    private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
     private boolean mDirty = true;
 
     public ComplicationStyle() {
@@ -192,22 +229,20 @@ public class ComplicationStyle {
         return mBorderColor;
     }
 
-    @ComplicationDrawable.BorderStyle
+    @BorderStyle
     public int getBorderStyle() {
         return mBorderStyle;
     }
 
     /**
-     * Returns the dash width to be used when drawing borders of type {@link
-     * ComplicationDrawable#BORDER_STYLE_DASHED}.
+     * Returns the dash width to be used when drawing borders of type {@link #BORDER_STYLE_DASHED}.
      */
     public int getBorderDashWidth() {
         return mBorderDashWidth;
     }
 
     /**
-     * Returns the dash gap to be used when drawing borders of type {@link
-     * ComplicationDrawable#BORDER_STYLE_DASHED}.
+     * Returns the dash gap to be used when drawing borders of type {@link #BORDER_STYLE_DASHED}.
      */
     public int getBorderDashGap() {
         return mBorderDashGap;
@@ -364,23 +399,23 @@ public class ComplicationStyle {
      *
      * @param borderStyle The style to render the complication border with
      */
-    public void setBorderStyle(@ComplicationDrawable.BorderStyle int borderStyle) {
+    public void setBorderStyle(@BorderStyle int borderStyle) {
         switch (borderStyle) {
-            case ComplicationDrawable.BORDER_STYLE_SOLID:
-                mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
+            case BORDER_STYLE_SOLID:
+                mBorderStyle = BORDER_STYLE_SOLID;
                 break;
-            case ComplicationDrawable.BORDER_STYLE_DASHED:
-                mBorderStyle = ComplicationDrawable.BORDER_STYLE_DASHED;
+            case BORDER_STYLE_DASHED:
+                mBorderStyle = BORDER_STYLE_DASHED;
                 break;
             default:
-                mBorderStyle = ComplicationDrawable.BORDER_STYLE_NONE;
+                mBorderStyle = BORDER_STYLE_NONE;
         }
         mDirty = true;
     }
 
     /**
      * Sets dash widths to render the complication border with when drawing borders with style
-     * {@link ComplicationDrawable#BORDER_STYLE_DASHED}.
+     * {@link #BORDER_STYLE_DASHED}.
      *
      * @param borderDashWidth The dash widths to render the complication border with
      */
@@ -391,7 +426,7 @@ public class ComplicationStyle {
 
     /**
      * Sets the dash gap render the complication border with when drawing borders with style
-     * {@link ComplicationDrawable#BORDER_STYLE_DASHED}.
+     * {@link #BORDER_STYLE_DASHED}.
      *
      * @param borderDashGap The dash gap render the complication border with
      */

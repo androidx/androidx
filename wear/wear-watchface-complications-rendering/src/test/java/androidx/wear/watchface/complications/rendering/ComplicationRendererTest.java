@@ -481,7 +481,7 @@ public class ComplicationRendererTest {
         float radius = 5;
         int borderWidth = 2;
         ComplicationStyle newStyle = new ComplicationStyle();
-        newStyle.setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID);
+        newStyle.setBorderStyle(ComplicationStyle.BORDER_STYLE_SOLID);
         newStyle.setBorderRadius((int) radius);
         newStyle.setBorderWidth(borderWidth);
         mComplicationRenderer.updateStyle(
@@ -588,7 +588,7 @@ public class ComplicationRendererTest {
         style.setTitleTypeface(titleTypeface);
         style.setTitleSize(4);
         style.setIconColor(5);
-        style.setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID);
+        style.setBorderStyle(ComplicationStyle.BORDER_STYLE_SOLID);
         style.setBorderColor(6);
         style.setBorderRadius(7);
         style.setBorderWidth(8);
