@@ -32,7 +32,7 @@ import androidx.wear.watchface.style.UserStyleRepository
 
 import java.nio.ByteBuffer
 
-private val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
+internal val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
     EGL14.EGL_RENDERABLE_TYPE,
     EGL14.EGL_OPENGL_ES2_BIT,
     EGL14.EGL_RED_SIZE,
@@ -49,13 +49,13 @@ private val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
 private val EGL_CONTEXT_ATTRIB_LIST =
     intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE)
 
-private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
+internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
 /**
  * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
  * class.
  */
-public abstract class GlesRenderer (
+public abstract class GlesRenderer @JvmOverloads constructor(
     /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
@@ -63,7 +63,13 @@ public abstract class GlesRenderer (
     userStyleRepository: UserStyleRepository,
 
     /** The associated [WatchState]. */
-    watchState: WatchState
+    watchState: WatchState,
+
+    /** Attributes for [EGL14.eglChooseConfig]. By default this selects an RGBAB8888 back buffer. */
+    private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+
+    /** The attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this is empty. */
+    private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
 ) : Renderer(surfaceHolder, userStyleRepository, watchState) {
     /** @hide */
     private companion object {
@@ -104,23 +110,15 @@ public abstract class GlesRenderer (
     private var calledOnGlContextCreated = false
 
     /**
-     * Returns the attributes to be passed to [EGL14.eglChooseConfig]. By default this selects
-     * an RGBAB8888 back buffer.
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    protected open fun getConfigAttribList(): IntArray = EGL_CONFIG_ATTRIB_LIST
-
-    /**
-     * Chooses the EGLConfig to use, by default this calls [.getEglConfigAttribList] to get
-     * the attributes list to pass to [EGL14.eglChooseConfig].
+     * Chooses the EGLConfig to use.
      * @throws RuntimeException if [EGL14.eglChooseConfig] fails
      */
-    protected open fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
+    private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
         val numEglConfigs = IntArray(1)
         val eglConfigs = arrayOfNulls<EGLConfig>(1)
         if (!EGL14.eglChooseConfig(
                 eglDisplay,
-                getConfigAttribList(),
+                eglConfigAttribList,
                 0,
                 eglConfigs,
                 0,
@@ -137,13 +135,6 @@ public abstract class GlesRenderer (
         return eglConfigs[0]!!
     }
 
-    /**
-     * Returns the attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this
-     * is empty.
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    protected open fun getSurfaceAttribList(): IntArray = EGL_SURFACE_ATTRIB_LIST
-
     private fun createWindowSurface(
         eglDisplay: EGLDisplay,
         eglConfig: EGLConfig,
@@ -153,7 +144,7 @@ public abstract class GlesRenderer (
             eglDisplay,
             eglConfig,
             surfaceHolder.surface,
-            getSurfaceAttribList(),
+            eglSurfaceAttribList,
             0
         )
         if (result == EGL14.EGL_NO_SURFACE) {
