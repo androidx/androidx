@@ -71,6 +71,10 @@ MissingBuildMethod: androidx.navigation.PopUpToBuilder:
     androidx.navigation.PopUpToBuilder does not declare a `build()` method, but builder classes are expected to
 
 
+MissingGetterMatchingBuilder: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence):
+    D does not declare a `getLabel()` method matching method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
+
+
 SetterReturnsThis: androidx.navigation.AnimBuilder#setEnter(int):
     Methods must return the builder object (return type androidx.navigation.AnimBuilder instead of void): method androidx.navigation.AnimBuilder.setEnter(int)
 SetterReturnsThis: androidx.navigation.AnimBuilder#setExit(int):
