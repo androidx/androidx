@@ -48,14 +48,10 @@ application@android:appComponentFactory was tagged at AndroidManifest\.xml:[0-9]
 # > Task :doclava:compileJava
 Note: Some input files use or override a deprecated API that is marked for removal\.
 Note: Recompile with \-Xlint:removal for details\.
-# > Task :test-screenshot:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/test\-screenshot_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/tracing/tracing/src/androidTest/java/androidx/tracing/TraceTest\.java uses or overrides a deprecated API\.
-# > Task :tracing:tracing-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/tracing\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
@@ -67,10 +63,6 @@ components have been superseded by the new APIs in jdk\.javadoc\.doclet\.
 Users are strongly recommended to migrate to the new APIs\.
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :benchmark:benchmark-junit4:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark\-junit[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark\-common_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-geometry:compileKotlinMetadata
@@ -78,8 +70,6 @@ w: \$SUPPORT/compose/ui/ui\-geometry/src/commonMain/kotlin/androidx/compose/ui/g
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
 # > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:runtime:runtime-dispatch:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-dispatch_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
@@ -90,8 +80,6 @@ w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/g
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
 \[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
-# > Task :compose:ui:ui-text-android:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-text\-android_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
@@ -126,51 +114,11 @@ src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Fie
 src/commonMain/kotlin/androidx/compose/ui/geometry/MutableRect\.kt:[0-9]+: info: Note that adding the `operator` keyword would allow calling this method using operator syntax \[KotlinOperator\]
 # > Task :compose:animation:animation-core:generateApi
 src/commonMain/kotlin/androidx/compose/animation/core/AnimationClock\.kt:[0-9]+: warning: Field BaseAnimationClock\.Companion references hidden type androidx\.compose\.animation\.core\.BaseAnimationClock\.Companion\. \[HiddenTypeParameter\]
-# > Task :compose:ui:ui-unit:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-unit_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:foundation:foundation-layout:generateApi
 src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter orientation references hidden type androidx\.compose\.foundation\.layout\.LayoutOrientation\. \[HiddenTypeParameter\]
 src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter crossAxisAlignment references hidden type androidx\.compose\.foundation\.layout\.CrossAxisAlignment\. \[HiddenTypeParameter\]
-# > Task :compose:animation:animation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/animation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-livedata:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-livedata_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation-text:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation\-text_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-compose:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-compose_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-rxjava2:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-rxjava[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-saved-instance-state:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-saved\-instance\-state_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-graphics:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-graphics_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-text:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-text_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-viewbinding:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-viewbinding_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation-layout:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation\-layout_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:test-utils:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/test\-utils_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:integration-tests:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/integration\-tests_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :ui:ui-test:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-test_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :ui:ui-tooling:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-tooling_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:material:material:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/material_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :disttipOfTreeDocs
 'Wrote API reference to \$DIST_DIR/androidx\-tipOfTree\-docs\-[0-9]+\.zip
-# > Task :compose:material:material-icons-extended:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/material\-icons\-extended_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache, [0-9]+ up\-to\-date
@@ -622,18 +570,12 @@ Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
 # > Task :slice-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :internal-testutils-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/internal\-testutils\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :internal-testutils-navigation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/internal\-testutils\-navigation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :slice-builders-ktx:processDebugAndroidTestManifest
 # > Task :slice-core:processDebugAndroidTestManifest
 # > Task :slice-remotecallback:processDebugAndroidTestManifest
 # > Task :slice-view:processDebugAndroidTestManifest
 # > Task :slice-benchmark:compileReleaseAndroidTestJavaWithJavac
 Note: \$SUPPORT/slices/benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java uses or overrides a deprecated API\.
-# > Task :slice-builders-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/slice\-builders\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :support-media-test-client:processDebugAndroidTestManifest
 # > Task :support-media-test-client-previous:processDebugAndroidTestManifest
 # > Task :support-media-test-service:processDebugAndroidTestManifest
@@ -657,8 +599,6 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :in
 # > Task :appcompat:appcompat-resources:processDebugAndroidTestManifest
 # > Task :appcompat:appcompat-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :activity:activity-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/activity\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-camera2:processDebugAndroidTestManifest
@@ -695,27 +635,17 @@ static final com\.google\.protobuf\.Internal\.EnumVerifier           INSTANCE = 
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @Documented \[[0-9]+\]
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @TypeQualifierNickname \[[0-9]+\]
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @Retention\(RetentionPolicy\.RUNTIME\) \[[0-9]+\]
-# > Task :camera:camera-camera2-pipe-integration:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe\-integration_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-extensions:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/extensions/PreviewExtenderTest\.java uses unchecked or unsafe operations\.
-# > Task :camera:camera-camera2-pipe:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :customview:customview:processDebugAndroidTestManifest
 # > Task :core:core-ktx:processDebugAndroidTestManifest
 # > Task :appsearch:appsearch:processDebugAndroidTestManifest
 # > Task :customview:customview:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
-# > Task :datastore:datastore-core:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/datastore\-core_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :core:core:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/core/core/src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :datastore:datastore-preferences:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/datastore\-preferences_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :core:core-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/core\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :drawerlayout:drawerlayout:processDebugAndroidTestManifest
 # > Task :dynamicanimation:dynamicanimation:processDebugAndroidTestManifest
 # > Task :dynamicanimation:dynamicanimation-ktx:processDebugAndroidTestManifest
@@ -738,41 +668,21 @@ Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifin
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/gridlayout/gridlayout/src/androidTest/java/androidx/gridlayout/widget/GridLayoutTest\.java uses or overrides a deprecated API\.
-# > Task :dynamicanimation:dynamicanimation-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/dynamicanimation\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :leanback:leanback:processDebugAndroidTestManifest
 \[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
-# > Task :fragment:fragment-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :fragment:fragment-truth:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-truth_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :inspection:inspection-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/inspection\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
 warning: unknown enum constant AnnotationTarget\.CLASS
 reason: class file for kotlin\.annotation\.AnnotationTarget not found
 warning: unknown enum constant AnnotationTarget\.FUNCTION
 warning: unknown enum constant AnnotationRetention\.RUNTIME
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
-# > Task :fragment:fragment-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :leanback:leanback-paging:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/leanback\-paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
 # > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/leanback/leanback\-tab/src/androidTest/java/androidx/leanback/tab/app/PagerAdapter\.java uses or overrides a deprecated API\.
-# > Task :lifecycle:lifecycle-runtime-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-runtime\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-viewmodel-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-viewmodel\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-livedata-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-livedata\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :media2:media2-common:processDebugAndroidTestManifest
 # > Task :media2:media2-player:processDebugAndroidTestManifest
 # > Task :media2:media2-session:processDebugAndroidTestManifest
@@ -780,64 +690,33 @@ More than one file was found with OS independent path 'META\-INF/lifecycle\-live
 Note: \$SUPPORT/media[0-9]+/common/src/androidTest/java/androidx/media[0-9]+/common/SubtitleDataTest\.java uses or overrides a deprecated API\.
 # > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :media2:media2-widget:processDebugAndroidTestManifest
-# > Task :loader:loader-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/loader\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
 # > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
-# > Task :navigation:navigation-common-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-common\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-dynamic-features-fragment:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-dynamic\-features\-fragment_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/mediarouter/mediarouter/src/androidTest/java/androidx/mediarouter/app/MediaRouteChooserDialogTest\.java uses or overrides a deprecated API\.
-# > Task :navigation:navigation-dynamic-features-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-dynamic\-features\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-fragment-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :palette:palette:processDebugAndroidTestManifest
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
-# > Task :paging:paging-rxjava2:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging\-rxjava[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-runtime-truth:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-runtime\-truth_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :palette:palette-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/palette\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :paging:paging-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :recyclerview:recyclerview-selection:processDebugAndroidTestManifest
 # > Task :preference:preference:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/PreferenceDataStoreTest\.java uses unchecked or unsafe operations\.
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
-# > Task :preference:preference-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/preference\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/java/androidx/recyclerview/selection/DefaultSelectionTrackerTest\.java uses or overrides a deprecated API\.
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :savedstate:savedstate-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/savedstate\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :room:room-runtime:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/room/runtime/src/androidTest/java/androidx/room/migration/TableInfoTest\.java uses unchecked or unsafe operations\.
-# > Task :room:room-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/room\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.UserWithItems> getUserWithItems\(\);
 # > Task :sharetarget:sharetarget:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :security:security-crypto-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/security\-crypto\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :appsearch:appsearch-local-backend:processDebugAndroidTestManifest
 # > Task :textclassifier:textclassifier:processDebugAndroidTestManifest
 # > Task :transition:transition:processDebugAndroidTestManifest
@@ -845,33 +724,22 @@ More than one file was found with OS independent path 'META\-INF/security\-crypt
 # > Task :tvprovider:tvprovider:processDebugAndroidTestManifest
 # > Task :wear:wear:processDebugAndroidTestManifest
 # > Task :wear:wear:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/wear_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :vectordrawable:vectordrawable:processDebugAndroidTestManifest
 # > Task :viewpager:viewpager:processDebugAndroidTestManifest
 # > Task :vectordrawable:vectordrawable-animated:processDebugAndroidTestManifest
 # > Task :vectordrawable:vectordrawable-seekable:processDebugAndroidTestManifest
 # > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
-# > Task :transition:transition-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/transition\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :wear:wear-watchface:processDebugAndroidTestManifest
 # > Task :window:window:processDebugAndroidTestManifest
 # > Task :webkit:webkit:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCompatForceDarkTest\.java uses or overrides a deprecated API\.
-# > Task :wear:wear-watchface:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/wear\-watchface_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :work:work-inspection:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-inspection_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :work:work-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:integration-tests:dry-run-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :benchmark:integration-tests:startup-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :work:work-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildDebug
 Build opengl_renderer_jni_armeabi\-v[0-9]+a
 ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
@@ -1020,8 +888,6 @@ Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/int
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-# > Task :paging:paging-compose:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging\-compose_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
 # > Task :annotation:annotation-experimental-lint:test
@@ -1080,7 +946,7 @@ kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
 [0-9]+ tests completed\, [0-9]+ failed
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark-perfetto_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
@@ -1090,6 +956,5 @@ BUILD SUCCESSFUL in [0-9]+s
 # > Task :benchmark:benchmark-macro-runtime:assemble UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
 # > Task :benchmark:benchmark-macro-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark\-macro\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :browser:browser:processDebugAndroidTestManifest
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
