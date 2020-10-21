@@ -43,6 +43,6 @@ class ActivityWithActionBar : ComponentActivity() {
     }
 
     fun setContent(composable: @Composable () -> Unit) {
-        composeHolder.setContent(Recomposer.current(), null, composable)
+        composeHolder.setContent(Recomposer.current(), composable)
     }
 }
