@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
+import java.lang.Error
 import java.lang.reflect.Field
 import kotlin.math.abs
 import kotlin.reflect.KClass
@@ -119,10 +120,17 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         }
         val related = generateSequence(javaClass) { it.superclass }.plus(javaClass.interfaces)
         related.forEach { aClass ->
-            val topClass = generateSequence(aClass) { it.enclosingClass }.last()
+            val topClass = generateSequence(aClass) { safeEnclosingClass(it) }.last()
             loadConstantsFromEnclosedClasses(topClass)
             findPackageLevelClass(topClass)?.let { loadConstantsFromStaticFinal(it) }
         }
+    }
+
+    private fun safeEnclosingClass(klass: Class<*>): Class<*>? = try {
+        klass.enclosingClass
+    } catch (_: Error) {
+        // Exceptions seen on API 23...
+        null
     }
 
     private fun findPackageLevelClass(javaClass: Class<*>): Class<*>? = try {
@@ -185,6 +193,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 .toMap(valueLookup)
         } catch (_: ReflectiveOperationException) {
             // ignore reflection errors
+        } catch (_: NoClassDefFoundError) {
+            // ignore missing classes on lower level SDKs
         }
     }
 
