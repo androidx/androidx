@@ -231,6 +231,140 @@ MissingBuildMethod: androidx.core.app.TaskStackBuilder:
     androidx.core.app.TaskStackBuilder does not declare a `build()` method, but builder classes are expected to
 
 
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setLightsEnabled(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isLightsEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setLightsEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setShowBadge(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isShowBadge()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setShowBadge(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setVibrationEnabled(boolean):
+    androidx.core.app.NotificationChannelCompat does not declare a `isVibrationEnabled()` method matching method androidx.core.app.NotificationChannelCompat.Builder.setVibrationEnabled(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#addExtras(android.os.Bundle):
+    androidx.core.app.NotificationCompat.Action does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Action.Builder.addExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setAllowGeneratedReplies(boolean):
+    androidx.core.app.NotificationCompat.Action does not declare a `isAllowGeneratedReplies()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setAllowGeneratedReplies(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Action.Builder#setShowsUserInterface(boolean):
+    androidx.core.app.NotificationCompat.Action does not declare a `isShowsUserInterface()` method matching method androidx.core.app.NotificationCompat.Action.Builder.setShowsUserInterface(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.BubbleMetadata.Builder#setAutoExpandBubble(boolean):
+    androidx.core.app.NotificationCompat.BubbleMetadata does not declare a `isAutoExpandBubble()` method matching method androidx.core.app.NotificationCompat.BubbleMetadata.Builder.setAutoExpandBubble(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.BubbleMetadata.Builder#setSuppressNotification(boolean):
+    androidx.core.app.NotificationCompat.BubbleMetadata does not declare a `isSuppressNotification()` method matching method androidx.core.app.NotificationCompat.BubbleMetadata.Builder.setSuppressNotification(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(androidx.core.app.NotificationCompat.Action):
+    android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(androidx.core.app.NotificationCompat.Action)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addAction(int, CharSequence, android.app.PendingIntent):
+    android.app.Notification does not declare a `getActions()` method matching method androidx.core.app.NotificationCompat.Builder.addAction(int,CharSequence,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addExtras(android.os.Bundle):
+    android.app.Notification does not declare a `getExtrass()` method matching method androidx.core.app.NotificationCompat.Builder.addExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(androidx.core.app.NotificationCompat.Action):
+    android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(androidx.core.app.NotificationCompat.Action)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent):
+    android.app.Notification does not declare a `getInvisibleActions()` method matching method androidx.core.app.NotificationCompat.Builder.addInvisibleAction(int,CharSequence,android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#addPerson(androidx.core.app.Person):
+    android.app.Notification does not declare a `getPersons()` method matching method androidx.core.app.NotificationCompat.Builder.addPerson(androidx.core.app.Person)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setAllowSystemGeneratedContextualActions(boolean):
+    android.app.Notification does not declare a `isAllowSystemGeneratedContextualActions()` method matching method androidx.core.app.NotificationCompat.Builder.setAllowSystemGeneratedContextualActions(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setAutoCancel(boolean):
+    android.app.Notification does not declare a `isAutoCancel()` method matching method androidx.core.app.NotificationCompat.Builder.setAutoCancel(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCategory(String):
+    android.app.Notification does not declare a `getCategory()` method matching method androidx.core.app.NotificationCompat.Builder.setCategory(String)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setChronometerCountDown(boolean):
+    android.app.Notification does not declare a `isChronometerCountDown()` method matching method androidx.core.app.NotificationCompat.Builder.setChronometerCountDown(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setColor(int):
+    android.app.Notification does not declare a `getColor()` method matching method androidx.core.app.NotificationCompat.Builder.setColor(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setColorized(boolean):
+    android.app.Notification does not declare a `isColorized()` method matching method androidx.core.app.NotificationCompat.Builder.setColorized(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContent(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getContent()` method matching method androidx.core.app.NotificationCompat.Builder.setContent(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentInfo(CharSequence):
+    android.app.Notification does not declare a `getContentInfo()` method matching method androidx.core.app.NotificationCompat.Builder.setContentInfo(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentIntent(android.app.PendingIntent):
+    android.app.Notification does not declare a `getContentIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setContentIntent(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentText(CharSequence):
+    android.app.Notification does not declare a `getContentText()` method matching method androidx.core.app.NotificationCompat.Builder.setContentText(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setContentTitle(CharSequence):
+    android.app.Notification does not declare a `getContentTitle()` method matching method androidx.core.app.NotificationCompat.Builder.setContentTitle(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomBigContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomBigContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomBigContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setCustomHeadsUpContentView(android.widget.RemoteViews):
+    android.app.Notification does not declare a `getCustomHeadsUpContentView()` method matching method androidx.core.app.NotificationCompat.Builder.setCustomHeadsUpContentView(android.widget.RemoteViews)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setDefaults(int):
+    android.app.Notification does not declare a `getDefaults()` method matching method androidx.core.app.NotificationCompat.Builder.setDefaults(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setDeleteIntent(android.app.PendingIntent):
+    android.app.Notification does not declare a `getDeleteIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setDeleteIntent(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setExtras(android.os.Bundle):
+    android.app.Notification does not declare a `getExtras()` method matching method androidx.core.app.NotificationCompat.Builder.setExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setFullScreenIntent(android.app.PendingIntent, boolean):
+    android.app.Notification does not declare a `getFullScreenIntent()` method matching method androidx.core.app.NotificationCompat.Builder.setFullScreenIntent(android.app.PendingIntent,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setGroupSummary(boolean):
+    android.app.Notification does not declare a `isGroupSummary()` method matching method androidx.core.app.NotificationCompat.Builder.setGroupSummary(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setLights(int, int, int):
+    android.app.Notification does not declare a `getLights()` method matching method androidx.core.app.NotificationCompat.Builder.setLights(int,int,int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setLocalOnly(boolean):
+    android.app.Notification does not declare a `isLocalOnly()` method matching method androidx.core.app.NotificationCompat.Builder.setLocalOnly(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setNumber(int):
+    android.app.Notification does not declare a `getNumber()` method matching method androidx.core.app.NotificationCompat.Builder.setNumber(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setOngoing(boolean):
+    android.app.Notification does not declare a `isOngoing()` method matching method androidx.core.app.NotificationCompat.Builder.setOngoing(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setOnlyAlertOnce(boolean):
+    android.app.Notification does not declare a `isOnlyAlertOnce()` method matching method androidx.core.app.NotificationCompat.Builder.setOnlyAlertOnce(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setPriority(int):
+    android.app.Notification does not declare a `getPriority()` method matching method androidx.core.app.NotificationCompat.Builder.setPriority(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setProgress(int, int, boolean):
+    android.app.Notification does not declare a `getProgress()` method matching method androidx.core.app.NotificationCompat.Builder.setProgress(int,int,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setPublicVersion(android.app.Notification):
+    android.app.Notification does not declare a `getPublicVersion()` method matching method androidx.core.app.NotificationCompat.Builder.setPublicVersion(android.app.Notification)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]):
+    android.app.Notification does not declare a `getRemoteInputHistory()` method matching method androidx.core.app.NotificationCompat.Builder.setRemoteInputHistory(CharSequence[])
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat):
+    android.app.Notification does not declare a `getShortcutInfo()` method matching method androidx.core.app.NotificationCompat.Builder.setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setShowWhen(boolean):
+    android.app.Notification does not declare a `isShowWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setShowWhen(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSilent(boolean):
+    android.app.Notification does not declare a `isSilent()` method matching method androidx.core.app.NotificationCompat.Builder.setSilent(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri):
+    android.app.Notification does not declare a `getSound()` method matching method androidx.core.app.NotificationCompat.Builder.setSound(android.net.Uri)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSound(android.net.Uri, int):
+    android.app.Notification does not declare a `getSound()` method matching method androidx.core.app.NotificationCompat.Builder.setSound(android.net.Uri,int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setStyle(androidx.core.app.NotificationCompat.Style):
+    android.app.Notification does not declare a `getStyle()` method matching method androidx.core.app.NotificationCompat.Builder.setStyle(androidx.core.app.NotificationCompat.Style)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setSubText(CharSequence):
+    android.app.Notification does not declare a `getSubText()` method matching method androidx.core.app.NotificationCompat.Builder.setSubText(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setTicker(CharSequence):
+    android.app.Notification does not declare a `getTicker()` method matching method androidx.core.app.NotificationCompat.Builder.setTicker(CharSequence)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setUsesChronometer(boolean):
+    android.app.Notification does not declare a `isUsesChronometer()` method matching method androidx.core.app.NotificationCompat.Builder.setUsesChronometer(boolean)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setVibrate(long[]):
+    android.app.Notification does not declare a `getVibrate()` method matching method androidx.core.app.NotificationCompat.Builder.setVibrate(long[])
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setVisibility(int):
+    android.app.Notification does not declare a `getVisibility()` method matching method androidx.core.app.NotificationCompat.Builder.setVisibility(int)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setWhen(long):
+    android.app.Notification does not declare a `getWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setWhen(long)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
+    androidx.core.app.NotificationCompat.CarExtender.UnreadConversation does not declare a `getReplyAction()` method matching method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder.setReplyAction(android.app.PendingIntent,androidx.core.app.RemoteInput)
+MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#addExtras(android.os.Bundle):
+    androidx.core.app.RemoteInput does not declare a `getExtrass()` method matching method androidx.core.app.RemoteInput.Builder.addExtras(android.os.Bundle)
+MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowDataType(String, boolean):
+    androidx.core.app.RemoteInput does not declare a `getAllowDataType()` method matching method androidx.core.app.RemoteInput.Builder.setAllowDataType(String,boolean)
+MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowFreeFormInput(boolean):
+    androidx.core.app.RemoteInput does not declare a `isAllowFreeFormInput()` method matching method androidx.core.app.RemoteInput.Builder.setAllowFreeFormInput(boolean)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setAlwaysBadged():
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getAlwaysBadged()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setAlwaysBadged()
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getIcon()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setIcon(androidx.core.graphics.drawable.IconCompat)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIsConversation():
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getIsConversation()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setIsConversation()
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setLongLived(boolean):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `isLongLived()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setLongLived(boolean)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPerson(androidx.core.app.Person):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getPerson()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setPerson(androidx.core.app.Person)
+MissingGetterMatchingBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]):
+    androidx.core.content.pm.ShortcutInfoCompat does not declare a `getPersons()` method matching method androidx.core.content.pm.ShortcutInfoCompat.Builder.setPersons(androidx.core.app.Person[])
+MissingGetterMatchingBuilder: androidx.core.text.BidiFormatter.Builder#setTextDirectionHeuristic(androidx.core.text.TextDirectionHeuristicCompat):
+    androidx.core.text.BidiFormatter does not declare a `getTextDirectionHeuristic()` method matching method androidx.core.text.BidiFormatter.Builder.setTextDirectionHeuristic(androidx.core.text.TextDirectionHeuristicCompat)
+MissingGetterMatchingBuilder: androidx.core.view.WindowInsetsCompat.Builder#setVisible(int, boolean):
+    androidx.core.view.WindowInsetsCompat does not declare a `getVisible()` method matching method androidx.core.view.WindowInsetsCompat.Builder.setVisible(int,boolean)
+
+
 MissingNullability: androidx.core.app.ActivityCompat#invalidateOptionsMenu(android.app.Activity) parameter #0:
     Missing nullability on parameter `activity` in method `invalidateOptionsMenu`
 MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent) parameter #0:

@@ -17,6 +17,24 @@ IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
     Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
 
 
+MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect():
+    androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect()
+MissingGetterMatchingBuilder: androidx.webkit.ProxyConfig.Builder#addDirect(String):
+    androidx.webkit.ProxyConfig does not declare a `getDirects()` method matching method androidx.webkit.ProxyConfig.Builder.addDirect(String)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(int...):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(int...)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.lang.String...):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.lang.String...)
+MissingGetterMatchingBuilder: androidx.webkit.TracingConfig.Builder#addCategories(java.util.Collection<java.lang.String>):
+    androidx.webkit.TracingConfig does not declare a `getCategoriess()` method matching method androidx.webkit.TracingConfig.Builder.addCategories(java.util.Collection<java.lang.String>)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#addPathHandler(String, androidx.webkit.WebViewAssetLoader.PathHandler):
+    androidx.webkit.WebViewAssetLoader does not declare a `getPathHandlers()` method matching method androidx.webkit.WebViewAssetLoader.Builder.addPathHandler(String,androidx.webkit.WebViewAssetLoader.PathHandler)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setDomain(String):
+    androidx.webkit.WebViewAssetLoader does not declare a `getDomain()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setDomain(String)
+MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setHttpAllowed(boolean):
+    androidx.webkit.WebViewAssetLoader does not declare a `isHttpAllowed()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setHttpAllowed(boolean)
+
+
 StaticFinalBuilder: androidx.webkit.TracingConfig.Builder:
     Builder must be final: androidx.webkit.TracingConfig.Builder
 

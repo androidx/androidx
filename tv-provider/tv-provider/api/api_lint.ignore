@@ -91,6 +91,20 @@ IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLU
     Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
 
 
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(String):
+    androidx.tvprovider.media.tv.Channel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Channel.Builder.setInternalProviderData(String)
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Channel.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.Channel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Channel.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.PreviewChannel.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.PreviewChannel does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.PreviewChannel.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.PreviewProgram.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.PreviewProgram does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.PreviewProgram.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.Program.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.Program does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.Program.Builder.setInternalProviderData(byte[])
+MissingGetterMatchingBuilder: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setInternalProviderData(byte[]):
+    androidx.tvprovider.media.tv.WatchNextProgram does not declare a `getInternalProviderData()` method matching method androidx.tvprovider.media.tv.WatchNextProgram.Builder.setInternalProviderData(byte[])
+
+
 MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor):
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.Channel#fromCursor(android.database.Cursor) parameter #0:

@@ -29,3 +29,9 @@ BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromUri(android.
 
 KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+MissingGetterMatchingBuilder: androidx.navigation.NavArgument.Builder#setIsNullable(boolean):
+    androidx.navigation.NavArgument does not declare a `isIsNullable()` method matching method androidx.navigation.NavArgument.Builder.setIsNullable(boolean)
+MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSingleTop(boolean):
+    androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
