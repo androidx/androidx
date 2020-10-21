@@ -36,8 +36,8 @@ public inline fun NavController.createGraph(
  * Creates and returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever
  * it changes. If there is no active [NavBackStackEntry], no item will be emitted.
  */
-@Suppress("EXPERIMENTAL_API_USAGE")
-public fun NavController.getBackStackEntryFlow(): Flow<NavBackStackEntry> = callbackFlow {
+@ExperimentalCoroutinesApi
+public val NavController.backStackEntryFlow: Flow<NavBackStackEntry> get() = callbackFlow {
     val listener = NavController.OnDestinationChangedListener { controller, _, _ ->
         controller.currentBackStackEntry?.let(::sendBlocking)
     }
