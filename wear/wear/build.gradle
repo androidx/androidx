@@ -17,6 +17,7 @@ dependencies {
     api("androidx.core:core:1.3.0")
     api(KOTLIN_STDLIB)
 
+    androidTestImplementation project(":test-screenshot")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -35,6 +36,7 @@ android {
 
     sourceSets {
         main.res.srcDirs += 'src/main/res-public'
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
     }
 }
 
