@@ -161,6 +161,10 @@ public open class CanvasComplicationDrawable(
         ComplicationOutlineRenderer.drawComplicationSelectOutline(canvas, bounds)
     }
 
+    /**
+     * Whether or not the complication should be drawn highlighted. Used to provide visual
+     * feedback when the complication is tapped.
+     */
     override var isHighlighted: Boolean
         @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
         @JvmName("isHighlighted")
@@ -174,6 +178,9 @@ public open class CanvasComplicationDrawable(
             drawable.isHighlighted = value
         }
 
+    /**
+     * The [ComplicationData] to use when rendering the complication.
+     */
     override var data: ComplicationData? = null
         @UiThread
         set(value) {
@@ -221,7 +228,7 @@ public class Complication internal constructor(
          */
         private val supportedTypes: IntArray,
 
-        /** Default complication provider. */
+        /** The [DefaultComplicationProviderPolicy] to use. */
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy
     ) {
         @ComplicationBoundsType
