@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
+import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
@@ -35,19 +36,25 @@ public abstract class Renderer(
     /** The associated [WatchState]. */
     internal val watchState: WatchState
 ) {
+    /** The [SurfaceHolder] this Renderer renders into. */
     protected var surfaceHolder: SurfaceHolder = _surfaceHolder
         private set
 
+    /** The bounds of the [SurfaceHolder] this Renderer renders into. */
     public var screenBounds: Rect = surfaceHolder.surfaceFrame
         private set
 
+    /** The center x coordinate of the [SurfaceHolder] this Renderer renders into. */
+    @Px
     public var centerX: Float = screenBounds.exactCenterX()
         private set
 
+    /** The center y coordinate of the [SurfaceHolder] this Renderer renders into. */
+    @Px
     public var centerY: Float = screenBounds.exactCenterY()
         private set
 
-    /** The current DrawMode. Updated before every onDraw call. */
+    /** The current [RenderParameters]. Updated before every onDraw call. */
     public var renderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
         /** @hide */
         internal set(value) {
