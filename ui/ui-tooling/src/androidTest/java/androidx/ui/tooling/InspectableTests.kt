@@ -377,7 +377,7 @@ class InspectableTests : ToolingTest() {
         assertTrue(tables!!.size > 1)
 
         val calls = tables.flatMap { table ->
-            if (table.size > 0) table.asTree().asList() else emptyList()
+            if (!table.isEmpty) table.asTree().asList() else emptyList()
         }.filter {
             val location = it.location
             location != null && location.sourceFile == "InspectableTests.kt"
@@ -435,6 +435,7 @@ internal fun Group.asList(): List<Group> {
 internal fun SlotTableRecord.findGroupForFile(fileName: String) =
     store.map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
 
+@OptIn(InternalComposeApi::class)
 fun SlotTable.findGroupForFile(fileName: String) = asTree().findGroupForFile(fileName)
 fun Group.findGroupForFile(fileName: String): Group? {
     val position = position
