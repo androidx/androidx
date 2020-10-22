@@ -15,16 +15,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <style name="CheckedSliceRowStyle">
-        <item name="titleColor">@color/checkedItemTitleColor</item>
-        <item name="subtitleColor">@color/checkedItemSubtitleColor</item>
-        <item name="tintColor">@color/checkedItemTintColor</item>
-    </style>
+<androidx.slice.widget.SliceView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/sliceTestSliceView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:hideHeaderRow="true">
+</androidx.slice.widget.SliceView>
 
-    <style name="TestSliceRowStyle">
-      <item name="titleColor">@color/defaultItemTitleColor</item>
-      <item name="subtitleColor">@color/defaultItemSubtitleColor</item>
-      <item name="tintColor">@color/defaultItemTintColor</item>
-    </style>
-</resources>

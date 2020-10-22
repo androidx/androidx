@@ -436,12 +436,14 @@ public class SliceStyle {
         if (list.getRowItems() == null || list.getRowItems().size() == 0) {
             return new DisplayedListItems(visibleItems, hiddenItemCount);
         }
-        final int minItemCountForSeeMore = list.getRowItems() != null ? 2 : 1;
+
+        final boolean skipFirstItem = shouldSkipFirstListItem(list.getRowItems());
+
         int visibleHeight = 0;
         final int rowCount = list.getRowItems().size();
         for (int i = 0; i < rowCount; i++) {
             SliceContent listItem = list.getRowItems().get(i);
-            if (i == 0 && shouldSkipFirstListItem(list.getRowItems())) {
+            if (i == 0 && skipFirstItem) {
                 continue;
             }
             int itemHeight = listItem.getHeight(this, policy);
@@ -455,7 +457,8 @@ public class SliceStyle {
         }
 
 
-        // Only add see more if we're at least showing one item and it's not the header
+        // Only add see more if we're at least showing one item and it's not the header.
+        final int minItemCountForSeeMore = skipFirstItem ? 1 : 2;
         if (list.getSeeMoreItem() != null && visibleItems.size() >= minItemCountForSeeMore
                 && hiddenItemCount > 0) {
             // Need to show see more
