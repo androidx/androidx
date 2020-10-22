@@ -260,7 +260,7 @@ class LayoutInspectorTree {
         node.left = box.left
         node.height = box.bottom - box.top
         node.width = box.right - box.left
-        if (node.height <= 0 || node.width <= 0) {
+        if (node.height <= 0 && node.width <= 0) {
             return markUnwanted(node)
         }
         addParameters(group.parameters, node)
