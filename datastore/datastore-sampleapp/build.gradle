@@ -43,7 +43,7 @@ dependencies {
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation('androidx.navigation:navigation-fragment-ktx:2.3.0')
-    implementation project(":annotation:annotation-sampled")
+    compileOnly project(":annotation:annotation-sampled")
 }
 
 protobuf {
