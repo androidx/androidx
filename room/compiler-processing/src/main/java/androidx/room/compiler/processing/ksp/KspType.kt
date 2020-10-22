@@ -118,7 +118,17 @@ internal abstract class KspType(
 
     override fun isTypeOf(other: KClass<*>): Boolean {
         // closest to what MoreTypes#isTypeOf does.
-        return rawType.typeName.toString() == other.qualifiedName
+        // TODO once we move TypeNames to java realm, we will be able to check just using that
+        //  (+ boxing). Fow now, this code stays flexible and checks for all variations as
+        //  only primitives use java types now.
+        val rawTypeName = rawType.typeName
+        // other might be something like Kotlin.Int which would map to primitive int (when
+        // invoked with .java) hence we need to check the qualified name for both.
+        // similar case for lists.
+        val javaQName = other.java.canonicalName
+        val kotlinQName = other.qualifiedName
+        val myQName = rawTypeName.toString()
+        return myQName == javaQName || myQName == kotlinQName
     }
 
     override fun isSameType(other: XType): Boolean {

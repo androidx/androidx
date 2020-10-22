@@ -119,3 +119,7 @@ internal fun KSTypeArgument.requireType(): KSType {
         "KSTypeArgument.type should not have been null, please file a bug. $this"
     }
 }
+
+internal fun KSTypeReference.isTypeParameterReference(): Boolean {
+    return this.resolve().declaration is KSTypeParameter
+}

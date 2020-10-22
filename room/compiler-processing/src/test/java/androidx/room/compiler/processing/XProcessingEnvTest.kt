@@ -139,13 +139,16 @@ class XProcessingEnvTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(source)
         ) { invocation ->
             PRIMITIVE_TYPES.forEach {
                 val targetType = invocation.processingEnv.findType(it.key)
                 assertThat(targetType?.typeName).isEqualTo(it.value)
-                assertThat(targetType?.boxed()?.typeName).isEqualTo(it.value.box())
+                if (!invocation.isKsp) {
+                    // TODO re-enable once we move typenames to the java realm
+                    assertThat(targetType?.boxed()?.typeName).isEqualTo(it.value.box())
+                }
             }
         }
     }

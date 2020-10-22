@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -202,7 +203,7 @@ class XExecutableElementTest {
                     invocation.types.string
                 )
                 assertThat(method.parameters[1].type.typeName).isEqualTo(
-                    invocation.types.int
+                    TypeName.INT
                 )
                 assertThat(method.isSuspendFunction()).isTrue()
                 assertThat(method.returnType.typeName).isEqualTo(invocation.types.objectOrAny)

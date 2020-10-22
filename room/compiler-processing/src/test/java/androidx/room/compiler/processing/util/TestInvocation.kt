@@ -42,8 +42,6 @@ class TestInvocation(
                 voidOrUnit = KotlinTypeNames.UNIT_CLASS_NAME,
                 objectOrAny = KotlinTypeNames.ANY_CLASS_NAME,
                 boxedInt = KotlinTypeNames.INT_CLASS_NAME,
-                int = KotlinTypeNames.INT_CLASS_NAME,
-                long = KotlinTypeNames.LONG_CLASS_NAME,
                 list = KotlinTypeNames.LIST_CLASS_NAME,
                 mutableSet = KotlinTypeNames.MUTABLESET_CLASS_NAME
             )
@@ -53,8 +51,6 @@ class TestInvocation(
                 voidOrUnit = TypeName.VOID,
                 objectOrAny = TypeName.OBJECT,
                 boxedInt = TypeName.INT.box(),
-                int = TypeName.INT,
-                long = TypeName.LONG,
                 list = ClassName.get("java.util", "List"),
                 mutableSet = ClassName.get("java.util", "Set")
             )
@@ -70,8 +66,8 @@ class TestInvocation(
         val voidOrUnit: TypeName,
         val objectOrAny: ClassName,
         val boxedInt: TypeName,
-        val int: TypeName,
-        val long: TypeName,
+        val int: TypeName = TypeName.INT,
+        val long: TypeName = TypeName.LONG,
         val list: ClassName,
         val mutableSet: TypeName
     )

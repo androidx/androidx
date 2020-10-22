@@ -27,7 +27,7 @@ import com.squareup.javapoet.WildcardTypeName
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSTypeReference
+import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -88,14 +88,14 @@ class KspTypeTest {
             listOf(src),
             succeed = false
         ) { invocation ->
-            invocation.requirePropertyType("errorType").let { type ->
+            invocation.requireDeclaredPropertyType("errorType").let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
                 assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
                 assertThat(type.asTypeElement().className).isEqualTo(ERROR_TYPE_NAME)
             }
 
-            invocation.requirePropertyType("listOfErrorType").let { type ->
+            invocation.requireDeclaredPropertyType("listOfErrorType").let { type ->
                 assertThat(type.isError()).isFalse()
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
@@ -120,7 +120,7 @@ class KspTypeTest {
             listOf(src),
             succeed = true
         ) { invocation ->
-            invocation.requirePropertyType("listOfNullableStrings").let { type ->
+            invocation.requireDeclaredPropertyType("listOfNullableStrings").let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
                 assertThat(type.asTypeElement().className).isEqualTo(
@@ -136,7 +136,7 @@ class KspTypeTest {
                 }
             }
 
-            invocation.requirePropertyType("listOfInts").let { type ->
+            invocation.requireDeclaredPropertyType("listOfInts").let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
@@ -172,13 +172,17 @@ class KspTypeTest {
             listOf(src),
             succeed = true
         ) { invocation ->
-            val nullableStringList = invocation.requirePropertyType("listOfNullableStrings")
-            val nonNullStringList = invocation.requirePropertyType("listOfNonNullStrings")
+            val nullableStringList = invocation
+                .requireDeclaredPropertyType("listOfNullableStrings")
+            val nonNullStringList = invocation
+                .requireDeclaredPropertyType("listOfNonNullStrings")
             assertThat(nullableStringList).isNotEqualTo(nonNullStringList)
             assertThat(nonNullStringList).isNotEqualTo(nullableStringList)
 
-            val nullableStringList_2 = invocation.requirePropertyType("listOfNullableStrings_2")
-            val nonNullStringList_2 = invocation.requirePropertyType("listOfNonNullStrings_2")
+            val nullableStringList_2 = invocation
+                .requireDeclaredPropertyType("listOfNullableStrings_2")
+            val nonNullStringList_2 = invocation
+                .requireDeclaredPropertyType("listOfNonNullStrings_2")
             assertThat(nullableStringList).isEqualTo(nullableStringList_2)
             assertThat(nonNullStringList).isEqualTo(nonNullStringList_2)
 
@@ -216,21 +220,21 @@ class KspTypeTest {
             succeed = true
         ) { invocation ->
             invocation.requirePropertyType("simple").let {
-                assertThat(it.rawType.typeName).isEqualTo(ClassName.get("kotlin", "Int"))
+                assertThat(it.rawType.typeName).isEqualTo(TypeName.INT)
             }
-            invocation.requirePropertyType("list").let { list ->
+            invocation.requireDeclaredPropertyType("list").let { list ->
                 assertThat(list.rawType).isNotEqualTo(list)
                 assertThat(list.typeArguments).isNotEmpty()
                 assertThat(list.rawType.typeName)
                     .isEqualTo(ClassName.get("kotlin.collections", "List"))
             }
-            invocation.requirePropertyType("map").let { map ->
+            invocation.requireDeclaredPropertyType("map").let { map ->
                 assertThat(map.rawType).isNotEqualTo(map)
                 assertThat(map.typeArguments).hasSize(2)
                 assertThat(map.rawType.typeName)
                     .isEqualTo(ClassName.get("kotlin.collections", "Map"))
             }
-            invocation.requirePropertyType("listOfMaps").let { listOfMaps ->
+            invocation.requireDeclaredPropertyType("listOfMaps").let { listOfMaps ->
                 assertThat(listOfMaps.rawType).isNotEqualTo(listOfMaps)
                 assertThat(listOfMaps.typeArguments).hasSize(1)
             }
@@ -450,7 +454,7 @@ class KspTypeTest {
                     .single()
                     .type
                     .let {
-                        invocation.wrap(typeRef = it!!)
+                        invocation.processingEnv.wrapDeclared(it!!.resolve())
                     }
             }
             assertThat(typeArgs["Bar"]!!.typeName)
@@ -486,7 +490,9 @@ class KspTypeTest {
                 ?.first {
                     it.simpleName.asString() == "wildcardMethod"
                 } ?: throw AssertionError("cannot find test method")
-            val paramType = invocation.wrap(method.parameters.first().type!!)
+            val paramType = invocation.processingEnv.wrapDeclared(
+                method.parameters.first().type!!.resolve()
+            )
             val arg1 = paramType.typeArguments.single()
             assertThat(arg1.typeName)
                 .isEqualTo(
@@ -498,17 +504,22 @@ class KspTypeTest {
         }
     }
 
-    private fun TestInvocation.requirePropertyType(name: String): KspDeclaredType {
-        (processingEnv as KspProcessingEnv).resolver.getAllFiles().forEach { file ->
-            val prop = file.declarations.first {
-                it.simpleName.asString() == name
-            } as KSPropertyDeclaration
-            return wrap(prop.type)
-        }
-        throw IllegalStateException("cannot find any property with name $name")
+    private fun TestInvocation.requirePropertyType(name: String): KspType {
+        val prop = requireProperty(name)
+        return (processingEnv as KspProcessingEnv).wrap(prop.type)
     }
 
-    private fun TestInvocation.wrap(typeRef: KSTypeReference): KspDeclaredType {
-        return (processingEnv as KspProcessingEnv).wrap(typeRef)
+    private fun TestInvocation.requireDeclaredPropertyType(name: String): KspDeclaredType {
+        val prop = requireProperty(name)
+        return (processingEnv as KspProcessingEnv).wrapDeclared(prop.type.resolve())
+    }
+
+    private fun TestInvocation.requireProperty(name: String): KSPropertyDeclaration {
+        kspResolver.getAllFiles().forEach { file ->
+            return file.declarations.first {
+                it.simpleName.asString() == name
+            } as KSPropertyDeclaration
+        }
+        throw IllegalStateException("cannot find any property with name $name")
     }
 }

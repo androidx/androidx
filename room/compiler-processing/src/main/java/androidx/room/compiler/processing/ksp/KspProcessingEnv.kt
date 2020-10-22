@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -32,6 +33,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Nullability
 import com.google.devtools.ksp.symbol.Variance
 
 internal class KspProcessingEnv(
@@ -44,7 +46,7 @@ internal class KspProcessingEnv(
     private val typeElementStore =
         XTypeElementStore { qName ->
             resolver.getClassDeclarationByName(
-                resolver.getKSNameFromString(qName)
+                KspTypeMapper.swapWithKotlinType(qName)
             )?.let {
                 KspTypeElement(
                     env = this,
@@ -64,8 +66,12 @@ internal class KspProcessingEnv(
     }
 
     override fun findType(qName: String): XType? {
-        return resolver.findClass(qName)?.let {
-            wrap(it.asStarProjectedType())
+        val kotlinTypeName = KspTypeMapper.swapWithKotlinType(qName)
+        return resolver.findClass(kotlinTypeName)?.let {
+            wrap(
+                allowPrimitives = KspTypeMapper.isJavaPrimitiveType(qName),
+                ksType = it.asStarProjectedType()
+            )
         }
     }
 
@@ -90,7 +96,7 @@ internal class KspProcessingEnv(
                 variance = Variance.INVARIANT
             )
         }
-        return wrap(
+        return wrapDeclared(
             type.declaration.asType(typeArguments)
         )
     }
@@ -112,20 +118,43 @@ internal class KspProcessingEnv(
         )
     }
 
-    fun wrap(ksType: KSType): KspDeclaredType {
-        return if (ksType.declaration.qualifiedName?.asString() == KOTLIN_ARRAY_Q_NAME) {
-            KspArrayType(
-                env = this,
-                ksType = ksType
-            )
-        } else {
-            KspDeclaredType(this, ksType)
-        }
+    /**
+     * Wraps the given `ksType` as a [KspDeclaredType].
+     * For the edge cases where `ksType` potentially represents a java primitive, it is always
+     * boxed.
+     */
+    fun wrapDeclared(ksType: KSType): KspDeclaredType {
+        return wrap(
+            ksType = ksType,
+            allowPrimitives = false
+        ) as KspDeclaredType
     }
 
-    fun wrap(ksTypeReference: KSTypeReference): KspDeclaredType {
-        return wrap(ksTypeReference.resolve())
+    /**
+     * Wraps the given `ksType`.
+     *
+     * The [originatingReference] is used to calculate whether the given [ksType] can be a
+     * primitive or not.
+     */
+    fun wrap(
+        originatingReference: KSTypeReference,
+        ksType: KSType
+    ): KspType {
+        return wrap(
+            ksType = ksType,
+            allowPrimitives = !originatingReference.isTypeParameterReference()
+        )
     }
+
+    /**
+     * Wraps the given [typeReference] in to a [KspType].
+     */
+    fun wrap(
+        typeReference: KSTypeReference
+    ) = wrap(
+        originatingReference = typeReference,
+        ksType = typeReference.resolve()
+    )
 
     fun wrap(ksTypeParam: KSTypeParameter, ksTypeArgument: KSTypeArgument): KspTypeArgumentType {
         return KspTypeArgumentType(
@@ -133,6 +162,33 @@ internal class KspProcessingEnv(
             typeArg = ksTypeArgument,
             typeParam = ksTypeParam
         )
+    }
+
+    /**
+     * Wraps the given KSType into a KspType.
+     *
+     * Certain Kotlin types might be primitives in Java but such information cannot be derived
+     * just by looking at the type itself.
+     * Instead, it is passed in an argument to this function and public wrap functions make that
+     * decision.
+     */
+    private fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
+        val qName = ksType.declaration.qualifiedName?.asString()
+        if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
+            // check for primitives
+            val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
+            if (javaPrimitive != null) {
+                return KspPrimitiveType(this, ksType)
+            }
+        }
+        return if (qName == KOTLIN_ARRAY_Q_NAME) {
+            KspArrayType(
+                env = this,
+                ksType = ksType
+            )
+        } else {
+            KspDeclaredType(this, ksType)
+        }
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {

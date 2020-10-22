@@ -43,7 +43,12 @@ internal class KspExecutableParameterElement(
             resolver = env.resolver,
             functionDeclaration = method.declaration,
             ksType = method.containing.declaration.asStarProjectedType()
-        ).let(env::wrap)
+        ).let {
+            env.wrap(
+                originatingReference = parameter.type!!, // as member of doesn't allow nulls
+                ksType = it
+            )
+        }
     }
 
     override fun asMemberOf(other: XDeclaredType): XType {
@@ -55,7 +60,12 @@ internal class KspExecutableParameterElement(
             resolver = env.resolver,
             functionDeclaration = method.declaration,
             ksType = other.ksType
-        ).let(env::wrap)
+        ).let {
+            env.wrap(
+                originatingReference = parameter.type!!, // as member of doesn't allow nulls
+                ksType = it
+            )
+        }
     }
 
     override fun kindName(): String {

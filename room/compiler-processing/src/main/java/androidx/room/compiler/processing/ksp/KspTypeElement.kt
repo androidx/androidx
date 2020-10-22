@@ -26,7 +26,6 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.squareup.javapoet.ClassName
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -37,6 +36,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
+import com.squareup.javapoet.ClassName
 
 internal class KspTypeElement(
     env: KspProcessingEnv,
@@ -72,7 +72,7 @@ internal class KspTypeElement(
     }
 
     override val type: KspDeclaredType by lazy {
-        env.wrap(declaration.asStarProjectedType())
+        env.wrapDeclared(declaration.asStarProjectedType())
     }
 
     override val superType: XType? by lazy {
