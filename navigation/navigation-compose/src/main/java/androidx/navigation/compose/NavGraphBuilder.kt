@@ -25,20 +25,24 @@ import androidx.navigation.get
 /**
  * Add the [Composable] to the [NavGraphBuilder]
  *
- * @param id id for the destination
+ * @param route route for the destination
  * @param arguments list of arguments to associate with destination
  * @param deepLinks list of deep links to associate with the destinations
  * @param content composable for the destination
  */
 public fun NavGraphBuilder.composable(
-    id: Any,
+    route: String,
     arguments: List<NamedNavArgument> = listOf(),
     deepLinks: List<NavDeepLink> = listOf(),
     content: @Composable (NavBackStackEntry) -> Unit
 ) {
     addDestination(
         ComposeNavigator.Destination(provider[ComposeNavigator::class], content).apply {
-            setId(generateId(id))
+            val internalRoute = createRoute(route)
+            addDeepLink(internalRoute)
+            val argument = navArgument(KEY_ROUTE) { defaultValue = route }
+            addArgument(argument.component1(), argument.component2())
+            id = internalRoute.hashCode()
             arguments.forEach { (argumentName, argument) ->
                 addArgument(argumentName, argument)
             }
