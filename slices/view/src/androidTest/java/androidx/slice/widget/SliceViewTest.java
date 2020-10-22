@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -614,6 +615,85 @@ public class SliceViewTest {
                 .itemView.findViewById(android.R.id.summary);
         assertEquals("Unchecked Subtitle", uncheckedSubtitleView.getText());
         assertEquals(themeSubtitleColor, uncheckedSubtitleView.getCurrentTextColor());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testHeaderRowHidden_onlyTwoRowsFit_showsSeeMoreRow() {
+        // Create a slice with 3 content rows.
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice s = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .addRow(new ListBuilder.RowBuilder()
+                        .setTitle("Header")
+                        .setPrimaryAction(getAction("Action")))
+                .addRow(new ListBuilder.RowBuilder().setTitle("0"))
+                .addRow(new ListBuilder.RowBuilder().setTitle("1"))
+                .addRow(new ListBuilder.RowBuilder().setTitle("2"))
+                .setSeeMoreRow(new ListBuilder.RowBuilder().setTitle("See more"))
+                .build();
+
+        // This slice view has hideHeaderRow set to true.
+        View inflatedView = LayoutInflater.from(mContext).inflate(
+                R.layout.hide_header_row_slice_view, /* root= */ null);
+        SliceView sliceView = inflatedView.findViewById(R.id.sliceTestSliceView);
+        sliceView.setScrollable(false);
+        sliceView.setSlice(s);
+
+        // Lay out the slice such that exactly 2 rows fit.
+        int rowHeightPixels = mContext.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_action_row_height);
+        sliceView.measure(
+                View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(2 * rowHeightPixels, View.MeasureSpec.EXACTLY));
+        sliceView.layout(0, 0, 2 * rowHeightPixels, 1000);
+
+        RecyclerView recyclerView = (RecyclerView) find(sliceView, RecyclerView.class);
+        assertEquals(2, recyclerView.getAdapter().getItemCount());
+        TextView view0 = recyclerView.findViewHolderForAdapterPosition(0)
+                 .itemView.findViewById(android.R.id.title);
+        TextView view1 = recyclerView.findViewHolderForAdapterPosition(1)
+                 .itemView.findViewById(android.R.id.title);
+        assertEquals("0", view0.getText());
+        assertEquals("See more", view1.getText());
+    }
+
+    @Test
+    @UiThreadTest
+    public void testHeaderRowHidden_onlyOneRowFits_showsHeaderRow() {
+        // Create a slice with 2 content rows.
+        Uri uri = Uri.parse("content://pkg/slice");
+        Slice s = new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .addRow(new ListBuilder.RowBuilder()
+                        .setTitle("Header")
+                        .setPrimaryAction(getAction("Action")))
+                .addRow(new ListBuilder.RowBuilder().setTitle("0"))
+                .addRow(new ListBuilder.RowBuilder().setTitle("1"))
+                .setSeeMoreRow(new ListBuilder.RowBuilder().setTitle("See more"))
+                .build();
+
+        // This slice view has hideHeaderRow set to true.
+        View inflatedView = LayoutInflater.from(mContext).inflate(
+                R.layout.hide_header_row_slice_view, /* root= */ null);
+        SliceView sliceView = inflatedView.findViewById(R.id.sliceTestSliceView);
+        sliceView.setScrollable(false);
+        sliceView.setSlice(s);
+
+        // Lay out the slice such that exactly 1 row fits.
+        int rowHeightPixels = mContext.getResources().getDimensionPixelSize(
+                R.dimen.abc_slice_action_row_height);
+        sliceView.measure(
+                View.MeasureSpec.makeMeasureSpec(500, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(rowHeightPixels, View.MeasureSpec.EXACTLY));
+        sliceView.layout(0, 0, rowHeightPixels, 1000);
+
+        // It doesn't make sense to display only "See more". It also doesn't make sense
+        // to only show a single content row without "See more. Hence, we show the
+        // header row.
+        RecyclerView recyclerView = (RecyclerView) find(sliceView, RecyclerView.class);
+        assertEquals(1, recyclerView.getAdapter().getItemCount());
+        TextView view0 = recyclerView.findViewHolderForAdapterPosition(0)
+                 .itemView.findViewById(android.R.id.title);
+        assertEquals("Header", view0.getText());
     }
 
     private int getThemeColor(int colorRes) {
