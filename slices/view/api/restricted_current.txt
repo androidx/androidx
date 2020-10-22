@@ -161,7 +161,7 @@ package androidx.slice.widget {
     method public int getLayoutDir();
     method public static int getListHeight(java.util.List<androidx.slice.widget.SliceContent!>!, androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
     method public int getRowIndex();
-    method public java.util.List<androidx.slice.widget.SliceContent!>! getRowItems(int, androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
+    method public androidx.slice.widget.DisplayedListItems! getRowItems(int, androidx.slice.widget.SliceStyle!, androidx.slice.widget.SliceViewPolicy!);
     method public java.util.ArrayList<androidx.slice.widget.SliceContent!> getRowItems();
     method public static int getRowType(androidx.slice.widget.SliceContent!, boolean, java.util.List<androidx.slice.core.SliceAction!>!);
     method public androidx.slice.widget.SliceContent! getSeeMoreItem();
@@ -241,6 +241,7 @@ package androidx.slice.widget {
     ctor public SliceView(android.content.Context!, android.util.AttributeSet?);
     ctor public SliceView(android.content.Context!, android.util.AttributeSet?, int);
     ctor @RequiresApi(21) public SliceView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public int getHiddenItemCount();
     method public int getMode();
     method public androidx.slice.Slice? getSlice();
     method public java.util.List<androidx.slice.core.SliceAction!>? getSliceActions();

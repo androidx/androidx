@@ -141,14 +141,17 @@ public class ListContent extends SliceContent {
      *
      * @return the row items that should be shown based on the provided configuration.
      */
-    public List<SliceContent> getRowItems(int availableHeight, SliceStyle style,
+    public DisplayedListItems getRowItems(int availableHeight, SliceStyle style,
             SliceViewPolicy policy) {
         if (policy.getMode() == MODE_SMALL) {
-            return new ArrayList<>(Arrays.asList(getHeader()));
+            return new DisplayedListItems(
+                new ArrayList<>(Arrays.asList(getHeader())),
+                /* hiddenItemCount= */ mRowItems.size() - 1);
         } else if (!policy.isScrollable() && availableHeight > 0) {
             return style.getListItemsForNonScrollingList(this, availableHeight, policy);
         }
-        return style.getListItemsToDisplay(this);
+        return new DisplayedListItems(
+            style.getListItemsToDisplay(this), /* hiddenItemCount= */ 0);
     }
 
     /**

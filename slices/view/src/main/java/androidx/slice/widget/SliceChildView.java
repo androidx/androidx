@@ -182,4 +182,8 @@ public abstract class SliceChildView extends FrameLayout {
     public void setPolicy(@Nullable SliceViewPolicy policy) {
         mViewPolicy = policy;
     }
+
+    public int getHiddenItemCount() {
+        return 0;
+    }
 }
