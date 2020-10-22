@@ -24,13 +24,11 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.KEY_ROUTE
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
@@ -41,7 +39,6 @@ import androidx.navigation.compose.samples.Scrollable
 fun BottomBarNavDemo() {
     val navController = rememberNavController()
 
-    var selectedItem by remember { mutableStateOf(0) }
     val items = listOf(
         stringResource(R.string.profile) to "profile",
         stringResource(R.string.dashboard) to "dashboard",
@@ -51,15 +48,14 @@ fun BottomBarNavDemo() {
     Scaffold(
         bottomBar = {
             BottomNavigation {
-                items.forEachIndexed { index, item ->
+                val navBackStackEntry = navController.currentBackStackEntryAsState().value
+                val route = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+                items.forEachIndexed { _, item ->
                     BottomNavigationItem(
                         icon = { Icon(Icons.Filled.Favorite) },
                         label = { Text(item.first) },
-                        selected = selectedItem == index,
-                        onClick = {
-                            navController.navigate(item.second)
-                            selectedItem = index
-                        }
+                        selected = route == item.second,
+                        onClick = { navController.navigate(item.second) }
                     )
                 }
             }
