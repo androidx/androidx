@@ -21,7 +21,7 @@ import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Get a preference Key of type T. Type T must be one of: Int, Long, Boolean, Float, String.
+ * Get a preference Key of type T. Type T must be one of: Int, Long, Boolean, Float, Double, String.
  * Use the [preferencesSetKey] function to create a preference key for Set<String>. No
  * other types are supported.
  *
@@ -46,6 +46,9 @@ public inline fun <reified T : Any> preferencesKey(name: String): Preferences.Ke
             Preferences.Key<T>(name)
         }
         Long::class -> {
+            Preferences.Key<T>(name)
+        }
+        Double::class -> {
             Preferences.Key<T>(name)
         }
         Set::class -> {

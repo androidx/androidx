@@ -138,6 +138,46 @@ class PreferencesSerializerTest {
     }
 
     @Test
+    fun testWriteAndReadFloat() {
+        val floatKey = preferencesKey<Float>("float_key")
+
+        val prefs = preferencesOf(
+            floatKey to 3.0f
+        )
+
+        testFile.outputStream().use {
+            preferencesSerializer.writeTo(prefs, it)
+        }
+
+        val readPrefs = testFile.inputStream().use {
+            preferencesSerializer.readFrom(it)
+        }
+
+        assertEquals(prefs, readPrefs)
+    }
+
+    @Test
+    fun testWriteAndReadDouble() {
+        val maxDouble = preferencesKey<Double>("max_double_key")
+        val minDouble = preferencesKey<Double>("min_double_key")
+
+        val prefs = preferencesOf(
+            maxDouble to Double.MAX_VALUE,
+            minDouble to Double.MIN_VALUE
+        )
+
+        testFile.outputStream().use {
+            preferencesSerializer.writeTo(prefs, it)
+        }
+
+        val readPrefs = testFile.inputStream().use {
+            preferencesSerializer.readFrom(it)
+        }
+
+        assertEquals(prefs, readPrefs)
+    }
+
+    @Test
     fun testThrowsCorruptionException() {
         // Not a valid proto - protos cannot start with a 0 byte.
         testFile.writeBytes(byteArrayOf(0, 1, 2, 3, 4))

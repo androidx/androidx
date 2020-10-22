@@ -70,6 +70,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         return when (value) {
             is Boolean -> Value.newBuilder().setBoolean(value).build()
             is Float -> Value.newBuilder().setFloat(value).build()
+            is Double -> Value.newBuilder().setDouble(value).build()
             is Int -> Value.newBuilder().setInteger(value).build()
             is Long -> Value.newBuilder().setLong(value).build()
             is String -> Value.newBuilder().setString(value).build()
@@ -92,6 +93,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         return when (value.valueCase) {
             Value.ValueCase.BOOLEAN -> mutablePreferences[preferencesKey(name)] = value.boolean
             Value.ValueCase.FLOAT -> mutablePreferences[preferencesKey(name)] = value.float
+            Value.ValueCase.DOUBLE -> mutablePreferences[preferencesKey(name)] = value.double
             Value.ValueCase.INTEGER -> mutablePreferences[preferencesKey(name)] = value.integer
             Value.ValueCase.LONG -> mutablePreferences[preferencesKey(name)] = value.long
             Value.ValueCase.STRING -> mutablePreferences[preferencesKey(name)] = value.string
