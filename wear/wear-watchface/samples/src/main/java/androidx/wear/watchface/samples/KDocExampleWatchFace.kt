@@ -31,7 +31,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.CanvasComplicationDrawableRenderer
+import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
@@ -104,7 +104,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 listOf(
                     Complication.Builder(
                         /*id */ 0,
-                        CanvasComplicationDrawableRenderer(
+                        CanvasComplicationDrawable(
                             ComplicationDrawable(this),
                             watchState
                         ),
@@ -121,7 +121,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         .build(),
                     Complication.Builder(
                         /*id */ 1,
-                        CanvasComplicationDrawableRenderer(
+                        CanvasComplicationDrawable(
                             ComplicationDrawable(this),
                             watchState
                         ),

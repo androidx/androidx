@@ -30,15 +30,15 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 
 /** Common interface for rendering complications onto a [Canvas]. */
-public interface CanvasComplicationRenderer {
+public interface CanvasComplication {
     /**
-     * Called when the CanvasComplicationRenderer attaches to a [Complication].
+     * Called when the CanvasComplication attaches to a [Complication].
      */
     @UiThread
     public fun onAttach(complication: Complication)
 
     /**
-     * Called when the CanvasComplicationRenderer detaches from a [Complication].
+     * Called when the CanvasComplication detaches from a [Complication].
      */
     @UiThread
     public fun onDetach()
@@ -79,12 +79,12 @@ public interface CanvasComplicationRenderer {
  * A complication rendered with [ComplicationDrawable] which renders complications in a
  * material design style. This renderer can't be shared by multiple complications.
  */
-public open class CanvasComplicationDrawableRenderer(
+public open class CanvasComplicationDrawable(
     /** The [ComplicationDrawable] to render with. */
     drawable: ComplicationDrawable,
 
     private val watchState: WatchState
-) : CanvasComplicationRenderer {
+) : CanvasComplication {
 
     init {
         drawable.callback = object :
@@ -190,7 +190,7 @@ public class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType internal val boundsType: Int,
     unitSquareBounds: RectF,
-    renderer: CanvasComplicationRenderer,
+    canvasComplication: CanvasComplication,
     supportedTypes: IntArray,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: Int
@@ -212,7 +212,7 @@ public class Complication internal constructor(
         /**
          * The renderer for this Complication. Renderers may not be sharable between complications.
          */
-        private val renderer: CanvasComplicationRenderer,
+        private val renderer: CanvasComplication,
 
         /**
          * The types of complication supported by this Complication. Passed into
@@ -287,7 +287,7 @@ public class Complication internal constructor(
     }
 
     init {
-        renderer.onAttach(this)
+        canvasComplication.onAttach(this)
     }
 
     internal interface InvalidateCallback {
@@ -345,11 +345,11 @@ public class Complication internal constructor(
             }
         }
 
-    private var _renderer = renderer
+    private var _renderer = canvasComplication
     /**
-     * The [CanvasComplicationRenderer] used to render the complication.
+     * The [CanvasComplication] used to render the complication.
      */
-    public var renderer: CanvasComplicationRenderer
+    public var renderer: CanvasComplication
         @UiThread
         get() = _renderer
         @UiThread
