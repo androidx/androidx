@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.Lifecycle
@@ -150,6 +151,50 @@ class ActivityResultRegistryTest {
         // re-register for the result that should have been saved
         registry.register(
             "test", lifecycleOwner, TakePicturePreview(),
+            ActivityResultCallback {
+                resultReturned = true
+            }
+        )
+
+        // launch the result
+        activityResult.launch(null)
+
+        // move to CREATED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        assertThat(resultReturned).isFalse()
+
+        // move to STARTED and make sure the callback fires
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isTrue()
+
+        // Reset back to CREATED
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        resultReturned = false
+
+        // Move back to STARTED and make sure the previously returned result
+        // isn't sent a second time
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isFalse()
+    }
+
+    @Test
+    fun testLifecycleOwnerCallbackWithDispatchResult() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+
+        val dispatchResultRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                dispatchResult(requestCode, true)
+            }
+        }
+
+        var resultReturned = false
+        val activityResult = dispatchResultRegistry.register(
+            "test", lifecycleOwner, TakePicture(),
             ActivityResultCallback {
                 resultReturned = true
             }
