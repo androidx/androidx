@@ -39,7 +39,7 @@ dependencies {
     implementation('androidx.core:core:1.2.0')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
-    androidTestImplementation project(':appsearch:appsearch-local-backend')
+    androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)

@@ -137,7 +137,7 @@ includeProject(":appcompat:appcompat-lint", "appcompat/appcompat-lint", [BuildTy
 includeProject(":appcompat:appcompat-resources", "appcompat/appcompat-resources", [BuildType.MAIN])
 includeProject(":appsearch:appsearch", "appsearch/appsearch", [BuildType.MAIN])
 includeProject(":appsearch:appsearch-compiler", "appsearch/compiler", [BuildType.MAIN])
-includeProject(":appsearch:appsearch-local-backend", "appsearch/local-backend", [BuildType.MAIN])
+includeProject(":appsearch:appsearch-local-storage", "appsearch/local-storage", [BuildType.MAIN])
 includeProject(":arch:core-common", "arch/core-common", [BuildType.MAIN])
 includeProject(":arch:core-runtime", "arch/core-runtime", [BuildType.MAIN])
 includeProject(":arch:core-testing", "arch/core-testing", [BuildType.MAIN])
