@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
+import androidx.build.LibraryVersions
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
@@ -26,6 +30,15 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:wear-watchface"))
     api(KOTLIN_STDLIB)
+}
+
+androidx {
+    name = "AndroidX Wear Watchface Samples"
+    type = LibraryType.SAMPLES
+    mavenGroup = LibraryGroups.WEAR
+    mavenVersion = LibraryVersions.WEAR_WATCHFACE
+    inceptionYear = "2020"
+    description = "Contains the sample code for the Androidx Wear Watchface library"
 }
 
 android {
