@@ -34,6 +34,7 @@ internal class InteractiveWatchFaceInstance(
     val sysUiApi = SysUiApi()
     val wcsApi = WCSApi()
 
+    /** The interface for SysUI. */
     inner class SysUiApi : IInteractiveWatchFaceSysUI.Stub() {
         override fun getApiVersion() = IInteractiveWatchFaceSysUI.API_VERSION
 
@@ -66,6 +67,7 @@ internal class InteractiveWatchFaceInstance(
         }
     }
 
+    /** The interface for WCS. */
     inner class WCSApi : IInteractiveWatchFaceWCS.Stub() {
         override fun getApiVersion() = IInteractiveWatchFaceWCS.API_VERSION
 

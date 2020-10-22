@@ -30,9 +30,10 @@ import java.util.ArrayList
  * If the DefaultComplicationProviderPolicy is empty then no default is set.
  */
 public class DefaultComplicationProviderPolicy {
-    /** List of up to two non-system providers to be tried in turn. This may be empty. */
+    /** First of two non-system providers to be tried in turn. Set to null if not required. */
     public val primaryProvider: ComponentName?
 
+    /** Second of two non-system providers to be tried in turn. Set to null if not required. */
     public val secondaryProvider: ComponentName?
 
     /** Fallback in case none of the non-system providers could be used. */

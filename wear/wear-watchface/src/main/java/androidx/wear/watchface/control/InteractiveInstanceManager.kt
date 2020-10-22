@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import androidx.annotation.UiThread
 
+/** Keeps track of [InteractiveWatchFaceInstance]s. */
 internal class InteractiveInstanceManager {
     private constructor()
 
