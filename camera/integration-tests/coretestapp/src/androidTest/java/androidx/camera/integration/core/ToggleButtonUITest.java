@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.core;
 
-import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -95,12 +94,13 @@ public final class ToggleButtonUITest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
 
-        // Clear the device UI before start each test.
-        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         // Launch Activity
         mActivityRule.launchActivity(mIntent);

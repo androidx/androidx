@@ -74,8 +74,10 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
-        // Clear the device's UI and ensure it's in a natural orientation
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Ensure it's in a natural orientation
         mDevice.setOrientationNatural()
 
         // Create pictures folder if it doesn't exist on the device. If this fails, abort test.

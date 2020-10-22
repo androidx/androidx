@@ -69,10 +69,12 @@ public final class PreviewViewFragmentTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     @Before
-    public void setup() {
+    public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-        CoreAppTestUtil.clearDeviceUI(mInstrumentation);
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
     }
 
     @Test

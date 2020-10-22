@@ -81,6 +81,8 @@ dependencies {
 
     // 3P library
     debugImplementation(LEAKCANARY)
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 
     // Testing framework
     androidTestImplementation(ANDROIDX_TEST_CORE)

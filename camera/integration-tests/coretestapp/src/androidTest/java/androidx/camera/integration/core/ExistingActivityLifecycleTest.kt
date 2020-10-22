@@ -69,8 +69,9 @@ class ExistingActivityLifecycleTest {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         assertThat(mLauncherPackageName).isNotNull()
-        // Clear the device UI before start each test.
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         // Use the natural orientation throughout these tests to ensure the activity isn't
         // recreated unexpectedly. This will also freeze the sensors until
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
