@@ -39,6 +39,7 @@ public open class ObservableWatchData<T : Any> protected constructor(internal va
         default
     }
 
+    /** The observable value. */
     public open var value: T
         @UiThread
         get() = _value!!
@@ -102,6 +103,10 @@ public class MutableObservableWatchData<T : Any>(initialValue: T?) :
     ObservableWatchData<T>(initialValue) {
     public constructor() : this(null)
 
+    /**
+     * Mutable observable value. Assigning a different value will trigger [Observer.onChanged]
+     * callbacks.
+     */
     override var value: T
         @UiThread
         get() = _value!!
