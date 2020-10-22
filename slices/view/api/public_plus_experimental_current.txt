@@ -146,6 +146,7 @@ package androidx.slice.widget {
     ctor public SliceView(android.content.Context!, android.util.AttributeSet?);
     ctor public SliceView(android.content.Context!, android.util.AttributeSet?, int);
     ctor @RequiresApi(21) public SliceView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public int getHiddenItemCount();
     method public int getMode();
     method public androidx.slice.Slice? getSlice();
     method public java.util.List<androidx.slice.core.SliceAction!>? getSliceActions();

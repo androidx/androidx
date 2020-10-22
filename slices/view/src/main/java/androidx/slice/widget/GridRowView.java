@@ -101,6 +101,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
     boolean mMaxCellUpdateScheduled;
 
+    private int mHiddenItemCount;
+
     public GridRowView(Context context) {
         this(context, null);
     }
@@ -251,10 +253,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         int maxCells = mMaxCells;
         boolean hasSeeMore = mGridContent.getSeeMoreItem() != null;
+        mHiddenItemCount = 0;
         for (int i = 0; i < cells.size(); i++) {
             if (mViewContainer.getChildCount() >= maxCells) {
+                mHiddenItemCount = cells.size() - maxCells;
                 if (hasSeeMore) {
-                    addSeeMoreCount(cells.size() - maxCells);
+                    addSeeMoreCount(mHiddenItemCount);
                 }
                 break;
             }
@@ -573,6 +577,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         mViewContainer.removeAllViews();
         setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         makeEntireGridClickable(false);
+    }
+
+    @Override
+    public int getHiddenItemCount() {
+        return mHiddenItemCount;
     }
 
     private ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
