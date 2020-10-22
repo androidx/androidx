@@ -20,6 +20,7 @@ import androidx.annotation.IdRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
@@ -128,6 +129,81 @@ class NavHostTest {
             assertWithMessage("Second destination should be current")
                 .that(navController.currentDestination?.id)
                 .isEqualTo(generateId("Second"))
+        }
+    }
+
+    @Test
+    fun testStateOfInactiveScreenIsRestoredWhenWeGoBackToIt() {
+        var increment = 0
+        var numberOnScreen1 = -1
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "First") {
+                composable("First") {
+                    numberOnScreen1 = rememberSavedInstanceState { increment++ }
+                }
+                composable("Second") {}
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Initial number should be 0")
+                .that(numberOnScreen1)
+                .isEqualTo(0)
+            numberOnScreen1 = -1
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("The number should be restored")
+                .that(numberOnScreen1)
+                .isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun stateForScreenRemovedFromBackStackIsNotRestored() {
+        var increment = 0
+        var numberOnScreen2 = -1
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "First") {
+                composable("First") {
+                }
+                composable("Second") {
+                    numberOnScreen2 = rememberSavedInstanceState { increment++ }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Initial number should be 0")
+                .that(numberOnScreen2)
+                .isEqualTo(0)
+            numberOnScreen2 = -1
+            navController.popBackStack()
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("The number shouldn't be restored")
+                .that(numberOnScreen2)
+                .isEqualTo(1)
         }
     }
 }
