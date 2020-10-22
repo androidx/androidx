@@ -52,10 +52,10 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int) {
 @Composable
 fun BasicNav() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "profile") {
-        composable("profile") { Profile(navController) }
-        composable("dashboard") { Dashboard(navController) }
-        composable("scrollable") { Scrollable(navController) }
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { Profile(navController) }
+        composable(Screen.Dashboard.route) { Dashboard(navController) }
+        composable(Screen.Scrollable.route) { Scrollable(navController) }
     }
 }
 

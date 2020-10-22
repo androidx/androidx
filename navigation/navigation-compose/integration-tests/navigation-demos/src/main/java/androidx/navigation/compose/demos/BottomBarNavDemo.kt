@@ -35,6 +35,7 @@ import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.samples.Dashboard
 import androidx.navigation.compose.samples.Profile
+import androidx.navigation.compose.samples.Screen
 import androidx.navigation.compose.samples.Scrollable
 
 @Composable
@@ -43,9 +44,9 @@ fun BottomBarNavDemo() {
 
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf(
-        stringResource(R.string.profile) to "profile",
-        stringResource(R.string.dashboard) to "dashboard",
-        stringResource(R.string.scrollable) to "scrollable"
+        stringResource(R.string.profile) to Screen.Profile.route,
+        stringResource(R.string.dashboard) to Screen.Dashboard.route,
+        stringResource(R.string.scrollable) to Screen.Scrollable.route
     )
 
     Scaffold(
@@ -65,10 +66,10 @@ fun BottomBarNavDemo() {
             }
         }
     ) {
-        NavHost(navController, startDestination = "profile") {
-            composable("profile") { Profile(navController) }
-            composable("dashboard") { Dashboard(navController) }
-            composable("scrollable") { Scrollable(navController) }
+        NavHost(navController, startDestination = Screen.Profile.route) {
+            composable(Screen.Profile.route) { Profile(navController) }
+            composable(Screen.Dashboard.route) { Dashboard(navController) }
+            composable(Screen.Scrollable.route) { Scrollable(navController) }
         }
     }
 }
