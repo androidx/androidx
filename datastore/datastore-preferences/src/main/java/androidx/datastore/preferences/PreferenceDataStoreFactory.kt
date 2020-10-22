@@ -51,10 +51,9 @@ public fun Context.createDataStore(
     scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ): DataStore<Preferences> =
     PreferenceDataStoreFactory.create(
-        produceFile = {
-            File(this.filesDir, "datastore/$name.preferences_pb")
-        },
         corruptionHandler = corruptionHandler,
         migrations = migrations,
         scope = scope
-    )
+    ) {
+        File(this.filesDir, "datastore/$name.preferences_pb")
+    }

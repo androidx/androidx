@@ -70,9 +70,8 @@ class SettingsFragment() : PreferenceFragmentCompat() {
 
     private val settingsStore: DataStore<Settings> by lazy {
         DataStoreFactory.create(
-            { File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME) },
-            SettingsSerializer
-        )
+            serializer = SettingsSerializer
+        ) { File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME) }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

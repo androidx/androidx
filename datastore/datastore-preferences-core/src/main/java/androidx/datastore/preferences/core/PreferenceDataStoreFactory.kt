@@ -45,27 +45,31 @@ public object PreferenceDataStoreFactory {
      * may be run more than once whether or not it already succeeded (potentially because another
      * migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
+     * @param produceFile Function which returns the file that the new DataStore will act on.
+     * The function must return the same path every time. No two instances of PreferenceDataStore
+     * should act on the same file at the same time. The file must have the extension
+     * preferences_pb.
      */
+    @JvmOverloads
     public fun create(
-        produceFile: () -> File,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+        produceFile: () -> File
     ): DataStore<Preferences> {
         val delegate = DataStoreFactory.create(
-            produceFile = {
-                val file = produceFile()
-                check(file.extension == PreferencesSerializer.fileExtension) {
-                    "File extension for file: $file does not match required extension for" +
-                        " Preferences file: ${PreferencesSerializer.fileExtension}"
-                }
-                file
-            },
             serializer = PreferencesSerializer,
             corruptionHandler = corruptionHandler,
             migrations = migrations,
             scope = scope
-        )
+        ) {
+            val file = produceFile()
+            check(file.extension == PreferencesSerializer.fileExtension) {
+                "File extension for file: $file does not match required extension for" +
+                    " Preferences file: ${PreferencesSerializer.fileExtension}"
+            }
+            file
+        }
         return PreferenceDataStore(delegate)
     }
 }

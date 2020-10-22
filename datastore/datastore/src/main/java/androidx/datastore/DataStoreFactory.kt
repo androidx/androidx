@@ -51,9 +51,8 @@ public fun <T> Context.createDataStore(
     scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ): DataStore<T> =
     DataStoreFactory.create(
-        produceFile = { File(this.filesDir, "datastore/$fileName") },
         serializer = serializer,
         corruptionHandler = corruptionHandler,
         migrations = migrations,
         scope = scope
-    )
+    ) { File(this.filesDir, "datastore/$fileName") }
