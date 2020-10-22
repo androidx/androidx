@@ -1586,8 +1586,9 @@ public final class ImageCapture extends UseCase {
          * {@link ImageProxy#getFormat()}.
          *
          * <p>The image is provided as captured by the underlying {@link ImageReader} without
-         * rotation applied.  rotationDegrees describes the magnitude of clockwise rotation, which
-         * if applied to the image will make it match the currently configured target rotation.
+         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
+         * describes the magnitude of clockwise rotation, which if applied to the image will make
+         * it match the currently configured target rotation.
          *
          * <p>For example, if the current target rotation is set to the display rotation,
          * rotationDegrees is the rotation to apply to the image to match the display orientation.
@@ -1606,7 +1607,6 @@ public final class ImageCapture extends UseCase {
          * @param image The captured image
          */
         public void onCaptureSuccess(@NonNull ImageProxy image) {
-            image.close();
         }
 
         /**
