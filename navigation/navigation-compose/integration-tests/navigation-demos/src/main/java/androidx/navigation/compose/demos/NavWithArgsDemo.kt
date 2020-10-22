@@ -42,9 +42,9 @@ import androidx.navigation.compose.samples.Screen
 @Composable
 fun NavWithArgsDemo() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "profile") {
-        composable("profile") { ProfileWithArgs(navController) }
-        composable("dashboard?args={args}") { backStackEntry ->
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { ProfileWithArgs(navController) }
+        composable(Screen.Dashboard.route + "?args={args}") { backStackEntry ->
             Dashboard(navController, backStackEntry.arguments?.get("args") as? String)
         }
     }
