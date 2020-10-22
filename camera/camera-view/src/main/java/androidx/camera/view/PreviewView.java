@@ -36,8 +36,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
@@ -144,27 +144,37 @@ public final class PreviewView extends FrameLayout {
                 }
             };
 
-    private final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
         @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
         @Override
+        @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
+            if (!Threads.isMainThread()) {
+                // Post on main thread to ensure thread safety.
+                ContextCompat.getMainExecutor(getContext()).execute(
+                        () -> mSurfaceProvider.onSurfaceRequested(surfaceRequest));
+                return;
+            }
             Logger.d(TAG, "Surface requested by Preview.");
+            CameraInternal camera = surfaceRequest.getCamera();
             surfaceRequest.setTransformationInfoListener(
                     ContextCompat.getMainExecutor(getContext()),
                     transformationInfo -> {
-                        Logger.d(TAG, "Preview transformation info updated. " + transformationInfo);
-                        // TODO(b/159127402): maybe switch to COMPATIBLE mode if target rotation is
-                        //  not display rotation.
+                        Logger.d(TAG,
+                                "Preview transformation info updated. " + transformationInfo);
+                        // TODO(b/159127402): maybe switch to COMPATIBLE mode if target
+                        //  rotation is not display rotation.
                         boolean isFrontCamera =
-                                surfaceRequest.getCamera().getCameraInfoInternal().getLensFacing()
+                                camera.getCameraInfoInternal().getLensFacing()
                                         == CameraSelector.LENS_FACING_FRONT;
                         mPreviewTransform.setTransformationInfo(transformationInfo,
                                 surfaceRequest.getResolution(), isFrontCamera);
                         redrawPreview();
                     });
 
-            CameraInternal camera = surfaceRequest.getCamera();
             mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
                     ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
                     : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
@@ -190,21 +200,26 @@ public final class PreviewView extends FrameLayout {
         }
     };
 
+    @UiThread
     public PreviewView(@NonNull Context context) {
         this(context, null);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        Threads.checkMainThread();
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
                 R.styleable.PreviewView, defStyleAttr, defStyleRes);
         if (Build.VERSION.SDK_INT >= 29) {
@@ -322,6 +337,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public ImplementationMode getImplementationMode() {
+        Threads.checkMainThread();
         return mImplementationMode;
     }
 
@@ -359,6 +375,7 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
+        Threads.checkMainThread();
         mPreviewTransform.setScaleType(scaleType);
         redrawPreview();
     }
@@ -373,6 +390,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public ScaleType getScaleType() {
+        Threads.checkMainThread();
         return mPreviewTransform.getScaleType();
     }
 
@@ -398,6 +416,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public MeteringPointFactory getMeteringPointFactory() {
+        Threads.checkMainThread();
         return mPreviewViewMeteringPointFactory;
     }
 
@@ -447,6 +466,7 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     @Nullable
     public Bitmap getBitmap() {
+        Threads.checkMainThread();
         return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
@@ -466,6 +486,7 @@ public final class PreviewView extends FrameLayout {
     @Nullable
     @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
+        Threads.checkMainThread();
         if (getDisplay() == null) {
             // Returns null if the layout is not ready.
             return null;
@@ -516,6 +537,7 @@ public final class PreviewView extends FrameLayout {
     @Nullable
     @ExperimentalUseCaseGroup
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
+        Threads.checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
             return null;
         }
@@ -772,7 +794,7 @@ public final class PreviewView extends FrameLayout {
      *                                  use cases.
      * @see CameraController
      */
-    @MainThread
+    @UiThread
     public void setController(@Nullable CameraController cameraController) {
         Threads.checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
@@ -788,7 +810,7 @@ public final class PreviewView extends FrameLayout {
      * Get the {@link CameraController}.
      */
     @Nullable
-    @MainThread
+    @UiThread
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;

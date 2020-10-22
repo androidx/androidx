@@ -92,28 +92,34 @@ public class PreviewViewBitmapTest {
 
     @Test
     public void bitmapIsNull_whenPreviewNotDisplaying_textureView() {
-        // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.COMPATIBLE);
-
-        // Act
-        startPreview(previewView);
-
-        // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNull();
+        assertBitmapIsNullWhenPreviewNotDisplaying(ImplementationMode.COMPATIBLE);
     }
 
     @Test
     public void bitmapIsNull_whenPreviewNotDisplaying_surfaceView() {
+        assertBitmapIsNullWhenPreviewNotDisplaying(ImplementationMode.PERFORMANCE);
+    }
+
+    private void assertBitmapIsNullWhenPreviewNotDisplaying(ImplementationMode implementationMode) {
         // Arrange
-        final PreviewView previewView = setUpPreviewView(ImplementationMode.PERFORMANCE);
+        final PreviewView previewView = setUpPreviewView(implementationMode);
+        final Preview preview = new Preview.Builder().build();
+        final CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(CAMERA_LENS).build();
+        final FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
+        lifecycleOwner.startAndResume();
 
-        // Act
-        startPreview(previewView);
 
-        // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNull();
+        runOnMainThread(() -> {
+            // Act.
+            preview.setSurfaceProvider(previewView.getSurfaceProvider());
+            mCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview);
+
+            // Assert.
+            // To assert the status before preview is displaying, we have to do it in the same
+            // Runnable to avoid race condition.
+            assertThat(previewView.getBitmap()).isNull();
+        });
     }
 
     @Test
@@ -126,8 +132,10 @@ public class PreviewViewBitmapTest {
         waitForPreviewToStart(previewView);
 
         // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNotNull();
+        runOnMainThread(() -> {
+            final Bitmap bitmap = previewView.getBitmap();
+            assertThat(bitmap).isNotNull();
+        });
     }
 
     @Test
@@ -140,8 +148,10 @@ public class PreviewViewBitmapTest {
         waitForPreviewToStart(previewView);
 
         // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNotNull();
+        runOnMainThread(() -> {
+            final Bitmap bitmap = previewView.getBitmap();
+            assertThat(bitmap).isNotNull();
+        });
     }
 
     @Test
@@ -190,10 +200,12 @@ public class PreviewViewBitmapTest {
         waitForPreviewToStart(previewView);
 
         // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNotNull();
-        assertThat(bitmap.getWidth()).isEqualTo(previewView.getWidth());
-        assertThat(bitmap.getHeight()).isEqualTo(previewView.getHeight());
+        runOnMainThread(() -> {
+            final Bitmap bitmap = previewView.getBitmap();
+            assertThat(bitmap).isNotNull();
+            assertThat(bitmap.getWidth()).isEqualTo(previewView.getWidth());
+            assertThat(bitmap.getHeight()).isEqualTo(previewView.getHeight());
+        });
     }
 
     @Test
@@ -242,12 +254,14 @@ public class PreviewViewBitmapTest {
         waitForPreviewToStart(previewView);
 
         // assert
-        final Bitmap bitmap = previewView.getBitmap();
-        assertThat(bitmap).isNotNull();
-        assertThat(bitmap.getWidth()).isAtMost(previewView.getWidth());
-        assertThat(bitmap.getHeight()).isAtMost(previewView.getHeight());
-        assertThat(bitmap.getWidth() == previewView.getWidth()
-                || bitmap.getHeight() == previewView.getHeight()).isTrue();
+        runOnMainThread(() -> {
+            final Bitmap bitmap = previewView.getBitmap();
+            assertThat(bitmap).isNotNull();
+            assertThat(bitmap.getWidth()).isAtMost(previewView.getWidth());
+            assertThat(bitmap.getHeight()).isAtMost(previewView.getHeight());
+            assertThat(bitmap.getWidth() == previewView.getWidth()
+                    || bitmap.getHeight() == previewView.getHeight()).isTrue();
+        });
     }
 
     @NonNull
