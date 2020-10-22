@@ -18,8 +18,8 @@ package androidx.datastore.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.datastore.DataMigration
-import androidx.datastore.DataStore
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.flow.first

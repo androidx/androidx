@@ -16,7 +16,7 @@
 
 package androidx.datastore.preferences
 
-import androidx.datastore.CorruptionException
+import androidx.datastore.core.CorruptionException
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 

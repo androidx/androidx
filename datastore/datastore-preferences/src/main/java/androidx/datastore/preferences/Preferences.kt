@@ -15,7 +15,7 @@
  */
 package androidx.datastore.preferences
 
-import androidx.datastore.DataStore
+import androidx.datastore.core.DataStore
 import java.lang.IllegalArgumentException
 import java.util.Collections
 import java.util.concurrent.atomic.AtomicBoolean

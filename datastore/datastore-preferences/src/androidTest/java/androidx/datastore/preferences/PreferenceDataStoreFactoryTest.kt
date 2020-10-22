@@ -17,8 +17,8 @@
 package androidx.datastore.preferences
 
 import android.content.Context
-import androidx.datastore.DataMigration
-import androidx.datastore.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
