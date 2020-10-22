@@ -135,8 +135,8 @@ public class PreviewViewTest {
     }
 
     @Before
-    public void setUp() {
-        CoreAppTestUtil.clearDeviceUI(mInstrumentation);
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
         mActivityRule.launchActivity(null);
     }
 

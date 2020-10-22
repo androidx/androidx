@@ -68,8 +68,8 @@ public class PreviewViewBitmapTest {
     private ProcessCameraProvider mCameraProvider;
 
     @BeforeClass
-    public static void classSetUp() {
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+    public static void classSetUp() throws CoreAppTestUtil.ForegroundOccupiedError {
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
     }
 
     @Before
