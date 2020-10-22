@@ -50,13 +50,13 @@ fun BottomBarNavDemo() {
         bottomBar = {
             BottomNavigation {
                 val navBackStackEntry = navController.currentBackStackEntryAsState().value
-                val route = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
-                items.forEachIndexed { _, item ->
+                val entryRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+                items.forEach { (name, route) ->
                     BottomNavigationItem(
                         icon = { Icon(Icons.Filled.Favorite) },
-                        label = { Text(item.first) },
-                        selected = route == item.second,
-                        onClick = { navController.navigate(item.second) }
+                        label = { Text(name) },
+                        selected = entryRoute == route,
+                        onClick = { navController.navigate(route) }
                     )
                 }
             }
