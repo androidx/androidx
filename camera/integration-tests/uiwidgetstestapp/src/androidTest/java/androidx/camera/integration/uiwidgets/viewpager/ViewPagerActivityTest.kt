@@ -76,8 +76,9 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
-        // Clear the device UI before start each test.
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     // The test makes sure the camera PreviewView is in the streaming state.

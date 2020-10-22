@@ -56,5 +56,8 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
+
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 }
 

@@ -58,8 +58,10 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
-        // Clear the device's UI and ensure it's in a natural orientation
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Ensure it's in a natural orientation
         mDevice.setOrientationNatural()
     }
 
