@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -46,10 +47,10 @@ import androidx.navigation.navDeepLink
 fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
     val uri = "https://example.com/dashboard?args="
-    NavHost(navController, startDestination = "Profile") {
-        composable("Profile") { ProfileWithDeepLink(navController, uri) }
+    NavHost(navController, startDestination = "profile") {
+        composable("profile") { ProfileWithDeepLink(navController, uri) }
         composable(
-            "Dashboard",
+            "dashboard",
             arguments = listOf(navArgument("args") { defaultValue = "no value given" }),
             deepLinks = listOf(navDeepLink { uriPattern = "$uri{args}" })
         ) { backStackEntry ->
@@ -61,7 +62,7 @@ fun NavByDeepLinkDemo() {
 @Composable
 fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = Screen.Profile.title)
+        Text(text = stringResource(Screen.Profile.resourceId))
         Divider(color = Color.Black)
         val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
         Box {

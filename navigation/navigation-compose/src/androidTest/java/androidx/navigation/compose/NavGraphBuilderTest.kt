@@ -18,7 +18,7 @@ package androidx.navigation.compose
 
 import android.net.Uri
 import androidx.compose.ui.platform.ContextAmbient
-import androidx.core.os.bundleOf
+import androidx.core.net.toUri
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.navDeepLink
 import androidx.navigation.testing.TestNavHostController
@@ -47,14 +47,14 @@ class NavGraphBuilderTest {
             navController = TestNavHostController(ContextAmbient.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            NavHost(navController, startDestination = FIRST_DESTINATION) {
-                composable(FIRST_DESTINATION) { }
-                composable(SECOND_DESTINATION) { }
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                composable("$secondRoute/{$key}") { }
             }
         }
 
         composeTestRule.runOnUiThread {
-            navController.navigate(generateId(SECOND_DESTINATION), bundleOf(key to arg))
+            navController.navigate("$secondRoute/$arg")
             assertThat(navController.currentBackStackEntry!!.arguments!!.getString(key))
                 .isEqualTo(arg)
         }
@@ -69,17 +69,17 @@ class NavGraphBuilderTest {
             navController = TestNavHostController(ContextAmbient.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            NavHost(navController, startDestination = FIRST_DESTINATION) {
-                composable(FIRST_DESTINATION) { }
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
                 composable(
-                    SECOND_DESTINATION,
+                    secondRoute,
                     arguments = listOf(navArgument(key) { defaultValue = defaultArg })
                 ) { }
             }
         }
 
         composeTestRule.runOnUiThread {
-            navController.navigate(generateId(SECOND_DESTINATION))
+            navController.navigate(secondRoute)
             assertThat(navController.currentBackStackEntry!!.arguments!!.getString(key))
                 .isEqualTo(defaultArg)
         }
@@ -94,22 +94,22 @@ class NavGraphBuilderTest {
             navController = TestNavHostController(ContextAmbient.current)
             navController.navigatorProvider.addNavigator(ComposeNavigator())
 
-            NavHost(navController, startDestination = FIRST_DESTINATION) {
-                composable(FIRST_DESTINATION) { }
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
                 composable(
-                    SECOND_DESTINATION,
+                    secondRoute,
                     deepLinks = listOf(navDeepLink { uriPattern = uriString })
                 ) { }
             }
         }
 
         composeTestRule.runOnUiThread {
-            navController.navigate(Uri.parse(uriString))
+            navController.navigate(uriString.toUri())
             assertThat(navController.currentBackStackEntry!!.destination.hasDeepLink(deeplink))
                 .isTrue()
         }
     }
 }
 
-private const val FIRST_DESTINATION = 1
-private const val SECOND_DESTINATION = 2
+private const val firstRoute = "first"
+private const val secondRoute = "second"

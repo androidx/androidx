@@ -27,12 +27,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.platform.ContextAmbient
+import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.navigation
+
+const val KEY_ROUTE = "android-support-nav:controller:route"
 
 /**
  * Gets the current navigation back stack entry as a [MutableState]. When the given navController
@@ -88,33 +92,29 @@ private fun NavControllerSaver(
 )
 
 /**
- * Navigate to a destination from the current navigation graph.
+ * Navigate to a route in the current NavGraph.
  *
- * @param destinationId a id to navigate to
- * @param args arguments to pass to the destination
+ * @param route route for the destination
  */
-public fun NavController.navigate(
-    destinationId: Any,
-    args: Bundle? = null
-) {
-    navigate(generateId(destinationId), args)
+public fun NavController.navigate(route: String) {
+    navigate(NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build())
 }
 
 /**
  * Construct a new [NavGraph]
  *
- * @param id the id to set on the graph
- * @param startDestination an object to identify a destination
+ * @param route the route for the graph
+ * @param startDestination the route for the start destination
  * @param builder the builder used to construct the graph
  */
 internal fun NavController.createGraph(
-    id: Int = 0,
-    startDestination: Any,
+    route: String? = null,
+    startDestination: String,
     builder: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(id, generateId(startDestination), builder)
+): NavGraph = navigatorProvider.navigation(
+    if (route != null) createRoute(route).hashCode() else 0,
+    createRoute(startDestination).hashCode(),
+    builder
+)
 
-/**
- * Used to generate an id from any object
- */
-internal fun generateId(anchor: Any) = anchor.hashCode() + initialId
-private const val initialId = 0x00010000
+internal fun createRoute(route: String) = "android-app://androidx.navigation.compose/$route"
