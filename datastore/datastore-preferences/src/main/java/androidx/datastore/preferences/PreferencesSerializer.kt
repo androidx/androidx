@@ -16,11 +16,11 @@
 
 package androidx.datastore.preferences
 
-import androidx.datastore.CorruptionException
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.preferences.PreferencesProto.PreferenceMap
 import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
-import androidx.datastore.Serializer
+import androidx.datastore.core.Serializer
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream

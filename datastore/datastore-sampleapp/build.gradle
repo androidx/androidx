@@ -32,7 +32,7 @@ dependencies {
     implementation(project(":datastore:datastore-preferences"))
 
     // For DataStore with protos
-    implementation(project(":datastore:datastore-core"))
+    implementation(project(":datastore:datastore"))
 
     // For settings fragment
     api("androidx.preference:preference:1.1.1")

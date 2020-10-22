@@ -52,7 +52,7 @@ android.libraryVariants.all { variant ->
 
 dependencies {
     api(KOTLIN_STDLIB)
-    api(project(":datastore:datastore-core"))
+    api(project(":datastore:datastore"))
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)

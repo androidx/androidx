@@ -23,10 +23,10 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.CorruptionException
-import androidx.datastore.DataStore
-import androidx.datastore.DataStoreFactory
-import androidx.datastore.Serializer
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.Serializer
 import androidx.lifecycle.lifecycleScope
 import com.google.protobuf.InvalidProtocolBufferException
 import kotlinx.coroutines.flow.catch
