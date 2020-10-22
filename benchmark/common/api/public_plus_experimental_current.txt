@@ -21,6 +21,20 @@ package androidx.benchmark {
   @kotlin.Experimental @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResultScope {
+    ctor public InstrumentationResultScope(android.os.Bundle bundle);
+    ctor public InstrumentationResultScope();
+    method public void fileRecord(String key, String path);
+    method public android.os.Bundle getBundle();
+    method public void ideSummaryRecord(String value);
+    property public final android.os.Bundle bundle;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResults {
+    method public void instrumentationReport(kotlin.jvm.functions.Function1<? super androidx.benchmark.InstrumentationResultScope,kotlin.Unit> block);
+    field public static final androidx.benchmark.InstrumentationResults INSTANCE;
+  }
+
   public final class MetricNameUtilsKt {
   }
 

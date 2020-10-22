@@ -23,6 +23,9 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Errors.PREFIX
+import androidx.benchmark.InstrumentationResults.ideSummaryLineWrapped
+import androidx.benchmark.InstrumentationResults.instrumentationReport
+import androidx.benchmark.InstrumentationResults.reportBundle
 import androidx.tracing.Trace
 import java.util.concurrent.TimeUnit
 
@@ -483,11 +486,11 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
         }
-        status.putAll(
-            InstrumentationResults.getIdeSummaryLine(
-                testName = key,
-                nanos = getMinTimeNanos(),
-                allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+        InstrumentationResultScope(status).ideSummaryRecord(
+            ideSummaryLineWrapped(
+                key,
+                getMinTimeNanos(),
+                stats.firstOrNull { it.name == "allocationCount" }?.median
             )
         )
         return status
@@ -516,11 +519,11 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-
-        InstrumentationResults.report(
-            getFullStatusReport(key = fullTestName, includeStats = !Arguments.dryRunMode)
+        val bundle = getFullStatusReport(
+            key = fullTestName,
+            includeStats = !Arguments.dryRunMode
         )
-
+        reportBundle(bundle)
         ResultWriter.appendReport(
             getReport(
                 testName = PREFIX + methodName,
@@ -619,13 +622,16 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
             // Report value to Studio console
             val fullTestName = PREFIX +
                 if (className.isNotEmpty()) "$className.$testName" else testName
-            InstrumentationResults.report(
-                InstrumentationResults.getIdeSummaryLine(
-                    testName = fullTestName,
-                    nanos = report.getStats("timeNs").min,
-                    allocations = null
+
+            instrumentationReport {
+                ideSummaryRecord(
+                    ideSummaryLineWrapped(
+                        key = fullTestName,
+                        nanos = report.getStats("timeNs").min,
+                        allocations = null
+                    )
                 )
-            )
+            }
 
             // Report values to file output
             ResultWriter.appendReport(report)
