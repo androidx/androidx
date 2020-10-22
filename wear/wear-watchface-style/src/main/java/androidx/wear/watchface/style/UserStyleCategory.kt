@@ -60,11 +60,8 @@ public abstract class UserStyleCategory(
      */
     public val affectsLayers: Collection<Layer>
 ) {
-    public companion object {
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public fun createFromWireFormat(
+    internal companion object {
+        internal fun createFromWireFormat(
             wireFormat: UserStyleCategoryWireFormat
         ): UserStyleCategory = when (wireFormat) {
             is BooleanUserStyleCategoryWireFormat -> BooleanUserStyleCategory(wireFormat)

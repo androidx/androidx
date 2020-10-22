@@ -33,10 +33,10 @@ public class UserStyle(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public constructor(
         userStyle: UserStyleWireFormat,
-        userStyleCategories: List<UserStyleCategory>
+        styleSchema: UserStyleSchema
     ) : this(
         HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-            for (styleCategory in userStyleCategories) {
+            for (styleCategory in styleSchema.userStyleCategories) {
                 val option = userStyle.mUserStyle[styleCategory.id] ?: continue
                 this[styleCategory] = styleCategory.getCategoryOptionForId(option)
             }
@@ -49,17 +49,36 @@ public class UserStyle(
         UserStyleWireFormat(selectedOptions.entries.associate { it.key.id to it.value.id })
 }
 
+/** Describes the list of [UserStyleCategory]s the user can configure. */
+public class UserStyleSchema(
+    /**
+     * The user configurable style categories associated with this watch face. Empty if the watch
+     * face doesn't support user styling.
+     */
+    public val userStyleCategories: List<UserStyleCategory>
+) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
+        wireFormat.mSchema.map { UserStyleCategory.createFromWireFormat(it) }
+    )
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun toWireFormat(): UserStyleSchemaWireFormat =
+        UserStyleSchemaWireFormat(userStyleCategories.map { it.toWireFormat() })
+}
+
 /**
  * In memory storage for user style choices which allows listeners to be registered to observe
  * style changes.
  */
 public class UserStyleRepository(
     /**
-     * The style categories (i.e the style schema) associated with this watch face, that the user
-     * can configure. May be empty. The first entry in each Option list is that category's default
-     * value.
+     * The [UserStyleSchema] for this UserStyleRepository which describes the available style
+     * categories.
      */
-    public val userStyleCategories: List<UserStyleCategory>
+    public val schema: UserStyleSchema
 ) {
     /** A listener for observing user style changes. */
     public interface UserStyleListener {
@@ -74,7 +93,7 @@ public class UserStyleRepository(
     @SuppressWarnings("SyntheticAccessor")
     private val _style = UserStyle(
         HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-            for (category in userStyleCategories) {
+            for (category in schema.userStyleCategories) {
                 this[category] = category.getDefaultOption()
             }
         }
@@ -123,9 +142,4 @@ public class UserStyleRepository(
     public fun removeUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.remove(userStyleListener)
     }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun toSchemaWireFormat(): UserStyleSchemaWireFormat =
-        UserStyleSchemaWireFormat(userStyleCategories.map { it.toWireFormat() })
 }

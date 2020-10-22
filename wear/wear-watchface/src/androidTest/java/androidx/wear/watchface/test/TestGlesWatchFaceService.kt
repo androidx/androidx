@@ -39,6 +39,7 @@ import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
@@ -84,7 +85,7 @@ internal class TestGlesWatchFaceService(
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleCategory)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(

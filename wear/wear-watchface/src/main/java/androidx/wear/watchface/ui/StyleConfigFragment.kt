@@ -39,6 +39,7 @@ import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
@@ -55,7 +56,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal lateinit var watchFaceConfigActivity: WatchFaceConfigActivity
     private lateinit var categoryId: String
-    private lateinit var styleSchema: List<UserStyleCategory>
+    private lateinit var styleSchema: UserStyleSchema
     private lateinit var styleCategory: UserStyleCategory
     private lateinit var userStyle: UserStyle
 
@@ -66,16 +67,14 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
 
         fun newInstance(
             categoryId: String,
-            styleSchema: List<UserStyleCategory>,
+            styleSchema: UserStyleSchema,
             userStyle: UserStyle
         ) = StyleConfigFragment().apply {
             arguments = Bundle().apply {
                 putCharSequence(CATEGORY_ID, categoryId)
                 putParcelable(
                     STYLE_SCHEMA,
-                    ParcelUtils.toParcelable(
-                        UserStyleSchemaWireFormat(styleSchema.map { it.toWireFormat() })
-                    )
+                    ParcelUtils.toParcelable(styleSchema.toWireFormat())
                 )
                 putParcelable(USER_STYLE, ParcelUtils.toParcelable(userStyle.toWireFormat()))
             }
@@ -206,16 +205,17 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     internal fun readOptionsFromArguments() {
         categoryId = requireArguments().getCharSequence(CATEGORY_ID).toString()
 
-        val wireFormat: UserStyleSchemaWireFormat =
-            ParcelUtils.fromParcelable(requireArguments().getParcelable(STYLE_SCHEMA)!!)
-        styleSchema = wireFormat.mSchema.map { UserStyleCategory.createFromWireFormat(it) }
+        styleSchema = UserStyleSchema(
+            ParcelUtils.fromParcelable(requireArguments().getParcelable(STYLE_SCHEMA)!!) as
+                UserStyleSchemaWireFormat
+        )
 
         userStyle = UserStyle(
             ParcelUtils.fromParcelable(requireArguments().getParcelable(USER_STYLE)!!),
             styleSchema
         )
 
-        styleCategory = styleSchema.first { it.id == categoryId }
+        styleCategory = styleSchema.userStyleCategories.first { it.id == categoryId }
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleCategory.Option) {

@@ -208,7 +208,7 @@ class StyleParcelableTest {
             listOf(option3, option4),
             listOf(Layer.TOP_LAYER)
         )
-        val schema = listOf(styleCategory1, styleCategory2)
+        val schema = UserStyleSchema(listOf(styleCategory1, styleCategory2))
         val userStyle = UserStyle(
             hashMapOf(
                 styleCategory1 as UserStyleCategory to option2 as UserStyleCategory.Option,

@@ -33,7 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleSchema
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -50,7 +50,7 @@ internal interface FragmentController {
     /** Show the [StyleConfigFragment] which lets the user configure the watch face style. */
     fun showStyleConfigFragment(
         categoryId: String,
-        styleSchema: List<UserStyleCategory>,
+        styleSchema: UserStyleSchema,
         userStyle: UserStyle
     )
 
@@ -75,7 +75,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     internal lateinit var watchFaceConfigDelegate: WatchFaceConfigDelegate
         private set
 
-    internal lateinit var styleSchema: List<UserStyleCategory>
+    internal lateinit var styleSchema: UserStyleSchema
         private set
 
     internal lateinit var watchFaceComponentName: ComponentName
@@ -137,7 +137,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 @SuppressLint("SyntheticAccessor")
                 override fun showStyleConfigFragment(
                     categoryId: String,
-                    styleSchema: List<UserStyleCategory>,
+                    styleSchema: UserStyleSchema,
                     userStyle: UserStyle
                 ) {
                     showFragment(
@@ -215,13 +215,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        styleSchema = watchFaceConfigDelegate.getUserStyleSchema().mSchema.map {
-            UserStyleCategory.createFromWireFormat(it)
-        }
+        styleSchema = UserStyleSchema(watchFaceConfigDelegate.getUserStyleSchema())
 
         backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
 
-        var topLevelOptionCount = styleSchema.size
+        var topLevelOptionCount = styleSchema.userStyleCategories.size
         val hasBackgroundComplication = backgroundComplicationId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
@@ -251,9 +249,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            styleSchema.size == 1 -> {
+            styleSchema.userStyleCategories.size == 1 -> {
                 // There should only be a single userStyle category if we get here.
-                val onlyStyleCategory = styleSchema.first()
+                val onlyStyleCategory = styleSchema.userStyleCategories.first()
                 fragmentController.showStyleConfigFragment(
                     onlyStyleCategory.id,
                     styleSchema,

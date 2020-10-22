@@ -95,7 +95,7 @@ internal class InteractiveWatchFaceInstance(
 
         override fun getUserStyleSchema() =
             uiThreadHandler.runOnHandler {
-                engine.watchFace.userStyleRepository.toSchemaWireFormat()
+                engine.watchFace.userStyleRepository.schema.toWireFormat()
             }
     }
 }
