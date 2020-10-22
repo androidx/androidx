@@ -27,7 +27,7 @@ import android.content.Context;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.customer.EmailDataClass;
-import androidx.appsearch.localbackend.LocalBackend;
+import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -45,11 +45,11 @@ public class AppSearchSessionTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        mDb1 = checkIsResultSuccess(LocalBackend.createSearchSession(
-                new LocalBackend.SearchContext.Builder(context)
+        mDb1 = checkIsResultSuccess(LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context)
                         .setDatabaseName("testDb1").build()));
-        mDb2 = checkIsResultSuccess(LocalBackend.createSearchSession(
-                new LocalBackend.SearchContext.Builder(context)
+        mDb2 = checkIsResultSuccess(LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context)
                         .setDatabaseName("testDb2").build()));
 
         // Remove all documents from any instances that may have been created in the tests.
