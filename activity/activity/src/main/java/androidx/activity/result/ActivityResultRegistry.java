@@ -133,6 +133,7 @@ public abstract class ActivityResultRegistry {
                     mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
                     final ActivityResult pendingResult = mPendingResults.getParcelable(key);
                     if (pendingResult != null) {
+                        mPendingResults.remove(key);
                         callback.onActivityResult(contract.parseResult(
                                 pendingResult.getResultCode(),
                                 pendingResult.getData()));
