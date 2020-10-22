@@ -44,7 +44,8 @@ import androidx.wear.watchface.style.UserStyleRepository
 internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
-    var mockSystemTimeMillis: Long
+    var mockSystemTimeMillis: Long,
+    var surfacHolderOverride: SurfaceHolder?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -132,4 +133,6 @@ internal class TestGlesWatchFaceService(
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
+
+    override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
 }

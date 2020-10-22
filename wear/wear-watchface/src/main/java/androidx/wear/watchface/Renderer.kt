@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
-import androidx.annotation.CallSuper
 import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
@@ -28,7 +27,7 @@ import androidx.wear.watchface.style.UserStyleRepository
 /** The base class for [CanvasRenderer] and [GlesRenderer]. */
 public abstract class Renderer(
     /** The [SurfaceHolder] that [renderInternal] will draw into. */
-    _surfaceHolder: SurfaceHolder,
+    public val surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
     internal val userStyleRepository: UserStyleRepository,
@@ -36,9 +35,28 @@ public abstract class Renderer(
     /** The associated [WatchState]. */
     internal val watchState: WatchState
 ) {
-    /** The [SurfaceHolder] this Renderer renders into. */
-    protected var surfaceHolder: SurfaceHolder = _surfaceHolder
-        private set
+    init {
+        surfaceHolder.addCallback(
+            object : SurfaceHolder.Callback {
+                override fun surfaceChanged(
+                    holder: SurfaceHolder,
+                    format: Int,
+                    width: Int,
+                    height: Int
+                ) {
+                    screenBounds = holder.surfaceFrame
+                    centerX = screenBounds.exactCenterX()
+                    centerY = screenBounds.exactCenterY()
+                }
+
+                override fun surfaceDestroyed(holder: SurfaceHolder) {
+                }
+
+                override fun surfaceCreated(holder: SurfaceHolder) {
+                }
+            }
+        )
+    }
 
     /** The bounds of the [SurfaceHolder] this Renderer renders into. */
     public var screenBounds: Rect = surfaceHolder.surfaceFrame
@@ -64,13 +82,12 @@ public abstract class Renderer(
             }
         }
 
+    /** Allows the renderer to finalize init after the child class's constructor has finished. */
+    internal open fun onPostCreate() {}
+
     /** Called when the Renderer is destroyed. */
     @UiThread
     public open fun onDestroy() {
-    }
-
-    @UiThread
-    public open fun onSurfaceDestroyed(holder: SurfaceHolder) {
     }
 
     /**
@@ -121,23 +138,6 @@ public abstract class Renderer(
             (centerX - quarterX).toInt(), (centerY - quarterY).toInt(),
             (centerX + quarterX).toInt(), (centerY + quarterY).toInt()
         )
-    }
-
-    /**
-     * Convenience for [SurfaceHolder.Callback.surfaceChanged]. Called when the
-     * [SurfaceHolder] containing the display surface changes.
-     *
-     * @param holder The new [SurfaceHolder] containing the display surface
-     * @param format The new [android.graphics.PixelFormat] of the surface
-     * @param width The width of the new display surface
-     * @param height The height of the new display surface
-     */
-    @CallSuper
-    @UiThread
-    public open fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        screenBounds = holder.surfaceFrame
-        centerX = screenBounds.exactCenterX()
-        centerY = screenBounds.exactCenterY()
     }
 
     /**

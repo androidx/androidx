@@ -54,7 +54,8 @@ import androidx.wear.watchface.style.UserStyleRepository
 internal class TestCanvasWatchFaceService(
     testContext: Context,
     private val handler: Handler,
-    var mockSystemTimeMillis: Long
+    var mockSystemTimeMillis: Long,
+    var surfacHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -240,4 +241,6 @@ internal class TestCanvasWatchFaceService(
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
+
+    override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
 }

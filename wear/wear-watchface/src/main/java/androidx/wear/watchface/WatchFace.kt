@@ -29,7 +29,6 @@ import android.icu.util.Calendar
 import android.icu.util.TimeZone
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.WatchFaceStyle
-import android.view.SurfaceHolder
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -605,20 +604,6 @@ public class WatchFace private constructor(
                 invalidate()
             }
         }
-    }
-
-    /**
-     * Convenience for [SurfaceHolder.Callback.surfaceChanged]. Called when the
-     * [SurfaceHolder] containing the display surface changes.
-     *
-     * @param holder The new [SurfaceHolder] containing the display surface
-     * @param format The new [android.graphics.PixelFormat] of the surface
-     * @param width The width of the new display surface
-     * @param height The height of the new display surface
-     */
-    internal fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        renderer.onSurfaceChanged(holder, format, width, height)
-        invalidate()
     }
 
     /**

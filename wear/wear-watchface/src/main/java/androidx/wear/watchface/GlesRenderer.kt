@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.icu.util.Calendar
 import android.opengl.EGL14
@@ -104,9 +105,7 @@ public abstract class GlesRenderer @JvmOverloads constructor(
         }
     }
 
-    private var eglSurface: EGLSurface? =
-        createWindowSurface(eglDisplay!!, eglConfig, surfaceHolder)
-
+    private var eglSurface: EGLSurface? = null
     private var calledOnGlContextCreated = false
 
     /**
@@ -135,22 +134,30 @@ public abstract class GlesRenderer @JvmOverloads constructor(
         return eglConfigs[0]!!
     }
 
-    private fun createWindowSurface(
-        eglDisplay: EGLDisplay,
-        eglConfig: EGLConfig,
-        surfaceHolder: SurfaceHolder
-    ): EGLSurface {
-        val result = EGL14.eglCreateWindowSurface(
+    private fun createWindowSurface(width: Int, height: Int) {
+        if (eglSurface != null) {
+            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
+                Log.w(TAG, "eglDestroySurface failed")
+            }
+        }
+        eglSurface = EGL14.eglCreateWindowSurface(
             eglDisplay,
             eglConfig,
             surfaceHolder.surface,
             eglSurfaceAttribList,
             0
         )
-        if (result == EGL14.EGL_NO_SURFACE) {
+        if (eglSurface == EGL14.EGL_NO_SURFACE) {
             throw RuntimeException("eglCreateWindowSurface failed")
         }
-        return result
+
+        makeContextCurrent()
+        GLES20.glViewport(0, 0, width, height)
+        if (!calledOnGlContextCreated) {
+            calledOnGlContextCreated = true
+            onGlContextCreated()
+        }
+        onGlSurfaceCreated(width, height)
     }
 
     @CallSuper
@@ -185,35 +192,34 @@ public abstract class GlesRenderer @JvmOverloads constructor(
         }
     }
 
-    @CallSuper
-    override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        super.onSurfaceChanged(holder, format, width, height)
-
-        if (eglSurface != null) {
-            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                Log.w(TAG, "eglDestroySurface failed")
+    internal override fun onPostCreate() {
+        surfaceHolder.addCallback(object : SurfaceHolder.Callback {
+            @SuppressLint("SyntheticAccessor")
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+                createWindowSurface(width, height)
             }
-        }
-        eglSurface = createWindowSurface(eglDisplay!!, eglConfig, holder)
-        makeContextCurrent()
-        GLES20.glViewport(0, 0, width, height)
-        if (!calledOnGlContextCreated) {
-            calledOnGlContextCreated = true
-            onGlContextCreated()
-        }
-        onGlSurfaceCreated(width, height)
-    }
 
-    @CallSuper
-    override fun onSurfaceDestroyed(holder: SurfaceHolder) {
-        try {
-            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                Log.w(TAG, "eglDestroySurface failed")
+            @SuppressLint("SyntheticAccessor")
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
+                    Log.w(TAG, "eglDestroySurface failed")
+                }
+                eglSurface = null
             }
-            eglSurface = null
-        } finally {
-            super.onSurfaceDestroyed(holder)
-        }
+
+            override fun surfaceCreated(holder: SurfaceHolder) {
+            }
+        })
+
+        createWindowSurface(
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     /** Called when a new GL context is created. It's safe to use GL APIs in this method. */

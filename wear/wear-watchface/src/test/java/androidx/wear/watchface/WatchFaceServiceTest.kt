@@ -63,8 +63,10 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.reset
+import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
@@ -1180,9 +1182,16 @@ class WatchFaceServiceTest {
         assertThat(renderer.centerX).isEqualTo(50f)
         assertThat(renderer.centerY).isEqualTo(50f)
 
+        val argument = ArgumentCaptor.forClass(SurfaceHolder.Callback::class.java)
+        verify(surfaceHolder, atLeastOnce()).addCallback(argument.capture())
+
+        // Trigger an update to a larger surface which should move the center.
         reset(surfaceHolder)
         `when`(surfaceHolder.surfaceFrame).thenReturn(Rect(0, 0, 200, 300))
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 200, 300)
+
+        for (value in argument.allValues) {
+            value.surfaceChanged(surfaceHolder, 0, 200, 300)
+        }
 
         assertThat(renderer.centerX).isEqualTo(100f)
         assertThat(renderer.centerY).isEqualTo(150f)
