@@ -47,10 +47,10 @@ import androidx.navigation.navDeepLink
 fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
     val uri = "https://example.com/dashboard?args="
-    NavHost(navController, startDestination = "profile") {
-        composable("profile") { ProfileWithDeepLink(navController, uri) }
+    NavHost(navController, startDestination = Screen.Profile.route) {
+        composable(Screen.Profile.route) { ProfileWithDeepLink(navController, uri) }
         composable(
-            "dashboard",
+            Screen.Dashboard.route,
             arguments = listOf(navArgument("args") { defaultValue = "no value given" }),
             deepLinks = listOf(navDeepLink { uriPattern = "$uri{args}" })
         ) { backStackEntry ->
