@@ -12,7 +12,7 @@ impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessage
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
     -Pandroidx.enableAffectedModuleDetection \
-    -Pandroidx.allWarningsAsErrors --profile "$@"
+    -Pandroidx.allWarningsAsErrors --profile --offline "$@"
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
 impl/parse_profile_htmls.sh
