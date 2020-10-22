@@ -18,13 +18,19 @@ package androidx.ui.tooling.inspector
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.Button
 import androidx.compose.material.ModalDrawerLayout
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.resetSourceInfo
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -428,6 +434,28 @@ class LayoutInspectorTreeTest : ToolingTest() {
             }
         }
         assertThat(nodes.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testSpacer() {
+        val slotTableRecord = SlotTableRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Column {
+                    Text(text = "Hello World", color = Color.Green)
+                    Spacer(Modifier.preferredHeight(16.dp))
+                    Image(Icons.Filled.Call)
+                }
+            }
+        }
+
+        view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        val node = builder.convert(view)
+            .flatMap { flatten(it) }
+            .firstOrNull { it.name == "Spacer" }
+        assertThat(node).isNotNull()
     }
 
     private fun validate(
