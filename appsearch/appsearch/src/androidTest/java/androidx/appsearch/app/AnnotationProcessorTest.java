@@ -25,7 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 
 import androidx.appsearch.annotation.AppSearchDocument;
-import androidx.appsearch.localbackend.LocalBackend;
+import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
@@ -41,8 +41,8 @@ public class AnnotationProcessorTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        mSession = checkIsResultSuccess(LocalBackend.createSearchSession(
-                new LocalBackend.SearchContext.Builder(context)
+        mSession = checkIsResultSuccess(LocalStorage.createSearchSession(
+                new LocalStorage.SearchContext.Builder(context)
                         .setDatabaseName("testDb1").build()));
 
         // Remove all documents from any instances that may have been created in the tests.

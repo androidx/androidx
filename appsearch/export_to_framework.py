@@ -27,8 +27,8 @@ import sys
 
 JETPACK_API_ROOT = 'appsearch/src/main/java/androidx/appsearch'
 JETPACK_API_TEST_ROOT = 'appsearch/src/androidTest/java/androidx/appsearch'
-JETPACK_IMPL_ROOT = 'local-backend/src/main/java/androidx/appsearch'
-JETPACK_IMPL_TEST_ROOT = 'local-backend/src/androidTest/java/androidx/appsearch'
+JETPACK_IMPL_ROOT = 'local-storage/src/main/java/androidx/appsearch'
+JETPACK_IMPL_TEST_ROOT = 'local-storage/src/androidTest/java/androidx/appsearch'
 FRAMEWORK_API_ROOT = 'framework/java/android/app/appsearch'
 FRAMEWORK_API_TEST_ROOT = (
         '../../core/tests/coretests/src/'
@@ -190,8 +190,8 @@ def _CopyAllImpl(source_dir, dest_dir):
             impl_source_dir, impl_dest_dir,
             transform_func=_TransformImplCode,
             block_list=[
-                'localbackend/LocalBackend.java',
-                'localbackend/util/FutureUtil.java',
+                'localstorage/LocalStorage.java',
+                'localstorage/util/FutureUtil.java',
             ])
 
     # Copy servicestests
@@ -209,7 +209,7 @@ def _CopyAllImpl(source_dir, dest_dir):
             impl_test_source_dir, impl_test_dest_dir,
             transform_func=_TransformImplTestCode,
             block_list=[
-                'localbackend/LocalBackendTest.java',
+                'localstorage/LocalStorageTest.java',
             ])
 
 

@@ -289,58 +289,12 @@ symbol:   class SubtitleInputBuffer
 private final ParsableByteArray mScratch;
 public int supportsFormat\(Format format\) \{
 [0-9]+ warnings
-# > Task :appsearch:appsearch-local-backend:externalNativeBuildRelease
-ninja: no work to do\.
-Build icing_armeabi\-v[0-9]+a
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/io_win[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/statusor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/bytestream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/strtod\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/arena\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/gzip_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/time\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream_impl\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/status\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/structurally_valid\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/implicit_weak_message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_enum_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/stringprintf\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/service\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/int[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/stringpiece\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/mathlimits\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/common\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/message_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/empty\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wire_format_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/coded_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/substitute\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/error_listener\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/delimited_message_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object icu\-target/CMakeFiles/libandroidicu\.dir/static_shim/shim\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/parse_context\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/field_mask\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/duration\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/unknown_field_set\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_escaping\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/timestamp\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/printer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/field_comparator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/api\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/strutil\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX static library icu\-target/liblibandroidicu\.a
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/source_context\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/object_writer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/compiler/importer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc\.o
+# > Task :appsearch:appsearch-local-storage:externalNativeBuildRelease
+ninja: .*
+Build icing_.*
+\[[0-9]+/[0-9]+\] Building CXX object .*
+\[[0-9]+/[0-9]+\] Linking CXX static library .*
+\[[0-9]+/[0-9]+\] Linking CXX shared library .*
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc:[0-9]+:
 \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'StartObject' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
 virtual JsonObjectWriter\* StartObject\(StringPiece name\);
@@ -380,161 +334,14 @@ virtual ObjectWriter\* RenderBytes\(StringPiece name, StringPiece value\) = [0-9
 virtual JsonObjectWriter\* RenderNull\(StringPiece name\);
 virtual ObjectWriter\* RenderNull\(StringPiece name\) = [0-9]+;
 [0-9]+ warnings generated\.
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/reflection_ops\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/extension_set_heavy\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_stream_parser\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/repeated_field\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/dynamic_message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/field_mask_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/field_mask_utility\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.cc:[0-9]+:
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.h:[0-9]+:
 \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderNull' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
 virtual DefaultValueObjectWriter\* RenderNull\(StringPiece name\);
 [0-9]+ warning generated\.
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/time_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/utility\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/type\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc:[0-9]+:
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/map_field\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/datapiece\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_table_driven_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/type_resolver_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_reflection\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/protostream_objectsource\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/extension_set\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc:[0-9]+:
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/struct\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wrappers\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_table_driven\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/proto_writer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wire_format\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/compiler/parser\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/protostream_objectwriter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor_database\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/text_format\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/message_differencer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX static library protobuf\-target/libprotobuf\.a
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/reset\.pb\.cc, icing\-protobuf\-gen/icing/proto/reset\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/term\.pb\.cc, icing\-protobuf\-gen/icing/proto/term\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/status\.pb\.cc, icing\-protobuf\-gen/icing/proto/status\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/scoring\.pb\.cc, icing\-protobuf\-gen/icing/proto/scoring\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/initialize\.pb\.cc, icing\-protobuf\-gen/icing/proto/initialize\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/optimize\.pb\.cc, icing\-protobuf\-gen/icing/proto/optimize\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.cc, icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/persist\.pb\.cc, icing\-protobuf\-gen/icing/proto/persist\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.cc, icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/document\.pb\.cc, icing\-protobuf\-gen/icing/proto/document\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/search\.pb\.cc, icing\-protobuf\-gen/icing/proto/search\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/schema\.pb\.cc, icing\-protobuf\-gen/icing/proto/schema\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/usage\.pb\.cc, icing\-protobuf\-gen/icing/proto/usage\.pb\.h
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/canonical_errors\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/core/icing\-timer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/str_cat\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/core/icing\-string\-util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/logging\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/memory\-mapped\-file\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/term\-id\-codec\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/logging_raw\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-mmapper\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/annotate\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-storage\-file\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/java/jni\-base\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/clock\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/jni\-cache\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/status\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/hit/hit\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/hit/doc\-hit\-info\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/file\-backed\-bitmap\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/reverse_jni/reverse\-jni\-language\-segmenter\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-flash\-bitmap\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-array\-storage\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-storage\-collection\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/hash/farmhash\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/map\-normalizer\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/raw\-query\-tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/java/jni\-helper\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-all\-document\-id\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/filesystem\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/index\-block\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/crc[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/plain\-tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-not\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-lite\-index\-options\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/term\-property\-id\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/reverse_jni/reverse\-jni\-language\-segmenter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-filesystem\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-used\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/normalization\-map\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/reverse\-jni\-break\-iterator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/map\-normalizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-or\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/i[0-9]+n\-utils\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/performance\-configuration\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-utils\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-section\-restrict\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/index\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/tokenizer\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/index\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/ranker\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-state\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-and\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-filter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-term\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/icing\-search\-engine\-jni\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/scoring\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/optimize\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/initialize\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/term\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/persist\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/lite/lite\-index\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-retriever\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/scorer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/reset\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/scoring\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/status\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/snippet\-retriever\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/document\-validator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/document\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/schema\-util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/query/query\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/schema\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/section\-manager\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-state\-manager\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/schema\-store\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-dynamic\-trie\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/search\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/icing\-search\-engine\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/store/document\-store\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/character\-iterator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-identifier\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-accessor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/doc\-hit\-info\-iterator\-term\-main\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/lite/doc\-hit\-info\-iterator\-term\-lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/store/usage\-store\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/flash\-index\-storage\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/main\-index\-merger\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/usage\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/main\-index\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libicing\.so
-Build icing_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libicing\.so
-Build icing_x[0-9]+
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/x[0-9]+/libicing\.so
-Build icing_x[0-9]+_[0-9]+
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libicing\.so
+\[[0-9]+/[0-9]+\] Generating .*
 # > Task :support-animation-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportAnimationDemos/src/main/java/com/example/android/support/animation/SpringView\.java uses or overrides a deprecated API\.
 # > Task :lint-demos:lint-demo-appcompat:compileDebugJavaWithJavac
@@ -606,20 +413,7 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :in
 # > Task :camera:camera-extensions:processDebugAndroidTestManifest
 # > Task :camera:camera-lifecycle:processDebugAndroidTestManifest
 # > Task :camera:camera-testing:externalNativeBuildDebug
-Build testing_surface_format_jni_armeabi\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/testing_surface_format_jni\.dir/surface_format_jni\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/testing_surface_format_jni\.dir/jni_hooks\.cpp\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_x[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/x[0-9]+/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_x[0-9]+_[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libtesting_surface_format_jni\.so
+Build testing_surface_format_.*
 # > Task :tipOfTreeDocsTask
 \$OUT_DIR/androidx/sqlite/sqlite\-inspection/build/generated/source/proto/release/java/androidx/sqlite/inspection/SqliteInspectorProtocol\.java:[0-9]+: error: cannot find symbol
 public static com\.google\.protobuf\.Internal\.EnumVerifier
@@ -646,23 +440,6 @@ Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/e
 Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
 # > Task :core:core:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/core/core/src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :drawerlayout:drawerlayout:processDebugAndroidTestManifest
-# > Task :dynamicanimation:dynamicanimation:processDebugAndroidTestManifest
-# > Task :dynamicanimation:dynamicanimation-ktx:processDebugAndroidTestManifest
-# > Task :exifinterface:exifinterface:processDebugAndroidTestManifest
-# > Task :fragment:fragment-testing:processDebugAndroidTestManifest
-# > Task :appsearch:appsearch-local-backend:externalNativeBuildDebug
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX static library protobuf\-target/libprotobufd\.a
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/x[0-9]+/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libicing\.so
-# > Task :gridlayout:gridlayout:processDebugAndroidTestManifest
-# > Task :heifwriter:heifwriter:processDebugAndroidTestManifest
 # > Task :exifinterface:exifinterface:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
@@ -717,17 +494,6 @@ public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.U
 # > Task :sharetarget:sharetarget:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :appsearch:appsearch-local-backend:processDebugAndroidTestManifest
-# > Task :textclassifier:textclassifier:processDebugAndroidTestManifest
-# > Task :transition:transition:processDebugAndroidTestManifest
-# > Task :transition:transition-ktx:processDebugAndroidTestManifest
-# > Task :tvprovider:tvprovider:processDebugAndroidTestManifest
-# > Task :wear:wear:processDebugAndroidTestManifest
-# > Task :wear:wear:mergeDebugAndroidTestJavaResource
-# > Task :vectordrawable:vectordrawable:processDebugAndroidTestManifest
-# > Task :viewpager:viewpager:processDebugAndroidTestManifest
-# > Task :vectordrawable:vectordrawable-animated:processDebugAndroidTestManifest
-# > Task :vectordrawable:vectordrawable-seekable:processDebugAndroidTestManifest
 # > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :wear:wear-watchface:processDebugAndroidTestManifest
@@ -741,20 +507,7 @@ Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCo
 # > Task :benchmark:integration-tests:startup-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildDebug
-Build opengl_renderer_jni_armeabi\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/opengl_renderer_jni\.dir/jni_hooks\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/opengl_renderer_jni\.dir/opengl_renderer_jni\.cpp\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_x[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/x[0-9]+/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_x[0-9]+_[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libopengl_renderer_jni\.so
+Build opengl_renderer_jni_.*
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/androidTest/java/androidx/camera/integration/extensions/ToggleButtonTest\.java uses or overrides a deprecated API\.
 # > Task :camera:integration-tests:camera-testapp-camera2-pipe:minifyReleaseWithR8
@@ -762,15 +515,6 @@ R[0-9]+: Missing class: java\.lang\.instrument\.ClassFileTransformer
 R[0-9]+: Missing class: sun\.misc\.SignalHandler
 # > Task :camera:integration-tests:camera-testapp-view:minifyReleaseWithR8
 R[0-9]+: Missing class: java\.lang\.ClassValue
-# > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildRelease
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/x[0-9]+/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libopengl_renderer_jni\.so
 # > Task :room:integration-tests:room-testapp-noappcompat:compileDebugAndroidTestJavaWithJavac
 \$SUPPORT/room/integration\-tests/noappcompattestapp/src/androidTest/java/androidx/room/integration/noappcompat/BareRelationDatabaseTest\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 UserAndPets getUserWithPets\(long id\);
@@ -838,15 +582,6 @@ See tools/metalava/API\-LINT\.md for how to handle these\.
 # > Task :cursoradapter:cursoradapter:generateApi
 src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mChangeObserver references hidden type androidx\.cursoradapter\.widget\.CursorAdapter\.ChangeObserver\. \[HiddenTypeParameter\]
 src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mCursorFilter references hidden type androidx\.cursoradapter\.widget\.CursorFilter\. \[HiddenTypeParameter\]
-# > Task :camera:camera-testing:externalNativeBuildRelease
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/x[0-9]+/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libtesting_surface_format_jni\.so
 # > Task :camera:camera-camera2:runErrorProne
 \$SUPPORT/camera/camera\-camera[0-9]+/src/main/java/androidx/camera/camera[0-9]+/internal/SupportedSizeConstraints\.java:[0-9]+: warning: \[AutoValueImmutableFields\] AutoValue instances should be deeply immutable\. Therefore, we recommend returning ImmutableSet instead\. Read more at http://goo\.gl/qWo[0-9]+sC
 public abstract Set<Integer> getAffectedFormats\(\);
@@ -952,13 +687,20 @@ More than one file was found with OS independent path '.*'\. This version of the
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
-# > Task :benchmark:benchmark-macro-runtime:assemble
-BUILD SUCCESSFUL in [0-9]+s
 # > Task :benchmark:benchmark-macro-runtime:assemble UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
 # > Task :benchmark:benchmark-macro-runtime:mergeDebugAndroidTestJavaResource
 # > Task :browser:browser:processDebugAndroidTestManifest
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+# > Task :icing:nativeLib:buildEnvironment
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+Project :icing:nativeLib
+classpath
+No dependencies
+A web\-based, searchable dependency report is available by adding the \-\-scan option\.
+# > Task :icing:lint
+Ran lint on variant debug: [0-9]+ issues found
+Ran lint on variant release: [0-9]+ issues found
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
 Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.

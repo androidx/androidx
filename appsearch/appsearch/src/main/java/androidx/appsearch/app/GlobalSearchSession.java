@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlobalSearchSession {
     /**
-     * Searches across all documents in the backend based on a given query string.
+     * Searches across all documents in the storage based on a given query string.
      *
      * <p>Currently we support following features in the raw query format:
      * <ul>
