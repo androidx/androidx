@@ -599,7 +599,8 @@ public final class ComplicationDrawable extends Drawable {
      *
      * @param rangedValueProgressHidden {@code true} if progress should be hidden, {@code false}
      *                                  otherwise
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueProgressHidden
+     * @attr ref androidx.wear.watchface.complications.rendering.R
+     *     .styleable#ComplicationDrawable_rangedValueProgressHidden
      */
     public void setRangedValueProgressHidden(boolean rangedValueProgressHidden) {
         mRangedValueProgressHidden = rangedValueProgressHidden;
