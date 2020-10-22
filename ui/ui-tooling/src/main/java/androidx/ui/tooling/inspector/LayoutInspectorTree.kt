@@ -245,7 +245,7 @@ class LayoutInspectorTree {
             release(node)
         }
         val nodeId = id
-        parentNode.id = if (parentNode.id != 0L && nodeId != null) nodeId else parentNode.id
+        parentNode.id = if (parentNode.id == 0L && nodeId != null) nodeId else parentNode.id
     }
 
     private fun parse(group: Group): MutableInspectorNode {
