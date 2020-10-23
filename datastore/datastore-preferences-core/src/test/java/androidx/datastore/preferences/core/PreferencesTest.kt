@@ -64,6 +64,22 @@ class PreferencesTest {
     }
 
     @Test
+    fun testDouble() {
+        val doubleKey = preferencesKey<Double>("double_key")
+
+        val prefs = preferencesOf(doubleKey to Double.MAX_VALUE)
+
+        assertTrue { doubleKey in prefs }
+        assertEquals(Double.MAX_VALUE, prefs[doubleKey])
+    }
+
+    @Test
+    fun testDoubleNotSet() {
+        val doubleKey = preferencesKey<Double>("double_key")
+        assertNull(emptyPreferences()[doubleKey])
+    }
+
+    @Test
     fun testInt() {
         val intKey = preferencesKey<Int>("int_key")
 
@@ -325,7 +341,7 @@ class PreferencesTest {
             )
         }
         assertFailsWith<IllegalArgumentException> {
-            preferencesKey<Double>(
+            preferencesKey<Preferences>(
                 "test"
             )
         }

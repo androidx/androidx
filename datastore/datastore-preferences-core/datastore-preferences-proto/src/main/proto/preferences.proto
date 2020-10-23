@@ -18,6 +18,7 @@ message Value {
     int64 long = 4;
     string string = 5;
     StringSet string_set = 6;
+    double double = 7;
   }
 }
 
