@@ -107,6 +107,9 @@ class ProtoDataStoreActivity : AppCompatActivity() {
     }
 
     private object SettingsSerializer : Serializer<Settings> {
+
+        override val defaultValue: Settings = Settings.getDefaultInstance()
+
         override fun readFrom(input: InputStream): Settings {
             try {
                 return Settings.parseFrom(input)

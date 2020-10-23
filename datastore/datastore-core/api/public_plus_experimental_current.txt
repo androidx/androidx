@@ -30,8 +30,10 @@ package androidx.datastore.core {
   }
 
   public interface Serializer<T> {
+    method public T! getDefaultValue();
     method public T! readFrom(java.io.InputStream input);
     method public void writeTo(T? t, java.io.OutputStream output);
+    property public abstract T! defaultValue;
   }
 
 }

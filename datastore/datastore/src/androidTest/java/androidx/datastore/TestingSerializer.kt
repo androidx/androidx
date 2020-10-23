@@ -27,6 +27,8 @@ internal class TestingSerializer(
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false
 ) : Serializer<Byte> {
+    override val defaultValue: Byte = 0
+
     override fun readFrom(input: InputStream): Byte {
         if (failReadWithCorruptionException) {
             throw CorruptionException(

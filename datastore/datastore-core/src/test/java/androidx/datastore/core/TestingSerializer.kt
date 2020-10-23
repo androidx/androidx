@@ -23,7 +23,8 @@ import java.io.OutputStream
 internal class TestingSerializer(
     @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
-    @Volatile var failingWrite: Boolean = false
+    @Volatile var failingWrite: Boolean = false,
+    override val defaultValue: Byte = 0
 ) : Serializer<Byte> {
     override fun readFrom(input: InputStream): Byte {
         if (failReadWithCorruptionException) {
