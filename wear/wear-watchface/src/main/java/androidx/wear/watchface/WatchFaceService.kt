@@ -59,10 +59,10 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
-import androidx.wear.watchface.data.IdAndComplicationData
-import androidx.wear.watchface.data.IdAndComplicationDetails
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
+import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDetails
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -223,6 +223,9 @@ public abstract class WatchFaceService : WallpaperService() {
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
 
+    // This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
+    internal open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
+
     internal fun setContext(context: Context) {
         attachBaseContext(context)
     }
@@ -231,11 +234,6 @@ public abstract class WatchFaceService : WallpaperService() {
         private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
         private val _context = this@WatchFaceService as Context
-
-        private lateinit var currentSurfaceHolder: SurfaceHolder
-        private var currentSurfaceFormat = 0
-        private var currentSurfaceWidth = 0
-        private var currentSurfaceHeight = 0
 
         internal lateinit var iWatchFaceService: IWatchFaceService
         internal lateinit var watchFace: WatchFace
@@ -305,7 +303,6 @@ public abstract class WatchFaceService : WallpaperService() {
         private var systemApiVersion = -1
 
         internal var firstSetSystemState = true
-        internal var firstIndicatorState = true
         internal var immutableSystemStateDone = false
 
         internal var lastActiveComplications: IntArray? = null
@@ -413,7 +410,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        fun requestWatchFaceStyle() {
+        private fun requestWatchFaceStyle() {
             try {
                 iWatchFaceService.setStyle(watchFace.watchFaceStyle)
             } catch (e: RemoteException) {
@@ -545,6 +542,30 @@ public abstract class WatchFaceService : WallpaperService() {
             // Disable reference counting for our wake lock so that we can use the same wake lock
             // for user code in invaliate() and after that for having canvas drawn.
             ambientUpdateWakelock.setReferenceCounted(false)
+
+            // Rerender watch face if the surface changes.
+            holder.addCallback(
+                object : SurfaceHolder.Callback {
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        width: Int,
+                        height: Int
+                    ) {
+                        // We can sometimes get this callback before the watchface has been created
+                        // in which case it's safe to drop it.
+                        if (this@EngineWrapper::watchFace.isInitialized) {
+                            invalidate()
+                        }
+                    }
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                    }
+
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                    }
+                }
+            )
         }
 
         override fun onDestroy() {
@@ -670,6 +691,8 @@ public abstract class WatchFaceService : WallpaperService() {
 
             // Fake SurfaceHolder with just enough methods implemented for headless rendering.
             val fakeSurfaceHolder = object : SurfaceHolder {
+                val callbacks = HashSet<SurfaceHolder.Callback>()
+
                 override fun setType(type: Int) {
                     throw NotImplementedError()
                 }
@@ -696,16 +719,16 @@ public abstract class WatchFaceService : WallpaperService() {
                     throw NotImplementedError()
                 }
 
-                override fun removeCallback(callback: SurfaceHolder.Callback?) {
-                    throw NotImplementedError()
+                override fun removeCallback(callback: SurfaceHolder.Callback) {
+                    callbacks.remove(callback)
                 }
 
                 override fun isCreating(): Boolean {
                     throw NotImplementedError()
                 }
 
-                override fun addCallback(callback: SurfaceHolder.Callback?) {
-                    throw NotImplementedError()
+                override fun addCallback(callback: SurfaceHolder.Callback) {
+                    callbacks.add(callback)
                 }
 
                 override fun setFormat(format: Int) {
@@ -731,13 +754,7 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
 
-            watchFace.renderer.onSurfaceChanged(
-                fakeSurfaceHolder,
-                0,
-                params.width,
-                params.height
-            )
-
+            watchFace.renderer.onPostCreate()
             return HeadlessWatchFaceInstance(this, uiThreadHandler)
         }
 
@@ -754,24 +771,14 @@ public abstract class WatchFaceService : WallpaperService() {
             val host = WatchFaceHost()
             host.api = this
             watchFace = createWatchFace(
-                currentSurfaceHolder,
+                getWallpaperSurfaceHolderOverride() ?: surfaceHolder,
                 host,
                 mutableWatchState.asWatchState()
             )
 
             params.idAndComplicationData?.let { setComplicationDataList(it) }
 
-            // Watchfaces especially OpenGL ones often do initialization in
-            // onSurfaceChanged, make sure we send the initial one.
-            if (this::currentSurfaceHolder.isInitialized) {
-                watchFace.renderer.onSurfaceChanged(
-                    currentSurfaceHolder,
-                    currentSurfaceFormat,
-                    currentSurfaceWidth,
-                    currentSurfaceHeight
-                )
-            }
-
+            watchFace.renderer.onPostCreate()
             val visibility = pendingVisibilityChanged
             if (visibility != null) {
                 onVisibilityChanged(visibility)
@@ -783,36 +790,16 @@ public abstract class WatchFaceService : WallpaperService() {
             return instance
         }
 
-        override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-            currentSurfaceHolder = holder
-            currentSurfaceFormat = format
-            currentSurfaceWidth = width
-            currentSurfaceHeight = height
-
-            if (watchFaceCreated()) {
-                watchFace.onSurfaceChanged(holder, format, width, height)
-            } else {
-                maybeCreateWatchFace()
-            }
-        }
-
         override fun onSurfaceRedrawNeeded(holder: SurfaceHolder) {
             if (watchFaceCreated()) {
                 watchFace.onSurfaceRedrawNeeded()
             }
         }
 
-        override fun onSurfaceDestroyed(holder: SurfaceHolder) {
-            if (watchFaceCreated()) {
-                watchFace.renderer.onSurfaceDestroyed(holder)
-            }
-        }
-
         private fun maybeCreateWatchFace() {
             // To simplify handling of watch face state, we only construct the [WatchFace]
-            // once both currentSurfaceHolder and iWatchFaceService have been initialized.
-            if (this::currentSurfaceHolder.isInitialized &&
-                this::iWatchFaceService.isInitialized && pendingProperties != null &&
+            // once iWatchFaceService have been initialized and pending properties sent.
+            if (this::iWatchFaceService.isInitialized && pendingProperties != null &&
                 !watchFaceCreated()
             ) {
                 watchFaceInitStarted = true
@@ -824,19 +811,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 val host = WatchFaceHost()
                 host.api = this
                 watchFace = createWatchFace(
-                    currentSurfaceHolder,
+                    surfaceHolder,
                     host,
                     mutableWatchState.asWatchState()
                 )
-
-                // Watchfaces especially OpenGL ones often do initialization in
-                // onSurfaceChanged, make sure we send the initial one.
-                watchFace.renderer.onSurfaceChanged(
-                    currentSurfaceHolder,
-                    currentSurfaceFormat,
-                    currentSurfaceWidth,
-                    currentSurfaceHeight
-                )
+                watchFace.renderer.onPostCreate()
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {

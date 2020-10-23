@@ -166,23 +166,21 @@ package androidx.wear.watchface {
   }
 
   public abstract class Renderer {
-    ctor public Renderer(android.view.SurfaceHolder _surfaceHolder, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState);
+    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState);
     method public final float getCenterX();
     method public final float getCenterY();
     method @UiThread public android.graphics.Rect getMainClockElementBounds();
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
-    method protected final android.view.SurfaceHolder getSurfaceHolder();
+    method public final android.view.SurfaceHolder getSurfaceHolder();
     method @UiThread public void onDestroy();
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
-    method @CallSuper @UiThread public void onSurfaceChanged(android.view.SurfaceHolder holder, int format, int width, int height);
-    method @UiThread public void onSurfaceDestroyed(android.view.SurfaceHolder holder);
     method @UiThread public boolean shouldAnimate();
     property public final float centerX;
     property public final float centerY;
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
-    property protected final android.view.SurfaceHolder surfaceHolder;
+    property public final android.view.SurfaceHolder surfaceHolder;
   }
 
   public final class WatchFace {
