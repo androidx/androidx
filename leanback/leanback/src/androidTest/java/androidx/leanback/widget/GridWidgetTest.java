@@ -4762,6 +4762,33 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testBug161359022() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear_with_scrollview);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 3);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_UPDATE_SIZE, false);
+        boolean[] focusable = new boolean[] {false, true, false};
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, focusable);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // Notify second item with payload, causes clearFocus() of the itemView.  On P and above
+        // clearFocus() will trigger a top-down requestFocus(), and the ScrollView will call
+        // RecyclerView.addFocusables() where our RecyclerView is in a transitioning-state that
+        // hasFocusable() is true but findFocus() is null.
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.mItemFocusables[1] = false;
+                mActivity.mGridView.getAdapter().notifyItemChanged(1, new Object());
+            }
+        });
+    }
+
+    @Test
     public void testUpdateHeightScrollHorizontal() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
