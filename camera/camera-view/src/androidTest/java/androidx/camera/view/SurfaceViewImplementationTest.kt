@@ -68,7 +68,7 @@ class SurfaceViewImplementationTest {
 
     @Before
     fun setUp() {
-        CoreAppTestUtil.clearDeviceUI(mInstrumentation)
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
         mActivityRule.launchActivity(null)
         mContext = ApplicationProvider.getApplicationContext<Context>()
         mParent = FrameLayout(mContext)
