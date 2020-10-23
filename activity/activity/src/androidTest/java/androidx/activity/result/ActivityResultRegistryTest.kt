@@ -165,6 +165,15 @@ class ActivityResultRegistryTest {
         // move to STARTED and make sure the callback fires
         lifecycleOwner.currentState = Lifecycle.State.STARTED
         assertThat(resultReturned).isTrue()
+
+        // Reset back to CREATED
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        resultReturned = false
+
+        // Move back to STARTED and make sure the previously returned result
+        // isn't sent a second time
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isFalse()
     }
 
     @Test
