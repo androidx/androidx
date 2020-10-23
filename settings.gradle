@@ -178,6 +178,7 @@ includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integr
 includeProject(":camera:integration-tests:camera-testapp-uiwidgets", "camera/integration-tests/uiwidgetstestapp", [BuildType.MAIN])
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp", [BuildType.MAIN])
 includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib", [BuildType.MAIN])
+includeProject(":car:app:app", "car/app/app", [BuildType.MAIN])
 includeProject(":cardview:cardview", "cardview/cardview", [BuildType.MAIN])
 includeProject(":collection:collection", "collection/collection", [BuildType.MAIN])
 includeProject(":collection:collection-benchmark", "collection/collection-benchmark", [BuildType.MAIN])
