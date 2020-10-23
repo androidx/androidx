@@ -61,9 +61,12 @@ import androidx.slice.builders.MessagingSliceBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -84,8 +87,14 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
     public static final String ACTION_TOAST_RANGE_VALUE =
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
+    public static final String ACTION_TOAST_DATE_VALUE =
+            "com.example.androidx.slice.action.TOAST_DATE_VALUE";
+    public static final String ACTION_TOAST_TIME_VALUE =
+            "com.example.androidx.slice.action.TOAST_TIME_VALUE";
     public static final String ACTION_PLAY_TTS = "com.example.androidx.slice.action.PLAY_TTS";
     public static int STAR_RATING = 0;
+    public static long DATE_MILLIS_VALUE = System.currentTimeMillis();
+    public static long TIME_MILLIS_VALUE = System.currentTimeMillis();
 
     public static final String[] URI_PATHS = {
             "message",
@@ -100,6 +109,7 @@ public class SampleSliceProvider extends SliceProvider {
             "contact2",
             "contact3",
             "contact4",
+            "picker",
             "gallery",
             "galleryoverlay",
             "indeterminaterange",
@@ -204,6 +214,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createContact3(sliceUri);
             case "/contact4":
                 return createContact4(sliceUri);
+            case "/picker":
+                return createPicker(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
             case "/galleryoverlay":
@@ -336,6 +348,36 @@ public class SampleSliceProvider extends SliceProvider {
                                 LARGE_IMAGE)
                         .addOverlayText("FRI 68\u00B0")))
                 .build();
+    }
+
+    private Slice createPicker(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "set picked"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "set picked");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        lb.addRow(new RowBuilder()
+                .setTitle("Date and Time Picker")
+                .setPrimaryAction(primaryAction))
+                .addGridRow(new GridRowBuilder()
+                        .addCell(new CellBuilder().addTitleText("Date Picker").setSliceAction(
+                                SliceAction.createDatePicker(
+                                        getBroadcastIntent(ACTION_TOAST_DATE_VALUE, null),
+                                        DateFormat.getDateInstance(DateFormat.FULL,
+                                                Locale.ENGLISH).format(new Date(DATE_MILLIS_VALUE)),
+                                        DATE_MILLIS_VALUE
+                                ))
+                        )
+                        .addCell(new CellBuilder().addTitleText("Time Picker").setSliceAction(
+                                SliceAction.createTimePicker(
+                                        getBroadcastIntent(ACTION_TOAST_TIME_VALUE, null),
+                                        DateFormat.getTimeInstance(DateFormat.SHORT,
+                                                Locale.ENGLISH).format(new Date(TIME_MILLIS_VALUE)),
+                                        TIME_MILLIS_VALUE
+                                ))
+                        ));
+        return lb.build();
     }
 
     private Slice createGallery(Uri sliceUri) {

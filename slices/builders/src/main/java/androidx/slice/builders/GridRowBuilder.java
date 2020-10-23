@@ -17,6 +17,7 @@
 package androidx.slice.builders;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
 
@@ -285,11 +286,12 @@ public class GridRowBuilder {
         @RestrictTo(LIBRARY)
         public static final int TYPE_OVERLAY = 3;
 
-        private List<Object> mObjects = new ArrayList<>();
-        private List<Integer> mTypes = new ArrayList<>();
-        private List<Boolean> mLoadings = new ArrayList<>();
+        private final List<Object> mObjects = new ArrayList<>();
+        private final List<Integer> mTypes = new ArrayList<>();
+        private final List<Boolean> mLoadings = new ArrayList<>();
         private CharSequence mCellDescription;
         private PendingIntent mContentIntent;
+        private SliceAction mSliceAction;
 
         /**
          * Create a builder which will construct a slice displayed as a cell in a grid.
@@ -453,6 +455,17 @@ public class GridRowBuilder {
         }
 
         /**
+         * Sets the intent to send when the cell is clicked.
+         * @hide
+         */
+        @NonNull
+        @RestrictTo(LIBRARY_GROUP)
+        public CellBuilder setSliceAction(@NonNull SliceAction action) {
+            mSliceAction = action;
+            return this;
+        }
+
+        /**
          * @hide
          */
         @RestrictTo(LIBRARY)
@@ -518,6 +531,15 @@ public class GridRowBuilder {
                 }
             }
             return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public SliceAction getSliceAction() {
+            return mSliceAction;
         }
     }
 }

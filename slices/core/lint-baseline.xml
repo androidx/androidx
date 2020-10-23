@@ -2,13 +2,6 @@
 <issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.annotation.experimental.lint.ExperimentalIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;UnsafeExperimentalUsageError&quot;,&#xA;                    &quot;UnsafeExperimentalUsageWarning&quot;&#xA;        }&#xA;    }&#xA;">
-        <location
-            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/fa51cbf3299ee05e2b24ae2129b79127/annotation-experimental-1.0.0/jars/lint.jar"/>
-    </issue>
-
-    <issue
         id="ApplySharedPref"
         message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
         errorLine1="            allFiles.edit()"
@@ -323,7 +316,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="157"
+            line="187"
             column="55"/>
     </issue>
 
@@ -334,7 +327,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="164"
+            line="194"
             column="69"/>
     </issue>
 
@@ -345,7 +338,7 @@
         errorLine2="                                                                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="169"
+            line="199"
             column="83"/>
     </issue>
 
@@ -356,7 +349,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="169"
+            line="199"
             column="70"/>
     </issue>
 
@@ -367,7 +360,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="174"
+            line="204"
             column="74"/>
     </issue>
 
@@ -378,30 +371,63 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="175"
+            line="205"
             column="17"/>
     </issue>
 
     <issue
         id="InlinedApi"
-        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_TOGGLE`"
-        errorLine1="        mIsToggle = SUBTYPE_TOGGLE.equals(actionItem.getSubType());"
-        errorLine2="                    ~~~~~~~~~~~~~~">
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
+        errorLine1="                    mIsChecked = actionItem.hasHint(HINT_SELECTED);"
+        errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="179"
-            column="21"/>
+            line="215"
+            column="53"/>
     </issue>
 
     <issue
         id="InlinedApi"
-        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
-        errorLine1="            mIsChecked = actionItem.hasHint(HINT_SELECTED);"
-        errorLine2="                                            ~~~~~~~~~~~~~">
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="                    SliceItem dateItem = SliceQuery.findSubtype(actionItem, FORMAT_LONG,"
+        errorLine2="                                                                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="181"
-            column="45"/>
+            line="219"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MILLIS`"
+        errorLine1="                            SUBTYPE_MILLIS);"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="220"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="                    SliceItem timeItem = SliceQuery.findSubtype(actionItem, FORMAT_LONG,"
+        errorLine2="                                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="227"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MILLIS`"
+        errorLine1="                            SUBTYPE_MILLIS);"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="228"
+            column="29"/>
     </issue>
 
     <issue
@@ -411,7 +437,7 @@
         errorLine2="                                                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="184"
+            line="238"
             column="76"/>
     </issue>
 
@@ -422,7 +448,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="185"
+            line="239"
             column="17"/>
     </issue>
 
@@ -433,7 +459,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="324"
+            line="378"
             column="33"/>
     </issue>
 
@@ -444,7 +470,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="335"
+            line="389"
             column="52"/>
     </issue>
 
@@ -455,7 +481,7 @@
         errorLine2="                                                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="335"
+            line="389"
             column="67"/>
     </issue>
 
@@ -466,7 +492,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="349"
+            line="403"
             column="40"/>
     </issue>
 
@@ -477,7 +503,7 @@
         errorLine2="                                     ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="354"
+            line="408"
             column="38"/>
     </issue>
 
@@ -488,8 +514,19 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="357"
+            line="411"
             column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_MILLIS`"
+        errorLine1="            sb.addLong(mDateTimeMillis, SUBTYPE_MILLIS);"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="414"
+            column="41"/>
     </issue>
 
     <issue
@@ -499,7 +536,7 @@
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="360"
+            line="417"
             column="25"/>
     </issue>
 
@@ -510,19 +547,19 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="363"
+            line="420"
             column="34"/>
     </issue>
 
     <issue
         id="InlinedApi"
         message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_TOGGLE`"
-        errorLine1="        return mIsToggle ? SUBTYPE_TOGGLE : null;"
-        errorLine2="                           ~~~~~~~~~~~~~~">
+        errorLine1="                return SUBTYPE_TOGGLE;"
+        errorLine2="                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="376"
-            column="28"/>
+            line="435"
+            column="24"/>
     </issue>
 
     <issue
@@ -1830,7 +1867,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="155"
+            line="185"
             column="28"/>
     </issue>
 
@@ -1841,7 +1878,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="204"
+            line="258"
             column="12"/>
     </issue>
 
@@ -1852,7 +1889,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="213"
+            line="267"
             column="12"/>
     </issue>
 
@@ -1863,7 +1900,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/core/SliceActionImpl.java"
-            line="231"
+            line="285"
             column="12"/>
     </issue>
 

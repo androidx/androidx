@@ -148,6 +148,9 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
             if (builder.getContentIntent() != null) {
                 setContentIntent(builder.getContentIntent());
             }
+            if (builder.getSliceAction() != null) {
+                setSliceAction(builder.getSliceAction());
+            }
             List<Object> objs = builder.getObjects();
             List<Integer> types = builder.getTypes();
             List<Boolean> loadings = builder.getLoadings();
@@ -223,6 +226,13 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
          */
         private void setContentDescription(CharSequence description) {
             getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);
+        }
+
+        /**
+         *
+         */
+        public void setSliceAction(@NonNull SliceAction action) {
+            action.setPrimaryAction(getBuilder());
         }
 
         /**
