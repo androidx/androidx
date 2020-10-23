@@ -16,9 +16,18 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import android.hardware.camera2.params.MeteringRectangle
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.pipe.TorchState
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Deferred
 
 internal val cameraGraphSessionIds = atomic(0)
 class CameraGraphSessionImpl(
@@ -46,6 +55,73 @@ class CameraGraphSessionImpl(
     override fun close() {
         // Release the token so that a new instance of session can be created.
         token.release()
+    }
+
+    override fun update3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?
+    ): Deferred<FrameNumber> {
+        TODO("Implement update3A")
+    }
+
+    override fun submit3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?
+    ): Deferred<FrameNumber> {
+        TODO("Implement submit3A")
+    }
+
+    override fun setTorch(torchState: TorchState): Deferred<FrameNumber> {
+        TODO("Implement setTorch")
+    }
+
+    override fun lock3A(
+        aeLockBehavior: Lock3ABehavior?,
+        afLockBehavior: Lock3ABehavior?,
+        awbLockBehavior: Lock3ABehavior?,
+        frameLimit: Int,
+        timeLimitMs: Int
+    ): Deferred<Result3A> {
+        TODO("Implement lock3A")
+    }
+
+    override fun lock3A(
+        aeMode: AeMode?,
+        afMode: AfMode?,
+        awbMode: AwbMode?,
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+        aeLockBehavior: Lock3ABehavior?,
+        afLockBehavior: Lock3ABehavior?,
+        awbLockBehavior: Lock3ABehavior?,
+        frameLimit: Int,
+        timeLimitMs: Int
+    ): Deferred<Result3A> {
+        TODO("Implement lock3A")
+    }
+
+    override fun unlock3A(ae: Boolean?, af: Boolean?, awb: Boolean?): Deferred<FrameNumber> {
+        throw UnsupportedOperationException()
+    }
+
+    override fun lock3AForCapture(
+        frameLimit: Int,
+        timeLimitMs: Int
+    ): Deferred<Result3A> {
+        TODO("Implement lock3AForCapture")
+    }
+
+    override fun unlock3APostCapture(): Deferred<FrameNumber> {
+        TODO("Implement unlock3APostCapture")
     }
 
     override fun toString(): String = "CameraGraph.Session-$debugId"
