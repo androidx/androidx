@@ -61,7 +61,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         @BeforeClass
         @JvmStatic
         fun classSetUp() {
-            CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+            CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }
     }
 
