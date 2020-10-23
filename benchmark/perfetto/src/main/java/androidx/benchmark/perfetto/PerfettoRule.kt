@@ -91,6 +91,7 @@ internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () ->
         block()
         val dst = destinationPath(traceName)
         stop(dst.absolutePath)
+        Log.d(PerfettoRule.TAG, "Finished recording to ${dst.absolutePath}")
         reportAdditionalFileToCopy("perfetto_trace", dst.absolutePath)
     } finally {
         cancel()
