@@ -222,6 +222,50 @@ class ActivityResultRegistryTest {
     }
 
     @Test
+    fun testLifecycleOwnerCallbackWithNullDispatchResult() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+
+        val dispatchResultRegistry = object : ActivityResultRegistry() {
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                dispatchResult(requestCode, null)
+            }
+        }
+
+        var resultReturned = false
+        val activityResult = dispatchResultRegistry.register(
+            "test", lifecycleOwner, TakePicturePreview(),
+            ActivityResultCallback {
+                resultReturned = true
+            }
+        )
+
+        // launch the result
+        activityResult.launch(null)
+
+        // move to CREATED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        assertThat(resultReturned).isFalse()
+
+        // move to STARTED and make sure the callback fires
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isTrue()
+
+        // Reset back to CREATED
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        resultReturned = false
+
+        // Move back to STARTED and make sure the previously returned result
+        // isn't sent a second time
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isFalse()
+    }
+
+    @Test
     fun testLifecycleOwnerCallbackUnregistered() {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
 

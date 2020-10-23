@@ -133,9 +133,9 @@ public abstract class ActivityResultRegistry {
                     @NonNull Lifecycle.Event event) {
                 if (Lifecycle.Event.ON_START.equals(event)) {
                     mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
-                    @SuppressWarnings("unchecked")
-                    final O parsedPendingResult = (O) mParsedPendingResults.get(key);
-                    if (parsedPendingResult != null) {
+                    if (mParsedPendingResults.containsKey(key)) {
+                        @SuppressWarnings("unchecked")
+                        final O parsedPendingResult = (O) mParsedPendingResults.get(key);
                         mParsedPendingResults.remove(key);
                         callback.onActivityResult(parsedPendingResult);
                     }
@@ -199,9 +199,9 @@ public abstract class ActivityResultRegistry {
         final int requestCode = registerKey(key);
         mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
-        @SuppressWarnings("unchecked")
-        final O parsedPendingResult = (O) mParsedPendingResults.get(key);
-        if (parsedPendingResult != null) {
+        if (mParsedPendingResults.containsKey(key)) {
+            @SuppressWarnings("unchecked")
+            final O parsedPendingResult = (O) mParsedPendingResults.get(key);
             mParsedPendingResults.remove(key);
             callback.onActivityResult(parsedPendingResult);
         }
