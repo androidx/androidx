@@ -36,6 +36,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
@@ -455,7 +456,30 @@ class LayoutInspectorTreeTest : ToolingTest() {
         val node = builder.convert(view)
             .flatMap { flatten(it) }
             .firstOrNull { it.name == "Spacer" }
+
+        // Spacer should show up in the Compose tree:
         assertThat(node).isNotNull()
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // Render id is not returned for api < 29:  b/171519437
+    @Test
+    fun testTextId() {
+        val slotTableRecord = SlotTableRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Text(text = "Hello World")
+            }
+        }
+
+        view.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        val builder = LayoutInspectorTree()
+        val node = builder.convert(view)
+            .flatMap { flatten(it) }
+            .firstOrNull { it.name == "CoreText" }
+
+        // LayoutNode id should be captured by the CoreText node:
+        assertThat(node?.id).isGreaterThan(0)
     }
 
     private fun validate(
