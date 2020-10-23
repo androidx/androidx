@@ -17,15 +17,14 @@
 package androidx.benchmark.perfetto
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
 import androidx.tracing.trace
 import org.junit.After
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +44,6 @@ class PerfettoCaptureTest {
         traceFile.delete()
     }
 
-    @FlakyTest // TODO: remove once verified ignorePerfettoTestIfUnsupportedCuttlefish in postsubmit
     @LargeTest
     @Test
     fun traceAndCheckFileSize() {
@@ -53,13 +51,11 @@ class PerfettoCaptureTest {
 
         val perfettoCapture = PerfettoCapture()
 
-        Thread.sleep(100)
-        assertFalse("Tracing should not be enabled yet", Trace.isEnabled())
+        verifyTraceEnable(false)
 
         perfettoCapture.start()
 
-        Thread.sleep(100) // wait for enable flags to propagate to apps
-        assertTrue("Tracing should be enabled", Trace.isEnabled())
+        verifyTraceEnable(true)
 
         trace("PerfettoCaptureTest") {
             // Tracing non-trivial duration for manual debugging/verification
@@ -70,5 +66,34 @@ class PerfettoCaptureTest {
 
         val length = traceFile.length()
         assertTrue("Expect > 10KiB file, was $length bytes", length > 10 * 1024)
+    }
+}
+
+@Suppress("SameParameterValue")
+private fun verifyWithPoll(
+    message: String,
+    periodMs: Long,
+    timeoutMs: Long,
+    tryBlock: () -> Boolean
+) {
+    var totalDurationMs = 0L
+    while (!tryBlock()) {
+        Thread.sleep(periodMs)
+
+        totalDurationMs += periodMs
+        if (totalDurationMs > timeoutMs) {
+            fail(message)
+        }
+    }
+}
+
+fun verifyTraceEnable(enabled: Boolean) {
+    // We poll here, since we may need to wait for enable flags to propagate to apps
+    verifyWithPoll(
+        "Timeout waiting for Trace.isEnabled == $enabled",
+        periodMs = 50,
+        timeoutMs = 500
+    ) {
+        Trace.isEnabled() == enabled
     }
 }
