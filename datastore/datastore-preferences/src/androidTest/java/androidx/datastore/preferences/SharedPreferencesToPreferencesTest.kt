@@ -20,6 +20,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.preferencesKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.flow.first
@@ -190,7 +193,8 @@ class SharedPreferencesToPreferencesTest {
 
     @Test
     fun supportsStringSetKey() = runBlockingTest {
-        val stringSetKey = preferencesSetKey<String>("stringSet_key")
+        val stringSetKey =
+            androidx.datastore.preferences.core.preferencesSetKey<String>("stringSet_key")
         val stringSetValue = setOf("a", "b", "c")
 
         assertTrue { sharedPrefs.edit().putStringSet(stringSetKey.name, stringSetValue).commit() }
@@ -208,7 +212,8 @@ class SharedPreferencesToPreferencesTest {
 
     @Test
     fun migratedStringSetNotMutable() = runBlockingTest {
-        val stringSetKey = preferencesSetKey<String>("stringSet_key")
+        val stringSetKey =
+            androidx.datastore.preferences.core.preferencesSetKey<String>("stringSet_key")
         val stringSetValue = setOf("a", "b", "c")
 
         assertTrue { sharedPrefs.edit().putStringSet(stringSetKey.name, stringSetValue).commit() }

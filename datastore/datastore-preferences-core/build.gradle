@@ -26,38 +26,34 @@ buildscript {
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("kotlin-android")
+    id("kotlin")
     id("org.anarres.jarjar")
 }
 
-android{
-    buildTypes.all{
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-}
+// Include :datastore-preferences-proto
+def jarjarConfigName = "jarjarpreferences"
+def jarjarConf = configurations.register(jarjarConfigName)
+dependencies.add(jarjarConfigName, project.dependencies.project(
+        path: ":datastore:datastore-preferences-core:datastore-preferences-proto",
+        configuration: jarjarConfigName))
+
 
 dependencies {
     api(KOTLIN_STDLIB)
-    api(project(":datastore:datastore"))
-    api(project(":datastore:datastore-preferences-core"))
+    api(project(":datastore:datastore-core"))
+
+    implementation(files(jarjarConf))
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(KOTLIN_TEST)
-
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(KOTLIN_COROUTINES_TEST)
-    androidTestImplementation(KOTLIN_TEST)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
 }
 
 androidx {
-    name = "Android Preferences DataStore"
+    name = "Android Preferences DataStore Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
-    description = "Android Preferences DataStore"
+    description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
 }
