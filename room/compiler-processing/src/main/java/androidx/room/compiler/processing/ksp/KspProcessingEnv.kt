@@ -61,6 +61,14 @@ internal class KspProcessingEnv(
 
     val commonTypes = CommonTypes(resolver)
 
+    val voidType by lazy {
+        KspVoidType(
+            env = this,
+            ksType = resolver.builtIns.unitType,
+            boxed = false
+        )
+    }
+
     override fun findTypeElement(qName: String): XTypeElement? {
         return typeElementStore[qName]
     }
@@ -179,6 +187,10 @@ internal class KspProcessingEnv(
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
                 return KspPrimitiveType(this, ksType)
+            }
+            // special case for void
+            if (qName == "kotlin.Unit") {
+                return voidType
             }
         }
         return if (qName == KOTLIN_ARRAY_Q_NAME) {

@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.Resolver
-import com.squareup.javapoet.TypeName
 import javax.lang.model.util.Elements
 
 class TestInvocation(
@@ -33,21 +32,4 @@ class TestInvocation(
 
     val javaElementUtils: Elements
         get() = (processingEnv as JavacProcessingEnv).elementUtils
-
-    val types by lazy {
-        Types(
-            voidOrUnit = if (isKsp) {
-                UNIT_CLASS_NAME
-            } else {
-                TypeName.VOID
-            }
-        )
-    }
-
-    /**
-     * Helper class to hold types that change between KSP and Javap.
-     */
-    class Types(
-        val voidOrUnit: TypeName
-    )
 }

@@ -71,7 +71,7 @@ class XExecutableTypeTest {
                 assertThat(type.parameterTypes).containsExactly(
                     invocation.processingEnv.requireType(String::class)
                 )
-                assertThat(type.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
+                assertThat(type.returnType.typeName).isEqualTo(TypeName.VOID)
             }
             checkMethods("suspendGetT", subject) { type ->
                 assertThat(type.parameterTypes.first().typeName).isEqualTo(
@@ -152,7 +152,7 @@ class XExecutableTypeTest {
                 assertThat(method.typeVariableNames).isEmpty()
             }
             checkMethods("setMutableT", subject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
+                assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
                 assertThat(method.parameterTypes.first().nullability)
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)
@@ -204,7 +204,7 @@ class XExecutableTypeTest {
             }
 
             checkMethods("setMutableT", nullableSubject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
+                assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
                 assertThat(method.parameterTypes.first().nullability)
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)

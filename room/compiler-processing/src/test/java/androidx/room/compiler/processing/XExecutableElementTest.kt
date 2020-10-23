@@ -267,7 +267,7 @@ class XExecutableElementTest {
             }
             listOf("setY", "setProp2").forEach {
                 klass.getMethod(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
                     assertThat(method.parameters.first().type.typeName).isEqualTo(
                         String::class.typeName()
                     )
