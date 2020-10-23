@@ -230,6 +230,8 @@ includeProject(":compose:runtime:runtime-livedata", "compose/runtime/runtime-liv
 includeProject(":compose:runtime:runtime-livedata:runtime-livedata-samples", "compose/runtime/runtime-livedata/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-rxjava2", "compose/runtime/runtime-rxjava2", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-rxjava2:runtime-rxjava2-samples", "compose/runtime/runtime-rxjava2/samples", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime-rxjava3", "compose/runtime/runtime-rxjava3", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples", "compose/runtime/runtime-rxjava3/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saved-instance-state", "compose/runtime/runtime-saved-instance-state", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saved-instance-state:runtime-saved-instance-state-samples", "compose/runtime/runtime-saved-instance-state/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:benchmark", "compose/runtime/runtime/compose-runtime-benchmark", [BuildType.COMPOSE])
