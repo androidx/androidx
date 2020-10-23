@@ -43,11 +43,18 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_inte
 BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
+\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+Package name \'androidx\.wear\' used in\: androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.wear\:wear\-input\-testing\:[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.
+\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+Package name \'androidx\.compose\.material\.icons\' used in\: androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.compose\.material\:material\-icons\-core\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:appComponentFactory was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :doclava:compileJava
+Note\: Some input files use or override a deprecated API\.
 Note: Some input files use or override a deprecated API that is marked for removal\.
 Note: Recompile with \-Xlint:removal for details\.
+Note\: Some input files use unchecked or unsafe operations\.
+Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
@@ -100,6 +107,25 @@ w: \$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compos
 \$SUPPORT/benchmark/common/src/main/java/androidx/benchmark/simpleperf/RecordOptions\.java:[0-9]+: warning: \[JavaTimeDefaultTimeZone\] LocalDateTime\.now\(\) is not allowed because it silently uses the system default time\-zone\. You must pass an explicit time\-zone \(e\.g\., ZoneId\.of\("America/Los_Angeles"\)\) to this method\.
 LocalDateTime time = LocalDateTime\.now\(\);
 \^
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package Metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.decoder does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.source does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.trackselection does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.upstream does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.video does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.drm does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.mediacodec does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.text does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.video does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.trackselection does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
 \(see https://errorprone\.info/bugpattern/JavaTimeDefaultTimeZone\)
 Did you mean 'LocalDateTime time = LocalDateTime\.now\(ZoneId\.systemDefault\(\)\);'\?
 [0-9]+ warning
@@ -123,8 +149,11 @@ src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
+See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
+See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$SUPPORT/lifecycle/lifecycle\-common/src/main/java/androidx/lifecycle/Lifecycling\.java uses or overrides a deprecated API\.
+Note\: Recompile with \-Xlint\:deprecation for details\.
 # > Task :concurrent:concurrent-futures:compileJava
 Note: \$SUPPORT/concurrent/futures/src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter\.java uses or overrides a deprecated API\.
 # > Task :contentpager:contentpager:compileReleaseJavaWithJavac
@@ -138,10 +167,18 @@ Note: \$SUPPORT/recommendation/recommendation/src/main/java/androidx/recommendat
 # > Task :textclassifier:textclassifier:compileReleaseJavaWithJavac
 Note: \$SUPPORT/textclassifier/textclassifier/src/main/java/androidx/textclassifier/TextClassifier\.java uses or overrides a deprecated API\.
 # > Task :publicDocsTask
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.upstream does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.Format;
 symbol:   class Format
 location: package androidx\.media[0-9]+\.exoplayer\.external
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.audio does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.audio does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.text does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.source does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
 import androidx\.media[0-9]+\.exoplayer\.external\.metadata\.Metadata;
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
@@ -151,6 +188,7 @@ import androidx\.media[0-9]+\.exoplayer\.external\.util\.Util;
 public static final Creator<ByteArrayFrame> CREATOR =
 symbol:   class Creator
 location: class ByteArrayFrame
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: cannot find symbol
 public Format getWrappedMetadataFormat\(\) \{
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/DataSourceCallbackDataSource\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.C;
@@ -161,11 +199,13 @@ import androidx\.media[0-9]+\.exoplayer\.external\.upstream\.DataSource;
 import androidx\.media[0-9]+\.exoplayer\.external\.upstream\.DataSpec;
 /\* package \*/ final class DataSourceCallbackDataSource extends BaseDataSource \{
 symbol: class BaseDataSource
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: package DataSource does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/DataSourceCallbackDataSource\.java:[0-9]+: error: package DataSource does not exist
 static DataSource\.Factory getFactory\(
 public long open\(DataSpec dataSpec\) throws IOException \{
 symbol:   class DataSpec
 location: class DataSourceCallbackDataSource
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerMediaPlayer[0-9]+Impl\.java\:[0-9]+\: error\: cannot find symbol
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ExoPlayerMediaPlayer[0-9]+Impl\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.Player;
 symbol:   class Player
@@ -203,6 +243,7 @@ import androidx\.media[0-9]+\.exoplayer\.external\.video\.VideoRendererEventList
 private final DefaultBandwidthMeter mBandwidthMeter;
 symbol:   class DefaultBandwidthMeter
 location: class ExoPlayerWrapper
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: cannot find symbol
 private SimpleExoPlayer mPlayer;
 private DefaultAudioSink mAudioSink;
 symbol:   class DefaultAudioSink
@@ -252,6 +293,7 @@ symbol:   class Metadata
 final DefaultAudioSink audioSink,
 private final SimpleExoPlayer mPlayer;
 location: class MediaItemQueue
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package DataSource does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ExoPlayerWrapper\.java:[0-9]+: error: package DataSource does not exist
 private final DataSource\.Factory mDataSourceFactory;
 private final ConcatenatingMediaSource mConcatenatingMediaSource;
@@ -637,6 +679,8 @@ WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers 
 WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
 # > Task :compose:compiler:compiler-hosted:integration-tests:test
 wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
+Deprecated Gradle features were used in this build\, making it incompatible with Gradle [0-9]+\.[0-9]+\.
+Use \'\-\-warning\-mode all\' to show the individual deprecation warnings\.
 # > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
 # > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
@@ -704,3 +748,15 @@ Ran lint on variant release: [0-9]+ issues found
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
 Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
+# > Task :buildSrc:build UP-TO-DATE
+See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
+A fine\-grained performance profile is available\: use the \-\-scan option\.
+# > Task :annotation:annotation-experimental-lint:compileKotlin
+w\: ATTENTION\!
+This build uses unsafe internal compiler arguments\:
+\-XXLanguage\:\-NewInference
+This mode is not recommended for production use\,
+as no stability\/compatibility guarantees are given on
+compiler or generated code\. Use it at your own risk\!
+# > Task :compose:ui:ui-util:compileReleaseKotlin
+\-XXLanguage\:\+InlineClasses
