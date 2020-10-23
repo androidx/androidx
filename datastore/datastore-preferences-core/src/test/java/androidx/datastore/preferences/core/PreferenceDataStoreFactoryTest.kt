@@ -14,26 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.datastore.preferences
+package androidx.datastore.preferences.core
 
-import android.content.Context
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.MutablePreferences
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.clear
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.minusAssign
-import androidx.datastore.preferences.core.plusAssign
-import androidx.datastore.preferences.core.preferencesKey
-import androidx.datastore.preferences.core.preferencesOf
-import androidx.datastore.preferences.core.putAll
-import androidx.datastore.preferences.core.remove
-import androidx.datastore.preferences.core.to
-import androidx.datastore.preferences.core.toMutablePreferences
-import androidx.datastore.preferences.core.toPreferences
-import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -57,17 +41,14 @@ class PreferenceDataStoreFactoryTest {
 
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
-    private lateinit var context: Context
 
     val stringKey = preferencesKey<String>("key")
     val booleanKey = preferencesKey<Boolean>("key")
 
     @Before
     fun setUp() {
-        testFile =
-            tmp.newFile("test_file." + /*PreferencesSerializer.fileExtension=*/"preferences_pb")
+        testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
         dataStoreScope = TestCoroutineScope()
-        context = ApplicationProvider.getApplicationContext()
     }
 
     @Test
@@ -138,30 +119,6 @@ class PreferenceDataStoreFactoryTest {
         )
 
         assertEquals(expectedPreferences, store.data.first())
-    }
-
-    @Test
-    fun testCreateWithContextAndName() = runBlockingTest {
-        val prefs = preferencesOf(stringKey to "value")
-
-        var store = context.createDataStore(
-            name = "my_settings",
-            scope = dataStoreScope
-        )
-        store.updateData { prefs }
-
-        // Create it again and confirm it's still there
-        store = context.createDataStore("my_settings", scope = dataStoreScope)
-        assertEquals(prefs, store.data.first())
-
-        // Check that the file name is context.filesDir + name + ".preferences_pb"
-        store = PreferenceDataStoreFactory.create(
-            produceFile = {
-                File(context.filesDir, "datastore/my_settings.preferences_pb")
-            },
-            scope = dataStoreScope
-        )
-        assertEquals(prefs, store.data.first())
     }
 
     @Test

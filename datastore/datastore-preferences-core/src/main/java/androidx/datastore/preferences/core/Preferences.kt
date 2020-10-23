@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.datastore.preferences
+package androidx.datastore.preferences.core
 
 import androidx.datastore.core.DataStore
 import java.lang.IllegalArgumentException
@@ -205,7 +205,7 @@ public class MutablePreferences internal constructor(
         return preferencesMap.containsKey(key)
     }
 
-    override operator fun <T> get(key: Preferences.Key<T>): T? {
+    override operator fun <T> get(key: Key<T>): T? {
         @Suppress("UNCHECKED_CAST")
         return preferencesMap[key] as T?
     }

@@ -1,59 +1,14 @@
 // Signature format: 4.0
 package androidx.datastore.preferences {
 
-  public final class MutablePreferences extends androidx.datastore.preferences.Preferences {
-    method public java.util.Map<androidx.datastore.preferences.Preferences.Key<?>,java.lang.Object> asMap();
-    method public operator <T> boolean contains(androidx.datastore.preferences.Preferences.Key<T> key);
-    method public operator <T> T? get(androidx.datastore.preferences.Preferences.Key<T> key);
-    method public operator <T> void set(androidx.datastore.preferences.Preferences.Key<T> key, T? value);
-  }
-
-  public final class PreferenceDataStoreFactory {
-    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
-    field public static final androidx.datastore.preferences.PreferenceDataStoreFactory INSTANCE;
-  }
-
   public final class PreferenceDataStoreFactoryKt {
-    method public static androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences> createDataStore(android.content.Context, String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
-  }
-
-  public abstract class Preferences {
-    method public abstract java.util.Map<androidx.datastore.preferences.Preferences.Key<?>,java.lang.Object> asMap();
-    method public abstract operator <T> boolean contains(androidx.datastore.preferences.Preferences.Key<T> key);
-    method public abstract operator <T> T? get(androidx.datastore.preferences.Preferences.Key<T> key);
-  }
-
-  public static final class Preferences.Key<T> {
-    ctor @kotlin.PublishedApi internal Preferences.Key(String name);
-    method public String getName();
-    property public final String name;
-  }
-
-  public static final class Preferences.Pair<T> {
-  }
-
-  public final class PreferencesKt {
-    method public static void clear(androidx.datastore.preferences.MutablePreferences);
-    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.Preferences> p);
-    method public static androidx.datastore.preferences.Preferences emptyPreferences();
-    method public static operator void minusAssign(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences.Key<?> key);
-    method public static androidx.datastore.preferences.MutablePreferences mutablePreferencesOf(androidx.datastore.preferences.Preferences.Pair<?>... pairs);
-    method public static operator void plusAssign(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences prefs);
-    method public static operator void plusAssign(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences.Pair<?> pair);
-    method public static inline <reified T> androidx.datastore.preferences.Preferences.Key<T>! preferencesKey(String name);
-    method public static androidx.datastore.preferences.Preferences preferencesOf(androidx.datastore.preferences.Preferences.Pair<?>... pairs);
-    method public static inline <reified T> androidx.datastore.preferences.Preferences.Key<java.util.Set<? extends T>>! preferencesSetKey(String name);
-    method public static void putAll(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences.Pair<?>... pairs);
-    method public static <T> T! remove(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences.Key<T> key);
-    method public static infix <T> androidx.datastore.preferences.Preferences.Pair<T> to(androidx.datastore.preferences.Preferences.Key<T>, T? value);
-    method public static androidx.datastore.preferences.MutablePreferences toMutablePreferences(androidx.datastore.preferences.Preferences);
-    method public static androidx.datastore.preferences.Preferences toPreferences(androidx.datastore.preferences.Preferences);
+    method public static androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> createDataStore(android.content.Context, String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
   }
 
   public final class SharedPreferencesMigrationKt {
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String>? keysToMigrate, optional boolean deleteEmptyPreferences);
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String>? keysToMigrate);
-    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String>? keysToMigrate, optional boolean deleteEmptyPreferences);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String>? keysToMigrate);
+    method public static androidx.datastore.migrations.SharedPreferencesMigration<androidx.datastore.preferences.core.Preferences> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName);
   }
 
 }
