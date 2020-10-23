@@ -236,6 +236,7 @@ includeProject(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples", "comp
 includeProject(":compose:runtime:runtime-saved-instance-state", "compose/runtime/runtime-saved-instance-state", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime-saved-instance-state:runtime-saved-instance-state-samples", "compose/runtime/runtime-saved-instance-state/samples", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:benchmark", "compose/runtime/runtime/compose-runtime-benchmark", [BuildType.COMPOSE])
+includeProject(":compose:runtime:runtime:integration-tests", "compose/runtime/runtime/integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:runtime:runtime:runtime-samples", "compose/runtime/runtime/samples", [BuildType.COMPOSE])
 includeProject(":compose:test-utils", "compose/test-utils", [BuildType.COMPOSE])
 includeProject(":compose:ui", "compose/ui", [BuildType.COMPOSE])
