@@ -112,13 +112,13 @@ class DocumentsContractApi19 {
         }
 
         final String type = getRawType(context, self);
-        final int flags = queryForInt(context, self, DocumentsContract.Document.COLUMN_FLAGS, 0);
-
+        
         // Ignore documents without MIME
         if (TextUtils.isEmpty(type)) {
             return false;
         }
 
+		final int flags = queryForInt(context, self, DocumentsContract.Document.COLUMN_FLAGS, 0);
         // Deletable documents considered writable
         if ((flags & DocumentsContract.Document.FLAG_SUPPORTS_DELETE) != 0) {
             return true;
