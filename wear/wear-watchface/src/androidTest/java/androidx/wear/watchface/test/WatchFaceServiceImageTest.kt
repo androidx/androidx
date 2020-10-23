@@ -120,15 +120,14 @@ class WatchFaceServiceImageTest {
         canvasWatchFaceService = TestCanvasWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
-            100000
+            100000,
+            surfaceHolder
         )
 
         engineWrapper = canvasWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
 
-        // The [SurfaceHolder] must be sent before binding.
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
         Mockito.`when`(surfaceHolder.unlockCanvasAndPost(canvas)).then {
             renderDoneLatch.countDown()
@@ -153,17 +152,16 @@ class WatchFaceServiceImageTest {
         glesWatchFaceService = TestGlesWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
-            100000
+            100000,
+            surfaceHolder
         )
         engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
 
-        // The [SurfaceHolder] must be sent before binding.
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
         Mockito.`when`(surfaceHolder.surface).thenReturn(Surface(surfaceTexture))
-        engineWrapper.onSurfaceChanged(surfaceHolder, 0, BITMAP_WIDTH, BITMAP_HEIGHT)
 
         setBinderAndSendComplicationData(
             WallpaperInteractiveWatchFaceInstanceParams(
