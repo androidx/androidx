@@ -16,18 +16,18 @@
 
 package androidx.appsearch.localstorage;
 
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.converter.GenericDocumentToProtoConverter;
@@ -60,7 +60,6 @@ import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -288,7 +287,7 @@ public final class AppSearchImpl {
      * @return The Document contents
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    @Nullable
+    @NonNull
     public GenericDocument getDocument(@NonNull String databaseName, @NonNull String namespace,
             @NonNull String uri) throws AppSearchException {
         GetResultProto getResultProto;
@@ -303,8 +302,7 @@ public final class AppSearchImpl {
 
         DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
         removeDatabasesFromDocument(documentBuilder);
-        GenericDocument document = GenericDocumentToProtoConverter.convert(documentBuilder.build());
-        return document;
+        return GenericDocumentToProtoConverter.convert(documentBuilder.build());
     }
 
     /**
@@ -365,8 +363,7 @@ public final class AppSearchImpl {
             // We use the mNamespaceMap.keySet here because it's the smaller set of valid databases
             // that could exist.
             if (!rewriteSearchSpecForDatabases(searchSpecBuilder, databases)) {
-                return new SearchResultPage(/*nextPageToken=*/0,
-                        Collections.emptyList());
+                return new SearchResultPage(Bundle.EMPTY);
             }
             searchResultProto = mIcingSearchEngine.search(
                     searchSpecBuilder.build(), scoringSpec, resultSpec);
@@ -809,12 +806,7 @@ public final class AppSearchImpl {
     /** Remove the rewritten schema types from any result documents. */
     private SearchResultPage rewriteSearchResultProto(
             @NonNull SearchResultProto searchResultProto) {
-        if (searchResultProto.getResultsCount() == 0) {
-            return new SearchResultPage(searchResultProto.getNextPageToken(),
-                    Collections.emptyList());
-        }
-
-        List<SearchResult> searchResults = new ArrayList<>(searchResultProto.getResultsCount());
+        SearchResultProto.Builder resultsBuilder = searchResultProto.toBuilder();
         for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
             if (searchResultProto.getResults(i).hasDocument()) {
                 SearchResultProto.ResultProto.Builder resultBuilder =
@@ -822,10 +814,10 @@ public final class AppSearchImpl {
                 DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
                 removeDatabasesFromDocument(documentBuilder);
                 resultBuilder.setDocument(documentBuilder);
-                searchResults.add(SearchResultToProtoConverter.convertSearchResult(resultBuilder));
+                resultsBuilder.setResults(i, resultBuilder);
             }
         }
-        return new SearchResultPage(searchResultProto.getNextPageToken(), searchResults);
+        return SearchResultToProtoConverter.convertToSearchResultPage(resultsBuilder);
     }
 
     @VisibleForTesting
@@ -863,24 +855,6 @@ public final class AppSearchImpl {
                 // Some unknown/unsupported error
                 return new AppSearchException(AppSearchResult.RESULT_UNKNOWN_ERROR,
                         "Unknown IcingSearchEngine status code: " + statusProto.getCode());
-        }
-    }
-
-    static class SearchResultPage {
-        private final long mNextPageToken;
-        private final List<SearchResult> mResults;
-
-        SearchResultPage(long nextPageToken, List<SearchResult> results) {
-            mNextPageToken = nextPageToken;
-            mResults = results;
-        }
-
-        public long getNextPageToken() {
-            return mNextPageToken;
-        }
-
-        public List<SearchResult> getResults() {
-            return mResults;
         }
     }
 }
