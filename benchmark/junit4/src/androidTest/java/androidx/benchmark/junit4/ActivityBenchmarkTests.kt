@@ -21,6 +21,7 @@ import androidx.benchmark.IsolationActivity
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertFalse
@@ -28,7 +29,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
     // isolation activity *not* on top
@@ -38,7 +38,7 @@ fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
 }
 
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class ActivityScenarioTest {
     @get:Rule
     val benchmarkRule = BenchmarkRule(enableReport = false)
@@ -59,7 +59,7 @@ class ActivityScenarioTest {
 }
 
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class ActivityScenarioRuleTest {
     @get:Rule
     val benchmarkRule = BenchmarkRule(enableReport = false)
@@ -75,7 +75,7 @@ class ActivityScenarioRuleTest {
 }
 
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class ActivityTestRuleTest {
     @get:Rule
     val benchmarkRule = BenchmarkRule(enableReport = false)

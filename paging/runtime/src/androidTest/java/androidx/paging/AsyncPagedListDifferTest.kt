@@ -24,6 +24,7 @@ import androidx.paging.PagedListListenerFake.OnCurrentListChangedEvent
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
@@ -32,12 +33,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class AsyncPagedListDifferTest {
     private val mainThread = TestExecutor()
     private val diffThread = TestExecutor()

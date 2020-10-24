@@ -15,7 +15,9 @@
  */
 package androidx.leanback.paging
 
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.CombinedLoadStates
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.paging.LoadType
 import androidx.paging.Pager
@@ -26,27 +28,25 @@ import androidx.paging.assertEvents
 import androidx.paging.localLoadStatesOf
 import androidx.paging.toCombinedLoadStatesLocal
 import androidx.recyclerview.widget.DiffUtil
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
+import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestCoroutineScope
-import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
-import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.paging.ExperimentalPagingApi
-import androidx.test.filters.SmallTest
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class PagingDataAdapterTest {
 
     private val testScope = TestCoroutineScope()

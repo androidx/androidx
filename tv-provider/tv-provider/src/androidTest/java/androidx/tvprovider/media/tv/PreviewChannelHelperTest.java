@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -39,7 +40,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,7 +53,7 @@ import java.util.Objects;
  */
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class PreviewChannelHelperTest {
 
 

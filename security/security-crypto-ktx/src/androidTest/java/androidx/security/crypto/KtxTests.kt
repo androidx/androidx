@@ -18,12 +18,12 @@ package androidx.security.crypto
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.security.KeyStore
@@ -31,7 +31,7 @@ import java.security.KeyStore
 private const val PREFS_FILE = "test_shared_prefs"
 
 @MediumTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class KtxTests {
 
     @Before
