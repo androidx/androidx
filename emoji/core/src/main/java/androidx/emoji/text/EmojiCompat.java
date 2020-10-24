@@ -871,49 +871,32 @@ public class EmojiCompat {
          * {@code start}(inclusive) and {@code end}(exclusive) can be rendered on the system
          * using the default Typeface.
          *
-         * This function is called after an emoji is identified in the given {@code charSequence}
+         * <p>This function is called after an emoji is identified in the given {@code charSequence}
          * and EmojiCompat wants to know if that emoji can be rendered on the system. The result
          * of this call will be cached and the same emoji sequence won't be asked for the same
          * EmojiCompat instance.
          *
-         * When the function returns {@code true}, it will mean that the system can render the
+         * <p>When the function returns {@code true}, it will mean that the system can render the
          * emoji. In that case if {@link Config#setReplaceAll} is set to {@code false}, then no
          * {@link EmojiSpan} will be added in the final emoji processing result.
          *
-         * When the function returns {@code false}, it will mean that the system cannot render
+         * <p>When the function returns {@code false}, it will mean that the system cannot render
          * the given emoji, therefore an {@link EmojiSpan} will be added to the final emoji
          * processing result.
          *
-         * The default implementation of this class uses
+         * <p>The default implementation of this class uses
          * {@link androidx.core.graphics.PaintCompat#hasGlyph(Paint, String)} function to check
          * if the emoji can be rendered on the system. This is required even if EmojiCompat
          * knows about the SDK Version that the emoji was added on AOSP. Just the {@code sdkAdded}
          * information is not enough to reliably decide if emoji can be rendered since this
          * information may not be consistent across all the OEMs and all the Android versions.
          *
-         * With this interface you can apply your own heuristics to check if the emoji can be
+         * <p>With this interface you can apply your own heuristics to check if the emoji can be
          * rendered on the system. For example, if you'd like to rely on the {@code sdkAdded}
          * information, and some predefined OEMs, it is possible to write the following code
          * snippet.
-         * <pre>
-         * <code>
-         * class MyGlyphChecker implements EmojiGlyphChecker {
-         *     public boolean hasGlyph(
-         *             CharSequence charSequence,
-         *             int start,
-         *             int end,
-         *             int sdkAdded
-         *     ) {
-         *         if(isOnDeviceX()) {
-         *              return sdkAdded < Build.VERSION.SDK_INT;
-         *         } else {
-         *             val string = constructString(charSequence, start, end)
-         *             return PaintCompat.hasGlyph(getTextPaint(), string);
-         *         }
-         *     }
-         * }
-         * </code>
-         * </pre>
+         *
+         * {@sample frameworks/support/samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
          *
          * @param charSequence the CharSequence that is being processed
          * @param start the inclusive starting offset for the emoji in the {@code charSequence}
