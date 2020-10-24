@@ -50,14 +50,14 @@ class NavControllerTest {
 
     @Test
     @Suppress("EXPERIMENTAL_API_USAGE")
-    fun backStackEntryFlow() = runBlocking {
+    fun currentBackStackEntryFlow() = runBlocking {
         navController.graph = navController.createGraph(startDestination = 1) {
             test(1)
             test(2)
             test(3)
         }
 
-        navController.backStackEntryFlow
+        navController.currentBackStackEntryFlow
             .take(navController.graph.count())
             .withIndex()
             .onEach { (index, backStackEntry) ->
