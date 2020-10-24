@@ -27,7 +27,7 @@ import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +79,7 @@ private sealed class ListUpdateEvent {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class AsyncPagingDataDifferTest {
     private val testScope = TestCoroutineScope()

@@ -46,7 +46,6 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -170,7 +169,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedDefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -183,7 +182,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedV1DefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V1);
@@ -196,7 +195,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedSha512DefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V2_SHA512);
@@ -209,7 +208,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedVerityDefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_VERITY);
@@ -222,7 +221,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @MediumTest
+    @LargeTest
     @Test
     public void testAllChecksums() throws Exception {
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, ALL_CHECKSUMS,
@@ -249,7 +248,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksumsDirectExecutor() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -265,7 +264,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksumsSingleThread() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -294,7 +293,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedV1AllChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V1);

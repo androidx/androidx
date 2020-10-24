@@ -40,7 +40,7 @@ import androidx.security.identity.ResultData;
 import androidx.security.identity.WritableIdentityCredential;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +65,7 @@ import java.util.Map;
 
 import co.nstant.in.cbor.CborException;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ReaderAuthTest {
     private static final String TAG = "ReaderAuthTest";

@@ -31,7 +31,7 @@ import androidx.security.identity.NoAuthenticationKeyAvailableException;
 import androidx.security.identity.ResultData;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +56,7 @@ import co.nstant.in.cbor.CborBuilder;
 import co.nstant.in.cbor.CborEncoder;
 import co.nstant.in.cbor.CborException;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class DynamicAuthTest {
     private static final String TAG = "DynamicAuthTest";
