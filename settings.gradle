@@ -601,14 +601,6 @@ if (isAllProjects()) {
     includeProject(":docs-public", "docs-public")
 }
 
-// fake project which is used for docs generation from prebuilts
-// we need real android project to generate R.java, aidl etc files that mentioned in sources
-if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
-    // we don't need it in ide, so we don't configure it there
-    includeProject(":docs-fake", "docs-fake")
-    includeProject(":docs-runner", "docs-runner")
-}
-
 // placeholder test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":placeholder-tests", "placeholder-tests")
