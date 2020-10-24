@@ -18,13 +18,11 @@ package androidx.camera.camera2.pipe
 
 import android.os.Build
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ModeEnum3ATest {
