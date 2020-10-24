@@ -35,7 +35,6 @@ import android.os.Build;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

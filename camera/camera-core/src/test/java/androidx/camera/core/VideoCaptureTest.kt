@@ -26,7 +26,6 @@ import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -42,7 +41,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import java.io.File
 
-@SmallTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(

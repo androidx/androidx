@@ -31,7 +31,6 @@ import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager.Authenticators;
-import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @SuppressWarnings("deprecation")
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class BiometricManagerTest {

@@ -19,7 +19,6 @@ package androidx.fragment.app
 import FragmentPagerActivity
 import FragmentStatePagerActivity
 import android.os.Build
-import androidx.test.filters.LargeTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -27,7 +26,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@LargeTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(sdk = [Build.VERSION_CODES.O_MR1], manifest = Config.NONE)

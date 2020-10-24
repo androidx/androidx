@@ -26,6 +26,7 @@ import static androidx.camera.core.ViewPort.FIT;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Rational;
@@ -53,6 +54,7 @@ import java.util.Map;
  * Unit tests for {@link ViewPorts}.
  */
 @SmallTest
+@SuppressLint("UnsupportedTestRunner")
 @RunWith(Enclosed.class)
 public class ViewPortsTest {
 

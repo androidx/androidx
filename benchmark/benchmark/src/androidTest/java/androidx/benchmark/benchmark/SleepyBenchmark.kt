@@ -19,11 +19,11 @@ package androidx.benchmark.benchmark
 import android.opengl.Matrix
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 /**
  * This benchmark is designed to show the difference between environments with minimum clocks
@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4
  * [matrixMathSleepy].
  */
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class SleepyBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()

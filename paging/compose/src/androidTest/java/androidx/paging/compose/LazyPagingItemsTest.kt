@@ -28,18 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import androidx.test.filters.MediumTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@MediumTest
+@LargeTest
 @OptIn(ExperimentalLazyDsl::class)
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class LazyPagingItemsTest {
     @get:Rule
     val rule = createComposeRule()
