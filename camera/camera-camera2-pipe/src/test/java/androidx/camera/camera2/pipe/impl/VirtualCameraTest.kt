@@ -20,7 +20,6 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameras
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,7 +37,6 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.util.concurrent.TimeUnit
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -143,7 +141,6 @@ class VirtualCameraStateTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)

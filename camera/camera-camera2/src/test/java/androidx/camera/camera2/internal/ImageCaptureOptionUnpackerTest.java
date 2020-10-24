@@ -27,7 +27,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeviceProperties;
 import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.util.ReflectionHelpers;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.O)

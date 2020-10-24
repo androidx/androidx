@@ -43,7 +43,6 @@ import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -130,7 +129,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesStates() throws RemoteException {
         Collection<KeyedAppState> keyedAppStates = asList(STATE, STATE2);
         Bundle appStatesBundle = buildStatesBundle(keyedAppStates);
@@ -165,7 +163,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesTimestamp() throws RemoteException {
         SystemClock.setCurrentTimeMillis(CURRENT_TIME_MILLIS);
 
@@ -178,7 +175,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesPackageName() throws RemoteException {
         final String packageName = "test.package.name";
         shadowOf(mPackageManager).setNameForUid(DEFAULT_SENDING_UID, packageName);
@@ -191,7 +187,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesDoesNotRequestSync() throws RemoteException {
         mMessenger.send(createTestStateMessage());
         idleKeyedAppStatesService();
@@ -200,7 +195,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void receivesRequestSync() throws RemoteException {
         Message message = createStateMessageImmediate(buildStatesBundle(singleton(STATE)));
 
@@ -211,7 +205,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void deduplicatesStates() throws RemoteException {
         // Arrange
         Collection<KeyedAppState> keyedAppStates =
@@ -238,7 +231,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_emptyStates_doesNotCallback() throws RemoteException {
         Bundle appStatesBundle = buildStatesBundle(Collections.emptyList());
         Message message = createStateMessage(appStatesBundle);
@@ -250,7 +242,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messageWithoutWhat_doesNotCallback() throws RemoteException {
         Message message = Message.obtain();
 
@@ -261,7 +252,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messageWithoutBundle_doesNotCallback() throws RemoteException {
         mMessenger.send(createStateMessage(null));
         idleKeyedAppStatesService();
@@ -270,7 +260,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messageWithIncorrectObj_doesNotCallback() throws RemoteException {
         Message message = createStateMessage(null);
         message.obj = "";
@@ -282,7 +271,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messageWithEmptyBundle_doesNotCallback() throws RemoteException {
         mMessenger.send(createStateMessage(new Bundle()));
         idleKeyedAppStatesService();
@@ -291,7 +279,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messsageWithInvalidState_doesNotCallback() throws RemoteException {
         Bundle invalidStateBundle = createDefaultStateBundle();
         invalidStateBundle.remove(APP_STATE_KEY);
@@ -305,7 +292,6 @@ public class KeyedAppStatesServiceTest {
     }
 
     @Test
-    @SmallTest
     public void send_messageWithBothInvalidAndValidStates_callsBackWithOnlyValidStates()
             throws RemoteException {
         Bundle invalidStateBundle = createDefaultStateBundle();

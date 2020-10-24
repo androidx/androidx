@@ -25,7 +25,6 @@ import static java.util.Collections.singleton;
 import android.content.ContextWrapper;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +44,6 @@ public class KeyedAppStatesReporterTest {
             KeyedAppState.builder().setKey("key").setSeverity(KeyedAppState.SEVERITY_INFO).build();
 
     @Test
-    @SmallTest
     public void create_nullContext_throwsNullPointerException() {
         try {
             KeyedAppStatesReporter.create(null);
@@ -55,7 +53,6 @@ public class KeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void create_createsDefaultKeyedAppStatesReporter() {
         KeyedAppStatesReporter reporter = KeyedAppStatesReporter.create(mContext);
 
@@ -63,7 +60,6 @@ public class KeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void createWithExecutor_nullContext_throwsNullPointerException() {
         TestExecutor testExecutor = new TestExecutor();
         try {
@@ -74,7 +70,6 @@ public class KeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void createWithExecutor_nullExecutor_throwsNullPointerException() {
         try {
             KeyedAppStatesReporter.create(mContext, null);
@@ -84,7 +79,6 @@ public class KeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void createWithExecutor_createsDefaultKeyedAppStatesReporter() {
         TestExecutor testExecutor = new TestExecutor();
         KeyedAppStatesReporter reporter =
@@ -94,7 +88,6 @@ public class KeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setStates_createWithExecutor_usesExecutor() {
         TestExecutor testExecutor = new TestExecutor();
         KeyedAppStatesReporter reporter =

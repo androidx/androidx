@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNull;
 import android.content.Intent;
 
 import androidx.annotation.Nullable;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@SmallTest
 public class CustomTabColorSchemeParamsTest {
     @Test
     public void testParamsProvidedForBothSchemes() {

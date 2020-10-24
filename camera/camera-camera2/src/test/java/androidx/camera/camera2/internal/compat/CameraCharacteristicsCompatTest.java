@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +30,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

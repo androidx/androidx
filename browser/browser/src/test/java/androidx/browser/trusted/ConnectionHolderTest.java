@@ -27,7 +27,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -47,7 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@SmallTest
 public class ConnectionHolderTest {
     private final TestWrapperFactory mWrapperFactory = new TestWrapperFactory();
 

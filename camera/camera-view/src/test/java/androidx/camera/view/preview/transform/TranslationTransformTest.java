@@ -32,7 +32,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.camera.view.preview.transform.transformation.TranslationTransformation;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +39,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

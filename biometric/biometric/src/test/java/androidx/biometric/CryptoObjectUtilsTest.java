@@ -22,8 +22,6 @@ import static org.mockito.Mockito.mock;
 
 import android.os.Build;
 
-import androidx.test.filters.LargeTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +36,6 @@ import java.security.Signature;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CryptoObjectUtilsTest {

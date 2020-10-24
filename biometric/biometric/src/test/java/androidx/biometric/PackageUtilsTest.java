@@ -25,8 +25,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-import androidx.test.filters.LargeTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +34,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class PackageUtilsTest {

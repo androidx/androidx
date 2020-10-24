@@ -20,7 +20,6 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -31,7 +30,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 /**
  * Unit tests for [CameraFilters].
  */
-@MediumTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 class CameraFiltersTest {

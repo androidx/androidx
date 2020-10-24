@@ -31,7 +31,6 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.ImageOutputConfig;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +46,6 @@ import java.util.List;
 /**
  * Unit test for {@link TargetAspectRatio}.
  */
-@SmallTest
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

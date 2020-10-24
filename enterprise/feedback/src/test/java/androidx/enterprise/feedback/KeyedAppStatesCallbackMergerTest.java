@@ -18,8 +18,6 @@ package androidx.enterprise.feedback;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -36,7 +34,6 @@ public class KeyedAppStatesCallbackMergerTest {
     private final Throwable mTestThrowable = new IllegalArgumentException();
 
     @Test
-    @SmallTest
     public void notZeroExpected_noImmediateCallback() {
         new KeyedAppStatesCallbackMerger(1, mCallback);
 
@@ -44,7 +41,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void zeroExpected_successCallbackImmediately() {
         new KeyedAppStatesCallbackMerger(0, mCallback);
 
@@ -53,7 +49,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void oneExpected_successCallbackIsPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(1, mCallback);
@@ -65,7 +60,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_firstSuccessCallbackIsNotPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -76,7 +70,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_secondSuccessCallbackIsPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -89,7 +82,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_thirdSuccessCallbackIsNotPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -102,7 +94,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void oneExpected_failureCallbackIsPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(1, mCallback);
@@ -116,7 +107,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_firstFailureCallbackIsPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -130,7 +120,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_secondFailureCallbackIsNotPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -146,7 +135,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void twoExpected_alreadyFailed_laterSuccessCallbacksAreNotPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(2, mCallback);
@@ -162,7 +150,6 @@ public class KeyedAppStatesCallbackMergerTest {
     }
 
     @Test
-    @SmallTest
     public void throwableIsPassedThrough() {
         KeyedAppStatesCallbackMerger merger =
                 new KeyedAppStatesCallbackMerger(1, mCallback);

@@ -59,7 +59,6 @@ import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -80,7 +79,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument

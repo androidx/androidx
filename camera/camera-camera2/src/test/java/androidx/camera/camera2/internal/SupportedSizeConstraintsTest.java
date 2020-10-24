@@ -46,7 +46,6 @@ import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +73,6 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  * Unit tests for {@link ExcludedSupportedSizesContainer}'s usage within
  * {@link SupportedSurfaceCombination}.
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

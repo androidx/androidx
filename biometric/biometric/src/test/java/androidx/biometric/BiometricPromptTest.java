@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.biometric.BiometricManager.Authenticators;
-import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +28,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class BiometricPromptTest {

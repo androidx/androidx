@@ -46,7 +46,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -67,7 +66,6 @@ import java.util.concurrent.ExecutionException;
 
 import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

@@ -26,8 +26,6 @@ import static org.mockito.Mockito.when;
 
 import android.os.Build;
 
-import androidx.test.filters.LargeTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +39,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import javax.crypto.Cipher;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AuthenticationCallbackProviderTest {

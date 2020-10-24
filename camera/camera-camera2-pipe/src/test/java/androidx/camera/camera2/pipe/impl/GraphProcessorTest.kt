@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.testing.Event
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.camera.camera2.pipe.testing.FakeThreads
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -32,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class GraphProcessorTest {

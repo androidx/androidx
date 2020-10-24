@@ -21,7 +21,6 @@ import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@SmallTest
 class DynamicNavGraphTest {
 
     private val progressId = 1
