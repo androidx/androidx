@@ -888,7 +888,6 @@ public final class CameraUtil {
             }
 
             if (!hasFront || !hasBack) {
-                error = true;
                 Logger.e(LOG_TAG,
                         "Missing front or back camera, has front camera: " + hasFront + ", has "
                                 + "back camera: " + hasBack);
