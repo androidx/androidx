@@ -145,7 +145,7 @@ constructor(
  *  Read-only wrapper around SharedPreferences. This will be passed in to your migration. The
  *  constructor is public to enable easier testing of migrations.
  */
-public class SharedPreferencesView(
+public class SharedPreferencesView internal constructor(
     private val prefs: SharedPreferences,
     private val keySet: Set<String>
 ) {
