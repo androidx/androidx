@@ -208,8 +208,8 @@ final class Camera2CameraImpl implements CameraInternal {
                     mCameraQuirks);
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
-                    cameraCharacteristicsCompat,
-                    mCameraControlInternal);
+                    cameraCharacteristicsCompat);
+            mCameraInfoInternal.linkWithCameraControl(mCameraControlInternal);
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }

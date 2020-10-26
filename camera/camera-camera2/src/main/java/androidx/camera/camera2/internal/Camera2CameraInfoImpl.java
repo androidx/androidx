@@ -18,8 +18,10 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
+import android.util.Pair;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
@@ -37,12 +39,24 @@ import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
  * camera2.
+ *
+ * <p>Construction consists of two stages. The constructor creates a implementation without a
+ * {@link Camera2CameraControlImpl} and will return default values for camera control related
+ * states like zoom/exposure/torch. After {@link #linkWithCameraControl} is called,
+ * zoom/exposure/torch API will reflect the states in the {@link Camera2CameraControlImpl}. Any
+ * CameraCaptureCallbacks added before this link will also be added
+ * to the {@link Camera2CameraControlImpl}.
  */
 @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
@@ -50,22 +64,62 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private static final String TAG = "Camera2CameraInfo";
     private final String mCameraId;
     private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
-    private final Camera2CameraControlImpl mCamera2CameraControlImpl;
-    private final ZoomControl mZoomControl;
-    private final TorchControl mTorchControl;
-    private final ExposureControl mExposureControl;
     private final Camera2CameraInfo mCamera2CameraInfo;
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    @Nullable
+    private Camera2CameraControlImpl mCamera2CameraControlImpl;
+    @GuardedBy("mLock")
+    @Nullable
+    private RedirectableLiveData<Integer> mRedirectTorchStateLiveData = null;
+    @GuardedBy("mLock")
+    @Nullable
+    private RedirectableLiveData<ZoomState> mRedirectZoomStateLiveData = null;
+    @GuardedBy("mLock")
+    @Nullable
+    private List<Pair<CameraCaptureCallback, Executor>> mCameraCaptureCallbacks = null;
+
+    /**
+     * Constructs an instance. Before {@link #linkWithCameraControl(Camera2CameraControlImpl)} is
+     * called, camera control related API (torch/exposure/zoom) will return default values.
+     */
     Camera2CameraInfoImpl(@NonNull String cameraId,
-            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
-            @NonNull Camera2CameraControlImpl camera2CameraControlImpl) {
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
-        mCamera2CameraControlImpl = camera2CameraControlImpl;
-        mZoomControl = camera2CameraControlImpl.getZoomControl();
-        mTorchControl = camera2CameraControlImpl.getTorchControl();
-        mExposureControl = camera2CameraControlImpl.getExposureControl();
         mCamera2CameraInfo = new Camera2CameraInfo(this);
+    }
+
+    /**
+     * Links with a {@link Camera2CameraControlImpl}. After the link, zoom/torch/exposure
+     * operations of CameraControl will modify the states in this Camera2CameraInfoImpl.
+     * Also, any CameraCaptureCallbacks added before this link will be added to the
+     * {@link Camera2CameraControlImpl}.
+     */
+    void linkWithCameraControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl) {
+        synchronized (mLock) {
+            mCamera2CameraControlImpl = camera2CameraControlImpl;
+
+            if (mRedirectZoomStateLiveData != null) {
+                mRedirectZoomStateLiveData.redirectTo(
+                        mCamera2CameraControlImpl.getZoomControl().getZoomState());
+            }
+
+            if (mRedirectTorchStateLiveData != null) {
+                mRedirectTorchStateLiveData.redirectTo(
+                        mCamera2CameraControlImpl.getTorchControl().getTorchState());
+            }
+
+            if (mCameraCaptureCallbacks != null) {
+                for (Pair<CameraCaptureCallback, Executor> pair :
+                        mCameraCaptureCallbacks) {
+                    mCamera2CameraControlImpl.addSessionCameraCaptureCallback(pair.second,
+                            pair.first);
+                }
+                mCameraCaptureCallbacks = null;
+            }
+        }
         logDeviceInfo();
     }
 
@@ -175,20 +229,55 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @NonNull
     @Override
     public LiveData<Integer> getTorchState() {
-        return mTorchControl.getTorchState();
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                if (mRedirectTorchStateLiveData == null) {
+                    mRedirectTorchStateLiveData =
+                            new RedirectableLiveData<>(TorchControl.DEFAULT_TORCH_STATE);
+                }
+                return mRedirectTorchStateLiveData;
+            }
+
+            // if RedirectableLiveData exists,  use it directly.
+            if (mRedirectTorchStateLiveData != null) {
+                return mRedirectTorchStateLiveData;
+            }
+
+            return mCamera2CameraControlImpl.getTorchControl().getTorchState();
+        }
     }
 
     @NonNull
     @Override
     public LiveData<ZoomState> getZoomState() {
-        return mZoomControl.getZoomState();
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                if (mRedirectZoomStateLiveData == null) {
+                    mRedirectZoomStateLiveData = new RedirectableLiveData<>(
+                            ZoomControl.getDefaultZoomState(mCameraCharacteristicsCompat));
+                }
+                return mRedirectZoomStateLiveData;
+            }
+
+            // if RedirectableLiveData exists,  use it directly.
+            if (mRedirectZoomStateLiveData != null) {
+                return mRedirectZoomStateLiveData;
+            }
+
+            return mCamera2CameraControlImpl.getZoomControl().getZoomState();
+        }
     }
 
     @NonNull
     @Override
     @ExperimentalExposureCompensation
     public ExposureState getExposureState() {
-        return mExposureControl.getExposureState();
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                return ExposureControl.getDefaultExposureState(mCameraCharacteristicsCompat);
+            }
+            return mCamera2CameraControlImpl.getExposureControl().getExposureState();
+        }
     }
 
     /**
@@ -213,12 +302,38 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
-        mCamera2CameraControlImpl.addSessionCameraCaptureCallback(executor, callback);
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                if (mCameraCaptureCallbacks == null) {
+                    mCameraCaptureCallbacks = new ArrayList<>();
+                }
+                mCameraCaptureCallbacks.add(new Pair<>(callback, executor));
+                return;
+            }
+
+            mCamera2CameraControlImpl.addSessionCameraCaptureCallback(executor, callback);
+        }
     }
 
     @Override
     public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
-        mCamera2CameraControlImpl.removeSessionCameraCaptureCallback(callback);
+        synchronized (mLock) {
+            if (mCamera2CameraControlImpl == null) {
+                if (mCameraCaptureCallbacks == null) {
+                    return;
+                }
+                Iterator<Pair<CameraCaptureCallback, Executor>> it =
+                        mCameraCaptureCallbacks.iterator();
+                while (it.hasNext()) {
+                    Pair<CameraCaptureCallback, Executor> pair = it.next();
+                    if (pair.first == callback) {
+                        it.remove();
+                    }
+                }
+                return;
+            }
+            mCamera2CameraControlImpl.removeSessionCameraCaptureCallback(callback);
+        }
     }
 
     /**
@@ -228,4 +343,40 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     public Camera2CameraInfo getCamera2CameraInfo() {
         return mCamera2CameraInfo;
     }
+
+    /**
+     * A {@link LiveData} which can be redirected to another {@link LiveData}. If no redirection
+     * is set, initial value will be used.
+     */
+    static class RedirectableLiveData<T> extends MediatorLiveData<T> {
+        private LiveData<T> mLiveDataSource;
+        private T mInitialValue;
+
+        RedirectableLiveData(T initialValue) {
+            mInitialValue = initialValue;
+        }
+
+        void redirectTo(@NonNull LiveData<T> liveDataSource) {
+            if (mLiveDataSource != null) {
+                super.removeSource(mLiveDataSource);
+            }
+            mLiveDataSource = liveDataSource;
+            super.addSource(liveDataSource, this::setValue);
+        }
+
+        @Override
+        public <S> void addSource(@NonNull LiveData<S> source,
+                @NonNull Observer<? super S> onChanged) {
+            throw new UnsupportedOperationException();
+        }
+
+        // Overrides getValue() to reflect the correct value from source. This is required to ensure
+        // getValue() is correct when observe() or observeForever() is not called.
+        @Override
+        public T getValue() {
+            // Returns initial value if source is not set.
+            return mLiveDataSource == null ? mInitialValue : mLiveDataSource.getValue();
+        }
+    }
+
 }
