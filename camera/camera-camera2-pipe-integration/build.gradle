@@ -26,22 +26,24 @@ plugins {
     id("kotlin-android")
 }
 
-// Add :camera:camera-camera2-pipe as jarjar dependency
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def jarjarConfigName = "jarjar${suffix}"
-    def jarjarConf = configurations.register(jarjarConfigName)
-    // Treat camera2-pipe as a local jar and package it inside the aar.
-    dependencies.add(jarjarConfigName, project.dependencies.project(
-            path: ":camera:camera-camera2-pipe",
-            configuration: jarjarConfigName))
-    dependencies.add("${variantName}Implementation", files(jarjarConf))
-}
-
 apply from: "../camera-camera2-pipe/dependencies.gradle"
 
+configurations {
+    repackageRelease
+    repackageDebug
+}
+
+tasks.withType(JavaCompile).configureEach { task ->
+    task.dependsOn(configurations.repackageRelease)
+    task.dependsOn(configurations.repackageDebug)
+}
+
 dependencies {
+    repackageRelease(project(path: ':camera:camera-camera2-pipe', configuration: "jarjarRelease"))
+    releaseImplementation(files(configurations.repackageRelease))
+    repackageDebug(project(path: ':camera:camera-camera2-pipe', configuration: "jarjarDebug"))
+    debugImplementation(files(configurations.repackageDebug))
+
     api("androidx.annotation:annotation:1.1.0")
     api(project(":camera:camera-core"))
     implementation(KOTLIN_STDLIB)
