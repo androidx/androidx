@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InstrumentationResultsTest {
     @Test
-    fun ideSummary_alignment() {
+    public fun ideSummary_alignment() {
         val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000, 100)
         val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000, 0)
 
@@ -37,7 +37,7 @@ class InstrumentationResultsTest {
     }
 
     @Test
-    fun ideSummary_allocs() {
+    public fun ideSummary_allocs() {
         assertEquals(
             "        1,000 ns    foo",
             InstrumentationResults.ideSummaryLine("foo", 1000, null)

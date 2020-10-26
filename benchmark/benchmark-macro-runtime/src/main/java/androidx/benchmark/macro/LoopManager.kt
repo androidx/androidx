@@ -65,5 +65,6 @@ class LoopManager(
             block.invoke(scope, i)
         }
         collectors.stop()
+        collectors.report()
     }
 }

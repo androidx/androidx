@@ -17,27 +17,44 @@
 package androidx.benchmark
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.text.NumberFormat
 
 /**
+ * Provides a way to capture all the instrumentation results which needs to be reported.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
+    public fun ideSummaryRecord(value: String) {
+        bundle.putString(IDE_SUMMARY_KEY, value)
+    }
+
+    public fun fileRecord(key: String, path: String) {
+        bundle.putString("additionalTestOutputFile_$key", path)
+    }
+
+    internal companion object {
+        private const val IDE_SUMMARY_KEY = "android.studio.display.benchmark"
+    }
+}
+
+/**
  * Provides way to report additional results via `Instrumentation.sendStatus()` / `addResult()`.
  */
-internal object InstrumentationResults {
-    private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
-    private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object InstrumentationResults {
+    internal const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
-    private const val ADDITIONAL_FILE_OUTPUT_KEY_PREFIX = "additionalTestOutputFile_"
-
-    private fun ideSummaryLineWrapped(key: String, nanos: Long, allocations: Long?): String {
-        val warningLines =
-            Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
-        return (warningLines + ideSummaryLine(key, nanos, allocations))
-            // remove first line if empty
-            .filterIndexed { index, it -> index != 0 || it.isNotBlank() }
-            // join, prepending key to everything but first string,
-            // to make each line look the same
-            .joinToString("\n$STUDIO_OUTPUT_KEY_ID: ")
+    /**
+     * Creates an Instrumentation Result.
+     */
+    public fun instrumentationReport(
+        block: InstrumentationResultScope.() -> Unit
+    ) {
+        val scope = InstrumentationResultScope()
+        block.invoke(scope)
+        reportBundle(scope.bundle)
     }
 
     // NOTE: this summary line will use default locale to determine separators. As
@@ -55,24 +72,21 @@ internal object InstrumentationResults {
         ).joinToString("    ")
     }
 
-    internal fun getIdeSummaryLine(testName: String, nanos: Long, allocations: Long?) =
-        Bundle().also {
-            it.putString(
-                STUDIO_OUTPUT_KEY_PREFIX + STUDIO_OUTPUT_KEY_ID,
-                ideSummaryLineWrapped(testName, nanos, allocations)
-            )
-        }
-
     internal fun reportAdditionalFileToCopy(key: String, absoluteFilePath: String) {
-        reportBundle(
-            Bundle().also {
-                it.putString(ADDITIONAL_FILE_OUTPUT_KEY_PREFIX + key, absoluteFilePath)
-            }
-        )
+        instrumentationReport {
+            fileRecord(key, absoluteFilePath)
+        }
     }
 
-    internal fun report(bundle: Bundle) {
-        reportBundle(bundle)
+    internal fun ideSummaryLineWrapped(key: String, nanos: Long, allocations: Long?): String {
+        val warningLines =
+            Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
+        return (warningLines + ideSummaryLine(key, nanos, allocations))
+            // remove first line if empty
+            .filterIndexed { index, it -> index != 0 || it.isNotBlank() }
+            // join, prepending key to everything but first string,
+            // to make each line look the same
+            .joinToString("\n$STUDIO_OUTPUT_KEY_ID: ")
     }
 
     /**
@@ -82,8 +96,10 @@ internal object InstrumentationResults {
      * comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
      * test infra that this is an "additional result" bundle, equivalent to addResults()
      * NOTE: we should a version check to call addResults(), but don't yet due to b/155103514
+     *
+     * @param bundle The [Bundle] to be reported to [android.app.Instrumentation]
      */
-    private fun reportBundle(bundle: Bundle) {
+    internal fun reportBundle(bundle: Bundle) {
         InstrumentationRegistry
             .getInstrumentation()
             .sendStatus(2, bundle)
