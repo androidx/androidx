@@ -203,7 +203,7 @@ public class SupportedSizeConstraintsTest {
     private void initCameraX(final FakeCameraFactory cameraFactory) {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
-                .setCameraFactoryProvider((ignored0, ignored1) -> cameraFactory)
+                .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
     }

@@ -590,11 +590,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                (context, cameraManager) -> {
+                (context, cameraManager, availableCameraIds) -> {
                     try {
                         return new Camera2DeviceSurfaceManager(mContext,
                                 mMockCamcorderProfileHelper,
-                                (CameraManagerCompat) cameraManager);
+                                (CameraManagerCompat) cameraManager, availableCameraIds);
                     } catch (CameraUnavailableException e) {
                         throw new InitializationException(e);
                     }
@@ -606,7 +606,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1) -> mCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(factoryProvider);
 

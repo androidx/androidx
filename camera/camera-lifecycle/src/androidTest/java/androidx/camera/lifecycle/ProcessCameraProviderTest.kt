@@ -26,7 +26,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraFactory
-import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
@@ -422,7 +421,7 @@ class ProcessCameraProviderTest {
     @Test
     fun bindUseCases_withNotExistedLensFacingCamera() {
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
+            CameraFactory.Provider { _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(
                     CameraSelector.LENS_FACING_BACK,
@@ -441,7 +440,7 @@ class ProcessCameraProviderTest {
 
         val appConfigBuilder = CameraXConfig.Builder()
             .setCameraFactoryProvider(cameraFactoryProvider)
-            .setDeviceSurfaceManagerProvider { _, _ -> FakeCameraDeviceSurfaceManager() }
+            .setDeviceSurfaceManagerProvider { _, _, _ -> FakeCameraDeviceSurfaceManager() }
             .setUseCaseConfigFactoryProvider { FakeUseCaseConfigFactory() }
 
         ProcessCameraProvider.configureInstance(appConfigBuilder.build())

@@ -23,6 +23,7 @@ import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.SessionConfig
@@ -68,7 +69,7 @@ class PreviewTest {
         val camera = FakeCamera()
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
+            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(
                     camera.cameraInfoInternal.cameraId
@@ -169,7 +170,7 @@ class PreviewTest {
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
 
         // Set SurfaceProvider
-        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        var receivedTransformationInfo: TransformationInfo? = null
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
@@ -209,7 +210,7 @@ class PreviewTest {
             ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
         )
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
-        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        var receivedTransformationInfo: TransformationInfo? = null
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
@@ -248,7 +249,7 @@ class PreviewTest {
         // Get pending SurfaceRequest created by pipeline.
         val pendingSurfaceRequest = preview.mCurrentSurfaceRequest
         var receivedSurfaceRequest: SurfaceRequest? = null
-        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        var receivedTransformationInfo: TransformationInfo? = null
 
         // Act: set a SurfaceProvider after attachment.
         preview.setSurfaceProvider { request ->
@@ -323,13 +324,12 @@ class PreviewTest {
         return bindToLifecycleAndGetResult(null).first
     }
 
-    private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?):
-        SurfaceRequest.TransformationInfo {
-            return bindToLifecycleAndGetResult(viewPort).second
-        }
+    private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?): TransformationInfo {
+        return bindToLifecycleAndGetResult(viewPort).second
+    }
 
     private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
-        SurfaceRequest.TransformationInfo> {
+        TransformationInfo> {
         // Arrange.
         val sessionOptionUnpacker =
             { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
@@ -338,7 +338,7 @@ class PreviewTest {
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
         var surfaceRequest: SurfaceRequest? = null
-        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        var transformationInfo: TransformationInfo? = null
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),

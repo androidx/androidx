@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraAppConfig
 import androidx.camera.camera2.pipe.integration.config.DaggerCameraAppComponent
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
@@ -36,7 +37,8 @@ import androidx.camera.core.impl.CameraThreadConfig
  */
 class CameraFactoryAdapter(
     context: Context,
-    threadConfig: CameraThreadConfig
+    threadConfig: CameraThreadConfig,
+    availableCamerasSelector: CameraSelector?
 ) : CameraFactory {
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
@@ -45,6 +47,7 @@ class CameraFactoryAdapter(
             .config(CameraAppConfig(context, threadConfig))
             .build()
         debug { "Created CameraFactoryAdapter in ${start.measureNow().formatMs()}" }
+        debug { "availableCamerasSelector: $availableCamerasSelector " }
         Debug.traceStop()
         result
     }
