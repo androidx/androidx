@@ -1839,6 +1839,11 @@ public final class ImageCapture extends UseCase {
         private boolean mIsReversedHorizontal;
 
         /**
+         * Whether the mIsReversedHorizontal has been set by the app explicitly.
+         */
+        private boolean mIsReversedHorizontalSet = false;
+
+        /**
          * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
          * followed by a 180 degree rotation.
          *
@@ -1861,12 +1866,26 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         * Returns true if {@link #setReversedHorizontal} has been called.
+         *
+         * <p> CameraController's default behavior is mirroring the picture when front camera is
+         * used. This method is used to check if reverseHorizontal is set explicitly by the app.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public boolean isReversedHorizontalSet() {
+            return mIsReversedHorizontalSet;
+        }
+
+        /**
          * Sets left-right mirroring of the capture.
          *
          * @param isReversedHorizontal true if the capture is left-right mirrored.
          */
         public void setReversedHorizontal(boolean isReversedHorizontal) {
             mIsReversedHorizontal = isReversedHorizontal;
+            mIsReversedHorizontalSet = true;
         }
 
         /**
