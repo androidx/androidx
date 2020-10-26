@@ -51,7 +51,7 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
     @ParcelField(2)
     int mCompressionQuality;
 
-    /** The calendar time (millis since the epoch) to render with. */
+    /** The UTC time in milliseconds since the epoch to render with. */
     @ParcelField(3)
     long mCalendarTimeMillis;
 
@@ -96,6 +96,7 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
         return mCompressionQuality;
     }
 
+    /** The UTC time in milliseconds since the epoch. */
     public long getCalendarTimeMillis() {
         return mCalendarTimeMillis;
     }

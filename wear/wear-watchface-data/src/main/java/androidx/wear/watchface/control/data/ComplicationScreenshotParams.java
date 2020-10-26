@@ -54,7 +54,7 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
     @ParcelField(3)
     int mCompressionQuality;
 
-    /** The calendar time (millis since the epoch) to render with. */
+    /** The UTC time in milliseconds since the epoch to render with. */
     @ParcelField(4)
     long mCalendarTimeMillis;
 
@@ -106,6 +106,7 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
         return mCompressionQuality;
     }
 
+    /** The UTC time in milliseconds since the epoch. */
     public long getCalendarTimeMillis() {
         return mCalendarTimeMillis;
     }
