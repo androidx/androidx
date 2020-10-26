@@ -27,6 +27,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -451,7 +452,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             val bitmap = watchFace.renderer.takeScreenshot(
-                Calendar.getInstance().apply {
+                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                     timeInMillis = params.calendarTimeMillis
                 },
                 RenderParameters(params.renderParametersWireFormat)
@@ -475,7 +476,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         @UiThread
         fun takeComplicationScreenshot(params: ComplicationScreenshotParams): Bundle? {
-            val calendar = Calendar.getInstance().apply {
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                 timeInMillis = params.calendarTimeMillis
             }
             return watchFace.complicationsManager[params.complicationId]?.let {
