@@ -26,6 +26,7 @@ import android.view.Display;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -76,6 +77,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * used to set the crop rect so the output from other use cases matches the preview display in a
  * WYSIWYG way. The controller also listens to {@link PreviewView}'s touch events to handle
  * tap-to-focus and pinch-to-zoom features.
+ *
+ * <p> This class provides features of 4 {@link UseCase}s: {@link Preview}, {@link ImageCapture},
+ * {@link ImageAnalysis} and video capture. {@link Preview} is required and always enabled.
+ * {@link ImageCapture} and {@link ImageAnalysis} are enabled by default. Video capture is
+ * disabled by default because it might conflict with other use cases, especially on lower end
+ * devices. It might be necessary to disable {@link ImageCapture} and/or {@link ImageAnalysis}
+ * before the video feature can be enabled. Disabling/enabling {@link UseCase}s freezes the
+ * preview for a short period of time. To avoid the glitch, the {@link UseCase}s need to be
+ * enabled/disabled before the controller is set on {@link PreviewView}.
  */
 public abstract class CameraController {
 
@@ -368,6 +378,7 @@ public abstract class CameraController {
      *
      * @param flashMode the flash mode for {@link ImageCapture}.
      */
+    @MainThread
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         Threads.checkMainThread();
         mImageCapture.setFlashMode(flashMode);
@@ -538,9 +549,13 @@ public abstract class CameraController {
     }
 
     /**
-     * Sets the number of images available to the camera pipeline.
+     * Sets the image queue depth of {@link ImageAnalysis}.
      *
-     * @param depth The total number of images available to the camera.
+     * <p> This sets the number of images available in parallel to {@link ImageAnalysis.Analyzer}
+     * . The value is only used if the backpressure strategy is
+     * {@link ImageAnalysis.BackpressureStrategy#STRATEGY_BLOCK_PRODUCER}.
+     *
+     * @param depth The total number of images available.
      * @see ImageAnalysis.Builder#setImageQueueDepth(int)
      */
     @MainThread
@@ -554,7 +569,7 @@ public abstract class CameraController {
     }
 
     /**
-     * Gets the number of images available to the camera pipeline.
+     * Gets the image queue depth of {@link ImageAnalysis}.
      *
      * @see ImageAnalysis#getImageQueueDepth()
      */
@@ -688,6 +703,9 @@ public abstract class CameraController {
 
     /**
      * Sets the {@link CameraSelector}.
+     *
+     * <p> Calling this method with a {@link CameraSelector} that resolves to a different camera
+     * will change the camera being used by the controller.
      *
      * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
@@ -858,7 +876,8 @@ public abstract class CameraController {
      * <p>Valid zoom values range from {@link ZoomState#getMinZoomRatio()} to
      * {@link ZoomState#getMaxZoomRatio()}.
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @param zoomRatio The requested zoom ratio.
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
@@ -887,7 +906,8 @@ public abstract class CameraController {
      * linearly with the linearZoom value, for use with slider UI elements (while
      * {@link #setZoomRatio(float)} works well for pinch-zoom gestures).
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
      * It fails with {@link CameraControl.OperationCanceledException} if there is newer value
@@ -925,7 +945,8 @@ public abstract class CameraController {
     /**
      * Enable the torch or disable the torch.
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @param torchEnabled true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
@@ -983,8 +1004,11 @@ public abstract class CameraController {
      *
      * <p> Preview is required. If it is null, then controller is not ready. Return null and ignore
      * other use cases.
+     *
+     * @hide
      */
     @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
