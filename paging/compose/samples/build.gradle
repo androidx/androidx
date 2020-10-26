@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -40,6 +41,7 @@ dependencies {
 androidx {
     name = "AndroidX Paging Compose Samples"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.PAGING_COMPOSE
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2020"
     description = "Contains the sample code for the Androidx Paging library compose interop"
