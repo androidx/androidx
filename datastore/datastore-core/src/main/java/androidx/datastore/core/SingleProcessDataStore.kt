@@ -45,6 +45,8 @@ import java.io.IOException
 import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 private class DataAndHash<T>(val value: T, val hashCode: Int) {
     fun checkHashCode() {
@@ -82,7 +84,7 @@ internal class SingleProcessDataStore<T>(
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
         val ack = CompletableDeferred<T>()
         val dataChannel = downstreamChannel()
-        val updateMsg = Message.Update<T>(transform, ack, dataChannel)
+        val updateMsg = Message.Update<T>(transform, ack, dataChannel, coroutineContext)
 
         actor.send(updateMsg)
 
@@ -132,7 +134,8 @@ internal class SingleProcessDataStore<T>(
              * Used to signal (un)successful completion of the update to the caller.
              */
             val ack: CompletableDeferred<T>,
-            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>,
+            val callerContext: CoroutineContext
         ) : Message<T>()
     }
 
@@ -162,7 +165,7 @@ internal class SingleProcessDataStore<T>(
                 if (msg is Message.Update) {
                     msg.ack.completeWith(
                         runCatching {
-                            transformAndWrite(msg.transform, downstreamChannel())
+                            transformAndWrite(msg.transform, downstreamChannel(), msg.callerContext)
                         }
                     )
                 }
@@ -264,12 +267,13 @@ internal class SingleProcessDataStore<T>(
          * Once the transformation is completed and data is durably persisted to disk, and the new
          * value will be offered to this channel.
          */
-        updateDataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
+        updateDataChannel: ConflatedBroadcastChannel<DataAndHash<T>>,
+        callerContext: CoroutineContext
     ): T {
         val curDataAndHash = updateDataChannel.value
         curDataAndHash.checkHashCode()
         val curData = curDataAndHash.value
-        val newData = transform(curData)
+        val newData = withContext(callerContext) { transform(curData) }
 
         // Check that curData has not changed...
         curDataAndHash.checkHashCode()
