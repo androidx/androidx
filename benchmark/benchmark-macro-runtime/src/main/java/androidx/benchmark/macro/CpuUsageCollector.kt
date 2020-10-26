@@ -22,4 +22,8 @@ import com.android.helpers.CpuUsageHelper
  */
 class CpuUsageCollector(private val helper: CpuUsageHelper = CpuUsageHelper()) :
     Collector<Long> by helper
-        .collector()
+        .collector() {
+    init {
+        helper.setEnableCpuUtilization()
+    }
+}
