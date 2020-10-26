@@ -55,7 +55,7 @@ package android.support.wearable.watchface {
   }
 
   public final class SharedMemoryImage {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.graphics.Bitmap? ashmemCompressedImageBundleToBitmap(android.os.Bundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.graphics.Bitmap ashmemCompressedImageBundleToBitmap(android.os.Bundle);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.os.Bundle toAshmemCompressedImageBundle(android.graphics.Bitmap, int quality);
   }
 

@@ -51,8 +51,8 @@ public class WatchFaceControlService : Service() {
             null
         }
 
-    // Required for testing.
-    internal fun setContext(context: Context) {
+    // Required for testing
+    public fun setContext(context: Context) {
         attachBaseContext(context)
     }
 }

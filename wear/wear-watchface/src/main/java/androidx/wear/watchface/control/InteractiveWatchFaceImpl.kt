@@ -26,7 +26,7 @@ import androidx.wear.watchface.runOnHandler
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /** An interactive watchface instance with SysUI and WCS facing interfaces.*/
-internal class InteractiveWatchFaceInstance(
+internal class InteractiveWatchFaceImpl(
     internal val engine: WatchFaceService.EngineWrapper,
     internal val instanceId: String,
     private val uiThreadHandler: Handler
@@ -56,7 +56,7 @@ internal class InteractiveWatchFaceInstance(
             uiThreadHandler.runOnHandler { engine.setSystemState(systemState) }
         }
 
-        override fun getInstanceId(): String = this@InteractiveWatchFaceInstance.instanceId
+        override fun getInstanceId(): String = this@InteractiveWatchFaceImpl.instanceId
 
         override fun ambientTickUpdate() {
             uiThreadHandler.runOnHandler { engine.ambientTickUpdate() }
@@ -84,7 +84,7 @@ internal class InteractiveWatchFaceInstance(
             uiThreadHandler.runOnHandler { engine.setUserStyle(userStyle) }
         }
 
-        override fun getInstanceId(): String = this@InteractiveWatchFaceInstance.instanceId
+        override fun getInstanceId(): String = this@InteractiveWatchFaceImpl.instanceId
 
         override fun release() {
             uiThreadHandler.runOnHandler { InteractiveInstanceManager.releaseInstance(instanceId) }

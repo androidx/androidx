@@ -299,7 +299,7 @@ class WatchFaceServiceImageTest {
                     null,
                     null
                 )
-            ).ashmemCompressedImageBundleToBitmap()!!
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 

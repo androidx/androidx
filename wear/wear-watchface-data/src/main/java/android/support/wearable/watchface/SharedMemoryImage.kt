@@ -61,9 +61,10 @@ public fun Bitmap.toAshmemCompressedImageBundle(quality: Int): Bundle {
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Bundle.ashmemCompressedImageBundleToBitmap(): Bitmap? {
+public fun Bundle.ashmemCompressedImageBundleToBitmap(): Bitmap {
     this.classLoader = SharedMemory::class.java.classLoader
-    val ashmem = this.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT) ?: return null
+    val ashmem = this.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT)
+        ?: throw IllegalStateException("Bundle did not contain " + Constants.KEY_SCREENSHOT)
     var byteBuffer: ByteBuffer? = null
     try {
         byteBuffer = ashmem.mapReadOnly()

@@ -19,12 +19,12 @@ package androidx.wear.watchface.control
 import android.annotation.SuppressLint
 import androidx.annotation.UiThread
 
-/** Keeps track of [InteractiveWatchFaceInstance]s. */
+/** Keeps track of [InteractiveWatchFaceImpl]s. */
 internal class InteractiveInstanceManager {
     private constructor()
 
     private class RefCountedInteractiveWatchFaceInstance(
-        val instance: InteractiveWatchFaceInstance,
+        val impl: InteractiveWatchFaceImpl,
         var refcount: Int
     )
 
@@ -33,17 +33,17 @@ internal class InteractiveInstanceManager {
 
         @SuppressLint("SyntheticAccessor")
         @UiThread
-        fun addInstance(instance: InteractiveWatchFaceInstance) {
-            require(!instances.containsKey(instance.instanceId))
-            instances[instance.instanceId] = RefCountedInteractiveWatchFaceInstance(instance, 1)
+        fun addInstance(impl: InteractiveWatchFaceImpl) {
+            require(!instances.containsKey(impl.instanceId))
+            instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
         }
 
         @SuppressLint("SyntheticAccessor")
         @UiThread
-        fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceInstance ? {
+        fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl ? {
             val refCountedInstance = instances[instanceId] ?: return null
             refCountedInstance.refcount++
-            return refCountedInstance.instance
+            return refCountedInstance.impl
         }
 
         @SuppressLint("SyntheticAccessor")
@@ -51,7 +51,7 @@ internal class InteractiveInstanceManager {
         fun releaseInstance(instanceId: String) {
             val instance = instances[instanceId]!!
             if (--instance.refcount == 0) {
-                instance.instance.engine.onDestroy()
+                instance.impl.engine.onDestroy()
                 instances.remove(instanceId)
             }
         }
