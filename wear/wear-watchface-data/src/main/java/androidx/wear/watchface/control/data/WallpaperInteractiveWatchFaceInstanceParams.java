@@ -129,9 +129,8 @@ public class WallpaperInteractiveWatchFaceInstanceParams
             new Parcelable.Creator<WallpaperInteractiveWatchFaceInstanceParams>() {
                 @Override
                 public WallpaperInteractiveWatchFaceInstanceParams createFromParcel(Parcel source) {
-                    return WallpaperInteractiveWatchFaceInstanceParamsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

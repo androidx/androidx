@@ -91,9 +91,8 @@ public final class DeviceConfig implements VersionedParcelable, Parcelable {
             new Parcelable.Creator<DeviceConfig>() {
                 @Override
                 public DeviceConfig createFromParcel(Parcel source) {
-                    return DeviceConfigParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

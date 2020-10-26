@@ -139,9 +139,8 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
             new Parcelable.Creator<ComplicationDetails>() {
                 @Override
                 public ComplicationDetails createFromParcel(Parcel source) {
-                    return ComplicationDetailsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
