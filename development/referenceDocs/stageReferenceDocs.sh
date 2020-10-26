@@ -13,13 +13,6 @@ fi
 
 buildId=$1
 
-if [[ -z "$2" ]]; then
-      printf "Please supply a Compose buildID from the android build server\n"
-      exit
-fi
-
-composeBuildId=$2
-
 newDir="reference-docs"
 # Remove the existing out directory to avoid conflicts from previous runs
 rm -rf out
@@ -71,54 +64,8 @@ rm -f reference/androidx/_book.yaml
 sed -i "s/  version_added/# version_added/" reference/androidx/_toc.yaml
 sed -i "s/    # version_added/#     version_added/" reference/androidx/_toc.yaml
 
+
 printf "============================ STEP 4 =============================== \n"
-printf "== Stitch the Compose docs to fix the issue with samples \n"
-printf "=================================================================== \n"
-
-# Save current working directory
-curWorkingDir=$(pwd)
-
-dokkaTipOfTreeDocsZip="dokkaTipOfTreeDocs-$composeBuildId.zip"
-
-newComposeDir="reference-docs-compose-${composeBuildId}"
-
-mkdir -p $scriptDirectory/out/$newComposeDir
-cd $scriptDirectory
-
-/google/data/ro/projects/android/fetch_artifact --bid $composeBuildId --target androidx $dokkaTipOfTreeDocsZip
-mv $dokkaTipOfTreeDocsZip out/$newComposeDir/.
-unzip out/$newComposeDir/$dokkaTipOfTreeDocsZip -d out/$newComposeDir
-
-cp -r out/$newComposeDir/reference/kotlin/androidx/compose out/$newDir/reference/kotlin/androidx/.
-cp -r out/$newComposeDir/reference/kotlin/androidx/ui out/$newDir/reference/kotlin/androidx/.
-
-cd $curWorkingDir
-
-printf "============================ STEP 5 =============================== \n"
-printf "== Stitch the paging docs to fix the issue with samples \n"
-printf "=================================================================== \n"
-
-if [[ ! -z "$3" ]]; then
-      # Save current working directory
-      curWorkingDir=$(pwd)
-
-      pagingBuildId=$3
-      dokkaTipOfTreeDocsZip="dokkaTipOfTreeDocs-$pagingBuildId.zip"
-
-      newPagingDir="reference-docs-paging-${pagingBuildId}"
-      mkdir -p $scriptDirectory/out/$newPagingDir
-      cd $scriptDirectory
-
-      /google/data/ro/projects/android/fetch_artifact --bid $pagingBuildId --target androidx $dokkaTipOfTreeDocsZip
-      mv $dokkaTipOfTreeDocsZip out/$newPagingDir/.
-      unzip out/$newPagingDir/$dokkaTipOfTreeDocsZip -d out/$newPagingDir
-
-      cp -r out/$newPagingDir/reference/kotlin/androidx/paging/* out/$newDir/reference/kotlin/androidx/paging/.
-
-      cd $curWorkingDir
-fi
-
-printf "============================ STEP 6 =============================== \n"
 printf "== Generate the language switcher \n"
 printf "=================================================================== \n"
 
@@ -126,7 +73,7 @@ printf "=================================================================== \n"
 cd reference
 python2 ./../../../switcher.py --work androidx
 
-printf "============================ STEP 7 =============================== \n"
+printf "============================ STEP 5 =============================== \n"
 printf "== Run the following command to copy the docs into Google3 \n"
 printf "=================================================================== \n"
 
