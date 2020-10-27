@@ -20,7 +20,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedTask
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * The class responsible for accessing the data from a [Flow] of [PagingData].
@@ -147,12 +148,9 @@ private val InitialLoadStates = LoadStates(
 public fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(): LazyPagingItems<T> {
     val lazyPagingItems = remember(this) { LazyPagingItems(this) }
 
-    LaunchedTask(lazyPagingItems) {
-        lazyPagingItems.collectPagingData()
-    }
-
-    LaunchedTask(lazyPagingItems) {
-        lazyPagingItems.collectLoadState()
+    LaunchedEffect(lazyPagingItems) {
+        launch { lazyPagingItems.collectPagingData() }
+        launch { lazyPagingItems.collectLoadState() }
     }
 
     return lazyPagingItems
