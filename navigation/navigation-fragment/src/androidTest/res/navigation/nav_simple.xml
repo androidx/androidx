@@ -21,7 +21,7 @@
     app:startDestination="@+id/start_fragment">
     <fragment
         android:id="@+id/start_fragment"
-        android:name="androidx.navigation.fragment.test.EmptyFragment"/>
+        android:name="androidx.navigation.fragment.NavControllerInOnCreateFragment"/>
     <fragment
         android:id="@+id/empty_fragment"
         android:name="androidx.navigation.fragment.test.EmptyFragment"/>
