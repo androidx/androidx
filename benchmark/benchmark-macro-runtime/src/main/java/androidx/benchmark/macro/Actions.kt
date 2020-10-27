@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.app.Instrumentation
 import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -38,23 +39,11 @@ const val VERIFY = "verify"
 private val COMPILE_MODES = listOf(SPEED, SPEED_PROFILE, QUICKEN, VERIFY)
 
 /**
- * Kills an app.
- *
- * @param instrumentation The [Instrumentation] context.
- * @param packageName The target package name.
- */
-fun killProcess(instrumentation: Instrumentation, packageName: String) {
-    val device = instrumentation.device()
-    val command = "am force-stop $packageName"
-    device.executeShellCommand(command)
-}
-
-/**
- * Drops the app's cache directory.
+ * Drops the kernel page cache
  *
  *@param instrumentation The [Instrumentation] context.
  */
-fun dropCaches(instrumentation: Instrumentation) {
+internal fun dropCaches(instrumentation: Instrumentation) {
     val outputDirectory = instrumentation.context.cacheDir
     val script = createTempFile("drop_cache_script", ".sh", outputDirectory)
     script.setWritable(true)
@@ -69,7 +58,7 @@ fun dropCaches(instrumentation: Instrumentation) {
 /**
  * Compiles the application with the specified filter.
  */
-fun compilationFilter(
+internal fun compilationFilter(
     instrumentation: Instrumentation,
     packageName: String,
     mode: String,
@@ -109,9 +98,27 @@ fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) = r
 }
 
 /**
+ * Temporary, root-only hack to enable getting startup metrics
+ */
+fun withPermissiveSeLinuxPolicy(block: () -> Unit) {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val previousPolicy = getSeLinuxPolicyEnforced(instrumentation)
+    try {
+        if (previousPolicy == 1) {
+            setSeLinuxPolicyEnforced(instrumentation, 0)
+        }
+        block()
+    } finally {
+        if (previousPolicy == 1) {
+            setSeLinuxPolicyEnforced(instrumentation, previousPolicy)
+        }
+    }
+}
+
+/**
  * Gets the SE Linux policy.
  */
-fun getLinuxPolicy(instrumentation: Instrumentation): Int {
+private fun getSeLinuxPolicyEnforced(instrumentation: Instrumentation): Int {
     return when (instrumentation.device().executeShellCommand("getenforce")) {
         PERMISSIVE -> 0
         else -> 1
@@ -121,13 +128,13 @@ fun getLinuxPolicy(instrumentation: Instrumentation): Int {
 /**
  * Overrides the SE Linux policy.
  */
-fun setLinuxPolicy(instrumentation: Instrumentation, policy: Int) {
+private fun setSeLinuxPolicyEnforced(instrumentation: Instrumentation, policy: Int) {
     check(policy == 0 || policy == 1) {
         "Policy can only be one of `0` or `1`"
     }
     instrumentation.device().executeShellCommand("setenforce $policy")
 }
 
-fun Instrumentation.device(): UiDevice {
+private fun Instrumentation.device(): UiDevice {
     return UiDevice.getInstance(this)
 }
