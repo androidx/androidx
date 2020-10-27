@@ -44,12 +44,12 @@ import org.mockito.Mockito.spy
 import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
-class ParcelableWorkContinuationImplTest {
+public class ParcelableWorkContinuationImplTest {
     private lateinit var context: Context
     private lateinit var workManager: WorkManagerImpl
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         context = ApplicationProvider.getApplicationContext<Context>()
         val taskExecutor = object : TaskExecutor() {
             override fun executeOnDiskIO(runnable: Runnable) {
@@ -104,7 +104,7 @@ class ParcelableWorkContinuationImplTest {
 
     @Test
     @MediumTest
-    fun basicContinuationTest() {
+    public fun basicContinuationTest() {
         val first = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val second = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val continuation = workManager.beginWith(listOf(first)).then(second)
@@ -114,7 +114,7 @@ class ParcelableWorkContinuationImplTest {
 
     @Test
     @MediumTest
-    fun continuationTests2() {
+    public fun continuationTests2() {
         val first = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val second = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val third = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
@@ -125,7 +125,7 @@ class ParcelableWorkContinuationImplTest {
 
     @Test
     @MediumTest
-    fun continuationTest3() {
+    public fun continuationTest3() {
         val first = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val second = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val continuation = workManager.beginUniqueWork(
@@ -137,7 +137,7 @@ class ParcelableWorkContinuationImplTest {
 
     @Test
     @MediumTest
-    fun continuationTest4() {
+    public fun continuationTest4() {
         val first = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val second = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val continuation = workManager.beginUniqueWork(
@@ -153,7 +153,7 @@ class ParcelableWorkContinuationImplTest {
 
     @Test
     @MediumTest
-    fun combineContinuationTests() {
+    public fun combineContinuationTests() {
         val first = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val second = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
         val third = OneTimeWorkRequest.Builder(TestWorker::class.java).build()
