@@ -637,10 +637,9 @@ class SingleProcessDataStoreTest {
     fun testMutatingDataStoreFails() = runBlockingTest {
 
         val dataStore = DataStoreFactory.create(
-            produceFile = { testFile },
-            scope = dataStoreScope,
-            serializer = ByteWrapper.ByteWrapperSerializer()
-        )
+            serializer = ByteWrapper.ByteWrapperSerializer(),
+            scope = dataStoreScope
+        ) { testFile }
 
         assertThrows<IllegalStateException> {
             dataStore.updateData { input: ByteWrapper ->
@@ -654,10 +653,9 @@ class SingleProcessDataStoreTest {
     @Test
     fun testDefaultValueUsedWhenNoDataOnDisk() = runBlockingTest {
         val dataStore = DataStoreFactory.create(
-            produceFile = { testFile },
-            scope = dataStoreScope,
-            serializer = TestingSerializer(defaultValue = 99)
-        )
+            serializer = TestingSerializer(defaultValue = 99),
+            scope = dataStoreScope
+        ) { testFile }
 
         assertThat(testFile.delete()).isTrue()
 

@@ -37,9 +37,6 @@ public object DataStoreFactory {
      * https://developers.google.com/protocol-buffers/docs/javatutorial - which provides
      * immutability guarantees, a simple API and efficient serialization.
      *
-     * @param produceFile Function which returns the file that the new DataStore will act on. The
-     * function must return the same path every time. No two instances of DataStore should act on
-     * the same file at the same time.
      * @param serializer Serializer for the type T used with DataStore. The type T must be immutable.
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
      * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
@@ -47,14 +44,17 @@ public object DataStoreFactory {
      * @param migrations Migrations are run before any access to data can occur. Migrations must
      * be idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
+     * @param produceFile Function which returns the file that the new DataStore will act on. The
+     * function must return the same path every time. No two instances of DataStore should act on
+     * the same file at the same time.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public fun <T> create(
-        produceFile: () -> File,
         serializer: Serializer<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+        produceFile: () -> File
     ): DataStore<T> =
         SingleProcessDataStore(
             produceFile = produceFile,

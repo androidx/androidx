@@ -69,12 +69,11 @@ class DataStoreFactoryTest {
 
         // Check that the file name is context.filesDir + fileName
         store = DataStoreFactory.create(
-            produceFile = {
-                File(context.filesDir, "datastore/my_settings.byte")
-            },
             serializer = TestingSerializer(),
             scope = dataStoreScope
-        )
+        ) {
+            File(context.filesDir, "datastore/my_settings.byte")
+        }
         assertThat(store.data.first()).isEqualTo(byte)
     }
 }

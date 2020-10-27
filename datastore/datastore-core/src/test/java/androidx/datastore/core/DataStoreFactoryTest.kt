@@ -47,10 +47,9 @@ class DataStoreFactoryTest {
     @Test
     fun testNewInstance() = runBlockingTest {
         val store = DataStoreFactory.create(
-            produceFile = { testFile },
             serializer = TestingSerializer(),
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         val expectedByte = 123.toByte()
 
@@ -67,13 +66,12 @@ class DataStoreFactoryTest {
         val valueToReplace = 123.toByte()
 
         val store = DataStoreFactory.create(
-            produceFile = { testFile },
             serializer = TestingSerializer(failReadWithCorruptionException = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
                 valueToReplace
             },
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
@@ -96,11 +94,10 @@ class DataStoreFactoryTest {
         }
 
         val store = DataStoreFactory.create(
-            produceFile = { testFile },
+            serializer = TestingSerializer(),
             migrations = listOf(migratePlus2, migrateMinus1),
-            scope = dataStoreScope,
-            serializer = TestingSerializer()
-        )
+            scope = dataStoreScope
+        ) { testFile }
 
         assertThat(store.data.first()).isEqualTo(migratedByte)
     }
