@@ -21,7 +21,6 @@ import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
 import android.content.Context;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -45,13 +44,10 @@ import java.util.concurrent.Executors;
  *
  * <p>Queries are executed multi-threaded, but a single thread is used for mutate requests (put,
  * delete, etc..).
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LocalStorage {
     /** The default empty database name.*/
-    public static final String DEFAULT_DATABASE_NAME = "";
+    private static final String DEFAULT_DATABASE_NAME = "";
 
     private static volatile ListenableFuture<AppSearchResult<LocalStorage>> sInstance;
 
@@ -63,6 +59,17 @@ public class LocalStorage {
         SearchContext(@NonNull Context context, @NonNull String databaseName) {
             mContext = Preconditions.checkNotNull(context);
             mDatabaseName = Preconditions.checkNotNull(databaseName);
+        }
+
+        /**
+         * Returns the name of the database to create or open.
+         *
+         * <p>Databases with different names are fully separate with distinct types, namespaces,
+         * and data.
+         */
+        @NonNull
+        public String getDatabaseName() {
+            return mDatabaseName;
         }
 
         /** Builder for {@link SearchContext} objects. */
@@ -83,7 +90,8 @@ public class LocalStorage {
              *
              * <p>Database name cannot contain {@code '/'}.
              *
-             * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
+             * <p>If not specified, defaults to the empty string.
+             *
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
              */
@@ -108,7 +116,11 @@ public class LocalStorage {
         }
     }
 
-    /** Contains information relevant to creating a global search session. */
+    /**
+     * Contains information relevant to creating a global search session.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class GlobalSearchContext {
         final Context mContext;
 
@@ -141,7 +153,7 @@ public class LocalStorage {
     // mutate requests will need to gain write lock and query requests need to gain read lock.
     private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
-    private static final String ICING_DIR = "icing";
+    private static final String ICING_LIB_ROOT_DIR = "appsearch";
 
     // Package-level visibility to allow SearchResultsImpl to access it without a synthetic
     // accessor.
@@ -154,7 +166,6 @@ public class LocalStorage {
      * <p>If the system is not initialized, it will be initialized using the provided
      * {@code context}.
      */
-    @AnyThread
     @NonNull
     public static ListenableFuture<AppSearchResult<AppSearchSession>> createSearchSession(
             @NonNull SearchContext context) {
@@ -176,8 +187,8 @@ public class LocalStorage {
      *
      * <p>If the system is not initialized, it will be initialized using the provided
      * {@code context}.
+     * @hide
      */
-    @AnyThread
     @NonNull
     public static ListenableFuture<AppSearchResult<GlobalSearchSession>> createGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
@@ -200,7 +211,6 @@ public class LocalStorage {
      * <p>If the system is not initialized, it will be initialized using the provided
      * {@code context}.
      */
-    @AnyThread
     @NonNull
     @VisibleForTesting
     static ListenableFuture<AppSearchResult<LocalStorage>> getInstance(@NonNull Context context) {
@@ -228,7 +238,7 @@ public class LocalStorage {
         mExecutorService.execute(() -> {
             if (!future.isCancelled()) {
 
-                File icingDir = new File(context.getFilesDir(), ICING_DIR);
+                File icingDir = new File(context.getFilesDir(), ICING_LIB_ROOT_DIR);
                 try {
                     mAppSearchImpl = AppSearchImpl.create(icingDir);
                 } catch (Throwable t) {
