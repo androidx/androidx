@@ -155,6 +155,10 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetByUriRequest.Builder setNamespace(String);
   }
 
+  public interface GlobalSearchSession {
+    method public androidx.appsearch.app.SearchResults query(String, androidx.appsearch.app.SearchSpec);
+  }
+
   public final class PutDocumentsRequest {
   }
 

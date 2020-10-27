@@ -23,7 +23,6 @@ import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
@@ -118,9 +117,7 @@ public class LocalStorage {
 
     /**
      * Contains information relevant to creating a global search session.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final class GlobalSearchContext {
         final Context mContext;
 
