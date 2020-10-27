@@ -19,23 +19,24 @@ rm -rf out
 mkdir -p out/$newDir
 cd out/$newDir
 
-dokkaPublicDocsZip="dokkaPublicDocs-${buildId}.zip"
-androidxPublicDocsZip="androidx-public-docs-${buildId}.zip"
+androidxPublicKotlinDocsZip="dokka-public-docs-${buildId}.zip"
+androidxPublicJavaDocsZip="doclava-public-docs-${buildId}.zip"
+
 
 printf "============================ STEP 1 =============================== \n"
 printf "== Downloading the doc zip files from the build server... \n"
 printf "== If this script hangs, try running glogin or gcert.\n"
 printf "=================================================================== \n"
 
-/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $dokkaPublicDocsZip
-/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicKotlinDocsZip
+/google/data/ro/projects/android/fetch_artifact --bid $buildId --target androidx $androidxPublicJavaDocsZip
 
 printf "============================ STEP 2 =============================== \n"
 printf "== Unzip the doc zip files \n"
 printf "=================================================================== \n"
 
-unzip $dokkaPublicDocsZip
-unzip $androidxPublicDocsZip
+unzip $androidxPublicKotlinDocsZip
+unzip $androidxPublicJavaDocsZip
 
 printf "============================ STEP 3 =============================== \n"
 printf "== Format the doc zip files \n"
