@@ -43,7 +43,7 @@ fun List<Collector<*>>.report() {
             collector.metrics().map { (key, metric) ->
                 "$key: '$metric'"
             }
-        }.joinToString { "\n" }
+        }.joinToString(separator = ",")
         ideSummaryRecord(summary)
     }
 }
