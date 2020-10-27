@@ -44,7 +44,7 @@ import org.mockito.Mockito.verify
 import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
-class RemoteWorkManagerClientTest {
+public class RemoteWorkManagerClientTest {
 
     private lateinit var mContext: Context
     private lateinit var mWorkManager: WorkManagerImpl
@@ -52,7 +52,7 @@ class RemoteWorkManagerClientTest {
     private lateinit var mClient: RemoteWorkManagerClient
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         mContext = mock(Context::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
@@ -68,7 +68,7 @@ class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
-    fun failGracefullyWhenBindFails() {
+    public fun failGracefullyWhenBindFails() {
         if (Build.VERSION.SDK_INT <= 26) {
             // Exclude <= API 26, from tests because it causes a SIGSEGV.
             return
@@ -94,7 +94,7 @@ class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
-    fun cleanUpWhenDispatcherFails() {
+    public fun cleanUpWhenDispatcherFails() {
         val binder = mock(IBinder::class.java)
         val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
         val remoteStub = mock(IWorkManagerImpl::class.java)
@@ -117,7 +117,7 @@ class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
-    fun cleanUpWhenSessionIsInvalid() {
+    public fun cleanUpWhenSessionIsInvalid() {
         val remoteDispatcher = mock(RemoteWorkManagerClient.RemoteDispatcher::class.java)
         val callback = spy(RemoteCallback())
         val session = SettableFuture.create<IWorkManagerImpl>()
@@ -135,7 +135,7 @@ class RemoteWorkManagerClientTest {
 
     @Test
     @MediumTest
-    fun cleanUpOnSuccessfulDispatch() {
+    public fun cleanUpOnSuccessfulDispatch() {
         val binder = mock(IBinder::class.java)
         val remoteDispatcher = RemoteWorkManagerClient.RemoteDispatcher { _, callback ->
             callback.onSuccess(ByteArray(0))
