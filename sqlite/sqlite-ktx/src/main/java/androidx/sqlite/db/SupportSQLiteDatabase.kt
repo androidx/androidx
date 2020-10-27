@@ -30,11 +30,16 @@ public inline fun <T> SupportSQLiteDatabase.transaction(
     } else {
         beginTransactionNonExclusive()
     }
+    var cause: Throwable? = null
     try {
-        val result = body()
-        setTransactionSuccessful()
-        return result
+        return body()
+    } catch (t: Throwable) {
+        cause = t
+        throw t
     } finally {
+        if (cause == null) {
+            setTransactionSuccessful()
+        }
         endTransaction()
     }
 }
