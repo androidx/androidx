@@ -16,7 +16,9 @@
 
 package androidx.navigation.fragment
 
+import android.os.Bundle
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.NavigationActivityWithFragmentTag
 import androidx.navigation.fragment.test.NavigationBaseActivity
@@ -92,5 +94,15 @@ class NavHostFragmentTest(
                 .that(restoredNavController.graph)
                 .isNotNull()
         }
+    }
+}
+
+class NavControllerInOnCreateFragment : EmptyFragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val navController = NavHostFragment.findNavController(this)
+        assertWithMessage("The NavController's graph should be set")
+            .that(navController.graph)
+            .isNotNull()
     }
 }
