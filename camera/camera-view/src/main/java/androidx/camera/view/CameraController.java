@@ -94,6 +94,7 @@ public abstract class CameraController {
 
     // Externally visible error messages.
     private static final String CAMERA_NOT_INITIALIZED = "Camera not initialized.";
+    private static final String PREVIEW_VIEW_NOT_ATTACHED = "PreviewView not attached.";
     private static final String CAMERA_NOT_ATTACHED = "Use cases not attached to camera.";
     private static final String IMAGE_CAPTURE_DISABLED = "ImageCapture disabled.";
     private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
@@ -163,16 +164,7 @@ public abstract class CameraController {
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    Preview.SurfaceProvider mPreviewViewSurfaceProvider;
-
-    // A wrapper around the PreviewView's SurfaceProvider that allows binding before PreviewView
-    // is ready.
-    @NonNull
-    Preview.SurfaceProvider mForwardingSurfaceProvider = request -> {
-        if (mPreviewViewSurfaceProvider != null) {
-            mPreviewViewSurfaceProvider.onSurfaceRequested(request);
-        }
-    };
+    Preview.SurfaceProvider mSurfaceProvider;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -210,7 +202,6 @@ public abstract class CameraController {
                 ProcessCameraProvider.getInstance(mAppContext),
                 provider -> {
                     mCameraProvider = provider;
-                    mPreview.setSurfaceProvider(mForwardingSurfaceProvider);
                     startCameraAndTrackStates();
                     return null;
                 }, CameraXExecutors.mainThreadExecutor());
@@ -259,6 +250,10 @@ public abstract class CameraController {
         return mCameraProvider != null;
     }
 
+    private boolean isPreviewViewAttached() {
+        return mSurfaceProvider != null && mViewPort != null && mPreviewDisplay != null;
+    }
+
     private boolean isCameraAttached() {
         return mCamera != null;
     }
@@ -276,8 +271,9 @@ public abstract class CameraController {
     void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
             @NonNull ViewPort viewPort, @NonNull Display display) {
         Threads.checkMainThread();
-        if (mPreviewViewSurfaceProvider != surfaceProvider) {
-            mPreviewViewSurfaceProvider = surfaceProvider;
+        if (mSurfaceProvider != surfaceProvider) {
+            mSurfaceProvider = surfaceProvider;
+            mPreview.setSurfaceProvider(surfaceProvider);
         }
         mViewPort = viewPort;
         mPreviewDisplay = display;
@@ -295,8 +291,9 @@ public abstract class CameraController {
             // Preview is required. Unbind everything if Preview is down.
             mCameraProvider.unbindAll();
         }
+        mPreview.setSurfaceProvider(null);
         mCamera = null;
-        mPreviewViewSurfaceProvider = null;
+        mSurfaceProvider = null;
         mViewPort = null;
         mPreviewDisplay = null;
         stopListeningToRotationEvents();
@@ -1036,6 +1033,11 @@ public abstract class CameraController {
             Logger.d(TAG, CAMERA_NOT_INITIALIZED);
             return null;
         }
+        if (!isPreviewViewAttached()) {
+            // Preview is required. Return early if preview Surface is not ready.
+            Logger.d(TAG, PREVIEW_VIEW_NOT_ATTACHED);
+            return null;
+        }
 
         UseCaseGroup.Builder builder = new UseCaseGroup.Builder().addUseCase(mPreview);
 
@@ -1057,9 +1059,7 @@ public abstract class CameraController {
             mCameraProvider.unbind(mVideoCapture);
         }
 
-        if (mViewPort != null) {
-            builder.setViewPort(mViewPort);
-        }
+        builder.setViewPort(mViewPort);
         return builder.build();
     }
 

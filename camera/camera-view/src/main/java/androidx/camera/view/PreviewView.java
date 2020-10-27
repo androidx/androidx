@@ -789,6 +789,10 @@ public final class PreviewView extends FrameLayout {
      * cases so that the output from other use cases match what the end user sees in
      * {@link PreviewView}. It also enables features like tap-to-focus and pinch-to-zoom.
      *
+     * <p> Setting it to {@code null} or to a different {@link CameraController} stops the previous
+     * {@link CameraController} from working. The previous {@link CameraController} will remain
+     * detached until it's set on the {@link PreviewView} again.
+     *
      * @throws IllegalArgumentException If the {@link CameraController}'s camera selector
      *                                  is unable to resolve a camera to be used for the enabled
      *                                  use cases.
