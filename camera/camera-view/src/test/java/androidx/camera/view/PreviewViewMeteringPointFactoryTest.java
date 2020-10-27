@@ -39,7 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class PreviewViewMeteringPointFactoryTest {
 
     private static final int WIDTH = 800;
