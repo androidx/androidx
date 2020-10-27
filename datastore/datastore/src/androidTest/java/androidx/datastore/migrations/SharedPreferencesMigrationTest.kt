@@ -140,10 +140,9 @@ class SharedPreferencesMigrationTest {
         migrations: List<DataMigration<Byte>>
     ): DataStore<Byte> {
         return DataStoreFactory.create(
-            produceFile = { datastoreFile },
             serializer = TestingSerializer(),
             migrations = migrations,
             scope = TestCoroutineScope()
-        )
+        ) { datastoreFile }
     }
 }

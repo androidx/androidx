@@ -54,9 +54,8 @@ class PreferenceDataStoreFactoryTest {
     @Test
     fun testNewInstance() = runBlockingTest {
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         val expectedPreferences =
             preferencesOf(stringKey to "value")
@@ -77,12 +76,11 @@ class PreferenceDataStoreFactoryTest {
         val valueToReplace = preferencesOf(booleanKey to true)
 
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
                 valueToReplace
             },
             scope = dataStoreScope
-        )
+        ) { testFile }
         assertEquals(valueToReplace, store.data.first())
     }
 
@@ -113,10 +111,9 @@ class PreferenceDataStoreFactoryTest {
         }
 
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             migrations = listOf(migrateTo5, migratePlus1),
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         assertEquals(expectedPreferences, store.data.first())
     }
@@ -124,7 +121,7 @@ class PreferenceDataStoreFactoryTest {
     @Test
     fun testCantMutateInternalState() = runBlockingTest {
         val store =
-            PreferenceDataStoreFactory.create(produceFile = { testFile }, scope = dataStoreScope)
+            PreferenceDataStoreFactory.create(scope = dataStoreScope) { testFile }
 
         var mutableReference: MutablePreferences? = null
         store.edit {

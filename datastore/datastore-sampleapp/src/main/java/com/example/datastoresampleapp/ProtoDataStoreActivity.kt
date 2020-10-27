@@ -47,9 +47,8 @@ class ProtoDataStoreActivity : AppCompatActivity() {
 
     private val settingsStore: DataStore<Settings> by lazy {
         DataStoreFactory.create(
-            { File(applicationContext.filesDir, PROTO_STORE_FILE_NAME) },
-            SettingsSerializer
-        )
+            serializer = SettingsSerializer
+        ) { File(applicationContext.filesDir, PROTO_STORE_FILE_NAME) }
     }
 
     @Sampled
