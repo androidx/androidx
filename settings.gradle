@@ -591,6 +591,16 @@ includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
 includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
 
+static boolean isAllProjects() {
+    if (!System.getenv().containsKey("ANDROIDX_PROJECTS")) return true
+    return System.getenv("ANDROIDX_PROJECTS") == "ALL"
+}
+
+if (isAllProjects()) {
+    includeProject(":docs-tip-of-tree", "docs-tip-of-tree")
+    includeProject(":docs-public", "docs-public")
+}
+
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources
 if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {

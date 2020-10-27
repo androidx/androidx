@@ -20,6 +20,8 @@ Here are the highlights of this release:
 For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/release\-notes\.html
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
 Daemon will be stopped at the end of the build stopping after processing
+Using AndroidX remote build cache
+Remote build cache is disabled when running with \-\-offline\.
 # > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
 WARNING: NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
@@ -39,6 +41,8 @@ The Kotlin source set test was configured but not added to any Kotlin compilatio
 \* jvmMain
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
+Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
+Use '\-\-warning\-mode all' to show the individual deprecation warnings\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
 BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
@@ -743,9 +747,6 @@ More than one file was found with OS independent path '.*'\. This version of the
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
-# > Task :benchmark:benchmark-macro-runtime:assemble UP-TO-DATE
-[0-9]+ actionable tasks: [0-9]+ up\-to\-date
-# > Task :benchmark:benchmark-macro-runtime:mergeDebugAndroidTestJavaResource
 # > Task :browser:browser:processDebugAndroidTestManifest
 \[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 # > Task :icing:nativeLib:buildEnvironment
@@ -772,3 +773,6 @@ as no stability\/compatibility guarantees are given on
 compiler or generated code\. Use it at your own risk\!
 # > Task :compose:ui:ui-util:compileReleaseKotlin
 \-XXLanguage\:\+InlineClasses
+# > Task :docs-public:lintDebug
+Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
+Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.xml
