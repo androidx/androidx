@@ -32,11 +32,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow] of [PageEvent].
+ *
+ * Note: This class is not thread-safe and must be guarded by a lock!
  */
-internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
+internal class PageFetcherSnapshotState<Key : Any, Value : Any> private constructor(
     private val config: PagingConfig
 ) {
     private val _pages = mutableListOf<Page<Key, Value>>()
@@ -94,6 +98,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
      * two different ways to trigger.
      */
     internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
+
     // only the local load states
     internal var sourceLoadStates = LoadStates.IDLE
         private set
@@ -369,4 +374,23 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>(
         config = config,
         leadingPlaceholderCount = placeholdersBefore
     )
+
+    /**
+     * Wrapper for [PageFetcherSnapshotState], which protects access behind a [Mutex] to prevent
+     * race scenarios.
+     */
+    internal class Holder<Key : Any, Value : Any>(
+        private val config: PagingConfig
+    ) {
+        private val lock = Mutex()
+        private val state = PageFetcherSnapshotState<Key, Value>(config)
+
+        suspend inline fun <T> withLock(
+            block: (state: PageFetcherSnapshotState<Key, Value>) -> T
+        ): T {
+            return lock.withLock {
+                block(state)
+            }
+        }
+    }
 }

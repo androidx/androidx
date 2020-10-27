@@ -22,19 +22,24 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherSnapshotStateTest {
+    val testScope = TestCoroutineScope()
 
     @Test
-    fun placeholders_uncounted() {
-        val pagerState = PageFetcherSnapshotState<Int, Int>(
+    fun placeholders_uncounted() = testScope.runBlockingTest {
+        val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = false)
-        )
+        ).withLock { it }
 
         assertEquals(0, pagerState.placeholdersBefore)
         assertEquals(0, pagerState.placeholdersAfter)
@@ -124,10 +129,10 @@ class PageFetcherSnapshotStateTest {
     }
 
     @Test
-    fun placeholders_counted() {
-        val pagerState = PageFetcherSnapshotState<Int, Int>(
+    fun placeholders_counted() = testScope.runBlockingTest {
+        val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
             config = PagingConfig(2, enablePlaceholders = true)
-        )
+        ).withLock { it }
 
         assertEquals(0, pagerState.placeholdersBefore)
         assertEquals(0, pagerState.placeholdersAfter)
@@ -222,9 +227,9 @@ class PageFetcherSnapshotStateTest {
     }
 
     @Test
-    fun currentPagingState() {
+    fun currentPagingState() = testScope.runBlockingTest {
         val config = PagingConfig(pageSize = 2)
-        val state = PageFetcherSnapshotState<Int, Int>(config = config)
+        val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
 
         val pages = listOf(
             Page(
