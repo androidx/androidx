@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-class TestWorker(private val context: Context, private val parameters: WorkerParameters) :
+public class TestWorker(private val context: Context, private val parameters: WorkerParameters) :
     Worker(context, parameters) {
     override fun doWork(): Result {
         return Result.success()

@@ -30,11 +30,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ParcelableConstraintConvertersTest {
+public class ParcelableConstraintConvertersTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
-    fun converterTest1() {
+    public fun converterTest1() {
         val uri = Uri.parse("test://foo")
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -49,7 +49,7 @@ class ParcelableConstraintConvertersTest {
 
     @Test
     @SmallTest
-    fun converterTest2() {
+    public fun converterTest2() {
         val constraints = Constraints.Builder().build()
         assertOn(constraints)
     }
