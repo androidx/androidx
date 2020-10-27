@@ -44,8 +44,8 @@ fun NavWithArgsDemo() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screen.Profile.route) {
         composable(Screen.Profile.route) { ProfileWithArgs(navController) }
-        composable(Screen.Dashboard.route + "?args={args}") { backStackEntry ->
-            Dashboard(navController, backStackEntry.arguments?.get("args") as? String)
+        composable(Screen.Dashboard.route + "?userId={userId}") { backStackEntry ->
+            Dashboard(navController, backStackEntry.arguments?.get("userId") as? String)
         }
     }
 }
@@ -60,12 +60,12 @@ fun ProfileWithArgs(navController: NavController) {
             TextField(
                 value = state.value,
                 onValueChange = { state.value = it },
-                placeholder = { Text("Enter args here") }
+                placeholder = { Text("Enter userId here") }
             )
         }
         Divider(color = Color.Black)
-        NavigateButton("Dashboard with Args") {
-            navController.navigate(Screen.Dashboard.route + "?args=" + state.value.text)
+        NavigateButton("Dashboard with userId") {
+            navController.navigate(Screen.Dashboard.route + "?userId=" + state.value.text)
         }
     }
 }
