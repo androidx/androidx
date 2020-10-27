@@ -192,13 +192,12 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
         return mCarContext;
     }
 
-    // TODO(rampara): Replace code tags with links on addition of model module.
     /**
      * Requests the first {@link Screen} for the application.
      *
      * <p>This method is invoked when this car app is first opened by the user.
      *
-     * <p>Once the method returns, {@code Screen#getTemplate} will be called on the {@link Screen}
+     * <p>Once the method returns, {@link Screen#getTemplate} will be called on the {@link Screen}
      * returned, and the app will be displayed on the car screen.
      *
      * <p>To pre-seed a back stack, you can push {@link Screen}s onto the stack, via {@link
@@ -218,11 +217,10 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
     @NonNull
     public abstract Screen onCreateScreen(@NonNull Intent intent);
 
-    // TODO(rampara): Replace code tags with links on addition of model module.
     /**
      * Notifies that the car app has received a new {@link Intent}.
      *
-     * <p>Once the method returns, {@code Screen#getTemplate} will be called on the {@link Screen}
+     * <p>Once the method returns, {@link Screen#getTemplate} will be called on the {@link Screen}
      * that is on top of the {@link Screen} stack managed by the {@link ScreenManager}, and the app
      * will be displayed on the car screen.
      *
@@ -255,7 +253,6 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
     public void onCarConfigurationChanged(@NonNull Configuration newConfiguration) {
     }
 
-    // TODO(rampara): Replace code tags with links on addition of model module.
     /**
      * Returns the {@link CarAppService}'s {@link Lifecycle}.
      *
@@ -264,8 +261,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      * <ul>
      *   <li>Observe its {@link Lifecycle} by calling {@link Lifecycle#addObserver}. You can use the
      *       {@link androidx.lifecycle.LifecycleObserver} to take specific actions whenever the
-     *       {@link
-     *       Screen} receives different {@link Event}s.
+     *       {@link Screen} receives different {@link Event}s.
      *   <li>Use this {@link CarAppService} to observe {@link androidx.lifecycle.LiveData}s that
      *       may drive the backing data for your application.
      * </ul>
@@ -293,7 +289,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      *       app is no longer displaying in the car, the host may finish this car app.
      *   <dt>{@link Event#ON_DESTROY}
      *   <dd>The OS has now destroyed this {@link CarAppService} instance, and it is no longer
-     *   valid.
+     *       valid.
      * </dl>
      *
      * <p>Listeners that are added in {@link Event#ON_START}, should be removed in {@link
