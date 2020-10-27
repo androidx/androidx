@@ -61,20 +61,22 @@ android {
     }
 }
 
-// Add :icing as jarjar dependency
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def jarjarConfigName = "jarjar${suffix}"
-    def jarjarConf = configurations.register(jarjarConfigName)
-    // Treat icing-java as a local jar and package it inside the aar.
-    dependencies.add(jarjarConfigName, project.dependencies.project(
-            path: ":icing",
-            configuration: jarjarConfigName))
-    dependencies.add("${variantName}Implementation", files(jarjarConf))
+configurations {
+    repackageRelease
+    repackageDebug
+}
+
+tasks.withType(JavaCompile).configureEach { task ->
+    task.dependsOn(configurations.repackageRelease)
+    task.dependsOn(configurations.repackageDebug)
 }
 
 dependencies {
+    repackageRelease(project(path: ':icing', configuration: "jarjarRelease"))
+    releaseImplementation(files(configurations.repackageRelease))
+    repackageDebug(project(path: ':icing', configuration: "jarjarDebug"))
+    debugImplementation(files(configurations.repackageDebug))
+
     api('androidx.annotation:annotation:1.1.0')
 
     implementation project(':appsearch:appsearch')
