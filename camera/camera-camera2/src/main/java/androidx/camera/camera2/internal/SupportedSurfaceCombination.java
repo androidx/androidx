@@ -41,6 +41,7 @@ import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizes
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -70,6 +71,7 @@ import java.util.Map;
  * support for this camera device.
  */
 final class SupportedSurfaceCombination {
+    private static final String TAG = "SupportedSurfaceCombination";
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     private static final Size DEFAULT_SIZE = new Size(640, 480);
     private static final Size ZERO_SIZE = new Size(0, 0);
@@ -251,20 +253,48 @@ final class SupportedSurfaceCombination {
         return suggestedResolutionsMap;
     }
 
-    // Gets the corrected aspect ratio due to device constraints or null if no correction is needed.
-    private Rational getCorrectedAspectRatio() {
+    private Rational getTargetAspectRatio(@NonNull ImageOutputConfig imageOutputConfig) {
         Rational outputRatio = null;
-        /*
-         * If the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
-         * resolution. The Camera2 LEGACY mode API always sends the HAL a configure call with the
-         * same aspect ratio as the maximum JPEG resolution, and do the cropping/scaling before
-         * returning the output. There is a bug because of a flipped scaling factor in the
-         * intermediate texture transform matrix, and it was fixed in L MR1.
-         */
-        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-                && Build.VERSION.SDK_INT == 21) {
-            Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
-            outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+        // Gets the corrected aspect ratio due to device constraints or null if no correction is
+        // needed.
+        @TargetAspectRatio.Ratio int targetAspectRatio =
+                new TargetAspectRatio().get(imageOutputConfig, mCameraId, mCharacteristics);
+        switch (targetAspectRatio) {
+            case TargetAspectRatio.RATIO_4_3:
+                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
+                break;
+            case TargetAspectRatio.RATIO_16_9:
+                outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9 : ASPECT_RATIO_9_16;
+                break;
+            case TargetAspectRatio.RATIO_MAX_JPEG:
+                Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
+                outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+                break;
+            case TargetAspectRatio.RATIO_ORIGINAL:
+                Size targetSize = getTargetSize(imageOutputConfig);
+                if (imageOutputConfig.hasTargetAspectRatio()) {
+                    @AspectRatio.Ratio int aspectRatio = imageOutputConfig.getTargetAspectRatio();
+                    switch (aspectRatio) {
+                        case AspectRatio.RATIO_4_3:
+                            outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3
+                                    : ASPECT_RATIO_3_4;
+                            break;
+                        case AspectRatio.RATIO_16_9:
+                            outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
+                                    : ASPECT_RATIO_9_16;
+                            break;
+                        default:
+                            Logger.e(TAG, "Undefined target aspect ratio: " + aspectRatio);
+                    }
+                } else if (targetSize != null) {
+                    // Target size is calculated from the target resolution. If target size is not
+                    // null, sizes which aspect ratio is nearest to the aspect ratio of target size
+                    // will be selected in priority.
+                    outputRatio = new Rational(targetSize.getWidth(), targetSize.getHeight());
+                }
+                break;
+            default:
+                // Unhandled event.
         }
         return outputRatio;
     }
@@ -328,16 +358,12 @@ final class SupportedSurfaceCombination {
         }
         List<Size> outputSizeCandidates = new ArrayList<>();
         Size maxSize = imageOutputConfig.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
-        int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
-        // Calibrate targetSize by the target rotation value.
-        Size targetSize = imageOutputConfig.getTargetResolution(null);
-        targetSize = flipSizeByRotation(targetSize, targetRotation);
-
+        Size targetSize = getTargetSize(imageOutputConfig);
         Size minSize = DEFAULT_SIZE;
         int defaultSizeArea = getArea(DEFAULT_SIZE);
         int maxSizeArea = getArea(maxSize);
@@ -365,30 +391,7 @@ final class SupportedSurfaceCombination {
                             + imageFormat);
         }
 
-        Rational aspectRatio = getCorrectedAspectRatio();
-        if (aspectRatio == null) {
-            if (imageOutputConfig.hasTargetAspectRatio()) {
-                @AspectRatio.Ratio int targetAspectRatio = new TargetAspectRatio().get(
-                        imageOutputConfig);
-                switch (targetAspectRatio) {
-                    case AspectRatio.RATIO_4_3:
-                        aspectRatio =
-                                mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
-                        break;
-                    case AspectRatio.RATIO_16_9:
-                        aspectRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
-                                : ASPECT_RATIO_9_16;
-                        break;
-                    default:
-                        // Unhandled event.
-                }
-            } else if (targetSize != null) {
-                // Target size is calculated from the target resolution. If target size is not
-                // null, sizes which aspect ratio is nearest to the aspect ratio of target size
-                // will be selected in priority.
-                aspectRatio = new Rational(targetSize.getWidth(), targetSize.getHeight());
-            }
-        }
+        Rational aspectRatio = getTargetAspectRatio(imageOutputConfig);
 
         // Check the default resolution if the target resolution is not set
         targetSize = targetSize == null ? imageOutputConfig.getDefaultResolution(null) : targetSize;
@@ -435,11 +438,21 @@ final class SupportedSurfaceCombination {
         return supportedResolutions;
     }
 
+    @Nullable
+    private Size getTargetSize(@NonNull ImageOutputConfig imageOutputConfig) {
+        int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
+        // Calibrate targetSize by the target rotation value.
+        Size targetSize = imageOutputConfig.getTargetResolution(null);
+        targetSize = flipSizeByRotation(targetSize, targetRotation);
+        return targetSize;
+    }
+
     // Use target rotation to calibrate the size.
-    private Size flipSizeByRotation(Size size, int targetRotation) {
+    @Nullable
+    private Size flipSizeByRotation(@Nullable Size size, int targetRotation) {
         Size outputSize = size;
         // Calibrates the size with the display and sensor rotation degrees values.
-        if (outputSize != null && isRotationNeeded(targetRotation)) {
+        if (size != null && isRotationNeeded(targetRotation)) {
             outputSize = new Size(/* width= */size.getHeight(), /* height= */size.getWidth());
         }
         return outputSize;
