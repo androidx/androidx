@@ -45,6 +45,9 @@ public class DeviceQuirksLoader {
         if (SamsungPreviewTargetAspectRatioQuirk.load()) {
             quirks.add(new SamsungPreviewTargetAspectRatioQuirk());
         }
+        if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
+            quirks.add(new Nexus4AndroidLTargetAspectRatioQuirk());
+        }
         if (ExcludedSupportedSizesQuirk.load()) {
             quirks.add(new ExcludedSupportedSizesQuirk());
         }
