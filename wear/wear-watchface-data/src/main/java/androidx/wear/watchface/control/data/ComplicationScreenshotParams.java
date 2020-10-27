@@ -136,9 +136,8 @@ public class ComplicationScreenshotParams implements VersionedParcelable, Parcel
             new Parcelable.Creator<ComplicationScreenshotParams>() {
                 @Override
                 public ComplicationScreenshotParams createFromParcel(Parcel source) {
-                    return ComplicationScreenshotParamsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

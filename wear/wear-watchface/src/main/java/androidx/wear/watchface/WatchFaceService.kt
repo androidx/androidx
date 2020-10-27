@@ -343,7 +343,7 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         fun setUserStyle(userStyle: UserStyleWireFormat) {
             watchFace.onSetStyleInternal(
-                UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
+                UserStyle(userStyle, watchFace.userStyleRepository.schema)
             )
         }
 
@@ -434,7 +434,7 @@ public abstract class WatchFaceService : WallpaperService() {
             val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.selectedOptions)
             params.userStyle?.let {
                 watchFace.onSetStyleInternal(
-                    UserStyle(it, watchFace.userStyleRepository.userStyleCategories)
+                    UserStyle(it, watchFace.userStyleRepository.schema)
                 )
             }
 
@@ -484,7 +484,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 val newStyle = params.userStyle
                 if (newStyle != null) {
                     watchFace.onSetStyleInternal(
-                        UserStyle(newStyle, watchFace.userStyleRepository.userStyleCategories)
+                        UserStyle(newStyle, watchFace.userStyleRepository.schema)
                     )
                 }
 

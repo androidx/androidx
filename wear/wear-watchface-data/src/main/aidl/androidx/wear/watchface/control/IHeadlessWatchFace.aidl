@@ -65,7 +65,6 @@ interface IHeadlessWatchFace {
       * details can change, typically in response to styling.
       *
       * @since API version 1.
-      * @param allComplicationSlots Map of id to {@link ComplicationDetails} for each slot.
       */
     List<IdAndComplicationDetails> getComplicationDetails() = 4;
 

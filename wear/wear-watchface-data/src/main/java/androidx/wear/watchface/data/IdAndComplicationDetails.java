@@ -78,9 +78,8 @@ public final class IdAndComplicationDetails implements VersionedParcelable, Parc
             new Parcelable.Creator<IdAndComplicationDetails>() {
                 @Override
                 public IdAndComplicationDetails createFromParcel(Parcel source) {
-                    return IdAndComplicationDetailsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

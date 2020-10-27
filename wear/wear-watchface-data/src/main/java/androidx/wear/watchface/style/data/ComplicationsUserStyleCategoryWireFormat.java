@@ -148,9 +148,8 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
                 new Parcelable.Creator<ComplicationOverlayWireFormat>() {
                     @Override
                     public ComplicationOverlayWireFormat createFromParcel(Parcel source) {
-                        return ComplicationOverlayWireFormatParcelizer.read(
-                                ParcelUtils.fromParcelable(source.readParcelable(
-                                        getClass().getClassLoader())));
+                        return ParcelUtils.fromParcelable(
+                                source.readParcelable(getClass().getClassLoader()));
                     }
 
                     @Override

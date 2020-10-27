@@ -113,7 +113,7 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(createBackgroundConfigOption())
         }
 
-        for (styleCategory in watchFaceConfigActivity.styleSchema) {
+        for (styleCategory in watchFaceConfigActivity.styleSchema.userStyleCategories) {
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id,

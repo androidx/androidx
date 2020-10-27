@@ -44,10 +44,7 @@ internal class HeadlessWatchFaceInstance(
     override fun takeComplicationScreenshot(params: ComplicationScreenshotParams) =
         uiThreadHandler.runOnHandler { engine!!.takeComplicationScreenshot(params) }
 
-    override fun getUserStyleSchema() =
-        uiThreadHandler.runOnHandler {
-            engine!!.watchFace.userStyleRepository.toSchemaWireFormat()
-        }
+    override fun getUserStyleSchema() = engine!!.watchFace.userStyleRepository.schema.toWireFormat()
 
     override fun release() {
         engine?.onDestroy()

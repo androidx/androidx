@@ -104,9 +104,8 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
             new Parcelable.Creator<HeadlessWatchFaceInstanceParams>() {
                 @Override
                 public HeadlessWatchFaceInstanceParams createFromParcel(Parcel source) {
-                    return HeadlessWatchFaceInstanceParamsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

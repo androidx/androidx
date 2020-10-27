@@ -42,6 +42,7 @@ import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -53,50 +54,52 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             watchState: WatchState
         ): WatchFace {
             val userStyleRepository = UserStyleRepository(
-                listOf(
-                    ListUserStyleCategory(
-                        "color_style_category",
-                        "Colors",
-                        "Watchface colorization",
-                        icon = null,
-                        options = listOf(
-                            ListUserStyleCategory.ListOption(
-                                "red_style",
-                                "Red",
-                                icon = null
+                UserStyleSchema(
+                    listOf(
+                        ListUserStyleCategory(
+                            "color_style_category",
+                            "Colors",
+                            "Watchface colorization",
+                            icon = null,
+                            options = listOf(
+                                ListUserStyleCategory.ListOption(
+                                    "red_style",
+                                    "Red",
+                                    icon = null
+                                ),
+                                ListUserStyleCategory.ListOption(
+                                    "green_style",
+                                    "Green",
+                                    icon = null
+                                ),
+                                ListUserStyleCategory.ListOption(
+                                    "bluestyle",
+                                    "Blue",
+                                    icon = null
+                                )
                             ),
-                            ListUserStyleCategory.ListOption(
-                                "green_style",
-                                "Green",
-                                icon = null
-                            ),
-                            ListUserStyleCategory.ListOption(
-                                "bluestyle",
-                                "Blue",
-                                icon = null
-                            )
+                            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
                         ),
-                        listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
-                    ),
-                    ListUserStyleCategory(
-                        "hand_style_category",
-                        "Hand Style",
-                        "Hand visual look",
-                        icon = null,
-                        options = listOf(
-                            ListUserStyleCategory.ListOption(
-                                "classic_style", "Classic", icon = null
+                        ListUserStyleCategory(
+                            "hand_style_category",
+                            "Hand Style",
+                            "Hand visual look",
+                            icon = null,
+                            options = listOf(
+                                ListUserStyleCategory.ListOption(
+                                    "classic_style", "Classic", icon = null
+                                ),
+                                ListUserStyleCategory.ListOption(
+                                    "modern_style", "Modern", icon = null
+                                ),
+                                ListUserStyleCategory.ListOption(
+                                    "gothic_style",
+                                    "Gothic",
+                                    icon = null
+                                )
                             ),
-                            ListUserStyleCategory.ListOption(
-                                "modern_style", "Modern", icon = null
-                            ),
-                            ListUserStyleCategory.ListOption(
-                                "gothic_style",
-                                "Gothic",
-                                icon = null
-                            )
-                        ),
-                        listOf(Layer.TOP_LAYER)
+                            listOf(Layer.TOP_LAYER)
+                        )
                     )
                 )
             )

@@ -121,9 +121,8 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
             new Parcelable.Creator<UserStyleCategoryWireFormat>() {
                 @Override
                 public UserStyleCategoryWireFormat createFromParcel(Parcel source) {
-                    return UserStyleCategoryWireFormatParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
@@ -167,9 +166,8 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
                 new Parcelable.Creator<OptionWireFormat>() {
                     @Override
                     public OptionWireFormat createFromParcel(Parcel source) {
-                        return OptionWireFormatParcelizer.read(
-                                ParcelUtils.fromParcelable(source.readParcelable(
-                                        getClass().getClassLoader())));
+                        return ParcelUtils.fromParcelable(
+                                source.readParcelable(getClass().getClassLoader()));
                     }
 
                     @Override
