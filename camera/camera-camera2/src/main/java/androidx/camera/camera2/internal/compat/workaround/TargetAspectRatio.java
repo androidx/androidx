@@ -23,6 +23,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.AspectRatioLegacyApi21Quirk;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.internal.compat.quirk.Nexus4AndroidLTargetAspectRatioQuirk;
 import androidx.camera.camera2.internal.compat.quirk.SamsungPreviewTargetAspectRatioQuirk;
 import androidx.camera.core.impl.ImageOutputConfig;
 
@@ -33,6 +34,7 @@ import java.lang.annotation.RetentionPolicy;
  * Workaround to get corrected target aspect ratio.
  *
  * @see SamsungPreviewTargetAspectRatioQuirk
+ * @see Nexus4AndroidLTargetAspectRatioQuirk
  * @see AspectRatioLegacyApi21Quirk
  */
 public class TargetAspectRatio {
@@ -55,6 +57,11 @@ public class TargetAspectRatio {
                 DeviceQuirks.get(SamsungPreviewTargetAspectRatioQuirk.class);
         if (samsungQuirk != null && samsungQuirk.require16_9(imageOutputConfig)) {
             return TargetAspectRatio.RATIO_16_9;
+        }
+        final Nexus4AndroidLTargetAspectRatioQuirk nexus4AndroidLQuirk =
+                DeviceQuirks.get(Nexus4AndroidLTargetAspectRatioQuirk.class);
+        if (nexus4AndroidLQuirk != null) {
+            return nexus4AndroidLQuirk.getCorrectedAspectRatio();
         }
 
         final AspectRatioLegacyApi21Quirk quirk = CameraQuirks.get(cameraId,

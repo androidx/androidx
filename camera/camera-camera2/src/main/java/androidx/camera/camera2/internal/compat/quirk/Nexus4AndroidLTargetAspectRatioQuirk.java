@@ -18,37 +18,35 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.PreviewConfig;
+import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Quirk that produces stretched preview on certain Samsung devices.
+ * Quirk that produces stretched preview on Nexus 4 devices running Android L(API levels 21 and 22).
  *
- * <p> On certain Samsung devices, the HAL provides 16:9 preview even when the Surface size is
- * set to 4:3, which causes the preview to be stretched in PreviewView.
+ * <p> There is a Camera1/HAL1 issue on the Nexus 4. The preview will be stretched when
+ * configuring a JPEG that doesn't actually have the same aspect ratio as the maximum JPEG
+ * resolution. See: b/19606058.
  */
-public class SamsungPreviewTargetAspectRatioQuirk implements Quirk {
-
+public class Nexus4AndroidLTargetAspectRatioQuirk implements Quirk {
     // List of devices with the issue.
     private static final List<String> DEVICE_MODELS = Arrays.asList(
-            "SM-J710MN", // b/170762209
-            "SM-T580" // b/169471824
+            "NEXUS 4" // b/158749159
     );
 
     static boolean load() {
-        return "SAMSUNG".equals(Build.BRAND.toUpperCase())
+        return "GOOGLE".equals(Build.BRAND.toUpperCase()) && Build.VERSION.SDK_INT < 23
                 && DEVICE_MODELS.contains(android.os.Build.MODEL.toUpperCase());
     }
 
     /**
-     * Whether to overwrite the aspect ratio in the config to be 16:9.
+     * Get the corrected aspect ratio.
      */
-    public boolean require16_9(@NonNull Config config) {
-        return config instanceof PreviewConfig;
+    @TargetAspectRatio.Ratio
+    public int getCorrectedAspectRatio() {
+        return TargetAspectRatio.RATIO_MAX_JPEG;
     }
 }
