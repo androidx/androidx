@@ -260,29 +260,34 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @VisibleForTesting
     ListenableFuture<byte[]> execute(
-            @NonNull ListenableFuture<IWorkManagerImpl> session,
+            @NonNull final ListenableFuture<IWorkManagerImpl> session,
             @NonNull final RemoteDispatcher dispatcher,
             @NonNull final RemoteCallback callback) {
-        try {
-            final IWorkManagerImpl iWorkManager = session.get();
-            // Set the binder to scope the request
-            callback.setBinder(iWorkManager.asBinder());
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        dispatcher.execute(iWorkManager, callback);
-                    } catch (Throwable innerThrowable) {
-                        Logger.get().error(TAG, "Unable to execute", innerThrowable);
-                        failureCallback(callback, innerThrowable);
-                    }
+        session.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final IWorkManagerImpl iWorkManager = session.get();
+                    // Set the binder to scope the request
+                    callback.setBinder(iWorkManager.asBinder());
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                dispatcher.execute(iWorkManager, callback);
+                            } catch (Throwable innerThrowable) {
+                                Logger.get().error(TAG, "Unable to execute", innerThrowable);
+                                failureCallback(callback, innerThrowable);
+                            }
+                        }
+                    });
+                } catch (ExecutionException | InterruptedException exception) {
+                    Logger.get().error(TAG, "Unable to bind to service");
+                    failureCallback(callback, new RuntimeException("Unable to bind to service"));
+                    cleanUp();
                 }
-            });
-        } catch (ExecutionException | InterruptedException exception) {
-            Logger.get().error(TAG, "Unable to bind to service");
-            failureCallback(callback, new RuntimeException("Unable to bind to service"));
-            cleanUp();
-        }
+            }
+        }, mExecutor);
         return callback.getFuture();
     }
 
