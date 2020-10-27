@@ -45,7 +45,8 @@ class MacroBenchmarkTest {
         val collectors = listOf<Collector<*>>(
             CpuUsageCollector(),
             AppStartupCollector(),
-            PerfettoCollector("basicTest")
+            PerfettoCollector("basicTest"),
+            TotalPssCollector(processNames = listOf(packageName))
         )
         val loopManager = LoopManager(packageName, instrumentation, collectors)
 
