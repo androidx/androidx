@@ -48,6 +48,7 @@ import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -176,11 +177,13 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             listOf(Layer.COMPLICATIONS)
         )
         val userStyleRepository = UserStyleRepository(
-            listOf(
-                colorStyleCategory,
-                drawHourPipsStyleCategory,
-                watchHandLengthStyleCategory,
-                complicationsStyleCategory
+            UserStyleSchema(
+                listOf(
+                    colorStyleCategory,
+                    drawHourPipsStyleCategory,
+                    watchHandLengthStyleCategory,
+                    complicationsStyleCategory
+                )
             )
         )
         val complicationSlots = ComplicationsManager(

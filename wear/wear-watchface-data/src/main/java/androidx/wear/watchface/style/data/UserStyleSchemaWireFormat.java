@@ -63,9 +63,8 @@ public class UserStyleSchemaWireFormat implements VersionedParcelable, Parcelabl
             new Parcelable.Creator<UserStyleSchemaWireFormat>() {
                 @Override
                 public UserStyleSchemaWireFormat createFromParcel(Parcel source) {
-                    return UserStyleSchemaWireFormatParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

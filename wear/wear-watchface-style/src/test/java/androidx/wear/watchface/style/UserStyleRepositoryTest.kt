@@ -81,7 +81,9 @@ class UserStyleRepositoryTest {
 
     private val userStyleRepository =
         UserStyleRepository(
-            listOf(colorStyleCategory, watchHandStyleCategory, watchHandLengthStyleCategory)
+            UserStyleSchema(
+                listOf(colorStyleCategory, watchHandStyleCategory, watchHandLengthStyleCategory)
+            )
         )
 
     @Test

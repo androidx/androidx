@@ -137,7 +137,7 @@ public class ComplicationsManager(
         }
 
         val complicationsStyleCategory =
-            userStyleRepository.userStyleCategories.firstOrNull {
+            userStyleRepository.schema.userStyleCategories.firstOrNull {
                 it is ComplicationsUserStyleCategory
             }
 

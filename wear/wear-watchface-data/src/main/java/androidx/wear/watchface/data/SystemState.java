@@ -75,9 +75,8 @@ public final class SystemState implements VersionedParcelable, Parcelable {
             new Parcelable.Creator<SystemState>() {
                 @Override
                 public SystemState createFromParcel(Parcel source) {
-                    return SystemStateParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

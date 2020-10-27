@@ -49,6 +49,7 @@ import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 
 /** A simple canvas test watch face for integration tests. */
 internal class TestCanvasWatchFaceService(
@@ -168,11 +169,13 @@ internal class TestCanvasWatchFaceService(
             listOf(Layer.COMPLICATIONS)
         )
         val userStyleRepository = UserStyleRepository(
-            listOf(
-                colorStyleCategory,
-                drawHourPipsStyleCategory,
-                watchHandLengthStyleCategory,
-                complicationsStyleCategory
+            UserStyleSchema(
+                listOf(
+                    colorStyleCategory,
+                    drawHourPipsStyleCategory,
+                    watchHandLengthStyleCategory,
+                    complicationsStyleCategory
+                )
             )
         )
         val complicationSlots = ComplicationsManager(

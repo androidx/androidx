@@ -43,6 +43,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -97,7 +98,7 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleCategory)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(

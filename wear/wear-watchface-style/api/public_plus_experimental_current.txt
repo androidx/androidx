@@ -130,10 +130,6 @@ package androidx.wear.watchface.style {
     property public final android.graphics.drawable.Icon? icon;
     property public final String id;
     property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory.Option> options;
-    field public static final androidx.wear.watchface.style.UserStyleCategory.Companion Companion;
-  }
-
-  public static final class UserStyleCategory.Companion {
   }
 
   public abstract static class UserStyleCategory.Option {
@@ -147,18 +143,24 @@ package androidx.wear.watchface.style {
   }
 
   public final class UserStyleRepository {
-    ctor public UserStyleRepository(java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory> userStyleCategories);
+    ctor public UserStyleRepository(androidx.wear.watchface.style.UserStyleSchema schema);
     method @UiThread public void addUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
+    method public androidx.wear.watchface.style.UserStyleSchema getSchema();
     method @UiThread public androidx.wear.watchface.style.UserStyle getUserStyle();
-    method public java.util.List<androidx.wear.watchface.style.UserStyleCategory> getUserStyleCategories();
     method @UiThread public void removeUserStyleListener(androidx.wear.watchface.style.UserStyleRepository.UserStyleListener userStyleListener);
     method @UiThread public void setUserStyle(androidx.wear.watchface.style.UserStyle style);
+    property public final androidx.wear.watchface.style.UserStyleSchema schema;
     property @UiThread public final androidx.wear.watchface.style.UserStyle userStyle;
-    property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory> userStyleCategories;
   }
 
   public static interface UserStyleRepository.UserStyleListener {
     method @UiThread public void onUserStyleChanged(androidx.wear.watchface.style.UserStyle userStyle);
+  }
+
+  public final class UserStyleSchema {
+    ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleCategory> userStyleCategories);
+    method public java.util.List<androidx.wear.watchface.style.UserStyleCategory> getUserStyleCategories();
+    property public final java.util.List<androidx.wear.watchface.style.UserStyleCategory> userStyleCategories;
   }
 
 }

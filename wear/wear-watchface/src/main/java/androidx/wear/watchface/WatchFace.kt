@@ -419,7 +419,7 @@ public class WatchFace private constructor(
         val storedUserStyle = watchFaceHostApi.getInitialUserStyle()
         if (storedUserStyle != null) {
             userStyleRepository.userStyle =
-                UserStyle(storedUserStyle, userStyleRepository.userStyleCategories)
+                UserStyle(storedUserStyle, userStyleRepository.schema)
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
@@ -427,7 +427,7 @@ public class WatchFace private constructor(
 
             userStyleRepository.userStyle = UserStyle(
                 readPrefs(watchFaceHostApi.getContext(), preferencesFile),
-                userStyleRepository.userStyleCategories
+                userStyleRepository.schema
             )
 
             userStyleRepository.addUserStyleListener(
@@ -498,13 +498,13 @@ public class WatchFace private constructor(
         WatchFaceConfigActivity.registerWatchFace(
             componentName,
             object : WatchFaceConfigDelegate {
-                override fun getUserStyleSchema() = userStyleRepository.toSchemaWireFormat()
+                override fun getUserStyleSchema() = userStyleRepository.schema.toWireFormat()
 
                 override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
 
                 override fun setUserStyle(userStyle: UserStyleWireFormat) {
                     userStyleRepository.userStyle =
-                        UserStyle(userStyle, userStyleRepository.userStyleCategories)
+                        UserStyle(userStyle, userStyleRepository.schema)
                 }
 
                 override fun getBackgroundComplicationId() =

@@ -126,9 +126,8 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
             new Parcelable.Creator<WatchfaceScreenshotParams>() {
                 @Override
                 public WatchfaceScreenshotParams createFromParcel(Parcel source) {
-                    return WatchfaceScreenshotParamsParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
