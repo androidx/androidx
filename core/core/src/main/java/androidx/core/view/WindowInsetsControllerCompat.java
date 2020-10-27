@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.view.WindowInsetsCompat.Type;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
 import java.lang.annotation.Retention;
@@ -281,7 +280,8 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void show(int typeMask) {
-            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+            for (int i = WindowInsetsCompat.Type.FIRST; i <= WindowInsetsCompat.Type.LAST;
+                    i = i << 1) {
                 if ((typeMask & i) == 0) {
                     continue;
                 }
@@ -291,14 +291,14 @@ public final class WindowInsetsControllerCompat {
 
         private void showForType(int type) {
             switch (type) {
-                case Type.STATUS_BARS:
+                case WindowInsetsCompat.Type.STATUS_BARS:
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_FULLSCREEN);
                     unsetWindowFlag(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     return;
-                case Type.NAVIGATION_BARS:
+                case WindowInsetsCompat.Type.NAVIGATION_BARS:
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     return;
-                case Type.IME:
+                case WindowInsetsCompat.Type.IME:
                     // We'll try to find an available textView to focus to show the IME
                     View view = mView;
 
@@ -335,7 +335,8 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void hide(int typeMask) {
-            for (int i = Type.FIRST; i <= Type.LAST; i = i << 1) {
+            for (int i = WindowInsetsCompat.Type.FIRST; i <= WindowInsetsCompat.Type.LAST;
+                    i = i << 1) {
                 if ((typeMask & i) == 0) {
                     continue;
                 }
@@ -345,14 +346,14 @@ public final class WindowInsetsControllerCompat {
 
         private void hideForType(int type) {
             switch (type) {
-                case Type.STATUS_BARS:
+                case WindowInsetsCompat.Type.STATUS_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_FULLSCREEN);
                     setWindowFlag(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     return;
-                case Type.NAVIGATION_BARS:
+                case WindowInsetsCompat.Type.NAVIGATION_BARS:
                     setSystemUiFlag(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                     return;
-                case Type.IME:
+                case WindowInsetsCompat.Type.IME:
                     ((InputMethodManager) mWindow.getContext()
                             .getSystemService(Context.INPUT_METHOD_SERVICE))
                             .hideSoftInputFromWindow(mWindow.getDecorView().getWindowToken(),

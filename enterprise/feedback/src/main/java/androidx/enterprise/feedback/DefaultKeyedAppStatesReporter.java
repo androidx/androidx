@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -191,11 +190,11 @@ final class DefaultKeyedAppStatesReporter extends KeyedAppStatesReporter {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void unbindOldBindings() {
-        Iterator<Entry<String, BufferedServiceConnection>> iterator =
+        Iterator<Map.Entry<String, BufferedServiceConnection>> iterator =
                 mServiceConnections.entrySet().iterator();
 
         while (iterator.hasNext()) {
-            Entry<String, BufferedServiceConnection> entry = iterator.next();
+            Map.Entry<String, BufferedServiceConnection> entry = iterator.next();
             if (packageNameShouldBeUnbound(entry.getKey())) {
                 entry.getValue().unbind();
                 iterator.remove();

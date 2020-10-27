@@ -49,7 +49,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -302,7 +301,7 @@ public class VideoView extends SelectiveLayout {
 
                 // Track selected
                 TrackInfo info = null;
-                for (Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
+                for (Map.Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
                     if (pair.getValue() == track) {
                         info = pair.getKey();
                         break;
