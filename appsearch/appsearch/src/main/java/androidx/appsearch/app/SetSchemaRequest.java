@@ -16,8 +16,9 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -42,15 +43,13 @@ public final class SetSchemaRequest {
         mForceOverride = forceOverride;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns the schemas that are part of this request. */
     @NonNull
     public Set<AppSearchSchema> getSchemas() {
         return mSchemas;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns whether this request will force the schema to be overridden. */
     public boolean isForceOverride() {
         return mForceOverride;
     }
@@ -85,6 +84,7 @@ public final class SetSchemaRequest {
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addDataClass(@NonNull Class<?>... dataClasses)
                 throws AppSearchException {
@@ -100,6 +100,7 @@ public final class SetSchemaRequest {
          * @throws AppSearchException if {@code androidx.appsearch.compiler.AppSearchCompiler}
          *                            has not generated a schema for the given data classes.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
                 throws AppSearchException {
