@@ -216,6 +216,15 @@ package androidx.appsearch.app {
   }
 
   public final class SearchSpec {
+    method public int getMaxSnippetSize();
+    method public java.util.List<java.lang.String!> getNamespaces();
+    method public int getNumPerPage();
+    method public int getOrder();
+    method public int getRankingStrategy();
+    method public java.util.List<java.lang.String!> getSchemas();
+    method public int getSnippetCount();
+    method public int getSnippetCountPerProperty();
+    method public int getTermMatch();
     field public static final int ORDER_ASCENDING = 1; // 0x1
     field public static final int ORDER_DESCENDING = 0; // 0x0
     field public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2; // 0x2

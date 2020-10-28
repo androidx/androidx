@@ -11,32 +11,6 @@ MissingGetterMatchingBuilder: androidx.appsearch.app.GenericDocument.Builder#set
     androidx.appsearch.app.GenericDocument does not declare a `getProperty()` method matching method androidx.appsearch.app.GenericDocument.Builder.setProperty(String,java.lang.String...)
 MissingGetterMatchingBuilder: androidx.appsearch.app.GenericDocument.Builder#setProperty(String, long...):
     androidx.appsearch.app.GenericDocument does not declare a `getProperty()` method matching method androidx.appsearch.app.GenericDocument.Builder.setProperty(String,long...)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addNamespace(java.lang.String...):
-    androidx.appsearch.app.SearchSpec does not declare a `getNamespaces()` method matching method androidx.appsearch.app.SearchSpec.Builder.addNamespace(java.lang.String...)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addNamespace(java.util.Collection<java.lang.String>):
-    androidx.appsearch.app.SearchSpec does not declare a `getNamespaces()` method matching method androidx.appsearch.app.SearchSpec.Builder.addNamespace(java.util.Collection<java.lang.String>)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addSchema(java.lang.String...):
-    androidx.appsearch.app.SearchSpec does not declare a `getSchemas()` method matching method androidx.appsearch.app.SearchSpec.Builder.addSchema(java.lang.String...)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addSchema(java.util.Collection<java.lang.String>):
-    androidx.appsearch.app.SearchSpec does not declare a `getSchemas()` method matching method androidx.appsearch.app.SearchSpec.Builder.addSchema(java.util.Collection<java.lang.String>)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addSchemaByDataClass(Class<?>...):
-    androidx.appsearch.app.SearchSpec does not declare a `getSchemaByDataClasss()` method matching method androidx.appsearch.app.SearchSpec.Builder.addSchemaByDataClass(Class<?>...)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#addSchemaByDataClass(java.util.Collection<java.lang.Class<?>>):
-    androidx.appsearch.app.SearchSpec does not declare a `getSchemaByDataClasss()` method matching method androidx.appsearch.app.SearchSpec.Builder.addSchemaByDataClass(java.util.Collection<java.lang.Class<?>>)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setMaxSnippetSize(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getMaxSnippetSize()` method matching method androidx.appsearch.app.SearchSpec.Builder.setMaxSnippetSize(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setNumPerPage(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getNumPerPage()` method matching method androidx.appsearch.app.SearchSpec.Builder.setNumPerPage(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setOrder(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getOrder()` method matching method androidx.appsearch.app.SearchSpec.Builder.setOrder(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setRankingStrategy(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getRankingStrategy()` method matching method androidx.appsearch.app.SearchSpec.Builder.setRankingStrategy(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setSnippetCount(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getSnippetCount()` method matching method androidx.appsearch.app.SearchSpec.Builder.setSnippetCount(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setSnippetCountPerProperty(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getSnippetCountPerProperty()` method matching method androidx.appsearch.app.SearchSpec.Builder.setSnippetCountPerProperty(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.SearchSpec.Builder#setTermMatch(int):
-    androidx.appsearch.app.SearchSpec does not declare a `getTermMatch()` method matching method androidx.appsearch.app.SearchSpec.Builder.setTermMatch(int)
 
 
 StaticFinalBuilder: androidx.appsearch.app.GenericDocument.Builder:
