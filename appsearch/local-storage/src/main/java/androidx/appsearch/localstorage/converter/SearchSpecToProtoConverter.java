@@ -16,8 +16,6 @@
 
 package androidx.appsearch.localstorage.converter;
 
-import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSpec;
@@ -40,13 +38,11 @@ public final class SearchSpecToProtoConverter {
     @NonNull
     public static SearchSpecProto toSearchSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
-        Bundle bundle = spec.getBundle();
         SearchSpecProto.Builder protoBuilder = SearchSpecProto.newBuilder()
-                .addAllSchemaTypeFilters(bundle.getStringArrayList(SearchSpec.SCHEMA_TYPE_FIELD))
-                .addAllNamespaceFilters(bundle.getStringArrayList(SearchSpec.NAMESPACE_FIELD));
+                .addAllSchemaTypeFilters(spec.getSchemas())
+                .addAllNamespaceFilters(spec.getNamespaces());
 
-        @SearchSpec.TermMatch int termMatchCode =
-                bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD);
+        @SearchSpec.TermMatch int termMatchCode = spec.getTermMatch();
         TermMatchType.Code termMatchCodeProto = TermMatchType.Code.forNumber(termMatchCode);
         if (termMatchCodeProto == null || termMatchCodeProto.equals(TermMatchType.Code.UNKNOWN)) {
             throw new IllegalArgumentException("Invalid term match type: " + termMatchCode);
@@ -60,27 +56,23 @@ public final class SearchSpecToProtoConverter {
     @NonNull
     public static ResultSpecProto toResultSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
-        Bundle bundle = spec.getBundle();
         return ResultSpecProto.newBuilder()
-                .setNumPerPage(bundle.getInt(
-                        SearchSpec.NUM_PER_PAGE_FIELD, SearchSpec.DEFAULT_NUM_PER_PAGE))
-                .setSnippetSpec(ResultSpecProto.SnippetSpecProto.newBuilder()
-                        .setNumToSnippet(bundle.getInt(SearchSpec.SNIPPET_COUNT_FIELD))
-                        .setNumMatchesPerProperty(
-                                bundle.getInt(SearchSpec.SNIPPET_COUNT_PER_PROPERTY_FIELD))
-                        .setMaxWindowBytes(bundle.getInt(SearchSpec.MAX_SNIPPET_FIELD)))
+                .setNumPerPage(spec.getNumPerPage())
+                .setSnippetSpec(
+                        ResultSpecProto.SnippetSpecProto.newBuilder()
+                                .setNumToSnippet(spec.getSnippetCount())
+                                .setNumMatchesPerProperty(spec.getSnippetCountPerProperty())
+                                .setMaxWindowBytes(spec.getMaxSnippetSize()))
                 .build();
-
     }
 
     /** Extracts {@link ScoringSpecProto} information from a {@link SearchSpec}. */
     @NonNull
     public static ScoringSpecProto toScoringSpecProto(@NonNull SearchSpec spec) {
         Preconditions.checkNotNull(spec);
-        Bundle bundle = spec.getBundle();
         ScoringSpecProto.Builder protoBuilder = ScoringSpecProto.newBuilder();
 
-        @SearchSpec.Order int orderCode = bundle.getInt(SearchSpec.ORDER_FIELD);
+        @SearchSpec.Order int orderCode = spec.getOrder();
         ScoringSpecProto.Order.Code orderCodeProto =
                 ScoringSpecProto.Order.Code.forNumber(orderCode);
         if (orderCodeProto == null) {
@@ -88,8 +80,7 @@ public final class SearchSpecToProtoConverter {
         }
         protoBuilder.setOrderBy(orderCodeProto);
 
-        @SearchSpec.RankingStrategy int rankingStrategyCode =
-                bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD);
+        @SearchSpec.RankingStrategy int rankingStrategyCode = spec.getRankingStrategy();
         ScoringSpecProto.RankingStrategy.Code rankingStrategyCodeProto =
                 ScoringSpecProto.RankingStrategy.Code.forNumber(rankingStrategyCode);
         if (rankingStrategyCodeProto == null) {
