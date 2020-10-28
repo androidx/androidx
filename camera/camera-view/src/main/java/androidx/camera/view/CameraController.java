@@ -27,6 +27,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -387,7 +388,12 @@ public abstract class CameraController {
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p>The callback will be called only once for every invocation of this method.
+     * <p> The callback will be called only once for every invocation of this method.
+     *
+     * <p> By default, the saved image is mirrored to match the output of the preview if front
+     * camera is used. To override this behavior, the app needs to explicitly set the flag to
+     * {@code false} using {@link ImageCapture.Metadata#setReversedHorizontal} and
+     * {@link OutputFileOptions.Builder#setMetadata}.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
@@ -404,12 +410,27 @@ public abstract class CameraController {
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
         Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
 
-        // Mirror the image for front camera.
-        if (mCameraSelector.getLensFacing() != null) {
+        updateMirroringFlagInOutputFileOptions(outputFileOptions);
+        mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
+    }
+
+    /**
+     * Update {@link ImageCapture.OutputFileOptions} based on config.
+     *
+     * <p> Mirror the output image if front camera is used and if the flag is not set explicitly by
+     * the app.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void updateMirroringFlagInOutputFileOptions(
+            @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
+        if (mCameraSelector.getLensFacing() != null
+                && !outputFileOptions.getMetadata().isReversedHorizontalSet()) {
             outputFileOptions.getMetadata().setReversedHorizontal(
                     mCameraSelector.getLensFacing() == CameraSelector.LENS_FACING_FRONT);
         }
-        mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
     }
 
     /**
