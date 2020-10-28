@@ -36,7 +36,7 @@ import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.DeviceConfig
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
@@ -85,20 +85,21 @@ class WatchFaceControlServiceTest {
             WatchfaceScreenshotParams(
                 RenderParameters(
                     DrawMode.INTERACTIVE,
-                    RenderParameters.DRAW_ALL_LAYERS
+                    RenderParameters.DRAW_ALL_LAYERS,
+                    null
                 ).toWireFormat(),
                 100,
                 1234567890,
                 null,
                 listOf(
-                    IdAndComplicationData(
+                    IdAndComplicationDataWireFormat(
                         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                         ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
                             .setTitle(ComplicationText.plain("23rd"))
                             .build()
                             .asWireComplicationData()
                     ),
-                    IdAndComplicationData(
+                    IdAndComplicationDataWireFormat(
                         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                         ShortTextComplicationData.Builder(ComplicationText.plain("100"))
                             .setTitle(ComplicationText.plain("Steps"))
@@ -120,7 +121,11 @@ class WatchFaceControlServiceTest {
         val bitmap = instance.takeComplicationScreenshot(
             ComplicationScreenshotParams(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                RenderParameters(DrawMode.AMBIENT, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
+                RenderParameters(
+                    DrawMode.AMBIENT,
+                    RenderParameters.DRAW_ALL_LAYERS,
+                    null
+                ).toWireFormat(),
                 100,
                 123456789,
                 ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))

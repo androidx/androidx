@@ -29,7 +29,7 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 import androidx.wear.watchface.control.IWallpaperWatchFaceControlService;
 import androidx.wear.watchface.data.DeviceConfig;
-import androidx.wear.watchface.data.IdAndComplicationData;
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.SystemState;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -69,7 +69,7 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     /** The initial state of the complications if known, or null otherwise. */
     @ParcelField(100)
     @Nullable
-    List<IdAndComplicationData> mIdAndComplicationData;
+    List<IdAndComplicationDataWireFormat> mIdAndComplicationDataWireFormats;
 
     /** Used by VersionedParcelable. */
     WallpaperInteractiveWatchFaceInstanceParams() {}
@@ -79,12 +79,12 @@ public class WallpaperInteractiveWatchFaceInstanceParams
             @NonNull DeviceConfig deviceConfig,
             @NonNull SystemState systemState,
             @Nullable UserStyleWireFormat userStyle,
-            @Nullable List<IdAndComplicationData> idAndComplicationData) {
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
         mInstanceId = instanceId;
         mDeviceConfig = deviceConfig;
         mSystemState = systemState;
         mUserStyle = userStyle;
-        mIdAndComplicationData = idAndComplicationData;
+        mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
     }
 
     @NonNull
@@ -108,8 +108,8 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     }
 
     @Nullable
-    public List<IdAndComplicationData> getIdAndComplicationData() {
-        return mIdAndComplicationData;
+    public List<IdAndComplicationDataWireFormat> getIdAndComplicationDataWireFormats() {
+        return mIdAndComplicationDataWireFormats;
     }
 
     /**

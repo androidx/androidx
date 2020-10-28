@@ -28,7 +28,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 
@@ -119,7 +119,10 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
             calendarTimeMillis,
             userStyle?.toWireFormat(),
             idAndComplicationData?.map {
-                IdAndComplicationData(it.key, it.value.asWireComplicationData())
+                IdAndComplicationDataWireFormat(
+                    it.key,
+                    it.value.asWireComplicationData()
+                )
             }
         )
     ).ashmemCompressedImageBundleToBitmap()

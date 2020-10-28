@@ -18,7 +18,6 @@ package androidx.wear.watchface.control;
 
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams;
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
-import androidx.wear.watchface.data.IdAndComplicationData;
 import androidx.wear.watchface.data.IdAndComplicationDetails;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 

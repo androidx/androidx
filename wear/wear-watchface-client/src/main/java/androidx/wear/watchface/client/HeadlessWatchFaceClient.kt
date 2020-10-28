@@ -26,7 +26,7 @@ import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.ComplicationDetails
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 
@@ -83,7 +83,10 @@ public class HeadlessWatchFaceClient internal constructor(
             calendarTimeMillis,
             userStyle?.toWireFormat(),
             idToComplicationData?.map {
-                IdAndComplicationData(it.key, it.value.asWireComplicationData())
+                IdAndComplicationDataWireFormat(
+                    it.key,
+                    it.value.asWireComplicationData()
+                )
             }
         )
     ).ashmemCompressedImageBundleToBitmap()

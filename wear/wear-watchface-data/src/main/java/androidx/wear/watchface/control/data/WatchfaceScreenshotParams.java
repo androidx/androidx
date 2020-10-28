@@ -27,7 +27,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.watchface.data.IdAndComplicationData;
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.RenderParametersWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -69,7 +69,7 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
      */
     @ParcelField(100)
     @Nullable
-    List<IdAndComplicationData> mIdAndComplicationData;
+    List<IdAndComplicationDataWireFormat> mIdAndComplicationDatumWireFormats;
 
     /** Used by VersionedParcelable. */
     WatchfaceScreenshotParams() {}
@@ -79,12 +79,12 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
             int compressionQuality,
             long calendarTimeMillis,
             @Nullable UserStyleWireFormat userStyle,
-            @Nullable List<IdAndComplicationData> idAndComplicationData) {
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDatumWireFormats) {
         mRenderParametersWireFormats = renderParametersWireFormats;
         mCompressionQuality = compressionQuality;
         mCalendarTimeMillis = calendarTimeMillis;
         mUserStyle = userStyle;
-        mIdAndComplicationData = idAndComplicationData;
+        mIdAndComplicationDatumWireFormats = idAndComplicationDatumWireFormats;
     }
 
     @NonNull
@@ -107,8 +107,8 @@ public class WatchfaceScreenshotParams implements VersionedParcelable, Parcelabl
     }
 
     @Nullable
-    public List<IdAndComplicationData> getIdAndComplicationData() {
-        return mIdAndComplicationData;
+    public List<IdAndComplicationDataWireFormat> getIdAndComplicationDatumWireFormats() {
+        return mIdAndComplicationDatumWireFormats;
     }
 
     /** Serializes this WatchfaceScreenshotParams to the specified {@link Parcel}. */

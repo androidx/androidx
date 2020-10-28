@@ -35,7 +35,7 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.createComplicationData
+import androidx.wear.watchface.createIdAndComplicationData
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
 import androidx.wear.watchface.style.ListUserStyleCategory
@@ -124,7 +124,7 @@ class WatchFaceConfigUiTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -145,7 +145,7 @@ class WatchFaceConfigUiTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(RIGHT_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -166,7 +166,7 @@ class WatchFaceConfigUiTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE

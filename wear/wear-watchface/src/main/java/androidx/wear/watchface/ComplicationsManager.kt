@@ -22,13 +22,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.RectF
 import android.icu.util.Calendar
-import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.ComplicationsUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
@@ -213,12 +215,12 @@ public class ComplicationsManager(
                 if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
                     ComplicationBoundsType.BACKGROUND
                 } else {
-                    complication.renderer.data?.let {
+                    complication.renderer.idAndData?.let {
                         labels.add(
                             ContentDescriptionLabel(
                                 watchFaceHostApi.getContext(),
                                 complication.computeBounds(renderer.screenBounds),
-                                it
+                                it.complicationData.asWireComplicationData()
                             )
                         )
                     }
@@ -289,8 +291,9 @@ public class ComplicationsManager(
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         val complication = complications[watchFaceComplicationId]!!
-        complication.dataDirty = complication.dataDirty || (complication.renderer.data != data)
-        complication.renderer.data = data
+        complication.dataDirty =
+            complication.dataDirty || (complication.renderer.idAndData?.complicationData != data)
+        complication.renderer.idAndData = IdAndComplicationData(watchFaceComplicationId, data)
     }
 
     /**
@@ -351,8 +354,8 @@ public class ComplicationsManager(
     @UiThread
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.renderer?.data ?: return
-        if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
+        val data = complications[complicationId]?.renderer?.idAndData ?: return
+        if (data.complicationData.type == ComplicationType.NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
                     watchFaceHostApi.getContext(),
@@ -362,7 +365,7 @@ public class ComplicationsManager(
             return
         }
 
-        data.tapAction?.send()
+        data.complicationData.tapAction?.send()
         for (complicationListener in complicationListeners) {
             complicationListener.onComplicationSingleTapped(complicationId)
         }
@@ -379,8 +382,8 @@ public class ComplicationsManager(
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
-        val data = complication.renderer.data ?: return
-        if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
+        val data = complication.renderer.idAndData ?: return
+        if (data.complicationData.type == ComplicationType.NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
                     watchFaceHostApi.getContext(),

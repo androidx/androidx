@@ -20,7 +20,7 @@ import android.os.Handler
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.runOnHandler
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -71,8 +71,12 @@ internal class InteractiveWatchFaceImpl(
     inner class WCSApi : IInteractiveWatchFaceWCS.Stub() {
         override fun getApiVersion() = IInteractiveWatchFaceWCS.API_VERSION
 
-        override fun updateComplicationData(complicationData: MutableList<IdAndComplicationData>) {
-            uiThreadHandler.runOnHandler { engine.setComplicationDataList(complicationData) }
+        override fun updateComplicationData(
+            complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
+        ) {
+            uiThreadHandler.runOnHandler {
+                engine.setComplicationDataList(complicationDatumWireFormats)
+            }
         }
 
         override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =

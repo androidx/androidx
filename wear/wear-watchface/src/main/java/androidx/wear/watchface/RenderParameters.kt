@@ -47,7 +47,11 @@ public enum class LayerMode {
     /** This layer should be rendered normally. */
     DRAW,
 
-    /** This layer should be rendered with highlighting (used by the editor) */
+    /**
+     * This layer should be rendered with highlighting (used by the editor). See also
+     * [RenderParameters.highlightedComplicationId] for use in combination with
+     * [Layer.COMPLICATIONS].
+     */
     DRAW_HIGHLIGHTED,
 
     /** This layer should not be drawn. */
@@ -55,7 +59,7 @@ public enum class LayerMode {
 }
 
 /** Used to parameterize watch face rendering. */
-public class RenderParameters(
+public class RenderParameters constructor(
     /** The overall drawing parameters based on system state. */
     public val drawMode: DrawMode,
 
@@ -64,7 +68,16 @@ public class RenderParameters(
      * in normal operation, but the editor may make more complicated requests which need to be
      * honored to function properly.
      */
-    public val layerParameters: Map<Layer, LayerMode>
+    public val layerParameters: Map<Layer, LayerMode>,
+
+    /**
+     * Optional parameter which non null specifies that a particular complication, rather than all
+     * complications, should be highlighted when [Layer.COMPLICATIONS] is
+     * [LayerMode.DRAW_HIGHLIGHTED].
+     */
+    @SuppressWarnings("AutoBoxing")
+    @get:SuppressWarnings("AutoBoxing")
+    public val highlightedComplicationId: Int?
 ) {
     public companion object {
         /** A layerParameters map where all Layers have [LayerMode.DRAW]. */
@@ -75,7 +88,7 @@ public class RenderParameters(
         /** Default RenderParameters which draws everything in interactive mode. */
         @JvmField
         public val DEFAULT_INTERACTIVE: RenderParameters =
-            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS)
+            RenderParameters(DrawMode.INTERACTIVE, DRAW_ALL_LAYERS, null)
     }
 
     /** @hide */
@@ -85,7 +98,8 @@ public class RenderParameters(
         wireFormat.layerParameters.associateBy(
             { Layer.values()[it.layer] },
             { LayerMode.values()[it.layerMode] }
-        )
+        ),
+        wireFormat.highlightedComplicationId
     )
 
     /** @hide */
@@ -97,6 +111,7 @@ public class RenderParameters(
                 it.key.ordinal,
                 it.value.ordinal
             )
-        }
+        },
+        highlightedComplicationId
     )
 }

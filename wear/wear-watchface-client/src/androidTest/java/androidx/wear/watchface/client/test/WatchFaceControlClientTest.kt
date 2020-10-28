@@ -70,7 +70,7 @@ class WatchFaceControlClientTest {
             400
         ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
         val bitmap = headlessInstance!!.takeWatchFaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS),
+            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
             100,
             1234567,
             null,

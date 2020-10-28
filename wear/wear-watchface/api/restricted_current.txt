@@ -2,31 +2,31 @@
 package androidx.wear.watchface {
 
   public interface CanvasComplication {
-    method public android.support.wearable.complications.ComplicationData? getData();
+    method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method public boolean isHighlighted();
     method @UiThread public void onAttach(androidx.wear.watchface.Complication complication);
     method @UiThread public void onDetach();
     method @UiThread public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method public void setData(android.support.wearable.complications.ComplicationData? p);
+    method public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? p);
     method public void setIsHighlighted(boolean p);
-    property public abstract android.support.wearable.complications.ComplicationData? data;
+    property public abstract androidx.wear.complications.data.IdAndComplicationData? idAndData;
     property public abstract boolean isHighlighted;
   }
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
     method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
-    method public android.support.wearable.complications.ComplicationData? getData();
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
+    method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method @UiThread public boolean isHighlighted();
     method public void onAttach(androidx.wear.watchface.Complication complication);
     method public void onDetach();
     method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
-    method @UiThread public void setData(android.support.wearable.complications.ComplicationData? value);
     method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable value);
+    method @UiThread public void setIdAndData(androidx.wear.complications.data.IdAndComplicationData? value);
     method @UiThread public void setIsHighlighted(boolean value);
-    property public android.support.wearable.complications.ComplicationData? data;
     property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
+    property public androidx.wear.complications.data.IdAndComplicationData? idAndData;
     property @UiThread public boolean isHighlighted;
   }
 
@@ -174,12 +174,14 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Map<androidx.wear.watchface.style.Layer,? extends androidx.wear.watchface.LayerMode> layerParameters, Integer? highlightedComplicationId);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
     method public androidx.wear.watchface.DrawMode getDrawMode();
+    method public Integer? getHighlightedComplicationId();
     method public java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> getLayerParameters();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.data.RenderParametersWireFormat toWireFormat();
     property public final androidx.wear.watchface.DrawMode drawMode;
+    property public final Integer? highlightedComplicationId;
     property public final java.util.Map<androidx.wear.watchface.style.Layer,androidx.wear.watchface.LayerMode> layerParameters;
     field public static final androidx.wear.watchface.RenderParameters.Companion Companion;
     field public static final androidx.wear.watchface.RenderParameters DEFAULT_INTERACTIVE;

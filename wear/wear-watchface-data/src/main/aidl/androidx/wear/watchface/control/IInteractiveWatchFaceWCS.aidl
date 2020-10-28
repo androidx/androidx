@@ -18,7 +18,7 @@ package androidx.wear.watchface.control;
 
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
 import androidx.wear.watchface.data.SystemState;
-import androidx.wear.watchface.data.IdAndComplicationData;
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationDetails;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
@@ -59,7 +59,7 @@ interface IInteractiveWatchFaceWCS {
      *
      * @since API version 1.
      */
-    oneway void updateComplicationData(in List<IdAndComplicationData> complicationData) = 4;
+    oneway void updateComplicationData(in List<IdAndComplicationDataWireFormat> complicationData) = 4;
 
     /**
      * Sets the current user style ({@link UserStyleWireFormat}) which contains a map of style
