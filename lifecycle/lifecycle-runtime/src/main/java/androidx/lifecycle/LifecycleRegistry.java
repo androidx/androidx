@@ -31,7 +31,7 @@ import androidx.arch.core.internal.FastSafeIterableMap;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.Map;
 
 /**
  * An implementation of {@link Lifecycle} that can handle multiple observers.
@@ -159,7 +159,7 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     private State calculateTargetState(LifecycleObserver observer) {
-        Entry<LifecycleObserver, ObserverWithState> previous = mObserverMap.ceil(observer);
+        Map.Entry<LifecycleObserver, ObserverWithState> previous = mObserverMap.ceil(observer);
 
         State siblingState = previous != null ? previous.getValue().mState : null;
         State parentState = !mParentStates.isEmpty() ? mParentStates.get(mParentStates.size() - 1)
@@ -250,10 +250,10 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     private void forwardPass(LifecycleOwner lifecycleOwner) {
-        Iterator<Entry<LifecycleObserver, ObserverWithState>> ascendingIterator =
+        Iterator<Map.Entry<LifecycleObserver, ObserverWithState>> ascendingIterator =
                 mObserverMap.iteratorWithAdditions();
         while (ascendingIterator.hasNext() && !mNewEventOccurred) {
-            Entry<LifecycleObserver, ObserverWithState> entry = ascendingIterator.next();
+            Map.Entry<LifecycleObserver, ObserverWithState> entry = ascendingIterator.next();
             ObserverWithState observer = entry.getValue();
             while ((observer.mState.compareTo(mState) < 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
@@ -269,10 +269,10 @@ public class LifecycleRegistry extends Lifecycle {
     }
 
     private void backwardPass(LifecycleOwner lifecycleOwner) {
-        Iterator<Entry<LifecycleObserver, ObserverWithState>> descendingIterator =
+        Iterator<Map.Entry<LifecycleObserver, ObserverWithState>> descendingIterator =
                 mObserverMap.descendingIterator();
         while (descendingIterator.hasNext() && !mNewEventOccurred) {
-            Entry<LifecycleObserver, ObserverWithState> entry = descendingIterator.next();
+            Map.Entry<LifecycleObserver, ObserverWithState> entry = descendingIterator.next();
             ObserverWithState observer = entry.getValue();
             while ((observer.mState.compareTo(mState) > 0 && !mNewEventOccurred
                     && mObserverMap.contains(entry.getKey()))) {
@@ -301,7 +301,7 @@ public class LifecycleRegistry extends Lifecycle {
             if (mState.compareTo(mObserverMap.eldest().getValue().mState) < 0) {
                 backwardPass(lifecycleOwner);
             }
-            Entry<LifecycleObserver, ObserverWithState> newest = mObserverMap.newest();
+            Map.Entry<LifecycleObserver, ObserverWithState> newest = mObserverMap.newest();
             if (!mNewEventOccurred && newest != null
                     && mState.compareTo(newest.getValue().mState) > 0) {
                 forwardPass(lifecycleOwner);
