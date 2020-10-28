@@ -247,6 +247,7 @@ includeProject(":compose:ui:ui-graphics", "compose/ui/ui-graphics", [BuildType.C
 includeProject(":compose:ui:ui-graphics:ui-graphics-samples", "compose/ui/ui-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test", "compose/ui/ui-test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-font", "compose/ui/ui-test-font", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-test-junit4", "compose/ui/ui-test-junit4", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text", "compose/ui/ui-text", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text-android", "compose/ui/ui-text-android", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text:ui-text-samples", "compose/ui/ui-text/samples", [BuildType.COMPOSE])
