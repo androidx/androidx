@@ -158,5 +158,7 @@ class StreamMap @Inject constructor(
         override val format: StreamFormat,
         override val camera: CameraId,
         override val type: StreamType
-    ) : Stream
+    ) : Stream {
+        override fun toString(): String = id.toString()
+    }
 }
