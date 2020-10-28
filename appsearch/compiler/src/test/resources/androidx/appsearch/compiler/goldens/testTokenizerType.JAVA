@@ -39,11 +39,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String tokNoneCopy = dataClass.tokNone;
     if (tokNoneCopy != null) {
-      builder.setProperty("tokNone", tokNoneCopy);
+      builder.setPropertyString("tokNone", tokNoneCopy);
     }
     String tokPlainCopy = dataClass.tokPlain;
     if (tokPlainCopy != null) {
-      builder.setProperty("tokPlain", tokPlainCopy);
+      builder.setPropertyString("tokPlain", tokPlainCopy);
     }
     return builder.build();
   }

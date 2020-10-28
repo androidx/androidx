@@ -773,7 +773,7 @@ public class GenericDocument {
          * @param values The {@code String} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull String... values) {
+        public BuilderType setPropertyString(@NonNull String key, @NonNull String... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -789,7 +789,7 @@ public class GenericDocument {
          * @param values The {@code boolean} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull boolean... values) {
+        public BuilderType setPropertyBoolean(@NonNull String key, @NonNull boolean... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -805,7 +805,7 @@ public class GenericDocument {
          * @param values The {@code long} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull long... values) {
+        public BuilderType setPropertyLong(@NonNull String key, @NonNull long... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -821,7 +821,7 @@ public class GenericDocument {
          * @param values The {@code double} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull double... values) {
+        public BuilderType setPropertyDouble(@NonNull String key, @NonNull double... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -836,7 +836,7 @@ public class GenericDocument {
          * @param values The {@code byte[]} of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull byte[]... values) {
+        public BuilderType setPropertyBytes(@NonNull String key, @NonNull byte[]... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -852,7 +852,8 @@ public class GenericDocument {
          * @param values The {@link GenericDocument} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull GenericDocument... values) {
+        public BuilderType setPropertyDocument(
+                @NonNull String key, @NonNull GenericDocument... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);

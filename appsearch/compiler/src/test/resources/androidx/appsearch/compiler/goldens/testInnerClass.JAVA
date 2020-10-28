@@ -33,7 +33,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String[] arrStringCopy = dataClass.arrString;
     if (arrStringCopy != null) {
-      builder.setProperty("arrString", arrStringCopy);
+      builder.setPropertyString("arrString", arrStringCopy);
     }
     return builder.build();
   }

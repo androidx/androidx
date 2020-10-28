@@ -53,13 +53,14 @@ public class GenericDocumentToProtoConverterTest {
                         .setScore(1)
                         .setTtlMillis(1L)
                         .setNamespace("namespace")
-                        .setProperty("longKey1", 1L)
-                        .setProperty("doubleKey1", 1.0)
-                        .setProperty("booleanKey1", true)
-                        .setProperty("stringKey1", "test-value1")
-                        .setProperty("byteKey1", BYTE_ARRAY_1, BYTE_ARRAY_2)
-                        .setProperty("documentKey1", DOCUMENT_PROPERTIES_1)
-                        .setProperty(GenericDocument.PROPERTIES_FIELD, DOCUMENT_PROPERTIES_2)
+                        .setPropertyLong("longKey1", 1L)
+                        .setPropertyDouble("doubleKey1", 1.0)
+                        .setPropertyBoolean("booleanKey1", true)
+                        .setPropertyString("stringKey1", "test-value1")
+                        .setPropertyBytes("byteKey1", BYTE_ARRAY_1, BYTE_ARRAY_2)
+                        .setPropertyDocument("documentKey1", DOCUMENT_PROPERTIES_1)
+                        .setPropertyDocument(
+                                GenericDocument.PROPERTIES_FIELD, DOCUMENT_PROPERTIES_2)
                         .build();
 
         // Create the Document proto. Need to sort the property order by key.
