@@ -309,7 +309,7 @@ public class InvalidationTracker {
         return tables.toArray(new String[tables.size()]);
     }
 
-    private void beginTransactionInternal(SupportSQLiteDatabase database) {
+    private static void beginTransactionInternal(SupportSQLiteDatabase database) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && database.isWriteAheadLoggingEnabled()) {
             database.beginTransactionNonExclusive();
