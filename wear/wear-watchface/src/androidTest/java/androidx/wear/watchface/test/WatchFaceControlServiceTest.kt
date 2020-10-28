@@ -19,14 +19,14 @@ package androidx.wear.watchface.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
@@ -35,8 +35,8 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.IdAndComplicationData
 import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.IdAndComplicationData
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
@@ -93,17 +93,17 @@ class WatchFaceControlServiceTest {
                 listOf(
                     IdAndComplicationData(
                         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortTitle(ComplicationText.plainText("23rd"))
-                            .setShortText(ComplicationText.plainText("Mon"))
+                        ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                            .setTitle(ComplicationText.plain("23rd"))
                             .build()
+                            .asWireComplicationData()
                     ),
                     IdAndComplicationData(
                         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                            .setShortTitle(ComplicationText.plainText("Steps"))
-                            .setShortText(ComplicationText.plainText("100"))
+                        ShortTextComplicationData.Builder(ComplicationText.plain("100"))
+                            .setTitle(ComplicationText.plain("Steps"))
                             .build()
+                            .asWireComplicationData()
                     )
                 )
             )
@@ -123,10 +123,10 @@ class WatchFaceControlServiceTest {
                 RenderParameters(DrawMode.AMBIENT, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
                 100,
                 123456789,
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(ComplicationText.plainText("23rd"))
-                    .setShortText(ComplicationText.plainText("Mon"))
-                    .build(),
+                ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                    .setTitle(ComplicationText.plain("23rd"))
+                    .build()
+                    .asWireComplicationData(),
                 null
             )
         ).ashmemCompressedImageBundleToBitmap()

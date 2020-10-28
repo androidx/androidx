@@ -3,11 +3,11 @@ package androidx.wear.complications {
 
   public abstract class ComplicationProviderService extends android.app.Service {
     ctor public ComplicationProviderService();
-    method public abstract android.support.wearable.complications.ComplicationData? getPreviewData(@android.support.wearable.complications.ComplicationData.ComplicationType int);
+    method public abstract androidx.wear.complications.data.ComplicationData? getPreviewData(androidx.wear.complications.data.ComplicationType);
     method public android.os.IBinder? onBind(android.content.Intent);
     method @UiThread public void onComplicationActivated(int, int);
     method @UiThread public void onComplicationDeactivated(int);
-    method @UiThread public abstract void onComplicationUpdate(int, @android.support.wearable.complications.ComplicationData.ComplicationType int, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateCallback);
+    method @UiThread public abstract void onComplicationUpdate(int, androidx.wear.complications.data.ComplicationType, androidx.wear.complications.ComplicationProviderService.ComplicationUpdateCallback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public void setRetailModeProvider(androidx.wear.complications.ComplicationProviderService.RetailModeProvider);
     field public static final String ACTION_COMPLICATION_UPDATE_REQUEST = "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
     field public static final String CATEGORY_PROVIDER_CONFIG_ACTION = "android.support.wearable.complications.category.PROVIDER_CONFIG";
@@ -21,7 +21,7 @@ package androidx.wear.complications {
   }
 
   public static interface ComplicationProviderService.ComplicationUpdateCallback {
-    method public void onUpdateComplication(android.support.wearable.complications.ComplicationData?) throws android.os.RemoteException;
+    method public void onUpdateComplication(androidx.wear.complications.data.ComplicationData?) throws android.os.RemoteException;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @VisibleForTesting public static interface ComplicationProviderService.RetailModeProvider {

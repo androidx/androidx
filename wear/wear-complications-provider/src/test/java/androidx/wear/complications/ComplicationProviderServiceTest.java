@@ -23,14 +23,16 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Intent;
 import android.os.RemoteException;
-import android.support.wearable.complications.ComplicationData;
-import android.support.wearable.complications.ComplicationText;
 import android.support.wearable.complications.IComplicationManager;
 import android.support.wearable.complications.IComplicationProvider;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.wear.complications.data.ComplicationData;
+import androidx.wear.complications.data.ComplicationText;
+import androidx.wear.complications.data.ComplicationType;
+import androidx.wear.complications.data.LongTextComplicationData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +54,8 @@ public class ComplicationProviderServiceTest {
     private IComplicationManager mRemoteManager;
     private IComplicationManager.Stub mLocalManager = new IComplicationManager.Stub() {
         @Override
-        public void updateComplicationData(int complicationId, ComplicationData data)
+        public void updateComplicationData(int complicationId,
+                android.support.wearable.complications.ComplicationData data)
                 throws RemoteException {
             mRemoteManager.updateComplicationData(complicationId, data);
         }
@@ -61,17 +64,18 @@ public class ComplicationProviderServiceTest {
     private IComplicationProvider.Stub mComplicationProvider;
 
     private ComplicationProviderService mTestService = new ComplicationProviderService() {
-        private CharSequence mText = "Hello";
 
         @Override
         public void onComplicationUpdate(
-                int complicationId, int type, @NonNull ComplicationUpdateCallback callback) {
+                int complicationId,
+                @NonNull ComplicationType type,
+                @NonNull ComplicationUpdateCallback callback) {
             try {
                 callback.onUpdateComplication(
-                        new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                                .setLongText(
-                                        ComplicationText.plainText("hello " + complicationId))
-                                .build());
+                        new LongTextComplicationData.Builder(
+                                ComplicationText.plain("hello " + complicationId)
+                        ).build()
+                );
             } catch (RemoteException e) {
                 Log.e(TAG, "onComplicationUpdate failed with error: ", e);
             }
@@ -79,15 +83,15 @@ public class ComplicationProviderServiceTest {
 
         @Nullable
         @Override
-        public ComplicationData getPreviewData(int type) {
-            return new ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                    .setLongText(ComplicationText.plainText("hello preview"))
-                    .build();
+        public ComplicationData getPreviewData(@NonNull ComplicationType type) {
+            return new LongTextComplicationData.Builder(
+                    ComplicationText.plain("hello preview")
+            ).build();
         }
     };
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         mComplicationProvider =
                 (IComplicationProvider.Stub) mTestService.onBind(
@@ -98,10 +102,13 @@ public class ComplicationProviderServiceTest {
     @Test
     public void testOnComplicationUpdate() throws Exception {
         int id = 123;
-        mComplicationProvider.onUpdate(id, ComplicationData.TYPE_LONG_TEXT, mLocalManager);
+        mComplicationProvider.onUpdate(
+                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
         ShadowLooper.runUiThreadTasks();
 
-        ArgumentCaptor<ComplicationData> data = ArgumentCaptor.forClass(ComplicationData.class);
+        ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
+                ArgumentCaptor.forClass(
+                        android.support.wearable.complications.ComplicationData.class);
         verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
         assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
                 "hello " + id
@@ -110,7 +117,8 @@ public class ComplicationProviderServiceTest {
 
     @Test
     public void testGetComplicationPreviewData() throws Exception {
-        assertThat(mComplicationProvider.getComplicationPreviewData(ComplicationData.TYPE_LONG_TEXT)
-                .getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
+        assertThat(mComplicationProvider.getComplicationPreviewData(
+                ComplicationType.LONG_TEXT.asWireComplicationType()
+        ).getLongText().getTextAt(null, 0)).isEqualTo("hello preview");
     }
 }

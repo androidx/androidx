@@ -74,7 +74,7 @@ package androidx.wear.watchface.client {
     ctor public WatchFaceControlClient(android.content.Context context, String watchFacePackageName);
     method public void close();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.HeadlessWatchFaceClient> createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient> getInteractiveWatchFaceSysUiClient(String instanceId);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient> getInteractiveWatchFaceInstanceSysUi(String instanceId);
   }
 
   public static final class WatchFaceControlClient.ServiceNotBoundException extends java.lang.Exception {
