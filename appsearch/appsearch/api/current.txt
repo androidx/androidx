@@ -142,12 +142,12 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GenericDocument build();
     method public BuilderType setCreationTimestampMillis(long);
     method public BuilderType setNamespace(String);
-    method public BuilderType setProperty(String, java.lang.String!...);
-    method public BuilderType setProperty(String, boolean...);
-    method public BuilderType setProperty(String, long...);
-    method public BuilderType setProperty(String, double...);
-    method public BuilderType setProperty(String, byte[]!...);
-    method public BuilderType setProperty(String, androidx.appsearch.app.GenericDocument!...);
+    method public BuilderType setPropertyBoolean(String, boolean...);
+    method public BuilderType setPropertyBytes(String, byte[]!...);
+    method public BuilderType setPropertyDocument(String, androidx.appsearch.app.GenericDocument!...);
+    method public BuilderType setPropertyDouble(String, double...);
+    method public BuilderType setPropertyLong(String, long...);
+    method public BuilderType setPropertyString(String, java.lang.String!...);
     method public BuilderType setScore(@IntRange(from=0, to=java.lang.Integer.MAX_VALUE) int);
     method public BuilderType setTtlMillis(long);
   }

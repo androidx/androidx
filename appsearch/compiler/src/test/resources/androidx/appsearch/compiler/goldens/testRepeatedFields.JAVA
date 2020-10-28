@@ -57,7 +57,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> listOfStringCopy = dataClass.listOfString;
     if (listOfStringCopy != null) {
       String[] listOfStringConv = listOfStringCopy.toArray(new String[0]);
-      builder.setProperty("listOfString", listOfStringConv);
+      builder.setPropertyString("listOfString", listOfStringConv);
     }
     Collection<Integer> setOfIntCopy = dataClass.setOfInt;
     if (setOfIntCopy != null) {
@@ -66,15 +66,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       for (Integer item : setOfIntCopy) {
         setOfIntConv[i++] = item;
       }
-      builder.setProperty("setOfInt", setOfIntConv);
+      builder.setPropertyLong("setOfInt", setOfIntConv);
     }
     byte[][] repeatedByteArrayCopy = dataClass.repeatedByteArray;
     if (repeatedByteArrayCopy != null) {
-      builder.setProperty("repeatedByteArray", repeatedByteArrayCopy);
+      builder.setPropertyBytes("repeatedByteArray", repeatedByteArrayCopy);
     }
     byte[] byteArrayCopy = dataClass.byteArray;
     if (byteArrayCopy != null) {
-      builder.setProperty("byteArray", byteArrayCopy);
+      builder.setPropertyBytes("byteArray", byteArrayCopy);
     }
     return builder.build();
   }

@@ -112,37 +112,37 @@ public final class GenericDocumentToProtoConverter {
                 for (int j = 0; j < values.length; j++) {
                     values[j] = property.getBooleanValues(j);
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyBoolean(name, values);
             } else if (property.getInt64ValuesCount() > 0) {
                 long[] values = new long[property.getInt64ValuesCount()];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = property.getInt64Values(j);
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyLong(name, values);
             } else if (property.getDoubleValuesCount() > 0) {
                 double[] values = new double[property.getDoubleValuesCount()];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = property.getDoubleValues(j);
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyDouble(name, values);
             } else if (property.getStringValuesCount() > 0) {
                 String[] values = new String[property.getStringValuesCount()];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = property.getStringValues(j);
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyString(name, values);
             } else if (property.getBytesValuesCount() > 0) {
                 byte[][] values = new byte[property.getBytesValuesCount()][];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = property.getBytesValues(j).toByteArray();
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyBytes(name, values);
             } else if (property.getDocumentValuesCount() > 0) {
                 GenericDocument[] values = new GenericDocument[property.getDocumentValuesCount()];
                 for (int j = 0; j < values.length; j++) {
                     values[j] = convert(property.getDocumentValues(j));
                 }
-                documentBuilder.setProperty(name, values);
+                documentBuilder.setPropertyDocument(name, values);
             } else {
                 throw new IllegalStateException("Unknown type of value: " + name);
             }

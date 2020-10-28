@@ -74,31 +74,31 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String stringPropCopy = dataClass.stringProp;
     if (stringPropCopy != null) {
-      builder.setProperty("stringProp", stringPropCopy);
+      builder.setPropertyString("stringProp", stringPropCopy);
     }
     Integer integerPropCopy = dataClass.integerProp;
     if (integerPropCopy != null) {
-      builder.setProperty("integerProp", integerPropCopy);
+      builder.setPropertyLong("integerProp", integerPropCopy);
     }
     Long longPropCopy = dataClass.longProp;
     if (longPropCopy != null) {
-      builder.setProperty("longProp", longPropCopy);
+      builder.setPropertyLong("longProp", longPropCopy);
     }
     Float floatPropCopy = dataClass.floatProp;
     if (floatPropCopy != null) {
-      builder.setProperty("floatProp", floatPropCopy);
+      builder.setPropertyDouble("floatProp", floatPropCopy);
     }
     Double doublePropCopy = dataClass.doubleProp;
     if (doublePropCopy != null) {
-      builder.setProperty("doubleProp", doublePropCopy);
+      builder.setPropertyDouble("doubleProp", doublePropCopy);
     }
     Boolean booleanPropCopy = dataClass.booleanProp;
     if (booleanPropCopy != null) {
-      builder.setProperty("booleanProp", booleanPropCopy);
+      builder.setPropertyBoolean("booleanProp", booleanPropCopy);
     }
     byte[] bytesPropCopy = dataClass.bytesProp;
     if (bytesPropCopy != null) {
-      builder.setProperty("bytesProp", bytesPropCopy);
+      builder.setPropertyBytes("bytesProp", bytesPropCopy);
     }
     return builder.build();
   }

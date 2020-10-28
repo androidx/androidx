@@ -162,7 +162,7 @@ public class AppSearchSessionTest {
 
         // Try to index a gift. This should fail as it's not in the schema.
         GenericDocument gift =
-                new GenericDocument.Builder<>("gift1", "Gift").setProperty("price", 5).build();
+                new GenericDocument.Builder<>("gift1", "Gift").setPropertyLong("price", 5).build();
         AppSearchBatchResult<String, Void> result =
                 mDb1.putDocuments(
                         new PutDocumentsRequest.Builder().addGenericDocument(gift).build()).get();
@@ -501,8 +501,8 @@ public class AppSearchSessionTest {
                         .setSubject("testPut example")
                         .setBody("This is the body of the testPut email")
                         .build();
-        GenericDocument inDoc =
-                new GenericDocument.Builder<>("uri2", "Generic").setProperty("foo", "body").build();
+        GenericDocument inDoc = new GenericDocument.Builder<>("uri2", "Generic")
+                .setPropertyString("foo", "body").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail, inDoc).build()));
 
@@ -638,7 +638,7 @@ public class AppSearchSessionTest {
         GenericDocument document =
                 new GenericDocument.Builder<>("uri", "Generic")
                         .setNamespace("document")
-                        .setProperty("subject", "A commonly used fake word is foo. "
+                        .setPropertyString("subject", "A commonly used fake word is foo. "
                                         + "Another nonsense word that’s used a lot is bar")
                         .build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
@@ -954,7 +954,7 @@ public class AppSearchSessionTest {
         GenericDocument document1 =
                 new GenericDocument.Builder<>("uri3", "Generic")
                         .setNamespace("document")
-                        .setProperty("foo", "bar").build();
+                        .setPropertyString("foo", "bar").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder().addGenericDocument(email1, email2, document1)
                         .build()));

@@ -33,7 +33,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String oldNameCopy = dataClass.oldName;
     if (oldNameCopy != null) {
-      builder.setProperty("newName", oldNameCopy);
+      builder.setPropertyString("newName", oldNameCopy);
     }
     return builder.build();
   }
