@@ -23,7 +23,6 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.TransitionModel
@@ -37,6 +36,7 @@ import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.emptyContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.FontLoaderAmbient
 import androidx.compose.ui.platform.setContent
@@ -419,10 +419,10 @@ internal class ComposeViewAdapter : FrameLayout {
                     // valid `animationClockStartTime` is passed. This clock will control the
                     // animations defined in this `ComposeViewAdapter` from Android Studio.
                     clock = PreviewAnimationClock(animationClockStartTime) {
-                        // Invalidate the ComposeViewAdapter's descendants when setting the clock
-                        // time to make sure the Compose Preview will animate when the states are
-                        // read inside the draw scope.
-                        invalidateDescendants()
+                        // Invalidate the descendants of this ComposeViewAdapter's only child (an
+                        // AndroidOwner) when setting the clock time to make sure the Compose
+                        // Preview will animate when the states are read inside the draw scope.
+                        (getChildAt(0) as? AndroidOwner)?.invalidateDescendants()
                     }
                     Providers(AnimationClockAmbient provides clock) {
                         composable()
@@ -433,17 +433,6 @@ internal class ComposeViewAdapter : FrameLayout {
             }
         }
         composition = setContent(Recomposer.current(), previewComposition)
-    }
-
-    /**
-     * Invalidate the [ViewGroup]'s descendants. This should only be called from the UI thread.
-     */
-    private fun ViewGroup.invalidateDescendants() {
-        for (i in 0 until childCount) {
-            val child = getChildAt(i)
-            // Recursively invalidate descendants
-            (child as? ViewGroup)?.invalidateDescendants() ?: child.invalidate()
-        }
     }
 
     /**
