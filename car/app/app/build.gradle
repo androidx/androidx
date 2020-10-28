@@ -24,13 +24,28 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    implementation "androidx.activity:activity:1.1.0"
+    implementation "androidx.annotation:annotation:1.1.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+    buildFeatures {
+        aidl = true
+    }
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 androidx {
-    name = "androidx.car.app:app"
+    name = "Android for Cars App Library"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2020"
-    description = "androidx.car.app:app"
+    description = "Build navigation, parking, and charging apps for Android Auto"
 }
