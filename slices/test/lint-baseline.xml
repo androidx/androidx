@@ -1,5 +1,470 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#EXTRA_TOGGLE_STATE`"
+        errorLine1="                boolean newState = i.getBooleanExtra(EXTRA_TOGGLE_STATE, wm.isWifiEnabled());"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
+            line="55"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#EXTRA_RANGE_VALUE`"
+        errorLine1="                int range = i.getExtras().getInt(EXTRA_RANGE_VALUE, 0);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
+            line="72"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="265"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="309"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="433"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="454"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="468"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder b = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="514"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="561"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="`RowBuilder` cannot have a mixture of icons and slice actions added to the end items"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, INFINITY).addRow(new RowBuilder()"
+        errorLine2="                                                                        ^">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="614"
+            column="73"/>
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="614"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="624"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="696"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="724"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, TimeUnit.SECONDS.toMillis(10))"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="765"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="852"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1061"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1089"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1151"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        ListBuilder lb = new ListBuilder(getContext(), uri, INFINITY);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1186"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        return new ListBuilder(getContext(), uri, INFINITY)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1274"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have a primary action set on one of its rows"
+        errorLine1="        Slice s = new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1364"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="Slices"
+        message="A slice should have at least one row added to it"
+        errorLine1="        return new ListBuilder(getContext(), sliceUri, INFINITY)"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="1398"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `autoMirrored` is only used in API level 19 and higher (current min is 14)"
+        errorLine1="        android:autoMirrored=&quot;true&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_speak.xml"
+            line="6"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="WifiManagerPotentialLeak"
+        message="The WIFI_SERVICE must be looked up on the Application context or memory will leak on devices &lt; Android N. Try changing `context` to `context.getApplicationContext()`"
+        errorLine1="                WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
+            line="54"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="This attribute is not supported in images generated from this vector icon for API &lt; 21; check generated icon to make sure it looks acceptable"
+        errorLine1="        android:autoMirrored=&quot;true&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_speak.xml"
+            line="6"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ExportedReceiver"
+        message="Exported receiver does not require permission"
+        errorLine1="        &lt;receiver"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="22"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cake.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cake.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat.jpeg` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat.jpeg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_1.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_1.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_2.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_2.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_3.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_3.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_4.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_4.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_5.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_5.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cat_6.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cat_6.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/cheese.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/cheese.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/mady.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/mady.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/message.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/message.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/pizza.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/pizza.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/pizza1.jpeg` in densityless folder">
+        <location
+            file="src/main/res/drawable/pizza1.jpeg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/pizza2.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/pizza2.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/pizza3.jpeg` in densityless folder">
+        <location
+            file="src/main/res/drawable/pizza3.jpeg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/pizza4.jpeg` in densityless folder">
+        <location
+            file="src/main/res/drawable/pizza4.jpeg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/reservation.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/reservation.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/slices_1.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/slices_1.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/slices_2.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/slices_2.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/slices_3.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/slices_3.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/slices_4.jpg` in densityless folder">
+        <location
+            file="src/main/res/drawable/slices_4.jpg"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/weather_1.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/weather_1.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/weather_2.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/weather_2.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/weather_3.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/weather_3.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/weather_4.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/weather_4.png"/>
+    </issue>
 
     <issue
         id="UnknownNullness"

@@ -2,7 +2,6 @@
 # Comments and blank lines are ignored.
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
-
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
 # > Task :contentaccess:integration-tests:testapp:kaptDebugAndroidTestKotlin
@@ -101,6 +100,7 @@ w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/g
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
+\[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 \[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
 # > Task :compose:ui:ui:compileKotlinMetadata
@@ -123,6 +123,21 @@ w: \$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compos
 \$SUPPORT/benchmark/common/src/main/java/androidx/benchmark/simpleperf/RecordOptions\.java:[0-9]+: warning: \[JavaTimeDefaultTimeZone\] LocalDateTime\.now\(\) is not allowed because it silently uses the system default time\-zone\. You must pass an explicit time\-zone \(e\.g\., ZoneId\.of\("America/Los_Angeles"\)\) to this method\.
 LocalDateTime time = LocalDateTime\.now\(\);
 \^
+\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: \"RequiresOptIn\" looks like a code reference\; surround with backtics in string to display as symbol\, e\.g\. \`RequiresOptIn\` \[LintImplTextFormat\]
+\"\@RequiresOptIn and \@Experimental APIs are considered alpha\, and we do not allow \" \+
+\~\~\~\~\~\~\~\~\~\~\~\~\~
+Explanation for issues of type \"LintImplTextFormat\"\:
+Lint supports various markdown like formatting directives in all of its
+strings \(issue explanations\, reported error messages\, etc\)\.
+This lint check looks for strings that look like they may benefit from
+additional formatting\. For example\, if a snippet looks like code it should
+be surrounded with backticks\.
+Note\: Be careful changing existing strings\; this may stop baseline file
+matching from working\, so consider suppressing existing violations of this
+check if this is an error many users may be filtering in baselines\. \(This
+is only an issue for strings used in report calls\; for issue registration
+strings like summaries and explanations there\'s no risk changing the text
+contents\.\)
 \$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
 \$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package Metadata does not exist
 \$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.decoder does not exist
@@ -602,7 +617,8 @@ src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: P
 # > Task :appsearch:appsearch-compiler:lint
 \$SUPPORT/appsearch/compiler/lint\-baseline\.xml: Information: [0-9]+ error was filtered out because it is listed in the baseline file, lint\-baseline\.xml
 \[LintBaseline\]
-[0-9]+ errors, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ error filtered by baseline lint\-baseline\.xml\)
 # > Task :slice-view:generateApi
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of hidden type SliceContent in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
@@ -685,11 +701,15 @@ src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter
 # b/166471969
 .*androidTest.*AndroidManifest.*xml Warning.*:
 Package name.*test' used in: .*AndroidManifest.*xml.*
+\[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :compose:internal-lint-checks:lint
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
+w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
+w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
+w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
+w: \$GRADLE_USER_HOME/wrapper/dists/gradle\-[0-9]+\.[0-9]+\-bin/[^/]*/gradle\-[0-9]+\.[0-9]+/lib/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
@@ -750,6 +770,9 @@ System\.logW\: A resource was acquired at attached stack trace but never release
 More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+\-rc/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-rc\.jar \(version [0-9]+\.[0-9]+\)
+\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-common/[0-9]+\.[0-9]+\.[0-9]+\-rc/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\-rc\.jar \(version [0-9]+\.[0-9]+\)
 # > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
 # > Task :browser:browser:processDebugAndroidTestManifest
@@ -781,5 +804,140 @@ compiler or generated code\. Use it at your own risk\!
 # > Task :docs-public:lintDebug
 Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
 Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.xml
-# > Task :compose:compiler:compiler-hosted:lint
-\$SUPPORT/compose/compiler/compiler\-hosted/lint\-baseline\.xml: Information: [0-9]+ errors were filtered out because they are listed in the baseline file, lint\-baseline\.xml
+# > Task :internal-testutils-appcompat:processDebugAndroidTestManifest
+\[:internal\-testutils\-appcompat\] \$OUT_DIR/androidx/internal\-testutils\-appcompat/build/intermediates/merged_manifest/debug/AndroidManifest\.xml Warning:
+# > Task :support-wear-demos:packageDebugAndroidTest
+PackagingOptions\.jniLibs\.useLegacyPackaging should be set to true because android:extractNativeLibs is set to "true" in AndroidManifest\.xml\.
+# > Task :camera:integration-tests:camera-testapp-camera2-pipe:dexBuilderDebug
+\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-camera[0-9]+\-pipe/build/intermediates/jacoco_instrumented_classes/debug/out/androidx/camera/integration/camera[0-9]+/pipe/DebugKt\.class: D[0-9]+: Invalid stack map table at [0-9]+: aload [0-9]+, error: The expected type Initialized\(double\) is not assignable to java\.lang\.Object\.
+# > Task :support-remotecallback-demos:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/annotation\-experimental\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.annotation\.experimental\.lint\.ExperimentalIssueRegistry\) which did not specify the Lint API version it was compiled with\.
+This means that the lint checks are likely not compatible\.
+If you are the author of this lint check, make your lint IssueRegistry class contain
+override val api: Int = com\.android\.tools\.lint\.detector\.api\.CURRENT_API
+or from Java,
+@Override public int getApi\(\) \{ return com\.android\.tools\.lint\.detector\.api\.ApiKt\.CURRENT_API; \}
+If you are just using lint checks from a third party library you have no control over, you can disable these lint checks \(if they misbehave\) like this:
+android \{
+lintOptions \{
+disable "UnsafeExperimentalUsageError",
+"UnsafeExperimentalUsageWarning"
+\}
+\[ObsoleteLintCustomCheck\]
+Explanation for issues of type "ObsoleteLintCustomCheck":
+Lint can be extended with "custom checks": additional checks implemented by
+developers and libraries to for example enforce specific API usages
+required by a library or a company coding style guideline\.
+The Lint APIs are not yet stable, so these checks may either cause a
+performance degradation, or stop working, or provide wrong results\.
+This warning flags custom lint checks that are found to be using obsolete
+APIs and will need to be updated to run in the current lint environment\.
+It may also flag issues found to be using a newer version of the API,
+meaning that you need to use a newer version of lint \(or Android Studio or
+Gradle plugin etc\) to work with these checks\.
+[0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors\, [0-9]+ warning filtered by baseline lint\-baseline\.xml\)
+[0-9]+ errors\, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ errors, [0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
+# > Task :camera:camera-camera2-pipe-integration:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/annotation\-experimental\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.annotation\.experimental\.lint\.ExperimentalIssueRegistry\) which did not specify the Lint API version it was compiled with\.
+[0-9]+ errors, [0-9]+ warnings
+# > Task :support-leanback-demos:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/appcompat\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.appcompat\.AppCompatIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+Recompile the checks against the latest version\. Custom check API version is [0-9]+ \([0-9]+\.[0-9]+\), current lint API level is [0-9]+ \([0-9]+\.[0-9]+\) \[ObsoleteLintCustomCheck\]
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/fragment\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.fragment\.lint\.FragmentIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/lifecycle\-runtime\-ktx\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.lifecycle\.lint\.LifecycleRuntimeIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+# > Task :hilt:hilt-lifecycle-viewmodel:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/dagger\-lint\-aar\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(dagger\.lint\.DaggerIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+# > Task :hilt:hilt-work:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/work\-runtime\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.work\.lint\.WorkManagerIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+# > Task :lifecycle:lifecycle-livedata-core-ktx-lint:lint
+\$SUPPORT/lifecycle/lifecycle\-livedata\-core\-ktx\-lint/lint\-baseline\.xml: Information: [0-9]+ warning was filtered out because it is listed in the baseline file, lint\-baseline\.xml
+# > Task :lifecycle:lifecycle-runtime-ktx-lint:lint
+\$SUPPORT/lifecycle/lifecycle\-runtime\-ktx\-lint/lint\-baseline\.xml: Information: [0-9]+ warning was filtered out because it is listed in the baseline file, lint\-baseline\.xml
+# > Task :room:room-compiler-processing:lint
+\$SUPPORT/room/compiler\-processing/lint\-baseline\.xml: Information: [0-9]+ error was filtered out because it is listed in the baseline file, lint\-baseline\.xml
+# > Task :camera:integration-tests:camera-testapp-view:lintDebug
+\$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/fragment\-testing\-[0-9]+\.[0-9]+\.[0-9]+/jars/lint\.jar: Warning: Lint found an issue registry \(androidx\.fragment\.testing\.lint\.FragmentTestingIssueRegistry\) which is older than the current API level; these checks may not work correctly\.
+# > Task :camera:integration-tests:camera-testapp-uiwidgets:lintDebug
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ error, [0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
+# > Task :lint-checks:lint
+\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: \"OptIn\" looks like a code reference\; surround with backtics in string to display as symbol\, e\.g\. \`OptIn\` \[LintImplTextFormat\]
+\"Experimental\/OptIn APIs should only be used from within the same library or \" \+
+\~\~\~\~\~
+\$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: The issue summary should be shorter\; typically just a [0-9]+\-[0-9]+ words\; it\'s used as a topic header in HTML reports and in the IDE inspections window \[LintImplTextFormat\]
+\"Experimental apis can only be used from within the same library or from libraries \" \+
+# > Task :compose:ui:ui-text:lintDebug
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_NORMAL \[InlinedApi\]
+textPaint\.typeface \= getTypeface\(FontStyle\.FONT_WEIGHT_NORMAL\, false\)
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_BOLD \[InlinedApi\]
+FontStyle\.FONT_WEIGHT_BOLD
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+FontStyle\.FONT_WEIGHT_NORMAL
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/style\/FontWeightStyleSpan\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.fonts\.FontStyle\#FONT_WEIGHT_NORMAL \[InlinedApi\]
+oldTypeface\?\.weight \?\: FontStyle\.FONT_WEIGHT_NORMAL
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#JUSTIFICATION_MODE_NONE \[InlinedApi\]
+const val JUSTIFICATION_MODE_NONE \= LineBreaker\.JUSTIFICATION_MODE_NONE
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#JUSTIFICATION_MODE_INTER_WORD \[InlinedApi\]
+const val JUSTIFICATION_MODE_INTER_WORD \= LineBreaker\.JUSTIFICATION_MODE_INTER_WORD
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_NORMAL \[InlinedApi\]
+const val HYPHENATION_FREQUENCY_NORMAL \= Layout\.HYPHENATION_FREQUENCY_NORMAL
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_FULL \[InlinedApi\]
+const val HYPHENATION_FREQUENCY_FULL \= Layout\.HYPHENATION_FREQUENCY_FULL
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.text\.Layout\#HYPHENATION_FREQUENCY_NONE \[InlinedApi\]
+const val HYPHENATION_FREQUENCY_NONE \= Layout\.HYPHENATION_FREQUENCY_NONE
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_SIMPLE \[InlinedApi\]
+const val BREAK_STRATEGY_SIMPLE \= LineBreaker\.BREAK_STRATEGY_SIMPLE
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_HIGH_QUALITY \[InlinedApi\]
+const val BREAK_STRATEGY_HIGH_QUALITY \= LineBreaker\.BREAK_STRATEGY_HIGH_QUALITY
+\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+\$SUPPORT\/text\/text\/src\/main\/java\/androidx\/compose\/ui\/text\/android\/LayoutCompat\.kt\:[0-9]+\: Warning\: Field requires API level [0-9]+ \(current min is [0-9]+\)\: android\.graphics\.text\.LineBreaker\#BREAK_STRATEGY_BALANCED \[InlinedApi\]
+const val BREAK_STRATEGY_BALANCED \= LineBreaker\.BREAK_STRATEGY_BALANCED
+Explanation for issues of type \"InlinedApi\"\:
+This check scans through all the Android API field references in the
+application and flags certain constants\, such as static final integers and
+Strings\, which were introduced in later versions\. These will actually be
+copied into the class files rather than being referenced\, which means that
+the value is available even when running on older devices\. In some cases
+that\'s fine\, and in other cases it can result in a runtime crash or
+incorrect behavior\. It depends on the context\, so consider the code
+carefully and decide whether it\'s safe and can be suppressed or whether the
+code needs to be guarded\.
+If you really want to use this API and don\'t need to support older devices
+just set the minSdkVersion in your build\.gradle or AndroidManifest\.xml
+files\.
+If your code is deliberately accessing newer APIs\, and you have ensured
+\(e\.g\. with conditional execution\) that this code will only ever be called
+on a supported platform\, then you can annotate your class or method with
+the \@TargetApi annotation specifying the local minimum SDK to apply\, such
+as \@TargetApi\([0-9]+\)\, such that this check considers [0-9]+ rather than your
+manifest file\'s minimum SDK as the required API level\.
+# > Task :camera:camera-video:lintDebug
+\$SUPPORT\/camera\/camera\-video\/src\/main\/java\/androidx\/camera\/video\/VideoCaptureLegacy\.java\:[0-9]+\: Warning\: Switch statement on an int with known associated constant missing case MediaCodec\.INFO_OUTPUT_BUFFERS_CHANGED \[SwitchIntDef\]
+switch \(outputBufferId\) \{
+\~\~\~\~\~\~
+Explanation for issues of type \"SwitchIntDef\"\:
+This check warns if a switch statement does not explicitly include all the
+values declared by the typedef \@IntDef declaration\.
+# > Task :camera:camera-core:lintDebug
+\$SUPPORT\/camera\/camera\-core\/src\/main\/java\/androidx\/camera\/core\/internal\/compat\/quirk\/IncompleteCameraListQuirk\.java\:[0-9]+\: Warning\: Implicitly using the default locale is a common source of bugs\: Use toLowerCase\(Locale\) instead\. For strings meant to be internal use Locale\.ROOT\, otherwise Locale\.getDefault\(\)\. \[DefaultLocale\]
+return KNOWN_AFFECTED_DEVICES\.contains\(Build\.DEVICE\.toLowerCase\(\)\)\;
+\~\~\~\~\~\~\~\~\~\~\~
+Explanation for issues of type \"DefaultLocale\"\:
+Calling String\#toLowerCase\(\) or \#toUpperCase\(\) without specifying an
+explicit locale is a common source of bugs\. The reason for that is that
+those methods will use the current locale on the user\'s device\, and even
+though the code appears to work correctly when you are developing the app\,
+it will fail in some locales\. For example\, in the Turkish locale\, the
+uppercase replacement for i is not I\.
+If you want the methods to just perform ASCII replacement\, for example to
+convert an enum name\, call String\#toUpperCase\(Locale\.US\) instead\. If you
+really want to use the current locale\, call
+String\#toUpperCase\(Locale\.getDefault\(\)\) instead\.
+https\:\/\/developer\.android\.com\/reference\/java\/util\/Locale\.html\#default_locale
+# > Task :car:app:app:lintDebug
+\$SUPPORT\/car\/app\/app\/src\/main\/java\/androidx\/car\/app\/model\/Action\.java\:[0-9]+\: Warning\: Switch statement on an int with known associated constant missing case TYPE_UNKNOWN \[SwitchIntDef\]
+switch \(type\) \{
