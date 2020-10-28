@@ -41,7 +41,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 import java.nio.ByteBuffer
@@ -79,18 +79,18 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
         watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -98,7 +98,7 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleCategory)))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(
@@ -122,7 +122,7 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             surfaceHolder,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
+            colorStyleSetting,
             complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
         return WatchFace.Builder(
@@ -141,7 +141,7 @@ class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val userStyleRepository: UserStyleRepository,
     watchState: WatchState,
-    private val colorStyleCategory: ListUserStyleCategory,
+    private val colorStyleSetting: ListUserStyleSetting,
     private val complication: Complication
 ) : GlesRenderer(surfaceHolder, userStyleRepository, watchState) {
 
@@ -560,7 +560,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id) {
+            when (userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -627,7 +627,7 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id
+                    userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id
                 ]
                     ?.draw(mvpMatrix)
             }

@@ -39,7 +39,7 @@ import java.util.Map;
 public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     @NonNull
-    /** Map from user style category id to user style option id. */
+    /** Map from user style setting id to user style option id. */
     public Map<String, String> mUserStyle = new HashMap<>();
 
     UserStyleWireFormat() {}

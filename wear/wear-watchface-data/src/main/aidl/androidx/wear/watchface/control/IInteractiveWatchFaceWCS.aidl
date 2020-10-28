@@ -63,7 +63,7 @@ interface IInteractiveWatchFaceWCS {
 
     /**
      * Sets the current user style ({@link UserStyleWireFormat}) which contains a map of style
-     * category id to option id.
+     * setting id to option id.
      *
      * @since API version 1.
      */

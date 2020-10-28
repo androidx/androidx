@@ -33,14 +33,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Wire format for {@link androidx.wear.watchface.style.UserStyleCategory}.
+ * Wire format for {@link androidx.wear.watchface.style.UserStyleSetting}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcelable {
+public class UserStyleSettingWireFormat implements VersionedParcelable, Parcelable {
     /** Identifier for the element, must be unique. */
     @ParcelField(1)
     @NonNull
@@ -87,9 +87,9 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
     @NonNull
     public List<OptionWireFormat> mOptions = new ArrayList<>();
 
-    UserStyleCategoryWireFormat() {}
+    UserStyleSettingWireFormat() {}
 
-    public UserStyleCategoryWireFormat(
+    public UserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
             @NonNull CharSequence description,
@@ -117,22 +117,22 @@ public class UserStyleCategoryWireFormat implements VersionedParcelable, Parcela
         return 0;
     }
 
-    public static final Parcelable.Creator<UserStyleCategoryWireFormat> CREATOR =
-            new Parcelable.Creator<UserStyleCategoryWireFormat>() {
+    public static final Parcelable.Creator<UserStyleSettingWireFormat> CREATOR =
+            new Parcelable.Creator<UserStyleSettingWireFormat>() {
                 @Override
-                public UserStyleCategoryWireFormat createFromParcel(Parcel source) {
+                public UserStyleSettingWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public UserStyleCategoryWireFormat[] newArray(int size) {
-                    return new UserStyleCategoryWireFormat[size];
+                public UserStyleSettingWireFormat[] newArray(int size) {
+                    return new UserStyleSettingWireFormat[size];
                 }
             };
 
     /**
-     * Wire format for {@link androidx.wear.watchface.style.UserStyleCategory.Option}.
+     * Wire format for {@link androidx.wear.watchface.style.UserStyleSetting.Option}.
      *
      * @hide
      */

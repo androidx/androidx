@@ -27,17 +27,17 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.List;
 
 /**
- * Wire format for {@link androidx.wear.watchface.style.ListUserStyleCategory}.
+ * Wire format for {@link androidx.wear.watchface.style.BooleanUserStyleSetting}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class ListUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat {
+public class BooleanUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    ListUserStyleCategoryWireFormat() {}
+    BooleanUserStyleSettingWireFormat() {}
 
-    public ListUserStyleCategoryWireFormat(
+    public BooleanUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
             @NonNull CharSequence description,
@@ -49,34 +49,21 @@ public class ListUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat
     }
 
     /**
-     * Wire format for
-     * {@link androidx.wear.watchface.style.ListUserStyleCategory.ListOption}.
+     * Wire format for {@link androidx.wear.watchface.style.BooleanUserStyleSetting.BooleanOption}.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @VersionedParcelize
-    public static class ListOptionWireFormat extends OptionWireFormat {
-        /** Localized human readable name for the setting, used in the style selection UI. */
+    public static class BooleanOptionWireFormat extends OptionWireFormat {
         @ParcelField(2)
-        @NonNull
-        public CharSequence mDisplayName = "";
+        public boolean mValue;
 
-        /** Icon for use in the style selection UI. */
-        @ParcelField(3)
-        @Nullable
-        public Icon mIcon = null;
+        BooleanOptionWireFormat() {}
 
-        ListOptionWireFormat() {}
-
-        public ListOptionWireFormat(
-                @NonNull String id,
-                @NonNull CharSequence displayName,
-                @Nullable Icon icon
-        ) {
+        public BooleanOptionWireFormat(@NonNull String id, boolean value) {
             super(id);
-            this.mDisplayName = displayName;
-            this.mIcon = icon;
+            this.mValue = value;
         }
     }
 }

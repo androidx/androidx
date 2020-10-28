@@ -27,17 +27,17 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.List;
 
 /**
- * Wire format for {@link androidx.wear.watchface.style.BooleanUserStyleCategory}.
+ * Wire format for {@link androidx.wear.watchface.style.ListUserStyleSetting}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class BooleanUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat {
+public class ListUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    BooleanUserStyleCategoryWireFormat() {}
+    ListUserStyleSettingWireFormat() {}
 
-    public BooleanUserStyleCategoryWireFormat(
+    public ListUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
             @NonNull CharSequence description,
@@ -49,21 +49,34 @@ public class BooleanUserStyleCategoryWireFormat extends UserStyleCategoryWireFor
     }
 
     /**
-     * Wire format for {@link androidx.wear.watchface.style.BooleanUserStyleCategory.BooleanOption}.
+     * Wire format for
+     * {@link androidx.wear.watchface.style.ListUserStyleSetting.ListOption}.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @VersionedParcelize
-    public static class BooleanOptionWireFormat extends OptionWireFormat {
+    public static class ListOptionWireFormat extends OptionWireFormat {
+        /** Localized human readable name for the setting, used in the style selection UI. */
         @ParcelField(2)
-        public boolean mValue;
+        @NonNull
+        public CharSequence mDisplayName = "";
 
-        BooleanOptionWireFormat() {}
+        /** Icon for use in the style selection UI. */
+        @ParcelField(3)
+        @Nullable
+        public Icon mIcon = null;
 
-        public BooleanOptionWireFormat(@NonNull String id, boolean value) {
+        ListOptionWireFormat() {}
+
+        public ListOptionWireFormat(
+                @NonNull String id,
+                @NonNull CharSequence displayName,
+                @Nullable Icon icon
+        ) {
             super(id);
-            this.mValue = value;
+            this.mDisplayName = displayName;
+            this.mIcon = icon;
         }
     }
 }

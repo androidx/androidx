@@ -18,19 +18,20 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.UserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 
 /**
  * Watch faces often have user configurable styles. The definition of what is a style is left up
- * to the watch face but it typically incorporates a variety of categories such as: color,
+ * to the watch face but it typically incorporates a variety of settings such as: color,
  * visual theme for watch hands, font, tick shape, complications, audio elements, etc...
+ * A UserStyleSetting represents one of these dimensions.
  */
-public abstract class UserStyleCategory(
+public abstract class UserStyleSetting(
     /** Identifier for the element, must be unique. */
     public val id: String,
 
@@ -44,9 +45,9 @@ public abstract class UserStyleCategory(
     public val icon: Icon?,
 
     /**
-     * List of options for this UserStyleCategory. Depending on the type of UserStyleCategory this
+     * List of options for this UserStyleSetting. Depending on the type of UserStyleSetting this
      * may be an exhaustive list, or just examples to populate a ListView in case the
-     * UserStyleCategory isn't supported by the UI (e.g. a new WatchFace with an old Companion).
+     * UserStyleSetting isn't supported by the UI (e.g. a new WatchFace with an old Companion).
      */
     public val options: List<Option>,
 
@@ -62,18 +63,18 @@ public abstract class UserStyleCategory(
 ) {
     internal companion object {
         internal fun createFromWireFormat(
-            wireFormat: UserStyleCategoryWireFormat
-        ): UserStyleCategory = when (wireFormat) {
-            is BooleanUserStyleCategoryWireFormat -> BooleanUserStyleCategory(wireFormat)
+            wireFormat: UserStyleSettingWireFormat
+        ): UserStyleSetting = when (wireFormat) {
+            is BooleanUserStyleSettingWireFormat -> BooleanUserStyleSetting(wireFormat)
 
-            is ComplicationsUserStyleCategoryWireFormat ->
-                ComplicationsUserStyleCategory(wireFormat)
+            is ComplicationsUserStyleSettingWireFormat ->
+                ComplicationsUserStyleSetting(wireFormat)
 
-            is DoubleRangeUserStyleCategoryWireFormat -> DoubleRangeUserStyleCategory(wireFormat)
+            is DoubleRangeUserStyleSettingWireFormat -> DoubleRangeUserStyleSetting(wireFormat)
 
-            is ListUserStyleCategoryWireFormat -> ListUserStyleCategory(wireFormat)
+            is ListUserStyleSettingWireFormat -> ListUserStyleSetting(wireFormat)
 
-            is LongRangeUserStyleCategoryWireFormat -> LongRangeUserStyleCategory(wireFormat)
+            is LongRangeUserStyleSettingWireFormat -> LongRangeUserStyleSetting(wireFormat)
 
             else -> throw IllegalArgumentException(
                 "Unknown StyleCategoryWireFormat " + wireFormat::javaClass.name
@@ -87,14 +88,14 @@ public abstract class UserStyleCategory(
         }
     }
 
-    internal fun getCategoryOptionForId(id: String?) =
+    internal fun getSettingOptionForId(id: String?) =
         if (id == null) {
             options[defaultOptionIndex]
         } else {
             getOptionForId(id)
         }
 
-    internal constructor(wireFormat: UserStyleCategoryWireFormat) : this(
+    internal constructor(wireFormat: UserStyleSettingWireFormat) : this(
         wireFormat.mId,
         wireFormat.mDisplayName,
         wireFormat.mDescription,
@@ -106,23 +107,23 @@ public abstract class UserStyleCategory(
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public abstract fun toWireFormat(): UserStyleCategoryWireFormat
+    public abstract fun toWireFormat(): UserStyleSettingWireFormat
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun getWireFormatOptionsList(): List<UserStyleCategoryWireFormat.OptionWireFormat> =
+    public fun getWireFormatOptionsList(): List<UserStyleSettingWireFormat.OptionWireFormat> =
         options.map { it.toWireFormat() }
 
     /** Returns the default for when the user hasn't selected an option. */
     public fun getDefaultOption(): Option = options[defaultOptionIndex]
 
     /**
-     * Represents a choice within a style category.
+     * Represents a choice within a style setting.
      *
      * @property id Machine readable identifier for the style setting.
      */
     public abstract class Option(
-        /** Identifier for the option, must be unique within the UserStyleCategory. */
+        /** Identifier for the option, must be unique within the UserStyleSetting. */
         public val id: String
     ) {
         public companion object {
@@ -130,23 +131,23 @@ public abstract class UserStyleCategory(
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             public fun createFromWireFormat(
-                wireFormat: UserStyleCategoryWireFormat.OptionWireFormat
+                wireFormat: UserStyleSettingWireFormat.OptionWireFormat
             ): Option =
                 when (wireFormat) {
-                    is BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat ->
-                        BooleanUserStyleCategory.BooleanOption(wireFormat)
+                    is BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat ->
+                        BooleanUserStyleSetting.BooleanOption(wireFormat)
 
-                    is ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat ->
-                        ComplicationsUserStyleCategory.ComplicationsOption(wireFormat)
+                    is ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat ->
+                        ComplicationsUserStyleSetting.ComplicationsOption(wireFormat)
 
-                    is DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat ->
-                        DoubleRangeUserStyleCategory.DoubleRangeOption(wireFormat)
+                    is DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat ->
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(wireFormat)
 
-                    is ListUserStyleCategoryWireFormat.ListOptionWireFormat ->
-                        ListUserStyleCategory.ListOption(wireFormat)
+                    is ListUserStyleSettingWireFormat.ListOptionWireFormat ->
+                        ListUserStyleSetting.ListOption(wireFormat)
 
-                    is LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat ->
-                        LongRangeUserStyleCategory.LongRangeOption(wireFormat)
+                    is LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat ->
+                        LongRangeUserStyleSetting.LongRangeOption(wireFormat)
 
                     else -> throw IllegalArgumentException(
                         "Unknown StyleCategoryWireFormat.OptionWireFormat " +
@@ -157,7 +158,7 @@ public abstract class UserStyleCategory(
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public abstract fun toWireFormat(): UserStyleCategoryWireFormat.OptionWireFormat
+        public abstract fun toWireFormat(): UserStyleSettingWireFormat.OptionWireFormat
     }
 
     /**
@@ -166,9 +167,9 @@ public abstract class UserStyleCategory(
      *
      * @param optionId The ID of the option
      * @return An [Option] corresponding to the name. This could either be one of the
-     *     options from userStyleCategories or a newly constructed Option depending on the nature
-     *     of the UserStyleCategory. If optionName is unrecognized then the default value for the
-     *     category should be returned.
+     *     options from userStyleSettings or a newly constructed Option depending on the nature
+     *     of the UserStyleSetting. If optionName is unrecognized then the default value for the
+     *     setting should be returned.
      */
     public open fun getOptionForId(optionId: String): Option =
         options.find { it.id == optionId } ?: options[defaultOptionIndex]
