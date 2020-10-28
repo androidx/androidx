@@ -53,6 +53,8 @@ package androidx.appsearch.app {
   }
 
   public final class AppSearchSchema {
+    method public java.util.List<androidx.appsearch.app.AppSearchSchema.PropertyConfig!> getProperties();
+    method public String getSchemaTypeName();
   }
 
   public static final class AppSearchSchema.Builder {
@@ -62,6 +64,12 @@ package androidx.appsearch.app {
   }
 
   public static final class AppSearchSchema.PropertyConfig {
+    method public int getCardinality();
+    method public int getDataType();
+    method public int getIndexingType();
+    method public String getName();
+    method public String? getSchemaType();
+    method public int getTokenizerType();
     field public static final int CARDINALITY_OPTIONAL = 2; // 0x2
     field public static final int CARDINALITY_REPEATED = 1; // 0x1
     field public static final int CARDINALITY_REQUIRED = 3; // 0x3
