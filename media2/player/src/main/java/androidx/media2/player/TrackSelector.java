@@ -303,7 +303,7 @@ import java.util.List;
                     mappedTrackInfo.getTrackGroups(METADATA_RENDERER_INDEX);
             DefaultTrackSelector.SelectionOverride selectionOverride =
                     new DefaultTrackSelector.SelectionOverride(metadataTrack.mPlayerTrackIndex,
-                            /* tracks= */ 0);
+                            /* tracks...= */ 0);
             mDefaultTrackSelector.setParameters(mDefaultTrackSelector.buildUponParameters()
                     .setRendererDisabled(METADATA_RENDERER_INDEX, /* disabled= */ false)
                     .setSelectionOverride(

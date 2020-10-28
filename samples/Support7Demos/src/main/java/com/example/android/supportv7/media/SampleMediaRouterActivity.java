@@ -63,7 +63,6 @@ import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
-import androidx.mediarouter.media.MediaRouter.Callback;
 import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaRouterParams;
@@ -632,14 +631,14 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
      */
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         private static final String TAG = "DiscoveryFragment";
-        private Callback mCallback;
+        private MediaRouter.Callback mCallback;
 
-        public void setCallback(Callback cb) {
+        public void setCallback(MediaRouter.Callback cb) {
             mCallback = cb;
         }
 
         @Override
-        public Callback onCreateCallback() {
+        public MediaRouter.Callback onCreateCallback() {
             return mCallback;
         }
 
