@@ -119,4 +119,25 @@ public class CameraControllerDeviceTest {
             ContentValues()
         )
     }
+
+    @UiThreadTest
+    @Test
+    public fun analysisIsEnabledByDefault() {
+        assertThat(controller.isImageAnalysisEnabled).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun captureIsEnabledByDefault() {
+        assertThat(controller.isImageCaptureEnabled).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun disableAnalysisCaptureEnableVideo() {
+        controller.setEnabledUseCases(CameraController.VIDEO_CAPTURE)
+        assertThat(controller.isImageCaptureEnabled).isFalse()
+        assertThat(controller.isImageAnalysisEnabled).isFalse()
+        assertThat(controller.isVideoCaptureEnabled).isTrue()
+    }
 }

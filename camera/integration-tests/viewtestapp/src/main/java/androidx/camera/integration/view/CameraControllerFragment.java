@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -47,6 +48,7 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.SensorRotationListener;
@@ -80,6 +82,8 @@ public class CameraControllerFragment extends Fragment {
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
     private ExecutorService mExecutorService;
+    private ToggleButton mCaptureEnabledToggle;
+    private ToggleButton mAnalysisEnabledToggle;
     private ToggleButton mVideoEnabledToggle;
     private ToggleButton mPinchToZoomToggle;
     private ToggleButton mTapToFocusToggle;
@@ -164,11 +168,9 @@ public class CameraControllerFragment extends Fragment {
                                 : CameraSelector.DEFAULT_FRONT_CAMERA)));
 
         // Image Capture enable switch.
-        ToggleButton captureEnabled = view.findViewById(R.id.capture_enabled);
-        captureEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) -> runSafely(
-                        () -> mCameraController.setImageCaptureEnabled(value)));
-        captureEnabled.setChecked(mCameraController.isImageCaptureEnabled());
+        mCaptureEnabledToggle = view.findViewById(R.id.capture_enabled);
+        mCaptureEnabledToggle.setOnCheckedChangeListener(this::onUseCaseToggled);
+        mCaptureEnabledToggle.setChecked(mCameraController.isImageCaptureEnabled());
 
         // Flash mode for image capture.
         mFlashMode = view.findViewById(R.id.flash_mode);
@@ -212,11 +214,10 @@ public class CameraControllerFragment extends Fragment {
                 });
 
         // Set up analysis UI.
-        ToggleButton analysisEnabled = view.findViewById(R.id.analysis_enabled);
-        analysisEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) ->
-                        runSafely(() -> mCameraController.setImageAnalysisEnabled(value)));
-        analysisEnabled.setChecked(mCameraController.isImageAnalysisEnabled());
+        mAnalysisEnabledToggle = view.findViewById(R.id.analysis_enabled);
+        mAnalysisEnabledToggle.setOnCheckedChangeListener(
+                this::onUseCaseToggled);
+        mAnalysisEnabledToggle.setChecked(mCameraController.isImageAnalysisEnabled());
 
         ToggleButton analyzerSet = view.findViewById(R.id.analyzer_set);
         analyzerSet.setOnCheckedChangeListener(
@@ -233,7 +234,7 @@ public class CameraControllerFragment extends Fragment {
         mVideoEnabledToggle = view.findViewById(R.id.video_enabled);
         mVideoEnabledToggle.setOnCheckedChangeListener(
                 (compoundButton, checked) -> {
-                    runSafely(() -> mCameraController.setVideoCaptureEnabled(checked));
+                    onUseCaseToggled(compoundButton, checked);
                     updateUiText();
                 });
 
@@ -423,6 +424,26 @@ public class CameraControllerFragment extends Fragment {
         } catch (IllegalStateException ex) {
             toast("Failed to bind use cases.");
         }
+    }
+
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    private void onUseCaseToggled(CompoundButton compoundButton, boolean value) {
+        if (mCaptureEnabledToggle == null || mAnalysisEnabledToggle == null
+                || mVideoEnabledToggle == null) {
+            return;
+        }
+        int useCaseEnabledFlags = 0;
+        if (mCaptureEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.IMAGE_CAPTURE;
+        }
+        if (mAnalysisEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.IMAGE_ANALYSIS;
+        }
+        if (mVideoEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.VIDEO_CAPTURE;
+        }
+        final int finalUseCaseEnabledFlags = useCaseEnabledFlags;
+        runSafely(() -> mCameraController.setEnabledUseCases(finalUseCaseEnabledFlags));
     }
 
     // -----------------
