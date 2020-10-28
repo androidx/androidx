@@ -1,1 +1,180 @@
 // Signature format: 4.0
+package androidx.car.app {
+
+  public class AppManager {
+    method public void invalidate();
+    method public void setSurfaceListener(androidx.car.app.SurfaceListener?);
+    method public void showToast(CharSequence, int);
+  }
+
+  public final class CarAppPermission {
+    method public static void checkHasLibraryPermission(android.content.Context, String);
+    method public static void checkHasPermission(android.content.Context, String);
+    field public static final String ACCESS_SURFACE = "androidx.car.app.ACCESS_SURFACE";
+    field public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
+  }
+
+  public abstract class CarAppService extends android.app.Service implements androidx.lifecycle.LifecycleOwner {
+    ctor public CarAppService();
+    method @CallSuper public void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
+    method public void finish();
+    method public final androidx.car.app.CarContext getCarContext();
+    method public androidx.car.app.HostInfo? getHostInfo();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method @CallSuper public android.os.IBinder? onBind(android.content.Intent);
+    method public void onCarAppFinished();
+    method public void onCarConfigurationChanged(android.content.res.Configuration);
+    method public abstract androidx.car.app.Screen onCreateScreen(android.content.Intent);
+    method public final void onDestroy();
+    method public void onNewIntent(android.content.Intent);
+    method public final boolean onUnbind(android.content.Intent);
+  }
+
+  public class CarAppVersion {
+    method public boolean isGreaterOrEqualTo(androidx.car.app.CarAppVersion);
+    method public static androidx.car.app.CarAppVersion? of(String) throws androidx.car.app.MalformedVersionException;
+    field public static final androidx.car.app.CarAppVersion HANDSHAKE_MIN_VERSION;
+    field public static final androidx.car.app.CarAppVersion INSTANCE;
+  }
+
+  public enum CarAppVersion.ReleaseSuffix {
+    method public static androidx.car.app.CarAppVersion.ReleaseSuffix fromString(String);
+    enum_constant public static final androidx.car.app.CarAppVersion.ReleaseSuffix RELEASE_SUFFIX_BETA;
+    enum_constant public static final androidx.car.app.CarAppVersion.ReleaseSuffix RELEASE_SUFFIX_EAP;
+  }
+
+  public class CarContext extends android.content.ContextWrapper {
+    method public void finishCarApp();
+    method public Object getCarService(String);
+    method public <T> T getCarService(Class<T!>);
+    method public String getCarServiceName(Class<?>);
+    method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
+    method public boolean isDarkMode();
+    method public void startCarApp(android.content.Intent);
+    method public static void startCarApp(android.content.Intent, android.content.Intent);
+    field public static final String ACTION_NAVIGATE = "androidx.car.app.action.NAVIGATE";
+    field public static final String APP_SERVICE = "app_manager";
+    field public static final String CAR_SERVICE = "car";
+    field public static final String NAVIGATION_SERVICE = "navigation_manager";
+    field public static final String SCREEN_MANAGER_SERVICE = "screen_manager";
+    field public static final String START_CAR_APP_BINDER_KEY = "StartCarAppBinderKey";
+  }
+
+  public final class CarToast {
+    method public static androidx.car.app.CarToast makeText(androidx.car.app.CarContext, @StringRes int, int);
+    method public static androidx.car.app.CarToast makeText(androidx.car.app.CarContext, CharSequence, int);
+    method public void setDuration(int);
+    method public void setText(@StringRes int);
+    method public void setText(CharSequence);
+    method public void show();
+    field public static final int LENGTH_LONG = 1; // 0x1
+    field public static final int LENGTH_SHORT = 0; // 0x0
+  }
+
+  public class FailureResponse {
+    ctor public FailureResponse(Throwable);
+    ctor public FailureResponse();
+    method public int getErrorType();
+    method public String getStackTrace();
+    field public static final int BUNDLER_EXCEPTION = 1; // 0x1
+    field public static final int ILLEGAL_STATE_EXCEPTION = 2; // 0x2
+    field public static final int INVALID_PARAMETER_EXCEPTION = 3; // 0x3
+    field public static final int REMOTE_EXCEPTION = 6; // 0x6
+    field public static final int RUNTIME_EXCEPTION = 5; // 0x5
+    field public static final int SECURITY_EXCEPTION = 4; // 0x4
+    field public static final int UNKNOWN_ERROR = 0; // 0x0
+  }
+
+  public class HostException extends java.lang.RuntimeException {
+  }
+
+  public class HostInfo {
+    ctor public HostInfo(String, int);
+    method public String getPackageName();
+    method public int getUid();
+  }
+
+  public class MalformedVersionException extends java.lang.Exception {
+    ctor public MalformedVersionException(String?);
+    ctor public MalformedVersionException(String, Throwable);
+    ctor public MalformedVersionException(Throwable?);
+  }
+
+  public interface OnScreenResultCallback {
+    method public void onScreenResult(Object?);
+  }
+
+  public abstract class Screen implements androidx.lifecycle.LifecycleOwner {
+    ctor protected Screen(androidx.car.app.CarContext);
+    method public final void finish();
+    method public final androidx.car.app.CarContext getCarContext();
+    method public final androidx.lifecycle.Lifecycle getLifecycle();
+    method public String? getMarker();
+    method public final androidx.car.app.ScreenManager getScreenManager();
+    method public final void invalidate();
+    method public void setMarker(String?);
+    method public void setResult(Object?);
+    field public static final String ROOT = "ROOT";
+  }
+
+  public class ScreenManager {
+    method public androidx.car.app.Screen getTop();
+    method public void pop();
+    method public void popTo(String);
+    method public void push(androidx.car.app.Screen);
+    method public void pushForResult(androidx.car.app.Screen, androidx.car.app.OnScreenResultCallback);
+    method public void remove(androidx.car.app.Screen);
+  }
+
+  public interface SearchListener {
+    method public void onSearchSubmitted(String);
+    method public void onSearchTextChanged(String);
+  }
+
+  public class SurfaceContainer {
+    ctor public SurfaceContainer(android.view.Surface?, int, int, int);
+    method public int getDpi();
+    method public int getHeight();
+    method public android.view.Surface? getSurface();
+    method public int getWidth();
+  }
+
+  public interface SurfaceListener {
+    method public void onStableAreaChanged(android.graphics.Rect);
+    method public void onSurfaceAvailable(androidx.car.app.SurfaceContainer);
+    method public void onSurfaceDestroyed(androidx.car.app.SurfaceContainer);
+    method public void onVisibleAreaChanged(android.graphics.Rect);
+  }
+
+  public class WrappedRuntimeException extends java.lang.RuntimeException {
+    ctor public WrappedRuntimeException(Throwable?);
+  }
+
+}
+
+package androidx.car.app.serialization {
+
+  public final class Bundleable implements android.os.Parcelable {
+    method public static androidx.car.app.serialization.Bundleable create(Object) throws androidx.car.app.serialization.BundlerException;
+    method public int describeContents();
+    method public Object get() throws androidx.car.app.serialization.BundlerException;
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.car.app.serialization.Bundleable!> CREATOR;
+  }
+
+  public class BundlerException extends java.lang.Exception {
+    ctor public BundlerException(String?, Throwable);
+    ctor public BundlerException(String?);
+  }
+
+}
+
+package androidx.car.app.utils {
+
+  public class ThreadUtils {
+    method public static void checkMainThread();
+    method public static void runOnMain(Runnable);
+  }
+
+}
+

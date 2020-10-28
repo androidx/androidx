@@ -34,6 +34,7 @@ dependencies {
     stubs(fileTree(dir: '../camera/camera-extensions-stub', include: ['camera-extensions-stub.jar']))
     tipOfTree(project(":camera:camera-lifecycle"))
     tipOfTree(project(":camera:camera-view"))
+    tipOfTree(project(":car:app:app"))
     tipOfTree(project(":cardview:cardview"))
     tipOfTree(project(":collection:collection"))
     tipOfTree(project(":collection:collection-ktx"))
