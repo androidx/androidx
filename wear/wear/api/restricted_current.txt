@@ -77,6 +77,112 @@ package androidx.wear.ambient {
 
 }
 
+package androidx.wear.ongoingactivity {
+
+  public final class OngoingActivity {
+    method public void apply(android.content.Context context);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.wear.ongoingactivity.OngoingActivityData,java.lang.Boolean> filter);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context, int ongoingActivityId);
+    method public void update(android.content.Context context, androidx.wear.ongoingactivity.OngoingActivityStatus status);
+    field public static final androidx.wear.ongoingactivity.OngoingActivity.Companion Companion;
+  }
+
+  public static final class OngoingActivity.Builder {
+    ctor public OngoingActivity.Builder(android.content.Context context, int notificationId, androidx.core.app.NotificationCompat.Builder notificationBuilder);
+    method public androidx.wear.ongoingactivity.OngoingActivity build();
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon animatedIcon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int animatedIcon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setLocusId(androidx.core.content.LocusIdCompat locusId);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setOngoingActivityId(int id);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon staticIcon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStaticIcon(@DrawableRes int staticIcon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus status);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent touchIntent);
+  }
+
+  public static final class OngoingActivity.Companion {
+    method public androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context, kotlin.jvm.functions.Function1<? super androidx.wear.ongoingactivity.OngoingActivityData,java.lang.Boolean> filter);
+    method public androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context);
+    method public androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context context, int ongoingActivityId);
+  }
+
+  public final class OngoingActivityData {
+    ctor public OngoingActivityData();
+    method public static androidx.wear.ongoingactivity.OngoingActivityData? create(android.app.Notification notification);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static androidx.wear.ongoingactivity.OngoingActivityData? createInternal(android.app.Notification notification);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder builder);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.app.Notification extendAndBuild(androidx.core.app.NotificationCompat.Builder builder);
+    method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
+    method public int getOngoingActivityId();
+    method public android.graphics.drawable.Icon? getStaticIcon();
+    method public androidx.wear.ongoingactivity.OngoingActivityStatus? getStatus();
+    method public android.app.PendingIntent? getTouchIntent();
+    method public void setAnimatedIcon(android.graphics.drawable.Icon? p);
+    method public void setLocusId(androidx.core.content.LocusIdCompat? p);
+    method public void setOngoingActivityId(int p);
+    method public void setStaticIcon(android.graphics.drawable.Icon? p);
+    method public void setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus? p);
+    method public void setTouchIntent(android.app.PendingIntent? p);
+    property public final android.graphics.drawable.Icon? animatedIcon;
+    property public final androidx.core.content.LocusIdCompat? locusId;
+    property public final int ongoingActivityId;
+    property public final android.graphics.drawable.Icon? staticIcon;
+    property public final androidx.wear.ongoingactivity.OngoingActivityStatus? status;
+    property public final android.app.PendingIntent? touchIntent;
+    field public static final androidx.wear.ongoingactivity.OngoingActivityData.Companion Companion;
+  }
+
+  public static final class OngoingActivityData.Companion {
+    method public androidx.wear.ongoingactivity.OngoingActivityData? create(android.app.Notification notification);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.wear.ongoingactivity.OngoingActivityData? createInternal(android.app.Notification notification);
+  }
+
+  public final class OngoingActivityDataKt {
+  }
+
+  public abstract class OngoingActivityStatus {
+    ctor public OngoingActivityStatus();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public static final androidx.wear.ongoingactivity.OngoingActivityStatus? create(android.os.Bundle bundle);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public abstract void extend(android.os.Bundle bundle);
+    method public abstract long getNextChangeTimeMillis(long fromTimeMillis);
+    method public abstract CharSequence getText(android.content.Context context, long timeNowMillis);
+    field public static final androidx.wear.ongoingactivity.OngoingActivityStatus.Companion Companion;
+  }
+
+  public static final class OngoingActivityStatus.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public androidx.wear.ongoingactivity.OngoingActivityStatus? create(android.os.Bundle bundle);
+  }
+
+  public final class OngoingActivityStatusKt {
+  }
+
+  public final class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+    ctor public TextOngoingActivityStatus(String str);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void extend(android.os.Bundle bundle);
+    method public long getNextChangeTimeMillis(long fromTimeMillis);
+    method public CharSequence getText(android.content.Context context, long timeNowMillis);
+  }
+
+  public final class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+    ctor public TimerOngoingActivityStatus(long timeZeroMillis, boolean countDown, long pausedAtMillis, long totalDurationMillis);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void extend(android.os.Bundle bundle);
+    method public boolean getCountDown();
+    method public long getNextChangeTimeMillis(long fromTimeMillis);
+    method public long getPausedAtMillis();
+    method public CharSequence getText(android.content.Context context, long timeNowMillis);
+    method public long getTimeZeroMillis();
+    method public long getTotalDurationMillis();
+    method public boolean isPaused();
+    property public final boolean countDown;
+    property public final long pausedAtMillis;
+    property public final long timeZeroMillis;
+    property public final long totalDurationMillis;
+  }
+
+}
+
 package androidx.wear.utils {
 
   public class MetadataConstants {
