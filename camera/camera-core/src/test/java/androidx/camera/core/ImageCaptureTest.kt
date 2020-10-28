@@ -133,6 +133,15 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun reverseHorizontalIsSet_flagReturnsTrue() {
+        val metadata = ImageCapture.Metadata()
+        assertThat(metadata.isReversedHorizontalSet).isFalse()
+
+        metadata.isReversedHorizontal = false
+        assertThat(metadata.isReversedHorizontalSet).isTrue()
+    }
+
+    @Test
     fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(

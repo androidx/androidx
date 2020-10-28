@@ -16,7 +16,12 @@
 
 package androidx.camera.view
 
+import android.content.ContentValues
+import android.provider.MediaStore
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
 import androidx.camera.testing.CameraUtil
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -34,30 +39,84 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class CameraControllerDeviceTest {
+public class CameraControllerDeviceTest {
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    public val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     private val controller = LifecycleCameraController(ApplicationProvider.getApplicationContext())
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Before
-    fun setUp() {
+    public fun setUp() {
         controller.initializationFuture.get()
     }
 
     @After
-    fun tearDown() {
+    public fun tearDown() {
         instrumentation.runOnMainSync {
             controller.shutDownForTests()
         }
     }
 
     @Test
-    fun previewViewNotAttached_useCaseGroupIsBuilt() {
+    public fun previewViewNotAttached_useCaseGroupIsBuilt() {
         instrumentation.runOnMainSync {
             assertThat(controller.createUseCaseGroup()).isNotNull()
         }
+    }
+
+    @UiThreadTest
+    @Test
+    public fun frontCameraFlipNotSet_imageIsMirrored() {
+        // Arrange.
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        val options = getOutputFileOptionsBuilder().build()
+
+        // Act.
+        controller.updateMirroringFlagInOutputFileOptions(options)
+
+        // Assert.
+        assertThat(options.metadata.isReversedHorizontal).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun frontCameraFlipSetToFalse_imageIsNotMirrored() {
+        // Arrange.
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        val metadata = ImageCapture.Metadata()
+        metadata.isReversedHorizontal = false
+        val options = getOutputFileOptionsBuilder().setMetadata(metadata).build()
+
+        // Act.
+        controller.updateMirroringFlagInOutputFileOptions(options)
+
+        // Assert.
+        assertThat(options.metadata.isReversedHorizontal).isFalse()
+    }
+
+    @UiThreadTest
+    @Test
+    public fun frontCameraFlipSetToTrue_imageIsMirrored() {
+        // Arrange.
+        controller.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+        val metadata = ImageCapture.Metadata()
+        metadata.isReversedHorizontal = true
+        val options = getOutputFileOptionsBuilder().setMetadata(metadata).build()
+
+        // Act.
+        controller.updateMirroringFlagInOutputFileOptions(options)
+
+        // Assert.
+        assertThat(options.metadata.isReversedHorizontal).isTrue()
+    }
+
+    private fun getOutputFileOptionsBuilder(): ImageCapture.OutputFileOptions.Builder {
+        return ImageCapture.OutputFileOptions.Builder(
+            instrumentation.context.contentResolver,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            ContentValues()
+        )
     }
 }
