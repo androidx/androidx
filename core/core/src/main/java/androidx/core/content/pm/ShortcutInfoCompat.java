@@ -738,8 +738,13 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * Sets categories for a shortcut. Launcher apps may use this information to categorize
-         * shortcuts.
+         * Sets categories for a shortcut.
+         * <ul>
+         * <li>Launcher apps may use this information to categorize shortcuts
+         * <li> Used by the system to associate a published Sharing Shortcut with supported
+         * mimeTypes. Required for published Sharing Shortcuts with a matching category
+         * declared in share targets, defined in the app's manifest linked shortcuts xml file.
+         * </ul>         
          *
          * @see ShortcutInfo#getCategories()
          */
