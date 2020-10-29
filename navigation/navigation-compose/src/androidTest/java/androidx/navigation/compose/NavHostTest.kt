@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.platform.ContextAmbient
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
@@ -32,7 +33,6 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
-import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
