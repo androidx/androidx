@@ -68,7 +68,7 @@ fun Profile(navController: NavHostController) {
         }
         Divider(color = Color.Black)
         NavigateButton(stringResource(Screen.Scrollable.resourceId)) {
-            navController.navigate(Screen.Dashboard.route)
+            navController.navigate(Screen.Scrollable.route)
         }
         Spacer(Modifier.weight(1f))
         NavigateBackButton(navController)
