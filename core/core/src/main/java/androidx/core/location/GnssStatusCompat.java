@@ -213,4 +213,21 @@ public abstract class GnssStatusCompat {
      */
     @FloatRange(from = 0)
     public abstract float getCarrierFrequencyHz(@IntRange(from = 0) int satelliteIndex);
+
+    /**
+     * See {@link GnssStatus#hasBasebandCn0DbHz(int)}. This will always return false prior to
+     * Android R.
+     *
+     * @param satelliteIndex A index from zero to {@link #getSatelliteCount()} - 1
+     */
+    public abstract boolean hasBasebandCn0DbHz(@IntRange(from = 0) int satelliteIndex);
+
+    /**
+     * See {@link GnssStatus#getCarrierFrequencyHz(int)}. Behavior is undefined if
+     * {@link #hasCarrierFrequencyHz(int)} returns false.
+     *
+     * @param satelliteIndex A index from zero to {@link #getSatelliteCount()} - 1
+     */
+    @FloatRange(from = 0, to = 63)
+    public abstract float getBasebandCn0DbHz(@IntRange(from = 0) int satelliteIndex);
 }
