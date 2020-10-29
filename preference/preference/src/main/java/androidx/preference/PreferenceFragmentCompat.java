@@ -420,8 +420,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
                                 + "implement this method so that you can configure the new "
                                 + "fragment that will be displayed, and set a transition between "
                                 + "the fragments.");
-                final FragmentManager fragmentManager = requireActivity()
-                        .getSupportFragmentManager();
+                final FragmentManager fragmentManager = getParentFragmentManager();
                 final Bundle args = preference.getExtras();
                 final Fragment fragment = fragmentManager.getFragmentFactory().instantiate(
                         requireActivity().getClassLoader(), preference.getFragment());
