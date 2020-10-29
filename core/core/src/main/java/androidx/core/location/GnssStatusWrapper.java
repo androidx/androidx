@@ -100,4 +100,39 @@ class GnssStatusWrapper extends GnssStatusCompat {
             throw new UnsupportedOperationException();
         }
     }
+
+    @Override
+    public boolean hasBasebandCn0DbHz(int satelliteIndex) {
+        if (VERSION.SDK_INT >= VERSION_CODES.R) {
+            return mWrapped.hasBasebandCn0DbHz(satelliteIndex);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public float getBasebandCn0DbHz(int satelliteIndex) {
+        if (VERSION.SDK_INT >= VERSION_CODES.R) {
+            return mWrapped.getBasebandCn0DbHz(satelliteIndex);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GnssStatusWrapper)) {
+            return false;
+        }
+        GnssStatusWrapper that = (GnssStatusWrapper) o;
+        return mWrapped.equals(that.mWrapped);
+    }
+
+    @Override
+    public int hashCode() {
+        return mWrapped.hashCode();
+    }
 }

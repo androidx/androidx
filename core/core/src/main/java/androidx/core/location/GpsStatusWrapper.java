@@ -137,6 +137,16 @@ class GpsStatusWrapper extends GnssStatusCompat {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean hasBasebandCn0DbHz(int satelliteIndex) {
+        return false;
+    }
+
+    @Override
+    public float getBasebandCn0DbHz(int satelliteIndex) {
+        throw new UnsupportedOperationException();
+    }
+
     private GpsSatellite getSatellite(int satelliteIndex) {
         GpsSatellite satellite;
         synchronized (mWrapped) {
@@ -156,6 +166,23 @@ class GpsStatusWrapper extends GnssStatusCompat {
             satellite = mCachedSatellite;
         }
         return Preconditions.checkNotNull(satellite);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof GpsStatusWrapper)) {
+            return false;
+        }
+        GpsStatusWrapper that = (GpsStatusWrapper) o;
+        return mWrapped.equals(that.mWrapped);
+    }
+
+    @Override
+    public int hashCode() {
+        return mWrapped.hashCode();
     }
 
     private static int getConstellationFromPrn(int prn) {
