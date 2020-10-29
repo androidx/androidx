@@ -39,6 +39,9 @@ public class DeviceQuirksLoader {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all device specific quirks
+        if (HuaweiMediaStoreLocationValidationQuirk.load()) {
+            quirks.add(new HuaweiMediaStoreLocationValidationQuirk());
+        }
 
         return quirks;
     }
