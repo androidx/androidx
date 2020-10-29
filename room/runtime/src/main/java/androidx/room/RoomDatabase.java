@@ -425,7 +425,12 @@ public abstract class RoomDatabase {
         assertNotMainThread();
         SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
         mInvalidationTracker.syncTriggers(database);
-        database.beginTransaction();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && database.isWriteAheadLoggingEnabled()) {
+            database.beginTransactionNonExclusive();
+        } else {
+            database.beginTransaction();
+        }
     }
 
     /**
