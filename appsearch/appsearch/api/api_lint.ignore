@@ -1,16 +1,4 @@
 // Baseline format: 1.0
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.Builder#addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig):
-    androidx.appsearch.app.AppSearchSchema does not declare a `getPropertys()` method matching method androidx.appsearch.app.AppSearchSchema.Builder.addProperty(androidx.appsearch.app.AppSearchSchema.PropertyConfig)
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder#setCardinality(int):
-    androidx.appsearch.app.AppSearchSchema.PropertyConfig does not declare a `getCardinality()` method matching method androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder.setCardinality(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder#setDataType(int):
-    androidx.appsearch.app.AppSearchSchema.PropertyConfig does not declare a `getDataType()` method matching method androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder.setDataType(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder#setIndexingType(int):
-    androidx.appsearch.app.AppSearchSchema.PropertyConfig does not declare a `getIndexingType()` method matching method androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder.setIndexingType(int)
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder#setSchemaType(String):
-    androidx.appsearch.app.AppSearchSchema.PropertyConfig does not declare a `getSchemaType()` method matching method androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder.setSchemaType(String)
-MissingGetterMatchingBuilder: androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder#setTokenizerType(int):
-    androidx.appsearch.app.AppSearchSchema.PropertyConfig does not declare a `getTokenizerType()` method matching method androidx.appsearch.app.AppSearchSchema.PropertyConfig.Builder.setTokenizerType(int)
 MissingGetterMatchingBuilder: androidx.appsearch.app.GenericDocument.Builder#setProperty(String, androidx.appsearch.app.GenericDocument...):
     androidx.appsearch.app.GenericDocument does not declare a `getProperty()` method matching method androidx.appsearch.app.GenericDocument.Builder.setProperty(String,androidx.appsearch.app.GenericDocument...)
 MissingGetterMatchingBuilder: androidx.appsearch.app.GenericDocument.Builder#setProperty(String, boolean...):
