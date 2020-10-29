@@ -59,11 +59,10 @@ public class CameraControllerDeviceTest {
         }
     }
 
+    @UiThreadTest
     @Test
-    public fun previewViewNotAttached_useCaseGroupIsBuilt() {
-        instrumentation.runOnMainSync {
-            assertThat(controller.createUseCaseGroup()).isNotNull()
-        }
+    public fun previewViewNotAttached_useCaseGroupIsNotBuilt() {
+        assertThat(controller.createUseCaseGroup()).isNull()
     }
 
     @UiThreadTest
