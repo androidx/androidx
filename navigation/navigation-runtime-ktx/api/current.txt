@@ -39,6 +39,7 @@ package androidx.navigation {
 
   public final class NavControllerKt {
     method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static kotlinx.coroutines.flow.Flow<androidx.navigation.NavBackStackEntry> getCurrentBackStackEntryFlow(androidx.navigation.NavController);
   }
 
   public final class NavHostKt {
