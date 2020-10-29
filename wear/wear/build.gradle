@@ -27,7 +27,6 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
     compileOnly fileTree(dir: '../wear_stubs', include: ['com.google.android.wearable-stubs.jar'])
-    implementation "androidx.core:core-ktx:1.5.0-alpha04"
 }
 
 android {
