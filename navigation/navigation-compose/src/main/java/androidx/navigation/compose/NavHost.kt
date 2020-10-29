@@ -58,7 +58,7 @@ public fun NavHost(
     NavHost(
         navController,
         remember (route, startDestination, builder) {
-            navController.createGraph(route, startDestination, builder)
+            navController.createGraph(startDestination, route, builder)
         }
     )
 }
@@ -74,7 +74,7 @@ public fun NavHost(
  */
 @OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
-internal fun NavHost(navController: NavHostController, graph: NavGraph) {
+public fun NavHost(navController: NavHostController, graph: NavGraph) {
     var context = ContextAmbient.current
     val lifecycleOwner = LifecycleOwnerAmbient.current
     val viewModelStore = ViewModelStoreOwnerAmbient.current.viewModelStore
