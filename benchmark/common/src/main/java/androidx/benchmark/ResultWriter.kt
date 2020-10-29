@@ -43,7 +43,13 @@ internal object ResultWriter {
                 "writing results to ${file.absolutePath}"
             )
             writeReport(file, reports)
-            InstrumentationResults.reportAdditionalFileToCopy("results_json", file.absolutePath)
+            InstrumentationResults.reportAdditionalFileToCopy(
+                "results_json",
+                file.absolutePath,
+                // since we keep appending the same file, defer reporting path until end of suite
+                // note: this requires using InstrumentationResultsRunListener
+                reportOnRunEndOnly = true
+            )
         } else {
             Log.d(
                 BenchmarkState.TAG,

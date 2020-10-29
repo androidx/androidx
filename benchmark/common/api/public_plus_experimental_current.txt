@@ -31,7 +31,9 @@ package androidx.benchmark {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class InstrumentationResults {
+    method public android.os.Bundle getRunEndResultBundle();
     method public void instrumentationReport(kotlin.jvm.functions.Function1<? super androidx.benchmark.InstrumentationResultScope,kotlin.Unit> block);
+    property public final android.os.Bundle runEndResultBundle;
     field public static final androidx.benchmark.InstrumentationResults INSTANCE;
   }
 

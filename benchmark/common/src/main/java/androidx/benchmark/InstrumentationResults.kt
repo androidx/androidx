@@ -44,7 +44,14 @@ public class InstrumentationResultScope(public val bundle: Bundle = Bundle()) {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object InstrumentationResults {
-    internal const val STUDIO_OUTPUT_KEY_ID = "benchmark"
+    private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
+
+    /**
+     * Bundle containing values to be reported at end of run, instead of for each test.
+     *
+     * See androidx.benchmark.junit.InstrumentationResultsRunListener
+     */
+    public val runEndResultBundle: Bundle = Bundle()
 
     /**
      * Creates an Instrumentation Result.
@@ -72,9 +79,30 @@ public object InstrumentationResults {
         ).joinToString("    ")
     }
 
-    internal fun reportAdditionalFileToCopy(key: String, absoluteFilePath: String) {
-        instrumentationReport {
-            fileRecord(key, absoluteFilePath)
+    /**
+     * Report an output file for test infra to copy.
+     *
+     * [reportOnRunEndOnly] `=true` should only be used for files that aggregate data across many
+     * tests, such as the final report json. All other files should be unique, per test.
+     *
+     * In internal terms, per-test results are called "test metrics", and per-run results are
+     * called "run metrics". A profiling trace of a particular method would be a test metric, the
+     * full output json would be a run metric.
+     *
+     * In am instrument terms, per-test results are printed with `INSTRUMENTATION_STATUS:`, and
+     * per-run results are reported with `INSTRUMENTATION_RESULT:`.
+     */
+    internal fun reportAdditionalFileToCopy(
+        key: String,
+        absoluteFilePath: String,
+        reportOnRunEndOnly: Boolean = false
+    ) {
+        if (reportOnRunEndOnly) {
+            InstrumentationResultScope(runEndResultBundle).fileRecord(key, absoluteFilePath)
+        } else {
+            instrumentationReport {
+                fileRecord(key, absoluteFilePath)
+            }
         }
     }
 
