@@ -208,8 +208,8 @@ public class GlobalSearchSessionTest {
                 .addSchema(AppSearchEmail.SCHEMA).build()));
 
         // Index a generic document into db1
-        GenericDocument genericDocument =
-                new GenericDocument.Builder<>("uri2", "Generic").setProperty("foo", "body").build();
+        GenericDocument genericDocument = new GenericDocument.Builder<>("uri2", "Generic")
+                .setPropertyString("foo", "body").build();
         checkIsBatchResultSuccess(mDb1.putDocuments(
                 new PutDocumentsRequest.Builder()
                         .addGenericDocument(genericDocument).build()));

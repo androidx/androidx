@@ -55,20 +55,20 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> repeatReqCopy = dataClass.repeatReq;
     if (repeatReqCopy != null) {
       String[] repeatReqConv = repeatReqCopy.toArray(new String[0]);
-      builder.setProperty("repeatReq", repeatReqConv);
+      builder.setPropertyString("repeatReq", repeatReqConv);
     }
     List<String> repeatNoReqCopy = dataClass.repeatNoReq;
     if (repeatNoReqCopy != null) {
       String[] repeatNoReqConv = repeatNoReqCopy.toArray(new String[0]);
-      builder.setProperty("repeatNoReq", repeatNoReqConv);
+      builder.setPropertyString("repeatNoReq", repeatNoReqConv);
     }
     Float reqCopy = dataClass.req;
     if (reqCopy != null) {
-      builder.setProperty("req", reqCopy);
+      builder.setPropertyDouble("req", reqCopy);
     }
     Float noReqCopy = dataClass.noReq;
     if (noReqCopy != null) {
-      builder.setProperty("noReq", noReqCopy);
+      builder.setPropertyDouble("noReq", noReqCopy);
     }
     return builder.build();
   }

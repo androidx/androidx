@@ -31,7 +31,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    builder.setProperty("price", dataClass.getPrice());
+    builder.setPropertyLong("price", dataClass.getPrice());
     return builder.build();
   }
 

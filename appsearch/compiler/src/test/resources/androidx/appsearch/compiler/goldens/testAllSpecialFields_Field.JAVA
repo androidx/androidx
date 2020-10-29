@@ -38,7 +38,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     builder.setCreationTimestampMillis(dataClass.creationTs);
     builder.setTtlMillis(dataClass.ttlMs);
     builder.setScore(dataClass.score);
-    builder.setProperty("price", dataClass.price);
+    builder.setPropertyLong("price", dataClass.price);
     return builder.build();
   }
 
