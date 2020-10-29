@@ -24,6 +24,10 @@ import kotlinx.coroutines.runBlocking
 
 private const val TAG = "MacroBenchmarks"
 
+// SELinux enforcement
+private const val PERMISSIVE = "Permissive"
+private const val ENFORCING = "Enforcing"
+
 // Compile modes
 const val SPEED = "speed"
 const val SPEED_PROFILE = "speed-profile"
@@ -104,7 +108,25 @@ fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) = r
     delay(delayDurationMs)
 }
 
-// Utilities
+/**
+ * Gets the SE Linux policy.
+ */
+fun getLinuxPolicy(instrumentation: Instrumentation): Int {
+    return when (instrumentation.device().executeShellCommand("getenforce")) {
+        PERMISSIVE -> 0
+        else -> 1
+    }
+}
+
+/**
+ * Overrides the SE Linux policy.
+ */
+fun setLinuxPolicy(instrumentation: Instrumentation, policy: Int) {
+    check(policy == 0 || policy == 1) {
+        "Policy can only be one of `0` or `1`"
+    }
+    instrumentation.device().executeShellCommand("setenforce $policy")
+}
 
 fun Instrumentation.device(): UiDevice {
     return UiDevice.getInstance(this)
