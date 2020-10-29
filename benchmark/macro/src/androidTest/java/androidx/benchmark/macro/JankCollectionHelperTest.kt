@@ -19,7 +19,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.android.helpers.JankCollectionHelper
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -32,7 +31,6 @@ class JankCollectionHelperTest {
     @Test
     @SdkSuppress(minSdkVersion = 27)
     fun trivialTest() {
-        val helper = JankCollectionHelper()
-        assertTrue(helper.metrics.isNotEmpty())
+        JankCollectionHelper()
     }
 }
