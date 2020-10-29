@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -37,6 +39,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.util.ReflectionHelpers;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,6 +87,9 @@ public class ImageSaveLocationValidatorTest {
 
     @Test
     public void canSaveToMediaStore() {
+        // Skip for Huawei devices
+        assumeFalse(isHuaweiDevice());
+
         // Return a valid insertion Uri for the image
         TestContentProvider.sOnInsertCallback = uri -> Uri.parse(uri.toString() + "/1");
         Robolectric.buildContentProvider(TestContentProvider.class).create(ANY_URI.getAuthority());
@@ -94,6 +100,9 @@ public class ImageSaveLocationValidatorTest {
 
     @Test
     public void cannotSaveToMediaStore_providerFailsInsertion() {
+        // Skip for Huawei devices
+        assumeFalse(isHuaweiDevice());
+
         // Make the provider fail to return a valid insertion Uri
         TestContentProvider.sOnInsertCallback = uri -> null;
         Robolectric.buildContentProvider(TestContentProvider.class).create(ANY_URI.getAuthority());
@@ -104,6 +113,9 @@ public class ImageSaveLocationValidatorTest {
 
     @Test
     public void cannotSaveToMediaStore_providerCrashesOnInsertion() {
+        // Skip for Huawei devices
+        assumeFalse(isHuaweiDevice());
+
         // Make the provider crash when trying to return a valid insertion Uri
         TestContentProvider.sOnInsertCallback = uri -> {
             throw new IllegalArgumentException();
@@ -112,6 +124,32 @@ public class ImageSaveLocationValidatorTest {
 
         final ImageCapture.OutputFileOptions outputOptions = buildOutputFileOptions();
         assertThat(ImageSaveLocationValidator.isValid(outputOptions)).isFalse();
+    }
+
+    @Test
+    public void canSaveToMediaStore_huaweiDevice() {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "huawei");
+
+        // Validation should return `true` regardless of any errors that may result from storing
+        // the image capture result in MediaStore, like the one below.
+        TestContentProvider.sOnInsertCallback = uri -> null;
+        Robolectric.buildContentProvider(TestContentProvider.class).create(ANY_URI.getAuthority());
+
+        final ImageCapture.OutputFileOptions outputOptions = buildOutputFileOptions();
+        assertThat(ImageSaveLocationValidator.isValid(outputOptions)).isTrue();
+    }
+
+    @Test
+    public void canSaveToMediaStore_honorDevice() {
+        ReflectionHelpers.setStaticField(Build.class, "BRAND", "honor");
+
+        // Validation should return `true` regardless of any errors that may result from storing
+        // the image capture result in MediaStore, like the one below.
+        TestContentProvider.sOnInsertCallback = uri -> null;
+        Robolectric.buildContentProvider(TestContentProvider.class).create(ANY_URI.getAuthority());
+
+        final ImageCapture.OutputFileOptions outputOptions = buildOutputFileOptions();
+        assertThat(ImageSaveLocationValidator.isValid(outputOptions)).isTrue();
     }
 
     @NonNull
@@ -124,6 +162,11 @@ public class ImageSaveLocationValidatorTest {
         return new ImageCapture.OutputFileOptions
                 .Builder(resolver, ANY_URI, contentValues)
                 .build();
+    }
+
+    private boolean isHuaweiDevice() {
+        return "HUAWEI".equals(Build.BRAND.toUpperCase())
+                || "HONOR".equals(Build.BRAND.toUpperCase());
     }
 
     static class TestContentProvider extends ContentProvider {
