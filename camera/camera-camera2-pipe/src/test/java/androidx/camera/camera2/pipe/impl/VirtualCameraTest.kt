@@ -148,7 +148,7 @@ class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = FakeCameras.create()
     private val testCamera = FakeCameras.open(cameraId)
-    private val now = Metrics.monotonicNanos()
+    private val now = Timestamps.now()
 
     @After
     fun teardown() {
@@ -186,9 +186,9 @@ class AndroidCameraDeviceTest {
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.CAMERA2_CLOSED)
         assertThat(closedState.cameraRetryCount).isEqualTo(0)
         assertThat(closedState.cameraException).isNull()
-        assertThat(closedState.cameraRetryDurationNs).isAtLeast(1)
-        assertThat(closedState.cameraOpenDurationNs).isAtLeast(1)
-        assertThat(closedState.cameraActiveDurationNs).isAtLeast(1)
+        assertThat(closedState.cameraRetryDurationNs?.value).isAtLeast(1)
+        assertThat(closedState.cameraOpenDurationNs?.value).isAtLeast(1)
+        assertThat(closedState.cameraActiveDurationNs?.value).isAtLeast(1)
 
         // Closing duration measures how long "close()" takes to invoke on the camera device.
         // However, shimming the clocks is difficult.

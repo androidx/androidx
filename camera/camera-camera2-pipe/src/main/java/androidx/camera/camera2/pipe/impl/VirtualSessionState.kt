@@ -20,6 +20,7 @@ import android.view.Surface
 
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
@@ -53,7 +54,7 @@ class VirtualSessionState(
 
     private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
 
-    private var sessionCreatingTimestamp: Long? = null
+    private var sessionCreatingTimestamp: TimestampNs? = null
 
     @GuardedBy("lock")
     private var _cameraDevice: CameraDeviceWrapper? = null
@@ -191,8 +192,8 @@ class VirtualSessionState(
         synchronized(lock) {
             captureSession?.let {
                 Log.info {
-                    val duration = Metrics.monotonicNanos() - sessionCreatingTimestamp!!
-                    "Configured $this in ${duration.formatNanoTime()}"
+                    val duration = Timestamps.now() - sessionCreatingTimestamp!!
+                    "Configured $this in ${duration.formatMs()}"
                 }
 
                 graphProcessor.attach(it.processor)
@@ -278,7 +279,7 @@ class VirtualSessionState(
 
         if (captureSession != null && pendingOutputs != null && pendingSurfaces != null) {
             Debug.traceStart { "$this#finalizeOutputConfigurations" }
-            val finalizedStartTime = Metrics.monotonicNanos()
+            val finalizedStartTime = Timestamps.now()
             for ((streamId, outputConfig) in pendingOutputs) {
                 // TODO: Consider adding support for experimental libraries on older devices.
 
@@ -297,9 +298,9 @@ class VirtualSessionState(
                 if (state == State.CREATED) {
                     activeSurfaceMap.putAll(pendingSurfaces)
                     Log.info {
-                        val finalizationTime = Metrics.monotonicNanos() - finalizedStartTime
+                        val finalizationTime = Timestamps.now() - finalizedStartTime
                         "Finalized ${pendingOutputs.map { it.key }} for $this in " +
-                            finalizationTime.formatNanoTime()
+                            finalizationTime.formatMs()
                     }
                     tryResubmit = true
                 }
@@ -327,7 +328,7 @@ class VirtualSessionState(
             }
 
             state = State.CREATING
-            sessionCreatingTimestamp = Metrics.monotonicNanos()
+            sessionCreatingTimestamp = Timestamps.now()
         }
 
         // Create the capture session and return a Map of StreamId -> OutputConfiguration for any
