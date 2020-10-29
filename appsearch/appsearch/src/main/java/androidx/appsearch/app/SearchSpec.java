@@ -16,6 +16,7 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IntDef;
@@ -30,6 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,41 +40,15 @@ import java.util.List;
  */
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SCHEMA_TYPE_FIELD = "schemaType";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String NAMESPACE_FIELD = "namespace";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String NUM_PER_PAGE_FIELD = "numPerPage";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String ORDER_FIELD = "order";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SNIPPET_COUNT_FIELD = "snippetCount";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String MAX_SNIPPET_FIELD = "maxSnippet";
+    static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
+    static final String SCHEMA_TYPE_FIELD = "schemaType";
+    static final String NAMESPACE_FIELD = "namespace";
+    static final String NUM_PER_PAGE_FIELD = "numPerPage";
+    static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
+    static final String ORDER_FIELD = "order";
+    static final String SNIPPET_COUNT_FIELD = "snippetCount";
+    static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
+    static final String MAX_SNIPPET_FIELD = "maxSnippet";
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -83,24 +59,6 @@ public final class SearchSpec {
     private static final int MAX_SNIPPET_COUNT = 10_000;
     private static final int MAX_SNIPPET_PER_PROPERTY_COUNT = 10_000;
     private static final int MAX_SNIPPET_SIZE_LIMIT = 10_000;
-
-    private final Bundle mBundle;
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SearchSpec(@NonNull Bundle bundle) {
-        Preconditions.checkNotNull(bundle);
-        mBundle = bundle;
-    }
-
-    /**
-     * Returns the {@link Bundle} populated by this builder.
-     * @hide
-     */
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
-    }
 
     /**
      * Term Match Type for the query.
@@ -165,6 +123,90 @@ public final class SearchSpec {
     /** Search results will be returned in an ascending order. */
     public static final int ORDER_ASCENDING = 1;
 
+    private final Bundle mBundle;
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SearchSpec(@NonNull Bundle bundle) {
+        Preconditions.checkNotNull(bundle);
+        mBundle = bundle;
+    }
+
+    /**
+     * Returns the {@link Bundle} populated by this builder.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Bundle getBundle() {
+        return mBundle;
+    }
+
+    /** Returns how the query terms should match terms in the index. */
+    public @TermMatch int getTermMatch() {
+        return mBundle.getInt(TERM_MATCH_TYPE_FIELD, -1);
+    }
+
+    /**
+     * Returns the list of schema types to search for.
+     *
+     * <p>If empty, the query will search over all schema types.
+     */
+    @NonNull
+    public List<String> getSchemas() {
+        List<String> schemas = mBundle.getStringArrayList(SCHEMA_TYPE_FIELD);
+        if (schemas == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(schemas);
+    }
+
+    /**
+     * Returns the list of namespaces to search for.
+     *
+     * <p>If empty, the query will search over all namespaces.
+     */
+    @NonNull
+    public List<String> getNamespaces() {
+        List<String> namespaces = mBundle.getStringArrayList(NAMESPACE_FIELD);
+        if (namespaces == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(namespaces);
+    }
+
+    /** Returns the number of results per page in the returned object. */
+    public int getNumPerPage() {
+        return mBundle.getInt(NUM_PER_PAGE_FIELD, DEFAULT_NUM_PER_PAGE);
+    }
+
+    /** Returns the ranking strategy. */
+    public @RankingStrategy int getRankingStrategy() {
+        return mBundle.getInt(RANKING_STRATEGY_FIELD);
+    }
+
+    /** Returns the order of returned search results (descending or ascending). */
+    public @Order int getOrder() {
+        return mBundle.getInt(ORDER_FIELD);
+    }
+
+    /** Returns how many documents to generate snippets for. */
+    public int getSnippetCount() {
+        return mBundle.getInt(SNIPPET_COUNT_FIELD);
+    }
+
+    /**
+     * Returns how many matches for each property of a matching document to generate snippets for.
+     */
+    public int getSnippetCountPerProperty() {
+        return mBundle.getInt(SNIPPET_COUNT_PER_PROPERTY_FIELD);
+    }
+
+    /** Returns the maximum size of a snippet in characters. */
+    public int getMaxSnippetSize() {
+        return mBundle.getInt(MAX_SNIPPET_FIELD);
+    }
+
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
 
@@ -227,6 +269,7 @@ public final class SearchSpec {
          * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addSchemaByDataClass(@NonNull Collection<Class<?>> dataClasses)
                 throws AppSearchException {
@@ -251,6 +294,7 @@ public final class SearchSpec {
          * @param dataClasses classes annotated with
          *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getSchemas()
         @NonNull
         public Builder addSchemaByDataClass(@NonNull Class<?>... dataClasses)
                 throws AppSearchException {
