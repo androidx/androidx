@@ -528,7 +528,7 @@ def main():
 
     # process results
     if update:
-        if len(interesting_lines) != 0:
+        if arguments.gc or len(interesting_lines) != 0:
             update_path = get_exemptions_path()
             suggested = generate_suggested_exemptions(all_lines, exemption_regexes_from_file, arguments.gc)
             writelines(update_path, suggested)
