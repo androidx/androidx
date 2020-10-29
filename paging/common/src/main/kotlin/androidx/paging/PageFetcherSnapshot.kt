@@ -386,8 +386,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
 
         var loadKey: Key? = stateHolder.withLock { state ->
-            state.nextLoadKeyOrNull(loadType, generationalHint, itemsLoaded)
-                ?.also { state.setLoading(loadType) }
+            state.nextLoadKeyOrNull(
+                loadType,
+                generationalHint.generationId,
+                generationalHint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+            )?.also { state.setLoading(loadType) }
         }
 
         // Keep track of whether endOfPaginationReached so we can update LoadState accordingly when
@@ -460,7 +463,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     pageEventCh.send(event)
                 }
 
-                loadKey = state.nextLoadKeyOrNull(loadType, generationalHint, itemsLoaded)
+                loadKey = state.nextLoadKeyOrNull(
+                    loadType,
+                    generationalHint.generationId,
+                    generationalHint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+                )
 
                 // Update load state to success if this is the final load result for this
                 // load hint, and only if we didn't error out.
@@ -515,58 +522,21 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
      */
     private fun PageFetcherSnapshotState<Key, Value>.nextLoadKeyOrNull(
         loadType: LoadType,
-        generationalHint: GenerationalViewportHint,
-        itemsLoaded: Int
-    ): Key? = when (loadType) {
-        PREPEND -> nextPrependKey(
-            generationalHint.generationId,
-            generationalHint.hint,
-            config.prefetchDistance,
-            itemsLoaded
-        )
-        APPEND -> nextAppendKey(
-            generationalHint.generationId,
-            generationalHint.hint,
-            config.prefetchDistance,
-            itemsLoaded
-        )
-        REFRESH -> throw IllegalArgumentException("Just use initialKey directly")
-    }
-
-    /**
-     * The key to use to load next page to prepend or null if we should stop loading in this
-     * direction for the provided [prefetchDistance] and [loadId].
-     */
-    private fun PageFetcherSnapshotState<Key, Value>.nextPrependKey(
-        loadId: Int,
-        hint: ViewportHint,
-        prefetchDistance: Int,
-        itemsLoaded: Int
+        generationId: Int,
+        presentedItemsBeyondAnchor: Int
     ): Key? {
-        if (loadId != prependLoadId) return null
+        if (generationId != generationId(loadType)) return null
         // Skip load if in error state, unless retrying.
-        if (sourceLoadStates.get(PREPEND) is Error) return null
+        if (sourceLoadStates.get(loadType) is Error) return null
 
-        val shouldLoad = hint.presentedItemsBefore + itemsLoaded < prefetchDistance
-        return if (shouldLoad) pages.first().prevKey else null
-    }
+        // Skip loading if prefetchDistance has been fulfilled.
+        if (presentedItemsBeyondAnchor >= config.prefetchDistance) return null
 
-    /**
-     * The key to use to load next page to append or null if we should stop loading in this
-     * direction for the provided [prefetchDistance] and [loadId].
-     */
-    private fun PageFetcherSnapshotState<Key, Value>.nextAppendKey(
-        loadId: Int,
-        hint: ViewportHint,
-        prefetchDistance: Int,
-        itemsLoaded: Int
-    ): Key? {
-        if (loadId != appendLoadId) return null
-        // Skip load if in error state, unless retrying.
-        if (sourceLoadStates.get(APPEND) is Error) return null
-
-        val shouldLoad = hint.presentedItemsAfter + itemsLoaded < prefetchDistance
-        return if (shouldLoad) pages.last().nextKey else null
+        return if (loadType == PREPEND) {
+            pages.first().prevKey
+        } else {
+            pages.last().nextKey
+        }
     }
 }
 
@@ -575,7 +545,20 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
  * between loads from jobs that have been cancelled, but continued to run to completion.
  */
 @VisibleForTesting
-internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
+internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint) {
+    /**
+     * @return Count of presented items between [hint], and either:
+     *  * the beginning of the list if [loadType] == PREPEND
+     *  * the end of the list if loadType == APPEND
+     */
+    internal fun presentedItemsBeyondAnchor(loadType: LoadType): Int = when (loadType) {
+        REFRESH -> throw IllegalArgumentException(
+            "Cannot get presentedItems for loadType: REFRESH"
+        )
+        PREPEND -> hint.presentedItemsBefore
+        APPEND -> hint.presentedItemsAfter
+    }
+}
 
 /**
  * Helper for [GenerationalViewportHint] prioritization in cases where item accesses are being sent
