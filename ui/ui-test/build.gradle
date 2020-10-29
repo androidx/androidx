@@ -34,7 +34,7 @@ AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
 dependencies {
 
     if(!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
-        api project(':compose:ui:ui-test')
+        api project(':compose:ui:ui-test-junit4')
         //implementation(KOTLIN_STDLIB)
     }
 }
@@ -47,7 +47,7 @@ if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
 
         sourceSets {
             commonMain.dependencies {
-                api project(':compose:ui:ui-test')
+                api project(':compose:ui:ui-test-junit4')
             }
 
             jvmMain.dependencies {
