@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -94,7 +93,6 @@ class MyBackend {
     }
 }
 
-@OptIn(ExperimentalLazyDsl::class)
 @Sampled
 @Composable
 fun PagingBackendSample() {
@@ -138,7 +136,6 @@ fun PagingBackendSample() {
     }
 }
 
-@OptIn(ExperimentalLazyDsl::class)
 @Sampled
 @Composable
 fun ItemsDemo(flow: Flow<PagingData<String>>) {
@@ -150,7 +147,6 @@ fun ItemsDemo(flow: Flow<PagingData<String>>) {
     }
 }
 
-@OptIn(ExperimentalLazyDsl::class)
 @Sampled
 @Composable
 fun ItemsIndexedDemo(flow: Flow<PagingData<String>>) {

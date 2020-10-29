@@ -19,7 +19,6 @@ package androidx.paging.compose
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.ui.Modifier
@@ -38,7 +37,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
-@OptIn(ExperimentalLazyDsl::class)
 @RunWith(AndroidJUnit4::class)
 class LazyPagingItemsTest {
     @get:Rule
