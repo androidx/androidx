@@ -352,6 +352,7 @@ class WatchFaceServiceTest {
                 interactiveWatchFaceInstanceWCS = service.createInteractiveWatchFaceInstance(
                     wallpaperInteractiveWatchFaceInstanceParams
                 )
+                watchFace = testWatchFaceService.watchFace
             }
         }
 
@@ -1016,7 +1017,9 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
                 ),
                 SystemState(false, 0),
                 UserStyle(
@@ -1051,7 +1054,9 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
                 ),
                 SystemState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
@@ -1104,7 +1109,9 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     true,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_RECTANGULAR
+                    DeviceConfig.SCREEN_SHAPE_RECTANGULAR,
+                    0,
+                    0
                 ),
                 SystemState(false, 0),
                 UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
@@ -1395,16 +1402,64 @@ class WatchFaceServiceTest {
 
     @Test
     fun previewReferenceTimeMillisAnalog() {
-        initEngine(WatchFaceType.ANALOG, emptyList(), UserStyleSchema(emptyList()), apiVersion = 4)
-        assertThat(watchFace.previewReferenceTimeMillis)
-            .isEqualTo(WatchFace.ANALOG_WATCHFACE_REFERENCE_TIME_MS)
+        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
+            "interactiveInstanceId",
+            DeviceConfig(
+                false,
+                false,
+                DeviceConfig.SCREEN_SHAPE_ROUND,
+                1000,
+                2000,
+            ),
+            SystemState(false, 0),
+            UserStyle(
+                hashMapOf(
+                    colorStyleSetting to blueStyleOption,
+                    watchHandStyleSetting to gothicStyleOption
+                )
+            ).toWireFormat(),
+            null
+        )
+
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            emptyList(),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            instanceParams
+        )
+
+        assertThat(watchFace.previewReferenceTimeMillis).isEqualTo(1000)
     }
 
     @Test
     fun previewReferenceTimeMillisDigital() {
-        initEngine(WatchFaceType.DIGITAL, emptyList(), UserStyleSchema(emptyList()), apiVersion = 4)
-        assertThat(watchFace.previewReferenceTimeMillis)
-            .isEqualTo(WatchFace.DIGITAL_WATCHFACE_REFERENCE_TIME_MS)
+        val instanceParams = WallpaperInteractiveWatchFaceInstanceParams(
+            "interactiveInstanceId",
+            DeviceConfig(
+                false,
+                false,
+                DeviceConfig.SCREEN_SHAPE_ROUND,
+                1000,
+                2000,
+            ),
+            SystemState(false, 0),
+            UserStyle(
+                hashMapOf(
+                    colorStyleSetting to blueStyleOption,
+                    watchHandStyleSetting to gothicStyleOption
+                )
+            ).toWireFormat(),
+            null
+        )
+
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
+            instanceParams
+        )
+
+        assertThat(watchFace.previewReferenceTimeMillis).isEqualTo(2000)
     }
 
     @Test

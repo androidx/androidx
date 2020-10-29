@@ -209,6 +209,14 @@ public abstract class WatchFaceService : WallpaperService() {
 
         /** Whether to enable tracing for each call to [Engine.onDraw]. */
         private const val TRACE_DRAW = false
+
+        // Reference time for editor screenshots for analog watch faces.
+        // 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
+        private const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
+
+        // Reference time for editor screenshots for digital watch faces.
+        // 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
+        private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
     }
 
     /** Override this factory method to create your WatchFace. */
@@ -360,6 +368,10 @@ public abstract class WatchFaceService : WallpaperService() {
                 mutableWatchState.hasBurnInProtection =
                     deviceConfig.hasBurnInProtection
                 mutableWatchState.screenShape = deviceConfig.screenShape
+                mutableWatchState.analogPreviewReferenceTimeMillis =
+                    deviceConfig.analogPreviewReferenceTimeMillis
+                mutableWatchState.digitalPreviewReferenceTimeMillis =
+                    deviceConfig.digitalPreviewReferenceTimeMillis
 
                 immutableSystemStateDone = true
             }
@@ -976,7 +988,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 DeviceConfig(
                     properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
                     properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION),
-                    SCREEN_SHAPE_ROUND // TODO(alexclarke): Fix this?
+                    SCREEN_SHAPE_ROUND, // TODO(alexclarke): Fix this?
+                    ANALOG_WATCHFACE_REFERENCE_TIME_MS,
+                    DIGITAL_WATCHFACE_REFERENCE_TIME_MS
                 )
             )
         }

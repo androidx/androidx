@@ -38,7 +38,7 @@ public class HeadlessWatchFaceClient internal constructor(
     /** Constructs a [HeadlessWatchFaceClient] from a [IBinder]. */
     public constructor(binder: IBinder) : this(IHeadlessWatchFace.Stub.asInterface(binder))
 
-    /** The reference preview time for this watch face in milliseconds since the epoch. */
+    /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
         get() = iHeadlessWatchFace.previewReferenceTimeMillis
 

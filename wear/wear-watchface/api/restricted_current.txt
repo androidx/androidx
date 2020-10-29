@@ -138,6 +138,8 @@ package androidx.wear.watchface {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MutableWatchState {
     method public androidx.wear.watchface.WatchState asWatchState();
+    method public long getAnalogPreviewReferenceTimeMillis();
+    method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> getInterruptionFilter();
@@ -145,10 +147,14 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isAmbient();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging();
     method public androidx.wear.watchface.MutableObservableWatchData<java.lang.Boolean> isVisible();
+    method public void setAnalogPreviewReferenceTimeMillis(long p);
+    method public void setDigitalPreviewReferenceTimeMillis(long p);
     method public void setHasBurnInProtection(boolean p);
     method public void setHasLowBitAmbient(boolean p);
     method public void setInterruptionFilter(androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> p);
     method public void setScreenShape(int p);
+    property public final long analogPreviewReferenceTimeMillis;
+    property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
     property public final androidx.wear.watchface.MutableObservableWatchData<java.lang.Integer> interruptionFilter;
@@ -258,25 +264,23 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape);
+    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
+    method public long getAnalogPreviewReferenceTimeMillis();
+    method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
     method public int getScreenShape();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
+    property public final long analogPreviewReferenceTimeMillis;
+    property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible;
     property public final int screenShape;
-    field public static final androidx.wear.watchface.WatchState.Companion Companion;
-    field public static final int SCREEN_SHAPE_RECTANGULAR = 2; // 0x2
-    field public static final int SCREEN_SHAPE_ROUND = 1; // 0x1
-  }
-
-  public static final class WatchState.Companion {
   }
 
 }

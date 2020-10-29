@@ -20,6 +20,25 @@ import android.app.NotificationManager
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.data.DeviceConfig
 
+import androidx.annotation.IntDef
+
+/** @hide */
+@IntDef(
+    value = [
+        ScreenShape.ROUND,
+        ScreenShape.RECTANGULAR
+    ]
+)
+public annotation class ScreenShape {
+    public companion object {
+        /** The watch screen has a circular shape. */
+        public const val ROUND: Int = DeviceConfig.SCREEN_SHAPE_ROUND
+
+        /** The watch screen has a rectangular or square shape. */
+        public const val RECTANGULAR: Int = DeviceConfig.SCREEN_SHAPE_RECTANGULAR
+    }
+}
+
 public class WatchState(
     /**
      * The current user interruption settings. See [NotificationManager]. Based on the value
@@ -59,21 +78,16 @@ public class WatchState(
     /** Whether or not the watch hardware supports burn in protection. */
     public val hasBurnInProtection: Boolean,
 
-    /**
-     * The physical shape of the screen. Should be one of [#SCREEN_SHAPE_ROUND] or
-     * [#SCREEN_SHAPE_RECTANGULAR].
-     */
-    public val screenShape: Int
-) {
-    public companion object {
-        /** The watch has a round (circular) screen. */
-        public const val SCREEN_SHAPE_ROUND: Int = DeviceConfig.SCREEN_SHAPE_ROUND
+    /** The physical shape of the screen. */
+    @ScreenShape
+    public val screenShape: Int,
 
-        /** The watch has a rectangular or square screen. */
-        public const val SCREEN_SHAPE_RECTANGULAR: Int =
-            DeviceConfig.SCREEN_SHAPE_RECTANGULAR
-    }
-}
+    /** UTC reference time for previews of analog watch faces in milliseconds since the epoch. */
+    public val analogPreviewReferenceTimeMillis: Long,
+
+    /** UTC reference time for previews of digital watch faces in milliseconds since the epoch. */
+    public val digitalPreviewReferenceTimeMillis: Long
+)
 
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -85,7 +99,10 @@ public class MutableWatchState {
     public val isVisible: MutableObservableWatchData<Boolean> = MutableObservableWatchData()
     public var hasLowBitAmbient: Boolean = false
     public var hasBurnInProtection: Boolean = false
+    @ScreenShape
     public var screenShape: Int = 0
+    public var analogPreviewReferenceTimeMillis: Long = 0
+    public var digitalPreviewReferenceTimeMillis: Long = 0
 
     public fun asWatchState(): WatchState = WatchState(
         interruptionFilter = interruptionFilter,
@@ -94,6 +111,8 @@ public class MutableWatchState {
         isVisible = isVisible,
         hasLowBitAmbient = hasLowBitAmbient,
         hasBurnInProtection = hasBurnInProtection,
-        screenShape = screenShape
+        screenShape = screenShape,
+        analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis
     )
 }
