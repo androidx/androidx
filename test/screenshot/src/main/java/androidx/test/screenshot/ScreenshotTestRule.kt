@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.os.Bundle
 import androidx.core.os.BuildCompat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.BitmapMatcher
@@ -82,13 +83,21 @@ open class ScreenshotTestRule(
     /**
      * Directory on the device that is used to store the output files.
      */
-    val deviceOutputDirectory = File("/sdcard", "androidx_screenshots")
+    val deviceOutputDirectory
+        get() = File(
+            InstrumentationRegistry.getInstrumentation().getContext().externalCacheDir,
+            "androidx_screenshots"
+        )
 
     private val repoRootPathForGoldens = config.repoRootPathForGoldens.trim('/')
     private val pathToGoldensInRepo = config.pathToGoldensInRepo.trim('/')
     private val imageExtension = ".png"
     // This is used in CI to identify the files.
     private val resultProtoFileSuffix = "goldResult.textproto"
+
+    // Magic number for an in-progress status report
+    private val bundleStatusInProgress = 2
+    private val bundleKeyPrefix = "androidx_screenshots_"
 
     private lateinit var testIdentifier: String
     private lateinit var deviceId: String
@@ -252,20 +261,37 @@ open class ScreenshotTestRule(
                 "$pathToGoldensInRepo/${goldenIdentifierResolver(goldenIdentifier)}"
             }
 
+        val report = Bundle()
+
         if (status != ScreenshotResultProto.ScreenshotResult.Status.PASSED) {
-            resultProto.currentScreenshotFileName =
-                actual.writeToDevice(OutputFileType.IMAGE_ACTUAL)
+            actual.writeToDevice(OutputFileType.IMAGE_ACTUAL).also {
+                resultProto.currentScreenshotFileName = it.name
+                report.putString(bundleKeyPrefix + OutputFileType.IMAGE_ACTUAL, it.absolutePath)
+            }
             diff?.run {
-                resultProto.diffImageFileName = writeToDevice(OutputFileType.IMAGE_DIFF)
+                writeToDevice(OutputFileType.IMAGE_DIFF).also {
+                    resultProto.diffImageFileName = it.name
+                    report.putString(bundleKeyPrefix + OutputFileType.IMAGE_DIFF, it.absolutePath)
+                }
             }
             expected?.run {
-                resultProto.expectedImageFileName = writeToDevice(OutputFileType.IMAGE_EXPECTED)
+                writeToDevice(OutputFileType.IMAGE_EXPECTED).also {
+                    resultProto.expectedImageFileName = it.name
+                    report.putString(
+                        bundleKeyPrefix + OutputFileType.IMAGE_EXPECTED,
+                        it.absolutePath
+                    )
+                }
             }
         }
 
         writeToDevice(OutputFileType.RESULT_PROTO) {
             it.write(resultProto.build().toString().toByteArray())
+        }.also {
+            report.putString(bundleKeyPrefix + OutputFileType.RESULT_PROTO, it.absolutePath)
         }
+
+        InstrumentationRegistry.getInstrumentation().sendStatus(bundleStatusInProgress, report)
     }
 
     internal fun getPathOnDeviceFor(fileType: OutputFileType): File {
@@ -278,31 +304,33 @@ open class ScreenshotTestRule(
         return File(deviceOutputDirectory, fileName)
     }
 
-    private fun Bitmap.writeToDevice(fileType: OutputFileType): String {
+    private fun Bitmap.writeToDevice(fileType: OutputFileType): File {
         return writeToDevice(fileType) {
             compress(Bitmap.CompressFormat.PNG, 0 /*ignored for png*/, it)
         }
     }
 
-    private fun writeToDevice(fileType: OutputFileType, writeAction: (FileOutputStream) -> Unit):
-        String {
-            if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
-                throw IOException("Could not create folder.")
-            }
-
-            var file = getPathOnDeviceFor(fileType)
-            try {
-                FileOutputStream(file).use {
-                    writeAction(it)
-                }
-            } catch (e: Exception) {
-                throw IOException(
-                    "Could not write file to storage (path: ${file.absolutePath}). " +
-                        " Stacktrace: " + e.stackTrace
-                )
-            }
-            return file.name
+    private fun writeToDevice(
+        fileType: OutputFileType,
+        writeAction: (FileOutputStream) -> Unit
+    ): File {
+        if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
+            throw IOException("Could not create folder.")
         }
+
+        var file = getPathOnDeviceFor(fileType)
+        try {
+            FileOutputStream(file).use {
+                writeAction(it)
+            }
+        } catch (e: Exception) {
+            throw IOException(
+                "Could not write file to storage (path: ${file.absolutePath}). " +
+                    " Stacktrace: " + e.stackTrace
+            )
+        }
+        return file
+    }
 
     private fun getDeviceModel(): String {
         var model = android.os.Build.MODEL.toLowerCase()
