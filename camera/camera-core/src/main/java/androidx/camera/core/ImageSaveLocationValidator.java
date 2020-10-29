@@ -21,6 +21,8 @@ import android.content.ContentValues;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.HuaweiMediaStoreLocationValidationQuirk;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,11 +48,20 @@ class ImageSaveLocationValidator {
      * @return true if the image capture result can be saved to the specified storage option,
      * false otherwise.
      */
+    @SuppressWarnings("ConstantConditions")
     static boolean isValid(final @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
         if (isSaveToFile(outputFileOptions)) {
             return canSaveToFile(outputFileOptions.getFile());
         }
+
         if (isSaveToMediaStore(outputFileOptions)) {
+            // Skip verification on Huawei devices
+            final HuaweiMediaStoreLocationValidationQuirk huaweiQuirk =
+                    DeviceQuirks.get(HuaweiMediaStoreLocationValidationQuirk.class);
+            if (huaweiQuirk != null) {
+                return huaweiQuirk.canSaveToMediaStore();
+            }
+
             return canSaveToMediaStore(outputFileOptions.getContentResolver(),
                     outputFileOptions.getSaveCollection(), outputFileOptions.getContentValues());
         }
