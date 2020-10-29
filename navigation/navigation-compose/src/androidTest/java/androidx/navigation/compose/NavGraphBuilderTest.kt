@@ -18,13 +18,13 @@ package androidx.navigation.compose
 
 import android.net.Uri
 import androidx.compose.ui.platform.ContextAmbient
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.navDeepLink
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Rule
