@@ -30,4 +30,11 @@ function run() {
 # Confirm the existence of .git dirs. TODO(b/170634430) remove this
 (cd frameworks/support && echo "top commit:" && git log -1)
 
-run OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace -Pandroidx.summarizeStderr "$@"
+# --no-watch-fs disables file system watch, because it does not work on busytown
+# due to our builders using OS that is too old.
+run OUT_DIR=out DIST_DIR=$DIST_DIR ANDROID_HOME=./prebuilts/fullsdk-linux \
+    frameworks/support/gradlew -p frameworks/support \
+    --stacktrace \
+    -Pandroidx.summarizeStderr \
+    --no-watch-fs \
+    "$@"
