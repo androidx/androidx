@@ -16,14 +16,16 @@
 
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,11 +40,10 @@ public final class PutDocumentsRequest {
         mDocuments = documents;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns the documents that are part of this request. */
     @NonNull
     public List<GenericDocument> getDocuments() {
-        return mDocuments;
+        return Collections.unmodifiableList(mDocuments);
     }
 
     /** Builder for {@link PutDocumentsRequest} objects. */
@@ -51,6 +52,7 @@ public final class PutDocumentsRequest {
         private boolean mBuilt = false;
 
         /** Adds one or more documents to the request. */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
         public Builder addGenericDocument(@NonNull GenericDocument... documents) {
             Preconditions.checkNotNull(documents);
@@ -58,6 +60,7 @@ public final class PutDocumentsRequest {
         }
 
         /** Adds one or more documents to the request. */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
         public Builder addGenericDocument(@NonNull Collection<GenericDocument> documents) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -74,6 +77,7 @@ public final class PutDocumentsRequest {
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
         public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
             Preconditions.checkNotNull(dataClasses);
@@ -88,6 +92,7 @@ public final class PutDocumentsRequest {
          * @throws AppSearchException if an error occurs converting a data class into a
          *                            {@link GenericDocument}.
          */
+        @SuppressLint("MissingGetterMatchingBuilder")  // Merged list available from getDocuments()
         @NonNull
         public Builder addDataClass(@NonNull Collection<Object> dataClasses)
                 throws AppSearchException {

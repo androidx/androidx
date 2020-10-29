@@ -153,17 +153,20 @@ package androidx.appsearch.app {
   }
 
   public final class GetByUriRequest {
+    method public String getNamespace();
+    method public java.util.Set<java.lang.String!> getUris();
   }
 
   public static final class GetByUriRequest.Builder {
     ctor public GetByUriRequest.Builder();
-    method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.lang.String!...);
-    method public androidx.appsearch.app.GetByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.GetByUriRequest.Builder addUri(java.lang.String!...);
+    method public androidx.appsearch.app.GetByUriRequest.Builder addUri(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByUriRequest build();
     method public androidx.appsearch.app.GetByUriRequest.Builder setNamespace(String);
   }
 
   public final class PutDocumentsRequest {
+    method public java.util.List<androidx.appsearch.app.GenericDocument!> getDocuments();
   }
 
   public static final class PutDocumentsRequest.Builder {
@@ -176,12 +179,14 @@ package androidx.appsearch.app {
   }
 
   public final class RemoveByUriRequest {
+    method public String getNamespace();
+    method public java.util.Set<java.lang.String!> getUris();
   }
 
   public static final class RemoveByUriRequest.Builder {
     ctor public RemoveByUriRequest.Builder();
-    method public androidx.appsearch.app.RemoveByUriRequest.Builder addUris(java.lang.String!...);
-    method public androidx.appsearch.app.RemoveByUriRequest.Builder addUris(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.RemoveByUriRequest.Builder addUri(java.lang.String!...);
+    method public androidx.appsearch.app.RemoveByUriRequest.Builder addUri(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.RemoveByUriRequest build();
     method public androidx.appsearch.app.RemoveByUriRequest.Builder setNamespace(String);
   }
@@ -239,6 +244,8 @@ package androidx.appsearch.app {
   }
 
   public final class SetSchemaRequest {
+    method public java.util.Set<androidx.appsearch.app.AppSearchSchema!> getSchemas();
+    method public boolean isForceOverride();
   }
 
   public static final class SetSchemaRequest.Builder {

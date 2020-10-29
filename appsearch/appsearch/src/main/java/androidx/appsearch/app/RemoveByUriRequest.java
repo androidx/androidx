@@ -17,12 +17,12 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -39,18 +39,16 @@ public final class RemoveByUriRequest {
         mUris = uris;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns the namespace to remove documents from. */
     @NonNull
     public String getNamespace() {
         return mNamespace;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns the URIs to remove from the namespace. */
     @NonNull
     public Set<String> getUris() {
-        return mUris;
+        return Collections.unmodifiableSet(mUris);
     }
 
     /** Builder for {@link RemoveByUriRequest} objects. */
@@ -74,14 +72,14 @@ public final class RemoveByUriRequest {
 
         /** Adds one or more URIs to the request. */
         @NonNull
-        public Builder addUris(@NonNull String... uris) {
+        public Builder addUri(@NonNull String... uris) {
             Preconditions.checkNotNull(uris);
-            return addUris(Arrays.asList(uris));
+            return addUri(Arrays.asList(uris));
         }
 
         /** Adds one or more URIs to the request. */
         @NonNull
-        public Builder addUris(@NonNull Collection<String> uris) {
+        public Builder addUri(@NonNull Collection<String> uris) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(uris);
             mUris.addAll(uris);
