@@ -30,6 +30,7 @@ import androidx.core.util.Preconditions;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -64,20 +65,14 @@ public class GenericDocument {
     /** The default time-to-live in millisecond of a document, which is infinity. */
     private static final long DEFAULT_TTL_MILLIS = 0L;
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String PROPERTIES_FIELD = "properties";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String BYTE_ARRAY_FIELD = "byteArray";
-
-    static final String SCHEMA_TYPE_FIELD = "schemaType";
-    static final String URI_FIELD = "uri";
-    static final String SCORE_FIELD = "score";
-    static final String TTL_MILLIS_FIELD = "ttlMillis";
-    static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
-    static final String NAMESPACE_FIELD = "namespace";
+    private static final String PROPERTIES_FIELD = "properties";
+    private static final String BYTE_ARRAY_FIELD = "byteArray";
+    private static final String SCHEMA_TYPE_FIELD = "schemaType";
+    private static final String URI_FIELD = "uri";
+    private static final String SCORE_FIELD = "score";
+    private static final String TTL_MILLIS_FIELD = "ttlMillis";
+    private static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
+    private static final String NAMESPACE_FIELD = "namespace";
 
     /**
      * The maximum number of indexed properties a document can have.
@@ -187,6 +182,12 @@ public class GenericDocument {
      */
     public int getScore() {
         return mBundle.getInt(SCORE_FIELD, DEFAULT_SCORE);
+    }
+
+    /** Returns the names of all properties defined in this document. */
+    @NonNull
+    public Set<String> getPropertyNames() {
+        return Collections.unmodifiableSet(mProperties.keySet());
     }
 
     /**
@@ -669,6 +670,9 @@ public class GenericDocument {
      *
      * @param <BuilderType> Type of subclass who extends this.
      */
+    // This builder is specifically designed to be extended by classes deriving from
+    // GenericDocument.
+    @SuppressLint("StaticFinalBuilder")
     public static class Builder<BuilderType extends Builder> {
 
         private final Bundle mProperties = new Bundle();

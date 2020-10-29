@@ -59,8 +59,7 @@ public class GenericDocumentToProtoConverterTest {
                         .setPropertyString("stringKey1", "test-value1")
                         .setPropertyBytes("byteKey1", BYTE_ARRAY_1, BYTE_ARRAY_2)
                         .setPropertyDocument("documentKey1", DOCUMENT_PROPERTIES_1)
-                        .setPropertyDocument(
-                                GenericDocument.PROPERTIES_FIELD, DOCUMENT_PROPERTIES_2)
+                        .setPropertyDocument("documentKey2", DOCUMENT_PROPERTIES_2)
                         .build();
 
         // Create the Document proto. Need to sort the property order by key.
@@ -88,8 +87,8 @@ public class GenericDocumentToProtoConverterTest {
                 PropertyProto.newBuilder().setName("documentKey1")
                         .addDocumentValues(
                                 GenericDocumentToProtoConverter.convert(DOCUMENT_PROPERTIES_1)));
-        propertyProtoMap.put(GenericDocument.PROPERTIES_FIELD,
-                PropertyProto.newBuilder().setName(GenericDocument.PROPERTIES_FIELD)
+        propertyProtoMap.put("documentKey2",
+                PropertyProto.newBuilder().setName("documentKey2")
                         .addDocumentValues(
                                 GenericDocumentToProtoConverter.convert(DOCUMENT_PROPERTIES_2)));
         List<String> sortedKey = new ArrayList<>(propertyProtoMap.keySet());
