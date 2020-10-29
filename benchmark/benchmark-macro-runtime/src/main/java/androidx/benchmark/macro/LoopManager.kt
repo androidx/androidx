@@ -17,6 +17,8 @@
 package androidx.benchmark.macro
 
 import android.app.Instrumentation
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 internal typealias Scoped = LoopManagerScope.() -> Unit
 
@@ -33,6 +35,17 @@ data class LoopManagerScope(
 
     // Drop caches
     fun dropCaches() = dropCaches(instrumentation)
+
+    // SELinux Policy
+    var linuxPolicy by object : ReadWriteProperty<LoopManagerScope, Int> {
+        override fun getValue(thisRef: LoopManagerScope, property: KProperty<*>): Int {
+            return getLinuxPolicy(thisRef.instrumentation)
+        }
+
+        override fun setValue(thisRef: LoopManagerScope, property: KProperty<*>, value: Int) {
+            setLinuxPolicy(thisRef.instrumentation, value)
+        }
+    }
 
     // Compile step
     fun compile(mode: String, profileSaveTimeout: Long = 5_000) =
@@ -60,11 +73,16 @@ class LoopManager(
 ) {
     fun measureRepeated(iterations: Int, block: LoopManagerScope.(iteration: Int) -> Unit) {
         val scope = LoopManagerScope(packageName, instrumentation, collectors)
+        val policy = scope.linuxPolicy
+        // override to permissive
+        scope.linuxPolicy = 0
         collectors.start()
         for (i in 0..iterations) {
             block.invoke(scope, i)
         }
         collectors.stop()
         collectors.report()
+        // Restore SELinux policy
+        scope.linuxPolicy = policy
     }
 }
