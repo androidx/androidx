@@ -35,9 +35,9 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     api project(":compose:runtime:runtime")
     api project(":compose:ui:ui")
-    api "androidx.navigation:navigation-runtime-ktx:2.3.0"
+    api "androidx.navigation:navigation-runtime-ktx:2.3.1"
 
-    androidTestImplementation 'androidx.navigation:navigation-testing:2.3.0'
+    androidTestImplementation 'androidx.navigation:navigation-testing:2.3.1'
     androidTestImplementation project(':ui:ui-test')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
