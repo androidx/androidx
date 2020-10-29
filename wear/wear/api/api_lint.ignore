@@ -25,24 +25,6 @@ HiddenSuperclass: androidx.wear.widget.SwipeDismissFrameLayout:
     Public class androidx.wear.widget.SwipeDismissFrameLayout stripped of unavailable superclass androidx.wear.widget.SwipeDismissLayout
 
 
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setAnimatedIcon(android.graphics.drawable.Icon):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getAnimatedIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setAnimatedIcon(android.graphics.drawable.Icon)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setAnimatedIcon(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getAnimatedIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setAnimatedIcon(int)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStaticIcon(android.graphics.drawable.Icon):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStaticIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStaticIcon(android.graphics.drawable.Icon)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStaticIcon(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStaticIcon()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStaticIcon(int)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getStatus()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setTouchIntent(android.app.PendingIntent):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getTouchIntent()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setTouchIntent(android.app.PendingIntent)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setLocusId(androidx.core.content.LocusIdCompat):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getLocusId()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setLocusId(androidx.core.content.LocusIdCompat)
-MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setOngoingActivityId(int):
-    androidx.wear.ongoingactivity.OngoingActivity does not declare a `getOngoingActivityId()` method matching method androidx.wear.ongoingactivity.OngoingActivity.Builder.setOngoingActivityId(int)
-
-
 MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T):
