@@ -1,0 +1,85 @@
+// Signature format: 4.0
+package androidx.wear.watchface.client {
+
+  public final class DeviceConfig {
+    ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape);
+    method public int getScreenShape();
+    method public boolean hasBurnInProtection();
+    method public boolean hasLowBitAmbient();
+    method public void setHasBurnInProtection(boolean p);
+    method public void setHasLowBitAmbient(boolean p);
+    method public void setScreenShape(int p);
+    property public final boolean hasBurnInProtection;
+    property public final boolean hasLowBitAmbient;
+    property public final int screenShape;
+  }
+
+  public final class HeadlessWatchFaceClient implements java.lang.AutoCloseable {
+    ctor public HeadlessWatchFaceClient(android.os.IBinder binder);
+    method public android.os.IBinder asBinder();
+    method public void close();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.data.ComplicationDetails> getComplicationDetails();
+    method public long getPreviewReferenceTimeMillis();
+    method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
+    method public android.graphics.Bitmap? takeComplicationScreenshot(int complicationId, androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
+    method public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.data.ComplicationDetails> complicationDetails;
+    property public final long previewReferenceTimeMillis;
+    property public final androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
+  }
+
+  public final class InteractiveWatchFaceSysUiClient implements java.lang.AutoCloseable {
+    method public void close();
+    method public java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> getContentDescriptionLabels();
+    method public String getInstanceId();
+    method public long getPreviewReferenceTimeMillis();
+    method public void performAmbientTick();
+    method public void sendTouchEvent(int xPosition, int yPosition, @androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.Companion.TapType int tapType);
+    method public void setSystemState(androidx.wear.watchface.data.SystemState systemState);
+    method public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idAndComplicationData);
+    property public final java.util.List<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.ContentDescriptionLabel> contentDescriptionLabels;
+    property public final String instanceId;
+    property public final long previewReferenceTimeMillis;
+    field public static final androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.Companion Companion;
+    field public static final int TAP_TYPE_TAP = 2; // 0x2
+    field public static final int TAP_TYPE_TOUCH = 0; // 0x0
+    field public static final int TAP_TYPE_TOUCH_CANCEL = 1; // 0x1
+  }
+
+  public static final class InteractiveWatchFaceSysUiClient.Companion {
+  }
+
+  @IntDef({androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH_CANCEL, androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient.TAP_TYPE_TAP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static @interface InteractiveWatchFaceSysUiClient.Companion.TapType {
+  }
+
+  public static final class InteractiveWatchFaceSysUiClient.ContentDescriptionLabel {
+    ctor public InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(android.support.wearable.complications.TimeDependentText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
+    method public android.graphics.Rect getBounds();
+    method public android.app.PendingIntent? getTapAction();
+    method public android.support.wearable.complications.TimeDependentText getText();
+    property public final android.graphics.Rect bounds;
+    property public final android.app.PendingIntent? tapAction;
+    property public final android.support.wearable.complications.TimeDependentText text;
+  }
+
+  public final class SystemState {
+    ctor public SystemState(boolean inAmbientMode, int interruptionFilter);
+    method public int getInterruptionFilter();
+    method public boolean inAmbientMode();
+    property public final boolean inAmbientMode;
+    property public final int interruptionFilter;
+  }
+
+  public final class WatchFaceControlClient implements java.lang.AutoCloseable {
+    ctor public WatchFaceControlClient(android.content.Context context, String watchFacePackageName);
+    method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.HeadlessWatchFaceClient> createHeadlessWatchFaceClient(android.content.ComponentName watchFaceName, androidx.wear.watchface.client.DeviceConfig deviceConfig, int surfaceWidth, int surfaceHeight);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.client.InteractiveWatchFaceSysUiClient> getInteractiveWatchFaceSysUiClient(String instanceId);
+  }
+
+  public static final class WatchFaceControlClient.ServiceNotBoundException extends java.lang.Exception {
+    ctor public WatchFaceControlClient.ServiceNotBoundException();
+  }
+
+}
+

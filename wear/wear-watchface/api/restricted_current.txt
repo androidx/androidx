@@ -283,6 +283,7 @@ package androidx.wear.watchface.control {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class WatchFaceControlService extends android.app.Service {
     method public android.os.IBinder? onBind(android.content.Intent? intent);
+    method public void setContext(android.content.Context context);
     field public static final String ACTION_WATCHFACE_CONTROL_SERVICE = "com.google.android.wearable.action.WATCH_FACE_CONTROL";
   }
 

@@ -48,11 +48,11 @@ import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
-import androidx.wear.watchface.control.HeadlessWatchFaceInstance
+import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
 import androidx.wear.watchface.control.InteractiveInstanceManager
-import androidx.wear.watchface.control.InteractiveWatchFaceInstance
+import androidx.wear.watchface.control.InteractiveWatchFaceImpl
 import androidx.wear.watchface.control.WallpaperWatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
@@ -683,7 +683,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
-        ): HeadlessWatchFaceInstance {
+        ): HeadlessWatchFaceImpl {
             require(!watchFaceCreated())
             setImmutableSystemState(params.deviceConfig)
 
@@ -756,13 +756,13 @@ public abstract class WatchFaceService : WallpaperService() {
             mutableWatchState.isAmbient.value = false
 
             watchFace.renderer.onPostCreate()
-            return HeadlessWatchFaceInstance(this, uiThreadHandler)
+            return HeadlessWatchFaceImpl(this, uiThreadHandler)
         }
 
         @UiThread
         fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
-        ): InteractiveWatchFaceInstance? {
+        ): InteractiveWatchFaceImpl? {
             require(!watchFaceCreated())
 
             setImmutableSystemState(params.deviceConfig)
@@ -786,7 +786,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 pendingVisibilityChanged = null
             }
 
-            val instance = InteractiveWatchFaceInstance(this, params.instanceId, uiThreadHandler)
+            val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
             InteractiveInstanceManager.addInstance(instance)
             return instance
         }
