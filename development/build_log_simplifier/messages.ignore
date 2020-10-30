@@ -1,6 +1,8 @@
-# This file is a list of regexes of messages that are permitted to appear in stdout/stderr
-# Comments and blank lines are ignored
-# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead
+# This file is a list of regexes of messages that are expected to appear in stdout/stderr.
+# Comments and blank lines are ignored.
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
+
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
 # > Task :contentaccess:integration-tests:testapp:kaptDebugAndroidTestKotlin
@@ -684,10 +686,7 @@ src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter
 Package name.*test' used in: .*AndroidManifest.*xml.*
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
-ZipFile closed
 # > Task :compose:internal-lint-checks:lint
-Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
@@ -746,11 +745,6 @@ Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/ja
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
-# > Task :compose:animation:animation-core:testDebugUnitTest
-androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
-kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
-[0-9]+ tests completed\, [0-9]+ failed
-There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
