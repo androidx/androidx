@@ -689,11 +689,27 @@ public final class ImageCapture extends UseCase {
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p>The callback will be called only once for every invocation of this method.
+     * <p> The callback will be called only once for every invocation of this method.
      *
      * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
      * disk which causes an additional latency.
+     *
+     * <p> Before triggering the image capture pipeline, if the save location is a {@link File} or
+     * {@link MediaStore}, it is first verified to ensure it's valid and writable. A {@link File}
+     * is verified by attempting to open a {@link java.io.FileOutputStream} to it, whereas a
+     * location in {@link MediaStore} is validated by
+     * {@linkplain ContentResolver#insert(Uri, ContentValues) creating a new row} in the user
+     * defined table, retrieving a {@link Uri} pointing to it, then attempting to open an
+     * {@link OutputStream} to it. The newly created row is
+     * {@linkplain ContentResolver#delete(Uri, String, String[]) deleted}
+     * at the end of the verification. On Huawei devices, this deletion results in the system
+     * displaying a notification informing the user that a photo has been deleted. In order to
+     * avoid this, validating the image capture save location in
+     * {@link android.provider.MediaStore} is skipped on Huawei devices.
+     *
+     * <p> If the validation of the save location fails, {@link OnImageSavedCallback}'s error
+     * callback is invoked with an {@link ImageCaptureException}.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
