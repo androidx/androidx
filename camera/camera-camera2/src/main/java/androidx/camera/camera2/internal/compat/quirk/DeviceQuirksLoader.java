@@ -51,6 +51,9 @@ public class DeviceQuirksLoader {
         if (ExcludedSupportedSizesQuirk.load()) {
             quirks.add(new ExcludedSupportedSizesQuirk());
         }
+        if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.load()) {
+            quirks.add(new CrashWhenTakingPhotoWithAutoFlashAEModeQuirk());
+        }
 
         return quirks;
     }
