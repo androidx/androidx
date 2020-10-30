@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--validate", action="store_true", help="Validate that no unrecognized messages exist in the given log")
 parser.add_argument("--update", action="store_true", help="Update our list of recognized messages to include all messages from the given log")
 parser.add_argument("--gc", action="store_true", help="When generating a new exemptions file, exclude any exemptions that were not found in the given log. Only relevant with --update or --validate")
-parser.add_argument("log_path", help="Filepath of log to process", nargs=1)
+parser.add_argument("log_path", help="Filepath of log(s) to process", nargs="+")
 
 # a regexes_matcher can quickly identify which of a set of regexes matches a given text
 class regexes_matcher(object):
@@ -507,11 +507,14 @@ def writelines(path, lines):
 def main():
     arguments = parser.parse_args()
 
-    # read file
-    log_path = arguments.log_path[0]
-    all_lines = readlines(log_path)
-    all_lines = [remove_control_characters(line) for line in all_lines]
-    all_lines = normalize_paths(all_lines)
+    # read each file
+    log_paths = arguments.log_path
+    all_lines = []
+    for log_path in log_paths:
+        lines = readlines(log_path)
+        lines = [remove_control_characters(line) for line in lines]
+        lines = normalize_paths(lines)
+        all_lines += lines
     # load configuration
     exemption_regexes_from_file = readlines(get_exemptions_path())
     # remove lines we're not interested in
@@ -528,7 +531,7 @@ def main():
 
     # process results
     if update:
-        if len(interesting_lines) != 0:
+        if arguments.gc or len(interesting_lines) != 0:
             update_path = get_exemptions_path()
             suggested = generate_suggested_exemptions(all_lines, exemption_regexes_from_file, arguments.gc)
             writelines(update_path, suggested)
@@ -539,8 +542,8 @@ def main():
             print("build_log_simplifier.py: Error: Found new messages!")
             print("")
             print("".join(interesting_lines))
-            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new messages found in " + log_path + ".")
-            new_exemptions_path = log_path + ".ignore"
+            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new messages found in " + ",".join(log_paths) + ".")
+            new_exemptions_path = log_paths[0] + ".ignore"
             suggested = generate_suggested_exemptions(all_lines, exemption_regexes_from_file, arguments.gc)
             writelines(new_exemptions_path, suggested)
             print("")
