@@ -120,9 +120,7 @@ class CameraControllerFragmentTest {
         val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageAnalysisEnabled = false
-        }
+        onView(withId(R.id.analysis_enabled)).perform(click())
 
         fragment.assertAnalysisStreaming(false)
     }
@@ -132,10 +130,8 @@ class CameraControllerFragmentTest {
         val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageAnalysisEnabled = false
-            fragment.cameraController.isImageAnalysisEnabled = true
-        }
+        onView(withId(R.id.analysis_enabled)).perform(click())
+        onView(withId(R.id.analysis_enabled)).perform(click())
 
         fragment.assertAnalysisStreaming(true)
     }
@@ -156,7 +152,7 @@ class CameraControllerFragmentTest {
     fun canSetAnalysisImageDepth() {
         // Arrange.
         val fragment = createFragmentScenario().getFragment()
-        var currentDepth: Int = 0
+        var currentDepth = 0
 
         // Act.
         instrumentation.runOnMainSync {
@@ -269,11 +265,11 @@ class CameraControllerFragmentTest {
         thrown.expectMessage("ImageCapture disabled")
         val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageCaptureEnabled = false
-        }
 
-        // Act & assert.
+        // Act.
+        onView(withId(R.id.capture_enabled)).perform(click())
+
+        // Assert.
         fragment.assertCanTakePicture()
     }
 
@@ -284,10 +280,8 @@ class CameraControllerFragmentTest {
         fragment.assertPreviewIsStreaming()
 
         // Act.
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageCaptureEnabled = false
-            fragment.cameraController.isImageCaptureEnabled = true
-        }
+        onView(withId(R.id.capture_enabled)).perform(click())
+        onView(withId(R.id.capture_enabled)).perform(click())
         fragment.assertPreviewIsStreaming()
 
         // Assert.

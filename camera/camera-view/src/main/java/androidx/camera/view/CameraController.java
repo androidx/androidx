@@ -103,7 +103,27 @@ public abstract class CameraController {
     private static final float AF_SIZE = 1.0f / 6.0f;
     private static final float AE_SIZE = AF_SIZE * 1.5f;
 
+    /**
+     * Bitmask option to enable {@link android.media.Image}. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & IMAGE_CAPTURE) != 0, then controller will enable image capture features.
+     */
+    public static int IMAGE_CAPTURE = 0b1;
+    /**
+     * Bitmask option to enable {@link ImageAnalysis}. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & IMAGE_ANALYSIS) != 0, then controller will enable image analysis features.
+     */
+    public static int IMAGE_ANALYSIS = 0b10;
+    /**
+     * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
+     */
+    @ExperimentalVideo
+    public static int VIDEO_CAPTURE = 0b100;
+
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
+    // By default, ImageCapture and ImageAnalysis are enabled. VideoCapture is disabled.
+    private int mEnabledUseCases = IMAGE_CAPTURE | IMAGE_ANALYSIS;
 
     // CameraController and PreviewView hold reference to each other. The 2-way link is managed
     // by PreviewView.
@@ -116,12 +136,6 @@ public abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @NonNull
     final ImageCapture mImageCapture;
-
-    // ImageCapture is enabled by default.
-    private boolean mImageCaptureEnabled = true;
-
-    // ImageAnalysis is enabled by default.
-    private boolean mImageAnalysisEnabled = true;
 
     @Nullable
     private Executor mAnalysisExecutor;
@@ -136,9 +150,6 @@ public abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @NonNull
     final VideoCapture mVideoCapture;
-
-    // VideoCapture is disabled by default.
-    private boolean mVideoCaptureEnabled = false;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -258,6 +269,78 @@ public abstract class CameraController {
         return mCamera != null;
     }
 
+    /**
+     * Enables or disables use cases.
+     *
+     * <p> Use cases need to be enabled before they can be used. By default, {@link #IMAGE_CAPTURE}
+     * and {@link #IMAGE_ANALYSIS} are enabled, and {@link #VIDEO_CAPTURE} is disabled. This is
+     * necessary because {@link #VIDEO_CAPTURE} is an experimental feature that might not work
+     * with other use cases, especially on lower end devices. When that happens, this method will
+     * fail with an {@link IllegalStateException}.
+     *
+     * <p> To make sure {@link #VIDEO_CAPTURE} works, {@link #IMAGE_CAPTURE} and
+     * {@link #IMAGE_ANALYSIS} needs to be disabled when enabling {@link #VIDEO_CAPTURE}. For
+     * example:
+     *
+     * <pre><code>
+     * // By default, image capture is enabled. Taking picture works.
+     * controller.takePicture(...);
+     *
+     * // Switch to video capture to shoot video.
+     * controller.setEnabledUseCases(VIDEO_CAPTURE);
+     * controller.startRecording(...);
+     * controller.stopRecording(...);
+     *
+     * // Switch back to image capture and image analysis before taking another picture.
+     * controller.setEnabledUseCases(IMAGE_CAPTURE|IMAGE_ANALYSIS);
+     * controller.takePicture(...);
+     *
+     * </code></pre>
+     *
+     * @param enabledUseCases one or more of the following use cases, bitwise-OR-ed together:
+     *                        {@link #IMAGE_CAPTURE}, {@link #IMAGE_ANALYSIS} and/or
+     *                        {@link #VIDEO_CAPTURE}.
+     * @throws IllegalStateException If the current camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
+     * @see UseCase
+     * @see ImageCapture
+     * @see ImageAnalysis
+     */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    public void setEnabledUseCases(int enabledUseCases) {
+        if (enabledUseCases == mEnabledUseCases) {
+            return;
+        }
+        int oldEnabledUseCases = mEnabledUseCases;
+        mEnabledUseCases = enabledUseCases;
+        if (!isVideoCaptureEnabled()) {
+            stopRecording();
+        }
+        startCameraAndTrackStates(() -> mEnabledUseCases = oldEnabledUseCases);
+    }
+
+    /**
+     * Checks if the given use case mask is enabled.
+     *
+     * @param useCaseMask One of the {@link #IMAGE_CAPTURE}, {@link #IMAGE_ANALYSIS} or
+     *                    {@link #VIDEO_CAPTURE}
+     * @return true if the use case is enabled.
+     */
+    private boolean isUseCaseEnabled(int useCaseMask) {
+        return (mEnabledUseCases & useCaseMask) != 0;
+    }
+
+    /**
+     * Same as {@link #isVideoCaptureEnabled()}.
+     *
+     * <p> This wrapper method is to workaround the limitation that currently only one
+     * {@link UseExperimental} mark class is allowed per method.
+     */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    private boolean isVideoCaptureEnabledInternal() {
+        return isVideoCaptureEnabled();
+    }
+
     // ------------------
     // Preview use case.
     // ------------------
@@ -331,28 +414,7 @@ public abstract class CameraController {
     @MainThread
     public boolean isImageCaptureEnabled() {
         Threads.checkMainThread();
-        return mImageCaptureEnabled;
-    }
-
-    /**
-     * Enables or disables {@link ImageCapture}.
-     *
-     * <p> {@link ImageCapture} might not work with video capture depending on device
-     * limitations. In that case, the method will fail with {@link IllegalStateException}.
-     *
-     * @throws IllegalArgumentException If the current camera selector is unable to resolve a
-     *                                  camera to be used for the enabled use cases.
-     * @see ImageCapture
-     */
-    @MainThread
-    public void setImageCaptureEnabled(boolean imageCaptureEnabled) {
-        Threads.checkMainThread();
-        if (mImageCaptureEnabled == imageCaptureEnabled) {
-            return;
-        }
-        boolean oldImageCaptureEnabled = mImageCaptureEnabled;
-        mImageCaptureEnabled = imageCaptureEnabled;
-        startCameraAndTrackStates(() -> mImageAnalysisEnabled = oldImageCaptureEnabled);
+        return isUseCaseEnabled(IMAGE_CAPTURE);
     }
 
     /**
@@ -405,7 +467,7 @@ public abstract class CameraController {
             @NonNull ImageCapture.OnImageSavedCallback imageSavedCallback) {
         Threads.checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
+        Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
         updateMirroringFlagInOutputFileOptions(outputFileOptions);
         mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
@@ -445,7 +507,7 @@ public abstract class CameraController {
             @NonNull ImageCapture.OnImageCapturedCallback callback) {
         Threads.checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
+        Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
         mImageCapture.takePicture(executor, callback);
     }
@@ -462,28 +524,7 @@ public abstract class CameraController {
     @MainThread
     public boolean isImageAnalysisEnabled() {
         Threads.checkMainThread();
-        return mImageAnalysisEnabled;
-    }
-
-    /**
-     * Enables or disables {@link ImageAnalysis} use case.
-     *
-     * <p> {@link ImageAnalysis} might not work with video capture depending on device
-     * limitations. In that case, the method will fail with {@link IllegalStateException}.
-     *
-     * @throws IllegalStateException If the current camera selector is unable to resolve a
-     *                               camera to be used for the enabled use cases.
-     * @see ImageAnalysis
-     */
-    @MainThread
-    public void setImageAnalysisEnabled(boolean imageAnalysisEnabled) {
-        Threads.checkMainThread();
-        if (mImageAnalysisEnabled == imageAnalysisEnabled) {
-            return;
-        }
-        boolean oldImageAnalysisEnabled = mImageAnalysisEnabled;
-        mImageAnalysisEnabled = imageAnalysisEnabled;
-        startCameraAndTrackStates(() -> mImageAnalysisEnabled = oldImageAnalysisEnabled);
+        return isUseCaseEnabled(IMAGE_ANALYSIS);
     }
 
     /**
@@ -630,32 +671,7 @@ public abstract class CameraController {
     @MainThread
     public boolean isVideoCaptureEnabled() {
         Threads.checkMainThread();
-        return mVideoCaptureEnabled;
-    }
-
-    /**
-     * Enables or disables video capture use case.
-     *
-     * <p> Due to hardware limitations, video capture might not work when {@link ImageAnalysis}
-     * and/or {@link ImageCapture} is enabled. In that case, this method will fail with an
-     * {@link IllegalStateException}.
-     *
-     * @throws IllegalStateException If the current camera selector is unable to resolve a
-     *                               camera to be used for the enabled use cases.
-     */
-    @ExperimentalVideo
-    @MainThread
-    public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
-        Threads.checkMainThread();
-        if (mVideoCaptureEnabled == videoCaptureEnabled) {
-            return;
-        }
-        if (!videoCaptureEnabled) {
-            stopRecording();
-        }
-        boolean oldVideoCaptureEnabled = mVideoCaptureEnabled;
-        mVideoCaptureEnabled = videoCaptureEnabled;
-        startCameraAndTrackStates(() -> mVideoCaptureEnabled = oldVideoCaptureEnabled);
+        return isUseCaseEnabled(VIDEO_CAPTURE);
     }
 
     /**
@@ -671,7 +687,7 @@ public abstract class CameraController {
             @NonNull Executor executor, final @NonNull OnVideoSavedCallback callback) {
         Threads.checkMainThread();
         Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
+        Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
 
         mVideoCapture.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
                 new VideoCapture.OnVideoSavedCallback() {
@@ -1041,19 +1057,19 @@ public abstract class CameraController {
 
         UseCaseGroup.Builder builder = new UseCaseGroup.Builder().addUseCase(mPreview);
 
-        if (mImageCaptureEnabled) {
+        if (isImageCaptureEnabled()) {
             builder.addUseCase(mImageCapture);
         } else {
             mCameraProvider.unbind(mImageCapture);
         }
 
-        if (mImageAnalysisEnabled) {
+        if (isImageAnalysisEnabled()) {
             builder.addUseCase(mImageAnalysis);
         } else {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        if (mVideoCaptureEnabled) {
+        if (isVideoCaptureEnabledInternal()) {
             builder.addUseCase(mVideoCapture);
         } else {
             mCameraProvider.unbind(mVideoCapture);
