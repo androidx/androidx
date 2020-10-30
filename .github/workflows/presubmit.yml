@@ -6,91 +6,406 @@ on:
   workflow_dispatch:
 
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Start webhook"
+        uses: androidx/github-workflow-webhook-action@main
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
+
+  lint:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    steps:
+      - name: Pull request format
+        uses: 'androidx/check-pr-format-action@main'
+        with:
+          # Enforces a `Test: <stanza>` in the pull request
+          checks: '["(.*)?Test:(.*)?"]'
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-activity:
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest]
-    # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "activity"
     steps:
-      # https://github.com/tikurahul/check-pr-format-action
-      - name: Check Pull Request Format
-        uses: 'tikurahul/check-pr-format-action@master'
-        with:
-          # Enforces a `Test: <stanza>` in the pull request
-          checks: '["(.*)?Test:(.*)?"]'
-      # https://github.com/tikurahul/github-workflow-webhook-action
-      - name: Start WebHook
-        uses: tikurahul/github-workflow-webhook-action@master
-        with:
-          url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
-      - name: Setup Java environment based on setup-java
-        uses: actions/setup-java@v1
-        with:
-          java-version: "11"
-          java-package: jdk
-          architecture: x64
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: checkout
+      - name: "Checkout androidx repo"
         uses: actions/checkout@v2
         with:
-          # Forces to fetch all history
-          fetch-depth: 0
-      # build cache
-      - name: cache
-        uses: actions/cache@v1.1.2
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: actions/cache@v1.1.2
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
         with:
           path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-      - uses: actions/cache@v1.1.2
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
         with:
           path: ~/.konan
-          key: ${{ runner.os }}-konan
-      - name: create output directory
-        run: echo ~$HOME/dist && mkdir -p ~/dist
-      - name: set environment
-        # Makes the assumption that we are running on macOS currently.
-        run: echo ::set-env name=DIST_DIR::$(echo $HOME)/dist && echo ::set-env name=ANDROID_SDK_ROOT::$(echo $HOME)/Library/Android/sdk
-      - name: test environment
-        run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
-      - name: build on server
-        run: |
-          cd activity      && ./gradlew :buildOnServer && \
-          cd ../fragment   && ./gradlew :buildOnServer && \
-          cd ../navigation && ./gradlew :buildOnServer && \
-          cd ../paging     && ./gradlew :buildOnServer && \
-          cd ../room       && ./gradlew :buildOnServer && \
-          cd ../work       && ./gradlew :buildOnServer
-        id: gradlew_bos
-      - name: Upload Results
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
+          name: artifacts_${{ env.group-id }}
           path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-fragment:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "fragment"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
+        with:
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.group-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-navigation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "navigation"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
+        with:
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.group-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-paging:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "paging"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
+        with:
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.group-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-room:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "room"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
+        with:
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.group-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  build-work:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: [setup, lint]
+    outputs:
+      status: ${{ steps.output-status.outputs.status }}
+    env:
+      group-id: "work"
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: "Cache ~/.gradle/caches"
+        uses: actions/cache@v2.1.2
+        with:
+          path: "~/.gradle/caches"
+          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            gradle-cache-${{ runner.os }}-
+
+      - name: "Cache ~/.gradlew/wrapper"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache ~/.konan"
+        uses: actions/cache@v2.1.2
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}
+
+      - name: "Build"
+        uses: androidx/build-on-server-action@main
+        with:
+          path: ${{ env.group-id }}
+
+      - name: "Upload build artifacts"
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts_${{ env.group-id }}
+          path: ~/dist
+
+      - name: "Report job status"
+        id: output-status
+        if: always()
+        run: echo ::set-output name=status::${{ job.status }}
+
+  teardown:
+    runs-on: ubuntu-latest
+    needs: [
+      setup,
+      lint,
+      build-activity,
+      build-fragment,
+      build-navigation,
+      build-paging,
+      build-room,
+      build-work
+    ]
+    if: always()
+    steps:
+      - name: Parse workflow status
+        id: workflow-status
+        run: |
+          set -x
+          if [ "${{ needs.lint.outputs.status }}" == "success" ]            && \
+            [ "${{ needs.build-activity.outputs.status }}" == "success" ]   && \
+            [ "${{ needs.build-fragment.outputs.status }}" == "success" ]   && \
+            [ "${{ needs.build-navigation.outputs.status }}" == "success" ] && \
+            [ "${{ needs.build-paging.outputs.status }}" == "success" ]     && \
+            [ "${{ needs.build-room.outputs.status }}" == "success" ]       && \
+            [ "${{ needs.build-work.outputs.status }}" == "success" ]
+          then
+            echo "::set-output name=result::success"
+          else
+            echo "::set-output name=result::failure"
+          fi
+
       - name: Successful WebHook
-        if: success()
-        uses: tikurahul/github-workflow-webhook-action@master
+        if: steps.workflow-status.outputs.result == 'success'
+        uses: androidx/github-workflow-webhook-action@main
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
+
       - name: Failure WebHook
-        if: ${{ failure() || cancelled() }}
-        uses: tikurahul/github-workflow-webhook-action@master
+        if: steps.workflow-status.outputs.result == 'failure'
+        uses: androidx/github-workflow-webhook-action@main
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
           secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'
+          payload: '{ "platform": "all", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'
+
