@@ -121,6 +121,7 @@ public class CameraXActivity extends AppCompatActivity {
             };
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    private static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     static final CameraSelector FRONT_SELECTOR =
@@ -626,6 +627,11 @@ public class CameraXActivity extends AppCompatActivity {
                 } else {
                     mCurrentCameraSelector = FRONT_SELECTOR;
                 }
+            }
+
+            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            if (cameraImplementation != null) {
+                CameraXViewModel.configureCameraProvider(cameraImplementation);
             }
         }
 

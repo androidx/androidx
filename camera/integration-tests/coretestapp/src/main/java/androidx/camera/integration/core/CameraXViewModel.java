@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
@@ -41,7 +42,13 @@ import java.util.concurrent.ExecutionException;
 public class CameraXViewModel extends AndroidViewModel {
     private static final String TAG = "CameraXViewModel";
 
-    private static boolean sIsCameraProviderConfigured = false;
+    @Nullable
+    private static String sConfiguredCameraXCameraImplementation = null;
+    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
+    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
+    private static final String DEFAULT_CAMERA_IMPLEMENTATION = CAMERA2_IMPLEMENTATION_OPTION;
+
+
     private MutableLiveData<CameraProviderResult> mProcessCameraProviderLiveData;
 
     public CameraXViewModel(@NonNull Application application) {
@@ -87,11 +94,35 @@ public class CameraXViewModel extends AndroidViewModel {
     @UseExperimental(markerClass = ExperimentalCameraProviderConfiguration.class)
     @MainThread
     private static void tryConfigureCameraProvider() {
-        if (!sIsCameraProviderConfigured) {
-            // Initialize with default configuration for now. Can be customized in the future.
-            ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
-            Log.d(TAG, "Process camera provider initializing.");
-            sIsCameraProviderConfigured = true;
+        if (sConfiguredCameraXCameraImplementation == null) {
+            configureCameraProvider(DEFAULT_CAMERA_IMPLEMENTATION);
+        }
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraProviderConfiguration.class)
+    @MainThread
+    static void configureCameraProvider(@NonNull String cameraImplementation) {
+        if (!cameraImplementation.equals(sConfiguredCameraXCameraImplementation)) {
+            // Attempt to configure. This will throw an ISE if singleton is already configured.
+            try {
+                if (cameraImplementation.equals(CAMERA2_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
+                } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(
+                            CameraPipeConfig.INSTANCE.defaultConfig());
+                } else {
+                    throw new IllegalArgumentException("Failed to configure the CameraProvider "
+                            + "using unknown " + cameraImplementation + " implementation option.");
+                }
+
+                Log.d(TAG, "ProcessCameraProvider initialized using " + cameraImplementation);
+                sConfiguredCameraXCameraImplementation = cameraImplementation;
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("WARNING: CameraX is currently configured to use "
+                        + sConfiguredCameraXCameraImplementation + " which is different "
+                        + "from the desired implementation: " + cameraImplementation + " this "
+                        + "would have resulted in unexpected behavior.", e);
+            }
         }
     }
 
