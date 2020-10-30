@@ -16,61 +16,31 @@
 
 package androidx.benchmark.macro
 
-import android.app.Instrumentation
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class MacroBenchmarkTest {
-
-    lateinit var instrumentation: Instrumentation
-
-    @Before
-    fun setUp() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-    }
-
     @Test
     @LargeTest
     @Ignore("Not running the test in CI")
-    fun basicTest() {
-        val collectors = listOf<Collector<*>>(
-            CpuUsageCollector(),
-            AppStartupCollector(),
-            PerfettoCollector("basicTest"),
-            TotalPssCollector(processNames = listOf(packageName))
-        )
-        val loopManager = LoopManager(packageName, instrumentation, collectors)
-
-        loopManager.measureRepeated(2) { _ ->
-            runWithMeasurementDisabled {
-                pressHome()
-                compile(SPEED)
-                dropCaches()
-                killProcess()
-            }
-            val context = instrumentation.context
-            val intent: Intent =
-                context.packageManager.getLaunchIntentForPackage(packageName)!!
+    fun basicTest() = macrobenchmark(
+        "benchmarkUniqueName",
+        packageName = "com.android.settings",
+        listOf(StartupTimingMetric(), CpuUsageMetric()),
+        CompilationMode.Speed,
+        killProcessEachIteration = true,
+        iterations = 4
+    ) {
+        pressHome()
+        launchPackageAndWait { launchIntent ->
             // Clear out any previous instances
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            context.startActivity(intent)
-            instrumentation.device().wait(
-                Until.hasObject(By.pkg(Companion.packageName).depth(0)),
-                5000 /* ms */
-            )
+            launchIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-    }
-
-    companion object {
-        const val packageName = "com.android.settings"
     }
 }
