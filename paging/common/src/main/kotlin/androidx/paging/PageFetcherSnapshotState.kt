@@ -323,7 +323,7 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any> private construc
         }
     }
 
-    internal fun currentPagingState(viewportHint: ViewportHint?) = PagingState<Key, Value>(
+    internal fun currentPagingState(viewportHint: ViewportHint.Access?) = PagingState<Key, Value>(
         pages = pages.toList(),
         anchorPosition = viewportHint?.let { hint ->
             // Translate viewportHint to anchorPosition based on fetcher state (pre-transformation),

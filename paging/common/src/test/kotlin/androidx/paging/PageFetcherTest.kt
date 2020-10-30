@@ -280,7 +280,7 @@ class PageFetcherTest {
         assertTrue { remoteMediatorMock.loadEvents.isEmpty() }
 
         fetcherState.pagingDataList[0].receiver.accessHint(
-            ViewportHint(
+            ViewportHint.Access(
                 pageOffset = 0,
                 indexInPage = 1,
                 presentedItemsBefore = 0,
@@ -325,7 +325,7 @@ class PageFetcherTest {
 
             // Jump due to sufficiently large presentedItemsBefore
             fetcherState.pagingDataList[0].receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
                     indexInPage = 0,
@@ -348,7 +348,7 @@ class PageFetcherTest {
 
             // Jump due to sufficiently large presentedItemsAfter
             fetcherState.pagingDataList[1].receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
                     indexInPage = 0,
@@ -465,7 +465,7 @@ class PageFetcherTest {
 
             // Trigger access to allow PagingState to get populated for next generation.
             pagingData.receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 1,
                     presentedItemsBefore = 1,
@@ -523,7 +523,7 @@ class PageFetcherTest {
             advanceUntilIdle()
             // Trigger APPEND in third generation.
             pagingData.receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 2,
                     presentedItemsBefore = 2,

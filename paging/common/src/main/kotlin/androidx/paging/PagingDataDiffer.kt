@@ -121,8 +121,7 @@ abstract class PagingDataDiffer<T : Any>(
     suspend fun collectFrom(pagingData: PagingData<T>) = collectFromRunner.runInIsolation {
         receiver = pagingData.receiver
 
-        // TODO: Validate only empty pages between separator pages and its dependent
-        //  pages.
+        // TODO: Validate only empty pages between separator pages and its dependent pages.
         pagingData.flow.collect { event ->
             withContext<Unit>(mainDispatcher) {
                 if (event is PageEvent.Insert && event.loadType == REFRESH) {
@@ -144,17 +143,22 @@ abstract class PagingDataDiffer<T : Any>(
                     }
                     dispatchLoadStates(event.combinedLoadStates)
 
-                    // Transform the last loadAround index from the old list to the new list
-                    // by passing it through the DiffResult, and pass it forward as a
-                    // ViewportHint within the new list to the next generation of Pager.
-                    // This ensures prefetch distance for the last ViewportHint from the old
-                    // list is respected in the new list, even if invalidation interrupts
-                    // the prepend / append load that would have fulfilled it in the old
-                    // list.
-                    transformedLastAccessedIndex?.let { newIndex ->
-                        lastAccessedIndex = newIndex
+                    if (transformedLastAccessedIndex == null) {
+                        // Send an initialize hint in case the new list is empty, which would
+                        // prevent a ViewportHint.Access from ever getting sent since there are
+                        // no items to bind from initial load.
+                        receiver?.accessHint(newPresenter.initializeHint())
+                    } else {
+                        // Transform the last loadAround index from the old list to the new list
+                        // by passing it through the DiffResult, and pass it forward as a
+                        // ViewportHint within the new list to the next generation of Pager.
+                        // This ensures prefetch distance for the last ViewportHint from the old
+                        // list is respected in the new list, even if invalidation interrupts
+                        // the prepend / append load that would have fulfilled it in the old
+                        // list.
+                        lastAccessedIndex = transformedLastAccessedIndex
                         receiver?.accessHint(
-                            newPresenter.viewportHintForPresenterIndex(newIndex)
+                            newPresenter.accessHintForPresenterIndex(transformedLastAccessedIndex)
                         )
                     }
                 } else {
@@ -192,7 +196,7 @@ abstract class PagingDataDiffer<T : Any>(
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
-                                    presenter.viewportHintForPresenterIndex(lastAccessedIndex)
+                                    presenter.accessHintForPresenterIndex(lastAccessedIndex)
                                 )
                             } else {
                                 // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
@@ -216,7 +220,7 @@ abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
-        receiver?.accessHint(presenter.viewportHintForPresenterIndex(index))
+        receiver?.accessHint(presenter.accessHintForPresenterIndex(index))
         return presenter.get(index)
     }
 
