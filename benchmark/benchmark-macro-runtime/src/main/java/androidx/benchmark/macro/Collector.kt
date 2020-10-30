@@ -23,28 +23,28 @@ import com.android.helpers.ICollectorHelper
  * Represents an entity that can be used to collect macro benchmark data.
  * @param T the type of the metric being collected.
  */
-interface Collector<T : Any> {
+internal interface Collector<T : Any> {
     fun start(): Boolean
     fun stop(): Boolean
     fun metrics(): Map<String, T>
 }
 
-fun List<Collector<*>>.start() {
+internal fun List<Collector<*>>.start() {
     this.forEach { it.start() }
 }
 
-fun List<Collector<*>>.stop() {
+internal fun List<Collector<*>>.stop() {
     this.forEach { it.stop() }
 }
 
-fun List<Collector<*>>.report() {
+internal fun List<Collector<*>>.report() {
     instrumentationReport {
         val summary = this@report.flatMap { collector ->
             collector.metrics().map { (key, metric) ->
                 "$key: '$metric'"
             }
-        }.joinToString(separator = ",")
-        ideSummaryRecord(summary)
+        }.joinToString(separator = "\n")
+        this.ideSummaryRecord(summary)
     }
 }
 
@@ -53,16 +53,10 @@ fun List<Collector<*>>.report() {
  */
 internal fun <T : Any> ICollectorHelper<T>.collector(): Collector<T> {
     return object : Collector<T> {
-        override fun start(): Boolean {
-            return startCollecting()
-        }
+        override fun start() = startCollecting()
 
-        override fun stop(): Boolean {
-            return stopCollecting()
-        }
+        override fun stop() = stopCollecting()
 
-        override fun metrics(): Map<String, T> {
-            return metrics
-        }
+        override fun metrics() = metrics
     }
 }
