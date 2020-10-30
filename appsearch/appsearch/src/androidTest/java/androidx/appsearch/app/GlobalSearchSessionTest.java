@@ -85,7 +85,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
 
         // Query for the document
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -94,7 +94,7 @@ public class GlobalSearchSessionTest {
         assertThat(documents).containsExactly(inEmail);
 
         // Multi-term query
-        searchResults = mGlobalAppSearchManager.globalQuery("body email", new SearchSpec.Builder()
+        searchResults = mGlobalAppSearchManager.query("body email", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         documents = convertSearchResultsToDocuments(searchResults);
@@ -132,7 +132,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(inEmail2).build()));
 
         // Query across all instances
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -163,7 +163,7 @@ public class GlobalSearchSessionTest {
         checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
 
         // Set number of results per page is 7.
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
@@ -230,7 +230,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
 
         // Query for all documents across types
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -238,7 +238,7 @@ public class GlobalSearchSessionTest {
         assertThat(documents).containsExactly(genericDocument, email, email);
 
         // Query only for email documents
-        searchResults = mGlobalAppSearchManager.globalQuery("body", new SearchSpec.Builder()
+        searchResults = mGlobalAppSearchManager.query("body", new SearchSpec.Builder()
                 .addSchema(AppSearchEmail.SCHEMA_TYPE)
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
@@ -279,7 +279,7 @@ public class GlobalSearchSessionTest {
                 new PutDocumentsRequest.Builder().addGenericDocument(document2).build()));
 
         // Query for all namespaces
-        SearchResults searchResults = mGlobalAppSearchManager.globalQuery("body",
+        SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
@@ -287,7 +287,7 @@ public class GlobalSearchSessionTest {
         assertThat(documents).containsExactly(document1, document2);
 
         // Query only for "namespace1"
-        searchResults = mGlobalAppSearchManager.globalQuery("body",
+        searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .addNamespace("namespace1")
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)

@@ -17,15 +17,12 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * This class provides global access to the centralized AppSearch index maintained by the system.
  *
  * <p>Apps can retrieve indexed documents through the query API.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlobalSearchSession {
     /**
      * Searches across all documents in the storage based on a given query string.
@@ -70,5 +67,5 @@ public interface GlobalSearchSession {
      * @return The search result of performing this operation.
      */
     @NonNull
-    SearchResults globalQuery(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+    SearchResults query(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 }
