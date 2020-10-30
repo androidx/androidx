@@ -107,18 +107,18 @@ public abstract class CameraController {
      * Bitmask option to enable {@link android.media.Image}. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & IMAGE_CAPTURE) != 0, then controller will enable image capture features.
      */
-    public static int IMAGE_CAPTURE = 0b1;
+    public static final int IMAGE_CAPTURE = 0b1;
     /**
      * Bitmask option to enable {@link ImageAnalysis}. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & IMAGE_ANALYSIS) != 0, then controller will enable image analysis features.
      */
-    public static int IMAGE_ANALYSIS = 0b10;
+    public static final int IMAGE_ANALYSIS = 0b10;
     /**
      * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
      */
     @ExperimentalVideo
-    public static int VIDEO_CAPTURE = 0b100;
+    public static final int VIDEO_CAPTURE = 0b100;
 
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
