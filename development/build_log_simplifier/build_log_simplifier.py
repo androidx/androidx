@@ -313,11 +313,13 @@ def normalize_paths(lines):
     out_dir = None
     dist_dir = None
     checkout_dir = None
+    gradle_user_home = None
     # we read checkout_root from the log file in case this build was run in a location,
     # such as on a build server
     out_marker = "OUT_DIR="
     dist_marker = "DIST_DIR="
     checkout_marker = "CHECKOUT="
+    gradle_user_home_marker="GRADLE_USER_HOME="
     for line in lines:
         if line.startswith(out_marker):
             out_dir = line.split(out_marker)[1].strip()
@@ -328,11 +330,18 @@ def normalize_paths(lines):
         if line.startswith(checkout_marker):
             checkout_dir = line.split(checkout_marker)[1].strip()
             continue
-        if out_dir is not None and dist_dir is not None and checkout_dir is not None:
+        if line.startswith(gradle_user_home_marker):
+            gradle_user_home = line.split(gradle_user_home_marker)[1].strip()
+            continue
+        if out_dir is not None and dist_dir is not None and checkout_dir is not None and gradle_user_home is not None:
             break
 
     # Remove any mentions of these paths, and replace them with consistent values
+    # Make sure to put these paths in the correct order so that more-specific paths will
+    # be matched first
     remove_paths = collections.OrderedDict()
+    if gradle_user_home is not None:
+        remove_paths[gradle_user_home] = "$GRADLE_USER_HOME"
     if dist_dir is not None:
         remove_paths[dist_dir] = "$DIST_DIR"
     if out_dir is not None:

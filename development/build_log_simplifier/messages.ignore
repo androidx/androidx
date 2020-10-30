@@ -10,6 +10,7 @@ proto file '[^ ]*' directly specified in configuration\. It's likely you specifi
 OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
+GRADLE_USER_HOME=\$GRADLE_USER_HOME
 Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\-bin\.zip
 \.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Welcome to Gradle [0-9]+\.[0-9]+!
@@ -56,9 +57,9 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_inte
 BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
-\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
 Package name \'androidx\.wear\' used in\: androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.wear\:wear\-input\-testing\:[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.
-\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
 Package name \'androidx\.compose\.material\.icons\' used in\: androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.compose\.material\:material\-icons\-core\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:appComponentFactory was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
@@ -427,7 +428,7 @@ Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/main/java/androi
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 Note: \$SUPPORT/camera/integration\-tests/coretestapp/src/main/java/androidx/camera/integration/core/CameraXActivity\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
-\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$OUT_DIR/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
 Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/lifecycle/testapp/FrameworkLifecycleRegistryActivity\.java uses or overrides a deprecated API\.
@@ -727,11 +728,11 @@ Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/Defe
 # > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-w: Consider providing an explicit dependency on kotlin\-reflect [0-9]+\.[0-9]+ to prevent strange errors
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-common\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-jdk[0-9]*-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-reflect\-[0-9.]*.jar \(version [^/]*\)
+w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
 # > Task :wear:wear-complications-rendering:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/wear/wear\-complications\-rendering/src/test/java/androidx/wear/complications/rendering/RoundedDrawableTest\.java uses or overrides a deprecated API\.
 # > Task :contentaccess:contentaccess-compiler:test
