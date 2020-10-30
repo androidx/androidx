@@ -17,6 +17,7 @@
 package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -34,6 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@FlakyTest // b/172087217
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class WorkInfoTest {
