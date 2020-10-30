@@ -306,8 +306,10 @@ public abstract class CameraController {
      * @see ImageCapture
      * @see ImageAnalysis
      */
+    @MainThread
     @UseExperimental(markerClass = ExperimentalVideo.class)
     public void setEnabledUseCases(int enabledUseCases) {
+        Threads.checkMainThread();
         if (enabledUseCases == mEnabledUseCases) {
             return;
         }
