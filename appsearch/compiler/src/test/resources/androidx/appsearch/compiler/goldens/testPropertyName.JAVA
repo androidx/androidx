@@ -21,7 +21,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("newName")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();

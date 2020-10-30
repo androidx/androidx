@@ -454,7 +454,8 @@ public class AppSearchCompilerTest {
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(tokenizerType=100) String str;\n"
+                        + "  @AppSearchDocument.Property(indexingType=1, tokenizerType=100)\n"
+                        + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown tokenizer type 100");
     }
@@ -485,7 +486,8 @@ public class AppSearchCompilerTest {
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @AppSearchDocument.Uri String uri;\n"
-                        + "  @AppSearchDocument.Property(indexingType=100) String str;\n"
+                        + "  @AppSearchDocument.Property(indexingType=100, tokenizerType=1)\n"
+                        + "  String str;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).hadErrorContaining("Unknown indexing type 100");
     }

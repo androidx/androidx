@@ -188,6 +188,10 @@ class SchemaCodeGenerator {
 
         // Find tokenizer type
         int tokenizerType = Integer.parseInt(params.get("tokenizerType").toString());
+        if (Integer.parseInt(params.get("indexingType").toString()) == 0) {
+            //TODO(b/171857731) remove this hack after apply to Icing lib's change.
+            tokenizerType = 0;
+        }
         ClassName tokenizerEnum;
         if (tokenizerType == 0 || isPropertyDocument) {  // TOKENIZER_TYPE_NONE
             //It is only valid for tokenizer_type to be 'NONE' if the data type is
