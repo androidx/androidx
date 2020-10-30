@@ -21,7 +21,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.runOnHandler
 
-/** Factory for creating [InteractiveWatchFaceInstance]s when init is done via wallpaper service. */
+/** Factory for creating [InteractiveWatchFaceImpl]s when init is done via wallpaper service. */
 internal class WallpaperWatchFaceControlService(
     private val engine: WatchFaceService.EngineWrapper,
     private val uiThreadHandler: Handler

@@ -109,7 +109,7 @@ class WatchFaceControlServiceTest {
             )
         ).ashmemCompressedImageBundleToBitmap()
 
-        bitmap!!.assertAgainstGolden(screenshotRule, "service_interactive")
+        bitmap.assertAgainstGolden(screenshotRule, "service_interactive")
 
         instance.release()
     }
@@ -131,7 +131,7 @@ class WatchFaceControlServiceTest {
             )
         ).ashmemCompressedImageBundleToBitmap()
 
-        bitmap!!.assertAgainstGolden(
+        bitmap.assertAgainstGolden(
             screenshotRule,
             "leftComplication"
         )
