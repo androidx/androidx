@@ -5,6 +5,14 @@ package androidx.appsearch.localstorage {
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<androidx.appsearch.app.AppSearchSession!>!> createSearchSession(androidx.appsearch.localstorage.LocalStorage.SearchContext);
   }
 
+  public static final class LocalStorage.GlobalSearchContext {
+  }
+
+  public static final class LocalStorage.GlobalSearchContext.Builder {
+    ctor public LocalStorage.GlobalSearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext build();
+  }
+
   public static final class LocalStorage.SearchContext {
     method public String getDatabaseName();
   }

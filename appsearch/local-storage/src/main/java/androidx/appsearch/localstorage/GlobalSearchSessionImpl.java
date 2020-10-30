@@ -45,7 +45,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @NonNull
     @Override
-    public SearchResults globalQuery(
+    public SearchResults query(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
