@@ -16,7 +16,7 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.foundation.Text
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.ui.tooling.preview.Preview
 import java.util.concurrent.atomic.AtomicInteger

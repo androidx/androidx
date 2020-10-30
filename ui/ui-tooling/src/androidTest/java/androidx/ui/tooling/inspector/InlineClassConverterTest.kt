@@ -16,8 +16,8 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.compose.foundation.Text
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit

@@ -16,13 +16,13 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.compose.runtime.Composable
-import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material.Button
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 @Preview
 @Composable
