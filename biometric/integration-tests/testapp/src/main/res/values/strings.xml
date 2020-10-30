@@ -16,16 +16,39 @@
   -->
 
 <resources>
-    <string name="biometric_test_app_title">Biometric Test App</string>
+    <string name="select_activity_label">Select Test Activity to Launch:</string>
 
-    <string name="show_prompt_label">Show prompt</string>
-    <string name="device_credential_label">Allow device credential</string>
-    <string name="cancel_config_change_label">Cancel when configuration changes</string>
+    <string name="biometricprompt_test_app_title">BiometricPrompt Test App</string>
+
+    <string name="cancel_config_change_label">Cancel on configuration changes</string>
     <string name="require_confirmation_label">Require confirmation</string>
-    <string name="clear_log_label">Clear logs</string>
+    <string name="clear_log_label">Clear log</string>
 
     <string name="biometric_prompt_title">Title</string>
     <string name="biometric_prompt_subtitle">Subtitle</string>
     <string name="biometric_prompt_description">Description</string>
     <string name="biometric_prompt_negative_label">Negative button</string>
+
+    <string name="authenticator_types_label">Authenticator types:</string>
+
+    <string name="authenticate_button_label">Authenticate</string>
+    <string name="can_authenticate_button_label">Can authenticate</string>
+
+    <string name="biometric_strong_label">BIOMETRIC_STRONG</string>
+    <string name="biometric_weak_label">BIOMETRIC_WEAK</string>
+    <string name="device_credential_label">DEVICE_CREDENTIAL</string>
+
+    <string name="authprompt_test_app_title">AuthPrompt Test App</string>
+
+    <string name="authclass_label">Authentication class:</string>
+    <string name="class2_button_label">Class 2 Authentication</string>
+    <string name="class3_button_label">Class 3 Authentication</string>
+
+    <string name="authtype_label">Authentication type:</string>
+    <string name="biometric_only_label">Biometric Only Authentication</string>
+    <string name="biometric_or_credential_label">Biometric or Credential Authentication</string>
+    <string name="credential_only_label">Credential Only Authentication</string>
+
+    <string name="crypto_auth_label">Use crypto-based authentication</string>
+    <string name="other_options_label">Other options:</string>
 </resources>

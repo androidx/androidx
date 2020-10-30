@@ -29,54 +29,50 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/authenticator_types_label"
+            android:text="@string/authclass_label"
             android:textColor="?android:textColorPrimary" />
 
-        <LinearLayout
+        <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <CheckBox
-                android:id="@+id/checkbox_allow_biometric_strong"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
+            android:orientation="vertical"
+            android:id="@+id/authClass"
+            android:checkedButton="@+id/class2_auth">
+            <RadioButton android:id="@+id/class2_auth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/biometric_strong_label"
-                android:textColor="?android:textColorPrimary" />
-        </LinearLayout>
+                android:text="@string/class2_button_label"/>
+            <RadioButton android:id="@+id/class3_auth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/class3_button_label"/>
+        </RadioGroup>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <CheckBox
-                android:id="@+id/checkbox_allow_biometric_weak"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/biometric_weak_label"
-                android:textColor="?android:textColorPrimary" />
-        </LinearLayout>
+            android:text="@string/authtype_label"
+            android:textColor="?android:textColorPrimary" />
 
-        <LinearLayout
+        <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <CheckBox
-                android:id="@+id/checkbox_allow_device_credential"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
+            android:orientation="vertical"
+            android:id="@+id/authType"
+            android:checkedButton="@+id/biometric_only">
+            <RadioButton android:id="@+id/biometric_only"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/device_credential_label"
-                android:textColor="?android:textColorPrimary" />
-        </LinearLayout>
+                android:text="@string/biometric_only_label"/>
+            <RadioButton android:id="@+id/biometric_or_credential"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/biometric_or_credential_label"/>
+            <RadioButton android:id="@+id/credential_only"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/credential_only_label"/>
+        </RadioGroup>
 
         <TextView
             android:layout_width="wrap_content"
@@ -126,7 +122,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Use crypto-based authentication"
+                android:text="@string/crypto_auth_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
