@@ -18,6 +18,9 @@ package androidx.core.location;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.LocationManager;
@@ -40,7 +43,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -159,7 +161,6 @@ public final class LocationManagerCompat {
                     sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
-                    transport.unregister();
                     return false;
                 }
             }
@@ -189,20 +190,41 @@ public final class LocationManagerCompat {
                 } else if (!baseHandler.post(task)) {
                     throw new IllegalStateException(baseHandler + " is shutting down");
                 }
+
+                boolean interrupted = false;
                 try {
-                    if (task.get(PRE_N_LOOPER_TIMEOUT_S, TimeUnit.SECONDS)) {
-                        sGnssStatusListeners.put(callback, myTransport);
-                        return true;
-                    } else {
-                        transport.unregister();
-                        return false;
+                    long remainingNanos = SECONDS.toNanos(PRE_N_LOOPER_TIMEOUT_S);
+                    long end = System.nanoTime() + remainingNanos;
+                    while (true) {
+                        try {
+                            if (task.get(remainingNanos, NANOSECONDS)) {
+                                sGnssStatusListeners.put(callback, myTransport);
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } catch (InterruptedException e) {
+                            // this is conceptually not an interruptible operation
+                            interrupted = true;
+                            remainingNanos = end - System.nanoTime();
+                        }
                     }
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new IllegalStateException(e);
+                } catch (ExecutionException e) {
+                    if (e.getCause() instanceof RuntimeException) {
+                        throw (RuntimeException) e.getCause();
+                    } else if (e.getCause() instanceof Error) {
+                        throw (Error) e.getCause();
+                    } else {
+                        throw new IllegalStateException(e);
+                    }
                 } catch (TimeoutException e) {
                     throw new IllegalStateException(baseHandler + " appears to be blocked, please"
                             + " run registerGnssStatusCallback() directly on a Looper thread or "
                             + "ensure the main Looper is not blocked by this thread", e);
+                } finally {
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
         }
