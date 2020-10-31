@@ -24,8 +24,6 @@ import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import android.view.Surface
@@ -36,6 +34,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
@@ -80,15 +80,15 @@ class WatchFaceServiceImageTest {
 
     private val complicationProviders = mapOf(
         SystemProviders.DAY_OF_WEEK to
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(ComplicationText.plainText("23rd"))
-                .setShortText(ComplicationText.plainText("Mon"))
-                .build(),
-        SystemProviders.STEP_COUNT to
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(ComplicationText.plainText("Steps"))
-                .setShortText(ComplicationText.plainText("100"))
+            ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                .setTitle(ComplicationText.plain("23rd"))
                 .build()
+                .asWireComplicationData(),
+        SystemProviders.STEP_COUNT to
+            ShortTextComplicationData.Builder(ComplicationText.plain("100"))
+                .setTitle(ComplicationText.plain("Steps"))
+                .build()
+                .asWireComplicationData()
     )
 
     @get:Rule
@@ -365,17 +365,17 @@ class WatchFaceServiceImageTest {
         val previewComplicationData = listOf(
             IdAndComplicationData(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(ComplicationText.plainText("Preview"))
-                    .setShortText(ComplicationText.plainText("A"))
+                ShortTextComplicationData.Builder(ComplicationText.plain("A"))
+                    .setTitle(ComplicationText.plain("Preview"))
                     .build()
+                    .asWireComplicationData()
             ),
             IdAndComplicationData(
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                    .setShortTitle(ComplicationText.plainText("Preview"))
-                    .setShortText(ComplicationText.plainText("B"))
+                ShortTextComplicationData.Builder(ComplicationText.plain("B"))
+                    .setTitle(ComplicationText.plain("Preview"))
                     .build()
+                    .asWireComplicationData()
             )
         )
 

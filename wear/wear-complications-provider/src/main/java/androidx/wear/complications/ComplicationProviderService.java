@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
 import android.support.wearable.complications.IComplicationManager;
 import android.support.wearable.complications.IComplicationProvider;
@@ -38,6 +37,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.wear.complications.data.ComplicationData;
+import androidx.wear.complications.data.ComplicationType;
 
 /**
  * Class for providers of complication data.
@@ -340,15 +341,15 @@ public abstract class ComplicationProviderService extends Service {
      * to change), then the system will unbind from this service which may cause your eventual
      * update to not be received.
      *
-     * @param complicationId     The id of the requested complication. Note this ID is distinct from
-     *                           ids used by the watch face itself.
-     * @param type               The type of complication data requested.
-     * @param resultCallback     The callback to pass the result to the system.
+     * @param complicationId The id of the requested complication. Note this ID is distinct from
+     *                       ids used by the watch face itself.
+     * @param type           The type of complication data requested.
+     * @param resultCallback The callback to pass the result to the system.
      */
     @UiThread
     public abstract void onComplicationUpdate(
             int complicationId,
-            @ComplicationData.ComplicationType int type,
+            @NonNull ComplicationType type,
             @NonNull ComplicationUpdateCallback resultCallback);
 
     /**
@@ -363,7 +364,7 @@ public abstract class ComplicationProviderService extends Service {
      * @return Preview data for the given complication type.
      */
     @Nullable
-    public abstract ComplicationData getPreviewData(@ComplicationData.ComplicationType int type);
+    public abstract ComplicationData getPreviewData(@NonNull ComplicationType type);
 
     /** Callback for {@link #onComplicationUpdate}. */
     public interface ComplicationUpdateCallback {
@@ -393,32 +394,35 @@ public abstract class ComplicationProviderService extends Service {
         @SuppressLint("SyntheticAccessor")
         @Override
         public void onUpdate(final int complicationId, final int type, IBinder manager) {
+            final ComplicationType complicationType = ComplicationType.fromWireType(type);
             final IComplicationManager iComplicationManager =
                     IComplicationManager.Stub.asInterface(manager);
             if (mRetailModeProvider.inRetailMode()) {
                 try {
                     iComplicationManager.updateComplicationData(
-                            complicationId, getPreviewData(type));
+                            complicationId,
+                            getPreviewData(complicationType).asWireComplicationData());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             } else {
                 mMainThreadHandler.post(
-                        () -> onComplicationUpdate(complicationId, type,
+                        () -> onComplicationUpdate(complicationId, complicationType,
                                 complicationData -> {
                                     // This can be run on an arbitrary thread, but that's OK.
-                                    int dataType =
+                                    ComplicationType dataType =
                                             complicationData != null ? complicationData.getType() :
-                                                    ComplicationData.TYPE_NO_DATA;
-                                    if (dataType == ComplicationData.TYPE_NOT_CONFIGURED
-                                            || dataType == ComplicationData.TYPE_EMPTY) {
+                                                    ComplicationType.NO_DATA;
+                                    if (dataType == ComplicationType.NOT_CONFIGURED
+                                            || dataType == ComplicationType.EMPTY) {
                                         throw new IllegalArgumentException(
                                                 "Cannot send data of TYPE_NOT_CONFIGURED or "
                                                         + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
                                     }
 
                                     iComplicationManager.updateComplicationData(
-                                            complicationId, complicationData);
+                                            complicationId,
+                                            complicationData.asWireComplicationData());
                                 }));
             }
         }
@@ -447,8 +451,9 @@ public abstract class ComplicationProviderService extends Service {
 
         @Override
         @SuppressLint("SyntheticAccessor")
-        public ComplicationData getComplicationPreviewData(final int type) {
-            return getPreviewData(type);
+        public android.support.wearable.complications.ComplicationData getComplicationPreviewData(
+                final int type) {
+            return getPreviewData(ComplicationType.fromWireType(type)).asWireComplicationData();
         }
     }
 }

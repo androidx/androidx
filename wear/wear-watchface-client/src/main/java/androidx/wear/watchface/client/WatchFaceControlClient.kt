@@ -83,7 +83,7 @@ public class WatchFaceControlClient internal constructor(
      *    [instanceId] is unrecognized, or [ServiceNotBoundException] if the
      *    WatchFaceControlService is not bound.
      */
-    public fun getInteractiveWatchFaceSysUiClient(
+    public fun getInteractiveWatchFaceInstanceSysUi(
         instanceId: String
     ): ListenableFuture<InteractiveWatchFaceSysUiClient?> {
         val resultFuture = ResolvableFuture.create<InteractiveWatchFaceSysUiClient>()
