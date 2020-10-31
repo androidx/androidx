@@ -513,15 +513,6 @@ public final class Camera2DeviceSurfaceManagerTest {
         assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
-    @Test
-    public void getMaximumSizeForImageFormat() {
-        Size maximumYUVSize =
-                mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.YUV_420_888);
-        assertEquals(mMaximumSize, maximumYUVSize);
-        Size maximumJPEGSize = mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.JPEG);
-        assertEquals(mMaximumSize, maximumJPEGSize);
-    }
-
     private void setupCamera() {
         mCameraFactory = new FakeCameraFactory();
 
