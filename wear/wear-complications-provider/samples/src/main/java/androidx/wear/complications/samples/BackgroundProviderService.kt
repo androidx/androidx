@@ -19,10 +19,12 @@ package androidx.wear.complications.samples
 import android.content.ComponentName
 import android.os.Handler
 import android.os.Looper
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import androidx.wear.complications.ComplicationProviderService
 import androidx.wear.complications.ProviderUpdateRequester
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.ShortTextComplicationData
 
 const val UPDATE_CADEANCE_MS = 10000L
 
@@ -56,36 +58,36 @@ class BackgroundProviderService : ComplicationProviderService() {
 
     override fun onComplicationUpdate(
         complicationId: Int,
-        type: Int,
+        type: ComplicationType,
         callback: ComplicationUpdateCallback
     ) {
         callback.onUpdateComplication(
             when (type) {
-                ComplicationData.TYPE_SHORT_TEXT ->
-                    ComplicationData.Builder(type)
-                        .setShortText(ComplicationText.plainText("# $counter"))
-                        .build()
+                ShortTextComplicationData.TYPE ->
+                    ShortTextComplicationData.Builder(
+                        ComplicationText.plain("# $counter")
+                    ).build()
 
-                ComplicationData.TYPE_LONG_TEXT ->
-                    ComplicationData.Builder(type)
-                        .setLongText(ComplicationText.plainText("Count $counter"))
-                        .build()
+                LongTextComplicationData.TYPE ->
+                    LongTextComplicationData.Builder(
+                        ComplicationText.plain("Count $counter")
+                    ).build()
 
                 else -> null
             }
         )
     }
 
-    override fun getPreviewData(type: Int) = when (type) {
-        ComplicationData.TYPE_SHORT_TEXT ->
-            ComplicationData.Builder(type)
-                .setShortText(ComplicationText.plainText("# 123"))
-                .build()
+    override fun getPreviewData(type: ComplicationType) = when (type) {
+        ShortTextComplicationData.TYPE ->
+            ShortTextComplicationData.Builder(
+                ComplicationText.plain("# 123")
+            ).build()
 
-        ComplicationData.TYPE_LONG_TEXT ->
-            ComplicationData.Builder(type)
-                .setLongText(ComplicationText.plainText("Count 123"))
-                .build()
+        LongTextComplicationData.TYPE ->
+            LongTextComplicationData.Builder(
+                ComplicationText.plain("Count 123")
+            ).build()
 
         else -> null
     }

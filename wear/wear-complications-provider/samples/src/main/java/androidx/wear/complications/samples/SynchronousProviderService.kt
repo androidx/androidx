@@ -16,44 +16,44 @@
 
 package androidx.wear.complications.samples
 
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import androidx.wear.complications.ComplicationProviderService
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.LongTextComplicationData
+import androidx.wear.complications.data.ShortTextComplicationData
 
 /** A minimal complication provider which reports the ID of the complication immediately. */
 class SynchronousProviderService : ComplicationProviderService() {
 
     override fun onComplicationUpdate(
         complicationId: Int,
-        type: Int,
+        type: ComplicationType,
         callback: ComplicationUpdateCallback
     ) {
         callback.onUpdateComplication(
             when (type) {
-                ComplicationData.TYPE_SHORT_TEXT ->
-                    ComplicationData.Builder(type)
-                        .setShortText(ComplicationText.plainText("# $complicationId"))
-                        .build()
+                ShortTextComplicationData.TYPE ->
+                    ShortTextComplicationData.Builder(
+                        ComplicationText.plain("# $complicationId")
+                    ).build()
 
-                ComplicationData.TYPE_LONG_TEXT ->
-                    ComplicationData.Builder(type)
-                        .setLongText(ComplicationText.plainText("hello $complicationId"))
-                        .build()
+                LongTextComplicationData.TYPE ->
+                    LongTextComplicationData.Builder(
+                        ComplicationText.plain("hello $complicationId")
+                    ).build()
 
                 else -> null
             }
         )
     }
 
-    override fun getPreviewData(type: Int) = when (type) {
-        ComplicationData.TYPE_SHORT_TEXT ->
-            ComplicationData.Builder(type)
-                .setShortText(ComplicationText.plainText("# 123"))
+    override fun getPreviewData(type: ComplicationType) = when (type) {
+        ShortTextComplicationData.TYPE ->
+            ShortTextComplicationData.Builder(ComplicationText.plain("# 123"))
                 .build()
 
-        ComplicationData.TYPE_LONG_TEXT ->
-            ComplicationData.Builder(type)
-                .setLongText(ComplicationText.plainText("hello 123"))
+        LongTextComplicationData.TYPE ->
+            LongTextComplicationData.Builder(ComplicationText.plain("hello 123"))
                 .build()
 
         else -> null
