@@ -191,23 +191,25 @@ private class SeparatorState<R : Any, T : R>(
         return this as Insert<R>
     }
 
+    fun LoadState.isTerminal(): Boolean {
+        return this is LoadState.NotLoading && endOfPaginationReached
+    }
+
     fun CombinedLoadStates.terminatesStart(): Boolean {
-        val endState = prepend
-        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+        return source.prepend.isTerminal() && mediator?.prepend?.isTerminal() != false
     }
 
     fun CombinedLoadStates.terminatesEnd(): Boolean {
-        val endState = append
-        return endState is LoadState.NotLoading && endState.endOfPaginationReached
+        return source.append.isTerminal() && mediator?.append?.isTerminal() != false
     }
 
-    internal fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
+    fun <T : Any> Insert<T>.terminatesStart(): Boolean = if (loadType == APPEND) {
         startTerminalSeparatorDeferred
     } else {
         combinedLoadStates.terminatesStart()
     }
 
-    internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
+    fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
         endTerminalSeparatorDeferred
     } else {
         combinedLoadStates.terminatesEnd()
@@ -218,10 +220,10 @@ private class SeparatorState<R : Any, T : R>(
         val eventTerminatesEnd = event.terminatesEnd()
         val eventEmpty = event.pages.all { it.data.isEmpty() }
 
-        require(!headerAdded || event.loadType != PREPEND) {
+        require(!headerAdded || event.loadType != PREPEND || eventEmpty) {
             "Additional prepend event after prepend state is done"
         }
-        require(!footerAdded || event.loadType != APPEND) {
+        require(!footerAdded || event.loadType != APPEND || eventEmpty) {
             "Additional append event after append state is done"
         }
 
