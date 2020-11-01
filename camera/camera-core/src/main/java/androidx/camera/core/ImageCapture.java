@@ -522,6 +522,10 @@ public final class ImageCapture extends UseCase {
      * will remain enabled during photo capture regardless of flashMode setting. When
      * the torch is disabled, flash will function as specified by {@link #setFlashMode(int)}.
      *
+     * <p>On some LEGACY devices like Samsung A3, taking pictures with {@link #FLASH_MODE_AUTO}
+     * mode could cause a crash. To workaround this CameraX will disable the auto flash behavior
+     * internally on devices that have this issue.
+     *
      * @param flashMode the flash mode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON},
      *                  or {@link #FLASH_MODE_OFF}.
      */

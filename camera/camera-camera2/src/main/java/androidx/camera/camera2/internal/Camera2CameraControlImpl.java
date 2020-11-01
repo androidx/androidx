@@ -38,6 +38,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
+import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -120,6 +121,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     private volatile boolean mIsTorchOn = false;
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
+    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
 
     //******************** Should only be accessed by executor *****************************//
     private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
@@ -444,14 +446,14 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     /** Adds a session {@link CameraCaptureCallback dynamically */
     void addSessionCameraCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback cameraCaptureCallback) {
-        mExecutor.execute(()-> {
+        mExecutor.execute(() -> {
             mCameraCaptureCallbackSet.addCaptureCallback(executor, cameraCaptureCallback);
         });
     }
 
     /** Removes the {@link CameraCaptureCallback} that was added previously */
     void removeSessionCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
-        mExecutor.execute(()-> {
+        mExecutor.execute(() -> {
             mCameraCaptureCallbackSet.removeCaptureCallback(cameraCaptureCallback);
         });
     }
@@ -516,7 +518,8 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
                     break;
                 case FLASH_MODE_AUTO:
-                    aeMode = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH;
+                    aeMode = mAutoFlashAEModeDisabler.getCorrectedAeMode(
+                            CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH);
                     break;
             }
         }
