@@ -565,18 +565,27 @@ includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-
 // Applications and libraries for tests
 //
 /////////////////////////////
+includeProject(":media:version-compat-tests:client",
+        "media/version-compat-tests/current/client", [BuildType.MAIN])
+includeProject(":media:version-compat-tests:client-previous",
+        "media/version-compat-tests/previous/client", [BuildType.MAIN])
+includeProject(":media:version-compat-tests:service",
+        "media/version-compat-tests/current/service", [BuildType.MAIN])
+includeProject(":media:version-compat-tests:service-previous",
+        "media/version-compat-tests/previous/service", [BuildType.MAIN])
+includeProject(":media:version-compat-tests:lib", "media/version-compat-tests/lib",
+        [BuildType.MAIN])
 
-includeProject(":support-media-test-client", "media/version-compat-tests/current/client", [BuildType.MAIN])
-includeProject(":support-media-test-client-previous", "media/version-compat-tests/previous/client", [BuildType.MAIN])
-includeProject(":support-media-test-service", "media/version-compat-tests/current/service", [BuildType.MAIN])
-includeProject(":support-media-test-service-previous", "media/version-compat-tests/previous/service", [BuildType.MAIN])
-includeProject(":support-media-test-lib", "media/version-compat-tests/lib", [BuildType.MAIN])
-
-includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client", [BuildType.MAIN])
-includeProject(":support-media2-test-client-previous", "media2/session/version-compat-tests/previous/client", [BuildType.MAIN])
-includeProject(":support-media2-test-service", "media2/session/version-compat-tests/current/service", [BuildType.MAIN])
-includeProject(":support-media2-test-service-previous", "media2/session/version-compat-tests/previous/service", [BuildType.MAIN])
-includeProject(":support-media2-test-common", "media2/session/version-compat-tests/common", [BuildType.MAIN])
+includeProject(":media2:media2-session:version-compat-tests:client",
+        "media2/session/version-compat-tests/current/client", [BuildType.MAIN])
+includeProject(":media2:media2-session:version-compat-tests:client-previous",
+        "media2/session/version-compat-tests/previous/client", [BuildType.MAIN])
+includeProject(":media2:media2-session:version-compat-tests:service",
+        "media2/session/version-compat-tests/current/service", [BuildType.MAIN])
+includeProject(":media2:media2-session:version-compat-tests:service-previous",
+        "media2/session/version-compat-tests/previous/service", [BuildType.MAIN])
+includeProject(":media2:media2-session:version-compat-tests:common",
+        "media2/session/version-compat-tests/common", [BuildType.MAIN])
 
 /////////////////////////////
 //
