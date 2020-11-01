@@ -711,6 +711,88 @@ class AffectedModuleDetectorImplTest {
         )
     }
 
+    @Test
+    fun projectSubset_noChangedFiles() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            projectSubset = ProjectSubset.ALL_AFFECTED_PROJECTS,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = emptyList()
+            )
+        )
+        // Verify expectations on affected projects
+        MatcherAssert.assertThat(
+            detector.affectedProjects,
+            CoreMatchers.`is`(
+                setOf(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+            )
+        )
+        // Everything should return dependent in postsubmit case
+        MatcherAssert.assertThat(
+            detector.getSubset(p1),
+            CoreMatchers.`is`(
+                ProjectSubset.ALL_AFFECTED_PROJECTS
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.getSubset(p3),
+            CoreMatchers.`is`(
+                ProjectSubset.ALL_AFFECTED_PROJECTS
+            )
+        )
+        // Only the placeholder test should return CHANGED_PROJECTS
+        MatcherAssert.assertThat(
+            detector.getSubset(p11),
+            CoreMatchers.`is`(
+                ProjectSubset.CHANGED_PROJECTS
+            )
+        )
+    }
+
+    @Test
+    fun projectSubset_unknownChangedFiles() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            projectSubset = ProjectSubset.DEPENDENT_PROJECTS,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(convertToFilePath("unknown", "file.java"))
+            )
+        )
+        // Verify expectations on affected projects
+        MatcherAssert.assertThat(
+            detector.affectedProjects,
+            CoreMatchers.`is`(
+                setOf(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)
+            )
+        )
+        // Everything should return dependent in presubmit case
+        MatcherAssert.assertThat(
+            detector.getSubset(p1),
+            CoreMatchers.`is`(
+                ProjectSubset.DEPENDENT_PROJECTS
+            )
+        )
+        MatcherAssert.assertThat(
+            detector.getSubset(p3),
+            CoreMatchers.`is`(
+                ProjectSubset.DEPENDENT_PROJECTS
+            )
+        )
+        // Only the placeholder test should return CHANGED_PROJECTS
+        MatcherAssert.assertThat(
+            detector.getSubset(p11),
+            CoreMatchers.`is`(
+                ProjectSubset.CHANGED_PROJECTS
+            )
+        )
+    }
+
     // For both Linux/Windows
     fun convertToFilePath(vararg list: String): String {
         return list.toList().joinToString(File.separator)
