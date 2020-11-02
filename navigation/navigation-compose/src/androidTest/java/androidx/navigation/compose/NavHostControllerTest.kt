@@ -29,13 +29,13 @@ import androidx.navigation.get
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.TestNavigator
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@ExperimentalCoroutinesApi
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavHostControllerTest {
@@ -111,6 +111,83 @@ class NavHostControllerTest {
         assertWithMessage("the currentBackStackEntry should return to first destination after pop")
             .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
             .isEqualTo(FIRST_DESTINATION)
+    }
+
+    @Test
+    fun testNavigateThenNavigateWithPop() {
+        var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
+        lateinit var navController: NavController
+        val navigator = TestNavigator()
+        composeTestRule.setContent {
+            navController = TestNavHostController(ContextAmbient.current)
+            navController.navigatorProvider.addNavigator(navigator)
+
+            navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
+                test(FIRST_DESTINATION)
+                test(SECOND_DESTINATION)
+            }
+
+            currentBackStackEntry = navController.currentBackStackEntryAsState()
+        }
+
+        assertWithMessage("the currentBackStackEntry should be set with the graph")
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .isEqualTo(FIRST_DESTINATION)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(SECOND_DESTINATION) {
+                popUpTo("first") { inclusive = true }
+            }
+        }
+
+        assertWithMessage("the currentBackStackEntry should be after navigate")
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .isEqualTo(SECOND_DESTINATION)
+        assertWithMessage("the second destination should be the only one on the back stack")
+            .that(navigator.backStack.size)
+            .isEqualTo(1)
+    }
+
+    @Test
+    fun testNavigateOptionSingleTop() {
+        var currentBackStackEntry: State<NavBackStackEntry?> = mutableStateOf(null)
+        lateinit var navController: NavController
+        val navigator = TestNavigator()
+        composeTestRule.setContent {
+            navController = TestNavHostController(ContextAmbient.current)
+            navController.navigatorProvider.addNavigator(navigator)
+
+            navController.graph = navController.createGraph(startDestination = FIRST_DESTINATION) {
+                test(FIRST_DESTINATION)
+                test(SECOND_DESTINATION)
+            }
+
+            currentBackStackEntry = navController.currentBackStackEntryAsState()
+        }
+
+        assertWithMessage("the currentBackStackEntry should be set with the graph")
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
+            .isEqualTo(FIRST_DESTINATION)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(SECOND_DESTINATION)
+        }
+
+        assertWithMessage("there should be 2 destinations on the back stack after navigate")
+            .that(navigator.backStack.size)
+            .isEqualTo(2)
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(SECOND_DESTINATION) {
+                launchSingleTop = true
+            }
+        }
+
+        assertWithMessage("there should be 2 destination on back stack when using singleTop")
+            .that(navigator.backStack.size)
+            .isEqualTo(2)
     }
 }
 

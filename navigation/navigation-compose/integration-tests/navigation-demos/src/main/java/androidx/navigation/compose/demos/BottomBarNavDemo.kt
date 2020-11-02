@@ -56,7 +56,12 @@ fun BottomBarNavDemo() {
                         icon = { Icon(Icons.Filled.Favorite) },
                         label = { Text(name) },
                         selected = entryRoute == route,
-                        onClick = { navController.navigate(route) }
+                        onClick = {
+                            navController.navigate(route) {
+                                launchSingleTop = true
+                                popUpTo = navController.graph.startDestination
+                            }
+                        }
                     )
                 }
             }

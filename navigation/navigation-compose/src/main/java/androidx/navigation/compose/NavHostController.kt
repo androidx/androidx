@@ -34,6 +34,9 @@ import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
+import androidx.navigation.navOptions
 import androidx.navigation.navigation
 
 /**
@@ -98,9 +101,13 @@ private fun NavControllerSaver(
  * Navigate to a route in the current NavGraph.
  *
  * @param route route for the destination
+ * @param builder DSL for constructing a new [NavOptions]
  */
-public fun NavController.navigate(route: String) {
-    navigate(NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build())
+public fun NavController.navigate(route: String, builder: NavOptionsBuilder.() -> Unit = {}) {
+    navigate(
+        NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
+        navOptions(builder)
+    )
 }
 
 /**
