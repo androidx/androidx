@@ -36,6 +36,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.navigation
 
+/**
+ * The route linked to the current destination.
+ */
 const val KEY_ROUTE = "android-support-nav:controller:route"
 
 /**
@@ -107,9 +110,9 @@ public fun NavController.navigate(route: String) {
  * @param startDestination the route for the start destination
  * @param builder the builder used to construct the graph
  */
-internal fun NavController.createGraph(
-    route: String? = null,
+fun NavController.createGraph(
     startDestination: String,
+    route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(
     if (route != null) createRoute(route).hashCode() else 0,
