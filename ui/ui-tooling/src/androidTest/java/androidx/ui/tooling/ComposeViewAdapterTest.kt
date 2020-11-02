@@ -148,7 +148,7 @@ class ComposeViewAdapterTest {
                 .sorted()
                 .toTypedArray()
             assertArrayEquals(
-                arrayOf(1221, 1258, 1279, 1407, 1407, 1407, 1455, 1477, 1494, 1517, 1534),
+                arrayOf(1219, 1256, 1277, 1405, 1405, 1405, 1453, 1475, 1492, 1515, 1532),
                 offsets
             )
         }
