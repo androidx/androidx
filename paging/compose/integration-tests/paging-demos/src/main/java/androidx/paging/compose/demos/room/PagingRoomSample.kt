@@ -18,7 +18,6 @@ package androidx.paging.compose.demos.room
 
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
@@ -34,7 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-@OptIn(ExperimentalLazyDsl::class)
 @Composable
 fun PagingRoomDemo() {
     val context = ContextAmbient.current
