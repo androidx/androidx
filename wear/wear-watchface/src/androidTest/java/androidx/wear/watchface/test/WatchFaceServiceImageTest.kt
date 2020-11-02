@@ -46,7 +46,7 @@ import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
@@ -208,7 +208,7 @@ class WatchFaceServiceImageTest {
     private fun sendComplications() {
         interactiveWatchFaceInstanceWCS.updateComplicationData(
             interactiveWatchFaceInstanceWCS.complicationDetails.map {
-                IdAndComplicationData(
+                IdAndComplicationDataWireFormat(
                     it.id,
                     complicationProviders[it.complicationDetails.fallbackSystemProvider]!!
                 )
@@ -262,7 +262,8 @@ class WatchFaceServiceImageTest {
                 WatchfaceScreenshotParams(
                     RenderParameters(
                         DrawMode.AMBIENT,
-                        RenderParameters.DRAW_ALL_LAYERS
+                        RenderParameters.DRAW_ALL_LAYERS,
+                        null
                     ).toWireFormat(),
                     100,
                     123456789,
@@ -292,7 +293,8 @@ class WatchFaceServiceImageTest {
                 WatchfaceScreenshotParams(
                     RenderParameters(
                         DrawMode.INTERACTIVE,
-                        RenderParameters.DRAW_ALL_LAYERS
+                        RenderParameters.DRAW_ALL_LAYERS,
+                        null
                     ).toWireFormat(),
                     100,
                     123456789,
@@ -326,7 +328,7 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    fun testHighlightComplicationsInScreenshot() {
+    fun testHighlightAllComplicationsInScreenshot() {
         val latch = CountDownLatch(1)
 
         handler.post(this::initCanvasWatchFace)
@@ -341,7 +343,8 @@ class WatchFaceServiceImageTest {
                             Layer.BASE_LAYER to LayerMode.DRAW,
                             Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
                             Layer.TOP_LAYER to LayerMode.DRAW
-                        )
+                        ),
+                        null
                     ).toWireFormat(),
                     100,
                     123456789,
@@ -360,17 +363,52 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
+    fun testHighlightRightComplicationInScreenshot() {
+        val latch = CountDownLatch(1)
+
+        handler.post(this::initCanvasWatchFace)
+        initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        var bitmap: Bitmap? = null
+        handler.post {
+            bitmap = interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        mapOf(
+                            Layer.BASE_LAYER to LayerMode.DRAW,
+                            Layer.COMPLICATIONS to LayerMode.DRAW_HIGHLIGHTED,
+                            Layer.TOP_LAYER to LayerMode.DRAW
+                        ),
+                        EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                    ).toWireFormat(),
+                    100,
+                    123456789,
+                    null,
+                    null
+                )
+            ).ashmemCompressedImageBundleToBitmap()
+            latch.countDown()
+        }
+
+        latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        bitmap!!.assertAgainstGolden(
+            screenshotRule,
+            "highlight_right_complication"
+        )
+    }
+
+    @Test
     fun testScreenshotWithPreviewComplicationData() {
         val latch = CountDownLatch(1)
         val previewComplicationData = listOf(
-            IdAndComplicationData(
+            IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                 ShortTextComplicationData.Builder(ComplicationText.plain("A"))
                     .setTitle(ComplicationText.plain("Preview"))
                     .build()
                     .asWireComplicationData()
             ),
-            IdAndComplicationData(
+            IdAndComplicationDataWireFormat(
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                 ShortTextComplicationData.Builder(ComplicationText.plain("B"))
                     .setTitle(ComplicationText.plain("Preview"))
@@ -385,7 +423,9 @@ class WatchFaceServiceImageTest {
             bitmap = interactiveWatchFaceInstanceWCS.takeWatchFaceScreenshot(
                 WatchfaceScreenshotParams(
                     RenderParameters(
-                        DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS
+                        DrawMode.INTERACTIVE,
+                        RenderParameters.DRAW_ALL_LAYERS,
+                        null
                     ).toWireFormat(),
                     100,
                     123456789,

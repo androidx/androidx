@@ -36,7 +36,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class IdAndComplicationData implements VersionedParcelable, Parcelable {
+public final class IdAndComplicationDataWireFormat implements VersionedParcelable, Parcelable {
     /** The watch's ID for the complication. */
     @ParcelField(1)
     int mId;
@@ -47,10 +47,10 @@ public final class IdAndComplicationData implements VersionedParcelable, Parcela
     ComplicationData mComplicationData;
 
     /** Used by VersionedParcelable. */
-    IdAndComplicationData() {
+    IdAndComplicationDataWireFormat() {
     }
 
-    public IdAndComplicationData(int id, @NonNull ComplicationData complicationData) {
+    public IdAndComplicationDataWireFormat(int id, @NonNull ComplicationData complicationData) {
         mId = id;
         mComplicationData = complicationData;
     }
@@ -75,17 +75,17 @@ public final class IdAndComplicationData implements VersionedParcelable, Parcela
         return 0;
     }
 
-    public static final Parcelable.Creator<IdAndComplicationData> CREATOR =
-            new Parcelable.Creator<IdAndComplicationData>() {
+    public static final Parcelable.Creator<IdAndComplicationDataWireFormat> CREATOR =
+            new Parcelable.Creator<IdAndComplicationDataWireFormat>() {
                 @Override
-                public IdAndComplicationData createFromParcel(Parcel source) {
+                public IdAndComplicationDataWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public IdAndComplicationData[] newArray(int size) {
-                    return new IdAndComplicationData[size];
+                public IdAndComplicationDataWireFormat[] newArray(int size) {
+                    return new IdAndComplicationDataWireFormat[size];
                 }
             };
 }

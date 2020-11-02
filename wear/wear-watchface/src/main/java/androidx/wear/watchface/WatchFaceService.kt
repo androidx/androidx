@@ -35,8 +35,6 @@ import android.os.PowerManager
 import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationData.TYPE_NO_DATA
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
@@ -48,6 +46,10 @@ import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
+import androidx.wear.complications.data.asApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
@@ -62,12 +64,15 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
-import androidx.wear.watchface.data.IdAndComplicationData
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationDetails
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.util.concurrent.CountDownLatch
+
+/** The wire format for [ComplicationData]. */
+internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
 
 /**
  * After user code finishes, we need up to 100ms of wake lock holding for the drawing to occur. This
@@ -391,20 +396,22 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
         @UiThread
-        fun setComplicationDataList(complicationData: MutableList<IdAndComplicationData>) {
+        fun setComplicationDataList(
+            complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
+        ) {
             if (watchFaceCreated()) {
-                for (idAndComplicationData in complicationData) {
+                for (idAndComplicationData in complicationDatumWireFormats) {
                     watchFace.onComplicationDataUpdate(
                         idAndComplicationData.id,
-                        idAndComplicationData.complicationData
+                        idAndComplicationData.complicationData.asApiComplicationData()
                     )
                 }
             } else {
-                for (idAndComplicationData in complicationData) {
+                for (idAndComplicationData in complicationDatumWireFormats) {
                     pendingComplicationDataUpdates.add(
                         PendingComplicationData(
                             idAndComplicationData.id,
-                            idAndComplicationData.complicationData
+                            idAndComplicationData.complicationData.asApiComplicationData()
                         )
                     )
                 }
@@ -440,13 +447,12 @@ public abstract class WatchFaceService : WallpaperService() {
 
             val oldComplicationData =
                 watchFace.complicationsManager.complications.mapValues {
-                    it.value.renderer.data ?: ComplicationData.Builder(TYPE_NO_DATA)
-                        .build()
+                    it.value.renderer.idAndData?.complicationData ?: NoDataComplicationData()
                 }
-            params.idAndComplicationData?.let {
+            params.idAndComplicationDatumWireFormats?.let {
                 for (idAndData in it) {
                     watchFace.onComplicationDataUpdate(
-                        idAndData.id, idAndData.complicationData
+                        idAndData.id, idAndData.complicationData.asApiComplicationData()
                     )
                 }
             }
@@ -463,7 +469,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 watchFace.onSetStyleInternal(UserStyle(oldStyle))
             }
 
-            if (params.idAndComplicationData != null) {
+            if (params.idAndComplicationDatumWireFormats != null) {
                 for ((id, data) in oldComplicationData) {
                     watchFace.onComplicationDataUpdate(id, data)
                 }
@@ -495,10 +501,15 @@ public abstract class WatchFaceService : WallpaperService() {
                         Bitmap.Config.ARGB_8888
                     )
 
-                var prevComplicationData: ComplicationData? = null
-                if (params.complicationData != null) {
-                    prevComplicationData = it.renderer.data
-                    it.renderer.data = params.complicationData
+                var prevIdAndComplicationData: IdAndComplicationData? = null
+                var screenshotComplicationData = params.complicationData
+                if (screenshotComplicationData != null) {
+                    prevIdAndComplicationData = it.renderer.idAndData
+                    it.renderer.idAndData =
+                        IdAndComplicationData(
+                            params.complicationId,
+                            screenshotComplicationData
+                        )
                 }
 
                 it.renderer.render(
@@ -510,7 +521,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData & style if required.
                 if (params.complicationData != null) {
-                    it.renderer.data = prevComplicationData
+                    it.renderer.idAndData = prevIdAndComplicationData
                 }
 
                 if (newStyle != null) {
@@ -777,7 +788,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 mutableWatchState.asWatchState()
             )
 
-            params.idAndComplicationData?.let { setComplicationDataList(it) }
+            params.idAndComplicationDataWireFormats?.let { setComplicationDataList(it) }
 
             watchFace.renderer.onPostCreate()
             val visibility = pendingVisibilityChanged
@@ -944,10 +955,12 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun onComplicationDataUpdate(extras: Bundle) {
-            extras.classLoader = ComplicationData::class.java.classLoader
+            extras.classLoader = WireComplicationData::class.java.classLoader
+            val complicationData: WireComplicationData =
+                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
             setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                (extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA) as ComplicationData?)!!
+                complicationData.asApiComplicationData()
             )
         }
 

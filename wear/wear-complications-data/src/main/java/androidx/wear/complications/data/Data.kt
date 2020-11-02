@@ -52,6 +52,21 @@ public sealed class ComplicationData constructor(
         validTimeRange?.contains(dateTimeMillis) ?: true
 }
 
+/** A pair of id and [ComplicationData]. */
+public class IdAndComplicationData(
+    public val complicationId: Int,
+    public val complicationData: ComplicationData
+) {
+    /** Convenience constructor which accepts a [WireComplicationData]. */
+    public constructor(
+        complicationId: Int,
+        complicationData: WireComplicationData
+    ) : this(
+        complicationId,
+        complicationData.asApiComplicationData()
+    )
+}
+
 /**
  * Type that can be sent by any provider, regardless of the configured type, when the provider
  * has no data to be displayed. Watch faces may choose whether to render this in some way or

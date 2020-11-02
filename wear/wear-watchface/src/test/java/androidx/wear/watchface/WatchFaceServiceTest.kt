@@ -66,7 +66,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.reset
-import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
@@ -154,7 +153,7 @@ class WatchFaceServiceTest {
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -175,7 +174,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(RIGHT_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -196,7 +195,7 @@ class WatchFaceServiceTest {
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
-                data = createComplicationData()
+                idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
