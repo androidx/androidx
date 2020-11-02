@@ -36,6 +36,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.navigation
 
+/**
+ * The route linked to the current destination.
+ */
 const val KEY_ROUTE = "android-support-nav:controller:route"
 
 /**

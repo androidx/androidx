@@ -44,15 +44,16 @@ import java.util.UUID
  *
  * @sample androidx.navigation.compose.samples.BasicNav
  *
- * @param route the route for the graph
+ * @param navController the navController for this host
  * @param startDestination the route for the start destination
+ * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
 @Composable
 public fun NavHost(
     navController: NavHostController,
-    route: String? = null,
     startDestination: String,
+    route: String? = null,
     builder: NavGraphBuilder.() -> Unit
 ) {
     NavHost(
