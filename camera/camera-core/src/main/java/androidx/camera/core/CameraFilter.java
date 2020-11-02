@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.NonNull;
 
-import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * An interface for filtering cameras.
@@ -26,22 +26,21 @@ import java.util.LinkedHashSet;
 @ExperimentalCameraFilter
 public interface CameraFilter {
     /**
-     * Filters a set of {@link Camera}s and returns those matching the requirements.
+     * Filters a list of {@link CameraInfo}s and returns those matching the requirements.
      *
-     * <p>If the output set contains cameras not in the input set, when used by a
+     * <p>If the output list contains CameraInfos not in the input list, when used by a
      * {@link androidx.camera.core.CameraSelector} then it will result in an
      * IllegalArgumentException thrown when calling bindToLifecycle.
      *
-     * <p>The camera that has lower index in the set has higher priority. When used by
+     * <p>The CameraInfo that has lower index in the list has higher priority. When used by
      * {@link androidx.camera.core.CameraSelector.Builder#addCameraFilter(CameraFilter)}, the
      * available cameras will be filtered by all {@link CameraFilter}s by the order they were
      * added. The first camera in the result will be selected if there are multiple cameras left.
      *
-     * @param cameras The input set of {@link Camera}s being filtered. It's not expected to be
-     *                modified.
-     * @return The output set of {@link Camera}s that match the requirements. Users are expected
-     * to create a new set to return with.
+     * @param cameraInfos An unmodifiable list of {@link CameraInfo}s being filtered.
+     * @return The output list of {@link CameraInfo}s that match the requirements. Users are
+     * expected to create a new list to return with.
      */
     @NonNull
-    LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras);
+    List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos);
 }

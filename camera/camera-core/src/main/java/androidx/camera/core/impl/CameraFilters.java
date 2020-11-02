@@ -18,21 +18,21 @@ package androidx.camera.core.impl;
 
 import androidx.camera.core.CameraFilter;
 
-import java.util.LinkedHashSet;
+import java.util.Collections;
 
 /**
  * Implementations of different {@link CameraFilter}.
  */
 public class CameraFilters {
     /**
-     * A camera filter which returns all input Cameras.
+     * A camera filter which returns all input camera infos.
      */
-    public static final CameraFilter ANY = cameras -> cameras;
+    public static final CameraFilter ANY = cameraInfos -> cameraInfos;
 
     /**
-     * A camera filter which filters out all cameras.
+     * A camera filter which filters out all camera infos.
      */
-    public static final CameraFilter NONE = cameras -> new LinkedHashSet<>();
+    public static final CameraFilter NONE = cameraInfos -> Collections.emptyList();
 
     private CameraFilters() {
     }
