@@ -39,6 +39,7 @@ dependencies {
     api "androidx.navigation:navigation-runtime-ktx:2.3.1"
 
     androidTestImplementation 'androidx.navigation:navigation-testing:2.3.1'
+    androidTestImplementation project(path: ':internal-testutils-navigation')
     androidTestImplementation project(':ui:ui-test')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
