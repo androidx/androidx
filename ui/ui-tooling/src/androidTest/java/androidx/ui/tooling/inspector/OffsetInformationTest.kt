@@ -50,17 +50,17 @@ class OffsetInformationTest : ToolingTest() {
 
         assertArrayEquals(
             arrayListOf(
-                "MyComposeTheme" to 1651,
-                "Column" to 1676,
-                "Text" to 1733,
-                "Greeting" to 1986,
-                "Text" to 2821,
-                "Surface" to 2101,
-                "Button" to 2146,
-                "Text" to 2169,
-                "Surface" to 2018,
-                "TextButton" to 2335,
-                "Row" to 2476
+                "MyComposeTheme" to 1649,
+                "Column" to 1674,
+                "Text" to 1731,
+                "Greeting" to 1984,
+                "Text" to 2819,
+                "Surface" to 2099,
+                "Button" to 2144,
+                "Text" to 2167,
+                "Surface" to 2016,
+                "TextButton" to 2333,
+                "Row" to 2474
             ),
             offsets
         )
