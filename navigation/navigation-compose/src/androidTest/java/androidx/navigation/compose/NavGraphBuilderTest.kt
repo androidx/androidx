@@ -26,6 +26,7 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Rule
 import org.junit.Test
@@ -106,6 +107,27 @@ class NavGraphBuilderTest {
         composeTestRule.runOnUiThread {
             navController.navigate(uriString.toUri())
             assertThat(navController.currentBackStackEntry!!.destination.hasDeepLink(deeplink))
+                .isTrue()
+        }
+    }
+
+    @Test
+    fun testNavigationNested() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(ContextAmbient.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                navigation(startDestination = secondRoute, route = firstRoute) {
+                    composable(secondRoute) { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertWithMessage("Destination should be added to the graph")
+                .that(firstRoute in navController.graph)
                 .isTrue()
         }
     }
