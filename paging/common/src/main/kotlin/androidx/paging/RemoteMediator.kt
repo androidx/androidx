@@ -16,17 +16,25 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.PagingSource.LoadResult
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 
 /**
- * Defines a set of callbacks, which may be optionally registered when constructing a [Pager], that
- * allow for control of the following events:
- *  * Stream initialization
- *  * [LoadType.REFRESH] signal driven from UI
- *  * [PagingSource] returns a [PagingSource.LoadResult] which signals a boundary condition, i.e.,
- *  the first page for [LoadType.PREPEND] or the last page for [LoadType.APPEND].
+ * Defines a set of callbacks used to incrementally load data from a remote source into a local
+ * source wrapped by a [PagingSource], e.g., loading data from network into a local db cache.
  *
- * These events together can be used to implement layered pagination - network + local storage.
+ * A [RemoteMediator] is registered by passing it to [Pager]'s constructor.
+ *
+ * [RemoteMediator] allows hooking into the following events:
+ *  * Stream initialization
+ *  * [REFRESH] signal driven from UI
+ *  * [PagingSource] returns a [LoadResult] which signals a boundary condition, i.e., the most
+ *  recent [LoadResult.Page] in the [PREPEND] or [APPEND] direction has [LoadResult.Page.prevKey]
+ *  or [LoadResult.Page.nextKey] set to `null` respectively.
  *
  * @sample androidx.paging.samples.remoteMediatorItemKeyedSample
  * @sample androidx.paging.samples.remoteMediatorPageKeyedSample
@@ -34,42 +42,45 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 @ExperimentalPagingApi
 abstract class RemoteMediator<Key : Any, Value : Any> {
     /**
-     * Implement this method to load additional remote data, which will then be stored for the
-     * [PagingSource] to access. These loads take one of two forms:
-     *  * type == [LoadType.PREPEND] / [LoadType.APPEND]
-     *  The [PagingSource] has loaded a 'boundary' page, with a `null` adjacent key. This means
-     *  this method should load additional remote data to append / prepend as appropriate, and store
-     *  it locally.
-     *  * type == [LoadType.REFRESH]
-     *  The app (or [initialize]) has requested a remote refresh of data. This means the method
-     *  should generally load remote data, and **replace** all local data.
+     * Callback triggered when Paging needs to request more data from a remote source due to any of
+     * the following events:
+     *  * Stream initialization if [initialize] returns [LAUNCH_INITIAL_REFRESH]
+     *  * [REFRESH] signal driven from UI
+     *  * [PagingSource] returns a [LoadResult] which signals a boundary condition, i.e., the most
+     *  recent [LoadResult.Page] in the [PREPEND] or [APPEND] direction has
+     *  [LoadResult.Page.prevKey] or [LoadResult.Page.nextKey] set to `null` respectively.
      *
-     * The runtime of this method defines loading state behavior in boundary conditions, which
-     * affects e.g., [LoadState] callbacks registered to [androidx.paging.PagingDataAdapter].
+     * It is the responsibility of this method to update the backing dataset and trigger
+     * [PagingSource.invalidate] to allow [androidx.paging.PagingDataAdapter] to pick up new
+     * items found by [load].
      *
-     * NOTE: A [PagingSource.load] request which is fulfilled by a page that hits a boundary
-     * condition in either direction will trigger this callback with [LoadType.PREPEND] or
-     * [LoadType.APPEND] or both. [LoadType.REFRESH] occurs as a result of [initialize] or if
-     * refresh is requested programmatically (e.g. in response to a pull to refresh action).
+     * The runtime and result of this method defines the remote [LoadState] behavior sent to the
+     * UI via [CombinedLoadStates].
      *
      * This method is never called concurrently *unless* [Pager.flow] has multiple collectors.
      * Note that Paging might cancel calls to this function if it is currently executing a
-     * [LoadType.PREPEND] or [LoadType.APPEND] and a [LoadType.REFRESH] is requested. In that case,
-     * [LoadType.REFRESH] has higher priority and will be executed after the previous call is
-     * cancelled. If the `load` call with [LoadType.REFRESH] returns an error, Paging will call
-     * `load` with the previously cancelled [LoadType.APPEND] or [LoadType.PREPEND] request. If
-     * the [LoadType.REFRESH] succeeds, it won't make the [LoadType.APPEND] or [LoadType.PREPEND]
-     * requests unless they are necessary again after the [LoadType.REFRESH] is applied to the UI.
+     * [PREPEND] or [APPEND] and a [REFRESH] is requested. In that case, [REFRESH] has higher
+     * priority and will be executed after the previous call is cancelled. If the [load] call with
+     * [REFRESH] returns an error, Paging will call [load] with the previously cancelled [APPEND]
+     * or [PREPEND] request. If [REFRESH] succeeds, it won't make the [APPEND] or [PREPEND] requests
+     * unless they are necessary again after the [REFRESH] is applied to the UI.
      *
-     * @param loadType [LoadType] of the boundary condition which triggered this callback.
-     *  * [LoadType.PREPEND] indicates a boundary condition at the front of the list.
-     *  * [LoadType.APPEND] indicates a boundary condition at the end of the list.
-     *  * [LoadType.REFRESH] indicates this callback was triggered as the result of a requested
-     *  refresh - either driven by the UI, or by [initialize].
-     * @param state A copy of the state including the list of pages currently held in
-     * memory of the currently presented [PagingData] at the time of starting the load. E.g. for
-     * load(loadType = END), you can use the page or item at the end as input for what to load from
-     * the network.
+     * @param loadType [LoadType] of the condition which triggered this callback.
+     *  * [PREPEND] indicates the end of pagination in the [PREPEND] direction was reached. This
+     *  occurs when [PagingSource.load] returns a [LoadResult.Page] with
+     *  [LoadResult.Page.prevKey] == `null`.
+     *  * [APPEND] indicates the end of pagination in the [APPEND] direction was reached. This
+     *  occurs when [PagingSource.load] returns a [LoadResult.Page] with
+     *  [LoadResult.Page.nextKey] == `null`.
+     *  * [REFRESH] indicates this method was triggered due to a requested refresh. Generally, this
+     *  means that a request to load remote data and **replace** all local data was made. This can
+     *  happen when:
+     *    * Stream initialization if [initialize] returns [LAUNCH_INITIAL_REFRESH]
+     *    * An explicit call to refresh driven by the UI
+     * @param state A copy of the state including the list of pages currently held in memory of the
+     * currently presented [PagingData] at the time of starting the load. E.g. for
+     * load(loadType = APPEND), you can use the page or item at the end as input for what to load
+     * from the network.
      *
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
      * there's more data available.
@@ -81,11 +92,12 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      *
      * This function runs to completion before any loading is performed.
      *
-     * @return [InitializeAction] indicating the action to take after initialization:
-     *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
-     *  [LoadType.REFRESH], to update paginated content when the stream is initialized.
-     *  * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a
-     *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
+     * @return [InitializeAction] used to control whether [load] with load type [REFRESH] will be
+     * immediately dispatched when the first [PagingData] is submitted:
+     *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch [load] asynchronously with load type
+     *  [REFRESH], to update paginated content when the stream is initialized.
+     *  * [SKIP_INITIAL_REFRESH] to wait for a refresh request from the UI before dispatching [load]
+     *  asynchronously with load type [REFRESH].
      */
     open suspend fun initialize(): InitializeAction = LAUNCH_INITIAL_REFRESH
 
@@ -117,14 +129,13 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      */
     enum class InitializeAction {
         /**
-         * Immediately dispatch a [load] asynchronously with load type [LoadType.REFRESH], to update
+         * Immediately dispatch a [load] asynchronously with load type [REFRESH], to update
          * paginated content when the stream is initialized.
          */
         LAUNCH_INITIAL_REFRESH,
 
         /**
-         * Wait for a refresh request from the UI before dispatching [load] with load type
-         * [LoadType.REFRESH].
+         * Wait for a refresh request from the UI before dispatching [load] with load type [REFRESH]
          */
         SKIP_INITIAL_REFRESH
     }
