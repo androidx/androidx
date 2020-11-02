@@ -36,18 +36,18 @@ import androidx.wear.complications.SystemProviders;
 import java.util.List;
 
 /**
- * Wire format for {@link androidx.wear.watchface.style.ComplicationsUserStyleCategory}.
+ * Wire format for {@link androidx.wear.watchface.style.ComplicationsUserStyleSetting}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat {
+public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    ComplicationsUserStyleCategoryWireFormat() {
+    ComplicationsUserStyleSettingWireFormat() {
     }
 
-    public ComplicationsUserStyleCategoryWireFormat(
+    public ComplicationsUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
             @NonNull CharSequence description,
@@ -161,7 +161,7 @@ public class ComplicationsUserStyleCategoryWireFormat extends UserStyleCategoryW
 
     /**
      * Wire format for {@link
-     * androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption}.
+     * androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption}.
      *
      * @hide
      */

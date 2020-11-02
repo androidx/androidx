@@ -33,37 +33,37 @@ class StyleParcelableTest {
     private val icon2 = Icon.createWithContentUri("icon2")
     private val icon3 = Icon.createWithContentUri("icon3")
     private val icon4 = Icon.createWithContentUri("icon4")
-    private val option1 = ListUserStyleCategory.ListOption("1", "one", icon1)
-    private val option2 = ListUserStyleCategory.ListOption("2", "two", icon2)
-    private val option3 = ListUserStyleCategory.ListOption("3", "three", icon3)
-    private val option4 = ListUserStyleCategory.ListOption("4", "four", icon4)
+    private val option1 = ListUserStyleSetting.ListOption("1", "one", icon1)
+    private val option2 = ListUserStyleSetting.ListOption("2", "two", icon2)
+    private val option3 = ListUserStyleSetting.ListOption("3", "three", icon3)
+    private val option4 = ListUserStyleSetting.ListOption("4", "four", icon4)
 
     @Test
-    fun parcelAndUnparcelStyleCategoryAndOption() {
-        val categoryIcon = Icon.createWithContentUri("categoryIcon")
-        val styleCategory = ListUserStyleCategory(
+    fun parcelAndUnparcelStyleSettingAndOption() {
+        val settingIcon = Icon.createWithContentUri("settingIcon")
+        val styleSetting = ListUserStyleSetting(
             "id",
             "displayName",
             "description",
-            categoryIcon,
+            settingIcon,
             listOf(option1, option2, option3),
             listOf(Layer.BASE_LAYER)
         )
 
-        val parcelable = ParcelUtils.toParcelable(styleCategory.toWireFormat())
+        val parcelable = ParcelUtils.toParcelable(styleSetting.toWireFormat())
 
         val unparceled =
-            UserStyleCategory.createFromWireFormat(ParcelUtils.fromParcelable(parcelable))
-        assert(unparceled is ListUserStyleCategory)
+            UserStyleSetting.createFromWireFormat(ParcelUtils.fromParcelable(parcelable))
+        assert(unparceled is ListUserStyleSetting)
 
         assertThat(unparceled.id).isEqualTo("id")
         assertThat(unparceled.displayName).isEqualTo("displayName")
         assertThat(unparceled.description).isEqualTo("description")
-        assertThat(unparceled.icon!!.uri.toString()).isEqualTo("categoryIcon")
+        assertThat(unparceled.icon!!.uri.toString()).isEqualTo("settingIcon")
         assertThat(unparceled.affectsLayers.size).isEqualTo(1)
         assertThat(unparceled.affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray =
-            unparceled.options.filterIsInstance<ListUserStyleCategory.ListOption>()
+            unparceled.options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
         assertThat(optionArray.size).isEqualTo(3)
         assertThat(optionArray[0].id).isEqualTo("1")
@@ -83,12 +83,12 @@ class StyleParcelableTest {
         val wireFormat2 = option2.toWireFormat()
         val wireFormat3 = option3.toWireFormat()
 
-        val unmarshalled1 = UserStyleCategory.Option.createFromWireFormat(wireFormat1)
-            as ListUserStyleCategory.ListOption
-        val unmarshalled2 = UserStyleCategory.Option.createFromWireFormat(wireFormat2)
-            as ListUserStyleCategory.ListOption
-        val unmarshalled3 = UserStyleCategory.Option.createFromWireFormat(wireFormat3)
-            as ListUserStyleCategory.ListOption
+        val unmarshalled1 = UserStyleSetting.Option.createFromWireFormat(wireFormat1)
+            as ListUserStyleSetting.ListOption
+        val unmarshalled2 = UserStyleSetting.Option.createFromWireFormat(wireFormat2)
+            as ListUserStyleSetting.ListOption
+        val unmarshalled3 = UserStyleSetting.Option.createFromWireFormat(wireFormat3)
+            as ListUserStyleSetting.ListOption
 
         assertThat(unmarshalled1.id).isEqualTo("1")
         assertThat(unmarshalled1.displayName).isEqualTo("one")
@@ -103,25 +103,25 @@ class StyleParcelableTest {
 
     @Test
     fun parcelAndUnparcelUserStyleSchema() {
-        val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
-        val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
-        val styleCategory1 = ListUserStyleCategory(
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+        val styleSetting1 = ListUserStyleSetting(
             "id1",
             "displayName1",
             "description1",
-            categoryIcon1,
+            settingIcon1,
             listOf(option1, option2),
             listOf(Layer.BASE_LAYER)
         )
-        val styleCategory2 = ListUserStyleCategory(
+        val styleSetting2 = ListUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
-            categoryIcon2,
+            settingIcon2,
             listOf(option3, option4),
             listOf(Layer.TOP_LAYER)
         )
-        val styleCategory3 = BooleanUserStyleCategory(
+        val styleSetting3 = BooleanUserStyleSetting(
             "id3",
             "displayName3",
             "description3",
@@ -133,25 +133,25 @@ class StyleParcelableTest {
         val parceled = ParcelUtils.toParcelable(
             UserStyleSchemaWireFormat(
                 listOf(
-                    styleCategory1.toWireFormat(),
-                    styleCategory2.toWireFormat(),
-                    styleCategory3.toWireFormat()
+                    styleSetting1.toWireFormat(),
+                    styleSetting2.toWireFormat(),
+                    styleSetting3.toWireFormat()
                 )
             )
         )
 
         val unparceled: UserStyleSchemaWireFormat = ParcelUtils.fromParcelable(parceled)
-        val schema = unparceled.mSchema.map { UserStyleCategory.createFromWireFormat(it) }
+        val schema = unparceled.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
 
-        assert(schema[0] is ListUserStyleCategory)
+        assert(schema[0] is ListUserStyleSetting)
         assertThat(schema[0].id).isEqualTo("id1")
         assertThat(schema[0].displayName).isEqualTo("displayName1")
         assertThat(schema[0].description).isEqualTo("description1")
-        assertThat(schema[0].icon!!.uri.toString()).isEqualTo("categoryIcon1")
+        assertThat(schema[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
         assertThat(schema[0].affectsLayers.size).isEqualTo(1)
         assertThat(schema[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray1 =
-            schema[0].options.filterIsInstance<ListUserStyleCategory.ListOption>()
+            schema[0].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
         assertThat(optionArray1.size).isEqualTo(2)
         assertThat(optionArray1[0].id).isEqualTo("1")
@@ -161,15 +161,15 @@ class StyleParcelableTest {
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
 
-        assert(schema[1] is ListUserStyleCategory)
+        assert(schema[1] is ListUserStyleSetting)
         assertThat(schema[1].id).isEqualTo("id2")
         assertThat(schema[1].displayName).isEqualTo("displayName2")
         assertThat(schema[1].description).isEqualTo("description2")
-        assertThat(schema[1].icon!!.uri.toString()).isEqualTo("categoryIcon2")
+        assertThat(schema[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
         assertThat(schema[1].affectsLayers.size).isEqualTo(1)
         assertThat(schema[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
         val optionArray2 =
-            schema[1].options.filterIsInstance<ListUserStyleCategory.ListOption>()
+            schema[1].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
         assertThat(optionArray2.size).isEqualTo(2)
         assertThat(optionArray2[0].id).isEqualTo("3")
@@ -179,7 +179,7 @@ class StyleParcelableTest {
         assertThat(optionArray2[1].displayName).isEqualTo("four")
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
 
-        assert(schema[2] is BooleanUserStyleCategory)
+        assert(schema[2] is BooleanUserStyleSetting)
         assertThat(schema[2].id).isEqualTo("id3")
         assertThat(schema[2].displayName).isEqualTo("displayName3")
         assertThat(schema[2].description).isEqualTo("description3")
@@ -190,29 +190,29 @@ class StyleParcelableTest {
 
     @Test
     fun parcelAndUnparcelUserStyle() {
-        val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
-        val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
-        val styleCategory1 = ListUserStyleCategory(
+        val settingIcon1 = Icon.createWithContentUri("settingIcon1")
+        val settingIcon2 = Icon.createWithContentUri("settingIcon2")
+        val styleSetting1 = ListUserStyleSetting(
             "id1",
             "displayName1",
             "description1",
-            categoryIcon1,
+            settingIcon1,
             listOf(option1, option2),
             listOf(Layer.BASE_LAYER)
         )
-        val styleCategory2 = ListUserStyleCategory(
+        val styleSetting2 = ListUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
-            categoryIcon2,
+            settingIcon2,
             listOf(option3, option4),
             listOf(Layer.TOP_LAYER)
         )
-        val schema = UserStyleSchema(listOf(styleCategory1, styleCategory2))
+        val schema = UserStyleSchema(listOf(styleSetting1, styleSetting2))
         val userStyle = UserStyle(
             hashMapOf(
-                styleCategory1 as UserStyleCategory to option2 as UserStyleCategory.Option,
-                styleCategory2 as UserStyleCategory to option3 as UserStyleCategory.Option
+                styleSetting1 as UserStyleSetting to option2 as UserStyleSetting.Option,
+                styleSetting2 as UserStyleSetting to option3 as UserStyleSetting.Option
             )
         )
         val parceled = ParcelUtils.toParcelable(userStyle.toWireFormat())
@@ -220,13 +220,13 @@ class StyleParcelableTest {
         val unparcelled =
             UserStyle(ParcelUtils.fromParcelable(parceled) as UserStyleWireFormat, schema)
         assertThat(unparcelled.selectedOptions.size).isEqualTo(2)
-        assertThat(unparcelled.selectedOptions[styleCategory1]!!.id).isEqualTo(option2.id)
-        assertThat(unparcelled.selectedOptions[styleCategory2]!!.id).isEqualTo(option3.id)
+        assertThat(unparcelled.selectedOptions[styleSetting1]!!.id).isEqualTo(option2.id)
+        assertThat(unparcelled.selectedOptions[styleSetting2]!!.id).isEqualTo(option3.id)
     }
 
     @Test
-    fun booleanUserStyleCategory_defaultValue() {
-        val booleanUserStyleCategoryDefaultTrue = BooleanUserStyleCategory(
+    fun booleanUserStyleSetting_defaultValue() {
+        val booleanUserStyleSettingDefaultTrue = BooleanUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -234,9 +234,9 @@ class StyleParcelableTest {
             true,
             listOf(Layer.BASE_LAYER)
         )
-        assertTrue(booleanUserStyleCategoryDefaultTrue.getDefaultValue())
+        assertTrue(booleanUserStyleSettingDefaultTrue.getDefaultValue())
 
-        val booleanUserStyleCategoryDefaultFalse = BooleanUserStyleCategory(
+        val booleanUserStyleSettingDefaultFalse = BooleanUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -244,12 +244,12 @@ class StyleParcelableTest {
             false,
             listOf(Layer.BASE_LAYER)
         )
-        assertFalse(booleanUserStyleCategoryDefaultFalse.getDefaultValue())
+        assertFalse(booleanUserStyleSettingDefaultFalse.getDefaultValue())
     }
 
     @Test
-    fun doubleRangeUserStyleCategory_defaultValue() {
-        val doubleRangeUserStyleCategoryDefaultMin = DoubleRangeUserStyleCategory(
+    fun doubleRangeUserStyleSetting_defaultValue() {
+        val doubleRangeUserStyleSettingDefaultMin = DoubleRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -259,9 +259,9 @@ class StyleParcelableTest {
             -1.0,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(doubleRangeUserStyleCategoryDefaultMin.getDefaultValue()).isEqualTo(-1.0)
+        assertThat(doubleRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1.0)
 
-        val doubleRangeUserStyleCategoryDefaultMid = DoubleRangeUserStyleCategory(
+        val doubleRangeUserStyleSettingDefaultMid = DoubleRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -271,9 +271,9 @@ class StyleParcelableTest {
             0.5,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(doubleRangeUserStyleCategoryDefaultMid.getDefaultValue()).isEqualTo(0.5)
+        assertThat(doubleRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(0.5)
 
-        val doubleRangeUserStyleCategoryDefaultMax = DoubleRangeUserStyleCategory(
+        val doubleRangeUserStyleSettingDefaultMax = DoubleRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -283,12 +283,12 @@ class StyleParcelableTest {
             1.0,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(doubleRangeUserStyleCategoryDefaultMax.getDefaultValue()).isEqualTo(1.0)
+        assertThat(doubleRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(1.0)
     }
 
     @Test
-    fun longRangeUserStyleCategory_defaultValue() {
-        val longRangeUserStyleCategoryDefaultMin = LongRangeUserStyleCategory(
+    fun longRangeUserStyleSetting_defaultValue() {
+        val longRangeUserStyleSettingDefaultMin = LongRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -298,9 +298,9 @@ class StyleParcelableTest {
             -1,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(longRangeUserStyleCategoryDefaultMin.getDefaultValue()).isEqualTo(-1)
+        assertThat(longRangeUserStyleSettingDefaultMin.getDefaultValue()).isEqualTo(-1)
 
-        val longRangeUserStyleCategoryDefaultMid = LongRangeUserStyleCategory(
+        val longRangeUserStyleSettingDefaultMid = LongRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -310,9 +310,9 @@ class StyleParcelableTest {
             5,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(longRangeUserStyleCategoryDefaultMid.getDefaultValue()).isEqualTo(5)
+        assertThat(longRangeUserStyleSettingDefaultMid.getDefaultValue()).isEqualTo(5)
 
-        val longRangeUserStyleCategoryDefaultMax = LongRangeUserStyleCategory(
+        val longRangeUserStyleSettingDefaultMax = LongRangeUserStyleSetting(
             "id2",
             "displayName2",
             "description2",
@@ -322,6 +322,6 @@ class StyleParcelableTest {
             10,
             listOf(Layer.BASE_LAYER)
         )
-        assertThat(longRangeUserStyleCategoryDefaultMax.getDefaultValue()).isEqualTo(10)
+        assertThat(longRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(10)
     }
 }

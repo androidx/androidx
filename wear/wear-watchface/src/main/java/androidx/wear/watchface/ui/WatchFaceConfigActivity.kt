@@ -49,7 +49,7 @@ internal interface FragmentController {
 
     /** Show the [StyleConfigFragment] which lets the user configure the watch face style. */
     fun showStyleConfigFragment(
-        categoryId: String,
+        settingId: String,
         styleSchema: UserStyleSchema,
         userStyle: UserStyle
     )
@@ -136,12 +136,12 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
                 @SuppressLint("SyntheticAccessor")
                 override fun showStyleConfigFragment(
-                    categoryId: String,
+                    settingId: String,
                     styleSchema: UserStyleSchema,
                     userStyle: UserStyle
                 ) {
                     showFragment(
-                        StyleConfigFragment.newInstance(categoryId, styleSchema, userStyle)
+                        StyleConfigFragment.newInstance(settingId, styleSchema, userStyle)
                     )
                 }
 
@@ -219,7 +219,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
         backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
 
-        var topLevelOptionCount = styleSchema.userStyleCategories.size
+        var topLevelOptionCount = styleSchema.userStyleSettings.size
         val hasBackgroundComplication = backgroundComplicationId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
@@ -249,11 +249,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            styleSchema.userStyleCategories.size == 1 -> {
-                // There should only be a single userStyle category if we get here.
-                val onlyStyleCategory = styleSchema.userStyleCategories.first()
+            styleSchema.userStyleSettings.size == 1 -> {
+                // There should only be a single userStyle setting if we get here.
+                val onlyStyleSetting = styleSchema.userStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
-                    onlyStyleCategory.id,
+                    onlyStyleSetting.id,
                     styleSchema,
                     UserStyle(
                         watchFaceConfigDelegate.getUserStyle(),

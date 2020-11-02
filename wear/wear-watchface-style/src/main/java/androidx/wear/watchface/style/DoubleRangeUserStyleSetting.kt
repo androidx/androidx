@@ -18,36 +18,33 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat
 
 /**
- * A LongRangeUserStyleCategory represents a category with a [Long] value in the range
- * [minimumValue .. maximumValue].
+ * A DoubleRangeUserStyleSetting represents a setting with a [Double] value in the range
+ * `[minimumValue .. maximumValue]`.
  */
-public class LongRangeUserStyleCategory : UserStyleCategory {
+public class DoubleRangeUserStyleSetting : UserStyleSetting {
 
     internal companion object {
         internal fun createOptionsList(
-            minimumValue: Long,
-            maximumValue: Long,
-            defaultValue: Long
-        ): List<LongRangeOption> {
+            minimumValue: Double,
+            maximumValue: Double,
+            defaultValue: Double
+        ): List<DoubleRangeOption> {
             require(minimumValue < maximumValue)
             require(defaultValue >= minimumValue)
             require(defaultValue <= maximumValue)
 
             return if (defaultValue != minimumValue && defaultValue != maximumValue) {
                 listOf(
-                    LongRangeOption(minimumValue),
-                    LongRangeOption(defaultValue),
-                    LongRangeOption(maximumValue)
+                    DoubleRangeOption(minimumValue),
+                    DoubleRangeOption(defaultValue),
+                    DoubleRangeOption(maximumValue)
                 )
             } else {
-                listOf(
-                    LongRangeOption(minimumValue),
-                    LongRangeOption(maximumValue)
-                )
+                listOf(DoubleRangeOption(minimumValue), DoubleRangeOption(maximumValue))
             }
         }
     }
@@ -66,13 +63,13 @@ public class LongRangeUserStyleCategory : UserStyleCategory {
         icon: Icon?,
 
         /** Minimum value (inclusive). */
-        minimumValue: Long,
+        minimumValue: Double,
 
         /** Maximum value (inclusive). */
-        maximumValue: Long,
+        maximumValue: Double,
 
-        /** The default value for this LongRangeUserStyleCategory. */
-        defaultValue: Long,
+        /** The default value for this DoubleRangeUserStyleSetting. */
+        defaultValue: Double,
 
         /**
          * Used by the style configuration UI. Describes which rendering layers this style affects.
@@ -92,12 +89,12 @@ public class LongRangeUserStyleCategory : UserStyleCategory {
         affectsLayers
     )
 
-    internal constructor(wireFormat: LongRangeUserStyleCategoryWireFormat) : super(wireFormat)
+    internal constructor(wireFormat: DoubleRangeUserStyleSettingWireFormat) : super(wireFormat)
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat(): LongRangeUserStyleCategoryWireFormat =
-        LongRangeUserStyleCategoryWireFormat(
+    override fun toWireFormat(): DoubleRangeUserStyleSettingWireFormat =
+        DoubleRangeUserStyleSettingWireFormat(
             id,
             displayName,
             description,
@@ -108,44 +105,46 @@ public class LongRangeUserStyleCategory : UserStyleCategory {
         )
 
     /**
-     * Represents an option a [Long] in the range [minimumValue .. maximumValue].
+     * Represents an option as a [Double] in the range [minimumValue .. maximumValue].
      */
-    public class LongRangeOption : Option {
-        /* The value for this option. Must be within the range [minimumValue..maximumValue]. */
-        public val value: Long
+    public class DoubleRangeOption : Option {
+        /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
+        public val value: Double
 
-        public constructor(value: Long) : super(value.toString()) {
+        public constructor(value: Double) : super(value.toString()) {
             this.value = value
         }
 
         internal companion object {
-            internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
+            internal const val KEY_DOUBLE_VALUE = "KEY_DOUBLE_VALUE"
         }
 
-        internal constructor(wireFormat: LongRangeOptionWireFormat) : super(wireFormat.mId) {
+        internal constructor(
+            wireFormat: DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat
+        ) : super(wireFormat.mId) {
             value = wireFormat.mValue
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        override fun toWireFormat(): LongRangeOptionWireFormat =
-            LongRangeOptionWireFormat(id, value)
+        override fun toWireFormat(): DoubleRangeOptionWireFormat =
+            DoubleRangeOptionWireFormat(id, value)
     }
 
     /**
      * Returns the minimum value.
      */
-    public fun getMinimumValue(): Long = (options.first() as LongRangeOption).value
+    public fun getMinimumValue(): Double = (options.first() as DoubleRangeOption).value
 
     /**
      * Returns the maximum value.
      */
-    public fun getMaximumValue(): Long = (options.last() as LongRangeOption).value
+    public fun getMaximumValue(): Double = (options.last() as DoubleRangeOption).value
 
     /**
      * Returns the default value.
      */
-    public fun getDefaultValue(): Long = (options[defaultOptionIndex] as LongRangeOption).value
+    public fun getDefaultValue(): Double = (options[defaultOptionIndex] as DoubleRangeOption).value
 
     /**
      * We support all values in the range [min ... max] not just min & max.
@@ -153,16 +152,16 @@ public class LongRangeUserStyleCategory : UserStyleCategory {
     override fun getOptionForId(optionId: String): Option =
         options.find { it.id == optionId } ?: checkedOptionForId(optionId)
 
-    private fun checkedOptionForId(optionId: String): LongRangeOption {
+    private fun checkedOptionForId(optionId: String): DoubleRangeOption {
         return try {
-            val value = optionId.toLong()
+            val value = optionId.toDouble()
             if (value < getMinimumValue() || value > getMaximumValue()) {
-                options[defaultOptionIndex] as LongRangeOption
+                options[defaultOptionIndex] as DoubleRangeOption
             } else {
-                LongRangeOption(value)
+                DoubleRangeOption(value)
             }
         } catch (e: NumberFormatException) {
-            options[defaultOptionIndex] as LongRangeOption
+            options[defaultOptionIndex] as DoubleRangeOption
         }
     }
 }

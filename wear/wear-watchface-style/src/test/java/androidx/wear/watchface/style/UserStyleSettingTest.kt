@@ -21,16 +21,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(StyleTestRunner::class)
-class UserStyleCategoryTest {
+class UserStyleSettingTest {
 
     @Test
-    fun rangedUserStyleCategory_getOptionForId_returns_default_for_bad_input() {
+    fun rangedUserStyleSetting_getOptionForId_returns_default_for_bad_input() {
         val defaultValue = 0.75
-        val rangedUserStyleCategory =
-            DoubleRangeUserStyleCategory(
-                "example_category",
-                "Example Ranged Category",
-                "An example category",
+        val rangedUserStyleSetting =
+            DoubleRangeUserStyleSetting(
+                "example_setting",
+                "Example Ranged Setting",
+                "An example setting",
                 null,
                 0.0,
                 1.0,
@@ -38,24 +38,24 @@ class UserStyleCategoryTest {
                 listOf(Layer.BASE_LAYER)
             )
 
-        assertThat(rangedUserStyleCategory.getOptionForId("not a number").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("not a number").id)
             .isEqualTo(defaultValue.toString())
 
-        assertThat(rangedUserStyleCategory.getOptionForId("-1").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("-1").id)
             .isEqualTo(defaultValue.toString())
 
-        assertThat(rangedUserStyleCategory.getOptionForId("10").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("10").id)
             .isEqualTo(defaultValue.toString())
     }
 
     @Test
-    fun rangedUserStyleCategory_getOptionForId() {
+    fun rangedUserStyleSetting_getOptionForId() {
         val defaultValue = 0.75
-        val rangedUserStyleCategory =
-            DoubleRangeUserStyleCategory(
-                "example_category",
-                "Example Ranged Category",
-                "An example category",
+        val rangedUserStyleSetting =
+            DoubleRangeUserStyleSetting(
+                "example_setting",
+                "Example Ranged Setting",
+                "An example setting",
                 null,
                 0.0,
                 1.0,
@@ -63,13 +63,13 @@ class UserStyleCategoryTest {
                 listOf(Layer.BASE_LAYER)
             )
 
-        assertThat(rangedUserStyleCategory.getOptionForId("0").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("0").id)
             .isEqualTo("0.0")
 
-        assertThat(rangedUserStyleCategory.getOptionForId("0.5").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("0.5").id)
             .isEqualTo("0.5")
 
-        assertThat(rangedUserStyleCategory.getOptionForId("1").id)
+        assertThat(rangedUserStyleSetting.getOptionForId("1").id)
             .isEqualTo("1.0")
     }
 }

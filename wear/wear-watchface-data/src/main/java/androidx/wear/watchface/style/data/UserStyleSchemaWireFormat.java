@@ -40,11 +40,11 @@ public class UserStyleSchemaWireFormat implements VersionedParcelable, Parcelabl
     @ParcelField(1)
     @NonNull
     /** List of user style categories comprising the style schema. */
-    public List<UserStyleCategoryWireFormat> mSchema = new ArrayList<UserStyleCategoryWireFormat>();
+    public List<UserStyleSettingWireFormat> mSchema = new ArrayList<UserStyleSettingWireFormat>();
 
     UserStyleSchemaWireFormat() {}
 
-    public UserStyleSchemaWireFormat(@NonNull List<UserStyleCategoryWireFormat> schema) {
+    public UserStyleSchemaWireFormat(@NonNull List<UserStyleSettingWireFormat> schema) {
         mSchema = schema;
     }
 

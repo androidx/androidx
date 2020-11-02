@@ -18,11 +18,11 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat
+import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.BooleanUserStyleSettingWireFormat.BooleanOptionWireFormat
 
-/** A BooleanUserStyleCategory represents a category with a true and a false setting. */
-public class BooleanUserStyleCategory : UserStyleCategory {
+/** A BooleanUserStyleSetting represents a setting with a true and a false setting. */
+public class BooleanUserStyleSetting : UserStyleSetting {
 
     public constructor (
         /** Identifier for the element, must be unique. */
@@ -37,7 +37,7 @@ public class BooleanUserStyleCategory : UserStyleCategory {
         /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
 
-        /** The default value for this BooleanUserStyleCategory. */
+        /** The default value for this BooleanUserStyleSetting. */
         defaultValue: Boolean,
 
         /**
@@ -57,12 +57,12 @@ public class BooleanUserStyleCategory : UserStyleCategory {
         affectsLayers
     )
 
-    internal constructor(wireFormat: BooleanUserStyleCategoryWireFormat) : super(wireFormat)
+    internal constructor(wireFormat: BooleanUserStyleSettingWireFormat) : super(wireFormat)
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat(): BooleanUserStyleCategoryWireFormat =
-        BooleanUserStyleCategoryWireFormat(
+    override fun toWireFormat(): BooleanUserStyleSettingWireFormat =
+        BooleanUserStyleSettingWireFormat(
             id,
             displayName,
             description,
@@ -77,7 +77,7 @@ public class BooleanUserStyleCategory : UserStyleCategory {
      */
     public fun getDefaultValue(): Boolean = (options[defaultOptionIndex] as BooleanOption).value
 
-    /** Represents a true or false option in the [BooleanUserStyleCategory]. */
+    /** Represents a true or false option in the [BooleanUserStyleSetting]. */
     public class BooleanOption : Option {
         public val value: Boolean
 

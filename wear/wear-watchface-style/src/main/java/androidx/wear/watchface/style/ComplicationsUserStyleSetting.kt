@@ -21,29 +21,29 @@ import android.graphics.drawable.Icon
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationOverlayWireFormat
-import androidx.wear.watchface.style.data.ComplicationsUserStyleCategoryWireFormat.ComplicationsOptionWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
+import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat
 import java.security.InvalidParameterException
 
 /**
- * ComplicationsUserStyleCategory is the recommended [UserStyleCategory] for representing
+ * ComplicationsUserStyleSetting is the recommended [UserStyleSetting] for representing
  * complication configuration options such as the number of active complications, their location,
  * etc... The [ComplicationsOption] class allows you to apply a list of [ComplicationOverlay]s on
  * top of the base config as specified by the [androidx.wear.watchface.Complication] constructor.
  *
- * The ComplicationsManager listens for style changes with this category and when a
+ * The ComplicationsManager listens for style changes with this setting and when a
  * [ComplicationsOption] is selected the overrides are automatically applied. Note its suggested
  * that the default [ComplicationOverlay] (the first entry in the list) does not apply any
  * overrides.
  *
  * Not to be confused with complication provider selection.
  */
-public class ComplicationsUserStyleCategory : UserStyleCategory {
+public class ComplicationsUserStyleSetting : UserStyleSetting {
 
     /**
      * Overrides to be applied to the corresponding complication's initial config (as specified in
-     * [androidx.wear.watchface.Complication]) when the category is selected.
+     * [androidx.wear.watchface.Complication]) when the setting is selected.
      */
     public class ComplicationOverlay internal constructor(
         /** The id of the complication to configure. */
@@ -206,12 +206,12 @@ public class ComplicationsUserStyleCategory : UserStyleCategory {
         require(affectsLayers.contains(Layer.COMPLICATIONS))
     }
 
-    internal constructor(wireFormat: ComplicationsUserStyleCategoryWireFormat) : super(wireFormat)
+    internal constructor(wireFormat: ComplicationsUserStyleSettingWireFormat) : super(wireFormat)
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat(): ComplicationsUserStyleCategoryWireFormat =
-        ComplicationsUserStyleCategoryWireFormat(
+    override fun toWireFormat(): ComplicationsUserStyleSettingWireFormat =
+        ComplicationsUserStyleSettingWireFormat(
             id,
             displayName,
             description,

@@ -39,7 +39,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -56,23 +56,23 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             val userStyleRepository = UserStyleRepository(
                 UserStyleSchema(
                     listOf(
-                        ListUserStyleCategory(
-                            "color_style_category",
+                        ListUserStyleSetting(
+                            "color_style_setting",
                             "Colors",
                             "Watchface colorization",
                             icon = null,
                             options = listOf(
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "red_style",
                                     "Red",
                                     icon = null
                                 ),
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "green_style",
                                     "Green",
                                     icon = null
                                 ),
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "bluestyle",
                                     "Blue",
                                     icon = null
@@ -80,19 +80,19 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ),
                             listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
                         ),
-                        ListUserStyleCategory(
-                            "hand_style_category",
+                        ListUserStyleSetting(
+                            "hand_style_setting",
                             "Hand Style",
                             "Hand visual look",
                             icon = null,
                             options = listOf(
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "classic_style", "Classic", icon = null
                                 ),
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "modern_style", "Modern", icon = null
                                 ),
-                                ListUserStyleCategory.ListOption(
+                                ListUserStyleSetting.ListOption(
                                     "gothic_style",
                                     "Gothic",
                                     icon = null
