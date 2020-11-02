@@ -238,6 +238,12 @@ function runGradle() {
   if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
     processOutput=true
   fi
+  if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+    # If this build is expected to not rerun many tasks, then we don't enable build log validation
+    # so that the gradle.log file retains the contents from the real build,
+    # in case we need it later
+    processOutput=false
+  fi
   if [ "$processOutput" == "true" ]; then
     wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
   else

@@ -6,7 +6,7 @@ echo "Starting $0 at $(date)"
 cd "$(dirname $0)"
 
 # Run Gradle
-impl/build.sh --no-daemon listTaskOutputs -Pandroidx.validateNoUnrecognizedMessages "$@"
+impl/build.sh --no-daemon listTaskOutputs "$@"
 impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
