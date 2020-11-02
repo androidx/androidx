@@ -34,8 +34,7 @@ class MacrobenchmarkScope(
     private val device = UiDevice.getInstance(instrumentation)
 
     fun launchPackageAndWait(block: (Intent) -> Unit) {
-        val intent = context.packageManager
-            .getLaunchIntentForPackage(packageName)!!
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)!!
         block(intent)
         context.startActivity(intent)
         device.wait(

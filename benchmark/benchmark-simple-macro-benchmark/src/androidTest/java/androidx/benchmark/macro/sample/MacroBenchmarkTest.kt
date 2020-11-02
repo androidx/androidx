@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro
+package androidx.benchmark.macro.sample
 
 import android.content.Intent
+import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.CpuUsageMetric
+import androidx.benchmark.macro.StartupTimingMetric
+import androidx.benchmark.macro.macrobenchmark
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
@@ -31,7 +35,7 @@ class MacroBenchmarkTest {
     @Ignore("Not running the test in CI")
     fun basicTest() = macrobenchmark(
         "benchmarkUniqueName",
-        packageName = "com.android.settings",
+        packageName = "androidx.benchmark.integration.macro.target",
         listOf(StartupTimingMetric(), CpuUsageMetric()),
         CompilationMode.Speed,
         killProcessEachIteration = true,

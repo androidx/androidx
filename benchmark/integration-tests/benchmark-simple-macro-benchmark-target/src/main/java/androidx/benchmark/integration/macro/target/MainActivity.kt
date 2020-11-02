@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.macro
+package androidx.benchmark.integration.macro.target
 
 import android.os.Bundle
 import android.widget.TextView

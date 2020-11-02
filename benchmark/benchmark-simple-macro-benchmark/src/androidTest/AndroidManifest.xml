@@ -13,5 +13,19 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
--->
-<manifest package="androidx.benchmark.macro.runtime" />
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.benchmark.macro.sample">
+
+    <!--
+    The Macro Benchmark Sample needs to launch activities in
+    `androidx.benchmark.integration.macro.target` APK.
+
+    The Macro Benchmark Library uses `PackageManager` to query for activities. This requires
+     the test APK to declare that `androidx.benchmark.integration.macro.target` be visible to
+     the APK (given Android 11's package visibility rules).
+    -->
+    <queries>
+        <package android:name="androidx.benchmark.integration.macro.target" />
+    </queries>
+</manifest>
