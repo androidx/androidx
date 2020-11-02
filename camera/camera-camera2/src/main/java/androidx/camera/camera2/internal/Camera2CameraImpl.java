@@ -922,6 +922,16 @@ final class Camera2CameraImpl implements CameraInternal {
                     // Camera2 will call the onError() callback with the specific error code that
                     // caused this failure. No need to do anything here.
             }
+        } catch (SecurityException e) {
+            debugLog("Unable to open camera due to " + e.getMessage());
+            // The camera manager throws a SecurityException when it is unable to access the
+            // camera service due to lacking privileges (i.e. the camera permission). It is also
+            // possible for the camera manager to erroneously throw a SecurityException when it
+            // crashes even if the camera permission has been granted.
+            // When this exception is thrown, the camera manager does not invoke the state
+            // callback's onError() method, which is why we manually attempt to reopen the camera.
+            setState(InternalState.REOPENING);
+            mStateCallback.scheduleCameraReopen();
         }
     }
 
@@ -1339,16 +1349,9 @@ final class Camera2CameraImpl implements CameraInternal {
                     break;
                 case REOPENING:
                     if (mCameraDeviceError != ERROR_NONE) {
-                        Preconditions.checkState(mScheduledReopenRunnable == null);
-                        Preconditions.checkState(mScheduledReopenHandle == null);
-                        mScheduledReopenRunnable = new ScheduledReopen(mExecutor);
-                        debugLog(
-                                "Camera closed due to error: " + getErrorMessage(mCameraDeviceError)
-                                        + ". Attempting re-open in " + REOPEN_DELAY_MS + "ms: "
-                                        + mScheduledReopenRunnable);
-                        mScheduledReopenHandle = mScheduler.schedule(mScheduledReopenRunnable,
-                                REOPEN_DELAY_MS,
-                                TimeUnit.MILLISECONDS);
+                        debugLog("Camera closed due to error: " + getErrorMessage(
+                                mCameraDeviceError));
+                        scheduleCameraReopen();
                     } else {
                         openCameraDevice();
                     }
@@ -1442,6 +1445,19 @@ final class Camera2CameraImpl implements CameraInternal {
                             + "in an error state.");
             setState(InternalState.REOPENING);
             closeCamera(/*abortInFlightCaptures=*/false);
+        }
+
+        // TODO(b/173710127): Limit the number of reopen attempts, and report an error to the user
+        //  if they all fail.
+        @ExecutedBy("mExecutor")
+        void scheduleCameraReopen() {
+            Preconditions.checkState(mScheduledReopenRunnable == null);
+            Preconditions.checkState(mScheduledReopenHandle == null);
+            mScheduledReopenRunnable = new ScheduledReopen(mExecutor);
+            debugLog("Attempting camera re-open in " + REOPEN_DELAY_MS + "ms: "
+                    + mScheduledReopenRunnable);
+            mScheduledReopenHandle = mScheduler.schedule(mScheduledReopenRunnable,
+                    REOPEN_DELAY_MS, TimeUnit.MILLISECONDS);
         }
 
         /**
