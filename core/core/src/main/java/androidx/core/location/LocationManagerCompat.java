@@ -17,10 +17,13 @@
 package androidx.core.location;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.provider.Settings.Secure.LOCATION_MODE;
+import static android.provider.Settings.Secure.LOCATION_MODE_OFF;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import android.content.Context;
 import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.LocationManager;
@@ -28,6 +31,9 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import android.provider.Settings.Secure;
+import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -38,6 +44,7 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.os.ExecutorCompat;
 import androidx.core.util.Preconditions;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -52,6 +59,8 @@ public final class LocationManagerCompat {
 
     private static final long PRE_N_LOOPER_TIMEOUT_S = 4;
 
+    private static Field sContextField;
+
     /**
      * Returns the current enabled/disabled state of location.
      *
@@ -60,16 +69,36 @@ public final class LocationManagerCompat {
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {
         if (VERSION.SDK_INT >= VERSION_CODES.P) {
             return locationManager.isLocationEnabled();
-        } else {
-            // NOTE: for KitKat and above, it's preferable to use the proper API at the time to get
-            // the location mode, Secure.getInt(context, LOCATION_MODE, LOCATION_MODE_OFF). however,
-            // this requires a context we don't have directly (we could either ask the client to
-            // pass one in, or use reflection to get it from the location manager), and since KitKat
-            // and above remained backwards compatible, we can fallback to pre-kitkat behavior.
-
-            return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         }
+
+        if (VERSION.SDK_INT <= VERSION_CODES.KITKAT) {
+            // kitkat and below have pointless location permission requirements when using
+            // isProviderEnabled(). instead we attempt to reflect a context so that we can query
+            // the underlying setting. if this fails, we fallback to isProviderEnabled() which may
+            // require the caller to hold location permissions
+            try {
+                if (sContextField == null) {
+                    sContextField = LocationManager.class.getDeclaredField("mContext");
+                }
+                sContextField.setAccessible(true);
+                Context context = (Context) sContextField.get(locationManager);
+
+                if (VERSION.SDK_INT == VERSION_CODES.KITKAT) {
+                    return Secure.getInt(context.getContentResolver(), LOCATION_MODE,
+                            LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
+                } else {
+                    return !TextUtils.isEmpty(
+                            Settings.Secure.getString(context.getContentResolver(),
+                                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
+                }
+            } catch (ClassCastException | SecurityException | NoSuchFieldException
+                    | IllegalAccessException e) {
+                // oh well, fallback to isProviderEnabled()
+            }
+        }
+
+        return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     @GuardedBy("sGnssStatusListeners")
