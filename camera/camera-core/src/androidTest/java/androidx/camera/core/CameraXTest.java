@@ -18,21 +18,12 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-
 import android.content.Context;
 
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -51,35 +42,14 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
-    @CameraSelector.LensFacing
-    private static final int CAMERA_LENS_FACING = CameraSelector.LENS_FACING_BACK;
-
-    private static final String CAMERA_ID = "0";
 
     private Context mContext;
-    private CameraInternal mCameraInternal;
-    private FakeLifecycleOwner mLifecycle;
     private CameraXConfig.Builder mConfigBuilder;
-    private FakeCameraFactory mFakeCameraFactory;
-    private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-
-        mUseCaseConfigFactory = new FakeUseCaseConfigFactory();
-        mFakeCameraFactory = new FakeCameraFactory();
-        mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
-                new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
-        mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
-        mConfigBuilder =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
-                        .setDeviceSurfaceManagerProvider((ignored0, ignore1) ->
-                                new FakeCameraDeviceSurfaceManager())
-                        .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
-
-        mLifecycle = new FakeLifecycleOwner();
+        mConfigBuilder = CameraXConfig.Builder.fromConfig(FakeAppConfig.create());
     }
 
     @After
