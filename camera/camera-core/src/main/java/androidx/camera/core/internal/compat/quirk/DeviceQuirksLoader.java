@@ -43,6 +43,10 @@ public class DeviceQuirksLoader {
             quirks.add(new HuaweiMediaStoreLocationValidationQuirk());
         }
 
+        if (IncompleteCameraListQuirk.load()) {
+            quirks.add(new IncompleteCameraListQuirk());
+        }
+
         return quirks;
     }
 }
