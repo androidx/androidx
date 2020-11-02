@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 
@@ -284,7 +285,7 @@ public class AppSearchImplTest {
     public void testQueryEmptyDatabase() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
-        AppSearchImpl.SearchResultPage searchResultPage = mAppSearchImpl.query(
+        SearchResultPage searchResultPage = mAppSearchImpl.query(
                 "EmptyDatabase",
                 "", searchSpec);
         assertThat(searchResultPage.getResults()).isEmpty();
@@ -294,7 +295,7 @@ public class AppSearchImplTest {
     public void testGlobalQueryEmptyDatabase() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
-        AppSearchImpl.SearchResultPage searchResultPage = mAppSearchImpl.query(
+        SearchResultPage searchResultPage = mAppSearchImpl.query(
                 "EmptyDatabase",
                 "", searchSpec);
         assertThat(searchResultPage.getResults()).isEmpty();

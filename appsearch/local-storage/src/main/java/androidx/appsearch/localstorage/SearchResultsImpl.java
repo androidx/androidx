@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.localstorage.util.FutureUtil;
@@ -64,7 +65,7 @@ class SearchResultsImpl implements SearchResults {
     public ListenableFuture<AppSearchResult<List<SearchResult>>> getNextPage() {
         return FutureUtil.execute(mExecutorService, () -> {
             try {
-                AppSearchImpl.SearchResultPage searchResultPage;
+                SearchResultPage searchResultPage;
                 if (mIsFirstLoad) {
                     mIsFirstLoad = false;
                     if (mDatabaseName == null) {
