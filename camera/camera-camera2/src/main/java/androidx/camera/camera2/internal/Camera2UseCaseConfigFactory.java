@@ -31,6 +31,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -64,6 +65,12 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
         // TODO(b/114762170): Must set to preview here until we allow for multiple template
         //  types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        if (captureType == CaptureType.PREVIEW) {
+            // Set the WYSIWYG preview for CAPTURE_TYPE_PREVIEW
+            PreviewPixelHDRnet.setHDRnet(sessionBuilder);
+        }
+
         mutableConfig.insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionBuilder.build());
 
         mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER,

@@ -54,6 +54,9 @@ public class DeviceQuirksLoader {
         if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.load()) {
             quirks.add(new CrashWhenTakingPhotoWithAutoFlashAEModeQuirk());
         }
+        if (PreviewPixelHDRnetQuirk.load()) {
+            quirks.add(new PreviewPixelHDRnetQuirk());
+        }
 
         return quirks;
     }
