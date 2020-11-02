@@ -214,7 +214,7 @@ class WatchFaceServiceImageTest {
             interactiveWatchFaceInstanceWCS.complicationDetails.map {
                 IdAndComplicationDataWireFormat(
                     it.id,
-                    complicationProviders[it.complicationDetails.fallbackSystemProvider]!!
+                    complicationProviders[it.complicationState.fallbackSystemProvider]!!
                 )
             }
         )

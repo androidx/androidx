@@ -23,15 +23,15 @@ package androidx.wear.watchface.style {
     method public android.graphics.RectF? getBounds();
     method public int getComplicationId();
     method public androidx.wear.complications.DefaultComplicationProviderPolicy? getDefaultProviderPolicy();
-    method public Integer? getDefaultProviderType();
-    method public int[]? getSupportedTypes();
+    method public androidx.wear.complications.data.ComplicationType? getDefaultProviderType();
+    method public java.util.List<androidx.wear.complications.data.ComplicationType>? getSupportedTypes();
     method public Boolean? isEnabled();
     property public final android.graphics.RectF? bounds;
     property public final int complicationId;
     property public final androidx.wear.complications.DefaultComplicationProviderPolicy? defaultProviderPolicy;
-    property public final Integer? defaultProviderType;
+    property public final androidx.wear.complications.data.ComplicationType? defaultProviderType;
     property public final Boolean? enabled;
-    property public final int[]? supportedTypes;
+    property public final java.util.List<androidx.wear.complications.data.ComplicationType>? supportedTypes;
   }
 
   public static final class ComplicationsUserStyleSetting.ComplicationOverlay.Builder {
@@ -39,9 +39,9 @@ package androidx.wear.watchface.style {
     method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay build();
     method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setBounds(android.graphics.RectF bounds);
     method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setDefaultProviderPolicy(androidx.wear.complications.DefaultComplicationProviderPolicy? defaultComplicationProviderPolicy);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setDefaultProviderType(@android.support.wearable.complications.ComplicationData.ComplicationType int defaultComplicationProviderType);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setDefaultProviderType(androidx.wear.complications.data.ComplicationType defaultComplicationProviderType);
     method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setEnabled(boolean enabled);
-    method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setSupportedTypes(int[] supportedTypes);
+    method public androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay.Builder setSupportedTypes(java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes);
   }
 
   public static final class ComplicationsUserStyleSetting.ComplicationsOption extends androidx.wear.watchface.style.UserStyleSetting.Option {

@@ -295,7 +295,6 @@ public class WatchFace private constructor(
 
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
-        internal const val DEFAULT_PROVIDER_TYPE_NONE = -2
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
 

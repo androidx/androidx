@@ -32,6 +32,7 @@ import android.view.ViewGroup
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
@@ -156,7 +157,7 @@ internal class ConfigView(
         iWatchFaceConfig.brieflyHighlightComplicationId(complicationId)
         watchFaceConfigActivity.fragmentController.showComplicationConfig(
             complicationId,
-            *complication.supportedTypes
+            *ComplicationType.toWireTypes(complication.supportedTypes)
         )
         return true
     }

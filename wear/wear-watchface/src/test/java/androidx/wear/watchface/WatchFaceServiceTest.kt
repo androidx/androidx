@@ -35,6 +35,7 @@ import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IWallpaperWatchFaceControlService
@@ -155,15 +156,15 @@ class WatchFaceServiceTest {
             ).apply {
                 idAndData = createIdAndComplicationData(LEFT_COMPLICATION_ID)
             },
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
-        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
 
@@ -176,15 +177,15 @@ class WatchFaceServiceTest {
             ).apply {
                 idAndData = createIdAndComplicationData(RIGHT_COMPLICATION_ID)
             },
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
+            listOf(
+                ComplicationType.RANGED_VALUE,
+                ComplicationType.LONG_TEXT,
+                ComplicationType.SHORT_TEXT,
+                ComplicationType.MONOCHROMATIC_IMAGE,
+                ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
 
@@ -197,11 +198,11 @@ class WatchFaceServiceTest {
             ).apply {
                 idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
             },
-            intArrayOf(
-                ComplicationData.TYPE_LARGE_IMAGE
+            listOf(
+                ComplicationType.BACKGROUND_IMAGE
             ),
             DefaultComplicationProviderPolicy()
-        ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
+        ).setDefaultProviderType(ComplicationType.BACKGROUND_IMAGE)
             .setAsBackgroundComplication()
             .build()
 
@@ -1215,20 +1216,20 @@ class WatchFaceServiceTest {
         leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
         rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
 
-        val complicationDetails = engineWrapper.getComplicationDetails()
+        val complicationDetails = engineWrapper.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails[0].complicationDetails.boundsType).isEqualTo(
+        assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails[0].complicationDetails.bounds).isEqualTo(
+        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
             Rect(30, 30, 50, 50)
         )
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationDetails.boundsType).isEqualTo(
+        assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails[1].complicationDetails.bounds).isEqualTo(
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
             Rect(70, 75, 90, 95)
         )
 
@@ -1343,13 +1344,13 @@ class WatchFaceServiceTest {
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
-            intArrayOf(),
+            emptyList(),
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             )
-        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
@@ -1371,13 +1372,13 @@ class WatchFaceServiceTest {
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
-            intArrayOf(),
+            emptyList(),
             DefaultComplicationProviderPolicy(
                 provider1,
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
             )
-        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+        ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(
@@ -1471,15 +1472,15 @@ class WatchFaceServiceTest {
             apiVersion = 4
         )
 
-        val complicationDetails = engineWrapper.getComplicationDetails()
+        val complicationDetails = engineWrapper.getComplicationState()
         assertThat(complicationDetails[0].id).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(complicationDetails[0].complicationDetails.boundsType).isEqualTo(
+        assertThat(complicationDetails[0].complicationState.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails[0].complicationDetails.bounds).isEqualTo(
+        assertThat(complicationDetails[0].complicationState.bounds).isEqualTo(
             Rect(20, 40, 40, 60)
         )
-        assertThat(complicationDetails[0].complicationDetails.supportedTypes).isEqualTo(
+        assertThat(complicationDetails[0].complicationState.supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -1490,13 +1491,13 @@ class WatchFaceServiceTest {
         )
 
         assertThat(complicationDetails[1].id).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationDetails[1].complicationDetails.boundsType).isEqualTo(
+        assertThat(complicationDetails[1].complicationState.boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT
         )
-        assertThat(complicationDetails[1].complicationDetails.bounds).isEqualTo(
+        assertThat(complicationDetails[1].complicationState.bounds).isEqualTo(
             Rect(60, 40, 80, 60)
         )
-        assertThat(complicationDetails[1].complicationDetails.supportedTypes).isEqualTo(
+        assertThat(complicationDetails[1].complicationState.supportedTypes).isEqualTo(
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -1507,13 +1508,13 @@ class WatchFaceServiceTest {
         )
 
         assertThat(complicationDetails[2].id).isEqualTo(BACKGROUND_COMPLICATION_ID)
-        assertThat(complicationDetails[2].complicationDetails.boundsType).isEqualTo(
+        assertThat(complicationDetails[2].complicationState.boundsType).isEqualTo(
             ComplicationBoundsType.BACKGROUND
         )
-        assertThat(complicationDetails[2].complicationDetails.bounds).isEqualTo(
+        assertThat(complicationDetails[2].complicationState.bounds).isEqualTo(
             Rect(0, 0, 100, 100)
         )
-        assertThat(complicationDetails[2].complicationDetails.supportedTypes).isEqualTo(
+        assertThat(complicationDetails[2].complicationState.supportedTypes).isEqualTo(
             intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
         )
     }

@@ -25,7 +25,6 @@ import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -47,13 +46,13 @@ public class HeadlessWatchFaceClient internal constructor(
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)
 
     /**
-     * Map of complication ids to [ComplicationDetails] for each complication slot. Note this can
+     * Map of complication ids to [ComplicationState] for each complication slot. Note this can
      * change, typically in response to styling.
      */
-    public val complicationDetails: Map<Int, ComplicationDetails>
-        get() = iHeadlessWatchFace.complicationDetails.associateBy(
+    public val complicationState: Map<Int, ComplicationState>
+        get() = iHeadlessWatchFace.complicationState.associateBy(
             { it.id },
-            { it.complicationDetails }
+            { ComplicationState(it.complicationState) }
         )
 
     /**

@@ -19,7 +19,7 @@ package androidx.wear.watchface.control;
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
 import androidx.wear.watchface.data.SystemState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
-import androidx.wear.watchface.data.IdAndComplicationDetails;
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -85,13 +85,13 @@ interface IInteractiveWatchFaceWCS {
     UserStyleSchemaWireFormat getUserStyleSchema() = 8;
 
     /**
-      * Returns the current {@link ComplicationDetails} for each complication slot. Note these
+      * Returns the current {@link ComplicationState} for each complication slot. Note these
       * details can change, typically in response to styling.
       *
       * @since API version 1.
-      * @param allComplicationSlots Map of id to {@link ComplicationDetails} for each slot.
+      * @param allComplicationSlots Map of id to {@link ComplicationState} for each slot.
       */
-    List<IdAndComplicationDetails> getComplicationDetails() = 9;
+    List<IdAndComplicationStateWireFormat> getComplicationDetails() = 9;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}

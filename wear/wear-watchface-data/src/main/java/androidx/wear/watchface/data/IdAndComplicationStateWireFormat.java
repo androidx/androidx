@@ -28,30 +28,31 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
- * Wire format to encode a pair of id to {@link ComplicationDetails}.
+ * Wire format to encode a pair of id to {@link ComplicationStateWireFormat}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class IdAndComplicationDetails implements VersionedParcelable, Parcelable {
+public final class IdAndComplicationStateWireFormat implements VersionedParcelable, Parcelable {
     /** The watch's ID for the complication. */
     @ParcelField(1)
     int mId;
 
-    /** The {@link ComplicationDetails} for the complication. */
+    /** The {@link ComplicationStateWireFormat} for the complication. */
     @ParcelField(2)
     @NonNull
-    ComplicationDetails mComplicationDetails;
+    ComplicationStateWireFormat mComplicationState;
 
     /** Used by VersionedParcelable. */
-    IdAndComplicationDetails() {
+    IdAndComplicationStateWireFormat() {
     }
 
-    public IdAndComplicationDetails(int id, @NonNull ComplicationDetails complicationDetails) {
+    public IdAndComplicationStateWireFormat(
+            int id, @NonNull ComplicationStateWireFormat complicationState) {
         mId = id;
-        mComplicationDetails = complicationDetails;
+        mComplicationState = complicationState;
     }
 
     public int getId() {
@@ -59,11 +60,11 @@ public final class IdAndComplicationDetails implements VersionedParcelable, Parc
     }
 
     @NonNull
-    public ComplicationDetails getComplicationDetails() {
-        return mComplicationDetails;
+    public ComplicationStateWireFormat getComplicationState() {
+        return mComplicationState;
     }
 
-    /** Serializes this IdAndComplicationDetails to the specified {@link Parcel}. */
+    /** Serializes this IdAndComplicationStateWireFormat to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
@@ -74,17 +75,17 @@ public final class IdAndComplicationDetails implements VersionedParcelable, Parc
         return 0;
     }
 
-    public static final Parcelable.Creator<IdAndComplicationDetails> CREATOR =
-            new Parcelable.Creator<IdAndComplicationDetails>() {
+    public static final Parcelable.Creator<IdAndComplicationStateWireFormat> CREATOR =
+            new Parcelable.Creator<IdAndComplicationStateWireFormat>() {
                 @Override
-                public IdAndComplicationDetails createFromParcel(Parcel source) {
+                public IdAndComplicationStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public IdAndComplicationDetails[] newArray(int size) {
-                    return new IdAndComplicationDetails[size];
+                public IdAndComplicationStateWireFormat[] newArray(int size) {
+                    return new IdAndComplicationStateWireFormat[size];
                 }
             };
 }

@@ -37,32 +37,32 @@ package androidx.wear.watchface {
 
   public final class Complication {
     method @UiThread public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
-    method @UiThread public int getDefaultProviderType();
+    method @UiThread public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
     method @UiThread public androidx.wear.watchface.CanvasComplication getRenderer();
-    method @UiThread public int[] getSupportedTypes();
+    method @UiThread public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
     method @UiThread public android.graphics.RectF getUnitSquareBounds();
     method public void invalidate();
     method @UiThread public boolean isEnabled();
     method @UiThread public void render(android.graphics.Canvas canvas, android.icu.util.Calendar calendar, androidx.wear.watchface.RenderParameters renderParameters);
     method @UiThread public void setDefaultProviderPolicy(androidx.wear.complications.DefaultComplicationProviderPolicy value);
-    method @UiThread public void setDefaultProviderType(int value);
+    method @UiThread public void setDefaultProviderType(androidx.wear.complications.data.ComplicationType value);
     method @UiThread public void setEnabled(boolean value);
     method @UiThread public void setRenderer(androidx.wear.watchface.CanvasComplication value);
-    method @UiThread public void setSupportedTypes(int[] value);
+    method @UiThread public void setSupportedTypes(java.util.List<? extends androidx.wear.complications.data.ComplicationType> value);
     method @UiThread public void setUnitSquareBounds(android.graphics.RectF value);
     property @UiThread public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
-    property @UiThread public final int defaultProviderType;
+    property @UiThread public final androidx.wear.complications.data.ComplicationType defaultProviderType;
     property @UiThread public final boolean enabled;
     property @UiThread public final androidx.wear.watchface.CanvasComplication renderer;
-    property @UiThread public final int[] supportedTypes;
+    property @UiThread public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
     property @UiThread public final android.graphics.RectF unitSquareBounds;
   }
 
   public static final class Complication.Builder {
-    ctor public Complication.Builder(int id, androidx.wear.watchface.CanvasComplication renderer, int[] supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
+    ctor public Complication.Builder(int id, androidx.wear.watchface.CanvasComplication renderer, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy);
     method public androidx.wear.watchface.Complication build();
     method public androidx.wear.watchface.Complication.Builder setAsBackgroundComplication();
-    method public androidx.wear.watchface.Complication.Builder setDefaultProviderType(@android.support.wearable.complications.ComplicationData.ComplicationType int defaultProviderType);
+    method public androidx.wear.watchface.Complication.Builder setDefaultProviderType(androidx.wear.complications.data.ComplicationType defaultProviderType);
     method public androidx.wear.watchface.Complication.Builder setUnitSquareBounds(android.graphics.RectF unitSquareBounds);
   }
 

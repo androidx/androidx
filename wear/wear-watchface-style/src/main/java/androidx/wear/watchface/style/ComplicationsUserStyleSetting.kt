@@ -18,9 +18,9 @@ package androidx.wear.watchface.style
 
 import android.graphics.RectF
 import android.graphics.drawable.Icon
-import android.support.wearable.complications.ComplicationData
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationOverlayWireFormat
 import androidx.wear.watchface.style.data.ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat
@@ -66,7 +66,7 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
          * If non null, the new types of complication supported by this complication for this
          * configuration. If null then no changes are made.
          */
-        public val supportedTypes: IntArray?,
+        public val supportedTypes: List<ComplicationType>?,
 
         /**
          * If non null, the new default complication provider for this configuration. If null then
@@ -75,11 +75,10 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
         public val defaultProviderPolicy: DefaultComplicationProviderPolicy?,
 
         /**
-         * If non null, the new default complication provider data type. See
-         * [ComplicationData .ComplicationType].  If null then no changes are made.
+         * If non null, the new default complication provider data type. If null then no changes are
+         * made.
          */
-        @get:SuppressWarnings("AutoBoxing")
-        public val defaultProviderType: Int?
+        public val defaultProviderType: ComplicationType?
     ) {
         public class Builder(
             /** The id of the complication to configure. */
@@ -87,9 +86,9 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
         ) {
             private var enabled: Boolean? = null
             private var bounds: RectF? = null
-            private var supportedTypes: IntArray? = null
+            private var supportedTypes: List<ComplicationType>? = null
             private var defaultComplicationProviderPolicy: DefaultComplicationProviderPolicy? = null
-            private var defaultComplicationProviderType: Int? = null
+            private var defaultComplicationProviderType: ComplicationType? = null
 
             /** Overrides the complication's enabled flag. */
             public fun setEnabled(enabled: Boolean): Builder = apply {
@@ -102,7 +101,7 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
             }
 
             /** Overrides the complication's supported complication types. */
-            public fun setSupportedTypes(supportedTypes: IntArray): Builder = apply {
+            public fun setSupportedTypes(supportedTypes: List<ComplicationType>): Builder = apply {
                 this.supportedTypes = supportedTypes
             }
 
@@ -114,11 +113,10 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
             }
 
             /**
-             * Overrides the default complication provider data type. See
-             * [ComplicationData.ComplicationType]
+             * Overrides the default complication provider data type.
              */
             public fun setDefaultProviderType(
-                @ComplicationData.ComplicationType defaultComplicationProviderType: Int
+                defaultComplicationProviderType: ComplicationType
             ): Builder = apply {
                 this.defaultComplicationProviderType = defaultComplicationProviderType
             }
@@ -146,14 +144,14 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
                 )
             },
             wireFormat.mBounds,
-            wireFormat.mSupportedTypes,
+            wireFormat.mSupportedTypes?.let { ComplicationType.fromWireTypeList(it) },
             wireFormat.mDefaultProviders?.let {
                 DefaultComplicationProviderPolicy(it, wireFormat.mSystemProviderFallback)
             },
             if (wireFormat.mDefaultProviderType !=
                 ComplicationOverlayWireFormat.NO_DEFAULT_PROVIDER_TYPE
             ) {
-                wireFormat.mDefaultProviderType
+                ComplicationType.fromWireType(wireFormat.mDefaultProviderType)
             } else {
                 null
             }
@@ -164,10 +162,10 @@ public class ComplicationsUserStyleSetting : UserStyleSetting {
                 complicationId,
                 enabled,
                 bounds,
-                supportedTypes,
+                supportedTypes?.let { ComplicationType.toWireTypes(it) },
                 defaultProviderPolicy?.providersAsList(),
                 defaultProviderPolicy?.systemProviderFallback,
-                defaultProviderType
+                defaultProviderType?.asWireComplicationType()
             )
     }
 

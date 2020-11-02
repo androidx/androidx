@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import android.support.wearable.watchface.WatchFaceStyle;
-import androidx.wear.watchface.data.ComplicationDetails;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
