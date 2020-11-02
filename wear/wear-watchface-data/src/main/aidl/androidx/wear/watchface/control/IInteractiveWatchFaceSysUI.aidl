@@ -19,7 +19,6 @@ package androidx.wear.watchface.control;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
 import androidx.wear.watchface.data.SystemState;
-import androidx.wear.watchface.data.IdAndComplicationData;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
 /**

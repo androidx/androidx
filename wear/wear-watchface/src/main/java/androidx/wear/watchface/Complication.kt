@@ -25,6 +25,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
@@ -71,8 +72,8 @@ public interface CanvasComplication {
     @set:JvmName("setIsHighlighted")
     public var isHighlighted: Boolean
 
-    /** The [ComplicationData] to render. */
-    public var data: ComplicationData?
+    /** The [IdAndComplicationData] to render. */
+    public var idAndData: IdAndComplicationData?
 }
 
 /**
@@ -146,7 +147,13 @@ public open class CanvasComplicationDrawable(
                 drawable.bounds = bounds
                 drawable.currentTimeMillis = calendar.timeInMillis
                 drawable.draw(canvas)
-                drawHighlight(canvas, bounds, calendar)
+                // If [RenderParameters.highlightedComplicationId] is set then only highlight if
+                // the ids match.
+                if (renderParameters.highlightedComplicationId == null ||
+                    renderParameters.highlightedComplicationId == idAndData?.complicationId
+                ) {
+                    drawHighlight(canvas, bounds, calendar)
+                }
             }
             LayerMode.HIDE -> return
         }
@@ -170,7 +177,6 @@ public open class CanvasComplicationDrawable(
         @JvmName("isHighlighted")
         @UiThread
         get() = drawable.isHighlighted
-
         @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
         @JvmName("setIsHighlighted")
         @UiThread
@@ -179,12 +185,12 @@ public open class CanvasComplicationDrawable(
         }
 
     /**
-     * The [ComplicationData] to use when rendering the complication.
+     * The [IdAndComplicationData] to use when rendering the complication.
      */
-    override var data: ComplicationData? = null
+    override var idAndData: IdAndComplicationData? = null
         @UiThread
         set(value) {
-            drawable.complicationData = value
+            drawable.complicationData = value?.complicationData?.asWireComplicationData()
             field = value
         }
 }
@@ -308,6 +314,7 @@ public class Complication internal constructor(
 
     private var _unitSquareBounds = unitSquareBounds
     internal var unitSquareBoundsDirty = true
+
     /**
      * The screen space unit-square bounds of the complication. This is converted to pixels during
      * rendering.
@@ -330,6 +337,7 @@ public class Complication internal constructor(
 
     private var _enabled = true
     internal var enabledDirty = true
+
     /**
      * Whether or not the complication should be drawn and accept taps.
      */
@@ -353,6 +361,7 @@ public class Complication internal constructor(
         }
 
     private var _renderer = canvasComplication
+
     /**
      * The [CanvasComplication] used to render the complication.
      */
@@ -365,13 +374,14 @@ public class Complication internal constructor(
                 return
             }
             renderer.onDetach()
-            value.data = renderer.data
+            value.idAndData = renderer.idAndData
             _renderer = value
             value.onAttach(this)
         }
 
     private var _supportedTypes = supportedTypes
     internal var supportedTypesDirty = true
+
     /**
      * The types of complications the complication supports.
      */
@@ -395,6 +405,7 @@ public class Complication internal constructor(
 
     private var _defaultProviderPolicy = defaultProviderPolicy
     internal var defaultProviderPolicyDirty = true
+
     /**
      * The [DefaultComplicationProviderPolicy] which defines the default complications providers
      * selected when the user hasn't yet made a choice. See also [.defaultProviderType].
@@ -419,6 +430,7 @@ public class Complication internal constructor(
 
     private var _defaultProviderType = defaultProviderType
     internal var defaultProviderTypeDirty = true
+
     /**
      * The default [ComplicationData.ComplicationType] to use alongside [.defaultProviderPolicy].
      */

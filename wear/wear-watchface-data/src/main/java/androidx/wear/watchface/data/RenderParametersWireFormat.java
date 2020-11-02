@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
@@ -38,9 +39,20 @@ import java.util.List;
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class RenderParametersWireFormat implements VersionedParcelable, Parcelable {
+    /** */
+    private static final int NO_COMPLICATION_ID = -1;
+
     /** Wire format for {@link androidx.wear.watchface.DrawMode}. */
     @ParcelField(1)
     int mDrawMode;
+
+    /**
+     * Optional parameter which specifies that a particular complication rather than all
+     * complications should be highlighted when Layer.COMPLICATIONS is
+     * LayerMode.DRAW_HIGHLIGHTED. NO_COMPLICATION_ID represents null.
+     */
+    @ParcelField(2)
+    int mHighlightedComplicationId;
 
     /**
      * Wire format for Map<{@link androidx.wear.watchface.style.Layer},
@@ -54,18 +66,28 @@ public class RenderParametersWireFormat implements VersionedParcelable, Parcelab
     @ParcelField(100)
     List<LayerParameterWireFormat> mLayerParameters;
 
+
     RenderParametersWireFormat() {
     }
 
     public RenderParametersWireFormat(
             int drawMode,
-            @NonNull List<LayerParameterWireFormat> layerParameters) {
+            @NonNull List<LayerParameterWireFormat> layerParameters,
+            @Nullable Integer highlightedComplicationId) {
         mDrawMode = drawMode;
         mLayerParameters = layerParameters;
+        mHighlightedComplicationId = (highlightedComplicationId != null)
+                ? highlightedComplicationId : NO_COMPLICATION_ID;
     }
 
     public int getDrawMode() {
         return mDrawMode;
+    }
+
+    @Nullable
+    public Integer getHighlightedComplicationId() {
+        return (mHighlightedComplicationId == NO_COMPLICATION_ID) ? null :
+                mHighlightedComplicationId;
     }
 
     @NonNull

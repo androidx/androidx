@@ -27,7 +27,6 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
-import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
@@ -37,6 +36,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -638,7 +638,7 @@ public class WatchFace private constructor(
             newDrawMode = DrawMode.MUTE
         }
         renderer.renderParameters =
-            RenderParameters(newDrawMode, RenderParameters.DRAW_ALL_LAYERS)
+            RenderParameters(newDrawMode, RenderParameters.DRAW_ALL_LAYERS, null)
     }
 
     /** @hide */
