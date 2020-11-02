@@ -28,6 +28,7 @@ import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.S
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -188,14 +189,8 @@ public class EncoderImpl implements Encoder {
             throw new InvalidConfigException("Unknown encoder config type");
         }
 
-        try {
-            mMediaCodec = MediaCodec.createEncoderByType(encoderConfig.getMimeType());
-        } catch (IOException e) {
-            throw new InvalidConfigException(
-                    "Unsupported mime type: " + encoderConfig.getMimeType(), e);
-        }
-
         mMediaFormat = encoderConfig.toMediaFormat();
+        mMediaCodec = selectMediaCodecEncoder(mMediaFormat);
 
         try {
             reset();
@@ -423,7 +418,7 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     private void updatePauseToMediaCodec(boolean paused) {
         Bundle bundle = new Bundle();
-        bundle.putBoolean(MediaCodec.PARAMETER_KEY_SUSPEND, paused);
+        bundle.putInt(MediaCodec.PARAMETER_KEY_SUSPEND, paused ? 1 : 0);
         mMediaCodec.setParameters(bundle);
     }
 
@@ -561,6 +556,40 @@ public class EncoderImpl implements Encoder {
                 }
             }
         }
+    }
+
+    @NonNull
+    private MediaCodec selectMediaCodecEncoder(@NonNull MediaFormat mediaFormat)
+            throws InvalidConfigException {
+        MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.ALL_CODECS);
+        String encoderName;
+        // For API 21, before using findEncoderForFormat(), it needs to reset frame rate config to
+        // null. See <a href="https://developer.android
+        // .com/reference/android/media/MediaCodec#creation">MediaCodec's creation</a>
+        // But in the MediaCode.configure() phase, on API 21, the MediaFormat should includes frame
+        // rate value.
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
+                && mediaFormat.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+            int tempFrameRate  = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
+            // Reset frame rate in API 21.
+            mediaFormat.setString(MediaFormat.KEY_FRAME_RATE, null);
+            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
+            // Restore the frame rate value.
+            mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, tempFrameRate);
+        } else {
+            encoderName = mediaCodecList.findEncoderForFormat(mediaFormat);
+        }
+
+        MediaCodec codec;
+
+        try {
+            codec = MediaCodec.createByCodecName(encoderName);
+        } catch (IOException | NullPointerException | IllegalArgumentException e) {
+            throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
+        }
+        Logger.i(TAG, "Selected encoder: " + codec.getName());
+
+        return codec;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
