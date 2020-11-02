@@ -34,18 +34,27 @@ import kotlin.test.assertFailsWith
 @RunWith(JUnit4::class)
 class SeparatorsWithRemoteMediatorTest {
     @Test
-    fun addRemotePrependAfterRefresh() = runBlockingTest {
+    fun prependAfterPrependComplete() = runBlockingTest {
         val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), localLoadStatesOf(prependLocal = NotLoading.Complete)),
+            generatePrepend(
+                originalPageOffset = 0,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                )
+            ),
             generatePrepend(
                 originalPageOffset = -1,
-                pages = listOf(),
-                // Now switching to states with mediator != null - this is invalid!
-                loadStates = remoteLoadStatesOf(prependRemote = NotLoading.Complete)
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                )
             )
         )
         assertFailsWith<IllegalArgumentException>(
-            "Additional prepend event after prepend state is done"
+            "Prepend after endOfPaginationReached already true is invalid"
         ) {
             PagingData(pageEventFlow, dummyReceiver)
                 .insertSeparators(SeparatorsTest.LETTER_SEPARATOR_GENERATOR)
@@ -54,23 +63,84 @@ class SeparatorsWithRemoteMediatorTest {
     }
 
     @Test
-    fun addRemoteAppendAfterRefresh() = runBlockingTest {
+    fun appendAfterAppendComplete() = runBlockingTest {
         val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), localLoadStatesOf(appendLocal = NotLoading.Complete)),
+            generateAppend(
+                originalPageOffset = 0,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
+            ),
             generateAppend(
                 originalPageOffset = 1,
-                pages = listOf(),
-                // Now switching to states with mediator != null - this is invalid!
-                loadStates = remoteLoadStatesOf(appendRemote = NotLoading.Complete)
-            )
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
+            ),
         )
         assertFailsWith<IllegalArgumentException>(
-            "Additional append event after append state is done"
+            "Append after endOfPaginationReached already true is invalid"
         ) {
             PagingData(pageEventFlow, dummyReceiver)
                 .insertSeparators(SeparatorsTest.LETTER_SEPARATOR_GENERATOR)
                 .flow.toList()
         }
+    }
+
+    @Test
+    fun insertValidation_emptyRemoteAfterHeaderAdded() = runBlockingTest {
+        val pageEventFlow = flowOf(
+            generatePrepend(
+                originalPageOffset = 0,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    prependLocal = NotLoading.Incomplete,
+                    prependRemote = NotLoading.Complete,
+                ),
+            ),
+            generatePrepend(
+                originalPageOffset = 1,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    prependRemote = NotLoading.Complete,
+                ),
+            ),
+        )
+
+        // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
+        // or append that arrives after remote prepend or append marking endOfPagination.
+        PagingData(pageEventFlow, dummyReceiver).insertSeparators { _, _ -> -1 }.flow.toList()
+    }
+
+    @Test
+    fun insertValidation_emptyRemoteAfterFooterAdded() = runBlockingTest {
+        val pageEventFlow = flowOf(
+            generateAppend(
+                originalPageOffset = 0,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    appendLocal = NotLoading.Incomplete,
+                    appendRemote = NotLoading.Complete,
+                ),
+            ),
+            generateAppend(
+                originalPageOffset = 1,
+                pages = listOf(listOf("a1")),
+                loadStates = remoteLoadStatesOf(
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = NotLoading.Complete,
+                ),
+            ),
+        )
+
+        // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
+        // or append that arrives after remote prepend or append marking endOfPagination.
+        PagingData(pageEventFlow, dummyReceiver).insertSeparators { _, _ -> -1 }.flow.toList()
     }
 
     @Test
