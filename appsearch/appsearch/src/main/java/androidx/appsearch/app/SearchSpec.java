@@ -382,8 +382,7 @@ public final class SearchSpec {
 
         /**
          * Sets {@code snippetCountPerProperty}. Only the first {@code snippetCountPerProperty}
-         * snippets for a every property of {@link GenericDocument} will contain snippet
-         * information.
+         * snippets for each property of {@link GenericDocument} will contain snippet information.
          *
          * <p>If set to 0, snippeting is disabled and {@link SearchResult#getMatches}
          * will return {@code null} for that result.
