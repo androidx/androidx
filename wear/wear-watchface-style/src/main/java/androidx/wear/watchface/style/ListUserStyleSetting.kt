@@ -18,11 +18,11 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
-import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
-import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat.ListOptionWireFormat
+import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
+import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat.ListOptionWireFormat
 
-/** A ListStyleCategory represents a category with options selected from a List. */
-public open class ListUserStyleCategory : UserStyleCategory {
+/** A ListStyleCategory represents a setting with options selected from a List. */
+public open class ListUserStyleSetting : UserStyleSetting {
 
     @JvmOverloads
     public constructor (
@@ -38,7 +38,7 @@ public open class ListUserStyleCategory : UserStyleCategory {
         /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
 
-        /** List of all options for this ListUserStyleCategory. */
+        /** List of all options for this ListUserStyleSetting. */
         options: List<ListOption>,
 
         /**
@@ -58,12 +58,12 @@ public open class ListUserStyleCategory : UserStyleCategory {
         affectsLayers
     )
 
-    internal constructor(wireFormat: ListUserStyleCategoryWireFormat) : super(wireFormat)
+    internal constructor(wireFormat: ListUserStyleSettingWireFormat) : super(wireFormat)
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun toWireFormat(): ListUserStyleCategoryWireFormat =
-        ListUserStyleCategoryWireFormat(
+    override fun toWireFormat(): ListUserStyleSettingWireFormat =
+        ListUserStyleSettingWireFormat(
             id,
             displayName,
             description,
@@ -74,7 +74,7 @@ public open class ListUserStyleCategory : UserStyleCategory {
         )
 
     /**
-     * Represents choice within a [ListUserStyleCategory], these must be enumerated up front.
+     * Represents choice within a [ListUserStyleSetting], these must be enumerated up front.
      */
     public class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */

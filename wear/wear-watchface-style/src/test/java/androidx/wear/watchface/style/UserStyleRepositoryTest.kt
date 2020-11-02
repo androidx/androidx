@@ -24,18 +24,18 @@ import org.mockito.Mockito
 @RunWith(StyleTestRunner::class)
 class UserStyleRepositoryTest {
     private val redStyleOption =
-        ListUserStyleCategory.ListOption("red_style", "Red", icon = null)
+        ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
 
     private val greenStyleOption =
-        ListUserStyleCategory.ListOption("green_style", "Green", icon = null)
+        ListUserStyleSetting.ListOption("green_style", "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleCategory.ListOption("bluestyle", "Blue", icon = null)
+        ListUserStyleSetting.ListOption("bluestyle", "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
-    private val colorStyleCategory = ListUserStyleCategory(
-        "color_style_category",
+    private val colorStyleSetting = ListUserStyleSetting(
+        "color_style_setting",
         "Colors",
         "Watchface colorization", /* icon = */
         null,
@@ -44,28 +44,28 @@ class UserStyleRepositoryTest {
     )
 
     private val classicStyleOption =
-        ListUserStyleCategory.ListOption("classic_style", "Classic", icon = null)
+        ListUserStyleSetting.ListOption("classic_style", "Classic", icon = null)
 
     private val modernStyleOption =
-        ListUserStyleCategory.ListOption("modern_style", "Modern", icon = null)
+        ListUserStyleSetting.ListOption("modern_style", "Modern", icon = null)
 
     private val gothicStyleOption =
-        ListUserStyleCategory.ListOption("gothic_style", "Gothic", icon = null)
+        ListUserStyleSetting.ListOption("gothic_style", "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
-    private val watchHandStyleCategory = ListUserStyleCategory(
-        "hand_style_category",
+    private val watchHandStyleSetting = ListUserStyleSetting(
+        "hand_style_setting",
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
         watchHandStyleList,
         listOf(Layer.TOP_LAYER)
     )
-    private val watchHandLengthStyleCategory =
-        DoubleRangeUserStyleCategory(
-            "watch_hand_length_style_category",
+    private val watchHandLengthStyleSetting =
+        DoubleRangeUserStyleSetting(
+            "watch_hand_length_style_setting",
             "Hand length",
             "Scale of watch hands",
             null,
@@ -82,7 +82,7 @@ class UserStyleRepositoryTest {
     private val userStyleRepository =
         UserStyleRepository(
             UserStyleSchema(
-                listOf(colorStyleCategory, watchHandStyleCategory, watchHandLengthStyleCategory)
+                listOf(colorStyleSetting, watchHandStyleSetting, watchHandLengthStyleSetting)
             )
         )
 
@@ -104,8 +104,8 @@ class UserStyleRepositoryTest {
 
         val newStyle = UserStyle(
             hashMapOf(
-                colorStyleCategory to greenStyleOption,
-                watchHandStyleCategory to gothicStyleOption
+                colorStyleSetting to greenStyleOption,
+                watchHandStyleSetting to gothicStyleOption
             )
         )
 
@@ -124,24 +124,24 @@ class UserStyleRepositoryTest {
     fun assigning_userStyle() {
         val newStyle = UserStyle(
             hashMapOf(
-                colorStyleCategory to greenStyleOption,
-                watchHandStyleCategory to gothicStyleOption
+                colorStyleSetting to greenStyleOption,
+                watchHandStyleSetting to gothicStyleOption
             )
         )
 
         userStyleRepository.userStyle = newStyle
 
-        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleSetting])
             .isEqualTo(greenStyleOption)
-        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting])
             .isEqualTo(gothicStyleOption)
     }
 
     @Test
     fun defaultValues() {
         val watchHandLengthOption =
-            userStyleRepository.userStyle.selectedOptions[watchHandLengthStyleCategory]!! as
-                DoubleRangeUserStyleCategory.DoubleRangeOption
+            userStyleRepository.userStyle.selectedOptions[watchHandLengthStyleSetting]!! as
+                DoubleRangeUserStyleSetting.DoubleRangeOption
         assertThat(watchHandLengthOption.value).isEqualTo(0.75)
     }
 }

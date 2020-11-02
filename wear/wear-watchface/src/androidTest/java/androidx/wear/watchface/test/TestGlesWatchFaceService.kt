@@ -37,7 +37,7 @@ import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 
@@ -66,18 +66,18 @@ internal class TestGlesWatchFaceService(
         mutableWatchState.isVisible.value = true
 
         val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -85,7 +85,7 @@ internal class TestGlesWatchFaceService(
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleCategory)))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(
@@ -109,7 +109,7 @@ internal class TestGlesWatchFaceService(
             surfaceHolder,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
+            colorStyleSetting,
             complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
 

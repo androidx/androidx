@@ -45,7 +45,7 @@ import androidx.wear.widget.WearableRecyclerView
 
 /**
  * Top level configuration fragment. Lets the user select whether they want to select a complication
- * to configure, configure a background complication or select an option from a user style category.
+ * to configure, configure a background complication or select an option from a user style setting.
  * Should only be used if theres's at least two items from that list.
  *
  * @hide
@@ -113,7 +113,7 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(createBackgroundConfigOption())
         }
 
-        for (styleCategory in watchFaceConfigActivity.styleSchema.userStyleCategories) {
+        for (styleCategory in watchFaceConfigActivity.styleSchema.userStyleSettings) {
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id,

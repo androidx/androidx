@@ -318,7 +318,7 @@ class WatchFaceServiceImageTest {
         initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         handler.post {
             interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
-                UserStyleWireFormat(mapOf("color_style_category" to "green_style"))
+                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
             )
             engineWrapper.draw()
         }

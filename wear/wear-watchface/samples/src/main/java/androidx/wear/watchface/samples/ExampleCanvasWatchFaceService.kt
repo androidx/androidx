@@ -40,12 +40,12 @@ import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.BooleanUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay
-import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.BooleanUserStyleSetting
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -82,18 +82,18 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
         watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -101,18 +101,18 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             ),
             listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
         )
-        val drawHourPipsStyleCategory =
-            BooleanUserStyleCategory(
-                "draw_hour_pips_style_category",
+        val drawHourPipsStyleSetting =
+            BooleanUserStyleSetting(
+                "draw_hour_pips_style_setting",
                 "Hour Pips",
                 "Whether to draw or not",
                 null,
                 true,
                 listOf(Layer.BASE_LAYER)
             )
-        val watchHandLengthStyleCategory =
-            DoubleRangeUserStyleCategory(
-                "watch_hand_length_style_category",
+        val watchHandLengthStyleSetting =
+            DoubleRangeUserStyleSetting(
+                "watch_hand_length_style_setting",
                 "Hand length",
                 "Scale of watch hands",
                 null,
@@ -121,13 +121,13 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 0.75,
                 listOf(Layer.TOP_LAYER)
             )
-        val complicationsStyleCategory = ComplicationsUserStyleCategory(
-            "complications_style_category",
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            "complications_style_setting",
             "Complications",
             "Number and position",
             icon = null,
             complicationConfig = listOf(
-                ComplicationsUserStyleCategory.ComplicationsOption(
+                ComplicationsUserStyleSetting.ComplicationsOption(
                     LEFT_AND_RIGHT_COMPLICATIONS,
                     "Both",
                     null,
@@ -140,7 +140,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                             .setEnabled(true).build()
                     )
                 ),
-                ComplicationsUserStyleCategory.ComplicationsOption(
+                ComplicationsUserStyleSetting.ComplicationsOption(
                     NO_COMPLICATIONS,
                     "None",
                     null,
@@ -151,7 +151,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                             .setEnabled(false).build()
                     )
                 ),
-                ComplicationsUserStyleCategory.ComplicationsOption(
+                ComplicationsUserStyleSetting.ComplicationsOption(
                     LEFT_COMPLICATION,
                     "Left",
                     null,
@@ -162,7 +162,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                             .setEnabled(true).build()
                     )
                 ),
-                ComplicationsUserStyleCategory.ComplicationsOption(
+                ComplicationsUserStyleSetting.ComplicationsOption(
                     RIGHT_COMPLICATION,
                     "Right",
                     null,
@@ -179,10 +179,10 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
         val userStyleRepository = UserStyleRepository(
             UserStyleSchema(
                 listOf(
-                    colorStyleCategory,
-                    drawHourPipsStyleCategory,
-                    watchHandLengthStyleCategory,
-                    complicationsStyleCategory
+                    colorStyleSetting,
+                    drawHourPipsStyleSetting,
+                    watchHandLengthStyleSetting,
+                    complicationsStyleSetting
                 )
             )
         )
@@ -225,9 +225,9 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             watchFaceStyle,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
-            drawHourPipsStyleCategory,
-            watchHandLengthStyleCategory,
+            colorStyleSetting,
+            drawHourPipsStyleSetting,
+            watchHandLengthStyleSetting,
             complicationSlots
         )
 
@@ -253,9 +253,9 @@ class ExampleCanvasRenderer(
     private var watchFaceColorStyle: WatchFaceColorStyle,
     userStyleRepository: UserStyleRepository,
     private val watchState: WatchState,
-    private val colorStyleCategory: ListUserStyleCategory,
-    private val drawPipsStyleCategory: BooleanUserStyleCategory,
-    private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
+    private val colorStyleSetting: ListUserStyleSetting,
+    private val drawPipsStyleSetting: BooleanUserStyleSetting,
+    private val watchHandLengthStyleSettingDouble: DoubleRangeUserStyleSetting,
     private val complicationsManager: ComplicationsManager
 ) : CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
 
@@ -296,7 +296,7 @@ class ExampleCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle.selectedOptions[colorStyleCategory]!!.id
+                            userStyle.selectedOptions[colorStyleSetting]!!.id
                         )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
@@ -308,12 +308,12 @@ class ExampleCanvasRenderer(
                     }
 
                     val drawPipsOption =
-                        userStyle.selectedOptions[drawPipsStyleCategory]!! as
-                            BooleanUserStyleCategory
+                        userStyle.selectedOptions[drawPipsStyleSetting]!! as
+                            BooleanUserStyleSetting
                             .BooleanOption
                     val watchHandLengthOption =
-                        userStyle.selectedOptions[watchHandLengthStyleCategoryDouble]!! as
-                            DoubleRangeUserStyleCategory.DoubleRangeOption
+                        userStyle.selectedOptions[watchHandLengthStyleSettingDouble]!! as
+                            DoubleRangeUserStyleSetting.DoubleRangeOption
 
                     drawHourPips = drawPipsOption.value
                     watchHandScale = watchHandLengthOption.value.toFloat()

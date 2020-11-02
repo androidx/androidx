@@ -41,13 +41,13 @@ import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
-import androidx.wear.watchface.style.BooleanUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
-import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.BooleanUserStyleSetting
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
 
@@ -76,18 +76,18 @@ internal class TestCanvasWatchFaceService(
         mutableWatchState.isVisible.value = true
 
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -95,18 +95,18 @@ internal class TestCanvasWatchFaceService(
             ),
             listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
         )
-        val drawHourPipsStyleCategory =
-            BooleanUserStyleCategory(
-                "draw_hour_pips_style_category",
+        val drawHourPipsStyleSetting =
+            BooleanUserStyleSetting(
+                "draw_hour_pips_style_setting",
                 "Hour Pips",
                 "Whether or not hour pips should be drawn",
                 null,
                 true,
                 listOf(Layer.BASE_LAYER)
             )
-        val watchHandLengthStyleCategory =
-            DoubleRangeUserStyleCategory(
-                "watch_hand_length_style_category",
+        val watchHandLengthStyleSetting =
+            DoubleRangeUserStyleSetting(
+                "watch_hand_length_style_setting",
                 "Hand length",
                 "How long the watch hands should be",
                 null,
@@ -115,8 +115,8 @@ internal class TestCanvasWatchFaceService(
                 1.0,
                 listOf(Layer.TOP_LAYER)
             )
-        val complicationsStyleCategory = ComplicationsUserStyleCategory(
-            "complications_style_category",
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            "complications_style_setting",
             "Complications",
             "Number and position",
             icon = null,
@@ -171,10 +171,10 @@ internal class TestCanvasWatchFaceService(
         val userStyleRepository = UserStyleRepository(
             UserStyleSchema(
                 listOf(
-                    colorStyleCategory,
-                    drawHourPipsStyleCategory,
-                    watchHandLengthStyleCategory,
-                    complicationsStyleCategory
+                    colorStyleSetting,
+                    drawHourPipsStyleSetting,
+                    watchHandLengthStyleSetting,
+                    complicationsStyleSetting
                 )
             )
         )
@@ -217,9 +217,9 @@ internal class TestCanvasWatchFaceService(
             watchFaceStyle,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
-            drawHourPipsStyleCategory,
-            watchHandLengthStyleCategory,
+            colorStyleSetting,
+            drawHourPipsStyleSetting,
+            watchHandLengthStyleSetting,
             complicationSlots
         )
 

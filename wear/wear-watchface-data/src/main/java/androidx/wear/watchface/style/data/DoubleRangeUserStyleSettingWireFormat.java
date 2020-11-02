@@ -27,43 +27,43 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.List;
 
 /**
- * Wire format for {@link androidx.wear.watchface.style.LongRangeUserStyleCategory}.
+ * Wire format for {@link androidx.wear.watchface.style.DoubleRangeUserStyleSetting}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public class LongRangeUserStyleCategoryWireFormat extends UserStyleCategoryWireFormat {
+public class DoubleRangeUserStyleSettingWireFormat extends UserStyleSettingWireFormat {
 
-    LongRangeUserStyleCategoryWireFormat() {}
+    DoubleRangeUserStyleSettingWireFormat() {}
 
-    public LongRangeUserStyleCategoryWireFormat(
+    public DoubleRangeUserStyleSettingWireFormat(
             @NonNull String id,
             @NonNull CharSequence displayName,
             @NonNull CharSequence description,
             @Nullable Icon icon,
             @NonNull List<OptionWireFormat> options,
             int defaultOptionIndex,
-            @NonNull List<Integer> affectsLayers) {
+            @NonNull List<Integer> affectsLayers)  {
         super(id, displayName, description, icon, options, defaultOptionIndex, affectsLayers);
     }
 
     /**
      * Wire format for
-     * {@link androidx.wear.watchface.style.LongRangeUserStyleCategory.LongRangeOption}.
+     * {@link androidx.wear.watchface.style.DoubleRangeUserStyleSetting.DoubleRangeOption}.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @VersionedParcelize
-    public static class LongRangeOptionWireFormat extends OptionWireFormat {
+    public static class DoubleRangeOptionWireFormat extends OptionWireFormat {
         /* The value for this option. Must be within the range [minimumValue .. maximumValue]. */
         @ParcelField(2)
-        public long mValue;
+        public double mValue;
 
-        LongRangeOptionWireFormat() {}
+        DoubleRangeOptionWireFormat() {}
 
-        public LongRangeOptionWireFormat(@NonNull String id, long value) {
+        public DoubleRangeOptionWireFormat(@NonNull String id, double value) {
             super(id);
             this.mValue = value;
         }

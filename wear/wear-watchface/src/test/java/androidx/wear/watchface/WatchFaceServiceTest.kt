@@ -43,11 +43,11 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.SystemState
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationOverlay
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory.ComplicationsOption
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
@@ -103,18 +103,18 @@ class WatchFaceServiceTest {
     private val complicationDrawableRight = ComplicationDrawable(context)
 
     private val redStyleOption =
-        ListUserStyleCategory.ListOption("red_style", "Red", icon = null)
+        ListUserStyleSetting.ListOption("red_style", "Red", icon = null)
 
     private val greenStyleOption =
-        ListUserStyleCategory.ListOption("green_style", "Green", icon = null)
+        ListUserStyleSetting.ListOption("green_style", "Green", icon = null)
 
     private val blueStyleOption =
-        ListUserStyleCategory.ListOption("bluestyle", "Blue", icon = null)
+        ListUserStyleSetting.ListOption("bluestyle", "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
-    private val colorStyleCategory = ListUserStyleCategory(
-        "color_style_category",
+    private val colorStyleSetting = ListUserStyleSetting(
+        "color_style_setting",
         "Colors",
         "Watchface colorization", /* icon = */
         null,
@@ -123,19 +123,19 @@ class WatchFaceServiceTest {
     )
 
     private val classicStyleOption =
-        ListUserStyleCategory.ListOption("classic_style", "Classic", icon = null)
+        ListUserStyleSetting.ListOption("classic_style", "Classic", icon = null)
 
     private val modernStyleOption =
-        ListUserStyleCategory.ListOption("modern_style", "Modern", icon = null)
+        ListUserStyleSetting.ListOption("modern_style", "Modern", icon = null)
 
     private val gothicStyleOption =
-        ListUserStyleCategory.ListOption("gothic_style", "Gothic", icon = null)
+        ListUserStyleSetting.ListOption("gothic_style", "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
-    private val watchHandStyleCategory = ListUserStyleCategory(
-        "hand_style_category",
+    private val watchHandStyleSetting = ListUserStyleSetting(
+        "hand_style_setting",
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
@@ -144,7 +144,7 @@ class WatchFaceServiceTest {
     )
 
     private val badStyleOption =
-        ListUserStyleCategory.ListOption("bad_option", "Bad", icon = null)
+        ListUserStyleSetting.ListOption("bad_option", "Bad", icon = null)
 
     private val leftComplication =
         Complication.Builder(
@@ -249,8 +249,8 @@ class WatchFaceServiceTest {
                 .setEnabled(true).build()
         )
     )
-    private val complicationsStyleCategory = ComplicationsUserStyleCategory(
-        "complications_style_category",
+    private val complicationsStyleSetting = ComplicationsUserStyleSetting(
+        "complications_style_setting",
         "Complications",
         "Number and position",
         icon = null,
@@ -961,20 +961,20 @@ class WatchFaceServiceTest {
         initEngine(
             WatchFaceType.ANALOG,
             emptyList(),
-            UserStyleSchema(listOf(colorStyleCategory, watchHandStyleCategory)),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             2
         )
 
         // This should get persisted.
         userStyleRepository.userStyle = UserStyle(
             hashMapOf(
-                colorStyleCategory to blueStyleOption,
-                watchHandStyleCategory to gothicStyleOption
+                colorStyleSetting to blueStyleOption,
+                watchHandStyleSetting to gothicStyleOption
             )
         )
 
         val userStyleRepository2 = UserStyleRepository(
-            UserStyleSchema(listOf(colorStyleCategory, watchHandStyleCategory))
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
         )
 
         val testRenderer2 =
@@ -995,11 +995,11 @@ class WatchFaceServiceTest {
         sendBinder(engine2, apiVersion = 2)
         sendImmutableProperties(engine2, false, false)
 
-        assertThat(userStyleRepository2.userStyle.selectedOptions[colorStyleCategory]!!.id)
+        assertThat(userStyleRepository2.userStyle.selectedOptions[colorStyleSetting]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(userStyleRepository2.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+        assertThat(userStyleRepository2.userStyle.selectedOptions[watchHandStyleSetting]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
@@ -1010,7 +1010,7 @@ class WatchFaceServiceTest {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
-            UserStyleSchema(listOf(colorStyleCategory, watchHandStyleCategory)),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "interactiveInstanceId",
                 DeviceConfig(
@@ -1021,8 +1021,8 @@ class WatchFaceServiceTest {
                 SystemState(false, 0),
                 UserStyle(
                     hashMapOf(
-                        colorStyleCategory to blueStyleOption,
-                        watchHandStyleCategory to gothicStyleOption
+                        colorStyleSetting to blueStyleOption,
+                        watchHandStyleSetting to gothicStyleOption
                     )
                 ).toWireFormat(),
                 null
@@ -1030,11 +1030,11 @@ class WatchFaceServiceTest {
         )
 
         // The style option above should get applied during watch face creation.
-        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleCategory]!!.id)
+        assertThat(userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id)
             .isEqualTo(
                 blueStyleOption.id
             )
-        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory]!!.id)
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting]!!.id)
             .isEqualTo(
                 gothicStyleOption.id
             )
@@ -1045,7 +1045,7 @@ class WatchFaceServiceTest {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
-            UserStyleSchema(listOf(colorStyleCategory, watchHandStyleCategory)),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "interactiveInstanceId",
                 DeviceConfig(
@@ -1054,12 +1054,12 @@ class WatchFaceServiceTest {
                     DeviceConfig.SCREEN_SHAPE_ROUND
                 ),
                 SystemState(false, 0),
-                UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
+                UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
         )
 
-        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleCategory])
+        assertThat(userStyleRepository.userStyle.selectedOptions[watchHandStyleSetting])
             .isEqualTo(watchHandStyleList.first())
     }
 
@@ -1098,7 +1098,7 @@ class WatchFaceServiceTest {
         initWallpaperInteractiveWatchFaceInstance(
             WatchFaceType.ANALOG,
             emptyList(),
-            UserStyleSchema(listOf(colorStyleCategory, watchHandStyleCategory)),
+            UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting)),
             WallpaperInteractiveWatchFaceInstanceParams(
                 "interactiveInstanceId",
                 DeviceConfig(
@@ -1107,7 +1107,7 @@ class WatchFaceServiceTest {
                     DeviceConfig.SCREEN_SHAPE_RECTANGULAR
                 ),
                 SystemState(false, 0),
-                UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat(),
+                UserStyle(hashMapOf(watchHandStyleSetting to badStyleOption)).toWireFormat(),
                 null
             )
         )
@@ -1256,20 +1256,20 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun getOptionForIdentifier_ListViewStyleCategory() {
+    fun getOptionForIdentifier_ListViewStyleSetting() {
         // Check the correct Options are returned for known option names.
-        assertThat(colorStyleCategory.getOptionForId(redStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(redStyleOption.id)).isEqualTo(
             redStyleOption
         )
-        assertThat(colorStyleCategory.getOptionForId(greenStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(greenStyleOption.id)).isEqualTo(
             greenStyleOption
         )
-        assertThat(colorStyleCategory.getOptionForId(blueStyleOption.id)).isEqualTo(
+        assertThat(colorStyleSetting.getOptionForId(blueStyleOption.id)).isEqualTo(
             blueStyleOption
         )
 
         // For unknown option names the first element in the list should be returned.
-        assertThat(colorStyleCategory.getOptionForId("unknown")).isEqualTo(colorStyleList.first())
+        assertThat(colorStyleSetting.getOptionForId("unknown")).isEqualTo(colorStyleList.first())
     }
 
     @Test
@@ -1503,17 +1503,17 @@ class WatchFaceServiceTest {
     }
 
     @Test
-    fun complicationsUserStyleCategorySelectionAppliesChanges() {
+    fun complicationsUserStyleSettingSelectionAppliesChanges() {
         initEngine(
             WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
-            UserStyleSchema(listOf(complicationsStyleCategory)),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
             apiVersion = 4
         )
 
         // Select a new style which turns off both complications.
         val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
-        newStyleA[complicationsStyleCategory] = noComplicationsOption
+        newStyleA[complicationsStyleSetting] = noComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleA)
 
         runPostedTasksFor(0)
@@ -1531,7 +1531,7 @@ class WatchFaceServiceTest {
 
         // Select a new style which turns on only the left complication.
         val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
-        newStyleB[complicationsStyleCategory] = leftComplicationsOption
+        newStyleB[complicationsStyleSetting] = leftComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleB)
 
         runPostedTasksFor(0)
@@ -1568,8 +1568,8 @@ class WatchFaceServiceTest {
             null,
             listOf(ComplicationOverlay.Builder(LEFT_COMPLICATION_ID).setEnabled(false).build())
         )
-        val complicationsStyleCategory = ComplicationsUserStyleCategory(
-            "complications_style_category",
+        val complicationsStyleSetting = ComplicationsUserStyleSetting(
+            "complications_style_setting",
             "Complications",
             "Number and position",
             icon = null,
@@ -1584,7 +1584,7 @@ class WatchFaceServiceTest {
         initEngine(
             WatchFaceType.DIGITAL,
             listOf(leftComplication, rightComplication),
-            UserStyleSchema(listOf(complicationsStyleCategory)),
+            UserStyleSchema(listOf(complicationsStyleSetting)),
             apiVersion = 4
         )
 
@@ -1593,7 +1593,7 @@ class WatchFaceServiceTest {
 
         // Select left complication only.
         val newStyleA = HashMap(userStyleRepository.userStyle.selectedOptions)
-        newStyleA[complicationsStyleCategory] = leftOnlyComplicationsOption
+        newStyleA[complicationsStyleSetting] = leftOnlyComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleA)
 
         runPostedTasksFor(0)
@@ -1603,7 +1603,7 @@ class WatchFaceServiceTest {
 
         // Select right complication only.
         val newStyleB = HashMap(userStyleRepository.userStyle.selectedOptions)
-        newStyleB[complicationsStyleCategory] = rightOnlyComplicationsOption
+        newStyleB[complicationsStyleSetting] = rightOnlyComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleB)
 
         runPostedTasksFor(0)
@@ -1613,7 +1613,7 @@ class WatchFaceServiceTest {
 
         // Select both complications.
         val newStyleC = HashMap(userStyleRepository.userStyle.selectedOptions)
-        newStyleC[complicationsStyleCategory] = bothComplicationsOption
+        newStyleC[complicationsStyleSetting] = bothComplicationsOption
         userStyleRepository.userStyle = UserStyle(newStyleC)
 
         runPostedTasksFor(0)

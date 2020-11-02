@@ -23,11 +23,11 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The users style choices represented as a map of [UserStyleCategory] to
- * [UserStyleCategory.Option].
+ * The users style choices represented as a map of [UserStyleSetting] to
+ * [UserStyleSetting.Option].
  */
 public class UserStyle(
-    public val selectedOptions: Map<UserStyleCategory, UserStyleCategory.Option>
+    public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
 ) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -35,10 +35,10 @@ public class UserStyle(
         userStyle: UserStyleWireFormat,
         styleSchema: UserStyleSchema
     ) : this(
-        HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-            for (styleCategory in styleSchema.userStyleCategories) {
-                val option = userStyle.mUserStyle[styleCategory.id] ?: continue
-                this[styleCategory] = styleCategory.getCategoryOptionForId(option)
+        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+            for (styleSetting in styleSchema.userStyleSettings) {
+                val option = userStyle.mUserStyle[styleSetting.id] ?: continue
+                this[styleSetting] = styleSetting.getSettingOptionForId(option)
             }
         }
     )
@@ -49,24 +49,24 @@ public class UserStyle(
         UserStyleWireFormat(selectedOptions.entries.associate { it.key.id to it.value.id })
 }
 
-/** Describes the list of [UserStyleCategory]s the user can configure. */
+/** Describes the list of [UserStyleSetting]s the user can configure. */
 public class UserStyleSchema(
     /**
      * The user configurable style categories associated with this watch face. Empty if the watch
      * face doesn't support user styling.
      */
-    public val userStyleCategories: List<UserStyleCategory>
+    public val userStyleSettings: List<UserStyleSetting>
 ) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
-        wireFormat.mSchema.map { UserStyleCategory.createFromWireFormat(it) }
+        wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
     )
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleSchemaWireFormat =
-        UserStyleSchemaWireFormat(userStyleCategories.map { it.toWireFormat() })
+        UserStyleSchemaWireFormat(userStyleSettings.map { it.toWireFormat() })
 }
 
 /**
@@ -89,12 +89,12 @@ public class UserStyleRepository(
 
     private val styleListeners = HashSet<UserStyleListener>()
 
-    // The current style state which is initialized from the userStyleCategories.
+    // The current style state which is initialized from the userStyleSettings.
     @SuppressWarnings("SyntheticAccessor")
     private val _style = UserStyle(
-        HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-            for (category in schema.userStyleCategories) {
-                this[category] = category.getDefaultOption()
+        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+            for (setting in schema.userStyleSettings) {
+                this[setting] = setting.getDefaultOption()
             }
         }
     )
@@ -107,14 +107,14 @@ public class UserStyleRepository(
         set(style) {
             var changed = false
             val hashmap =
-                _style.selectedOptions as HashMap<UserStyleCategory, UserStyleCategory.Option>
-            for ((category, option) in style.selectedOptions) {
-                // Ignore an unrecognized category.
-                val styleCategory = _style.selectedOptions[category] ?: continue
-                if (styleCategory.id != option.id) {
+                _style.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
+            for ((setting, option) in style.selectedOptions) {
+                // Ignore an unrecognized setting.
+                val styleSetting = _style.selectedOptions[setting] ?: continue
+                if (styleSetting.id != option.id) {
                     changed = true
                 }
-                hashmap[category] = option
+                hashmap[setting] = option
             }
 
             if (!changed) {

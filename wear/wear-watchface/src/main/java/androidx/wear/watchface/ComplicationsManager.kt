@@ -32,7 +32,7 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.style.ComplicationsUserStyleCategory
+import androidx.wear.watchface.style.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import java.lang.ref.WeakReference
@@ -45,7 +45,7 @@ private fun getComponentName(context: Context) = ComponentName(
 /**
  * The [Complication]s associated with the [WatchFace]. Dynamic creation of
  * complications isn't supported, however complications can be enabled and disabled, perhaps as
- * part of a user style see [androidx.wear.watchface.style.UserStyleCategory].
+ * part of a user style see [androidx.wear.watchface.style.UserStyleSetting].
  */
 public class ComplicationsManager(
     /**
@@ -54,7 +54,7 @@ public class ComplicationsManager(
     complicationCollection: Collection<Complication>,
 
     /**
-     * The [UserStyleRepository] used to listen for [ComplicationsUserStyleCategory] changes and
+     * The [UserStyleRepository] used to listen for [ComplicationsUserStyleSetting] changes and
      * apply them.
      */
     private val userStyleRepository: UserStyleRepository
@@ -95,7 +95,7 @@ public class ComplicationsManager(
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
-    // [ComplicationsUserStyleCategory] are defined in terms of an override applied to the initial
+    // [ComplicationsUserStyleSetting] are defined in terms of an override applied to the initial
     // config.
     private val initialComplicationConfigs: Map<Int, InitialComplicationConfig> =
         complicationCollection.associateBy(
@@ -139,22 +139,22 @@ public class ComplicationsManager(
         }
 
         val complicationsStyleCategory =
-            userStyleRepository.schema.userStyleCategories.firstOrNull {
-                it is ComplicationsUserStyleCategory
+            userStyleRepository.schema.userStyleSettings.firstOrNull {
+                it is ComplicationsUserStyleSetting
             }
 
-        // Add a listener if we have a ComplicationsUserStyleCategory so we can track changes and
+        // Add a listener if we have a ComplicationsUserStyleSetting so we can track changes and
         // automatically apply them.
         if (complicationsStyleCategory != null) {
             var previousOption =
                 userStyleRepository.userStyle.selectedOptions[complicationsStyleCategory] as
-                    ComplicationsUserStyleCategory.ComplicationsOption
+                    ComplicationsUserStyleSetting.ComplicationsOption
             userStyleRepository.addUserStyleListener(
                 object : UserStyleRepository.UserStyleListener {
                     override fun onUserStyleChanged(userStyle: UserStyle) {
                         val newlySelectedOption =
                             userStyle.selectedOptions[complicationsStyleCategory] as
-                                ComplicationsUserStyleCategory.ComplicationsOption
+                                ComplicationsUserStyleSetting.ComplicationsOption
                         if (previousOption != newlySelectedOption) {
                             previousOption = newlySelectedOption
                             applyComplicationsStyleCategoryOption(newlySelectedOption)
@@ -169,7 +169,7 @@ public class ComplicationsManager(
     }
 
     internal fun applyComplicationsStyleCategoryOption(
-        styleOption: ComplicationsUserStyleCategory.ComplicationsOption
+        styleOption: ComplicationsUserStyleSetting.ComplicationsOption
     ) {
         for ((id, complication) in complications) {
             val override = styleOption.complicationOverlays.find { it.complicationId == id }
