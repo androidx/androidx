@@ -24,10 +24,7 @@ import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.core.net.toUri
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -213,15 +210,6 @@ class NavHostTest {
     }
 }
 
-private inline fun NavGraphBuilder.test(
-    route: String,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { deepLink(createRoute(route)) }
-) = test(createRoute(route).hashCode(), builder)
-
 operator fun NavGraph.contains(
     route: String
 ): Boolean = findNode(createRoute(route).hashCode()) != null
-
-private fun TestNavHostController.setCurrentDestination(
-    route: String
-) = setCurrentDestination(createRoute(route).hashCode())

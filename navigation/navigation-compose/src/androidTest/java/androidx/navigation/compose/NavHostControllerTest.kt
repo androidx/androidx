@@ -16,7 +16,6 @@
 
 package androidx.navigation.compose
 
-import androidx.annotation.IdRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ContextAmbient
@@ -26,7 +25,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.createGraph
 import androidx.navigation.get
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -58,7 +56,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.destination?.id)
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
             .isEqualTo(FIRST_DESTINATION)
     }
 
@@ -78,7 +76,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be set with the graph")
-            .that(currentBackStackEntry.value?.destination?.id)
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
             .isEqualTo(FIRST_DESTINATION)
 
         composeTestRule.runOnUiThread {
@@ -86,7 +84,7 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should be after navigate")
-            .that(currentBackStackEntry.value?.destination?.id)
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
             .isEqualTo(SECOND_DESTINATION)
     }
 
@@ -111,15 +109,24 @@ class NavHostControllerTest {
         }
 
         assertWithMessage("the currentBackStackEntry should return to first destination after pop")
-            .that(currentBackStackEntry.value?.destination?.id)
+            .that(currentBackStackEntry.value?.arguments?.getString(KEY_ROUTE))
             .isEqualTo(FIRST_DESTINATION)
     }
 }
 
-inline fun NavGraphBuilder.test(
-    @IdRes id: Int,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { }
-) = destination(NavDestinationBuilder<NavDestination>(provider["test"], id).apply(builder))
+internal inline fun NavGraphBuilder.test(
+    route: String,
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit = { deepLink(createRoute(route)) }
+) = destination(
+    NavDestinationBuilder<NavDestination>(
+        provider["test"],
+        createRoute(route).hashCode()
+    ).apply(builder).apply { argument(KEY_ROUTE) { defaultValue = route } }
+)
 
-private const val FIRST_DESTINATION = 1
-private const val SECOND_DESTINATION = 2
+internal fun TestNavHostController.setCurrentDestination(
+    route: String
+) = setCurrentDestination(createRoute(route).hashCode())
+
+private const val FIRST_DESTINATION = "first"
+private const val SECOND_DESTINATION = "second"
