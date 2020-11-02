@@ -13,9 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse, collections, pathlib, os, re, sys
+import argparse, collections, os, re, sys
 
-dir_of_this_script = str(pathlib.Path(__file__).parent.absolute())
+dir_of_this_script = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser(
     description="""USAGE:
@@ -189,12 +189,12 @@ def remove_known_uninteresting_lines(lines):
 # Returns the path of the config file holding exemptions for deterministic/consistent output.
 # These exemptions can be garbage collected via the `--gc` argument
 def get_deterministic_exemptions_path():
-    return os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
+    return os.path.join(dir_of_this_script, "messages.ignore")
 
 # Returns the path of the config file holding exemptions for nondetermistic/flaky output.
 # These exemptions will not be garbage collected via the `--gc` argument
 def get_flake_exemptions_path():
-    return os.path.join(dir_of_this_script, "build_log_simplifier/message-flakes.ignore")
+    return os.path.join(dir_of_this_script, "message-flakes.ignore")
 
 # Returns a regexes_matcher that matches what is described by our config file
 # Ignores comments and ordering in our config file
