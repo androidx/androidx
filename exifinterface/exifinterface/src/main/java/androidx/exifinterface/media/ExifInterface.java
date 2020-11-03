@@ -67,7 +67,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -4713,28 +4712,22 @@ public class ExifInterface {
 
         FileInputStream in = null;
         FileOutputStream out = null;
-        File originalFile = null;
-        if (mFilename != null) {
-            originalFile = new File(mFilename);
-        }
         File tempFile = null;
         try {
-            // Move the original file to temporary file.
+            // Copy the original file to temporary file.
+            tempFile = File.createTempFile("temp", "tmp");
             if (mFilename != null) {
-                String parent = originalFile.getParent();
-                String name = originalFile.getName();
-                String tempPrefix = UUID.randomUUID().toString() + "_";
-                tempFile = new File(parent, tempPrefix + name);
-                if (!originalFile.renameTo(tempFile)) {
-                    throw new IOException("Couldn't rename to " + tempFile.getAbsolutePath());
+                in = new FileInputStream(mFilename);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                    in = new FileInputStream(mSeekableFileDescriptor);
                 }
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                tempFile = File.createTempFile("temp", "tmp");
-                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
-                in = new FileInputStream(mSeekableFileDescriptor);
-                out = new FileOutputStream(tempFile);
-                copy(in, out);
             }
+            out = new FileOutputStream(tempFile);
+            copy(in, out);
         } catch (Exception e) {
             throw new IOException("Failed to copy original file to temp file", e);
         } finally {
@@ -4746,14 +4739,19 @@ public class ExifInterface {
         out = null;
         BufferedInputStream bufferedIn = null;
         BufferedOutputStream bufferedOut = null;
+        boolean shouldKeepTempFile = false;
         try {
             // Save the new file.
             in = new FileInputStream(tempFile);
             if (mFilename != null) {
                 out = new FileOutputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
-                out = new FileOutputStream(mSeekableFileDescriptor);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                    out = new FileOutputStream(mSeekableFileDescriptor);
+                }
             }
             bufferedIn = new BufferedInputStream(in);
             bufferedOut = new BufferedOutputStream(out);
@@ -4765,17 +4763,35 @@ public class ExifInterface {
                 saveWebpAttributes(bufferedIn, bufferedOut);
             }
         } catch (Exception e) {
-            if (mFilename != null) {
-                if (!tempFile.renameTo(originalFile)) {
-                    throw new IOException("Couldn't restore original file: "
-                            + originalFile.getAbsolutePath());
+            try {
+                // Restore original file
+                in = new FileInputStream(tempFile);
+                if (mFilename != null) {
+                    out = new FileOutputStream(mFilename);
+                } else {
+                    // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this
+                    // check is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                        out = new FileOutputStream(mSeekableFileDescriptor);
+                    }
                 }
+                copy(in, out);
+            } catch (Exception exception) {
+                shouldKeepTempFile = true;
+                throw new IOException("Failed to save new file. Original file is stored in "
+                        + tempFile.getAbsolutePath(), exception);
+            } finally {
+                closeQuietly(in);
+                closeQuietly(out);
             }
             throw new IOException("Failed to save new file", e);
         } finally {
             closeQuietly(bufferedIn);
             closeQuietly(bufferedOut);
-            tempFile.delete();
+            if (!shouldKeepTempFile) {
+                tempFile.delete();
+            }
         }
 
         // Discard the thumbnail in memory
@@ -4839,10 +4855,14 @@ public class ExifInterface {
                 }
             } else if (mFilename != null) {
                 in = new FileInputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                newFileDescriptor = Os.dup(mSeekableFileDescriptor);
-                Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
-                in = new FileInputStream(newFileDescriptor);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek and Os.dup at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    newFileDescriptor = Os.dup(mSeekableFileDescriptor);
+                    Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
+                    in = new FileInputStream(newFileDescriptor);
+                }
             }
             if (in == null) {
                 // Should not be reached this.
