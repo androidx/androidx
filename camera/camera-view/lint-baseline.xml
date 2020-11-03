@@ -19,7 +19,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/view/PreviewView.java"
-            line="220"
+            line="226"
             column="13"/>
     </issue>
 

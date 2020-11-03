@@ -474,7 +474,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="121"
+            line="120"
             column="19"/>
     </issue>
 
@@ -485,7 +485,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="126"
+            line="125"
             column="19"/>
     </issue>
 
@@ -496,7 +496,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="131"
+            line="130"
             column="19"/>
     </issue>
 
@@ -507,7 +507,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="137"
+            line="136"
             column="19"/>
     </issue>
 
@@ -518,7 +518,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="156"
+            line="155"
             column="19"/>
     </issue>
 
@@ -529,7 +529,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="173"
+            line="172"
             column="19"/>
     </issue>
 
@@ -540,7 +540,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="179"
+            line="178"
             column="19"/>
     </issue>
 
@@ -551,7 +551,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="187"
+            line="186"
             column="19"/>
     </issue>
 
@@ -562,7 +562,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="192"
+            line="191"
             column="19"/>
     </issue>
 
@@ -573,7 +573,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="197"
+            line="196"
             column="19"/>
     </issue>
 
@@ -584,7 +584,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="234"
+            line="233"
             column="19"/>
     </issue>
 
@@ -595,7 +595,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="451"
+            line="450"
             column="27"/>
     </issue>
 
@@ -606,7 +606,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="461"
+            line="460"
             column="27"/>
     </issue>
 
@@ -617,7 +617,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="469"
+            line="468"
             column="27"/>
     </issue>
 
@@ -628,7 +628,7 @@
         errorLine2="                          ~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="477"
+            line="476"
             column="27"/>
     </issue>
 
@@ -738,7 +738,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="215"
+            line="214"
             column="54"/>
     </issue>
 
@@ -3099,7 +3099,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="107"
+            line="106"
             column="13"/>
     </issue>
 
@@ -3110,7 +3110,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="109"
+            line="108"
             column="13"/>
     </issue>
 
@@ -3121,7 +3121,7 @@
         errorLine2="                                                                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="140"
+            line="139"
             column="84"/>
     </issue>
 
@@ -3132,7 +3132,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="140"
+            line="139"
             column="13"/>
     </issue>
 
@@ -3143,7 +3143,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="142"
+            line="141"
             column="17"/>
     </issue>
 
@@ -3154,7 +3154,7 @@
         errorLine2="                                      ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="144"
+            line="143"
             column="39"/>
     </issue>
 
@@ -3165,7 +3165,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="144"
+            line="143"
             column="13"/>
     </issue>
 
@@ -3176,7 +3176,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="146"
+            line="145"
             column="17"/>
     </issue>
 
@@ -3187,7 +3187,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="148"
+            line="147"
             column="17"/>
     </issue>
 
@@ -3198,7 +3198,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="151"
+            line="150"
             column="13"/>
     </issue>
 
@@ -3209,7 +3209,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="157"
+            line="156"
             column="13"/>
     </issue>
 
@@ -3220,7 +3220,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="159"
+            line="158"
             column="33"/>
     </issue>
 
@@ -3231,7 +3231,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="161"
+            line="160"
             column="50"/>
     </issue>
 
@@ -3242,7 +3242,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="163"
+            line="162"
             column="17"/>
     </issue>
 
@@ -3253,7 +3253,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="166"
+            line="165"
             column="17"/>
     </issue>
 
@@ -3264,7 +3264,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="168"
+            line="167"
             column="13"/>
     </issue>
 
@@ -3275,7 +3275,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="181"
+            line="180"
             column="17"/>
     </issue>
 
@@ -3286,7 +3286,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="310"
+            line="309"
             column="17"/>
     </issue>
 
@@ -3297,7 +3297,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="320"
+            line="319"
             column="17"/>
     </issue>
 
@@ -3308,7 +3308,7 @@
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="330"
+            line="329"
             column="17"/>
     </issue>
 
@@ -3319,7 +3319,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="344"
+            line="343"
             column="21"/>
     </issue>
 
@@ -3330,7 +3330,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="345"
+            line="344"
             column="21"/>
     </issue>
 
@@ -3341,7 +3341,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="347"
+            line="346"
             column="21"/>
     </issue>
 
@@ -3352,7 +3352,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="356"
+            line="355"
             column="17"/>
     </issue>
 
@@ -3363,7 +3363,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="364"
+            line="363"
             column="37"/>
     </issue>
 
@@ -3374,7 +3374,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="367"
+            line="366"
             column="21"/>
     </issue>
 
@@ -3385,7 +3385,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="374"
+            line="373"
             column="17"/>
     </issue>
 
@@ -3393,6 +3393,17 @@
         id="SyntheticAccessor"
         message="Access to `private` field `mSeeking` of class `SampleMediaRouterActivity` requires synthetic accessor"
         errorLine1="                mSeeking = false;"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
+            line="377"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SyntheticAccessor"
+        message="Access to `private` method `updateUi` of class `SampleMediaRouterActivity` requires synthetic accessor"
+        errorLine1="                updateUi();"
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
@@ -3407,18 +3418,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="379"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateUi` of class `SampleMediaRouterActivity` requires synthetic accessor"
-        errorLine1="                updateUi();"
-        errorLine2="                ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="405"
+            line="404"
             column="17"/>
     </issue>
 
@@ -3429,7 +3429,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="432"
+            line="431"
             column="17"/>
     </issue>
 
@@ -3440,7 +3440,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="437"
+            line="436"
             column="17"/>
     </issue>
 
@@ -3451,7 +3451,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="528"
+            line="527"
             column="53"/>
     </issue>
 
@@ -3462,7 +3462,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="695"
+            line="694"
             column="25"/>
     </issue>
 
@@ -3473,7 +3473,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="730"
+            line="729"
             column="25"/>
     </issue>
 
@@ -3484,7 +3484,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="798"
+            line="797"
             column="21"/>
     </issue>
 
@@ -6597,7 +6597,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="210"
+            line="209"
             column="29"/>
     </issue>
 
@@ -6608,7 +6608,7 @@
         errorLine2="                                  ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="444"
+            line="443"
             column="35"/>
     </issue>
 
@@ -6619,7 +6619,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="489"
+            line="488"
             column="43"/>
     </issue>
 
@@ -6630,7 +6630,7 @@
         errorLine2="                                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="494"
+            line="493"
             column="41"/>
     </issue>
 
@@ -6641,7 +6641,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="514"
+            line="513"
             column="40"/>
     </issue>
 
@@ -6652,29 +6652,29 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="623"
+            line="622"
             column="12"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void setCallback(Callback cb) {"
-        errorLine2="                                ~~~~~~~~">
+        errorLine1="        public void setCallback(MediaRouter.Callback cb) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="637"
+            line="636"
             column="33"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Callback onCreateCallback() {"
-        errorLine2="               ~~~~~~~~">
+        errorLine1="        public MediaRouter.Callback onCreateCallback() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="642"
+            line="641"
             column="16"/>
     </issue>
 
@@ -6685,7 +6685,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="758"
+            line="757"
             column="16"/>
     </issue>
 
@@ -6696,7 +6696,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="770"
+            line="769"
             column="16"/>
     </issue>
 
@@ -6707,7 +6707,7 @@
         errorLine2="                                        ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="785"
+            line="784"
             column="41"/>
     </issue>
 
@@ -6718,7 +6718,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="790"
+            line="789"
             column="16"/>
     </issue>
 
@@ -6729,7 +6729,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="791"
+            line="790"
             column="17"/>
     </issue>
 
@@ -6740,7 +6740,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/SampleMediaRouterActivity.java"
-            line="791"
+            line="790"
             column="34"/>
     </issue>
 

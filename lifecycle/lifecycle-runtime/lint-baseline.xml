@@ -48,12 +48,12 @@
     <issue
         id="RestrictedApi"
         message="FastSafeIterableMap.ceil can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
-        errorLine1="        Entry&lt;LifecycleObserver, ObserverWithState> previous = mObserverMap.ceil(observer);"
-        errorLine2="                                                                            ~~~~">
+        errorLine1="        Map.Entry&lt;LifecycleObserver, ObserverWithState> previous = mObserverMap.ceil(observer);"
+        errorLine2="                                                                                ~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
             line="162"
-            column="77"/>
+            column="81"/>
     </issue>
 
     <issue
@@ -158,12 +158,12 @@
     <issue
         id="RestrictedApi"
         message="SafeIterableMap.newest can only be called from within the same library group prefix (referenced groupId=`androidx.arch.core` with prefix androidx.arch from groupId=`androidx.lifecycle`)"
-        errorLine1="            Entry&lt;LifecycleObserver, ObserverWithState> newest = mObserverMap.newest();"
-        errorLine2="                                                                              ~~~~~~">
+        errorLine1="            Map.Entry&lt;LifecycleObserver, ObserverWithState> newest = mObserverMap.newest();"
+        errorLine2="                                                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
             line="304"
-            column="79"/>
+            column="83"/>
     </issue>
 
 </issues>

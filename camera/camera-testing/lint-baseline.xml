@@ -19,7 +19,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="255"
+            line="257"
             column="19"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
+            line="41"
             column="40"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
+            line="41"
             column="57"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="44"
+            line="42"
             column="13"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
+            line="54"
             column="35"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
+            line="54"
             column="52"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
+            line="59"
             column="12"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
+            line="59"
             column="49"/>
     </issue>
 
@@ -184,30 +184,8 @@
         errorLine2="                                                                                  ~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
+            line="59"
             column="83"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getMaxOutputSize(String cameraId, int imageFormat) {"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="67"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Size getPreviewSize() {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="96"
-            column="12"/>
     </issue>
 
     <issue
@@ -307,50 +285,6 @@
             file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
             line="29"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StreamConfigurationMap generateFakeStreamConfigurationMap() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/StreamConfigurationMapUtil.java"
-            line="40"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static StreamConfigurationMap generateFakeStreamConfigurationMap("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/StreamConfigurationMapUtil.java"
-            line="74"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int[] supportedFormats, Size[] supportedSizes) {"
-        errorLine2="            ~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/StreamConfigurationMapUtil.java"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            int[] supportedFormats, Size[] supportedSizes) {"
-        errorLine2="                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/StreamConfigurationMapUtil.java"
-            line="75"
-            column="37"/>
     </issue>
 
 </issues>

@@ -4,23 +4,23 @@
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 26, the call containing class androidx.navigation.testapp.AndroidFragment is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.createNotificationChannel(NotificationChannel("
+        errorLine1="                notificationManager.createNotificationChannel("
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"
-            line="64"
+            line="65"
             column="37"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 26, the call containing class androidx.navigation.testapp.AndroidFragment is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                notificationManager.createNotificationChannel(NotificationChannel("
-        errorLine2="                                                              ^">
+        errorLine1="                    NotificationChannel("
+        errorLine2="                    ^">
         <location
             file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"
-            line="64"
-            column="63"/>
+            line="66"
+            column="21"/>
     </issue>
 
     <issue

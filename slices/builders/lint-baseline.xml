@@ -8,7 +8,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="232"
+            line="247"
             column="45"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="295"
+            line="305"
             column="45"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="74"
+            line="76"
             column="33"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="74"
+            line="76"
             column="50"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="51"
+            line="53"
             column="35"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="51"
+            line="53"
             column="52"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="55"
+            line="57"
             column="35"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="55"
+            line="57"
             column="52"/>
     </issue>
 
@@ -1064,7 +1064,7 @@
         errorLine2="                                                                   ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="55"
+            line="57"
             column="68"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="61"
+            line="63"
             column="31"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="68"
+            line="70"
             column="12"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="78"
+            line="80"
             column="12"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="86"
+            line="88"
             column="12"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="100"
+            line="102"
             column="12"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="108"
+            line="110"
             column="12"/>
     </issue>
 

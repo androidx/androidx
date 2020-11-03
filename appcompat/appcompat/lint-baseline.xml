@@ -112,6 +112,149 @@
     </issue>
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                info.setHomeAsUpIndicator.invoke(actionBar, drawable);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
+            line="55"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
+            line="56"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
+            line="76"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                        method.invoke(mTextView);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
+            line="675"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            result = (T) method.invoke(object);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
+            line="847"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                mResolvedMethod.invoke(mResolvedContext, v);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatViewInflater.java"
+            line="409"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            mSetExclusiveCheckableMethod.invoke(mWrappedObject, checkable);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemWrapperICS.java"
+            line="391"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    mDoBeforeTextChanged.invoke(view);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/SearchView.java"
+            line="2073"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    mDoAfterTextChanged.invoke(view);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/SearchView.java"
+            line="2083"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    mEnsureImeVisible.invoke(view, /* visible = */ true);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/SearchView.java"
+            line="2093"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    return (Boolean) mMethod.invoke(mRealOwner, item);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/SupportMenuInflater.java"
+            line="265"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    mMethod.invoke(mRealOwner, item);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/SupportMenuInflater.java"
+            line="267"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                sComputeFitSystemWindowsMethod.invoke(view, inoutInsets, outLocalInsets);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ViewUtils.java"
+            line="68"
+            column="17"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.appcompat.widget.ActionBarBackgroundDrawable is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
         errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
@@ -888,7 +1031,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1053"
+            line="1059"
             column="31"/>
     </issue>
 
@@ -11985,7 +12128,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="785"
+            line="788"
             column="12"/>
     </issue>
 
@@ -11996,7 +12139,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="794"
+            line="797"
             column="28"/>
     </issue>
 
@@ -12007,7 +12150,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="889"
+            line="895"
             column="46"/>
     </issue>
 
@@ -12018,7 +12161,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="930"
+            line="936"
             column="33"/>
     </issue>
 
@@ -12029,7 +12172,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1157"
+            line="1169"
             column="22"/>
     </issue>
 
@@ -12040,7 +12183,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1222"
+            line="1234"
             column="27"/>
     </issue>
 
@@ -12051,7 +12194,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1346"
+            line="1358"
             column="15"/>
     </issue>
 
@@ -12062,7 +12205,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1392"
+            line="1404"
             column="38"/>
     </issue>
 
@@ -12073,7 +12216,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1415"
+            line="1427"
             column="48"/>
     </issue>
 
@@ -12084,7 +12227,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1421"
+            line="1433"
             column="51"/>
     </issue>
 
@@ -12095,7 +12238,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/SwitchCompat.java"
-            line="1442"
+            line="1443"
             column="54"/>
     </issue>
 
