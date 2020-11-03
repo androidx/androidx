@@ -26,7 +26,7 @@ package androidx.navigation.compose {
   public final class NavHostControllerKt {
     method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry> currentBackStackEntryAsState(androidx.navigation.NavController);
-    method public static void navigate(androidx.navigation.NavController, String route);
+    method public static void navigate(androidx.navigation.NavController, String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
     method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberNavController();
     field public static final String KEY_ROUTE = "android-support-nav:controller:route";
   }
@@ -34,6 +34,10 @@ package androidx.navigation.compose {
   public final class NavHostKt {
     method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, String startDestination, optional String? route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
     method @androidx.compose.runtime.Composable public static void NavHost(androidx.navigation.NavHostController navController, androidx.navigation.NavGraph graph);
+  }
+
+  public final class NavOptionsBuilderKt {
+    method public static void popUpTo(androidx.navigation.NavOptionsBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
   }
 
 }

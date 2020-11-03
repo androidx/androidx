@@ -20,7 +20,6 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 
@@ -31,6 +30,7 @@ import androidx.navigation.Navigator
  */
 @Navigator.Name("composable")
 public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
+    private val backstack = mutableListOf<Int>()
 
     override fun navigate(
         destination: Destination,
@@ -38,6 +38,12 @@ public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ): NavDestination? {
+        if (
+            navOptions?.shouldLaunchSingleTop() == true && backstack.lastOrNull() == destination.id
+        ) {
+            return null
+        }
+        backstack.add(destination.id)
         return destination
     }
 
@@ -45,12 +51,8 @@ public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
         return Destination(this) { }
     }
 
-    /**
-     * The back stack is managed entirely by the [NavHostController]. This returns `true` and
-     * passes control back to the NavController.
-     */
     override fun popBackStack(): Boolean {
-        return true
+        return backstack.removeLastOrNull() != null
     }
 
     /**
