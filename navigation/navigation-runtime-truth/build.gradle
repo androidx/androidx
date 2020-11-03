@@ -33,7 +33,9 @@ dependencies {
     api(TRUTH)
     api(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":internal-testutils-navigation"))
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+    })
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
