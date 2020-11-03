@@ -272,6 +272,9 @@ abstract class PagingDataDiffer<T : Any>(
         receiver?.refresh()
     }
 
+    /**
+     * @return Total number of presented items, including placeholders.
+     */
     val size: Int
         get() = presenter.size
 
@@ -299,8 +302,17 @@ abstract class PagingDataDiffer<T : Any>(
      * `false` otherwise.
      */
     @Deprecated(
-        "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
-            "getItemCount, and will be removed in a future alpha version"
+        message = "dataRefreshFlow is now redundant with the information passed from " +
+            "loadStateFlow and size(), and will be removed in a future alpha version",
+        replaceWith = ReplaceWith(
+            """loadStateFlow.map { it.source.refresh }
+                .filter { it is LoadState.NotLoading }
+                .distinctUntilChanged()""",
+            "androidx.paging.LoadState",
+            "kotlinx.coroutines.flow.distinctUntilChanged",
+            "kotlinx.coroutines.flow.filter",
+            "kotlinx.coroutines.flow.map",
+        )
     )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
@@ -354,7 +366,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and getItemCount, and will be removed in a future alpha version"
+            "and size(), and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
@@ -370,7 +382,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and getItemCount, and will be removed in a future alpha version"
+            "and size(), and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {

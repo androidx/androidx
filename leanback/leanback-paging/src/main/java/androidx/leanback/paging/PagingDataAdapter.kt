@@ -21,14 +21,14 @@ import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.PresenterSelector
 import androidx.lifecycle.Lifecycle
 import androidx.paging.AsyncPagingDataDiffer
-import androidx.paging.Pager
-import androidx.paging.PagingSource
-import androidx.paging.LoadState
-import androidx.paging.RemoteMediator
-import androidx.paging.LoadType
 import androidx.paging.CombinedLoadStates
 import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadState
+import androidx.paging.LoadType
+import androidx.paging.Pager
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.RemoteMediator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
@@ -52,12 +52,15 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
             override fun onInserted(position: Int, count: Int) {
                 notifyItemRangeInserted(position, count)
             }
+
             override fun onRemoved(position: Int, count: Int) {
                 notifyItemRangeRemoved(position, count)
             }
+
             override fun onMoved(fromPosition: Int, toPosition: Int) {
                 notifyItemMoved(fromPosition, toPosition)
             }
+
             override fun onChanged(
                 position: Int,
                 count: Int,
@@ -250,7 +253,7 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
     }
 
     /**
-     * Returns the number of items in the adapter.
+     * @return Total number of presented items, including placeholders.
      */
     override fun size(): Int {
         return differ.itemCount
@@ -269,6 +272,19 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
      * `false` otherwise.
      */
+    @Deprecated(
+        message = "dataRefreshFlow is now redundant with the information passed from " +
+            "loadStateFlow and size(), and will be removed in a future alpha version",
+        replaceWith = ReplaceWith(
+            """loadStateFlow.map { it.source.refresh }
+                .filter { it is LoadState.NotLoading }
+                .distinctUntilChanged()""",
+            "androidx.paging.LoadState",
+            "kotlinx.coroutines.flow.distinctUntilChanged",
+            "kotlinx.coroutines.flow.filter",
+            "kotlinx.coroutines.flow.map",
+        )
+    )
     @ExperimentalPagingApi
     val dataRefreshFlow: Flow<Boolean>
         get() = differ.dataRefreshFlow
@@ -281,6 +297,10 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      *
      * @see removeDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+            "and size(), and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differ.addDataRefreshListener(listener)
@@ -293,6 +313,10 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      *
      * @see addDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+            "and size(), and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
         differ.removeDataRefreshListener(listener)

@@ -231,7 +231,7 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      * Get the number of items currently presented by this Differ. This value can be directly
      * returned to [androidx.recyclerview.widget.RecyclerView.Adapter.getItemCount].
      *
-     * @return Number of items being presented.
+     * @return Number of items being presented, including placeholders.
      */
     val itemCount: Int
         get() = differBase.size
@@ -281,8 +281,17 @@ class AsyncPagingDataDiffer<T : Any> @JvmOverloads constructor(
      */
     @Suppress("DEPRECATION")
     @Deprecated(
-        "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
-            "getItemCount, and will be removed in a future alpha version"
+        message = "dataRefreshFlow is now redundant with the information passed from " +
+            "loadStateFlow and getItemCount(), and will be removed in a future alpha version",
+        replaceWith = ReplaceWith(
+            """loadStateFlow.map { it.source.refresh }
+                .filter { it is LoadState.NotLoading }
+                .distinctUntilChanged()""",
+            "androidx.paging.LoadState",
+            "kotlinx.coroutines.flow.distinctUntilChanged",
+            "kotlinx.coroutines.flow.filter",
+            "kotlinx.coroutines.flow.map",
+        )
     )
     @ExperimentalPagingApi
     val dataRefreshFlow: Flow<Boolean> = differBase.dataRefreshFlow

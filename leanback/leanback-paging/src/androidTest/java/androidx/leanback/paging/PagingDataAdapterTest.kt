@@ -75,6 +75,7 @@ class PagingDataAdapterTest {
                 workerDispatcher = Dispatchers.Main
             )
         val refreshEvents = mutableListOf<Boolean>()
+        @Suppress("DEPRECATION")
         pagingDataAdapter.addDataRefreshListener { refreshEvents.add(it) }
         val pager = Pager(
             config = PagingConfig(
@@ -117,6 +118,7 @@ class PagingDataAdapterTest {
                 workerDispatcher = Dispatchers.Main
             )
         val refreshEvents = mutableListOf<Boolean>()
+        @Suppress("DEPRECATION")
         pagingDataAdapter.addDataRefreshListener { refreshEvents.add(it) }
         val pager = Pager(
             config = PagingConfig(
