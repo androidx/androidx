@@ -503,7 +503,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="59"
+            line="61"
             column="28"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="59"
+            line="61"
             column="45"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="69"
+            line="71"
             column="5"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="69"
+            line="71"
             column="42"/>
     </issue>
 
@@ -547,30 +547,8 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="69"
+            line="71"
             column="76"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Size getMaxOutputSize(String cameraId, int imageFormat);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="79"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    Size getPreviewSize();"
-        errorLine2="    ~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="107"
-            column="5"/>
     </issue>
 
     <issue
@@ -901,17 +879,6 @@
             file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
             line="62"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public UseCaseConfig&lt;?> getUseCaseConfig() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/UseCase.java"
-            line="455"
-            column="12"/>
     </issue>
 
 </issues>

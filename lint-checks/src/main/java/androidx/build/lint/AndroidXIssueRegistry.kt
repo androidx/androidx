@@ -43,6 +43,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 TestSizeAnnotationEnforcer.MISSING_TEST_SIZE_ANNOTATION,
                 TestSizeAnnotationEnforcer.UNEXPECTED_TEST_SIZE_ANNOTATION,
                 TestSizeAnnotationEnforcer.UNSUPPORTED_TEST_RUNNER,
+                BanUncheckedReflection.ISSUE,
                 ObsoleteBuildCompatUsageDetector.ISSUE,
                 BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,

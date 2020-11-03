@@ -118,7 +118,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="252"
+            line="292"
             column="30"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ProcessUtils.java"
-            line="74"
+            line="77"
             column="32"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/foreground/SystemForegroundService.java"
-            line="137"
+            line="124"
             column="21"/>
     </issue>
 
@@ -962,7 +962,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="271"
+            line="311"
             column="31"/>
     </issue>
 
@@ -973,7 +973,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="271"
+            line="311"
             column="48"/>
     </issue>
 
@@ -1545,7 +1545,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/Schedulers.java"
-            line="61"
+            line="62"
             column="13"/>
     </issue>
 
@@ -2172,7 +2172,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkerWrapper.java"
-            line="681"
+            line="683"
             column="16"/>
     </issue>
 

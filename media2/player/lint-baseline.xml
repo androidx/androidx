@@ -46,6 +46,39 @@
     </issue>
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="100"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="125"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
+            line="150"
+            column="37"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.media2.player.ExoPlayerWrapper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
         errorLine1="        PersistableBundle bundle = new PersistableBundle();"

@@ -657,7 +657,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="505"
+            line="499"
             column="22"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="506"
+            line="500"
             column="20"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="508"
+            line="502"
             column="22"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="509"
+            line="503"
             column="23"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="511"
+            line="505"
             column="22"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="512"
+            line="506"
             column="22"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="514"
+            line="508"
             column="22"/>
     </issue>
 
@@ -734,7 +734,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="515"
+            line="509"
             column="25"/>
     </issue>
 
@@ -745,7 +745,7 @@
         errorLine2="                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="813"
+            line="807"
             column="56"/>
     </issue>
 
@@ -756,7 +756,7 @@
         errorLine2="                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="814"
+            line="808"
             column="57"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="882"
+            line="876"
             column="31"/>
     </issue>
 
@@ -778,7 +778,7 @@
         errorLine2="                                                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="890"
+            line="884"
             column="52"/>
     </issue>
 
@@ -789,7 +789,7 @@
         errorLine2="                                                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="915"
+            line="909"
             column="53"/>
     </issue>
 
@@ -800,7 +800,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="957"
+            line="951"
             column="31"/>
     </issue>
 
@@ -811,7 +811,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="962"
+            line="956"
             column="31"/>
     </issue>
 
@@ -822,7 +822,7 @@
         errorLine2="                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="992"
+            line="986"
             column="56"/>
     </issue>
 
@@ -833,7 +833,7 @@
         errorLine2="                                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="993"
+            line="987"
             column="51"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="997"
+            line="991"
             column="45"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="                                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1006"
+            line="1000"
             column="51"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1008"
+            line="1002"
             column="56"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="                                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1009"
+            line="1003"
             column="51"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1016"
+            line="1010"
             column="61"/>
     </issue>
 
@@ -899,7 +899,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1039"
+            line="1033"
             column="49"/>
     </issue>
 
@@ -910,7 +910,7 @@
         errorLine2="                                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1041"
+            line="1035"
             column="60"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="                                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1042"
+            line="1036"
             column="55"/>
     </issue>
 
@@ -932,7 +932,7 @@
         errorLine2="                                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1043"
+            line="1037"
             column="59"/>
     </issue>
 
@@ -943,7 +943,7 @@
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1044"
+            line="1038"
             column="54"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1051"
+            line="1045"
             column="54"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="                                                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1051"
+            line="1045"
             column="82"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1054"
+            line="1048"
             column="59"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1055"
+            line="1049"
             column="54"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1061"
+            line="1055"
             column="65"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="                                                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1075"
+            line="1069"
             column="80"/>
     </issue>
 
@@ -1020,7 +1020,7 @@
         errorLine2="                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1078"
+            line="1072"
             column="40"/>
     </issue>
 
@@ -1031,7 +1031,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1079"
+            line="1073"
             column="42"/>
     </issue>
 
@@ -1042,7 +1042,7 @@
         errorLine2="                                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1079"
+            line="1073"
             column="70"/>
     </issue>
 
@@ -1053,7 +1053,7 @@
         errorLine2="                                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1085"
+            line="1079"
             column="68"/>
     </issue>
 
@@ -1064,7 +1064,7 @@
         errorLine2="                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1100"
+            line="1094"
             column="56"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="                                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1101"
+            line="1095"
             column="58"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="                                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1104"
+            line="1098"
             column="60"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="                                                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1105"
+            line="1099"
             column="62"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1132"
+            line="1126"
             column="22"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1166"
+            line="1160"
             column="24"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1189"
+            line="1183"
             column="36"/>
     </issue>
 
@@ -1141,7 +1141,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1190"
+            line="1184"
             column="57"/>
     </issue>
 
@@ -1152,7 +1152,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1192"
+            line="1186"
             column="44"/>
     </issue>
 
@@ -1163,7 +1163,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1199"
+            line="1193"
             column="36"/>
     </issue>
 
@@ -1174,7 +1174,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1200"
+            line="1194"
             column="44"/>
     </issue>
 
@@ -1185,7 +1185,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1202"
+            line="1196"
             column="57"/>
     </issue>
 
@@ -1196,7 +1196,7 @@
         errorLine2="                                                                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1212"
+            line="1206"
             column="85"/>
     </issue>
 
@@ -1207,7 +1207,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1238"
+            line="1232"
             column="28"/>
     </issue>
 
@@ -1218,7 +1218,7 @@
         errorLine2="                                                                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1238"
+            line="1232"
             column="73"/>
     </issue>
 
@@ -1229,7 +1229,7 @@
         errorLine2="                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1258"
+            line="1252"
             column="57"/>
     </issue>
 
@@ -1240,7 +1240,7 @@
         errorLine2="                                                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1261"
+            line="1255"
             column="74"/>
     </issue>
 
@@ -1251,7 +1251,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1263"
+            line="1257"
             column="34"/>
     </issue>
 
@@ -1262,7 +1262,7 @@
         errorLine2="                                                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1311"
+            line="1305"
             column="80"/>
     </issue>
 
@@ -1273,7 +1273,7 @@
         errorLine2="                                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1313"
+            line="1307"
             column="88"/>
     </issue>
 
@@ -1284,7 +1284,7 @@
         errorLine2="                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1342"
+            line="1336"
             column="43"/>
     </issue>
 
@@ -1295,7 +1295,7 @@
         errorLine2="                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1368"
+            line="1362"
             column="40"/>
     </issue>
 
@@ -1306,7 +1306,7 @@
         errorLine2="                                                                       ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1368"
+            line="1362"
             column="72"/>
     </issue>
 
@@ -1317,7 +1317,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1369"
+            line="1363"
             column="44"/>
     </issue>
 
@@ -1328,7 +1328,7 @@
         errorLine2="                                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1369"
+            line="1363"
             column="73"/>
     </issue>
 
@@ -1339,7 +1339,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1384"
+            line="1378"
             column="48"/>
     </issue>
 
@@ -1350,7 +1350,7 @@
         errorLine2="                                                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1433"
+            line="1427"
             column="75"/>
     </issue>
 
@@ -1361,7 +1361,7 @@
         errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1499"
+            line="1493"
             column="20"/>
     </issue>
 
@@ -1372,7 +1372,7 @@
         errorLine2="                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1513"
+            line="1507"
             column="32"/>
     </issue>
 
@@ -1383,7 +1383,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1513"
+            line="1507"
             column="49"/>
     </issue>
 
@@ -1394,7 +1394,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1553"
+            line="1547"
             column="17"/>
     </issue>
 
@@ -1405,7 +1405,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1554"
+            line="1548"
             column="17"/>
     </issue>
 
@@ -1416,7 +1416,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1561"
+            line="1555"
             column="56"/>
     </issue>
 
@@ -1427,7 +1427,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/FloatingToolbar.java"
-            line="1562"
+            line="1556"
             column="54"/>
     </issue>
 
@@ -1493,7 +1493,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="749"
+            line="745"
             column="63"/>
     </issue>
 
@@ -1504,7 +1504,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="755"
+            line="751"
             column="63"/>
     </issue>
 
@@ -1515,7 +1515,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="773"
+            line="769"
             column="63"/>
     </issue>
 
@@ -1526,7 +1526,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="780"
+            line="776"
             column="59"/>
     </issue>
 
@@ -1537,7 +1537,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="795"
+            line="791"
             column="63"/>
     </issue>
 
@@ -1548,7 +1548,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/SelectionEvent.java"
-            line="803"
+            line="799"
             column="59"/>
     </issue>
 
@@ -1559,7 +1559,7 @@
         errorLine2="                                            ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="236"
+            line="227"
             column="45"/>
     </issue>
 
@@ -1570,7 +1570,7 @@
         errorLine2="                                             ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="239"
+            line="230"
             column="46"/>
     </issue>
 
@@ -1581,7 +1581,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="242"
+            line="233"
             column="52"/>
     </issue>
 
@@ -1592,7 +1592,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="244"
+            line="235"
             column="48"/>
     </issue>
 
@@ -1603,7 +1603,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="245"
+            line="236"
             column="62"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="                                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="249"
+            line="240"
             column="61"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="254"
+            line="245"
             column="36"/>
     </issue>
 
@@ -1636,7 +1636,7 @@
         errorLine2="                                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="255"
+            line="246"
             column="62"/>
     </issue>
 
@@ -1647,7 +1647,7 @@
         errorLine2="                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="275"
+            line="266"
             column="44"/>
     </issue>
 
@@ -1658,7 +1658,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="276"
+            line="267"
             column="44"/>
     </issue>
 
@@ -1669,7 +1669,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="279"
+            line="270"
             column="48"/>
     </issue>
 
@@ -1680,7 +1680,7 @@
         errorLine2="                                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="280"
+            line="271"
             column="49"/>
     </issue>
 
@@ -1691,7 +1691,7 @@
         errorLine2="                                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="286"
+            line="277"
             column="75"/>
     </issue>
 
@@ -1702,7 +1702,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="306"
+            line="292"
             column="17"/>
     </issue>
 
@@ -1713,7 +1713,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="307"
+            line="293"
             column="26"/>
     </issue>
 
@@ -1724,7 +1724,7 @@
         errorLine2="                    ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="310"
+            line="296"
             column="21"/>
     </issue>
 
@@ -1735,7 +1735,7 @@
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="316"
+            line="302"
             column="21"/>
     </issue>
 
@@ -1746,7 +1746,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="322"
+            line="308"
             column="25"/>
     </issue>
 
@@ -1757,7 +1757,7 @@
         errorLine2="                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="328"
+            line="314"
             column="21"/>
     </issue>
 
@@ -1768,7 +1768,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="329"
+            line="315"
             column="22"/>
     </issue>
 
@@ -1779,7 +1779,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="330"
+            line="316"
             column="22"/>
     </issue>
 
@@ -1790,7 +1790,7 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="342"
+            line="328"
             column="24"/>
     </issue>
 
@@ -1801,7 +1801,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="531"
+            line="513"
             column="29"/>
     </issue>
 
@@ -1812,7 +1812,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="531"
+            line="513"
             column="48"/>
     </issue>
 
@@ -1823,7 +1823,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="531"
+            line="513"
             column="73"/>
     </issue>
 
@@ -1834,7 +1834,7 @@
         errorLine2="                                                                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="532"
+            line="514"
             column="81"/>
     </issue>
 
@@ -1845,7 +1845,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="533"
+            line="515"
             column="75"/>
     </issue>
 
@@ -1856,7 +1856,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="544"
+            line="522"
             column="20"/>
     </issue>
 
@@ -1867,7 +1867,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="546"
+            line="524"
             column="22"/>
     </issue>
 
@@ -1878,7 +1878,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="547"
+            line="525"
             column="22"/>
     </issue>
 
@@ -1889,7 +1889,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="548"
+            line="526"
             column="22"/>
     </issue>
 
@@ -2384,7 +2384,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="277"
+            line="278"
             column="22"/>
     </issue>
 
@@ -2395,7 +2395,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="321"
+            line="323"
             column="47"/>
     </issue>
 
@@ -2406,7 +2406,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="468"
+            line="471"
             column="28"/>
     </issue>
 
@@ -2417,7 +2417,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="514"
+            line="517"
             column="60"/>
     </issue>
 
@@ -2428,7 +2428,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="543"
+            line="546"
             column="23"/>
     </issue>
 
@@ -2439,7 +2439,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="545"
+            line="548"
             column="23"/>
     </issue>
 
@@ -2450,7 +2450,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="550"
+            line="553"
             column="23"/>
     </issue>
 
@@ -2461,7 +2461,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="552"
+            line="555"
             column="23"/>
     </issue>
 
@@ -2472,7 +2472,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="557"
+            line="560"
             column="23"/>
     </issue>
 
@@ -2483,7 +2483,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="565"
+            line="568"
             column="49"/>
     </issue>
 
@@ -2494,7 +2494,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="566"
+            line="569"
             column="27"/>
     </issue>
 
@@ -2505,7 +2505,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="145"
+            line="140"
             column="49"/>
     </issue>
 
@@ -2516,7 +2516,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="371"
+            line="357"
             column="16"/>
     </issue>
 
@@ -2527,7 +2527,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="385"
+            line="371"
             column="16"/>
     </issue>
 
@@ -2538,7 +2538,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/TextClassification.java"
-            line="680"
+            line="658"
             column="23"/>
     </issue>
 
@@ -2681,7 +2681,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
-            line="130"
+            line="131"
             column="22"/>
     </issue>
 

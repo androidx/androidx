@@ -2,6 +2,39 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (Size) getSurfaceSize.invoke(null, surface);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
+            line="236"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (int) detectSurfaceType.invoke(null, surface);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
+            line="256"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (int) getGenerationId.invoke(surface);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
+            line="272"
+            column="30"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 24, the call containing class androidx.camera.camera2.internal.Camera2CaptureCallbacks.ComboSessionCaptureCallback is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
         errorLine1="                callback.onCaptureBufferLost(session, request, surface, frame);"
@@ -85,7 +118,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/compat/CameraManagerCompat.java"
-            line="264"
+            line="272"
             column="46"/>
     </issue>
 

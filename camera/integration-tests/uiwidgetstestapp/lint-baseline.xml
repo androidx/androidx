@@ -2,28 +2,6 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.integration.uiwidgets.ViewPager2Activity is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                requestPermissions("
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/ViewPager2Activity.kt"
-            line="51"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.integration.uiwidgets.ViewPagerActivity is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                requestPermissions("
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/ViewPagerActivity.kt"
-            line="55"
-            column="17"/>
-    </issue>
-
-    <issue
         id="SyntheticAccessor"
         message="Access to `private` method `getMDisplayManager` of class `OrientationConfigChangesOverriddenActivity` requires synthetic accessor"
         errorLine1="                val display = mDisplayManager.getDisplay(displayId)"

@@ -8090,7 +8090,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidanceStylist.java"
-            line="228"
+            line="229"
             column="12"/>
     </issue>
 
@@ -8101,7 +8101,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidanceStylist.java"
-            line="236"
+            line="237"
             column="12"/>
     </issue>
 
@@ -8112,7 +8112,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidanceStylist.java"
-            line="244"
+            line="245"
             column="12"/>
     </issue>
 
@@ -8123,7 +8123,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidanceStylist.java"
-            line="252"
+            line="253"
             column="12"/>
     </issue>
 

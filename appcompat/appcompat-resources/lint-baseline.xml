@@ -123,6 +123,17 @@
     </issue>
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                final Object insets = getOpticalInsetsMethod.invoke(drawable);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
+            line="90"
+            column="39"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 18, the call containing class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat.AnimationDrawableTransition is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
         errorLine1="                anim.setAutoCancel(true);"
