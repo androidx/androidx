@@ -16,6 +16,8 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.1.0")
     api("androidx.core:core:1.5.0-alpha04")
 
+    androidTestImplementation project(":test-screenshot")
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -41,6 +43,7 @@ android {
 
     sourceSets {
         main.res.srcDirs += 'src/main/res-public'
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
     }
 
     // Use Robolectric 4.+
