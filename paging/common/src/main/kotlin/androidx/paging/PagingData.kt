@@ -166,7 +166,8 @@ class PagingData<T : Any> internal constructor(
          * Note that this transform is applied asynchronously, as pages are loaded. Potential
          * separators between pages are only computed once both pages are loaded.
          *
-         * **Kotlin callers should instead use the extension function [insertSeparators]**
+         * **Kotlin callers should instead use the suspending extension function variant of
+         * insertSeparators**
          *
          * ```
          * /*
