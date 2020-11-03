@@ -40,6 +40,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
@@ -54,6 +55,19 @@ fun BasicNav() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screen.Profile.route) {
         composable(Screen.Profile.route) { Profile(navController) }
+        composable(Screen.Dashboard.route) { Dashboard(navController) }
+        composable(Screen.Scrollable.route) { Scrollable(navController) }
+    }
+}
+
+@Sampled
+@Composable
+fun NestedNav() {
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = "nested") {
+        navigation(startDestination = Screen.Profile.route, route = "nested") {
+            composable(Screen.Profile.route) { Profile(navController) }
+        }
         composable(Screen.Dashboard.route) { Dashboard(navController) }
         composable(Screen.Scrollable.route) { Scrollable(navController) }
     }
