@@ -8,7 +8,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="157"
+            line="159"
             column="22"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="175"
+            line="177"
             column="22"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="192"
+            line="194"
             column="22"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="210"
+            line="212"
             column="22"/>
     </issue>
 
@@ -52,250 +52,41 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="211"
+            line="213"
             column="13"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="        val sessionConfig = SessionConfiguration("
-        errorLine2="                            ^">
+        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.CameraMetadataImpl is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                        characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="220"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            sessionConfig.inputConfiguration = InputConfiguration("
-        errorLine2="                                               ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="228"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            sessionConfig.inputConfiguration = InputConfiguration("
-        errorLine2="                                               ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="228"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            sessionConfig.inputConfiguration = InputConfiguration("
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="228"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="        sessionConfig.sessionParameters = requestBuilder.build()"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="248"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="        cameraDevice.createCaptureSession(sessionConfig)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="250"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="        cameraDevice.createReprocessCaptureRequest(inputResult)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CameraDevice.kt"
-            line="262"
-            column="22"/>
+            file="src/main/java/androidx/camera/camera2/pipe/impl/CameraMetadataImpl.kt"
+            line="108"
+            column="41"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.CameraMetadataImpl is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    characteristics.physicalCameraIds.orEmpty().map { CameraId(it) }.toSet()"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
+        errorLine1="                        characteristics.availablePhysicalCameraRequestKeys.orEmpty().toSet()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/impl/CameraMetadataImpl.kt"
-            line="100"
-            column="37"/>
+            line="124"
+            column="41"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.CameraMetadataImpl is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    characteristics.availablePhysicalCameraRequestKeys.orEmpty().toSet()"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                        characteristics.availableSessionKeys.orEmpty().toSet()"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/impl/CameraMetadataImpl.kt"
-            line="114"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.CameraMetadataImpl is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    characteristics.availableSessionKeys.orEmpty().toSet()"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/impl/CameraMetadataImpl.kt"
-            line="128"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraCaptureSession is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                return cameraCaptureSession.isReprocessable"
-        errorLine2="                                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CaptureSession.kt"
-            line="296"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraCaptureSession is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                return cameraCaptureSession.inputSurface"
-        errorLine2="                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CaptureSession.kt"
-            line="305"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidCameraCaptureSession is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            cameraCaptureSession.finalizeOutputConfigurations(outputConfigs.map { it.unwrap() })"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/CaptureSession.kt"
-            line="321"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                    OutputConfiguration(surfaceGroupId, surface)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="144"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 24, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
-        errorLine1="                    OutputConfiguration(surface)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="146"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                configuration = OutputConfiguration("
-        errorLine2="                                ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="160"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    configuration.maxSharedSurfaceCount"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="187"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                this.enableSurfaceSharing()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="198"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration.Companion is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                this.setPhysicalCameraId(physicalCameraId.value)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="205"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="                return output.surfaces"
-        errorLine2="                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="214"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 26, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
-        errorLine1="            output.addSurface(surface)"
-        errorLine2="                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="226"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.wrapper.AndroidOutputConfiguration is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            output.removeSurface(surface)"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/wrapper/Configuration.kt"
-            line="233"
-            column="20"/>
+            line="140"
+            column="41"/>
     </issue>
 
     <issue
@@ -311,28 +102,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.impl.Permissions is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            context.checkSelfPermission(Manifest.permission.CAMERA) == PERMISSION_GRANTED"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/impl/Permissions.kt"
-            line="53"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.camera2.pipe.impl.AndroidMSessionFactory is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="                    InputConfiguration("
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/impl/SessionFactory.kt"
-            line="129"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.VirtualCameraManager is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
         errorLine1="                        instance.openCamera("
         errorLine2="                                 ~~~~~~~~~~">
@@ -340,17 +109,6 @@
             file="src/main/java/androidx/camera/camera2/pipe/impl/VirtualCameraManager.kt"
             line="228"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.camera.camera2.pipe.impl.VirtualCameraManager is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            manager.registerAvailabilityCallback(threads.defaultExecutor, availabilityCallback)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/impl/VirtualCameraManager.kt"
-            line="318"
-            column="21"/>
     </issue>
 
 </issues>

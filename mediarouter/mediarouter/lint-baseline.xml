@@ -1,433 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-dev" client="gradle" variant="debug" version="4.2.0-dev">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            if (newController == mMediaRouter2.getSystemController()) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                        mSelectRouteIntMethod.invoke(router, types, route);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="366"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                List&lt;MediaRoute2Info> selectedRoutes = newController.getSelectedRoutes();"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="369"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.TransferCallback is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                String routeId = selectedRoutes.get(0).getId();"
-        errorLine2="                                                       ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="375"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mRoutingController.setVolume(volume);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="471"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            int volumeBefore = mOptimisticVolume &lt; 0 ? mRoutingController.getVolume() :"
-        errorLine2="                                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="481"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    mRoutingController.getVolumeMax()));"
-        errorLine2="                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="484"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mRoutingController.setVolume(mOptimisticVolume);"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="485"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            if (mRoutingController == null || mRoutingController.isReleased()"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="491"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mRoutingController.release();"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="519"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mMediaRouter2.transferTo(route);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="537"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mRoutingController.selectRoute(route);"
-        errorLine2="                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="553"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2Provider.GroupRouteController is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mRoutingController.deselectRoute(route);"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2Provider.java"
-            line="569"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="678"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="683"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    sessionInfo.getName() != null ? sessionInfo.getName().toString() : null);"
-        errorLine2="                                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="683"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="685"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mSessionInfo = builder.setControlHints(controlHints).build();"
-        errorLine2="                                                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="685"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="702"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.setName(groupRoute.getName())"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="705"
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="327"
             column="25"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        .setVolume(groupRoute.getVolume())"
-        errorLine2="                         ~~~~~~~~~">
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    return mGetSystemAudioRouteMethod.invoke(router);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="706"
-            column="26"/>
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="371"
+            column="28"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        .setVolumeMax(groupRoute.getVolumeMax())"
-        errorLine2="                         ~~~~~~~~~~~~">
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    mScanWifiDisplaysMethod.invoke(mDisplayManager);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="707"
-            column="26"/>
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="123"
+            column="21"/>
     </issue>
 
     <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        .setVolumeHandling(groupRoute.getVolumeHandling());"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    int statusCode = (Integer)mGetStatusCodeMethod.invoke(route);"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="708"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                Bundle controlHints = sessionInfo.getControlHints();"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="710"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.setControlHints(controlHints);"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="718"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mSessionInfo = builder.build();"
-        errorLine2="                                   ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="721"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.clearSelectedRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="726"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.clearSelectableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="727"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.clearDeselectableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="728"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                builder.clearTransferableRoutes();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="729"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        builder.addSelectedRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="735"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        builder.addSelectableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="739"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        builder.addDeselectableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="742"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        builder.addTransferableRoute(routeId);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="745"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    mSessionInfo = builder.build();"
-        errorLine2="                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="751"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                notifySessionUpdated(mSessionInfo);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="763"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                notifySessionReleased(mSessionId);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="791"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    oldSession.getSelectedRoutes();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="798"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    newSession.getSelectedRoutes();"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="800"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.mediarouter.media.MediaRoute2ProviderServiceAdapter.SessionRecord is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            MediaRoute2ProviderServiceAdapter.this.notifySessionCreated(mRequestId, mSessionInfo);"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRoute2ProviderServiceAdapter.java"
-            line="822"
-            column="52"/>
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="165"
+            column="47"/>
     </issue>
 
     <issue
@@ -1130,7 +745,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="146"
+            line="147"
             column="29"/>
     </issue>
 
@@ -1141,7 +756,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="150"
+            line="151"
             column="29"/>
     </issue>
 
@@ -1152,7 +767,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="150"
+            line="151"
             column="46"/>
     </issue>
 
@@ -1163,7 +778,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="154"
+            line="155"
             column="29"/>
     </issue>
 
@@ -1174,7 +789,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="154"
+            line="155"
             column="46"/>
     </issue>
 
@@ -1185,7 +800,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="232"
+            line="233"
             column="34"/>
     </issue>
 
@@ -1196,7 +811,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="460"
+            line="461"
             column="15"/>
     </issue>
 
@@ -1207,7 +822,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="492"
+            line="493"
             column="44"/>
     </issue>
 
@@ -1218,7 +833,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="517"
+            line="518"
             column="38"/>
     </issue>
 
@@ -1229,7 +844,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="612"
+            line="613"
             column="27"/>
     </issue>
 
@@ -1240,7 +855,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteChooserDialog.java"
-            line="93"
+            line="94"
             column="36"/>
     </issue>
 
@@ -1251,7 +866,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteChooserDialog.java"
-            line="97"
+            line="98"
             column="36"/>
     </issue>
 
@@ -1262,7 +877,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteChooserDialog.java"
-            line="173"
+            line="174"
             column="26"/>
     </issue>
 
@@ -1273,7 +888,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteChooserDialog.java"
-            line="183"
+            line="184"
             column="29"/>
     </issue>
 
@@ -2758,7 +2373,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="299"
+            line="312"
             column="12"/>
     </issue>
 
@@ -2769,7 +2384,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="313"
+            line="321"
             column="12"/>
     </issue>
 
@@ -2780,30 +2395,8 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="337"
+            line="345"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addMemberToDynamicGroup(RouteInfo route) {"
-        errorLine2="                                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="475"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void removeMemberFromDynamicGroup(RouteInfo route) {"
-        errorLine2="                                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="485"
-            column="46"/>
     </issue>
 
     <issue
@@ -2813,7 +2406,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="544"
+            line="562"
             column="29"/>
     </issue>
 
@@ -2824,7 +2417,7 @@
         errorLine2="                                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="544"
+            line="562"
             column="58"/>
     </issue>
 
@@ -2835,7 +2428,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="844"
+            line="863"
             column="33"/>
     </issue>
 
@@ -2846,7 +2439,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="859"
+            line="879"
             column="39"/>
     </issue>
 
@@ -2857,7 +2450,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="866"
+            line="887"
             column="12"/>
     </issue>
 
@@ -2868,7 +2461,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1103"
+            line="1125"
             column="16"/>
     </issue>
 
@@ -2879,7 +2472,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1132"
+            line="1154"
             column="16"/>
     </issue>
 
@@ -2890,7 +2483,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1158"
+            line="1180"
             column="16"/>
     </issue>
 
@@ -2901,7 +2494,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1259"
+            line="1281"
             column="16"/>
     </issue>
 
@@ -2912,7 +2505,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1627"
+            line="1649"
             column="55"/>
     </issue>
 
@@ -2923,7 +2516,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1858"
+            line="1884"
             column="16"/>
     </issue>
 
@@ -2934,7 +2527,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1967"
+            line="1991"
             column="16"/>
     </issue>
 
@@ -2945,7 +2538,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1975"
+            line="1999"
             column="16"/>
     </issue>
 
@@ -2956,7 +2549,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1982"
+            line="2006"
             column="16"/>
     </issue>
 
@@ -2967,7 +2560,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1989"
+            line="2013"
             column="16"/>
     </issue>
 
@@ -2978,7 +2571,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2069"
+            line="2078"
             column="37"/>
     </issue>
 
@@ -2989,7 +2582,7 @@
         errorLine2="                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2069"
+            line="2078"
             column="57"/>
     </issue>
 
@@ -3000,7 +2593,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2122"
+            line="2131"
             column="39"/>
     </issue>
 
@@ -3011,7 +2604,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2122"
+            line="2131"
             column="59"/>
     </issue>
 
@@ -3022,7 +2615,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2141"
+            line="2150"
             column="39"/>
     </issue>
 
@@ -3033,7 +2626,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2141"
+            line="2150"
             column="59"/>
     </issue>
 
@@ -3044,7 +2637,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2152"
+            line="2161"
             column="34"/>
     </issue>
 
@@ -3055,7 +2648,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2152"
+            line="2161"
             column="54"/>
     </issue>
 
@@ -3066,7 +2659,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2161"
+            line="2170"
             column="36"/>
     </issue>
 
@@ -3077,7 +2670,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2161"
+            line="2170"
             column="56"/>
     </issue>
 
@@ -3088,7 +2681,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2170"
+            line="2179"
             column="36"/>
     </issue>
 
@@ -3099,7 +2692,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2170"
+            line="2179"
             column="56"/>
     </issue>
 
@@ -3110,7 +2703,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2179"
+            line="2188"
             column="42"/>
     </issue>
 
@@ -3121,7 +2714,7 @@
         errorLine2="                                                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2179"
+            line="2188"
             column="62"/>
     </issue>
 
@@ -3132,7 +2725,7 @@
         errorLine2="                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2194"
+            line="2203"
             column="55"/>
     </issue>
 
@@ -3143,7 +2736,7 @@
         errorLine2="                                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2194"
+            line="2203"
             column="75"/>
     </issue>
 
@@ -3154,7 +2747,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2203"
+            line="2212"
             column="37"/>
     </issue>
 
@@ -3165,7 +2758,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2203"
+            line="2212"
             column="57"/>
     </issue>
 
@@ -3176,7 +2769,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2212"
+            line="2221"
             column="39"/>
     </issue>
 
@@ -3187,7 +2780,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2212"
+            line="2221"
             column="59"/>
     </issue>
 
@@ -3198,7 +2791,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2221"
+            line="2230"
             column="39"/>
     </issue>
 
@@ -3209,7 +2802,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2221"
+            line="2230"
             column="59"/>
     </issue>
 
@@ -3220,7 +2813,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2271"
+            line="2280"
             column="30"/>
     </issue>
 

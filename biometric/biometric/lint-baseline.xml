@@ -2,6 +2,17 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                            canAuthenticateWithCrypto.invoke(mBiometricManager, crypto);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/BiometricManager.java"
+            line="426"
+            column="29"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 28, the call containing class null is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
         errorLine1="                            ? CryptoObjectUtils.unwrapFromBiometricPrompt(result.getCryptoObject())"
@@ -10,17 +21,6 @@
             file="src/main/java/androidx/biometric/AuthenticationCallbackProvider.java"
             line="229"
             column="82"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 19, the call containing class androidx.biometric.BiometricFragment is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
-        errorLine1="                    Objects.requireNonNull(CryptoObjectUtils.wrapForBiometricPrompt(crypto));"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/biometric/BiometricFragment.java"
-            line="534"
-            column="29"/>
     </issue>
 
 </issues>

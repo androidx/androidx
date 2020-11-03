@@ -19,7 +19,7 @@
         errorLine2="~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="234"
+            line="200"
             column="1"/>
     </issue>
 

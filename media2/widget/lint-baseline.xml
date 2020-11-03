@@ -327,7 +327,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/widget/VideoView.java"
-            line="572"
+            line="571"
             column="12"/>
     </issue>
 

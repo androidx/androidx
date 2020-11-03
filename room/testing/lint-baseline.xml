@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="205"
+            line="206"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="205"
+            line="206"
             column="59"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="206"
+            line="207"
             column="44"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="256"
+            line="258"
             column="29"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="283"
+            line="285"
             column="35"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="300"
+            line="302"
             column="35"/>
     </issue>
 

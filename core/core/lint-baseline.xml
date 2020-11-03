@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-dev" client="gradle" variant="debug" version="4.2.0-dev">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="BanSynchronizedMethods"
@@ -32,6 +32,358 @@
             file="src/main/java/androidx/core/content/ContextCompat.java"
             line="589"
             column="5"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    requestRelaunchActivityMethod.invoke(activityThread,"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/androidx/core/app/ActivityRecreator.java"
+            line="152"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                            performStopActivity3ParamsMethod.invoke(activityThread,"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/androidx/core/app/ActivityRecreator.java"
+            line="274"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                            performStopActivity2ParamsMethod.invoke(activityThread,"
+        errorLine2="                            ^">
+        <location
+            file="src/main/java/androidx/core/app/ActivityRecreator.java"
+            line="277"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="60"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    sPutIBinderMethod.invoke(bundle, key, binder);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/BundleCompat.java"
+            line="84"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (String) getMethod.invoke(systemProperties, name);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/DisplayCompat.java"
+            line="129"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (String) sGetScriptMethod.invoke(null, args);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/text/ICUCompat.java"
+            line="116"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (String) sAddLikelySubtagsMethod.invoke(null, args);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/text/ICUCompat.java"
+            line="133"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (int) icon.getClass().getMethod(&quot;getType&quot;).invoke(icon);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1104"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (String) icon.getClass().getMethod(&quot;getResPackage&quot;).invoke(icon);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1132"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (int) icon.getClass().getMethod(&quot;getResId&quot;).invoke(icon);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1161"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Uri) icon.getClass().getMethod(&quot;getUri&quot;).invoke(icon);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1189"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (Boolean) sActionBarOnMenuKeyMethod.invoke(actionBar, event);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/KeyEventDispatcher.java"
+            line="106"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                sSetWindowLayoutTypeMethod.invoke(popupWindow, layoutType);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
+            line="170"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (Integer) sGetWindowLayoutTypeMethod.invoke(popupWindow);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
+            line="199"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    Boolean result = (Boolean) sMethodUserHandleIsAppMethod.invoke(null, uid);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProcessCompat.java"
+            line="104"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                    Boolean result = (Boolean) sMethodUserIdIsAppMethod.invoke(null, uid);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/ProcessCompat.java"
+            line="141"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                            sRebaseMethod.invoke(theme);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
+            line="541"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                        removeItemAtMethod.invoke(menu, i);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="605"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Typeface) sCreateFromFamiliesWithDefault.invoke("
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi21Impl.java"
+            line="127"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            final Boolean result = (Boolean) sAddFontWeightStyle.invoke("
+        errorLine2="                                             ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi21Impl.java"
+            line="138"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            final Boolean result = (Boolean) sAddFontWeightStyle.invoke("
+        errorLine2="                                             ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi24Impl.java"
+            line="112"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Typeface) sCreateFromFamiliesWithDefault.invoke("
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi24Impl.java"
+            line="124"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Boolean) mAddFontFromAssetManager.invoke(family,"
+        errorLine2="                             ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="140"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Boolean) mAddFontFromBuffer.invoke(family,"
+        errorLine2="                             ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="155"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="171"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Boolean) mFreeze.invoke(family);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="183"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            mAbortCreation.invoke(family);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="194"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi28Impl.java"
+            line="51"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            sChildrenDrawingOrderMethod.invoke(viewGroup, enabled);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="2451"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
+            line="1128"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="                return (Boolean) sIsProjectedDrawableMethod.invoke(mDrawable);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/WrappedDrawableApi21.java"
+            line="131"
+            column="34"/>
     </issue>
 
     <issue
@@ -107,7 +459,7 @@
         errorLine2="                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="758"
+            line="762"
             column="26"/>
     </issue>
 
@@ -118,7 +470,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowCompat.java"
-            line="123"
+            line="143"
             column="26"/>
     </issue>
 
@@ -129,7 +481,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowCompat.java"
-            line="139"
+            line="159"
             column="26"/>
     </issue>
 
@@ -828,17 +1180,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            return mInfo.getStateDescription();"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2813"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 19, the call containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
         errorLine1="            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);"
         errorLine2="                         ~~~~~~~~~">
@@ -846,17 +1187,6 @@
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
             line="2815"
             column="26"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mInfo.setStateDescription(stateDescription);"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
-            line="2848"
-            column="19"/>
     </issue>
 
     <issue
@@ -3083,17 +3413,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.view.DisplayCutoutCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
-            line="85"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 29, the call containing class androidx.core.view.DisplayCutoutCompat is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
         errorLine1="            return new DisplayCutout(safeInsets.toPlatformInsets(), boundLeft,"
         errorLine2="                   ~~~~~~~~~~~~~~~~~">
@@ -3167,17 +3486,6 @@
             file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
             line="164"
             column="53"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.view.DisplayCutoutCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            return Insets.toCompatInsets(((DisplayCutout) mDisplayCutout).getWaterfallInsets());"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/DisplayCutoutCompat.java"
-            line="183"
-            column="75"/>
     </issue>
 
     <issue
@@ -3451,7 +3759,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="666"
+            line="702"
             column="56"/>
     </issue>
 
@@ -3803,7 +4111,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/HandlerCompat.java"
-            line="53"
+            line="52"
             column="28"/>
     </issue>
 
@@ -3814,7 +4122,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/HandlerCompat.java"
-            line="94"
+            line="93"
             column="28"/>
     </issue>
 
@@ -3825,7 +4133,7 @@
         errorLine2="                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/HandlerCompat.java"
-            line="145"
+            line="144"
             column="28"/>
     </issue>
 
@@ -3924,7 +4232,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="533"
+            line="546"
             column="29"/>
     </issue>
 
@@ -3935,7 +4243,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="537"
+            line="550"
             column="33"/>
     </issue>
 
@@ -3946,7 +4254,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="539"
+            line="552"
             column="33"/>
     </issue>
 
@@ -3957,7 +4265,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="544"
+            line="557"
             column="29"/>
     </issue>
 
@@ -3968,7 +4276,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="547"
+            line="560"
             column="29"/>
     </issue>
 
@@ -3979,19 +4287,8 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="550"
+            line="563"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.graphics.drawable.IconCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    icon = Icon.createWithAdaptiveBitmapContentUri(getUri());"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="554"
-            column="33"/>
     </issue>
 
     <issue
@@ -4001,7 +4298,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="567"
+            line="580"
             column="33"/>
     </issue>
 
@@ -4012,7 +4309,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="569"
+            line="582"
             column="33"/>
     </issue>
 
@@ -4023,7 +4320,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="577"
+            line="590"
             column="18"/>
     </issue>
 
@@ -4034,7 +4331,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="580"
+            line="593"
             column="18"/>
     </issue>
 
@@ -4045,7 +4342,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="628"
+            line="641"
             column="36"/>
     </issue>
 
@@ -4056,7 +4353,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="681"
+            line="694"
             column="32"/>
     </issue>
 
@@ -4067,7 +4364,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="1088"
+            line="1101"
             column="25"/>
     </issue>
 
@@ -4078,7 +4375,7 @@
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="1116"
+            line="1129"
             column="25"/>
     </issue>
 
@@ -4089,7 +4386,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="1145"
+            line="1158"
             column="25"/>
     </issue>
 
@@ -4100,7 +4397,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="1173"
+            line="1186"
             column="25"/>
     </issue>
 
@@ -4342,19 +4639,8 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/LocationManagerCompat.java"
-            line="60"
+            line="71"
             column="36"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.location.LocationManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                if (locationManager.registerGnssStatusCallback(executor, transport)) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/location/LocationManagerCompat.java"
-            line="139"
-            column="37"/>
     </issue>
 
     <issue
@@ -4364,7 +4650,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/LocationManagerCompat.java"
-            line="158"
+            line="189"
             column="37"/>
     </issue>
 
@@ -4375,7 +4661,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/LocationManagerCompat.java"
-            line="223"
+            line="274"
             column="37"/>
     </issue>
 
@@ -4386,7 +4672,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/location/LocationManagerCompat.java"
-            line="232"
+            line="283"
             column="37"/>
     </issue>
 
@@ -4953,28 +5239,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationChannelCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mParentId = channel.getParentChannelId();"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
-            line="297"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationChannelCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mConversationId = channel.getConversationId();"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
-            line="298"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 26, the call containing class androidx.core.app.NotificationChannelCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
         errorLine1="        mBypassDnd = channel.canBypassDnd();"
         errorLine2="                             ~~~~~~~~~~~~">
@@ -5004,17 +5268,6 @@
             file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
             line="304"
             column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationChannelCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            mImportantConversation = channel.isImportantConversation();"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
-            line="307"
-            column="46"/>
     </issue>
 
     <issue
@@ -5114,17 +5367,6 @@
             file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
             line="328"
             column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationChannelCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            channel.setConversationId(mParentId, mConversationId);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationChannelCompat.java"
-            line="330"
-            column="21"/>
     </issue>
 
     <issue
@@ -6009,210 +6251,12 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                    new android.app.Notification.BubbleMetadata.Builder()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6636"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            .setAutoExpandBubble(compatMetadata.getAutoExpandBubble())"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6637"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            .setDeleteIntent(compatMetadata.getDeleteIntent())"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6638"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            .setIcon(compatMetadata.getIcon().toIcon())"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6639"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            .setIntent(compatMetadata.getIntent())"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6640"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            .setSuppressNotification("
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6641"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6645"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                platformMetadataBuilder.setDesiredHeightResId("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6649"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="            return platformMetadataBuilder.build();"
-        errorLine2="                                           ~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6653"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                    .setAutoExpandBubble(platformMetadata.getAutoExpandBubble())"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6672"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                    .setDeleteIntent(platformMetadata.getDeleteIntent())"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6673"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                    .setIcon(IconCompat.createFromIcon(platformMetadata.getIcon()))"
-        errorLine2="                                                                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6674"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                    .setIntent(platformMetadata.getIntent())"
-        errorLine2="                                                ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6675"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                            platformMetadata.isNotificationSuppressed());"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6677"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="            if (platformMetadata.getDesiredHeight() != 0) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6679"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6680"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="            if (platformMetadata.getDesiredHeightResId() != 0) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6683"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat.BubbleMetadata is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
-        errorLine1="                compatBuilder.setDesiredHeightResId(platformMetadata.getDesiredHeightResId());"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6684"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 29, the call containing class androidx.core.app.NotificationCompat is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
         errorLine1="            return BubbleMetadata.fromPlatform(notification.getBubbleMetadata());"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6945"
+            line="7185"
             column="61"/>
     </issue>
 
@@ -6223,7 +6267,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6955"
+            line="7195"
             column="59"/>
     </issue>
 
@@ -6234,7 +6278,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6963"
+            line="7203"
             column="29"/>
     </issue>
 
@@ -6245,7 +6289,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6964"
+            line="7204"
             column="29"/>
     </issue>
 
@@ -6256,7 +6300,7 @@
         errorLine2="                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6965"
+            line="7205"
             column="29"/>
     </issue>
 
@@ -6267,7 +6311,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6966"
+            line="7206"
             column="29"/>
     </issue>
 
@@ -6278,7 +6322,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6968"
+            line="7208"
             column="39"/>
     </issue>
 
@@ -6289,7 +6333,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6970"
+            line="7210"
             column="29"/>
     </issue>
 
@@ -6300,7 +6344,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6977"
+            line="7217"
             column="44"/>
     </issue>
 
@@ -6311,7 +6355,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6979"
+            line="7219"
             column="31"/>
     </issue>
 
@@ -6322,7 +6366,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6981"
+            line="7221"
             column="44"/>
     </issue>
 
@@ -6333,7 +6377,7 @@
         errorLine2="                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6986"
+            line="7226"
             column="24"/>
     </issue>
 
@@ -6344,7 +6388,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6990"
+            line="7230"
             column="37"/>
     </issue>
 
@@ -6355,7 +6399,7 @@
         errorLine2="                                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6992"
+            line="7232"
             column="37"/>
     </issue>
 
@@ -6366,7 +6410,7 @@
         errorLine2="                                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6996"
+            line="7236"
             column="75"/>
     </issue>
 
@@ -6377,7 +6421,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6999"
+            line="7239"
             column="24"/>
     </issue>
 
@@ -6388,7 +6432,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7001"
+            line="7241"
             column="32"/>
     </issue>
 
@@ -6399,7 +6443,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7004"
+            line="7244"
             column="38"/>
     </issue>
 
@@ -6410,7 +6454,7 @@
         errorLine2="                                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7005"
+            line="7245"
             column="80"/>
     </issue>
 
@@ -6421,7 +6465,7 @@
         errorLine2="                                                                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7006"
+            line="7246"
             column="79"/>
     </issue>
 
@@ -6432,7 +6476,7 @@
         errorLine2="                                                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7010"
+            line="7250"
             column="86"/>
     </issue>
 
@@ -6443,7 +6487,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7126"
+            line="7366"
             column="33"/>
     </issue>
 
@@ -6454,7 +6498,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7234"
+            line="7474"
             column="33"/>
     </issue>
 
@@ -6465,7 +6509,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7250"
+            line="7490"
             column="33"/>
     </issue>
 
@@ -6476,7 +6520,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7262"
+            line="7502"
             column="33"/>
     </issue>
 
@@ -6487,7 +6531,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7275"
+            line="7515"
             column="33"/>
     </issue>
 
@@ -6498,7 +6542,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7287"
+            line="7527"
             column="33"/>
     </issue>
 
@@ -6509,7 +6553,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7298"
+            line="7538"
             column="33"/>
     </issue>
 
@@ -6520,7 +6564,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7314"
+            line="7554"
             column="44"/>
     </issue>
 
@@ -6531,7 +6575,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7329"
+            line="7569"
             column="33"/>
     </issue>
 
@@ -6542,7 +6586,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7342"
+            line="7582"
             column="33"/>
     </issue>
 
@@ -7307,17 +7351,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                        &amp;&amp; channelIds.contains(channel.getParentChannelId())) {"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"
-            line="456"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 26, the call containing class androidx.core.app.NotificationManagerCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
         errorLine1="                mNotificationManager.deleteNotificationChannel(channel.getId());"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -7346,17 +7379,6 @@
         <location
             file="src/main/java/androidx/core/app/NotificationManagerCompat.java"
             line="472"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.app.NotificationManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            return mNotificationManager.getNotificationChannel(channelId, conversationId);"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"
-            line="505"
             column="41"/>
     </issue>
 
@@ -9276,17 +9298,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.content.pm.ShortcutInfoCompat.Builder is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                mInfo.mIsCached = shortcutInfo.isCached();"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="568"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 25, the call containing class androidx.core.content.pm.ShortcutInfoCompat.Builder is not annotated with @RequiresApi(x) where x is at least 25. Either annotate the containing class with at least @RequiresApi(25) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(25)."
         errorLine1="            mInfo.mIsDynamic = shortcutInfo.isDynamic();"
         errorLine2="                                            ~~~~~~~~~">
@@ -9448,17 +9459,6 @@
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
             line="259"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.content.pm.ShortcutManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                    context.getSystemService(ShortcutManager.class).getShortcuts(matchFlags);"
-        errorLine2="                                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="259"
-            column="69"/>
     </issue>
 
     <issue
@@ -9710,7 +9710,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="550"
+            line="554"
             column="21"/>
     </issue>
 
@@ -9721,7 +9721,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="551"
+            line="555"
             column="22"/>
     </issue>
 
@@ -9732,7 +9732,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="578"
+            line="582"
             column="21"/>
     </issue>
 
@@ -9743,7 +9743,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="578"
+            line="582"
             column="61"/>
     </issue>
 
@@ -9754,7 +9754,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="590"
+            line="594"
             column="21"/>
     </issue>
 
@@ -9765,7 +9765,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="590"
+            line="594"
             column="61"/>
     </issue>
 
@@ -9776,7 +9776,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="601"
+            line="605"
             column="21"/>
     </issue>
 
@@ -9787,7 +9787,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="601"
+            line="605"
             column="61"/>
     </issue>
 
@@ -9798,19 +9798,8 @@
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="625"
+            line="629"
             column="17"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.content.pm.ShortcutManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="        context.getSystemService(ShortcutManager.class).removeLongLivedShortcuts(shortcutIds);"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="625"
-            column="57"/>
     </issue>
 
     <issue
@@ -9820,19 +9809,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="675"
+            line="679"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class androidx.core.content.pm.ShortcutManagerCompat is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="            context.getSystemService(ShortcutManager.class).pushDynamicShortcut("
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="675"
-            column="61"/>
     </issue>
 
     <issue
@@ -9842,7 +9820,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="678"
+            line="682"
             column="48"/>
     </issue>
 
@@ -9853,7 +9831,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="679"
+            line="683"
             column="20"/>
     </issue>
 
@@ -9864,7 +9842,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="682"
+            line="686"
             column="53"/>
     </issue>
 
@@ -9875,7 +9853,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="684"
+            line="688"
             column="20"/>
     </issue>
 
@@ -9886,7 +9864,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="687"
+            line="691"
             column="16"/>
     </issue>
 
@@ -9897,7 +9875,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
-            line="727"
+            line="731"
             column="64"/>
     </issue>
 
@@ -10469,7 +10447,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="754"
+            line="757"
             column="15"/>
     </issue>
 
@@ -10480,7 +10458,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="775"
+            line="778"
             column="22"/>
     </issue>
 
@@ -10491,7 +10469,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="819"
+            line="822"
             column="15"/>
     </issue>
 
@@ -10502,7 +10480,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="888"
+            line="891"
             column="22"/>
     </issue>
 
@@ -10513,7 +10491,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="938"
+            line="941"
             column="22"/>
     </issue>
 
@@ -10524,7 +10502,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="981"
+            line="984"
             column="25"/>
     </issue>
 
@@ -10535,7 +10513,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="995"
+            line="998"
             column="18"/>
     </issue>
 
@@ -10546,7 +10524,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1010"
+            line="1013"
             column="18"/>
     </issue>
 
@@ -10557,7 +10535,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1032"
+            line="1035"
             column="18"/>
     </issue>
 
@@ -10568,7 +10546,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1050"
+            line="1053"
             column="18"/>
     </issue>
 
@@ -10579,7 +10557,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1072"
+            line="1075"
             column="18"/>
     </issue>
 
@@ -10590,7 +10568,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1094"
+            line="1097"
             column="25"/>
     </issue>
 
@@ -10601,7 +10579,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1121"
+            line="1124"
             column="18"/>
     </issue>
 
@@ -10612,7 +10590,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1130"
+            line="1133"
             column="18"/>
     </issue>
 
@@ -10623,7 +10601,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1172"
+            line="1175"
             column="25"/>
     </issue>
 
@@ -10634,7 +10612,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1194"
+            line="1197"
             column="25"/>
     </issue>
 
@@ -10645,7 +10623,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1429"
+            line="1432"
             column="55"/>
     </issue>
 
@@ -10656,7 +10634,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1524"
+            line="1527"
             column="25"/>
     </issue>
 
@@ -10667,7 +10645,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1538"
+            line="1541"
             column="18"/>
     </issue>
 
@@ -10678,7 +10656,7 @@
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1574"
+            line="1577"
             column="18"/>
     </issue>
 
@@ -10689,7 +10667,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1597"
+            line="1600"
             column="25"/>
     </issue>
 
@@ -10700,7 +10678,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1621"
+            line="1624"
             column="18"/>
     </issue>
 
@@ -10711,7 +10689,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1635"
+            line="1638"
             column="25"/>
     </issue>
 
@@ -10722,7 +10700,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1658"
+            line="1661"
             column="25"/>
     </issue>
 
@@ -10733,7 +10711,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1775"
+            line="1778"
             column="25"/>
     </issue>
 
@@ -10744,7 +10722,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1811"
+            line="1814"
             column="18"/>
     </issue>
 
@@ -10755,7 +10733,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1826"
+            line="1829"
             column="25"/>
     </issue>
 
@@ -10766,7 +10744,7 @@
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1842"
+            line="1845"
             column="25"/>
     </issue>
 
@@ -10777,7 +10755,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1863"
+            line="1866"
             column="18"/>
     </issue>
 
@@ -10788,7 +10766,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1886"
+            line="1889"
             column="18"/>
     </issue>
 
@@ -10799,7 +10777,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1909"
+            line="1912"
             column="18"/>
     </issue>
 
@@ -10810,7 +10788,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1986"
+            line="1989"
             column="25"/>
     </issue>
 
@@ -10821,7 +10799,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2020"
+            line="2023"
             column="25"/>
     </issue>
 
@@ -10832,7 +10810,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2327"
+            line="2330"
             column="18"/>
     </issue>
 
@@ -10843,7 +10821,7 @@
         errorLine2="                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2338"
+            line="2341"
             column="25"/>
     </issue>
 
@@ -10854,7 +10832,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2348"
+            line="2351"
             column="18"/>
     </issue>
 
@@ -10865,7 +10843,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2359"
+            line="2362"
             column="25"/>
     </issue>
 
@@ -10876,7 +10854,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2373"
+            line="2376"
             column="18"/>
     </issue>
 
@@ -10887,7 +10865,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2395"
+            line="2398"
             column="25"/>
     </issue>
 
@@ -10898,7 +10876,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2408"
+            line="2411"
             column="25"/>
     </issue>
 
@@ -10909,7 +10887,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2419"
+            line="2422"
             column="18"/>
     </issue>
 
@@ -10920,7 +10898,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2421"
+            line="2424"
             column="18"/>
     </issue>
 
@@ -10931,7 +10909,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2464"
+            line="2467"
             column="22"/>
     </issue>
 
@@ -10942,7 +10920,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2504"
+            line="2507"
             column="19"/>
     </issue>
 
@@ -10953,7 +10931,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2508"
+            line="2511"
             column="15"/>
     </issue>
 
@@ -10964,7 +10942,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2538"
+            line="2541"
             column="44"/>
     </issue>
 
@@ -10975,7 +10953,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2566"
+            line="2569"
             column="50"/>
     </issue>
 
@@ -10986,7 +10964,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2590"
+            line="2593"
             column="18"/>
     </issue>
 
@@ -10997,7 +10975,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2605"
+            line="2608"
             column="25"/>
     </issue>
 
@@ -11008,7 +10986,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2692"
+            line="2716"
             column="25"/>
     </issue>
 
@@ -11019,7 +10997,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2705"
+            line="2729"
             column="25"/>
     </issue>
 
@@ -11030,7 +11008,7 @@
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2718"
+            line="2742"
             column="18"/>
     </issue>
 
@@ -11041,7 +11019,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2732"
+            line="2756"
             column="25"/>
     </issue>
 
@@ -11052,7 +11030,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2748"
+            line="2772"
             column="18"/>
     </issue>
 
@@ -11063,7 +11041,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2754"
+            line="2778"
             column="41"/>
     </issue>
 
@@ -11074,7 +11052,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2755"
+            line="2779"
             column="34"/>
     </issue>
 
@@ -11085,7 +11063,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2760"
+            line="2784"
             column="26"/>
     </issue>
 
@@ -11096,7 +11074,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2777"
+            line="2801"
             column="25"/>
     </issue>
 
@@ -11107,7 +11085,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2795"
+            line="2819"
             column="18"/>
     </issue>
 
@@ -11118,7 +11096,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2801"
+            line="2825"
             column="41"/>
     </issue>
 
@@ -11129,7 +11107,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2802"
+            line="2826"
             column="34"/>
     </issue>
 
@@ -11140,7 +11118,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2807"
+            line="2831"
             column="26"/>
     </issue>
 
@@ -11151,7 +11129,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2833"
+            line="2857"
             column="18"/>
     </issue>
 
@@ -11162,7 +11140,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2856"
+            line="2880"
             column="25"/>
     </issue>
 
@@ -11173,7 +11151,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2878"
+            line="2902"
             column="25"/>
     </issue>
 
@@ -11184,7 +11162,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2897"
+            line="2921"
             column="18"/>
     </issue>
 
@@ -11195,7 +11173,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2914"
+            line="2938"
             column="25"/>
     </issue>
 
@@ -11206,7 +11184,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2943"
+            line="2967"
             column="25"/>
     </issue>
 
@@ -11217,7 +11195,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2974"
+            line="2998"
             column="25"/>
     </issue>
 
@@ -11228,7 +11206,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3198"
+            line="3222"
             column="25"/>
     </issue>
 
@@ -11239,7 +11217,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3241"
+            line="3265"
             column="25"/>
     </issue>
 
@@ -11250,7 +11228,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3263"
+            line="3287"
             column="25"/>
     </issue>
 
@@ -11261,7 +11239,7 @@
         errorLine2="                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3274"
+            line="3298"
             column="25"/>
     </issue>
 
@@ -11272,7 +11250,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3291"
+            line="3315"
             column="25"/>
     </issue>
 
@@ -11283,7 +11261,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3305"
+            line="3329"
             column="25"/>
     </issue>
 
@@ -11294,7 +11272,7 @@
         errorLine2="                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3324"
+            line="3348"
             column="18"/>
     </issue>
 
@@ -11305,7 +11283,7 @@
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3443"
+            line="3467"
             column="18"/>
     </issue>
 
@@ -11316,7 +11294,7 @@
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3458"
+            line="3482"
             column="25"/>
     </issue>
 
@@ -11327,7 +11305,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3468"
+            line="3492"
             column="25"/>
     </issue>
 
@@ -11338,7 +11316,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3480"
+            line="3504"
             column="25"/>
     </issue>
 
@@ -11349,7 +11327,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3498"
+            line="3522"
             column="18"/>
     </issue>
 
@@ -11360,7 +11338,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3532"
+            line="3556"
             column="18"/>
     </issue>
 
@@ -11371,7 +11349,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3550"
+            line="3574"
             column="25"/>
     </issue>
 
@@ -11382,7 +11360,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3561"
+            line="3585"
             column="18"/>
     </issue>
 
@@ -11393,7 +11371,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3580"
+            line="3604"
             column="25"/>
     </issue>
 
@@ -11404,7 +11382,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3600"
+            line="3624"
             column="18"/>
     </issue>
 
@@ -11415,7 +11393,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3610"
+            line="3634"
             column="22"/>
     </issue>
 
@@ -11426,7 +11404,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3621"
+            line="3645"
             column="15"/>
     </issue>
 
@@ -11437,7 +11415,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3630"
+            line="3654"
             column="15"/>
     </issue>
 
@@ -11448,7 +11426,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3642"
+            line="3666"
             column="25"/>
     </issue>
 
@@ -11459,7 +11437,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3656"
+            line="3680"
             column="18"/>
     </issue>
 
@@ -11470,7 +11448,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3668"
+            line="3692"
             column="25"/>
     </issue>
 
@@ -11481,7 +11459,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3682"
+            line="3706"
             column="18"/>
     </issue>
 
@@ -11492,7 +11470,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3697"
+            line="3721"
             column="25"/>
     </issue>
 
@@ -11503,7 +11481,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3716"
+            line="3740"
             column="18"/>
     </issue>
 
@@ -11514,7 +11492,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3734"
+            line="3758"
             column="25"/>
     </issue>
 
@@ -11525,7 +11503,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3750"
+            line="3774"
             column="18"/>
     </issue>
 
@@ -11536,7 +11514,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3764"
+            line="3788"
             column="25"/>
     </issue>
 
@@ -11547,7 +11525,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3786"
+            line="3810"
             column="25"/>
     </issue>
 
@@ -11558,7 +11536,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3799"
+            line="3823"
             column="25"/>
     </issue>
 
@@ -11569,7 +11547,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3996"
+            line="4020"
             column="29"/>
     </issue>
 
@@ -11580,7 +11558,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4002"
+            line="4026"
             column="22"/>
     </issue>
 
@@ -11591,7 +11569,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4068"
+            line="4092"
             column="29"/>
     </issue>
 
@@ -11602,29 +11580,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4074"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class null is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                return view.getStateDescription();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4091"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 30, the call containing class null is not annotated with @RequiresApi(x) where x is at least 30. Either annotate the containing class with at least @RequiresApi(30) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(30)."
-        errorLine1="                view.setStateDescription(value);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4097"
+            line="4098"
             column="22"/>
     </issue>
 
@@ -11635,7 +11591,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4148"
+            line="4172"
             column="29"/>
     </issue>
 
@@ -11646,7 +11602,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4154"
+            line="4178"
             column="22"/>
     </issue>
 
@@ -11657,7 +11613,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4249"
+            line="4273"
             column="19"/>
     </issue>
 
@@ -11668,7 +11624,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4259"
+            line="4283"
             column="19"/>
     </issue>
 
@@ -11679,7 +11635,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4266"
+            line="4290"
             column="34"/>
     </issue>
 
@@ -11690,7 +11646,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4326"
+            line="4350"
             column="22"/>
     </issue>
 
@@ -11701,7 +11657,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4357"
+            line="4381"
             column="40"/>
     </issue>
 
@@ -11998,7 +11954,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/WindowCompat.java"
-            line="87"
+            line="89"
             column="27"/>
     </issue>
 
@@ -12217,7 +12173,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/os/HandlerCompat.java"
-            line="143"
+            line="142"
             column="37"/>
     </issue>
 
@@ -12250,7 +12206,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1070"
+            line="1073"
             column="13"/>
     </issue>
 
@@ -15165,7 +15121,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="435"
+            line="439"
             column="19"/>
     </issue>
 
@@ -15176,7 +15132,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="470"
+            line="504"
             column="12"/>
     </issue>
 
@@ -15187,7 +15143,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="511"
+            line="546"
             column="12"/>
     </issue>
 
@@ -15198,7 +15154,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="532"
+            line="567"
             column="12"/>
     </issue>
 
@@ -15209,7 +15165,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="532"
+            line="567"
             column="41"/>
     </issue>
 
@@ -15220,19 +15176,8 @@
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="541"
+            line="576"
             column="41"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/FileProvider.java"
-            line="581"
-            column="12"/>
     </issue>
 
     <issue
@@ -15605,7 +15550,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="169"
+            line="176"
             column="12"/>
     </issue>
 
@@ -15616,7 +15561,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="175"
+            line="182"
             column="12"/>
     </issue>
 
@@ -15627,7 +15572,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="199"
+            line="206"
             column="12"/>
     </issue>
 
@@ -15638,7 +15583,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="209"
+            line="216"
             column="12"/>
     </issue>
 
@@ -15649,7 +15594,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="216"
+            line="223"
             column="12"/>
     </issue>
 
@@ -15660,7 +15605,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="225"
+            line="232"
             column="19"/>
     </issue>
 
@@ -15671,7 +15616,7 @@
         errorLine2="                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="225"
+            line="232"
             column="49"/>
     </issue>
 
@@ -15682,7 +15627,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="236"
+            line="243"
             column="19"/>
     </issue>
 
@@ -15693,7 +15638,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="236"
+            line="243"
             column="49"/>
     </issue>
 
@@ -15704,7 +15649,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="236"
+            line="243"
             column="62"/>
     </issue>
 
@@ -15715,7 +15660,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="263"
+            line="270"
             column="19"/>
     </issue>
 
@@ -15726,7 +15671,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="263"
+            line="270"
             column="47"/>
     </issue>
 
@@ -15737,7 +15682,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="278"
+            line="285"
             column="19"/>
     </issue>
 
@@ -15748,7 +15693,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="278"
+            line="285"
             column="55"/>
     </issue>
 
@@ -15759,7 +15704,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="296"
+            line="303"
             column="19"/>
     </issue>
 
@@ -15770,7 +15715,7 @@
         errorLine2="                                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="296"
+            line="303"
             column="45"/>
     </issue>
 
@@ -15781,7 +15726,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="313"
+            line="320"
             column="19"/>
     </issue>
 
@@ -15792,7 +15737,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="313"
+            line="320"
             column="51"/>
     </issue>
 
@@ -15803,7 +15748,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="328"
+            line="335"
             column="19"/>
     </issue>
 
@@ -15814,7 +15759,7 @@
         errorLine2="                                                  ~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="328"
+            line="335"
             column="51"/>
     </issue>
 
@@ -15825,7 +15770,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="483"
+            line="496"
             column="12"/>
     </issue>
 
@@ -15836,7 +15781,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="493"
+            line="506"
             column="12"/>
     </issue>
 
@@ -15847,7 +15792,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="493"
+            line="506"
             column="35"/>
     </issue>
 
@@ -15858,7 +15803,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="504"
+            line="517"
             column="12"/>
     </issue>
 
@@ -15869,7 +15814,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
-            line="504"
+            line="517"
             column="35"/>
     </issue>
 
@@ -18355,7 +18300,7 @@
         errorLine2="                                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="277"
+            line="306"
             column="54"/>
     </issue>
 
@@ -18366,7 +18311,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="345"
+            line="374"
             column="19"/>
     </issue>
 
@@ -18377,7 +18322,7 @@
         errorLine2="                                                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
-            line="345"
+            line="374"
             column="79"/>
     </issue>
 
@@ -19455,7 +19400,7 @@
         errorLine2="                                                                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompat.java"
-            line="145"
+            line="146"
             column="77"/>
     </issue>
 
@@ -20016,7 +19961,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="530"
+            line="533"
             column="49"/>
     </issue>
 
@@ -20027,7 +19972,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="544"
+            line="547"
             column="47"/>
     </issue>
 
@@ -20038,7 +19983,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="561"
+            line="564"
             column="41"/>
     </issue>
 
@@ -20049,7 +19994,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="581"
+            line="584"
             column="42"/>
     </issue>
 
@@ -20060,7 +20005,7 @@
         errorLine2="                                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="621"
+            line="624"
             column="53"/>
     </issue>
 
@@ -20071,7 +20016,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="621"
+            line="624"
             column="61"/>
     </issue>
 
@@ -20082,7 +20027,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="653"
+            line="656"
             column="55"/>
     </issue>
 
@@ -20093,7 +20038,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="653"
+            line="656"
             column="63"/>
     </issue>
 
@@ -20104,7 +20049,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="685"
+            line="688"
             column="13"/>
     </issue>
 
@@ -20115,7 +20060,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="715"
+            line="718"
             column="30"/>
     </issue>
 
@@ -20126,7 +20071,7 @@
         errorLine2="                                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1048"
+            line="1051"
             column="60"/>
     </issue>
 
@@ -20137,7 +20082,7 @@
         errorLine2="                                                                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1069"
+            line="1072"
             column="67"/>
     </issue>
 
@@ -20148,7 +20093,7 @@
         errorLine2="            ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1192"
+            line="1195"
             column="13"/>
     </issue>
 
@@ -20159,7 +20104,7 @@
         errorLine2="                                                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1398"
+            line="1401"
             column="61"/>
     </issue>
 
@@ -20170,7 +20115,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1427"
+            line="1430"
             column="19"/>
     </issue>
 
@@ -20181,7 +20126,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1447"
+            line="1450"
             column="34"/>
     </issue>
 
@@ -20192,7 +20137,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1486"
+            line="1489"
             column="37"/>
     </issue>
 
@@ -20203,7 +20148,7 @@
         errorLine2="                                                                         ~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1486"
+            line="1489"
             column="74"/>
     </issue>
 
@@ -20214,7 +20159,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1510"
+            line="1513"
             column="36"/>
     </issue>
 
@@ -20225,7 +20170,7 @@
         errorLine2="                                                         ~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1572"
+            line="1575"
             column="58"/>
     </issue>
 
@@ -20236,7 +20181,7 @@
         errorLine2="                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1633"
+            line="1636"
             column="19"/>
     </issue>
 
@@ -20247,7 +20192,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1677"
+            line="1680"
             column="36"/>
     </issue>
 
@@ -20258,7 +20203,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1714"
+            line="1717"
             column="48"/>
     </issue>
 
@@ -20269,7 +20214,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1731"
+            line="1734"
             column="49"/>
     </issue>
 
@@ -20280,7 +20225,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1745"
+            line="1748"
             column="40"/>
     </issue>
 
@@ -20291,7 +20236,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1937"
+            line="1940"
             column="41"/>
     </issue>
 
@@ -20302,7 +20247,7 @@
         errorLine2="                                        ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1951"
+            line="1954"
             column="41"/>
     </issue>
 
@@ -20313,7 +20258,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="1973"
+            line="1976"
             column="36"/>
     </issue>
 
@@ -20324,7 +20269,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2075"
+            line="2078"
             column="40"/>
     </issue>
 
@@ -20335,7 +20280,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2092"
+            line="2095"
             column="40"/>
     </issue>
 
@@ -20346,7 +20291,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2109"
+            line="2112"
             column="33"/>
     </issue>
 
@@ -20357,7 +20302,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2124"
+            line="2127"
             column="29"/>
     </issue>
 
@@ -20368,7 +20313,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2139"
+            line="2142"
             column="29"/>
     </issue>
 
@@ -20379,7 +20324,7 @@
         errorLine2="                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2152"
+            line="2155"
             column="36"/>
     </issue>
 
@@ -20390,7 +20335,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2166"
+            line="2169"
             column="37"/>
     </issue>
 
@@ -20401,7 +20346,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2180"
+            line="2183"
             column="37"/>
     </issue>
 
@@ -20412,7 +20357,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2193"
+            line="2196"
             column="34"/>
     </issue>
 
@@ -20423,7 +20368,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2206"
+            line="2209"
             column="34"/>
     </issue>
 
@@ -20434,7 +20379,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2217"
+            line="2220"
             column="35"/>
     </issue>
 
@@ -20445,7 +20390,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2233"
+            line="2236"
             column="34"/>
     </issue>
 
@@ -20456,7 +20401,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2246"
+            line="2249"
             column="35"/>
     </issue>
 
@@ -20467,7 +20412,7 @@
         errorLine2="                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2262"
+            line="2265"
             column="34"/>
     </issue>
 
@@ -20478,7 +20423,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2270"
+            line="2273"
             column="37"/>
     </issue>
 
@@ -20489,7 +20434,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2278"
+            line="2281"
             column="38"/>
     </issue>
 
@@ -20500,7 +20445,7 @@
         errorLine2="                                     ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2286"
+            line="2289"
             column="38"/>
     </issue>
 
@@ -20511,7 +20456,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2294"
+            line="2297"
             column="35"/>
     </issue>
 
@@ -20522,7 +20467,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2302"
+            line="2305"
             column="35"/>
     </issue>
 
@@ -20533,7 +20478,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2310"
+            line="2313"
             column="30"/>
     </issue>
 
@@ -20544,7 +20489,7 @@
         errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2318"
+            line="2321"
             column="30"/>
     </issue>
 
@@ -20555,7 +20500,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2371"
+            line="2374"
             column="62"/>
     </issue>
 
@@ -20566,7 +20511,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2437"
+            line="2440"
             column="55"/>
     </issue>
 
@@ -20577,7 +20522,7 @@
         errorLine2="                                            ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2478"
+            line="2481"
             column="45"/>
     </issue>
 
@@ -20588,7 +20533,7 @@
         errorLine2="                                                   ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2492"
+            line="2495"
             column="52"/>
     </issue>
 
@@ -20599,7 +20544,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2656"
+            line="2680"
             column="49"/>
     </issue>
 
@@ -20610,7 +20555,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2672"
+            line="2696"
             column="37"/>
     </issue>
 
@@ -20621,7 +20566,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2730"
+            line="2754"
             column="19"/>
     </issue>
 
@@ -20632,7 +20577,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2746"
+            line="2770"
             column="66"/>
     </issue>
 
@@ -20643,7 +20588,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2775"
+            line="2799"
             column="19"/>
     </issue>
 
@@ -20654,7 +20599,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="2793"
+            line="2817"
             column="66"/>
     </issue>
 
@@ -20665,7 +20610,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3441"
+            line="3465"
             column="58"/>
     </issue>
 
@@ -20676,7 +20621,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3559"
+            line="3583"
             column="59"/>
     </issue>
 
@@ -20687,7 +20632,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3607"
+            line="3631"
             column="61"/>
     </issue>
 
@@ -20698,7 +20643,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3608"
+            line="3632"
             column="13"/>
     </issue>
 
@@ -20709,7 +20654,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3608"
+            line="3632"
             column="51"/>
     </issue>
 
@@ -20720,7 +20665,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3628"
+            line="3652"
             column="58"/>
     </issue>
 
@@ -20731,7 +20676,7 @@
         errorLine2="                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3731"
+            line="3755"
             column="19"/>
     </issue>
 
@@ -20742,7 +20687,7 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3731"
+            line="3755"
             column="76"/>
     </issue>
 
@@ -20753,7 +20698,7 @@
         errorLine2="                                    ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3929"
+            line="3953"
             column="37"/>
     </issue>
 
@@ -20764,7 +20709,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3929"
+            line="3953"
             column="45"/>
     </issue>
 
@@ -20775,7 +20720,7 @@
         errorLine2="                                                ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3965"
+            line="3989"
             column="49"/>
     </issue>
 
@@ -20786,7 +20731,7 @@
         errorLine2="                                                  ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="3984"
+            line="4008"
             column="51"/>
     </issue>
 
@@ -20797,7 +20742,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4031"
+            line="4055"
             column="50"/>
     </issue>
 
@@ -20808,7 +20753,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4031"
+            line="4055"
             column="61"/>
     </issue>
 
@@ -20819,7 +20764,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4057"
+            line="4081"
             column="19"/>
     </issue>
 
@@ -20830,7 +20775,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4057"
+            line="4081"
             column="58"/>
     </issue>
 
@@ -20841,7 +20786,7 @@
         errorLine2="                                                 ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4120"
+            line="4144"
             column="50"/>
     </issue>
 
@@ -20852,7 +20797,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="4137"
+            line="4161"
             column="48"/>
     </issue>
 
