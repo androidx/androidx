@@ -16,38 +16,28 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.content.Context
-import android.util.Log
 import android.util.Size
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.impl.Log.debug
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 
 /**
- * Provide the guaranteed supported stream capabilities provided by CameraPipe.
- * @constructor Creates a CameraPipeDeviceSurfaceManager from the provided [Context].
+ * Provide utilities for interacting with the set of guaranteed stream combinations.
  */
-class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
-    CameraDeviceSurfaceManager {
-    companion object {
-        private const val TAG = "CameraPipeSurfaceMgr"
-        private val DEBUG = Log.isLoggable(TAG, Log.DEBUG)
-    }
-
-    private val cameraPipe: CameraPipe = CameraPipe(CameraPipe.Config(context))
+class StreamConfigurationMap(context: Context, cameraManager: Any?) : CameraDeviceSurfaceManager {
+    private val cameraPipe: CameraPipe = cameraManager as CameraPipe
 
     init {
-        if (DEBUG) {
-            Log.d(
-                TAG,
-                "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
-                    " $cameraManager, CameraPipe: $cameraPipe]"
-            )
-        }
+        debug { "Created StreamConfigurationMap from $context" }
     }
 
     override fun checkSupported(cameraId: String, surfaceConfigList: List<SurfaceConfig>): Boolean {
-        return false
+        // TODO: This method needs to check to see if the list of SurfaceConfig's is in the map of
+        //   guaranteed stream configurations for this camera's support level.
+        return cameraPipe.cameras().findAll().contains(CameraId(cameraId))
     }
 
     override fun transformSurfaceConfig(
@@ -55,7 +45,10 @@ class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
         imageFormat: Int,
         size: Size
     ): SurfaceConfig? {
-        TODO("Not implemented.")
+        // TODO: Many of the "find a stream combination that will work" is already provided by the
+        //   existing camera2 implementation, and this implementation should leverage that work.
+
+        TODO("Not Implemented")
     }
 
     override fun getSuggestedResolutions(
@@ -63,6 +56,9 @@ class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
         existingSurfaces: List<SurfaceConfig>,
         newUseCaseConfigs: List<UseCaseConfig<*>?>
     ): Map<UseCaseConfig<*>, Size> {
-        TODO("Not implemented.")
+        // TODO: Many of the "find a stream combination that will work" is already provided by the
+        //   existing camera2 implementation, and this implementation should leverage that work.
+
+        TODO("Not Implemented")
     }
 }
