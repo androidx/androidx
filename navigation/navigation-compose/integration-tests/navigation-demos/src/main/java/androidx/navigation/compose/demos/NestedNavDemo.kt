@@ -16,16 +16,10 @@
 
 package androidx.navigation.compose.demos
 
-import androidx.compose.integration.demos.common.ComposableDemo
-import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.samples.NestedNav
 
-val NavigationDemos = DemoCategory(
-    "Navigation",
-    listOf(
-        ComposableDemo("Basic Nav Demo") { BasicNavDemo() },
-        ComposableDemo("Nested Nav Demo") { NestNavDemo() },
-        ComposableDemo("Bottom Bar Nav Demo") { BottomBarNavDemo() },
-        ComposableDemo("Navigation with Args") { NavWithArgsDemo() },
-        ComposableDemo("Navigation by DeepLink") { NavByDeepLinkDemo() }
-    )
-)
+@Composable
+fun NestNavDemo() {
+    NestedNav()
+}

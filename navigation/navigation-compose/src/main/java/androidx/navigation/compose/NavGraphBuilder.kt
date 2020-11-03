@@ -19,8 +19,10 @@ package androidx.navigation.compose
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
+import androidx.navigation.navigation
 
 /**
  * Add the [Composable] to the [NavGraphBuilder]
@@ -52,3 +54,18 @@ public fun NavGraphBuilder.composable(
         }
     )
 }
+
+/**
+ * Construct a nested [NavGraph]
+ *
+ * @sample androidx.navigation.compose.samples.NestedNav
+ */
+public fun NavGraphBuilder.navigation(
+    startDestination: String,
+    route: String,
+    builder: NavGraphBuilder.() -> Unit
+): Unit = navigation(
+    createRoute(route).hashCode(),
+    createRoute(startDestination).hashCode(),
+    builder
+)
