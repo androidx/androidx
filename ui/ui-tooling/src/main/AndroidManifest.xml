@@ -19,8 +19,7 @@
     <application>
         <activity
             android:name=".preview.PreviewActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+            android:exported="true" />
     </application>
 
 </manifest>
