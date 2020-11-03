@@ -1,6 +1,22 @@
 // Signature format: 4.0
 package androidx.wear.watchface.client {
 
+  public final class ComplicationState {
+    ctor public ComplicationState(android.graphics.Rect bounds, @androidx.wear.watchface.data.ComplicationBoundsType int boundsType, java.util.List<? extends androidx.wear.complications.data.ComplicationType> supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy, androidx.wear.complications.data.ComplicationType defaultProviderType, boolean isEnabled);
+    method public android.graphics.Rect getBounds();
+    method public int getBoundsType();
+    method public androidx.wear.complications.DefaultComplicationProviderPolicy getDefaultProviderPolicy();
+    method public androidx.wear.complications.data.ComplicationType getDefaultProviderType();
+    method public java.util.List<androidx.wear.complications.data.ComplicationType> getSupportedTypes();
+    method public boolean isEnabled();
+    property public final android.graphics.Rect bounds;
+    property public final int boundsType;
+    property public final androidx.wear.complications.DefaultComplicationProviderPolicy defaultProviderPolicy;
+    property public final androidx.wear.complications.data.ComplicationType defaultProviderType;
+    property public final boolean isEnabled;
+    property public final java.util.List<androidx.wear.complications.data.ComplicationType> supportedTypes;
+  }
+
   public final class DeviceConfig {
     ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, @androidx.wear.watchface.ScreenShape int screenShape, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
@@ -19,12 +35,12 @@ package androidx.wear.watchface.client {
     ctor public HeadlessWatchFaceClient(android.os.IBinder binder);
     method public android.os.IBinder asBinder();
     method public void close();
-    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.data.ComplicationDetails> getComplicationDetails();
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> getComplicationState();
     method public long getPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema();
     method public android.graphics.Bitmap? takeComplicationScreenshot(int complicationId, androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.complications.data.ComplicationData complicationData, androidx.wear.watchface.style.UserStyle? userStyle);
     method public android.graphics.Bitmap takeWatchFaceScreenshot(androidx.wear.watchface.RenderParameters renderParameters, @IntRange(from=0, to=100) int compressionQuality, long calendarTimeMillis, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.complications.data.ComplicationData>? idToComplicationData);
-    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.data.ComplicationDetails> complicationDetails;
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.client.ComplicationState> complicationState;
     property public final long previewReferenceTimeMillis;
     property public final androidx.wear.watchface.style.UserStyleSchema userStyleSchema;
   }

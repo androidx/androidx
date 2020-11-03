@@ -41,7 +41,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class ComplicationDetails implements VersionedParcelable, Parcelable {
+public final class ComplicationStateWireFormat implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     @NonNull
     Rect mBounds;
@@ -70,10 +70,10 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     boolean mIsEnabled;
 
     /** Used by VersionedParcelable. */
-    ComplicationDetails() {
+    ComplicationStateWireFormat() {
     }
 
-    public ComplicationDetails(
+    public ComplicationStateWireFormat(
             @NonNull Rect bounds,
             @ComplicationBoundsType int boundsType,
             @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
@@ -106,11 +106,19 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
         return mSupportedTypes;
     }
 
+    /**
+     * Along with {@link #getFallbackSystemProvider} this is the wire format for
+     * DefaultComplicationProviderPolicy.
+     */
     @Nullable
-    List<ComponentName> getDefaultProvidersToTry() {
+    public List<ComponentName> getDefaultProvidersToTry() {
         return mDefaultProvidersToTry;
     }
 
+    /**
+     * Along with {@link #getDefaultProvidersToTry} this is the wire format for
+     * DefaultComplicationProviderPolicy.
+     */
     public int getFallbackSystemProvider() {
         return mFallbackSystemProvider;
     }
@@ -135,17 +143,17 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
         return 0;
     }
 
-    public static final Parcelable.Creator<ComplicationDetails> CREATOR =
-            new Parcelable.Creator<ComplicationDetails>() {
+    public static final Parcelable.Creator<ComplicationStateWireFormat> CREATOR =
+            new Parcelable.Creator<ComplicationStateWireFormat>() {
                 @Override
-                public ComplicationDetails createFromParcel(Parcel source) {
+                public ComplicationStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(
                             source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override
-                public ComplicationDetails[] newArray(int size) {
-                    return new ComplicationDetails[size];
+                public ComplicationStateWireFormat[] newArray(int size) {
+                    return new ComplicationStateWireFormat[size];
                 }
             };
 }

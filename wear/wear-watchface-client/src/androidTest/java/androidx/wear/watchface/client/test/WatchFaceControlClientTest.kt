@@ -19,20 +19,26 @@ package androidx.wear.watchface.client.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchFaceControlClient
 import androidx.wear.watchface.control.WatchFaceControlService
+import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,6 +59,19 @@ class WatchFaceControlClientTest {
 
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface-client")
+
+    private val exampleWatchFaceComponentName = ComponentName(
+        "androidx.wear.watchface.samples.test",
+        "androidx.wear.watchface.samples.ExampleCanvasWatchFaceService"
+    )
+
+    private val deviceConfig = DeviceConfig(
+        false,
+        false,
+        1,
+        0,
+        0
+    )
 
     @Test
     fun headlessScreenshot() {
@@ -89,6 +108,61 @@ class WatchFaceControlClientTest {
         )
 
         bitmap.assertAgainstGolden(screenshotRule, "headlessScreenshot")
+
+        headlessInstance.close()
+        service.close()
+    }
+
+    @Test
+    fun complicationDetails() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            exampleWatchFaceComponentName,
+            deviceConfig,
+            400,
+            400
+        ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        assertThat(headlessInstance.complicationState.size).isEqualTo(2)
+
+        val leftComplicationDetails = headlessInstance.complicationState[
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        ]!!
+        assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
+        assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
+            SystemProviders.DAY_OF_WEEK
+        )
+        assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
+        assertThat(leftComplicationDetails.supportedTypes).containsExactly(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        assertTrue(leftComplicationDetails.isEnabled)
+
+        val rightComplicationDetails = headlessInstance.complicationState[
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        ]!!
+        assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
+        assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
+            SystemProviders.STEP_COUNT
+        )
+        assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
+        assertThat(rightComplicationDetails.supportedTypes).containsExactly(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        assertTrue(rightComplicationDetails.isEnabled)
 
         headlessInstance.close()
         service.close()

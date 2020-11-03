@@ -286,6 +286,7 @@ package androidx.wear.complications.data {
   }
 
   public enum ComplicationType {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final java.util.List<androidx.wear.complications.data.ComplicationType> fromWireTypeList(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.wear.complications.data.ComplicationType![] fromWireTypes(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType> types);
     enum_constant public static final androidx.wear.complications.data.ComplicationType BACKGROUND_IMAGE;
@@ -302,6 +303,7 @@ package androidx.wear.complications.data {
   }
 
   public static final class ComplicationType.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.wear.complications.data.ComplicationType> fromWireTypeList(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.complications.data.ComplicationType![] fromWireTypes(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType> types);
   }

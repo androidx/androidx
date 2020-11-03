@@ -22,11 +22,11 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.icu.util.Calendar
-import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
@@ -111,16 +111,16 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationDrawable(this),
                             watchState
                         ),
-                        intArrayOf(
-                            ComplicationData.TYPE_RANGED_VALUE,
-                            ComplicationData.TYPE_LONG_TEXT,
-                            ComplicationData.TYPE_SHORT_TEXT,
-                            ComplicationData.TYPE_ICON,
-                            ComplicationData.TYPE_SMALL_IMAGE
+                        listOf(
+                            ComplicationType.RANGED_VALUE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT,
+                            ComplicationType.MONOCHROMATIC_IMAGE,
+                            ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                     ).setUnitSquareBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                        .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
                     Complication.Builder(
                         /*id */ 1,
@@ -128,16 +128,16 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationDrawable(this),
                             watchState
                         ),
-                        intArrayOf(
-                            ComplicationData.TYPE_RANGED_VALUE,
-                            ComplicationData.TYPE_LONG_TEXT,
-                            ComplicationData.TYPE_SHORT_TEXT,
-                            ComplicationData.TYPE_ICON,
-                            ComplicationData.TYPE_SMALL_IMAGE
+                        listOf(
+                            ComplicationType.RANGED_VALUE,
+                            ComplicationType.LONG_TEXT,
+                            ComplicationType.SHORT_TEXT,
+                            ComplicationType.MONOCHROMATIC_IMAGE,
+                            ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
                     ).setUnitSquareBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                        .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
                 userStyleRepository

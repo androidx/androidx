@@ -182,17 +182,18 @@ package androidx.wear.watchface.data {
     field public static final int ROUND_RECT = 0; // 0x0
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationDetails implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationDetails(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, @androidx.wear.watchface.data.ComplicationBoundsType int, @android.support.wearable.complications.ComplicationData.ComplicationType int[], java.util.List<android.content.ComponentName!>?, int, @android.support.wearable.complications.ComplicationData.ComplicationType int, boolean);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
     method @androidx.wear.watchface.data.ComplicationBoundsType public int getBoundsType();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int getDefaultProviderType();
+    method public java.util.List<android.content.ComponentName!>? getDefaultProvidersToTry();
     method public int getFallbackSystemProvider();
     method @android.support.wearable.complications.ComplicationData.ComplicationType public int[] getSupportedTypes();
     method public boolean isEnabled();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.ComplicationDetails!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.ComplicationStateWireFormat!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class DeviceConfig implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
@@ -218,13 +219,13 @@ package androidx.wear.watchface.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>! CREATOR;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class IdAndComplicationDetails implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public IdAndComplicationDetails(int, androidx.wear.watchface.data.ComplicationDetails);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class IdAndComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor public IdAndComplicationStateWireFormat(int, androidx.wear.watchface.data.ComplicationStateWireFormat);
     method public int describeContents();
-    method public androidx.wear.watchface.data.ComplicationDetails getComplicationDetails();
+    method public androidx.wear.watchface.data.ComplicationStateWireFormat getComplicationState();
     method public int getId();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationDetails!>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.IdAndComplicationStateWireFormat!>! CREATOR;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class RenderParametersWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {

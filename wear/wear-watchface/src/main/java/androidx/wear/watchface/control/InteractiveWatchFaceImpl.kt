@@ -95,7 +95,7 @@ internal class InteractiveWatchFaceImpl(
         }
 
         override fun getComplicationDetails() =
-            uiThreadHandler.runOnHandler { engine.getComplicationDetails() }
+            uiThreadHandler.runOnHandler { engine.getComplicationState() }
 
         override fun getUserStyleSchema() =
             uiThreadHandler.runOnHandler {

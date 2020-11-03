@@ -25,6 +25,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
 import androidx.wear.complications.DefaultComplicationProviderPolicy
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
@@ -204,9 +205,9 @@ public class Complication internal constructor(
     @ComplicationBoundsType internal val boundsType: Int,
     unitSquareBounds: RectF,
     canvasComplication: CanvasComplication,
-    supportedTypes: IntArray,
+    supportedTypes: List<ComplicationType>,
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
-    defaultProviderType: Int
+    defaultProviderType: ComplicationType
 ) {
     /** @hide */
     private companion object {
@@ -232,7 +233,7 @@ public class Complication internal constructor(
          * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
          * configuration.
          */
-        private val supportedTypes: IntArray,
+        private val supportedTypes: List<ComplicationType>,
 
         /** The [DefaultComplicationProviderPolicy] to use. */
         private val defaultProviderPolicy: DefaultComplicationProviderPolicy
@@ -241,13 +242,13 @@ public class Complication internal constructor(
         private var boundsType: Int? = null
         private lateinit var unitSquareBounds: RectF
 
-        private var defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
+        private var defaultProviderType = ComplicationType.NOT_CONFIGURED
 
         /**
-         * Sets the default complication provider data type. See [ComplicationData.ComplicationType]
+         * Sets the default complication provider data type.
          */
         public fun setDefaultProviderType(
-            @ComplicationData.ComplicationType defaultProviderType: Int
+            defaultProviderType: ComplicationType
         ): Builder {
             this.defaultProviderType = defaultProviderType
             return this
@@ -385,7 +386,7 @@ public class Complication internal constructor(
     /**
      * The types of complications the complication supports.
      */
-    public var supportedTypes: IntArray
+    public var supportedTypes: List<ComplicationType>
         @UiThread
         get() = _supportedTypes
         @UiThread
@@ -428,21 +429,20 @@ public class Complication internal constructor(
             }
         }
 
-    private var _defaultProviderType = defaultProviderType
     internal var defaultProviderTypeDirty = true
 
     /**
      * The default [ComplicationData.ComplicationType] to use alongside [.defaultProviderPolicy].
      */
-    public var defaultProviderType: Int
+    public var defaultProviderType: ComplicationType = defaultProviderType
         @UiThread
-        get() = _defaultProviderType
+        get() = field
         @UiThread
         set(value) {
-            if (_defaultProviderType == value) {
+            if (field == value) {
                 return
             }
-            _defaultProviderType = value
+            field = value
             defaultProviderTypeDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to

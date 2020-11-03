@@ -23,12 +23,12 @@ import android.opengl.GLES20
 import android.opengl.GLU
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import android.support.wearable.complications.ComplicationData
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
@@ -104,16 +104,16 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
                 Complication.Builder(
                     EXAMPLE_OPENGL_COMPLICATION_ID,
                     watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    intArrayOf(
-                        ComplicationData.TYPE_RANGED_VALUE,
-                        ComplicationData.TYPE_LONG_TEXT,
-                        ComplicationData.TYPE_SHORT_TEXT,
-                        ComplicationData.TYPE_ICON,
-                        ComplicationData.TYPE_SMALL_IMAGE
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
                     ),
                     DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
                     .build()
             ),
             userStyleRepository

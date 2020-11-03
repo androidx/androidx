@@ -81,8 +81,8 @@ public enum class ComplicationType(private val wireType: Int) {
         public fun toWireTypes(types: Collection<ComplicationType>): IntArray = types.asWireTypes()
 
         /**
-         * Converts an array of integer values uses for serialization into the corresponding array
-         * of [ComplicationType] to .
+         * Converts an array of integer values used for serialization into the corresponding array
+         * of [ComplicationType].
          *
          * This is only needed internally to convert to the underlying communication protocol.
          *
@@ -94,6 +94,17 @@ public enum class ComplicationType(private val wireType: Int) {
         @JvmStatic
         public fun fromWireTypes(types: IntArray): Array<ComplicationType> =
             types.asApiComplicationTypes()
+
+        /**
+         * Converts an array of integer values used for serialization into the corresponding list
+         * of [ComplicationType].
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        public fun fromWireTypeList(types: IntArray): List<ComplicationType> =
+            types.map { fromWireType(it) }
     }
 }
 
