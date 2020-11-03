@@ -78,3 +78,11 @@ androidx {
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark Runtime"
 }
+
+// Define a task dependency so the app is installed before we run macro benchmarks.
+tasks.getByPath(':benchmark:benchmark-macro-runtime:connectedCheck')
+        .dependsOn(
+                tasks.getByPath(
+                        ':benchmark:integration-tests:benchmark-simple-macro-benchmark-target:installRelease'
+                )
+        )
