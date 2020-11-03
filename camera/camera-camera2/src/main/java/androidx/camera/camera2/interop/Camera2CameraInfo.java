@@ -49,13 +49,13 @@ public final class Camera2CameraInfo {
      *
      * @param cameraInfo The {@link CameraInfo} to get from.
      * @return The camera information with Camera2 implementation.
-     * @throws IllegalStateException if the camera info does not contain the camera2 information
+     * @throws IllegalArgumentException if the camera info does not contain the camera2 information
      *                               (e.g., if CameraX was not initialized with a
      *                               {@link androidx.camera.camera2.Camera2Config}).
      */
     @NonNull
-    public static Camera2CameraInfo fromCameraInfo(@NonNull CameraInfo cameraInfo) {
-        Preconditions.checkState(cameraInfo instanceof Camera2CameraInfoImpl,
+    public static Camera2CameraInfo from(@NonNull CameraInfo cameraInfo) {
+        Preconditions.checkArgument(cameraInfo instanceof Camera2CameraInfoImpl,
                 "CameraInfo doesn't contain Camera2 implementation.");
         return ((Camera2CameraInfoImpl) cameraInfo).getCamera2CameraInfo();
     }

@@ -18,7 +18,7 @@ package androidx.camera.camera2.interop {
   }
 
   @androidx.camera.camera2.interop.ExperimentalCamera2Interop public final class Camera2CameraInfo {
-    method public static androidx.camera.camera2.interop.Camera2CameraInfo fromCameraInfo(androidx.camera.core.CameraInfo);
+    method public static androidx.camera.camera2.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo);
     method public <T> T? getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key<T!>);
     method public String getCameraId();
   }
