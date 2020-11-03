@@ -85,6 +85,15 @@ interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
 }
 
 /**
+ * A wrapper around [CaptureRequest]. This is useful in tests where we can't create an instance of
+ * [CaptureRequest] directly.
+ *
+ * TODO(codelogic, sushilnath): this wrapper can be removed if some of the methods in
+ * [Request.Listener] can be changed to not accept [CaptureRequest] directly.
+ */
+interface CaptureRequestWrapper : UnsafeWrapper<CaptureRequest>
+
+/**
  * RequestMetadata wraps together all of the information about specific CaptureRequest that was
  * submitted to Camera2.
  *
@@ -92,7 +101,7 @@ interface CameraMetadata : Metadata, UnsafeWrapper<CameraCharacteristics> {
  * [CameraGraph]. This class will report the actual keys / values that were sent to camera2 (if
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
-interface RequestMetadata : Metadata, UnsafeWrapper<CaptureRequest> {
+interface RequestMetadata : Metadata, CaptureRequestWrapper {
     operator fun <T> get(key: CaptureRequest.Key<T>): T?
     fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
 

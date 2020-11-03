@@ -34,11 +34,16 @@ import kotlinx.coroutines.Deferred
  * This update method can be called multiple times as we get newer [CaptureResult]s from the camera
  * device. This class also exposes a [Deferred] to query the status of desired state.
  */
-class Result3AStateListener(
+interface Result3AStateListener {
+    fun onRequestSequenceCreated(requestNumber: RequestNumber)
+    fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
+}
+
+class Result3AStateListenerImpl (
     private val exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
     private val frameLimit: Int? = null,
     private val timeLimitNs: Long? = null
-) {
+) : Result3AStateListener {
 
     init {
         require(exitConditionForKeys.isNotEmpty()) { "Exit condition map for keys is empty." }
@@ -51,7 +56,7 @@ class Result3AStateListener(
     @GuardedBy("this")
     private var initialRequestNumber: RequestNumber? = null
 
-    fun onRequestSequenceCreated(requestNumber: RequestNumber) {
+    override fun onRequestSequenceCreated(requestNumber: RequestNumber) {
         synchronized(this) {
             if (initialRequestNumber == null) {
                 initialRequestNumber = requestNumber
@@ -59,7 +64,7 @@ class Result3AStateListener(
         }
     }
 
-    fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean {
+    override fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean {
         // Save some compute if the task is already complete or has been canceled.
         if (deferred.isCompleted || deferred.isCancelled) {
             return true

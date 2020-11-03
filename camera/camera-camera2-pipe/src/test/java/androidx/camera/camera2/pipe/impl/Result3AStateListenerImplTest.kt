@@ -32,10 +32,10 @@ import org.robolectric.annotation.Config
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)
-class Result3AStateListenerTest {
+class Result3AStateListenerImplTest {
     @Test
     fun testWithNoUpdate() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -48,7 +48,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testKeyWithUndesirableValueInFrameMetadata() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -70,7 +70,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testKeyWithDesirableValueInFrameMetadata() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -91,7 +91,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testKeyNotPresentInFrameMetadata() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -112,7 +112,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testMultipleKeysWithDesiredValuesInFrameMetadata() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -136,7 +136,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testMultipleKeysWithDesiredValuesInFrameMetadataForASubset() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -159,7 +159,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testMultipleUpdates() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
@@ -191,7 +191,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testTimeLimit() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             exitConditionForKeys = mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
@@ -232,7 +232,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testFrameLimit() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             exitConditionForKeys = mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED)
@@ -289,7 +289,7 @@ class Result3AStateListenerTest {
 
     @Test
     fun testIgnoreUpdatesFromEarlierRequests() {
-        val listenerForKeys = Result3AStateListener(
+        val listenerForKeys = Result3AStateListenerImpl(
             mapOf(
                 CaptureResult.CONTROL_AF_STATE to
                     listOf(
