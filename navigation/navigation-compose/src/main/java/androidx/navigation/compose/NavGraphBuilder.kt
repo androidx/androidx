@@ -32,8 +32,8 @@ import androidx.navigation.get
  */
 public fun NavGraphBuilder.composable(
     route: String,
-    arguments: List<NamedNavArgument> = listOf(),
-    deepLinks: List<NavDeepLink> = listOf(),
+    arguments: List<NamedNavArgument> = emptyList(),
+    deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable (NavBackStackEntry) -> Unit
 ) {
     addDestination(
