@@ -8,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7852"
+            line="7857"
             column="9"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="3950"
+            line="3951"
             column="37"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4610"
+            line="4611"
             column="20"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4687"
+            line="4678"
             column="20"/>
     </issue>
 
@@ -52,8 +52,19 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4709"
+            line="4700"
             column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4721"
+            column="24"/>
     </issue>
 
     <issue
@@ -63,7 +74,7 @@
         errorLine2="                                       ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4797"
+            line="4802"
             column="40"/>
     </issue>
 
@@ -74,7 +85,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4798"
+            line="4803"
             column="20"/>
     </issue>
 
@@ -85,7 +96,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5748"
+            line="5753"
             column="27"/>
     </issue>
 
@@ -96,7 +107,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7989"
+            line="7994"
             column="20"/>
     </issue>
 
@@ -107,7 +118,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4962"
+            line="4967"
             column="31"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5007"
+            line="5012"
             column="28"/>
     </issue>
 
