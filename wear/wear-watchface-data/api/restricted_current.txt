@@ -196,8 +196,10 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class DeviceConfig implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public DeviceConfig(boolean, boolean, int);
+    ctor public DeviceConfig(boolean, boolean, int, long, long);
     method public int describeContents();
+    method public long getAnalogPreviewReferenceTimeMillis();
+    method public long getDigitalPreviewReferenceTimeMillis();
     method public boolean getHasBurnInProtection();
     method public boolean getHasLowBitAmbient();
     method public int getScreenShape();

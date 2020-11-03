@@ -70,7 +70,9 @@ class WatchFaceControlServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
                 ),
                 width,
                 height

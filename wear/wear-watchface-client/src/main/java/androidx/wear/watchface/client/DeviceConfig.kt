@@ -16,37 +16,29 @@
 
 package androidx.wear.watchface.client
 
-import androidx.annotation.IntDef
-
-/** @hide */
-@IntDef(
-    value = [
-        ScreenShape.ROUND,
-        ScreenShape.RECTANGULAR
-    ]
-)
-public annotation class ScreenShape {
-    public companion object {
-        /** The watch screen has a circular shape. */
-        public const val ROUND: Int = androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
-
-        /** The watch screen has a rectangular or square shape. */
-        public const val RECTANGULAR: Int =
-            androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_RECTANGULAR
-    }
-}
+import androidx.wear.watchface.ScreenShape
 
 /** Describes the hardware configuration of the device the watch face is running on. */
 public class DeviceConfig(
     /** Whether or not the watch hardware supports low bit ambient support. */
     @get:JvmName("hasLowBitAmbient")
-    public var hasLowBitAmbient: Boolean,
+    public val hasLowBitAmbient: Boolean,
 
     /** Whether or not the watch hardware supports burn in protection. */
     @get:JvmName("hasBurnInProtection")
-    public var hasBurnInProtection: Boolean,
+    public val hasBurnInProtection: Boolean,
 
     /** Describes the shape of the screen of the device the watch face is running on.*/
     @ScreenShape
-    public var screenShape: Int
+    public val screenShape: Int,
+
+    /**
+     * UTC reference time for screenshots of analog watch faces in milliseconds since the epoch.
+     */
+    public val analogPreviewReferenceTimeMillis: Long,
+
+    /**
+     * UTC reference time for screenshots of digital watch faces in milliseconds since the epoch.
+     */
+    public val digitalPreviewReferenceTimeMillis: Long
 )

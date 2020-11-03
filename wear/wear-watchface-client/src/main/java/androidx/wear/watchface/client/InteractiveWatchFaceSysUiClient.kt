@@ -127,7 +127,7 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
         )
     ).ashmemCompressedImageBundleToBitmap()
 
-    /** The reference preview time for this watch face in milliseconds since the epoch. */
+    /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceSysUI.previewReferenceTimeMillis
 

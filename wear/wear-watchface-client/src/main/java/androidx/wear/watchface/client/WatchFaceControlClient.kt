@@ -143,7 +143,9 @@ public class WatchFaceControlClient internal constructor(
                                     androidx.wear.watchface.data.DeviceConfig(
                                         deviceConfig.hasLowBitAmbient,
                                         deviceConfig.hasBurnInProtection,
-                                        deviceConfig.screenShape
+                                        deviceConfig.screenShape,
+                                        deviceConfig.analogPreviewReferenceTimeMillis,
+                                        deviceConfig.digitalPreviewReferenceTimeMillis
                                     ),
                                     surfaceWidth,
                                     surfaceHeight
