@@ -74,12 +74,12 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
             FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
 
         if (rejectRequests || closeInvoked) {
-            eventChannel.offer(Event(request = fakeRequest, rejected = true))
+            check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
         }
 
         requestQueue.add(fakeRequest)
-        eventChannel.offer(Event(request = fakeRequest, submit = true))
+        check(eventChannel.offer(Event(request = fakeRequest, submit = true)))
 
         return true
     }
@@ -92,12 +92,12 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
         val fakeRequest =
             FakeRequest(requests, extraRequestParameters, requireSurfacesForAllStreams)
         if (rejectRequests || closeInvoked) {
-            eventChannel.offer(Event(request = fakeRequest, rejected = true))
+            check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
         }
 
         requestQueue.add(fakeRequest)
-        eventChannel.offer(Event(request = fakeRequest, submit = true))
+        check(eventChannel.offer(Event(request = fakeRequest, submit = true)))
 
         return true
     }
@@ -110,34 +110,34 @@ class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
         val fakeRequest =
             FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
         if (rejectRequests || closeInvoked) {
-            eventChannel.offer(Event(request = fakeRequest, rejected = true))
+            check(eventChannel.offer(Event(request = fakeRequest, rejected = true)))
             return false
         }
 
         repeatingRequest = fakeRequest
-        eventChannel.offer(Event(request = fakeRequest, setRepeating = true))
+        check(eventChannel.offer(Event(request = fakeRequest, setRepeating = true)))
         return true
     }
 
     override fun abortCaptures() {
         abortInvoked = true
-        eventChannel.offer(Event(abort = true))
+        check(eventChannel.offer(Event(abort = true)))
     }
 
     override fun stopRepeating() {
         stopInvoked = true
-        eventChannel.offer(Event(stop = true))
+        check(eventChannel.offer(Event(stop = true)))
     }
 
     override fun close() {
         closeInvoked = true
-        eventChannel.offer(Event(close = true))
+        check(eventChannel.offer(Event(close = true)))
     }
 
     /**
      * Get the next event from queue with an option to specify a timeout for tests.
      */
-    suspend fun nextEvent(timeMillis: Long = 25): Event = withTimeout(timeMillis) {
+    suspend fun nextEvent(timeMillis: Long = 100): Event = withTimeout(timeMillis) {
         eventChannel.receive()
     }
 }

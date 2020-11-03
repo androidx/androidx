@@ -152,14 +152,19 @@ class GraphProcessorTest {
             graphProcessor.attach(fakeProcessor1)
 
             graphProcessor.submit(request1)
-            assertThat(fakeProcessor1.nextEvent().rejected).isTrue()
+            val event1 = fakeProcessor1.nextEvent()
+            assertThat(event1.rejected).isTrue()
+            assertThat(event1.request!!.burst[0]).isSameInstanceAs(request1)
 
             graphProcessor.submit(request2)
-            assertThat(fakeProcessor1.nextEvent().rejected).isTrue()
+            val event2 = fakeProcessor1.nextEvent()
+            assertThat(event2.rejected).isTrue()
+            assertThat(event2.request!!.burst[0]).isSameInstanceAs(request1)
 
             graphProcessor.attach(fakeProcessor2)
             assertThat(fakeProcessor2.nextEvent().request!!.burst[0]).isSameInstanceAs(request1)
             assertThat(fakeProcessor2.nextEvent().request!!.burst[0]).isSameInstanceAs(request2)
+            assertThat(fakeProcessor2.requestQueue).hasSize(2)
         }
 
         assertThat(fakeProcessor1.requestQueue).hasSize(0)
