@@ -106,8 +106,9 @@ public final class Checksums {
      * @throws PackageManager.NameNotFoundException if a package with the given name cannot be
      *                                              found on the system.
      */
+    @SuppressWarnings("SyntheticAccessor") /* getChecksumsSync */
     public static @NonNull ListenableFuture<Checksum[]> getChecksums(@NonNull Context context,
-            @NonNull String packageName, boolean includeSplits, @Checksum.Type int required,
+            @NonNull String packageName, boolean includeSplits, final @Checksum.Type int required,
             @NonNull List<Certificate> trustedInstallers, @NonNull Executor executor)
             throws CertificateEncodingException, PackageManager.NameNotFoundException {
         Preconditions.checkNotNull(context);
@@ -121,17 +122,18 @@ public final class Checksums {
             throw new PackageManager.NameNotFoundException(packageName);
         }
 
-        ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
+        final ResolvableFuture<Checksum[]> result = ResolvableFuture.create();
 
         if (required == 0) {
             result.set(new Checksum[0]);
             return result;
         }
 
-        List<Pair<String, File>> filesToChecksum = new ArrayList<>();
+        final List<Pair<String, File>> filesToChecksum = new ArrayList<>();
 
         // Adding base split.
-        filesToChecksum.add(Pair.create(null, new File(applicationInfo.sourceDir)));
+        final String baseSplitName = null;
+        filesToChecksum.add(Pair.create(baseSplitName, new File(applicationInfo.sourceDir)));
 
         // Adding other splits.
         if (Build.VERSION.SDK_INT >= 26 && includeSplits && applicationInfo.splitNames != null) {
@@ -148,7 +150,12 @@ public final class Checksums {
             }
         }
 
-        executor.execute(() -> getChecksumsSync(filesToChecksum, required, result));
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                getChecksumsSync(filesToChecksum, required, result);
+            }
+        });
         return result;
     }
 
@@ -235,18 +242,24 @@ public final class Checksums {
     }
 
     private static byte[] getApkChecksum(File file, int type) {
-        try (FileInputStream fis = new FileInputStream(file);
-             BufferedInputStream bis = new BufferedInputStream(fis)) {
-            byte[] dataBytes = new byte[READ_CHUNK_SIZE];
-            int nread = 0;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            try {
+                byte[] dataBytes = new byte[READ_CHUNK_SIZE];
+                int nread = 0;
 
-            final String algo = getMessageDigestAlgoForChecksumType(type);
-            MessageDigest md = MessageDigest.getInstance(algo);
-            while ((nread = bis.read(dataBytes)) != -1) {
-                md.update(dataBytes, 0, nread);
+                final String algo = getMessageDigestAlgoForChecksumType(type);
+                MessageDigest md = MessageDigest.getInstance(algo);
+                while ((nread = bis.read(dataBytes)) != -1) {
+                    md.update(dataBytes, 0, nread);
+                }
+
+                return md.digest();
+            } finally {
+                bis.close();
+                fis.close();
             }
-
-            return md.digest();
         } catch (IOException e) {
             Log.e(TAG, "Error reading " + file.getAbsolutePath() + " to compute hash.", e);
             return null;
