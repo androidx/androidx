@@ -139,7 +139,7 @@ def shorten_uninteresting_stack_frames(lines):
             prev_line_is_boring = True
         elif line.startswith("\tat java.base"):
             if not prev_line_is_boring:
-                result.append("\tat java.base...")
+                result.append("\tat java.base...\n")
             prev_line_is_boring = True
         else:
             result.append(line)
