@@ -1,0 +1,13 @@
+# This file is a list of regexes of innocuous messages that might appear in stdout/stderr
+# Messages that are expected to appear in a build should be exempted in messages.ignore instead, because that file is subject to garbage collection whereas this one is not
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
+ZipFile closed
+# > Task :compose:internal-lint-checks:lint
+Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
+# > Task :compose:animation:animation-core:testDebugUnitTest
+androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
+kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
+[0-9]+ tests completed\, [0-9]+ failed
+There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
+

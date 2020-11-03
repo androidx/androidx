@@ -63,6 +63,10 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 echo "DIST_DIR=$DIST_DIR" | tee -a $logFile
 echo "CHECKOUT=$CHECKOUT" | tee -a $logFile
+if [ "$GRADLE_USER_HOME" == "" ]; then
+  GRADLE_USER_HOME="$(cd && pwd)/.gradle"
+fi
+echo "GRADLE_USER_HOME=$GRADLE_USER_HOME" | tee -a $logFile
 programName="$1"
 shift
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then

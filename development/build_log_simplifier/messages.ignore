@@ -1,6 +1,8 @@
-# This file is a list of regexes of messages that are permitted to appear in stdout/stderr
-# Comments and blank lines are ignored
-# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead
+# This file is a list of regexes of messages that are expected to appear in stdout/stderr.
+# Comments and blank lines are ignored.
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
+
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
 # > Task :contentaccess:integration-tests:testapp:kaptDebugAndroidTestKotlin
@@ -10,6 +12,7 @@ proto file '[^ ]*' directly specified in configuration\. It's likely you specifi
 OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
+GRADLE_USER_HOME=\$GRADLE_USER_HOME
 Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\-bin\.zip
 \.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Welcome to Gradle [0-9]+\.[0-9]+!
@@ -56,9 +59,9 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_inte
 BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
-\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
 Package name \'androidx\.wear\' used in\: androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.wear\:wear\-input\-testing\:[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.
-\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$OUT_DIR\/\.gradle\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
 Package name \'androidx\.compose\.material\.icons\' used in\: androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.compose\.material\:material\-icons\-core\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:appComponentFactory was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
@@ -427,7 +430,7 @@ Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/main/java/androi
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 Note: \$SUPPORT/camera/integration\-tests/coretestapp/src/main/java/androidx/camera/integration/core/CameraXActivity\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
-\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$OUT_DIR/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
 Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/lifecycle/testapp/FrameworkLifecycleRegistryActivity\.java uses or overrides a deprecated API\.
@@ -683,10 +686,7 @@ src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter
 Package name.*test' used in: .*AndroidManifest.*xml.*
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
-ZipFile closed
 # > Task :compose:internal-lint-checks:lint
-Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
@@ -727,11 +727,11 @@ Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/Defe
 # > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
 # > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-\$OUT_DIR\/\.gradle\/wrapper\/dists\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\/[0-9a-z]+\/gradle\-[0-9]+\.[0-9]+\.[0-9]+\/lib\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
-w: Consider providing an explicit dependency on kotlin\-reflect [0-9]+\.[0-9]+ to prevent strange errors
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-common\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-jdk[0-9]*-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-reflect\-[0-9.]*.jar \(version [^/]*\)
+w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
 # > Task :wear:wear-complications-rendering:compileDebugUnitTestJavaWithJavac
 Note: \$SUPPORT/wear/wear\-complications\-rendering/src/test/java/androidx/wear/complications/rendering/RoundedDrawableTest\.java uses or overrides a deprecated API\.
 # > Task :contentaccess:contentaccess-compiler:test
@@ -745,11 +745,6 @@ Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/ja
 # > Task :wear:wear-watchface:testDebugUnitTest
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
 System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
-# > Task :compose:animation:animation-core:testDebugUnitTest
-androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
-kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
-[0-9]+ tests completed\, [0-9]+ failed
-There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
 More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
