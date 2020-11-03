@@ -257,6 +257,7 @@ package androidx.wear.watchface {
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method protected abstract androidx.wear.watchface.WatchFace createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchFaceHost watchFaceHost, androidx.wear.watchface.WatchState watchState);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.view.SurfaceHolder? getWallpaperSurfaceHolderOverride();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
   }
 

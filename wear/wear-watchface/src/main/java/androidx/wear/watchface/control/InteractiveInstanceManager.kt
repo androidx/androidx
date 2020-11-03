@@ -17,7 +17,7 @@
 package androidx.wear.watchface.control
 
 import android.annotation.SuppressLint
-import androidx.annotation.UiThread
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 
 /** Keeps track of [InteractiveWatchFaceImpl]s. */
 internal class InteractiveInstanceManager {
@@ -28,31 +28,75 @@ internal class InteractiveInstanceManager {
         var refcount: Int
     )
 
+    class PendingWallpaperInteractiveWatchFaceInstance(
+        val params: WallpaperInteractiveWatchFaceInstanceParams,
+        val callback: IPendingInteractiveWatchFaceWCS
+    )
+
     companion object {
         private val instances = HashMap<String, RefCountedInteractiveWatchFaceInstance>()
+        private val pendingWallpaperInteractiveWatchFaceInstanceLock = Any()
+        private var pendingWallpaperInteractiveWatchFaceInstance:
+            PendingWallpaperInteractiveWatchFaceInstance? = null
 
         @SuppressLint("SyntheticAccessor")
-        @UiThread
         fun addInstance(impl: InteractiveWatchFaceImpl) {
-            require(!instances.containsKey(impl.instanceId))
-            instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                require(!instances.containsKey(impl.instanceId))
+                instances[impl.instanceId] = RefCountedInteractiveWatchFaceInstance(impl, 1)
+            }
         }
 
         @SuppressLint("SyntheticAccessor")
-        @UiThread
-        fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl ? {
-            val refCountedInstance = instances[instanceId] ?: return null
-            refCountedInstance.refcount++
-            return refCountedInstance.impl
+        fun getAndRetainInstance(instanceId: String): InteractiveWatchFaceImpl? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                val refCountedInstance = instances[instanceId] ?: return null
+                refCountedInstance.refcount++
+                return refCountedInstance.impl
+            }
         }
 
         @SuppressLint("SyntheticAccessor")
-        @UiThread
         fun releaseInstance(instanceId: String) {
-            val instance = instances[instanceId]!!
-            if (--instance.refcount == 0) {
-                instance.impl.engine.onDestroy()
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                val instance = instances[instanceId]!!
+                if (--instance.refcount == 0) {
+                    instances.remove(instanceId)
+                }
+            }
+        }
+
+        @SuppressLint("SyntheticAccessor")
+        fun deleteInstance(instanceId: String) {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 instances.remove(instanceId)
+            }
+        }
+
+        /** Can be called on any thread. */
+        @SuppressLint("SyntheticAccessor")
+        fun getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+            value: PendingWallpaperInteractiveWatchFaceInstance
+        ): IInteractiveWatchFaceWCS? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                val instance = instances[value.params.instanceId]
+                return if (instance != null) {
+                    instance.impl.wcsApi
+                } else {
+                    pendingWallpaperInteractiveWatchFaceInstance = value
+                    null
+                }
+            }
+        }
+
+        /** Can be called on any thread. */
+        @SuppressLint("SyntheticAccessor")
+        fun takePendingWallpaperInteractiveWatchFaceInstance(
+        ): PendingWallpaperInteractiveWatchFaceInstance? {
+            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                val returnValue = pendingWallpaperInteractiveWatchFaceInstance
+                pendingWallpaperInteractiveWatchFaceInstance = null
+                return returnValue
             }
         }
     }

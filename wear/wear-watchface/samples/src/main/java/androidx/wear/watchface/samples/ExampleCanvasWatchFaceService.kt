@@ -75,7 +75,7 @@ val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 
 /** A simple example canvas based watch face. */
-class ExampleCanvasWatchFaceService : WatchFaceService() {
+open class ExampleCanvasWatchFaceService : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchFaceHost: WatchFaceHost,

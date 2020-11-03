@@ -21,10 +21,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -41,13 +39,12 @@ import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlService
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
+import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
@@ -124,8 +121,6 @@ class WatchFaceServiceImageTest {
             surfaceHolder
         )
 
-        engineWrapper = canvasWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
-
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
         Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
@@ -133,21 +128,9 @@ class WatchFaceServiceImageTest {
             renderDoneLatch.countDown()
         }
 
-        setBinderAndSendComplicationData(
-            WallpaperInteractiveWatchFaceInstanceParams(
-                "InteractiveTestInstance",
-                DeviceConfig(
-                    false,
-                    false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
-                    0,
-                    0
-                ),
-                SystemState(false, 0),
-                null,
-                null
-            )
-        )
+        setPendingWallpaperInteractiveWatchFaceInstance()
+
+        engineWrapper = canvasWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
 
     private fun initGles2WatchFace() {
@@ -157,7 +140,6 @@ class WatchFaceServiceImageTest {
             100000,
             surfaceHolder
         )
-        engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
 
@@ -165,48 +147,42 @@ class WatchFaceServiceImageTest {
             .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
         Mockito.`when`(surfaceHolder.surface).thenReturn(Surface(surfaceTexture))
 
-        setBinderAndSendComplicationData(
-            WallpaperInteractiveWatchFaceInstanceParams(
-                "InteractiveTestInstance",
-                DeviceConfig(
-                    false,
-                    false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
-                    0,
-                    0
-                ),
-                SystemState(false, 0),
-                null,
-                null
-            )
-        )
+        setPendingWallpaperInteractiveWatchFaceInstance()
+
+        engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
 
-    private fun setBinderAndSendComplicationData(
-        wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams
-    ) {
-        val serviceRequest = object : IWallpaperWatchFaceControlServiceRequest.Stub() {
-            override fun getApiVersion() = IWallpaperWatchFaceControlServiceRequest.API_VERSION
+    private fun setPendingWallpaperInteractiveWatchFaceInstance() {
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "InteractiveTestInstance",
+                        DeviceConfig(
+                            false,
+                            false,
+                            DeviceConfig.SCREEN_SHAPE_ROUND,
+                            0,
+                            0
+                        ),
+                        SystemState(false, 0),
+                        null,
+                        null
+                    ),
+                    object : IPendingInteractiveWatchFaceWCS.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFaceWCS.API_VERSION
 
-            override fun registerWallpaperWatchFaceControlService(
-                service: IWallpaperWatchFaceControlService
-            ) {
-                interactiveWatchFaceInstanceWCS = service.createInteractiveWatchFaceInstance(
-                    wallpaperInteractiveWatchFaceInstanceParams
+                        override fun onInteractiveWatchFaceWcsCreated(
+                            iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
+                        ) {
+                            interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
+                            sendComplications()
+                            initLatch.countDown()
+                        }
+                    }
                 )
-                sendComplications()
-                initLatch.countDown()
-            }
-        }
-
-        engineWrapper.onCommand(
-            Constants.COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST,
-            0,
-            0,
-            0,
-            Bundle().apply { putBinder(Constants.EXTRA_BINDER, serviceRequest.asBinder()) },
-            false
-        )
+            )
     }
 
     private fun sendComplications() {

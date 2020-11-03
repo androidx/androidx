@@ -26,6 +26,7 @@ import android.os.Looper
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.runOnHandler
 
 /**
@@ -90,4 +91,15 @@ private class IWatchFaceInstanceServiceStub(
         watchFaceService.setContext(context)
         return watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
+
+    override fun getOrCreateInteractiveWatchFaceWCS(
+        params: WallpaperInteractiveWatchFaceInstanceParams,
+        callback: IPendingInteractiveWatchFaceWCS
+    ) = InteractiveInstanceManager
+        .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+            InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                params,
+                callback
+            )
+        )
 }

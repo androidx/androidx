@@ -22,9 +22,15 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.style.UserStyle
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -153,6 +159,77 @@ public class WatchFaceControlClient internal constructor(
                             )
                         )
                     )
+                }
+            },
+            { runnable -> runnable.run() }
+        )
+        return resultFuture
+    }
+
+    /**
+     * Requests either an existing [InteractiveWatchFaceWcsClient] with the specified [id] or
+     * schedules creation of an [InteractiveWatchFaceWcsClient] for the next time the
+     * WallpaperService creates an engine.
+     *
+     * NOTE that currently only one [InteractiveWatchFaceWcsClient] per process can exist at a time.
+     *
+     * @param id The ID for the requested [InteractiveWatchFaceWcsClient].
+     * @param deviceConfig The [DeviceConfig] for the wearable.
+     * @param systemState The initial [SystemState] for the wearable.
+     * @param userStyle The initial [UserStyle], or null if the default should be used.
+     * @param idToComplicationData The initial complication data, or null if unavailable.
+     * @return a [ListenableFuture] for a [InteractiveWatchFaceWcsClient]
+     */
+    public fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+        id: String,
+        deviceConfig: DeviceConfig,
+        systemState: SystemState,
+        userStyle: UserStyle?,
+        idToComplicationData: Map<Int, ComplicationData>?
+    ): ListenableFuture<InteractiveWatchFaceWcsClient> {
+        val resultFuture = ResolvableFuture.create<InteractiveWatchFaceWcsClient>()
+        serviceFuture.addListener(
+            {
+                val service = serviceFuture.get()
+                if (service == null) {
+                    resultFuture.setException(ServiceNotBoundException())
+                } else {
+                    val existingInstance = service.getOrCreateInteractiveWatchFaceWCS(
+                        WallpaperInteractiveWatchFaceInstanceParams(
+                            id,
+                            androidx.wear.watchface.data.DeviceConfig(
+                                deviceConfig.hasLowBitAmbient,
+                                deviceConfig.hasBurnInProtection,
+                                deviceConfig.screenShape,
+                                deviceConfig.analogPreviewReferenceTimeMillis,
+                                deviceConfig.digitalPreviewReferenceTimeMillis
+                            ),
+                            androidx.wear.watchface.data.SystemState(
+                                systemState.inAmbientMode,
+                                systemState.interruptionFilter
+                            ),
+                            userStyle?.toWireFormat(),
+                            idToComplicationData?.map {
+                                IdAndComplicationDataWireFormat(
+                                    it.key,
+                                    it.value.asWireComplicationData()
+                                )
+                            }
+                        ),
+                        object : IPendingInteractiveWatchFaceWCS.Stub() {
+                            override fun getApiVersion() =
+                                IPendingInteractiveWatchFaceWCS.API_VERSION
+
+                            override fun onInteractiveWatchFaceWcsCreated(
+                                iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
+                            ) {
+                                resultFuture.set(
+                                    InteractiveWatchFaceWcsClient(iInteractiveWatchFaceWcs)
+                                )
+                            }
+                        }
+                    )
+                    existingInstance?.let { resultFuture.set(InteractiveWatchFaceWcsClient(it)) }
                 }
             },
             { runnable -> runnable.run() }
