@@ -26,6 +26,7 @@ import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.TransitionModel
+import androidx.compose.animation.core.AnimationClockObserver
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.runtime.AtomicReference
 import androidx.compose.runtime.Composable
@@ -243,10 +244,13 @@ internal class ComposeViewAdapter : FrameLayout {
     @VisibleForTesting
     internal fun findAndSubscribeTransitions() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
-        slotTrees.mapNotNull { tree -> tree.firstOrNull { it.name == composableName } }
-            .firstOrNull()?.let { composable ->
-                // Find all the AnimationClockObservers corresponding to transition animations
-                val observers = composable.findAll {
+        val observers = mutableSetOf<AnimationClockObserver>()
+        // Check all the slot tables, since some animations might not be present in the same
+        // table as the one containing the `@Composable` being previewed, e.g. when they're
+        // defined using sub-composition.
+        slotTrees.forEach { tree ->
+            observers.addAll(
+                tree.findAll {
                     // Find `transition` calls in the user code, i.e. when source location is known
                     it.name == "transition" && it.location != null
                 }.mapNotNull {
@@ -257,12 +261,13 @@ internal class ComposeViewAdapter : FrameLayout {
                     } as? TransitionModel<*>
                     transitionModel?.anim?.animationClockObserver
                 }
-                hasAnimations = observers.isNotEmpty()
-                // Subscribe all the observers found to the `PreviewAnimationClock`
-                if (::clock.isInitialized) {
-                    observers.forEach { clock.subscribe(it) }
-                }
-            }
+            )
+        }
+        hasAnimations = observers.isNotEmpty()
+        // Subscribe all the observers found to the `PreviewAnimationClock`
+        if (::clock.isInitialized) {
+            observers.forEach { clock.subscribe(it) }
+        }
     }
 
     private fun Group.firstOrNull(predicate: (Group) -> Boolean): Group? {

@@ -18,6 +18,7 @@ package androidx.ui.tooling
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.ViewTreeObserver
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.TransitionAnimation
 import androidx.ui.tooling.preview.ComposeViewAdapter
@@ -31,6 +32,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 class ComposeViewAdapterTest {
     @Suppress("DEPRECATION")
@@ -80,16 +83,41 @@ class ComposeViewAdapterTest {
         }
     }
 
-    @OptIn(InternalAnimationApi::class)
     @Test
     fun transitionAnimationsAreSubscribedToTheClock() {
+        checkComposableAnimationIsSubscribed("CheckBoxPreview")
+    }
+
+    @Test
+    fun transitionAnimationsWithSubcomposition() {
+        checkComposableAnimationIsSubscribed("CheckBoxScaffoldPreview")
+    }
+
+    @OptIn(InternalAnimationApi::class)
+    private fun checkComposableAnimationIsSubscribed(composableName: String) {
         val clock = PreviewAnimationClock()
+        val laidOutLatch = CountDownLatch(1)
 
         activityTestRule.runOnUiThread {
             composeViewAdapter.init(
                 "androidx.ui.tooling.TestAnimationPreviewKt",
-                "PressStateAnimation"
+                composableName
             )
+
+            composeViewAdapter.viewTreeObserver.addOnPreDrawListener(
+                object : ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        laidOutLatch.countDown()
+                        composeViewAdapter.viewTreeObserver.removeOnPreDrawListener(this)
+                        return true
+                    }
+                }
+            )
+        }
+
+        assertTrue(laidOutLatch.await(1, TimeUnit.SECONDS))
+
+        activityTestRule.runOnUiThread {
             composeViewAdapter.clock = clock
             assertTrue(clock.observersToAnimations.isEmpty())
 
@@ -99,7 +127,7 @@ class ComposeViewAdapterTest {
             val observer = clock.observersToAnimations.keys.single()
             val transitionAnimation =
                 (observer as TransitionAnimation<*>.TransitionAnimationClockObserver).animation
-            assertEquals("colorAnim", transitionAnimation.label)
+            assertEquals("checkBoxAnim", transitionAnimation.label)
         }
     }
 
