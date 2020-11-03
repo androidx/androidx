@@ -63,10 +63,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation") /* WHOLE_MD5, WHOLE_SHA1 */
 @RunWith(AndroidJUnit4.class)
@@ -335,19 +336,22 @@ public class ChecksumsTest {
         Checksum[] checksums = Checksums.getChecksums(context, packageName, includeSplits,
                 required, trustedInstallers, executor).get();
 
-        Arrays.sort(checksums, (Checksum lhs, Checksum rhs) -> {
-            final String lhsSplit = lhs.getSplitName();
-            final String rhsSplit = rhs.getSplitName();
-            if (Objects.equals(lhsSplit, rhsSplit)) {
-                return Integer.signum(lhs.getType() - rhs.getType());
+        Arrays.sort(checksums, new Comparator<Checksum>() {
+            @Override
+            public int compare(Checksum lhs, Checksum rhs) {
+                final String lhsSplit = lhs.getSplitName();
+                final String rhsSplit = rhs.getSplitName();
+                if ((lhsSplit == rhsSplit) || (lhsSplit != null && lhsSplit.equals(rhsSplit))) {
+                    return Integer.signum(lhs.getType() - rhs.getType());
+                }
+                if (lhsSplit == null) {
+                    return -1;
+                }
+                if (rhsSplit == null) {
+                    return +1;
+                }
+                return lhsSplit.compareTo(rhsSplit);
             }
-            if (lhsSplit == null) {
-                return -1;
-            }
-            if (rhsSplit == null) {
-                return +1;
-            }
-            return lhsSplit.compareTo(rhsSplit);
         });
 
         return checksums;
@@ -402,7 +406,7 @@ public class ChecksumsTest {
         }
 
         private void commitSession(PackageInstaller.Session session) throws Exception {
-            ResolvableFuture<Intent> result = ResolvableFuture.create();
+            final ResolvableFuture<Intent> result = ResolvableFuture.create();
 
             // Create a single-use broadcast receiver
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -445,11 +449,16 @@ public class ChecksumsTest {
             }
         }
 
-        static boolean isAppInstalled(String packageName) throws IOException {
+        static boolean isAppInstalled(final String packageName) throws IOException {
             final String commandResult = executeShellCommand("pm list packages");
             final int prefixLength = "package:".length();
             return Arrays.stream(commandResult.split("\\r?\\n"))
-                    .anyMatch(line -> line.substring(prefixLength).equals(packageName));
+                    .anyMatch(new Predicate<String>() {
+                        @Override
+                        public boolean test(String line) {
+                            return line.substring(prefixLength).equals(packageName);
+                        }
+                    });
         }
     }
 
