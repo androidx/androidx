@@ -77,14 +77,14 @@ internal fun compilationFilter(
         if (response.isNotBlank()) {
             Log.d(TAG, "Received dump profile response $response")
         } else {
-            throw RuntimeException("Failed to dump profile for $packageName")
+            throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
         delay(profileSaveTimeout)
     }
     val response = device.executeShellCommand("cmd package compile -f -m $mode $packageName")
     if (!response.contains("Success")) {
         Log.d(TAG, "Received compile cmd response: $response")
-        throw RuntimeException("Failed to compile $packageName")
+        throw RuntimeException("Failed to compile $packageName ($response)")
     }
 }
 
