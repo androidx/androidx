@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2020 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,22 +15,6 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.benchmark.integration.macro">
-
-    <application
-        android:allowBackup="false"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
-
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-    </application>
+    package="androidx.benchmark.macro.runtime.test">
 
 </manifest>
