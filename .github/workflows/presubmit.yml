@@ -49,30 +49,28 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
-
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -104,30 +102,28 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
-
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -159,30 +155,28 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
-
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -214,30 +208,28 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
-
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
@@ -269,32 +261,31 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
+
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
-
-      - name: "Upload build artifacts"
+      - name: "upload build artifacts"
         continue-on-error: true
         if: always()
         uses: actions/upload-artifact@v2
@@ -324,30 +315,28 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: "Cache ~/.gradle/caches"
-        uses: actions/cache@v2.1.2
+      - name: "Setup JDK 11"
+        id: setup-java
+        uses: actions/setup-java@v1
         with:
-          path: "~/.gradle/caches"
-          key: gradle-cache-${{ runner.os }}-${{ hashFiles('**/*.gradle') }}-${{ hashFiles('**/gradle.properties') }}
-          restore-keys: |
-            gradle-cache-${{ runner.os }}-
+          java-version: "11"
 
-      - name: "Cache ~/.gradlew/wrapper"
-        uses: actions/cache@v2.1.2
-        with:
-          path: ~/.gradle/wrapper
-          key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: "Set environment variables"
+        shell: bash
+        run: |
+          set -x
+          echo "ANDROID_SDK_ROOT=$HOME/Library/Android/sdk" >> $GITHUB_ENV
+          echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
-      - name: "Cache ~/jdk"
-        uses: actions/cache@v2.1.2
+      - name: "./gradlew buildOnServer"
+        uses: eskatos/gradle-command-action@v1
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         with:
-          path: ~/jdk
-          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
-
-      - name: "Build"
-        uses: androidx/build-on-server-action@main
-        with:
-          path: ${{ env.group-id }}
+          arguments: buildOnServer
+          build-root-directory: ${{ env.group-id }}
+          gradle-executable: ${{ env.group-id }}/gradlew
+          wrapper-directory: ${{ env.group-id }}/gradle/wrapper
 
       - name: "Upload build artifacts"
         continue-on-error: true
