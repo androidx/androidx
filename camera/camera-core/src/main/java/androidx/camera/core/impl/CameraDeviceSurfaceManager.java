@@ -71,16 +71,6 @@ public interface CameraDeviceSurfaceManager {
     SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);
 
     /**
-     * Get max supported output size for specific camera device and image format
-     *
-     * @param cameraId    the camera Id
-     * @param imageFormat the image format info
-     * @return the max supported output size for the image format
-     */
-    @Nullable
-    Size getMaxOutputSize(String cameraId, int imageFormat);
-
-    /**
      * Retrieves a map of suggested resolutions for the given list of use cases.
      *
      * @param cameraId          the camera id of the camera device used by the use cases
@@ -100,11 +90,4 @@ public interface CameraDeviceSurfaceManager {
             @NonNull String cameraId,
             @NonNull List<SurfaceConfig> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);
-
-    /**
-     * Retrieves the preview size, choosing the smaller of the display size and 1080P.
-     *
-     * @return the size used for the on screen preview
-     */
-    Size getPreviewSize();
 }
