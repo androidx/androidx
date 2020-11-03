@@ -47,6 +47,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.complications.data.asApiComplicationData
@@ -61,11 +62,11 @@ import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
-import androidx.wear.watchface.data.IdAndComplicationDetails
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -389,18 +390,18 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        fun getComplicationDetails(): List<IdAndComplicationDetails> =
+        fun getComplicationState(): List<IdAndComplicationStateWireFormat> =
             uiThreadHandler.runOnHandler {
                 watchFace.complicationsManager.complications.map {
-                    IdAndComplicationDetails(
+                    IdAndComplicationStateWireFormat(
                         it.key,
-                        ComplicationDetails(
+                        ComplicationStateWireFormat(
                             it.value.computeBounds(watchFace.renderer.screenBounds),
                             it.value.boundsType,
-                            it.value.supportedTypes,
+                            ComplicationType.toWireTypes(it.value.supportedTypes),
                             it.value.defaultProviderPolicy.providersAsList(),
                             it.value.defaultProviderPolicy.systemProviderFallback,
-                            it.value.defaultProviderType,
+                            it.value.defaultProviderType.asWireComplicationType(),
                             it.value.enabled
                         )
                     )

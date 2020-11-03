@@ -38,8 +38,8 @@ internal class HeadlessWatchFaceImpl(
 
     override fun getPreviewReferenceTimeMillis() = engine!!.watchFace.previewReferenceTimeMillis
 
-    override fun getComplicationDetails() =
-        uiThreadHandler.runOnHandler { engine!!.getComplicationDetails() }
+    override fun getComplicationState() =
+        uiThreadHandler.runOnHandler { engine!!.getComplicationState() }
 
     override fun takeComplicationScreenshot(params: ComplicationScreenshotParams) =
         uiThreadHandler.runOnHandler { engine!!.takeComplicationScreenshot(params) }

@@ -18,7 +18,7 @@ package androidx.wear.watchface.control;
 
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams;
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams;
-import androidx.wear.watchface.data.IdAndComplicationDetails;
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
 /**
@@ -60,12 +60,12 @@ interface IHeadlessWatchFace {
     UserStyleSchemaWireFormat getUserStyleSchema() = 3;
 
     /**
-      * Returns the current {@link ComplicationDetails} for each complication slot. Note these
+      * Returns the current {@link ComplicationStateWireFormat} for each complication slot. Note these
       * details can change, typically in response to styling.
       *
       * @since API version 1.
       */
-    List<IdAndComplicationDetails> getComplicationDetails() = 4;
+    List<IdAndComplicationStateWireFormat> getComplicationState() = 4;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}

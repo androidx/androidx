@@ -17,4 +17,4 @@
 package androidx.wear.watchface.data;
 
 /** @hide */
-parcelable ComplicationDetails;
+parcelable IdAndComplicationStateWireFormat;

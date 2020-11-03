@@ -89,9 +89,9 @@ public class ComplicationsManager(
         val id: Int,
         val unitSquareBounds: RectF,
         val enabled: Boolean,
-        val supportedTypes: IntArray,
+        val supportedTypes: List<ComplicationType>,
         val defaultProviderPolicy: DefaultComplicationProviderPolicy,
-        val defaultProviderType: Int
+        val defaultProviderType: ComplicationType
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -255,7 +255,7 @@ public class ComplicationsManager(
                         complication.id,
                         complication.defaultProviderPolicy.providersAsList(),
                         complication.defaultProviderPolicy.systemProviderFallback,
-                        complication.defaultProviderType
+                        complication.defaultProviderType.asWireComplicationType()
                     )
                 }
 
@@ -397,7 +397,9 @@ public class ComplicationsManager(
                 watchFaceHostApi.getContext(),
                 getComponentName(watchFaceHostApi.getContext()),
                 complicationId,
-                complication.supportedTypes
+                IntArray(complication.supportedTypes.size) {
+                    complication.supportedTypes[it].asWireComplicationType()
+                }
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
         for (complicationListener in complicationListeners) {

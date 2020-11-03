@@ -32,6 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 
@@ -241,7 +242,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 val onlyComplication = watchFaceConfigDelegate.getComplicationsMap().values.first()
                 fragmentController.showComplicationConfig(
                     onlyComplication.id,
-                    *onlyComplication.supportedTypes
+                    *ComplicationType.toWireTypes(onlyComplication.supportedTypes)
                 )
             }
 
