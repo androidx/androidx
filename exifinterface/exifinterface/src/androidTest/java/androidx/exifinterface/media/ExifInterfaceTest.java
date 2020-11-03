@@ -93,18 +93,23 @@ public class ExifInterfaceTest {
     private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING =
             "webp_lossless_without_exif.webp";
-    private static final String JPEG_WITH_DATETIME_TAG = "jpeg_with_datetime_tag.jpg";
+    private static final String JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT =
+            "jpeg_with_datetime_tag_primary_format.jpg";
+    private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
+            "jpeg_with_datetime_tag_secondary_format.jpg";
     private static final int[] IMAGE_RESOURCES = new int[] {
             R.raw.jpeg_with_exif_byte_order_ii, R.raw.jpeg_with_exif_byte_order_mm,
             R.raw.dng_with_exif_with_xmp, R.raw.jpeg_with_exif_with_xmp,
             R.raw.png_with_exif_byte_order_ii, R.raw.png_without_exif, R.raw.webp_with_exif,
             R.raw.webp_with_anim_without_exif, R.raw.webp_without_exif,
-            R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag};
+            R.raw.webp_lossless_without_exif, R.raw.jpeg_with_datetime_tag_primary_format,
+            R.raw.jpeg_with_datetime_tag_secondary_format};
     private static final String[] IMAGE_FILENAMES = new String[] {
             JPEG_WITH_EXIF_BYTE_ORDER_II, JPEG_WITH_EXIF_BYTE_ORDER_MM, DNG_WITH_EXIF_WITH_XMP,
             JPEG_WITH_EXIF_WITH_XMP, PNG_WITH_EXIF_BYTE_ORDER_II, PNG_WITHOUT_EXIF,
             WEBP_WITH_EXIF, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA, WEBP_WITHOUT_EXIF,
-            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG};
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING, JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
+            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -632,7 +637,7 @@ public class ExifInterfaceTest {
         final String dateTimeValue = "2017:02:02 22:22:22";
         final String dateTimeOriginalValue = "2017:01:01 11:11:11";
 
-        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG);
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(expectedDatetimeValue, (long) exif.getDateTime());
         assertEquals(expectedDatetimeValue, (long) exif.getDateTimeOriginal());
@@ -668,6 +673,42 @@ public class ExifInterfaceTest {
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
         assertEquals(currentTimeStamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
+    }
+
+    /**
+     * Test whether ExifInterface can correctly get and set datetime value for a secondary format:
+     * Primary format example: 2020:01:01 00:00:00
+     * Secondary format example: 2020-01-01 00:00:00
+     *
+     * Getting a datetime tag value with the secondary format should work for both
+     * {@link ExifInterface#getAttribute(String)} and {@link ExifInterface#getDateTime()}.
+     * Setting a datetime tag value with the secondary format with
+     * {@link ExifInterface#setAttribute(String, String)} should automatically convert it to the
+     * primary format.
+     */
+    @Test
+    @SmallTest
+    public void testGetSetDateTimeForSecondaryFormat() throws Exception {
+        final long dateTimePrimaryFormatLongValue = 1604075491000L;
+        final String dateTimePrimaryFormatStringValue = "2020-10-30 16:31:31";
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
+
+        // Check that secondary format value is read correctly.
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(dateTimePrimaryFormatStringValue,
+                exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(dateTimePrimaryFormatLongValue, (long) exif.getDateTime());
+
+        final long dateTimeSecondaryFormatLongValue = 1577836800000L;
+        final String dateTimeSecondaryFormatStringValue = "2020-01-01 00:00:00";
+        final String modifiedDateTimeSecondaryFormatStringValue = "2020:01:01 00:00:00";
+
+        // Check that secondary format value is written correctly.
+        exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeSecondaryFormatStringValue);
+        exif.saveAttributes();
+        assertEquals(modifiedDateTimeSecondaryFormatStringValue,
+                exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(dateTimeSecondaryFormatLongValue, (long) exif.getDateTime());
     }
 
     @Test
