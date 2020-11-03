@@ -52,16 +52,26 @@ public final class DeviceConfig implements VersionedParcelable, Parcelable {
     @ParcelField(3)
     int mScreenShape;
 
+    @ParcelField(4)
+    long mAnalogPreviewReferenceTimeMillis;
+
+    @ParcelField(5)
+    long mDigitalPreviewReferenceTimeMillis;
+
     /** Used by VersionedParcelable. */
     DeviceConfig() {}
 
     public DeviceConfig(
             boolean hasLowBitAmbient,
             boolean hasBurnInProtection,
-            int screenShape) {
+            int screenShape,
+            long analogPreviewReferenceTimeMillis,
+            long digitalPreviewReferenceTimeMillis) {
         mHasLowBitAmbient = hasLowBitAmbient;
         mHasBurnInProtection = hasBurnInProtection;
         mScreenShape = screenShape;
+        mAnalogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis;
+        mDigitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis;
     }
 
     public boolean getHasLowBitAmbient() {
@@ -74,6 +84,14 @@ public final class DeviceConfig implements VersionedParcelable, Parcelable {
 
     public int getScreenShape() {
         return mScreenShape;
+    }
+
+    public long getAnalogPreviewReferenceTimeMillis() {
+        return mAnalogPreviewReferenceTimeMillis;
+    }
+
+    public long getDigitalPreviewReferenceTimeMillis() {
+        return mDigitalPreviewReferenceTimeMillis;
     }
 
     @Override

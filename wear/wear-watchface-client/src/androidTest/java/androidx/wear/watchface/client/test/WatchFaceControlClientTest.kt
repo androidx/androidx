@@ -65,6 +65,8 @@ class WatchFaceControlClientTest {
                 false,
                 false,
                 1,
+                0,
+                0
             ),
             400,
             400

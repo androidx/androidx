@@ -106,7 +106,8 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  */
 @SuppressLint("SyntheticAccessor")
 public class WatchFace private constructor(
-    internal val previewReferenceTimeMillis: Long,
+    @WatchFaceType watchFaceType: Int,
+    overridePreviewReferenceTimeMillis: Long?,
     private var interactiveUpdateRateMillis: Long,
     internal val userStyleRepository: UserStyleRepository,
     internal var complicationsManager: ComplicationsManager,
@@ -139,7 +140,7 @@ public class WatchFace private constructor(
          * The type of watch face, whether it's digital or analog. Used to determine the
          * default time for editor preview screenshots.
          */
-        @WatchFaceType watchFaceType: Int,
+        @WatchFaceType private var watchFaceType: Int,
 
         /**
          * The interval in milliseconds between frames in interactive mode. To render at 60hz pass in
@@ -168,12 +169,7 @@ public class WatchFace private constructor(
     ) {
         private var viewProtectionMode: Int = 0
         private var statusBarGravity: Int = 0
-        private var previewReferenceTimeMillis: Long =
-            when (watchFaceType) {
-                WatchFaceType.ANALOG -> ANALOG_WATCHFACE_REFERENCE_TIME_MS
-                WatchFaceType.DIGITAL -> DIGITAL_WATCHFACE_REFERENCE_TIME_MS
-                else -> throw InvalidParameterException("Unrecognized watchFaceType")
-            }
+        private var overridePreviewReferenceTimeMillis: Long? = null
 
         @ColorInt
         private var accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
@@ -190,7 +186,7 @@ public class WatchFace private constructor(
         public fun setPreviewReferenceTimeMillis(
             previewReferenceTimeMillis: Long
         ): Builder = apply {
-            this.previewReferenceTimeMillis = previewReferenceTimeMillis
+            overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
         }
 
         /**
@@ -274,7 +270,8 @@ public class WatchFace private constructor(
                     watchFaceHost.api!!.getContext().javaClass.typeName
                 )
             return WatchFace(
-                previewReferenceTimeMillis,
+                watchFaceType,
+                overridePreviewReferenceTimeMillis,
                 interactiveUpdateRateMillis,
                 userStyleRepository,
                 complicationsManager,
@@ -297,14 +294,6 @@ public class WatchFace private constructor(
     }
 
     internal companion object {
-        // Reference time for editor screenshots for analog watch faces.
-        // 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
-        internal const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
-
-        // Reference time for editor screenshots for digital watch faces.
-        // 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
-        internal const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
-
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
         internal const val DEFAULT_PROVIDER_TYPE_NONE = -2
 
@@ -412,6 +401,13 @@ public class WatchFace private constructor(
                 intent.getLongExtra(EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, Long.MAX_VALUE)
         }
     }
+
+    internal val previewReferenceTimeMillis =
+        overridePreviewReferenceTimeMillis ?: when (watchFaceType) {
+            WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
+            WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
+            else -> throw InvalidParameterException("Unrecognized watchFaceType")
+        }
 
     init {
         // If the system has a stored user style then Home/SysUI is in charge of style
