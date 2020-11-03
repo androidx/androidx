@@ -63,11 +63,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
@@ -118,11 +118,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
@@ -173,11 +173,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
@@ -228,11 +228,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
@@ -283,11 +283,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
@@ -338,11 +338,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ runner.os }}-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
-      - name: "Cache ~/.konan"
+      - name: "Cache ~/jdk"
         uses: actions/cache@v2.1.2
         with:
-          path: ~/.konan
-          key: konan-${{ runner.os }}
+          path: ~/jdk
+          key: zulu11.43.21-ca-jdk11.0.9-${{ runner.os }}
 
       - name: "Build"
         uses: androidx/build-on-server-action@main
