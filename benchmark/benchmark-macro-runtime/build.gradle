@@ -37,7 +37,6 @@ android {
 dependencies {
     api(JUNIT)
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_ANDROID)
     api("androidx.annotation:annotation:1.1.0")
     implementation(project(":benchmark:benchmark-common"))
     implementation(project(":benchmark:benchmark-perfetto"))

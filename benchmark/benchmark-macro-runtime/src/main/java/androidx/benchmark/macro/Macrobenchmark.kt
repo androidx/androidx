@@ -107,11 +107,13 @@ fun macrobenchmark(
 }
 
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    // Clear profile between runs.
+    clearProfile(instrumentation, packageName)
     if (this == CompilationMode.None) {
         return // nothing to do
     }
     if (this is CompilationMode.SpeedProfile) {
-        // TODO: clear existing profiling state
         repeat(this.warmupIterations) {
             block()
         }
