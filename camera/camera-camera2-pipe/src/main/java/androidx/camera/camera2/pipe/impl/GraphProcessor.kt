@@ -354,10 +354,15 @@ class GraphProcessorImpl @Inject constructor(
 
                         burst = nullableBurst
                     } else if (!dirty) {
+                        debug { "Failed to submit $burst, and the queue is not dirty." }
                         // If we did not submit, and we are also not dirty, then exit the loop
                         submitting = false
                         return
                     } else {
+                        debug {
+                            "Failed to submit $burst but the request queue or processor is " +
+                                "dirty. Clearing dirty flag and attempting retry."
+                        }
                         dirty = false
 
                         // One possible situation is that the _requestProcessor was replaced or
