@@ -602,6 +602,7 @@ src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: P
 # > Task :appsearch:appsearch-compiler:lint
 \$SUPPORT/appsearch/compiler/lint\-baseline\.xml: Information: [0-9]+ error was filtered out because it is listed in the baseline file, lint\-baseline\.xml
 \[LintBaseline\]
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ error filtered by baseline lint\-baseline\.xml\)
 # > Task :slice-view:generateApi
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of hidden type SliceContent in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
@@ -780,3 +781,5 @@ compiler or generated code\. Use it at your own risk\!
 # > Task :docs-public:lintDebug
 Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
 Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.xml
+# > Task :compose:compiler:compiler-hosted:lint
+\$SUPPORT/compose/compiler/compiler\-hosted/lint\-baseline\.xml: Information: [0-9]+ errors were filtered out because they are listed in the baseline file, lint\-baseline\.xml
