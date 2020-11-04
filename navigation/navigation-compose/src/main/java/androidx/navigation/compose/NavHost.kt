@@ -42,6 +42,9 @@ import java.util.UUID
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
  *
+ * The builder passed into this method is [remember]ed. This means that for this NavHost, the
+ * contents of the builder cannot be changed.
+ *
  * @sample androidx.navigation.compose.samples.BasicNav
  *
  * @param navController the navController for this host
@@ -70,6 +73,9 @@ public fun NavHost(
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
  *
+ * The graph passed into this method is [remember]ed. This means that for this NavHost, the graph
+ * cannot be changed.
+ *
  * @param navController the navController for this host
  * @param graph the graph for this host
  */
@@ -79,6 +85,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
     var context = ContextAmbient.current
     val lifecycleOwner = LifecycleOwnerAmbient.current
     val viewModelStore = ViewModelStoreOwnerAmbient.current.viewModelStore
+    val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
     // after the first time, this will only happen again if one of the inputs changes
@@ -98,8 +105,8 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
         }
     }
 
-    onCommit(graph) {
-        navController.graph = graph
+    onCommit(rememberedGraph) {
+        navController.graph = rememberedGraph
     }
 
     val restorableStateHolder = rememberRestorableStateHolder<UUID>()
