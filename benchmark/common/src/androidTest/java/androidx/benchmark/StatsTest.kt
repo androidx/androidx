@@ -34,8 +34,6 @@ class StatsTest {
         assertEquals(10, stats.max)
         assertEquals(10, stats.min)
         assertEquals(0.0, stats.standardDeviation, 0.0)
-        assertEquals(10, stats.percentile90)
-        assertEquals(10, stats.percentile95)
     }
 
     @Test
@@ -46,8 +44,6 @@ class StatsTest {
         assertEquals(10, stats.max)
         assertEquals(10, stats.min)
         assertEquals(Double.NaN, stats.standardDeviation, 0.0)
-        assertEquals(10, stats.percentile90)
-        assertEquals(10, stats.percentile95)
     }
 
     @Test
@@ -58,8 +54,6 @@ class StatsTest {
         assertEquals(100, stats.max)
         assertEquals(1, stats.min)
         assertEquals(29.01, stats.standardDeviation, 0.05)
-        assertEquals(90, stats.percentile90)
-        assertEquals(95, stats.percentile95)
     }
 
     @Test
@@ -75,12 +69,5 @@ class StatsTest {
         (0..100).forEach {
             assertEquals(it.toLong(), Stats.getPercentile(listOf(0L, 25L, 50L, 75L, 100L), it))
         }
-    }
-
-    @Test
-    fun fractionalPercentile() {
-        val stats = Stats(longArrayOf(0L, 25L, 50L, 75L, 100L), "test")
-        assertEquals(90, stats.percentile90)
-        assertEquals(95, stats.percentile95)
     }
 }
