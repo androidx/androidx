@@ -18,6 +18,7 @@ package androidx.ui.tooling.inspector
 
 import android.util.Log
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -97,6 +98,10 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         valueLookup[Color.Unspecified] = "Unspecified"
         valuesLoaded.add(Enum::class.java)
         valuesLoaded.add(Any::class.java)
+
+        // AbsoluteAlignment is not found from an instance of BiasAbsoluteAlignment,
+        // because Alignment has no file level class.
+        loadConstantsFromEnclosedClasses(AbsoluteAlignment::class.java)
     }
 
     /**

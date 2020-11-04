@@ -75,7 +75,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -101,7 +100,6 @@ class ParameterFactoryTest {
     }
 
     @Test
-    @Ignore("b/172466485")
     fun testAbsoluteAlignment() {
         assertThat(lookup(AbsoluteAlignment.TopLeft))
             .isEqualTo(ParameterType.String to "TopLeft")
