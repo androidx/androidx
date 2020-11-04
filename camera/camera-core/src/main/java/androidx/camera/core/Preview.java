@@ -781,6 +781,15 @@ public final class Preview extends UseCase {
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.
          *
+         * <p>For the following devices, the aspect ratio will be forced to
+         * {@link AspectRatio#RATIO_16_9} regardless of the config. On these devices, the
+         * camera HAL produces a preview with a 16:9 aspect ratio regardless of the aspect ratio
+         * of the preview surface.
+         * <ul>
+         *     <li>SM-J710MN, Samsung Galaxy J7 (2016)
+         *     <li>SM-T580, Samsung Galaxy Tab A J7 (2016)
+         * </ul>
+         *
          * @param aspectRatio The desired Preview {@link AspectRatio}
          * @return The current Builder.
          */
