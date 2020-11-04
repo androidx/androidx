@@ -42,7 +42,8 @@ public class IncompleteCameraListQuirk implements Quirk {
                     "heroqltevzw", "1816", "1814", "1815", "santoni", "htc_oclul", "asus_z01h_1",
                     "vox_alpha_plus", "a5y17ltecan", "x304l", "hero2qltevzw", "a5y17lteskt",
                     "1801", "a5y17lteskt", "1801", "a5y17ltelgt", "herolte", "htc_hiau_ml_tuhl",
-                    "a6plte", "hwtrt-q", "co2_sprout", "h3223", "davinci", "vince", "armor_x5"));
+                    "a6plte", "hwtrt-q", "co2_sprout", "h3223", "davinci", "vince", "armor_x5",
+                    "a2corelte", "j6lte"));
 
     /**
      * @return true if the device might report an incomplete camera id list, otherwise false.
