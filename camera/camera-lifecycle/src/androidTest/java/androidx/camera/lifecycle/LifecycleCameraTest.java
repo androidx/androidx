@@ -18,6 +18,8 @@ package androidx.camera.lifecycle;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -110,6 +112,57 @@ public class LifecycleCameraTest {
         mLifecycleOwner.start();
 
         assertThat(mLifecycleCamera.isActive()).isFalse();
+    }
+
+    @Test
+    public void lifecycleStart_restoreInteropConfig() {
+        // Set an config to CameraControl internally.
+        Config.Option<Integer> option = Config.Option.create("OPTION_ID", Integer.class);
+        Integer value = 1;
+        MutableOptionsBundle originalConfig = MutableOptionsBundle.create();
+        originalConfig.insertOption(option, value);
+        mFakeCamera.getCameraControlInternal().addInteropConfig(originalConfig);
+
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter);
+
+        mLifecycleOwner.start();
+
+        // Stop the lifecycle. The original config is cached and the config in CameraControl is
+        // cleared internally.
+        mLifecycleOwner.stop();
+
+        // Set a different config.
+        mFakeCamera.getCameraControlInternal().addInteropConfig(MutableOptionsBundle.create());
+
+        // Starts the lifecycle and the cached config is restored internally.
+        mLifecycleOwner.start();
+
+        // Check the config in CameraControl has the same value as the original config.
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().containsOption(
+                        option)).isTrue();
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().retrieveOption(
+                        option)).isEqualTo(value);
+    }
+
+    @Test
+    public void lifecycleStop_clearInteropConfig() {
+        // Set an config to CameraControl.
+        Config config = MutableOptionsBundle.create();
+        mFakeCamera.getCameraControlInternal().addInteropConfig(config);
+
+        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter);
+
+        mLifecycleOwner.start();
+
+        // Stop the lifecycle. The original config is cached and the config in CameraControl is
+        // cleared internally.
+        mLifecycleOwner.stop();
+
+        // Check the config in CameraControl is empty.
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().listOptions()).isEmpty();
     }
 
     @Test

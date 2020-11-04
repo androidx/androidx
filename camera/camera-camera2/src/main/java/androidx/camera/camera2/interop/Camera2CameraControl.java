@@ -205,20 +205,7 @@ public final class Camera2CameraControl {
     @NonNull
     public CaptureRequestOptions getCaptureRequestOptions() {
         synchronized (mLock) {
-            Camera2ImplConfig config = mBuilder.build();
-            CaptureRequestOptions.Builder bundleBuilder =
-                    new CaptureRequestOptions.Builder();
-            config.findOptions(
-                    Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
-                    option -> {
-                        @SuppressWarnings("unchecked")
-                        Config.Option<Object> objectOpt = (Config.Option<Object>) option;
-                        bundleBuilder.getMutableConfig().insertOption(objectOpt,
-                                config.getOptionPriority(objectOpt),
-                                config.retrieveOption(objectOpt));
-                        return true;
-                    });
-            return bundleBuilder.build();
+            return CaptureRequestOptions.Builder.from(mBuilder.build()).build();
         }
     }
 
