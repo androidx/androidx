@@ -81,7 +81,7 @@ internal class InteractiveInstanceManager {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
                 val instance = instances[value.params.instanceId]
                 return if (instance != null) {
-                    instance.impl.wcsApi
+                    instance.impl.createWCSApi()
                 } else {
                     pendingWallpaperInteractiveWatchFaceInstance = value
                     null
