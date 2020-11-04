@@ -568,7 +568,8 @@ public class FocusMeteringControlTest {
                 new FocusMeteringAction.Builder(mPoint1).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
 
-        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1))
+                .updateSessionConfigSynchronous();
     }
 
     @Test
@@ -1022,9 +1023,9 @@ public class FocusMeteringControlTest {
         Mockito.reset(mCamera2CameraControlImpl);
 
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1))
+                .updateSessionConfigSynchronous();
     }
-
 
     @Test
     public void cancelFocusAndMetering_triggerCancelAfProperly() {
