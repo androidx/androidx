@@ -17,6 +17,7 @@
 package androidx.wear.watchface.client
 
 import android.app.PendingIntent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.IBinder
@@ -78,14 +79,23 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
     /** Describes regions of the watch face for use by a screen reader. */
     public class ContentDescriptionLabel(
         /** Text associated with the region, to be read by the screen reader. */
-        public val text: TimeDependentText,
+        private val text: TimeDependentText,
 
         /** Area of the feature on screen. */
         public val bounds: Rect,
 
         /** [PendingIntent] to be used if the screen reader's user triggers a tap action. */
         public val tapAction: PendingIntent?
-    )
+    ) {
+        /**
+         * Returns the text that should be displayed for the given timestamp.
+         *
+         * @param resources [Resources] from the current [android.content.Context]
+         * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+         */
+        public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
+            text.getTextAt(resources, dateTimeMillis)
+    }
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
