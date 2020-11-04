@@ -40,6 +40,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.lifecycle.Lifecycle;
@@ -49,16 +50,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.security.InvalidParameterException;
 
-// TODO(rampara): Uncomment on addition of navigation module
-//import androidx.car.app.navigation.NavigationManager;
-
-// TODO(rampara): Replace code tags with links on addition of model module.
 /**
  * The CarContext class is a {@link ContextWrapper} subclass accessible to your {@link
  * CarAppService} and {@link Screen} instances, which provides access to car services such as the
  * {@link ScreenManager} for managing the screen stack, the {@link AppManager} for general
  * app-related functionality such as accessing a surface for drawing your navigation app’s map, and
- * the {@code NavigationManager} used by turn-by-turn navigation apps to communicate navigation
+ * the {@link NavigationManager} used by turn-by-turn navigation apps to communicate navigation
  * metadata and other navigation-related events with the host. See Access the navigation templates
  * for a comprehensive list of library functionality available to navigation apps.
  *
@@ -121,8 +118,7 @@ public class CarContext extends ContextWrapper {
             "androidx.car.app.action.NAVIGATE";
 
     private final AppManager mAppManager;
-    // TODO(rampara): Uncomment on addition of navigation module
-    //  private final NavigationManager navigationManager;
+    private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
 
@@ -135,7 +131,6 @@ public class CarContext extends ContextWrapper {
         return new CarContext(lifecycle, new HostDispatcher());
     }
 
-    // TODO(rampara): Replace code tags with links on addition of model module.
     /**
      * Provides a car service by name.
      *
@@ -147,7 +142,7 @@ public class CarContext extends ContextWrapper {
      *   <dt>{@link #APP_SERVICE}
      *   <dd>An {@link AppManager} for communication between the app and the host.
      *   <dt>{@link #NAVIGATION_SERVICE}
-     *   <dd>A {@code NavigationManager} for management of navigation updates.
+     *   <dd>A {@link NavigationManager} for management of navigation updates.
      *   <dt>{@link #SCREEN_MANAGER_SERVICE}
      *   <dd>A {@link ScreenManager} for management of {@link Screen}s.
      * </dl>
@@ -165,9 +160,8 @@ public class CarContext extends ContextWrapper {
         switch (requireNonNull(name)) {
             case APP_SERVICE:
                 return mAppManager;
-            // TODO(rampara): Uncomment on addition of navigation module
-//      case NAVIGATION_SERVICE:
-//        return navigationManager;
+            case NAVIGATION_SERVICE:
+                return mNavigationManager;
             case SCREEN_MANAGER_SERVICE:
                 return mScreenManager;
             default: // fall out
@@ -177,11 +171,10 @@ public class CarContext extends ContextWrapper {
                 "The name '" + name + "' does not correspond to a car service.");
     }
 
-    // TODO(rampara): Replace code tags with links on addition of model module.
     /**
      * Returns the a car service, by class.
      *
-     * <p>Currently supported classes are: {@link AppManager}, {@code NavigationManager}, {@link
+     * <p>Currently supported classes are: {@link AppManager}, {@link NavigationManager}, {@link
      * ScreenManager}.
      *
      * @param serviceClass the class of the requested service.
@@ -210,9 +203,8 @@ public class CarContext extends ContextWrapper {
     public String getCarServiceName(@NonNull Class<?> serviceClass) {
         if (requireNonNull(serviceClass).isInstance(mAppManager)) {
             return APP_SERVICE;
-            // TODO(rampara): Uncomment on addition of navigation module
-//    } else if (serviceClass.isInstance(navigationManager)) {
-//      return NAVIGATION_SERVICE;
+        } else if (serviceClass.isInstance(mNavigationManager)) {
+            return NAVIGATION_SERVICE;
         } else if (serviceClass.isInstance(mScreenManager)) {
             return SCREEN_MANAGER_SERVICE;
         }
@@ -450,8 +442,7 @@ public class CarContext extends ContextWrapper {
 
         this.mHostDispatcher = hostDispatcher;
         mAppManager = AppManager.create(this, hostDispatcher);
-        // TODO(rampara): Uncomment on addition of navigation module
-        //navigationManager = NavigationManager.create(hostDispatcher);
+        mNavigationManager = NavigationManager.create(hostDispatcher);
         mScreenManager = ScreenManager.create(this, lifecycle);
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());
