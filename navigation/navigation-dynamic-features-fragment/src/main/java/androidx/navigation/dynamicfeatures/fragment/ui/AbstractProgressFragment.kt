@@ -21,6 +21,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -72,24 +73,22 @@ public abstract class AbstractProgressFragment : Fragment {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (navigated) {
             findNavController().popBackStack()
             return
         }
         var monitor = installViewModel.installMonitor
         if (monitor == null) {
-            Log.i(TAG, "onResume: monitor is null, navigating")
+            Log.i(TAG, "onViewCreated: monitor is null, navigating")
             navigate()
             monitor = installViewModel.installMonitor
         }
         if (monitor != null) {
-            Log.i(TAG, "onResume: monitor is now not null, observing")
-            monitor.status.observe(this, StateObserver(monitor))
+            Log.i(TAG, "onViewCreated: monitor is now not null, observing")
+            monitor.status.observe(viewLifecycleOwner, StateObserver(monitor))
         }
     }
-
     /**
      * Navigates to an installed dynamic feature module or kicks off installation.
      *
