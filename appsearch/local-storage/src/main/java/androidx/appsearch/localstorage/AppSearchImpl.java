@@ -223,13 +223,17 @@ public final class AppSearchImpl {
      *
      * <p>This method belongs to mutate group.
      *
-     * @param databaseName  The name of the database where this schema lives.
-     * @param schemas       Schemas to set for this app.
-     * @param forceOverride Whether to force-apply the schema even if it is incompatible. Documents
-     *                      which do not comply with the new schema will be deleted.
+     * @param databaseName                  The name of the database where this schema lives.
+     * @param schemas                       Schemas to set for this app.
+     * @param schemasNotPlatformSurfaceable Schema types that should not be surfaced on platform
+     *                                      surfaces.
+     * @param forceOverride                 Whether to force-apply the schema even if it is
+     *                                      incompatible. Documents
+     *                                      which do not comply with the new schema will be deleted.
      * @throws AppSearchException on IcingSearchEngine error.
      */
     public void setSchema(@NonNull String databaseName, @NonNull Set<AppSearchSchema> schemas,
+            @NonNull Set<String> schemasNotPlatformSurfaceable,
             boolean forceOverride) throws AppSearchException {
         mReadWriteLock.writeLock().lock();
         try {
@@ -272,8 +276,15 @@ public final class AppSearchImpl {
 
             // Update derived data structures.
             mSchemaMapLocked.put(databaseName, rewrittenSchemaResults.mRewrittenQualifiedTypes);
-            mVisibilityStoreLocked.updateSchemas(databaseName,
-                    rewrittenSchemaResults.mDeletedQualifiedTypes);
+
+            String databasePrefix = getDatabasePrefix(databaseName);
+            Set<String> qualifiedSchemasNotPlatformSurfaceable =
+                    new ArraySet<>(schemasNotPlatformSurfaceable.size());
+            for (String schema : schemasNotPlatformSurfaceable) {
+                qualifiedSchemasNotPlatformSurfaceable.add(databasePrefix + schema);
+            }
+            mVisibilityStoreLocked.setVisibility(databaseName,
+                    qualifiedSchemasNotPlatformSurfaceable);
 
             // Determine whether to schedule an immediate optimize.
             if (setSchemaResultProto.getDeletedSchemaTypesCount() > 0
@@ -286,41 +297,6 @@ public final class AppSearchImpl {
             }
         } finally {
             mReadWriteLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Update the visibility settings for this app.
-     *
-     * <p>This method belongs to the mutate group
-     *
-     * @param databaseName                      The name of the database where the
-     *                                          visibility settings will apply.
-     * @param schemasHiddenFromPlatformSurfaces Schemas that should be hidden from platform
-     *                                          surfaces
-     * @throws AppSearchException on IcingSearchEngine error
-     */
-    public void setVisibility(@NonNull String databaseName,
-            @NonNull Set<String> schemasHiddenFromPlatformSurfaces)
-            throws AppSearchException {
-        mReadWriteLock.writeLock().lock();
-        try {
-            String databasePrefix = getDatabasePrefix(databaseName);
-            Set<String> qualifiedSchemasHiddenFromPlatformSurface =
-                    new ArraySet<>(schemasHiddenFromPlatformSurfaces.size());
-            for (String schema : schemasHiddenFromPlatformSurfaces) {
-                Set<String> existingSchemas = mSchemaMapLocked.get(databaseName);
-                if (existingSchemas == null || !existingSchemas.contains(databasePrefix + schema)) {
-                    throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
-                            "Unknown schema(s): " + schemasHiddenFromPlatformSurfaces
-                                    + " provided during setVisibility.");
-                }
-                qualifiedSchemasHiddenFromPlatformSurface.add(databasePrefix + schema);
-            }
-            mVisibilityStoreLocked.setVisibility(databaseName,
-                    qualifiedSchemasHiddenFromPlatformSurface);
-        } finally {
-            mReadWriteLock.writeLock().lock();
         }
     }
 
