@@ -464,7 +464,7 @@ includeProject(":startup:startup-runtime-lint", "startup/startup-runtime-lint", 
 includeProject(":swiperefreshlayout:swiperefreshlayout", "swiperefreshlayout/swiperefreshlayout", [BuildType.MAIN])
 includeProject(":test-screenshot", "test/screenshot")
 includeProject(":test-screenshot-proto", "test/screenshot/proto", [BuildType.MAIN])
-includeProject(":text:text", "text/text")
+includeProject(":text:text", "text/text", [BuildType.COMPOSE])
 includeProject(":textclassifier:integration-tests:testapp", "textclassifier/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":textclassifier:textclassifier", "textclassifier/textclassifier", [BuildType.MAIN])
 includeProject(":tracing:tracing", "tracing/tracing")
