@@ -47,13 +47,26 @@ fi
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
 CHECKOUT="$(cd "$SCRIPT_PATH/../../.." && pwd)"
 if [ -n "$DIST_DIR" ]; then
-  LOG_DIR="$DIST_DIR"
+  LOG_DIR="$DIST_DIR/logs"
 else
-  LOG_DIR="$CHECKOUT/out/dist"
+  LOG_DIR="$CHECKOUT/out/dist/logs"
 fi
 
 mkdir -p "$LOG_DIR"
 logFile="$LOG_DIR/gradle.log"
+
+# Move any preexisting $logFile to make room for a new one
+# After moving $logFile several times it eventually gets deleted
+function rotateLogs() {
+  iPlus1="10"
+  for i in $(seq 9 -1 1); do
+    mv "$LOG_DIR/gradle.${i}.log" "$LOG_DIR/gradle.${iPlus1}.log" 2>/dev/null || true
+    iPlus1=$i
+  done
+  mv $logFile "$LOG_DIR/gradle.1.log" 2>/dev/null || true
+}
+rotateLogs
+
 rm -f "$logFile"
 # Save OUT_DIR and some other variables into the log file so build_log_simplifier.py can
 # identify them later
