@@ -16,6 +16,8 @@
 
 package androidx.appsearch.app;
 
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
+import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
 import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
@@ -51,6 +53,27 @@ public class AnnotationProcessorTest {
     }
 
     @AppSearchDocument
+    static class Card {
+        @AppSearchDocument.Uri String mUri;
+        @AppSearchDocument.Property
+                (indexingType = INDEXING_TYPE_PREFIXES, tokenizerType = TOKENIZER_TYPE_PLAIN)
+        String mString;        // 3a
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof Card)) {
+                return false;
+            }
+            Card otherCard = (Card) other;
+            assertThat(otherCard.mUri).isEqualTo(this.mUri);
+            return true;
+        }
+    }
+
+    @AppSearchDocument
     static class Gift {
         @AppSearchDocument.Uri String mUri;
 
@@ -62,7 +85,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property Collection<Boolean> mCollectBoolean;   // 1a
         @AppSearchDocument.Property Collection<byte[]> mCollectByteArr;    // 1a
         @AppSearchDocument.Property Collection<String> mCollectString;     // 1b
-        @AppSearchDocument.Property Collection<Gift> mCollectGift;         // 1c
+        @AppSearchDocument.Property Collection<Card> mCollectCard;         // 1c
 
         // Arrays
         @AppSearchDocument.Property Long[] mArrBoxLong;         // 2a
@@ -78,7 +101,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property byte[][] mArrUnboxByteArr;  // 2b
         @AppSearchDocument.Property Byte[] mBoxByteArr;         // 2a
         @AppSearchDocument.Property String[] mArrString;        // 2b
-        @AppSearchDocument.Property Gift[] mArrGift;            // 2c
+        @AppSearchDocument.Property Card[] mArrCard;            // 2c
 
         // Single values
         @AppSearchDocument.Property String mString;        // 3a
@@ -93,7 +116,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property Boolean mBoxBoolean;   // 3a
         @AppSearchDocument.Property boolean mUnboxBoolean; // 3b
         @AppSearchDocument.Property byte[] mUnboxByteArr;  // 3a
-        @AppSearchDocument.Property Gift mGift;            // 3c
+        @AppSearchDocument.Property Card mCard;            // 3c
 
         @Override
         public boolean equals(Object other) {
@@ -118,7 +141,7 @@ public class AnnotationProcessorTest {
             assertThat(otherGift.mArrUnboxFloat).isEqualTo(this.mArrUnboxFloat);
             assertThat(otherGift.mArrUnboxLong).isEqualTo(this.mArrUnboxLong);
             assertThat(otherGift.mArrUnboxInt).isEqualTo(this.mArrUnboxInt);
-            assertThat(otherGift.mArrGift).isEqualTo(this.mArrGift);
+            assertThat(otherGift.mArrCard).isEqualTo(this.mArrCard);
 
             assertThat(otherGift.mCollectLong).isEqualTo(this.mCollectLong);
             assertThat(otherGift.mCollectInteger).isEqualTo(this.mCollectInteger);
@@ -126,7 +149,7 @@ public class AnnotationProcessorTest {
             assertThat(otherGift.mCollectString).isEqualTo(this.mCollectString);
             assertThat(otherGift.mCollectDouble).isEqualTo(this.mCollectDouble);
             assertThat(otherGift.mCollectFloat).isEqualTo(this.mCollectFloat);
-            assertThat(otherGift.mCollectGift).isEqualTo(this.mCollectGift);
+            assertThat(otherGift.mCollectCard).isEqualTo(this.mCollectCard);
             checkCollectByteArr(otherGift.mCollectByteArr, this.mCollectByteArr);
 
             assertThat(otherGift.mString).isEqualTo(this.mString);
@@ -141,7 +164,7 @@ public class AnnotationProcessorTest {
             assertThat(otherGift.mBoxBoolean).isEqualTo(this.mBoxBoolean);
             assertThat(otherGift.mUnboxBoolean).isEqualTo(this.mUnboxBoolean);
             assertThat(otherGift.mUnboxByteArr).isEqualTo(this.mUnboxByteArr);
-            assertThat(otherGift.mGift).isEqualTo(this.mGift);
+            assertThat(otherGift.mCard).isEqualTo(this.mCard);
             return true;
         }
 
@@ -160,7 +183,7 @@ public class AnnotationProcessorTest {
         //TODO(b/156296904) add test for int, float, GenericDocument, and class with
         // @AppSearchDocument annotation
         checkIsResultSuccess(mSession.setSchema(
-                new SetSchemaRequest.Builder().addDataClass(Gift.class).build()));
+                new SetSchemaRequest.Builder().addDataClass(Card.class, Gift.class).build()));
 
         // Create a Gift object and assign values.
         Gift inputDataClass = new Gift();
@@ -180,11 +203,11 @@ public class AnnotationProcessorTest {
         inputDataClass.mArrUnboxInt = new int[]{5, 4};
         inputDataClass.mArrUnboxLong = new long[]{7, 6};
 
-        Gift innerGift1 = new Gift();
-        innerGift1.mUri = "innerGift.uri1";
-        Gift innerGift2 = new Gift();
-        innerGift2.mUri = "innerGift.uri2";
-        inputDataClass.mArrGift = new Gift[]{innerGift1, innerGift2};
+        Card card1 = new Card();
+        card1.mUri = "card.uri1";
+        Card card2 = new Card();
+        card2.mUri = "card.uri2";
+        inputDataClass.mArrCard = new Card[]{card2, card2};
 
         inputDataClass.mCollectLong = Arrays.asList(inputDataClass.mArrBoxLong);
         inputDataClass.mCollectInteger = Arrays.asList(inputDataClass.mArrBoxInteger);
@@ -193,7 +216,7 @@ public class AnnotationProcessorTest {
         inputDataClass.mCollectDouble = Arrays.asList(inputDataClass.mArrBoxDouble);
         inputDataClass.mCollectFloat = Arrays.asList(inputDataClass.mArrBoxFloat);
         inputDataClass.mCollectByteArr = Arrays.asList(inputDataClass.mArrUnboxByteArr);
-        inputDataClass.mCollectGift = Arrays.asList(innerGift1, innerGift2);
+        inputDataClass.mCollectCard = Arrays.asList(card2, card2);
 
         inputDataClass.mString = "String";
         inputDataClass.mBoxLong = 1L;
@@ -207,7 +230,7 @@ public class AnnotationProcessorTest {
         inputDataClass.mBoxBoolean = true;
         inputDataClass.mUnboxBoolean = false;
         inputDataClass.mUnboxByteArr = new byte[]{1, 2, 3};
-        inputDataClass.mGift = innerGift1;
+        inputDataClass.mCard = card1;
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mSession.putDocuments(
@@ -231,7 +254,7 @@ public class AnnotationProcessorTest {
     public void testAnnotationProcessor_QueryByType() throws Exception {
         checkIsResultSuccess(mSession.setSchema(
                 new SetSchemaRequest.Builder()
-                        .addDataClass(Gift.class)
+                        .addDataClass(Card.class, Gift.class)
                         .addSchema(AppSearchEmail.SCHEMA).build()));
 
         // Create documents and index them
