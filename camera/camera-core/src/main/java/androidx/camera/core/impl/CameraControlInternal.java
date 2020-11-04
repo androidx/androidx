@@ -96,6 +96,22 @@ public interface CameraControlInternal extends CameraControl {
     @NonNull
     Rect getSensorRect();
 
+    /**
+     * Adds the Interop configuration.
+     */
+    void addInteropConfig(@NonNull Config config);
+
+    /**
+     * Clears the Interop configuration set previously.
+     */
+    void clearInteropConfig();
+
+    /**
+     * Gets the Interop configuration.
+     */
+    @NonNull
+    Config getInteropConfig();
+
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @FlashMode
         @Override
@@ -127,7 +143,6 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
-
         }
 
         @NonNull
@@ -170,6 +185,20 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public ListenableFuture<Void> setLinearZoom(float linearZoom) {
             return Futures.immediateFuture(null);
+        }
+
+        @Override
+        public void addInteropConfig(@NonNull Config config) {
+        }
+
+        @Override
+        public void clearInteropConfig() {
+        }
+
+        @NonNull
+        @Override
+        public Config getInteropConfig() {
+            return null;
         }
     };
 

@@ -106,6 +106,33 @@ public class CaptureRequestOptions implements ReadableConfig {
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
 
         /**
+         * Generates a Builder from another Config object.
+         *
+         * @param config An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY)
+        @NonNull
+        public static CaptureRequestOptions.Builder from(@NonNull Config config) {
+            CaptureRequestOptions.Builder bundleBuilder = new CaptureRequestOptions.Builder();
+            config.findOptions(
+                    Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
+                    option -> {
+                        // Erase the type of the option. Capture request options should only be
+                        // set via Camera2Interop so that the type of the key and value should
+                        // always match.
+                        @SuppressWarnings("unchecked")
+                        Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+                        bundleBuilder.getMutableConfig().insertOption(objectOpt,
+                                config.getOptionPriority(objectOpt),
+                                config.retrieveOption(objectOpt));
+                        return true;
+                    });
+            return bundleBuilder;
+        }
+
+        /**
          * {@inheritDoc}
          *
          * @hide
