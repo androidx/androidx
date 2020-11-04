@@ -26,22 +26,9 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * Encapsulates a request to update the visibility settings of an {@link AppSearchManager} database.
+ * Encapsulates a request to update the visibility settings of an {@link AppSearchSession} database.
  *
- * // TODO(b/169883602): Move these comments to the actual setVisibilityRequest(request) API.
- * <p>Visibility settings are not carried over from previous {@code SetVisibilityRequest}s. The
- * entire set of visibility settings must be specified on each {@code SetVisibilityRequest}.
- *
- * <p>The visibility settings apply to the schema instance that currently exists. If a schema is
- * deleted and then re-added, the visibility setting will no longer apply to the new instance of
- * the schema.
- *
- * <p>An {@link AppSearchException} will be thrown if a specified schema doesn't exist.
- *
- * <p>The default visibility settings are that all documents can be shown on platform surfaces.
- * Documents can be opted out of being shown on platform surfaces by specifying their schema type
- * in {@link SetVisibilityRequest.Builder#setHiddenFromPlatformSurfaces}.
- *
+ * @see AppSearchSession#setVisibility
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -66,14 +53,14 @@ public final class SetVisibilityRequest {
 
         /** Set documents of type {@code schemas} to be hidden from platform surfaces. */
         @NonNull
-        public Builder setHiddenFromPlatformSurfaces(@NonNull AppSearchSchema... schemas) {
+        public Builder addHiddenFromPlatformSurfaces(@NonNull AppSearchSchema... schemas) {
             Preconditions.checkNotNull(schemas);
-            return setHiddenFromPlatformSurfaces(Arrays.asList(schemas));
+            return addHiddenFromPlatformSurfaces(Arrays.asList(schemas));
         }
 
         /** Set documents of type {@code schemas} to be hidden from platform surfaces. */
         @NonNull
-        public Builder setHiddenFromPlatformSurfaces(@NonNull Collection<AppSearchSchema> schemas) {
+        public Builder addHiddenFromPlatformSurfaces(@NonNull Collection<AppSearchSchema> schemas) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(schemas);
             mSchemasHiddenFromPlatformSurfaces.addAll(schemas);
