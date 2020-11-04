@@ -26,7 +26,7 @@ import androidx.test.uiautomator.Until
  * Provides access to common operations in app automation, such as killing the app,
  * or navigating home.
  */
-class MacrobenchmarkScope(
+public class MacrobenchmarkScope(
     private val packageName: String
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -53,6 +53,14 @@ class MacrobenchmarkScope(
     }
 }
 
+data class MacrobenchmarkConfig(
+    val packageName: String,
+    val metrics: List<Metric>,
+    val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
+    val killProcessEachIteration: Boolean = false,
+    val iterations: Int
+)
+
 /**
  * Primary macrobenchmark test entrypoint.
  *
@@ -60,44 +68,40 @@ class MacrobenchmarkScope(
  */
 fun macrobenchmark(
     benchmarkName: String,
-    packageName: String,
-    metrics: List<Metric>,
-    compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
-    killProcessEachIteration: Boolean = false,
-    iterations: Int,
+    config: MacrobenchmarkConfig,
     block: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
-    val scope = MacrobenchmarkScope(packageName)
+    val scope = MacrobenchmarkScope(config.packageName)
 
     // always kill the process at beginning of test
     scope.killProcess()
 
-    compilationMode.compile(packageName) {
+    config.compilationMode.compile(config.packageName) {
         block(scope)
     }
 
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
-    val perfettoCollector = PerfettoCollector("$benchmarkName.trace")
+    val perfettoCollector = PerfettoCaptureWrapper()
     try {
         perfettoCollector.start()
-        metrics.forEach {
+        config.metrics.forEach {
             it.start()
         }
-        repeat(iterations) {
-            if (killProcessEachIteration) {
+        repeat(config.iterations) {
+            if (config.killProcessEachIteration) {
                 scope.killProcess()
             }
             block(scope)
         }
-        metrics.forEach {
+        config.metrics.forEach {
             it.stop()
         }
-        metrics.map {
+        config.metrics.map {
             it.collector
         }.report()
     } finally {
-        perfettoCollector.stop()
+        perfettoCollector.stop("$benchmarkName.trace")
         scope.killProcess()
     }
 }
