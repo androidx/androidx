@@ -17,6 +17,7 @@
 package androidx.ui.tooling.inspector
 
 import android.util.Log
+import android.view.View
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -110,7 +111,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      * Attempt to convert the value to a user readable value.
      * For now: return null when a conversion is not possible/found.
      */
-    fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? {
+    fun create(node: InspectorNode, name: String, value: Any?): NodeParameter? {
         val creator = creatorCache ?: ParameterCreator()
         try {
             return creator.create(node, name, value)
@@ -238,10 +239,10 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      * Convenience class for building [NodeParameter]s.
      */
     private inner class ParameterCreator {
-        private var node: MutableInspectorNode? = null
+        private var node: InspectorNode? = null
         private var recursions = 0
 
-        fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? = try {
+        fun create(node: InspectorNode, name: String, value: Any?): NodeParameter? = try {
             this.node = node
             recursions = 0
             create(name, value)
@@ -282,6 +283,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     is String -> NodeParameter(name, ParameterType.String, value)
                     is TextUnit -> createFromTextUnit(name, value)
                     is VectorAsset -> createFromVectorAssert(name, value)
+                    is View -> NodeParameter(name, ParameterType.String, value.javaClass.simpleName)
                     else -> createFromKotlinReflection(name, value)
                 }
             } finally {

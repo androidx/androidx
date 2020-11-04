@@ -89,10 +89,23 @@ class LayoutInspectorTree {
         return result
     }
 
+    /**
+     * Converts the [RawParameter]s of the [node] into displayable parameters.
+     */
+    fun convertParameters(node: InspectorNode): List<NodeParameter> {
+        return node.parameters.mapNotNull { parameterFactory.create(node, it.name, it.value) }
+    }
+
+    /**
+     * Reset the generated id. Nodes are assigned an id if there isn't a layout node id present.
+     */
+    fun resetGeneratedId() {
+        generatedId = -1L
+    }
+
     private fun clear() {
         cache.clear()
         inlineClassConverter.clear()
-        generatedId = -1L
         claimedNodes.clear()
         treeMap.clear()
         ownerMap.clear()
@@ -298,8 +311,8 @@ class LayoutInspectorTree {
         parameters.forEach { addParameter(it, node) }
 
     private fun addParameter(parameter: ParameterInformation, node: MutableInspectorNode) {
-        val castedValue = castValue(parameter) ?: return
-        parameterFactory.create(node, parameter.name, castedValue)?.let { node.parameters.add(it) }
+        val castedValue = castValue(parameter)
+        node.parameters.add(RawParameter(parameter.name, castedValue))
     }
 
     private fun castValue(parameter: ParameterInformation): Any? {

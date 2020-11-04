@@ -113,7 +113,7 @@ package androidx.ui.tooling.inspector {
     method public String getName();
     method public int getOffset();
     method public int getPackageHash();
-    method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> getParameters();
+    method public java.util.List<androidx.ui.tooling.inspector.RawParameter> getParameters();
     method public int getTop();
     method public int getWidth();
     property public final java.util.List<androidx.ui.tooling.inspector.InspectorNode> children;
@@ -126,7 +126,7 @@ package androidx.ui.tooling.inspector {
     property public final String name;
     property public final int offset;
     property public final int packageHash;
-    property public final java.util.List<androidx.ui.tooling.inspector.NodeParameter> parameters;
+    property public final java.util.List<androidx.ui.tooling.inspector.RawParameter> parameters;
     property public final int top;
     property public final int width;
   }
@@ -134,6 +134,8 @@ package androidx.ui.tooling.inspector {
   public final class LayoutInspectorTree {
     ctor public LayoutInspectorTree();
     method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> convert(android.view.View view);
+    method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> convertParameters(androidx.ui.tooling.inspector.InspectorNode node);
+    method public void resetGeneratedId();
   }
 
   public final class LayoutInspectorTreeKt {
@@ -165,6 +167,14 @@ package androidx.ui.tooling.inspector {
     enum_constant public static final androidx.ui.tooling.inspector.ParameterType Int64;
     enum_constant public static final androidx.ui.tooling.inspector.ParameterType Resource;
     enum_constant public static final androidx.ui.tooling.inspector.ParameterType String;
+  }
+
+  public final class RawParameter {
+    ctor public RawParameter(String name, Object? value);
+    method public String getName();
+    method public Object? getValue();
+    property public final String name;
+    property public final Object? value;
   }
 
 }
