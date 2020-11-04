@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,6 +64,8 @@ import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -80,13 +83,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * tap-to-focus and pinch-to-zoom features.
  *
  * <p> This class provides features of 4 {@link UseCase}s: {@link Preview}, {@link ImageCapture},
- * {@link ImageAnalysis} and video capture. {@link Preview} is required and always enabled.
- * {@link ImageCapture} and {@link ImageAnalysis} are enabled by default. Video capture is
- * disabled by default because it might conflict with other use cases, especially on lower end
- * devices. It might be necessary to disable {@link ImageCapture} and/or {@link ImageAnalysis}
- * before the video feature can be enabled. Disabling/enabling {@link UseCase}s freezes the
- * preview for a short period of time. To avoid the glitch, the {@link UseCase}s need to be
- * enabled/disabled before the controller is set on {@link PreviewView}.
+ * {@link ImageAnalysis} and an experimental video capture. {@link Preview} is required and always
+ * enabled. {@link ImageCapture} and {@link ImageAnalysis} are enabled by default. The video
+ * capture feature is experimental. It's disabled by default because it might conflict with other
+ * use cases, especially on lower end devices. It might be necessary to disable {@link ImageCapture}
+ * and/or {@link ImageAnalysis} before the video capture feature can be enabled. Disabling/enabling
+ * {@link UseCase}s freezes the preview for a short period of time. To avoid the glitch, the
+ * {@link UseCase}s need to be enabled/disabled before the controller is set on {@link PreviewView}.
  */
 public abstract class CameraController {
 
@@ -104,21 +107,29 @@ public abstract class CameraController {
     private static final float AE_SIZE = AF_SIZE * 1.5f;
 
     /**
-     * Bitmask option to enable {@link android.media.Image}. In {@link #setEnabledUseCases}, if
+     * Bitmask options to enable/disable use cases.
+     */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = { IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE })
+    public @interface UseCases { }
+
+    /**
+     * Bitmask option to enable {@link ImageCapture}. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & IMAGE_CAPTURE) != 0, then controller will enable image capture features.
      */
-    public static final int IMAGE_CAPTURE = 0b1;
+    public static final int IMAGE_CAPTURE = 1;
     /**
      * Bitmask option to enable {@link ImageAnalysis}. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & IMAGE_ANALYSIS) != 0, then controller will enable image analysis features.
      */
-    public static final int IMAGE_ANALYSIS = 0b10;
+    public static final int IMAGE_ANALYSIS = 1 << 1;
     /**
      * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
      * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
      */
     @ExperimentalVideo
-    public static final int VIDEO_CAPTURE = 0b100;
+    public static final int VIDEO_CAPTURE = 1 << 2;
 
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
@@ -308,7 +319,7 @@ public abstract class CameraController {
      */
     @MainThread
     @UseExperimental(markerClass = ExperimentalVideo.class)
-    public void setEnabledUseCases(int enabledUseCases) {
+    public void setEnabledUseCases(@UseCases int enabledUseCases) {
         Threads.checkMainThread();
         if (enabledUseCases == mEnabledUseCases) {
             return;
