@@ -152,8 +152,8 @@ public class AppSearchSessionTest {
                 .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
                         .setDataType(PropertyConfig.DATA_TYPE_INT64)
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)
-                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_NONE)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_NONE)
                         .build())
                 .build();
         checkIsResultSuccess(
