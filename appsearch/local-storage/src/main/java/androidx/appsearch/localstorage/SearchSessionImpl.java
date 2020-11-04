@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
@@ -29,11 +30,14 @@ import androidx.appsearch.app.RemoveByUriRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.SetVisibilityRequest;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -66,6 +70,29 @@ class SearchSessionImpl implements AppSearchSession {
             try {
                 mAppSearchImpl.setSchema(
                         mDatabaseName, request.getSchemas(), request.isForceOverride());
+                return AppSearchResult.newSuccessfulResult(/*value=*/ null);
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+        });
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<AppSearchResult<Void>> setVisibility(
+            @NonNull SetVisibilityRequest request) {
+        Preconditions.checkNotNull(request);
+        return execute(() -> {
+            try {
+                Set<AppSearchSchema> appSearchSchemasHiddenFromPlatformSurfaces =
+                        request.getSchemasHiddenFromPlatformSurfaces();
+                Set<String> schemasHiddenFromPlatformSurfaces =
+                        new ArraySet<>(appSearchSchemasHiddenFromPlatformSurfaces.size());
+                for (AppSearchSchema schema : appSearchSchemasHiddenFromPlatformSurfaces) {
+                    schemasHiddenFromPlatformSurfaces.add(schema.getSchemaTypeName());
+                }
+
+                mAppSearchImpl.setVisibility(mDatabaseName, schemasHiddenFromPlatformSurfaces);
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
