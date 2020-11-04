@@ -1091,8 +1091,8 @@ public class NavController {
                         mLifecycleOwner, mViewModel);
                 mBackStack.add(entry);
             }
-            // Now ensure all intermediate NavGraphs are put on the back stack
-            // to ensure that global actions work.
+            // Now collect the set of all intermediate NavGraphs that need to be put onto
+            // the back stack
             ArrayDeque<NavBackStackEntry> hierarchy = new ArrayDeque<>();
             NavDestination destination = newDest;
             while (destination != null && findDestination(destination.getId()) == null) {
@@ -1103,6 +1103,18 @@ public class NavController {
                     hierarchy.addFirst(entry);
                 }
                 destination = parent;
+            }
+            NavDestination overlappingDestination = hierarchy.isEmpty()
+                    ? newDest
+                    : hierarchy.getLast().getDestination();
+            // Pop any orphaned navigation graphs that don't connect to the new destinations
+            //noinspection StatementWithEmptyBody
+            while (!mBackStack.isEmpty()
+                    && mBackStack.getLast().getDestination() instanceof NavGraph
+                    && ((NavGraph) mBackStack.getLast().getDestination()).findNode(
+                            overlappingDestination.getId(), false) == null
+                    && popBackStackInternal(mBackStack.getLast().getDestination().getId(), true)) {
+                // Keep popping
             }
             mBackStack.addAll(hierarchy);
             // And finally, add the new destination with its default args
