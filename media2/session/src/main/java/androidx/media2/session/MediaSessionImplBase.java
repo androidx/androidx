@@ -266,13 +266,13 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             mPlayer = player;
             mPlaybackInfo = info;
             mVolumeProviderCompat = volumeProviderCompat;
+        }
 
-            if (oldPlayer != mPlayer) {
-                if (oldPlayer != null) {
-                    oldPlayer.unregisterPlayerCallback(mPlayerCallback);
-                }
-                mPlayer.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
+        if (oldPlayer != player) {
+            if (oldPlayer != null) {
+                oldPlayer.unregisterPlayerCallback(mPlayerCallback);
             }
+            player.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
         }
 
         if (oldPlayer == null) {
@@ -354,6 +354,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public void close() {
+        SessionPlayer player;
         synchronized (mLock) {
             if (mClosed) {
                 return;
@@ -363,26 +364,28 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 Log.d(TAG, "Closing session, id=" + getId() + ", token="
                         + getToken());
             }
-            mPlayer.unregisterPlayerCallback(mPlayerCallback);
-            mSessionCompat.release();
-            mMediaButtonIntent.cancel();
-            if (mBroadcastReceiver != null) {
-                mContext.unregisterReceiver(mBroadcastReceiver);
+
+            player = mPlayer;
+        }
+        player.unregisterPlayerCallback(mPlayerCallback);
+        mSessionCompat.release();
+        mMediaButtonIntent.cancel();
+        if (mBroadcastReceiver != null) {
+            mContext.unregisterReceiver(mBroadcastReceiver);
+        }
+        mCallback.onSessionClosed(mInstance);
+        dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
+            @Override
+            public void run(ControllerCb callback, int seq) throws RemoteException {
+                callback.onDisconnected(seq);
             }
-            mCallback.onSessionClosed(mInstance);
-            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
-                @Override
-                public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onDisconnected(seq);
-                }
-            });
-            mHandler.removeCallbacksAndMessages(null);
-            if (mHandlerThread.isAlive()) {
-                if (Build.VERSION.SDK_INT >= 18) {
-                    mHandlerThread.quitSafely();
-                } else {
-                    mHandlerThread.quit();
-                }
+        });
+        mHandler.removeCallbacksAndMessages(null);
+        if (mHandlerThread.isAlive()) {
+            if (Build.VERSION.SDK_INT >= 18) {
+                mHandlerThread.quitSafely();
+            } else {
+                mHandlerThread.quit();
             }
         }
     }
@@ -986,35 +989,33 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public PlaybackStateCompat createPlaybackStateCompat() {
-        synchronized (mLock) {
-            int state = MediaUtils.convertToPlaybackStateCompatState(getPlayerState(),
-                    getBufferingState());
-            long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
-                    | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
-                    | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-                    | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                    | PlaybackStateCompat.ACTION_FAST_FORWARD
-                    | PlaybackStateCompat.ACTION_SET_RATING
-                    | PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_PLAY_PAUSE
-                    | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
-                    | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-                    | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-                    | PlaybackStateCompat.ACTION_PLAY_FROM_URI | PlaybackStateCompat.ACTION_PREPARE
-                    | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
-                    | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
-                    | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
-                    | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-                    | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-                    | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
-            long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
-            return new PlaybackStateCompat.Builder()
-                    .setState(state, getCurrentPosition(), getPlaybackSpeed(),
-                            SystemClock.elapsedRealtime())
-                    .setActions(allActions)
-                    .setActiveQueueItemId(queueItemId)
-                    .setBufferedPosition(getBufferedPosition())
-                    .build();
-        }
+        int state = MediaUtils.convertToPlaybackStateCompatState(getPlayerState(),
+                getBufferingState());
+        long allActions = PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_PAUSE
+                | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_REWIND
+                | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                | PlaybackStateCompat.ACTION_FAST_FORWARD
+                | PlaybackStateCompat.ACTION_SET_RATING
+                | PlaybackStateCompat.ACTION_SEEK_TO | PlaybackStateCompat.ACTION_PLAY_PAUSE
+                | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                | PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                | PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+                | PlaybackStateCompat.ACTION_PLAY_FROM_URI | PlaybackStateCompat.ACTION_PREPARE
+                | PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID
+                | PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH
+                | PlaybackStateCompat.ACTION_PREPARE_FROM_URI
+                | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+                | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+                | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
+        long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
+        return new PlaybackStateCompat.Builder()
+                .setState(state, getCurrentPosition(), getPlaybackSpeed(),
+                        SystemClock.elapsedRealtime())
+                .setActions(allActions)
+                .setActiveQueueItemId(queueItemId)
+                .setBufferedPosition(getBufferedPosition())
+                .build();
     }
 
     @Override
@@ -1029,7 +1030,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         return mSessionActivity;
     }
 
-    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken token,
+    MediaBrowserServiceCompat createLegacyBrowserServiceLocked(Context context, SessionToken token,
             Token sessionToken) {
         return new MediaSessionServiceLegacyStub(context, this, sessionToken);
     }
@@ -1051,8 +1052,8 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         MediaBrowserServiceCompat legacyStub;
         synchronized (mLock) {
             if (mBrowserServiceLegacyStub == null) {
-                mBrowserServiceLegacyStub = createLegacyBrowserService(mContext, mSessionToken,
-                        mSessionCompat.getSessionToken());
+                mBrowserServiceLegacyStub = createLegacyBrowserServiceLocked(mContext,
+                        mSessionToken, mSessionCompat.getSessionToken());
             }
             legacyStub = mBrowserServiceLegacyStub;
         }
@@ -1366,7 +1367,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             MediaItem.OnMetadataChangedListener {
         private final WeakReference<MediaSessionImplBase> mSession;
         private MediaItem mMediaItem;
-        private List<MediaItem> mList;
+        private List<MediaItem> mPlaylist;
         private final PlaylistItemListener mPlaylistItemChangedListener;
 
         SessionPlayerCallback(MediaSessionImplBase session) {
@@ -1381,15 +1382,13 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
-            synchronized (session.mLock) {
-                if (mMediaItem != null) {
-                    mMediaItem.removeOnMetadataChangedListener(this);
-                }
-                if (item != null) {
-                    item.addOnMetadataChangedListener(session.mCallbackExecutor, this);
-                }
-                mMediaItem = item;
+            if (mMediaItem != null) {
+                mMediaItem.removeOnMetadataChangedListener(this);
             }
+            if (item != null) {
+                item.addOnMetadataChangedListener(session.mCallbackExecutor, this);
+            }
+            mMediaItem = item;
 
             boolean notifyingPended = false;
             if (item != null) {
@@ -1461,20 +1460,18 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
-            synchronized (session.mLock) {
-                if (mList != null) {
-                    for (int i = 0; i < mList.size(); i++) {
-                        mList.get(i).removeOnMetadataChangedListener(mPlaylistItemChangedListener);
-                    }
+            if (mPlaylist != null) {
+                for (int i = 0; i < mPlaylist.size(); i++) {
+                    mPlaylist.get(i).removeOnMetadataChangedListener(mPlaylistItemChangedListener);
                 }
-                if (list != null) {
-                    for (int i = 0; i < list.size(); i++) {
-                        list.get(i).addOnMetadataChangedListener(session.mCallbackExecutor,
-                                mPlaylistItemChangedListener);
-                    }
-                }
-                mList = list;
             }
+            if (list != null) {
+                for (int i = 0; i < list.size(); i++) {
+                    list.get(i).addOnMetadataChangedListener(session.mCallbackExecutor,
+                            mPlaylistItemChangedListener);
+                }
+            }
+            mPlaylist = list;
 
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
