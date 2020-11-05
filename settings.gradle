@@ -153,7 +153,7 @@ includeProject(":benchmark:benchmark-perfetto", "benchmark/perfetto", [BuildType
 includeProject(":benchmark:benchmark-simple-macro-benchmark", "benchmark/benchmark-simple-macro-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:dry-run-benchmark", "benchmark/integration-tests/dry-run-benchmark", [BuildType.MAIN])
 includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/integration-tests/startup-benchmark", [BuildType.MAIN])
-includeProject(":benchmark:integration-tests:benchmark-simple-macro-benchmark-target", "benchmark/integration-tests/benchmark-simple-macro-benchmark-target", [BuildType.MAIN])
+includeProject(":benchmark:integration-tests:benchmark-simple-macro-benchmark-target", "benchmark/integration-tests/benchmark-simple-macro-benchmark-target", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":biometric:biometric", "biometric/biometric", [BuildType.MAIN])
 includeProject(":biometric:integration-tests:testapp", "biometric/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":browser:browser", "browser/browser", [BuildType.MAIN])
