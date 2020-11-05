@@ -27,9 +27,8 @@ import android.util.Log;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-// TODO(rampara): Uncomment on commit of model modules.
-//import androidx.car.app.model.TemplateInfo;
-//import androidx.car.app.model.TemplateWrapper;
+import androidx.car.app.model.TemplateInfo;
+import androidx.car.app.model.TemplateWrapper;
 import androidx.car.app.utils.ThreadUtils;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -92,8 +91,7 @@ public class ScreenManager {
     @SuppressLint("ExecutorRegistration")
     public void pushForResult(
             @NonNull Screen screen, @NonNull OnScreenResultCallback onScreenResultCallback) {
-        // TODO(rampara): Uncomment on addition of model module
-//        requireNonNull(screen).setOnResultCallback(requireNonNull(onScreenResultCallback));
+        requireNonNull(screen).setOnResultCallback(requireNonNull(onScreenResultCallback));
         pushInternal(screen);
     }
 
@@ -170,26 +168,24 @@ public class ScreenManager {
     }
 
     /** Returns the {@link TemplateWrapper} for the {@link Screen} that is on top of the stack. */
-//    @NonNull
-//    @MainThread
-    // TODO(rampara): Uncomment on commit of model modules.
-//    TemplateWrapper getTopTemplate() {
-//        ThreadUtils.checkMainThread();
-//
-//        Screen screen = getTop();
-//        Log.d(TAG, "Requesting template from Screen " + screen);
-//
-//        TemplateWrapper templateWrapper = screen.getTemplateWrapper();
-//
-//        List<TemplateInfo> templateInfoList = new ArrayList<>();
-//        for (Screen s : mScreenStack) {
-//            templateInfoList.add(s.getLastTemplateInfo());
-//        }
-//
-//        templateWrapper.setTemplateInfosForScreenStack(templateInfoList);
-//        return templateWrapper;
-//        return templateWrapper;
-//    }
+    @NonNull
+    @MainThread
+    TemplateWrapper getTopTemplate() {
+        ThreadUtils.checkMainThread();
+
+        Screen screen = getTop();
+        Log.d(TAG, "Requesting template from Screen " + screen);
+
+        TemplateWrapper templateWrapper = screen.getTemplateWrapper();
+
+        List<TemplateInfo> templateInfoList = new ArrayList<>();
+        for (Screen s : mScreenStack) {
+            templateInfoList.add(s.getLastTemplateInfo());
+        }
+
+        templateWrapper.setTemplateInfosForScreenStack(templateInfoList);
+        return templateWrapper;
+    }
 
     void destroyAndClearScreenStack() {
         for (Screen screen : mScreenStack) {

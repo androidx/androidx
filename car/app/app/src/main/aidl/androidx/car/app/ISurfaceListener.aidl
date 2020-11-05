@@ -22,9 +22,7 @@ import android.graphics.Point;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+/** @hide */
 oneway interface ISurfaceListener {
   /**
    * Notifies the app that the surface has changed.

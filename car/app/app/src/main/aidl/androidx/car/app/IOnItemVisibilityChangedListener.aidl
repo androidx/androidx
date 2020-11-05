@@ -18,9 +18,7 @@ package androidx.car.app;
 
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+/** @hide */
 oneway interface IOnItemVisibilityChangedListener {
   /**
    * A callback for when the range of items that are visible in the UI changes.

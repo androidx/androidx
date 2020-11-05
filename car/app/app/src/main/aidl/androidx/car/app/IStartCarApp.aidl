@@ -18,9 +18,7 @@ package androidx.car.app;
 
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+/** @hide */
 interface IStartCarApp {
    /**
    * Starts the car app on the car screen.

@@ -24,19 +24,15 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.model.TemplateWrapper;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 
 import java.util.Objects;
 
-// TODO(rampara): Uncomment on commit of model modules.
-//import androidx.car.app.model.TemplateWrapper;
-
 /** Manages the communication between the app and the host. */
 public class AppManager {
     @NonNull
-    @SuppressWarnings("UnusedVariable")
-    // TODO(rampara): Remove suppress annotation on commit of model modules.
     private final CarContext mCarContext;
     @NonNull
     private final IAppManager.Stub mAppManager;
@@ -68,9 +64,8 @@ public class AppManager {
                 "setSurfaceListener");
     }
 
-    // TODO(rampara): Change code tags to link after commit of model module.
     /**
-     * Requests the current template to be invalidated, which eventually triggers a call to {@code
+     * Requests the current template to be invalidated, which eventually triggers a call to {@link
      * Screen#getTemplate} to get the new template to display.
      *
      * @throws HostException if the remote call fails.
@@ -127,22 +122,21 @@ public class AppManager {
                     public void getTemplate(IOnDoneCallback callback) {
                         ThreadUtils.runOnMain(
                                 () -> {
-                                    // TODO(rampara): Uncomment on commit of model modules.
-//                                    TemplateWrapper templateWrapper;
-//                                    try {
-//                                        templateWrapper =
-//                                                AppManager.this
-//                                                        .mCarContext
-//                                                        .getCarService(ScreenManager.class)
-//                                                        .getTopTemplate();
-//                                    } catch (RuntimeException e) {
-//                                        RemoteUtils.sendFailureResponse(callback,
-//                                        "getTemplate", e);
-//                                        throw new WrappedRuntimeException(e);
-//                                    }
-//
-//                                    RemoteUtils.sendSuccessResponse(callback, "getTemplate",
-//                                            templateWrapper);
+                                    TemplateWrapper templateWrapper;
+                                    try {
+                                        templateWrapper =
+                                                AppManager.this
+                                                        .mCarContext
+                                                        .getCarService(ScreenManager.class)
+                                                        .getTopTemplate();
+                                    } catch (RuntimeException e) {
+                                        RemoteUtils.sendFailureResponse(callback,
+                                                "getTemplate", e);
+                                        throw new WrappedRuntimeException(e);
+                                    }
+
+                                    RemoteUtils.sendSuccessResponse(callback, "getTemplate",
+                                            templateWrapper);
                                 });
                     }
 
