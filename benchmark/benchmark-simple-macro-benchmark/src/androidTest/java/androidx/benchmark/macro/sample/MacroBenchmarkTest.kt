@@ -19,27 +19,32 @@ package androidx.benchmark.macro.sample
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.CpuUsageMetric
+import androidx.benchmark.macro.MacrobenchmarkConfig
+import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.benchmark.macro.StartupTimingMetric
-import androidx.benchmark.macro.macrobenchmark
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class MacroBenchmarkTest {
+    @get:Rule
+    val benchmarkRule = MacrobenchmarkRule()
+
     @Test
-    @LargeTest
     @Ignore("Not running the test in CI")
-    fun basicTest() = macrobenchmark(
-        "benchmarkUniqueName",
-        packageName = "androidx.benchmark.integration.macro.target",
-        listOf(StartupTimingMetric(), CpuUsageMetric()),
-        CompilationMode.Speed,
-        killProcessEachIteration = true,
-        iterations = 4
+    fun basicTest() = benchmarkRule.measureRepeated(
+        MacrobenchmarkConfig(
+            packageName = "androidx.benchmark.integration.macro.target",
+            listOf(StartupTimingMetric(), CpuUsageMetric()),
+            CompilationMode.Speed,
+            killProcessEachIteration = true,
+            iterations = 4
+        )
     ) {
         pressHome()
         launchPackageAndWait { launchIntent ->

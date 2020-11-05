@@ -23,9 +23,9 @@ import androidx.benchmark.perfetto.destinationPath
 import androidx.benchmark.perfetto.reportAdditionalFileToCopy
 
 /**
- * Helps capture Perfetto traces.
+ * Wrapper for PerfettoCapture, which does nothing on API < Q
  */
-class PerfettoCollector(private val traceName: String) : Collector<Unit> {
+class PerfettoCaptureWrapper {
     private var capture: PerfettoCapture? = null
 
     init {
@@ -34,25 +34,21 @@ class PerfettoCollector(private val traceName: String) : Collector<Unit> {
         }
     }
 
-    override fun start(): Boolean {
+    fun start(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Log.d(TAG, "Recording perfetto trace $traceName")
+            Log.d(TAG, "Recording perfetto trace")
             capture?.start()
         }
         return true
     }
 
-    override fun stop(): Boolean {
+    fun stop(traceName: String): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val destination = destinationPath(traceName).absolutePath
             capture?.stop(destination)
             reportAdditionalFileToCopy("perfetto_trace", destination)
         }
         return true
-    }
-
-    override fun metrics(): Map<String, Unit> {
-        return emptyMap()
     }
 
     companion object {
