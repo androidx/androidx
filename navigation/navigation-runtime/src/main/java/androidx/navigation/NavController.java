@@ -1085,16 +1085,33 @@ public class NavController {
                     // Keep popping
                 }
             }
-            // The mGraph should always be on the back stack after you navigate()
-            if (mBackStack.isEmpty()) {
-                NavBackStackEntry entry = new NavBackStackEntry(mContext, mGraph, finalArgs,
-                        mLifecycleOwner, mViewModel);
-                mBackStack.add(entry);
-            }
-            // Now collect the set of all intermediate NavGraphs that need to be put onto
-            // the back stack
+
+            // When you navigate() to a NavGraph, we need to ensure that a new instance
+            // is always created vs reusing an existing copy of that destination
             ArrayDeque<NavBackStackEntry> hierarchy = new ArrayDeque<>();
             NavDestination destination = newDest;
+            if (node instanceof NavGraph) {
+                do {
+                    NavGraph parent = destination.getParent();
+                    if (parent != null) {
+                        NavBackStackEntry entry = new NavBackStackEntry(mContext, parent,
+                                finalArgs, mLifecycleOwner, mViewModel);
+                        hierarchy.addFirst(entry);
+                        // Pop any orphaned copy of that navigation graph off the back stack
+                        if (!mBackStack.isEmpty()
+                                && mBackStack.getLast().getDestination() == parent) {
+                            popBackStackInternal(parent.getId(), true);
+                        }
+                    }
+                    destination = parent;
+                } while (destination != null && destination != node);
+            }
+
+            // Now collect the set of all intermediate NavGraphs that need to be put onto
+            // the back stack
+            destination = hierarchy.isEmpty()
+                    ? newDest
+                    : hierarchy.getFirst().getDestination();
             while (destination != null && findDestination(destination.getId()) == null) {
                 NavGraph parent = destination.getParent();
                 if (parent != null) {
@@ -1117,6 +1134,12 @@ public class NavController {
                 // Keep popping
             }
             mBackStack.addAll(hierarchy);
+            // The mGraph should always be on the back stack after you navigate()
+            if (mBackStack.isEmpty() || mBackStack.getFirst().getDestination() != mGraph) {
+                NavBackStackEntry entry = new NavBackStackEntry(mContext, mGraph, finalArgs,
+                        mLifecycleOwner, mViewModel);
+                mBackStack.addFirst(entry);
+            }
             // And finally, add the new destination with its default args
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(mContext, newDest,
                     newDest.addInDefaultArgs(finalArgs), mLifecycleOwner, mViewModel);
