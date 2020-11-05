@@ -602,6 +602,8 @@ public abstract class SessionPlayer implements Closeable {
      * completed.
      * <p>
      * On success, a {@link PlayerResult} should be returned with {@code item} removed.
+     * <p>
+     * If the last item is removed, the player should be moved to {@link #PLAYER_STATE_IDLE}.
      *
      * @param index the index of the item you want to remove in the playlist
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
