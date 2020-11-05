@@ -47,7 +47,7 @@ interface Metadata {
              * This will create a new Key instance, and will check to see that the key has not been
              * previously created somewhere else.
              */
-            internal fun <T> create(name: String): Key<T> {
+            fun <T> create(name: String): Key<T> {
                 synchronized(keys) {
                     check(keys.add(name)) { "$name is already defined!" }
                 }

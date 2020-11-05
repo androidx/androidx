@@ -16,9 +16,9 @@
 package androidx.camera.camera2.pipe.integration
 
 import androidx.camera.core.CameraXConfig
-import androidx.camera.camera2.pipe.integration.impl.CameraPipeFactory
-import androidx.camera.camera2.pipe.integration.impl.StreamConfigurationMap
-import androidx.camera.camera2.pipe.integration.impl.UseCaseConfigurationMap
+import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraSurfaceAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 
 /**
  * Convenience class for generating a pre-populated CameraPipe based [CameraXConfig].
@@ -29,9 +29,9 @@ object CameraPipeConfig {
      */
     fun defaultConfig(): CameraXConfig {
         return CameraXConfig.Builder()
-            .setCameraFactoryProvider(::CameraPipeFactory)
-            .setDeviceSurfaceManagerProvider(::StreamConfigurationMap)
-            .setUseCaseConfigFactoryProvider(::UseCaseConfigurationMap)
+            .setCameraFactoryProvider(::CameraFactoryAdapter)
+            .setDeviceSurfaceManagerProvider(::CameraSurfaceAdapter)
+            .setUseCaseConfigFactoryProvider(::CameraUseCaseAdapter)
             .build()
     }
 }
