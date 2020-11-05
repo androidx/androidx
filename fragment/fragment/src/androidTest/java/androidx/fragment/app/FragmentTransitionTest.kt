@@ -19,7 +19,6 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.transition.Transition
-import android.transition.TransitionListenerAdapter
 import android.transition.TransitionSet
 import android.view.View
 import androidx.core.app.SharedElementCallback
@@ -738,17 +737,27 @@ class FragmentTransitionTest(
         fragment2.allowEnterTransitionOverlap = false
         fragment2.enterTransition.setRealTransition(true)
         var enterTransitionStarted = false
-        fragment2.enterTransition.addListener(object : TransitionListenerAdapter() {
+        fragment2.enterTransition.addListener(object : Transition.TransitionListener {
             override fun onTransitionStart(transition: Transition?) {
                 enterTransitionStarted = true
             }
+
+            override fun onTransitionEnd(transition: Transition?) { }
+            override fun onTransitionCancel(transition: Transition?) { }
+            override fun onTransitionPause(transition: Transition?) { }
+            override fun onTransitionResume(transition: Transition?) { }
         })
         var enterTransitionStartedOnEnd = true
         fragment.exitTransition.setRealTransition(true)
-        fragment.exitTransition.addListener(object : TransitionListenerAdapter() {
+        fragment.exitTransition.addListener(object : Transition.TransitionListener {
             override fun onTransitionEnd(transition: Transition?) {
                 enterTransitionStartedOnEnd = enterTransitionStarted
             }
+
+            override fun onTransitionStart(transition: Transition?) { }
+            override fun onTransitionCancel(transition: Transition?) { }
+            override fun onTransitionPause(transition: Transition?) { }
+            override fun onTransitionResume(transition: Transition?) { }
         })
 
         fragmentManager.beginTransaction()
