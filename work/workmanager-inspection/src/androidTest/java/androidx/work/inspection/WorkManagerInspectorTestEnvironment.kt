@@ -23,7 +23,6 @@ import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.WorkManager
-import androidx.work.await
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.Event
 import androidx.work.inspection.WorkManagerInspectorProtocol.Response
@@ -39,16 +38,18 @@ private const val WORK_MANAGER_INSPECTOR_ID = "androidx.work.inspection"
 class WorkManagerInspectorTestEnvironment : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
     private lateinit var artTooling: FakeArtTooling
+    private lateinit var application: InspectorApp
     private val job = Job()
     lateinit var workManager: WorkManager
         private set
 
     override fun before() {
         artTooling = FakeArtTooling()
-        val application = InstrumentationRegistry
+        application = InstrumentationRegistry
             .getInstrumentation()
-            .targetContext
-            .applicationContext as Application
+            .context
+            .applicationContext as InspectorApp
+
         workManager = WorkManager.getInstance(application)
 
         registerApplication(application)
@@ -65,8 +66,9 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
 
     override fun after() {
         runBlocking {
-            workManager.cancelAllWork().await()
-            workManager.pruneWork().await()
+            workManager.cancelAllWork()
+            workManager.pruneWork()
+            application.executor.runAllCommands()
             job.cancelAndJoin()
         }
         inspectorTester.dispose()
