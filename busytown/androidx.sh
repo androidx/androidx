@@ -8,6 +8,10 @@ cd "$(dirname $0)"
 # Run Gradle
 impl/build.sh --no-daemon listTaskOutputs -Pandroidx.validateNoUnrecognizedMessages "$@"
 impl/build.sh allProperties "$@" >/dev/null
+subsets="MAIN COMPOSE FLAN"
+for subset in $subsets; do
+  ANDROIDX_PROJECTS=$subset impl/build.sh tasks >/dev/null
+done
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
