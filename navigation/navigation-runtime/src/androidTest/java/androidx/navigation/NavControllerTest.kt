@@ -1056,6 +1056,50 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateOptionSingleTopReplaceWithDefaultArgs() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        navController.navigate(R.id.start_test_with_default_arg)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.start_test_with_default_arg)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.current.second).isNotNull()
+        assertThat(navigator.current.second?.getBoolean("defaultArg", false)).isTrue()
+
+        val args = Bundle()
+        val testKey = "testKey"
+        val testValue = "testValue"
+        args.putString(testKey, testValue)
+
+        var destinationListenerExecuted = false
+
+        navController.navigate(
+            R.id.start_test_with_default_arg, args,
+            navOptions {
+                launchSingleTop = true
+            }
+        )
+
+        navController.addOnDestinationChangedListener { _, destination, arguments ->
+            destinationListenerExecuted = true
+            assertThat(destination.id).isEqualTo(R.id.start_test_with_default_arg)
+            assertThat(arguments?.getString(testKey)).isEqualTo(testValue)
+            assertThat(arguments?.getBoolean("defaultArg", false)).isTrue()
+        }
+
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.start_test_with_default_arg)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val returnedArgs = navigator.current.second
+        assertThat(returnedArgs?.getString(testKey)).isEqualTo(testValue)
+        assertThat(returnedArgs?.getBoolean("defaultArg", false)).isTrue()
+        assertThat(destinationListenerExecuted).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateOptionSingleTopNewArgsIgnore() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
