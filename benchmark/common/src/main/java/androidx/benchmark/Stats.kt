@@ -29,8 +29,6 @@ internal class Stats(data: LongArray, val name: String) {
     val median: Long
     val min: Long
     val max: Long
-    val percentile90: Long
-    val percentile95: Long
     val mean: Double = data.average()
     val standardDeviation: Double
 
@@ -44,8 +42,6 @@ internal class Stats(data: LongArray, val name: String) {
         min = values.first()
         max = values.last()
         median = getPercentile(values, 50)
-        percentile90 = getPercentile(values, 90)
-        percentile95 = getPercentile(values, 95)
         standardDeviation = if (size == 1) {
             NaN
         } else {
@@ -82,7 +78,7 @@ internal class Stats(data: LongArray, val name: String) {
 
     override fun hashCode(): Int {
         return min.hashCode() + max.hashCode() + median.hashCode() + standardDeviation.hashCode() +
-            mean.hashCode() + percentile90.hashCode() + percentile95.hashCode()
+            mean.hashCode()
     }
 
     companion object {
