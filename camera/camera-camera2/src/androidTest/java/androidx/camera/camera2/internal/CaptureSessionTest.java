@@ -23,6 +23,7 @@ import static junit.framework.TestCase.fail;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -1085,6 +1086,52 @@ public final class CaptureSessionTest {
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
     }
 
+    @Test
+    public void setSessionConfigWithoutSurface_shouldStopRepeating()
+            throws ExecutionException, InterruptedException {
+        // Create Surface
+        ImageReader imageReader =
+                ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, /*maxImages*/ 2);
+        DeferrableSurface surface = new ImmediateSurface(imageReader.getSurface());
+
+        // Prepare SessionConfig builder
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        CameraCaptureSession.StateCallback stateCallback =
+                Mockito.mock(CameraCaptureSession.StateCallback.class);
+        builder.addSessionStateCallback(stateCallback);
+        CameraCaptureCallback captureCallback =
+                Mockito.mock(CameraCaptureCallback.class);
+        builder.addRepeatingCameraCaptureCallback(captureCallback);
+
+        // Create SessionConfig without Surface
+        SessionConfig sessionConfigWithoutSurface = builder.build();
+
+        // Create SessionConfig with Surface
+        builder.addSurface(surface);
+        SessionConfig sessionConfigWithSurface = builder.build();
+
+        // Open CaptureSession
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.open(sessionConfigWithSurface, mCameraDeviceHolder.get(),
+                mCaptureSessionOpenerBuilder.build()).get();
+
+        // Activate repeating request
+        captureSession.setSessionConfig(sessionConfigWithSurface);
+        verify(captureCallback, timeout(3000L).atLeast(3)).onCaptureCompleted(any());
+
+        // Deactivate repeating request
+        clearInvocations(stateCallback);
+        captureSession.setSessionConfig(sessionConfigWithoutSurface);
+
+        // Wait for #onReady which means there is no repeating request.
+        verify(stateCallback, timeout(3000L)).onReady(any());
+
+        // Clean up
+        surface.close();
+        surface.getTerminationFuture().addListener(() -> imageReader.close(),
+                CameraXExecutors.directExecutor());
+    }
 
     /**
      * A implementation to test {@link CameraEventCallback} on CaptureSession.

@@ -553,7 +553,7 @@ final class CaptureSession {
     /**
      * Sets the {@link CaptureRequest} so that the camera will start producing data.
      *
-     * <p>Will skip setting requests if there are no surfaces since it is illegal to do so.
+     * <p>It will stop running repeating if there are no surfaces.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mStateLock")
@@ -566,6 +566,15 @@ final class CaptureSession {
         CaptureConfig captureConfig = mSessionConfig.getRepeatingCaptureConfig();
         if (captureConfig.getSurfaces().isEmpty()) {
             Logger.d(TAG, "Skipping issueRepeatingCaptureRequests for no surface.");
+            try {
+                // At least from Android L, framework will ignore the stopRepeating() if
+                // there is no ongoing repeating request, so it should be safe to always call
+                // stopRepeating() without checking if there is a repeating request.
+                mSynchronizedCaptureSession.stopRepeating();
+            } catch (CameraAccessException e) {
+                Logger.e(TAG, "Unable to access camera: " + e.getMessage());
+                Thread.dumpStack();
+            }
             return;
         }
 
