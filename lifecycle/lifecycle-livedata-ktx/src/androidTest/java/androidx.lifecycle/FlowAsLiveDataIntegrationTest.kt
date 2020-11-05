@@ -18,7 +18,7 @@ package androidx.lifecycle
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ class FlowAsLiveDataIntegrationTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     fun startStopImmediately() {
         runBlocking {
             val stopChannelFlow = CompletableDeferred<Unit>()

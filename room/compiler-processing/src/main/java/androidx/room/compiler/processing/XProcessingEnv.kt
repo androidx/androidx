@@ -18,7 +18,6 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.Filer
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
 
@@ -40,7 +39,7 @@ interface XProcessingEnv {
     /**
      * The API to generate files
      */
-    val filer: Filer
+    val filer: XFiler
 
     /**
      * Looks for the [XTypeElement] with the given qualified name and returns `null` if it does not

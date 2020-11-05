@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation:navigation-common-ktx"))
+    api("androidx.navigation:navigation-common-ktx:2.3.1")
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

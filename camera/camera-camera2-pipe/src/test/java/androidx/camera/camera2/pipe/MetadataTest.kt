@@ -26,14 +26,12 @@ import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
 
-@SmallTest
 @RunWith(JUnit4::class)
 class MetadataTest {
     @Test
@@ -50,7 +48,6 @@ class MetadataTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraMetadataTest {
@@ -70,7 +67,6 @@ class CameraMetadataTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class RequestMetadataTest {
@@ -98,7 +94,6 @@ class RequestMetadataTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class FrameMetadataTest {
@@ -118,7 +113,6 @@ class FrameMetadataTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class MetadataTransformTest {

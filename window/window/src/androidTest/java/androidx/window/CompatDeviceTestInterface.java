@@ -27,6 +27,6 @@ package androidx.window;
  * {@link ExtensionInterfaceCompat} should pass.
  */
 interface CompatDeviceTestInterface {
-    void testGetDeviceState();
-    void testGetWindowLayout();
+    void testDeviceStateCallback();
+    void testWindowLayoutCallback();
 }

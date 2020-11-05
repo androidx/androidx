@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import androidx.annotation.IntDef;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -76,7 +77,7 @@ final class MediaRouterThemeHelper {
     }
 
     private static Drawable getIconByDrawableId(Context context, int drawableId) {
-        Drawable icon = ContextCompat.getDrawable(context, drawableId);
+        Drawable icon = AppCompatResources.getDrawable(context, drawableId);
         icon = DrawableCompat.wrap(icon);
 
         if (isLightTheme(context)) {
@@ -88,7 +89,8 @@ final class MediaRouterThemeHelper {
 
     private static Drawable getIconByAttrId(Context context, int attrId) {
         TypedArray styledAttributes = context.obtainStyledAttributes(new int[] { attrId });
-        Drawable icon = styledAttributes.getDrawable(0);
+        Drawable icon = AppCompatResources.getDrawable(context,
+                styledAttributes.getResourceId(0, 0));
         icon = DrawableCompat.wrap(icon);
 
         // Since Chooser(Controller)Dialog and DevicePicker(Cast)Dialog is using same shape but

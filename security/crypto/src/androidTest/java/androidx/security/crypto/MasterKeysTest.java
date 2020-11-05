@@ -25,6 +25,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -32,7 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.security.KeyStore;
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class MasterKeysTest {
     private static final String PREFS_FILE = "test_shared_prefs";
     private static final int KEY_SIZE = 256;

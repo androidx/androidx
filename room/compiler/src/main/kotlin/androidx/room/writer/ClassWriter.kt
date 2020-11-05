@@ -20,6 +20,7 @@ import androidx.room.RoomProcessor
 import androidx.room.ext.S
 import androidx.room.ext.typeName
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.writeTo
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
@@ -114,15 +115,21 @@ abstract class ClassWriter(private val className: ClassName) {
     }
 
     fun getOrCreateField(sharedField: SharedFieldSpec): FieldSpec {
-        return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
-            sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
-        })
+        return sharedFieldSpecs.getOrPut(
+            sharedField.getUniqueKey(),
+            {
+                sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
+            }
+        )
     }
 
     fun getOrCreateMethod(sharedMethod: SharedMethodSpec): MethodSpec {
-        return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
-            sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
-        })
+        return sharedMethodSpecs.getOrPut(
+            sharedMethod.getUniqueKey(),
+            {
+                sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
+            }
+        )
     }
 
     abstract class SharedFieldSpec(val baseName: String, val type: TypeName) {

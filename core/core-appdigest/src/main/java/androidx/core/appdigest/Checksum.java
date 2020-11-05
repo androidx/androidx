@@ -57,8 +57,8 @@ public final class Checksum {
      * MD5 hash computed over all file bytes.
      *
      * @see Checksums#getChecksums
-     * @deprecated Use SHA2 family of hashes (SHA256/SHA512) instead.
-     *             MD5 is cryptographically broken and unsuitable for further use.
+     * @deprecated Not platform enforced. Cryptographically broken and unsuitable for further use.
+     *             Use platform enforced digests e.g. {@link #TYPE_WHOLE_MERKLE_ROOT_4K_SHA256}.
      *             Provided for completeness' sake and to support legacy usecases.
      */
     @Deprecated
@@ -68,8 +68,8 @@ public final class Checksum {
      * SHA1 hash computed over all file bytes.
      *
      * @see Checksums#getChecksums
-     * @deprecated Use SHA2 family of hashes (SHA256/SHA512) instead.
-     *             SHA1 is broken and should not be used.
+     * @deprecated Not platform enforced. Broken and should not be used.
+     *             Use platform enforced digests e.g. {@link #TYPE_WHOLE_MERKLE_ROOT_4K_SHA256}.
      *             Provided for completeness' sake and to support legacy usecases.
      */
     @Deprecated
@@ -77,6 +77,9 @@ public final class Checksum {
 
     /**
      * SHA256 hash computed over all file bytes.
+     * @deprecated Not platform enforced.
+     *             Use platform enforced digests e.g. {@link #TYPE_WHOLE_MERKLE_ROOT_4K_SHA256}.
+     *             Provided for completeness' sake and to support legacy usecases.
      *
      * @see Checksums#getChecksums
      */
@@ -84,6 +87,9 @@ public final class Checksum {
 
     /**
      * SHA512 hash computed over all file bytes.
+     * @deprecated Not platform enforced.
+     *             Use platform enforced digests e.g. {@link #TYPE_WHOLE_MERKLE_ROOT_4K_SHA256}.
+     *             Provided for completeness' sake and to support legacy usecases.
      *
      * @see Checksums#getChecksums
      */

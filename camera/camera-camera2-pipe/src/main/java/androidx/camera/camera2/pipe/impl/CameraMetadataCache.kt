@@ -22,6 +22,7 @@ import android.util.ArrayMap
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
 import kotlinx.coroutines.withContext
 import java.lang.IllegalStateException
 import javax.inject.Inject
@@ -73,7 +74,7 @@ class CameraMetadataCache @Inject constructor(
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): CameraMetadataImpl {
-        val start = Metrics.monotonicNanos()
+        val start = Timestamps.now()
 
         return Debug.trace("CameraCharacteristics_$cameraId") {
             try {
@@ -85,12 +86,12 @@ class CameraMetadataCache @Inject constructor(
                     CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
 
                 Log.info {
-                    val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
+                    val duration = Timestamps.now() - start
                     val redactedString = when (redacted) {
                         false -> ""
                         true -> " (redacted)"
                     }
-                    "Loaded metadata for $cameraId in ${duration.formatMilliTime()}$redactedString"
+                    "Loaded metadata for $cameraId in ${duration.formatMs()}$redactedString"
                 }
 
                 return@trace cameraMetadata

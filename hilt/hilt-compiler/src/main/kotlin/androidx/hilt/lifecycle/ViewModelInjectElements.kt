@@ -16,11 +16,9 @@
 
 package androidx.hilt.lifecycle
 
-import androidx.hilt.ClassNames
 import androidx.hilt.assisted.toDependencyRequest
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
@@ -36,11 +34,6 @@ internal data class ViewModelInjectElements(
     val factoryClassName = ClassName.get(
         MoreElements.getPackage(typeElement).qualifiedName.toString(),
         "${className.simpleNames().joinToString("_")}_AssistedFactory"
-    )
-
-    val factorySuperTypeName = ParameterizedTypeName.get(
-        ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
-        className
     )
 
     val moduleClassName = ClassName.get(

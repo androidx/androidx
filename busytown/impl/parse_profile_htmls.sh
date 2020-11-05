@@ -13,4 +13,3 @@ fi
 METRICS_DIR="$DIST_DIR/librarymetrics/build"
 
 ./parse_profile_html.py --input-profile "$(ls ../../../../out/androidx/build/reports/profile/*.html | sort | tail -n 2 | head -n 1)" --output-summary $METRICS_DIR/build_androidx.json
-./parse_profile_html.py --input-profile "$(ls ../../../../out/ui/ui/build/reports/profile/*.html | sort | tail -n 2 | head -n 1)" --output-summary $METRICS_DIR/build_ui.json

@@ -22,7 +22,6 @@ import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.os.Bundle
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
@@ -31,11 +30,9 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchface.data.ComplicationDetails
+import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.data.UserStyleWireFormat
-import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
@@ -130,16 +127,10 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setStyle(style)
     }
 
-    override fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat) {
-        iWatchFaceService.registerUserStyleSchema(userStyleSchema)
-    }
+    override fun getApiVersion(): Int = iWatchFaceService.apiVersion
 
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
         iWatchFaceService.setActiveComplications(ids, updateAll)
-    }
-
-    override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
-        iWatchFaceService.setComplicationDetails(id, complicationDetails)
     }
 
     override fun setDefaultComplicationProvider(
@@ -166,8 +157,8 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setContentDescriptionLabels(labels)
     }
 
-    override fun reserved1() {
-        iWatchFaceService.reserved1()
+    override fun reserved5() {
+        iWatchFaceService.reserved5()
     }
 
     override fun setDefaultComplicationProviderWithFallbacks(
@@ -179,22 +170,6 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
             watchFaceComplicationId, providers, fallbackSystemProvider, type
         )
-    }
-
-    override fun getStoredUserStyle() = iWatchFaceService.getStoredUserStyle()
-
-    override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
-        iWatchFaceService.setCurrentUserStyle(userStyle)
-    }
-
-    override fun getApiVersion() = iWatchFaceService.apiVersion
-
-    override fun registerWatchFaceType(watchFaceType: Int) {
-        iWatchFaceService.registerWatchFaceType(watchFaceType)
-    }
-
-    override fun registerIWatchFaceCommand(iWatchFaceCommandBundle: Bundle) {
-        iWatchFaceService.registerIWatchFaceCommand(iWatchFaceCommandBundle)
     }
 }
 
@@ -217,17 +192,18 @@ open class TestRenderer(
     }
 }
 
-fun createComplicationData(): ComplicationData {
-    return ComplicationData
-        .Builder(ComplicationData.TYPE_SHORT_TEXT)
-        .setShortText(ComplicationText.plainText("Test Text"))
-        .setTapAction(
-            PendingIntent.getActivity(
-                ApplicationProvider.getApplicationContext(), 0,
-                Intent("Fake intent"), 0
-            )
-        ).build()
-}
+fun createIdAndComplicationData(id: Int) =
+    IdAndComplicationData(
+        id,
+        ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+            .setShortText(ComplicationText.plainText("Test Text"))
+            .setTapAction(
+                PendingIntent.getActivity(
+                    ApplicationProvider.getApplicationContext(), 0,
+                    Intent("Fake intent"), 0
+                )
+            ).build()
+    )
 
 /**
  * We need to prevent roboloetric from instrumenting our classes or things break...

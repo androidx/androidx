@@ -64,7 +64,8 @@ class KotlinNavWriterTest {
 
     @Test
     fun testDirectionClassGeneration() {
-        val action = Action(id("next"), id("destA"),
+        val action = Action(
+            id("next"), id("destA"),
             listOf(
                 Argument("main", StringType),
                 Argument("mainInt", IntType),
@@ -83,23 +84,29 @@ class KotlinNavWriterTest {
                 Argument(
                     "innerData",
                     ObjectType("android.content.pm.ActivityInfo\$WindowLayout")
-                )))
+                )
+            )
+        )
         val actual = generateDirectionsTypeSpec(action, false)
         assertThat(wrappedInnerClass(actual).toString()).parsesAs("a.b.Next")
     }
 
     @Test
     fun testDirectionsClassGeneration() {
-        val nextAction = Action(id("next"), id("destA"),
+        val nextAction = Action(
+            id("next"), id("destA"),
             listOf(
                 Argument("main", StringType),
                 Argument("optional", StringType, StringValue("bla"))
-            ))
+            )
+        )
 
         val prevAction = Action(id("previous"), id("destB"), emptyList())
 
-        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
-            listOf(prevAction, nextAction))
+        val dest = Destination(
+            null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
+            listOf(prevAction, nextAction)
+        )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
         assertThat(actual.toString()).parsesAs("a.b.MainFragmentDirections")
@@ -107,11 +114,15 @@ class KotlinNavWriterTest {
 
     @Test
     fun testDirectionsClassGeneration_withKeywordId() {
-        val funAction = Action(ResReference("fun.is.in", "id", "next"), id("destA"),
-            listOf())
+        val funAction = Action(
+            ResReference("fun.is.in", "id", "next"), id("destA"),
+            listOf()
+        )
 
-        val dest = Destination(null, ClassName.get("a.b", "FunFragment"), "fragment", listOf(),
-            listOf(funAction))
+        val dest = Destination(
+            null, ClassName.get("a.b", "FunFragment"), "fragment", listOf(),
+            listOf(funAction)
+        )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
         assertThat(actual.toString()).parsesAs("a.b.FunFragmentDirections")
@@ -119,47 +130,73 @@ class KotlinNavWriterTest {
 
     @Test
     fun testDirectionsClassGeneration_longPackage() {
-        val funAction = Action(ResReference("a.b.secondreallyreallyreallyreally" +
-                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
-                "longpackage", "id", "next"), id("destA"),
-            listOf())
+        val funAction = Action(
+            ResReference(
+                "a.b.secondreallyreallyreallyreally" +
+                    "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
+                    "longpackage",
+                "id", "next"
+            ),
+            id("destA"),
+            listOf()
+        )
 
-        val dest = Destination(null, ClassName.get("a.b.reallyreallyreallyreally" +
-                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
-                "longpackage", "LongPackageFragment"), "fragment", listOf(),
-            listOf(funAction))
+        val dest = Destination(
+            null,
+            ClassName.get(
+                "a.b.reallyreallyreallyreally" +
+                    "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
+                    "longpackage",
+                "LongPackageFragment"
+            ),
+            "fragment", listOf(),
+            listOf(funAction)
+        )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
-        assertThat(actual.toString()).parsesAs("a.b.reallyreallyreallyreallyreally" +
+        assertThat(actual.toString()).parsesAs(
+            "a.b.reallyreallyreallyreallyreally" +
                 "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
-                "longpackage.LongPackageFragmentDirections")
+                "longpackage.LongPackageFragmentDirections"
+        )
     }
 
     @Test
     fun testArgumentsClassGeneration() {
-        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
-            Argument("main", StringType),
-            Argument("optional", IntType, IntValue("-1")),
-            Argument("reference", ReferenceType, ReferenceValue(ResReference("a.b", "drawable",
-                "background"))),
-            Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
-            Argument("floatArg", FloatType, FloatValue("1")),
-            Argument("floatArrayArg", FloatArrayType),
-            Argument("objectArrayArg", ObjectArrayType("android.content.pm.ActivityInfo")),
-            Argument("boolArg", BoolType, BooleanValue("true")),
-            Argument(
-                "optionalParcelable",
-                ObjectType("android.content.pm.ActivityInfo"),
-                NullValue,
-                true
+        val dest = Destination(
+            null, ClassName.get("a.b", "MainFragment"), "fragment",
+            listOf(
+                Argument("main", StringType),
+                Argument("optional", IntType, IntValue("-1")),
+                Argument(
+                    "reference", ReferenceType,
+                    ReferenceValue(
+                        ResReference(
+                            "a.b", "drawable",
+                            "background"
+                        )
+                    )
+                ),
+                Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
+                Argument("floatArg", FloatType, FloatValue("1")),
+                Argument("floatArrayArg", FloatArrayType),
+                Argument("objectArrayArg", ObjectArrayType("android.content.pm.ActivityInfo")),
+                Argument("boolArg", BoolType, BooleanValue("true")),
+                Argument(
+                    "optionalParcelable",
+                    ObjectType("android.content.pm.ActivityInfo"),
+                    NullValue,
+                    true
+                ),
+                Argument(
+                    "enumArg",
+                    ObjectType("java.nio.file.AccessMode"),
+                    EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
+                    false
+                )
             ),
-            Argument(
-                "enumArg",
-                ObjectType("java.nio.file.AccessMode"),
-                EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
-                false
-            )),
-            listOf())
+            listOf()
+        )
 
         val actual = generateArgsCodeFile(dest, false)
         assertThat(actual.toString()).parsesAs("a.b.MainFragmentArgs")
@@ -167,13 +204,21 @@ class KotlinNavWriterTest {
 
     @Test
     fun testArgumentClassGeneration_longArgumentName() {
-        val dest = Destination(null, ClassName.get("a.b",
-            "ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReally" +
-                    "LongNameFragment"), "fragment",
-            listOf(), listOf())
+        val dest = Destination(
+            null,
+            ClassName.get(
+                "a.b",
+                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReally" +
+                    "ReallyLongNameFragment"
+            ),
+            "fragment",
+            listOf(), listOf()
+        )
 
         val actual = generateArgsCodeFile(dest, false)
-        assertThat(actual.toString()).parsesAs("a.b.ReallyReallyReallyReallyReally" +
-                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs")
+        assertThat(actual.toString()).parsesAs(
+            "a.b.ReallyReallyReallyReallyReally" +
+                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs"
+        )
     }
 }

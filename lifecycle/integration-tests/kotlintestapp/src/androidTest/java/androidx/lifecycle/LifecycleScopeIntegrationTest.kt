@@ -56,17 +56,21 @@ class LifecycleScopeIntegrationTest {
     @Test
     fun alreadyResumed() = runBlocking {
         rule.scenario.moveToState(RESUMED)
-        assertThat(owner().lifecycleScope.async {
-            true
-        }.await()).isTrue()
+        assertThat(
+            owner().lifecycleScope.async {
+                true
+            }.await()
+        ).isTrue()
     }
 
     @Test
     fun createdState() = runBlocking {
         rule.scenario.moveToState(CREATED)
-        assertThat(owner().lifecycleScope.async {
-            true
-        }.await()).isTrue()
+        assertThat(
+            owner().lifecycleScope.async {
+                true
+            }.await()
+        ).isTrue()
     }
 
     @Test

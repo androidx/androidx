@@ -166,8 +166,10 @@ internal class NavParser(
             ReferenceType -> {
                 when (defaultValue) {
                     VALUE_NULL -> {
-                        context.logger.error(NavParserErrors.nullDefaultValueReference(name),
-                            xmlPosition)
+                        context.logger.error(
+                            NavParserErrors.nullDefaultValueReference(name),
+                            xmlPosition
+                        )
                         return context.createStubArg()
                     }
                     "0" -> IntValue("0")
@@ -189,8 +191,8 @@ internal class NavParser(
                     NullValue
                 } else {
                     context.logger.error(
-                            NavParserErrors.defaultValueObjectType(typeString),
-                            xmlPosition
+                        NavParserErrors.defaultValueObjectType(typeString),
+                        xmlPosition
                     )
                     return context.createStubArg()
                 }
@@ -339,7 +341,7 @@ internal fun parseLongValue(value: String): LongValue? {
 }
 
 private fun parseFloatValue(value: String): FloatValue? =
-        value.toFloatOrNull()?.let { FloatValue(value) }
+    value.toFloatOrNull()?.let { FloatValue(value) }
 
 private fun parseBoolean(value: String): BooleanValue? {
     if (value == VALUE_TRUE || value == VALUE_FALSE) {

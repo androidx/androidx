@@ -27,7 +27,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("tokPlain")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
@@ -39,11 +39,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String tokNoneCopy = dataClass.tokNone;
     if (tokNoneCopy != null) {
-      builder.setProperty("tokNone", tokNoneCopy);
+      builder.setPropertyString("tokNone", tokNoneCopy);
     }
     String tokPlainCopy = dataClass.tokPlain;
     if (tokPlainCopy != null) {
-      builder.setProperty("tokPlain", tokPlainCopy);
+      builder.setPropertyString("tokPlain", tokPlainCopy);
     }
     return builder.build();
   }

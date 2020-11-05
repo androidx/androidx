@@ -60,8 +60,10 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
         private const val ACTION_IDLE_TIMEOUT: Long = 5000
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}")
-        fun data() = listOf(CameraSelector.LENS_FACING_FRONT,
-            CameraSelector.LENS_FACING_BACK)
+        fun data() = listOf(
+            CameraSelector.LENS_FACING_FRONT,
+            CameraSelector.LENS_FACING_BACK
+        )
     }
 
     @get:Rule
@@ -74,8 +76,9 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
-        // Clear the device UI before start each test.
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     // The test makes sure the camera PreviewView is in the streaming state.
@@ -141,14 +144,14 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
     //  .SURFACE_VIEW in ViewPagerActivity.
 
     private fun launchActivity(lensFacing: Int):
-            ActivityScenario<ViewPagerActivity> {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext<Context>(),
-            ViewPagerActivity::class.java
-        )
-        intent.putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
-        return ActivityScenario.launch<ViewPagerActivity>(intent)
-    }
+        ActivityScenario<ViewPagerActivity> {
+            val intent = Intent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                ViewPagerActivity::class.java
+            )
+            intent.putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
+            return ActivityScenario.launch<ViewPagerActivity>(intent)
+        }
 
     private fun getTextureView(previewView: PreviewView): TextureView? {
         var index: Int = 0

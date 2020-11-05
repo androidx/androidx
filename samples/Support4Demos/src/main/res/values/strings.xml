@@ -246,5 +246,6 @@
     <string name="commit_content_support">View/Input Method/Commit Content</string>
 
     <string name="insets_playground">View/WindowInsetsCompat</string>
+    <string name="insets_controller_playground">View/WindowInsetsControllerCompat</string>
     <string name="insets_none">None yet...</string>
 </resources>

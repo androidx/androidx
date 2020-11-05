@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# This script runs frameworks/support/gradlew and frameworks/support/ui/gradlew , each with the same arguments
+# This script runs frameworks/support/gradlew
 
 # find script
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
@@ -27,5 +27,14 @@ function run() {
   fi
 }
 
-run OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace -Pandroidx.summarizeStderr "$@"
-run OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace -Pandroidx.summarizeStderr "$@"
+# Confirm the existence of .git dirs. TODO(b/170634430) remove this
+(cd frameworks/support && echo "top commit:" && git log -1)
+
+# --no-watch-fs disables file system watch, because it does not work on busytown
+# due to our builders using OS that is too old.
+run OUT_DIR=out DIST_DIR=$DIST_DIR ANDROID_HOME=./prebuilts/fullsdk-linux \
+    frameworks/support/gradlew -p frameworks/support \
+    --stacktrace \
+    -Pandroidx.summarizeStderr \
+    --no-watch-fs \
+    "$@"

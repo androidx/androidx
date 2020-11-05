@@ -173,9 +173,11 @@ class LinearLayoutManagerRemoveShownItemsTest(
         mLayoutManager.waitForLayout(2)
 
         // .. when we remove all laid out items ..
-        val removeFrom = llm.run { List(childCount) {
-            getPosition(getChildAt(it)!!)
-        }.minOrNull() }!!
+        val removeFrom = llm.run {
+            List(childCount) {
+                getPosition(getChildAt(it)!!)
+            }.minOrNull()
+        }!!
         mLayoutManager.expectLayouts(2)
         mTestAdapter.deleteAndNotify(removeFrom, llm.childCount)
         mLayoutManager.waitForLayout(2)

@@ -20,14 +20,19 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Collections
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -126,11 +131,91 @@ class SingleRunnerTest {
                     }
                 }
             }
-            advanceUntilIdle()
+            // don't let delays finish to ensure they are really cancelled
+            advanceTimeBy(1)
         }
         // Despite launching separately, with different delays, we should see these always
         // interleave in the same order, since the delays aren't allowed to run in parallel and
         // each launch will cancel the other one's delay.
         assertThat(output.joinToString("")).isEqualTo("0a1b2c3d")
+    }
+
+    @Test
+    fun ensureIsolation_whenCancelationIsIgnoredByThePreviousBlock() {
+        // make sure we wait for previous one if it ignores cancellation
+        val singleRunner = SingleRunner()
+        val output = Collections.synchronizedList(mutableListOf<Int>())
+        // using a latch instead of a mutex to avoid suspension
+        val firstStarted = CountDownLatch(1)
+        GlobalScope.launch {
+            singleRunner.runInIsolation {
+                // this code uses latches and thread sleeps instead of Mutex and delay to mimic
+                // a code path which ignores coroutine cancellation
+                firstStarted.countDown()
+                repeat(10) {
+                    @Suppress("BlockingMethodInNonBlockingContext")
+                    Thread.sleep(100)
+                    output.add(it)
+                }
+            }
+        }
+
+        val job2 = GlobalScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            firstStarted.await()
+            singleRunner.runInIsolation {
+                repeat(10) {
+                    output.add(it + 10)
+                }
+            }
+        }
+        runBlocking {
+            withTimeout(TimeUnit.SECONDS.toMillis(10)) {
+                job2.join()
+            }
+        }
+        assertThat(output).isEqualTo(
+            // if cancellation is ignored, make sure we wait for it to finish.
+            (0 until 20).toList()
+        )
+    }
+
+    @Test
+    fun priority() = testScope.runBlockingTest {
+        val runner = SingleRunner()
+        val output = mutableListOf<String>()
+        launch {
+            runner.runInIsolation(
+                priority = 2
+            ) {
+                output.add("a")
+                delay(10)
+                output.add("b")
+                delay(100)
+                output.add("unexpected")
+            }
+        }
+
+        // should not run
+        runner.runInIsolation(
+            priority = 1
+        ) {
+            output.add("unexpected - 2")
+        }
+        advanceTimeBy(20)
+        runner.runInIsolation(
+            priority = 3
+        ) {
+            output.add("c")
+        }
+        advanceUntilIdle()
+        // now lower priority can run since higher priority is complete
+        runner.runInIsolation(
+            priority = 1
+        ) {
+            output.add("d")
+        }
+        assertThat(output)
+            .containsExactly("a", "b", "c", "d")
     }
 }

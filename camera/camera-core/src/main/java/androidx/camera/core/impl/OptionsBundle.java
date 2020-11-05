@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -158,7 +157,7 @@ public class OptionsBundle implements Config {
     @Override
     public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
         Option<Void> query = Option.create(idStem, Void.class);
-        for (Entry<Option<?>, Map<OptionPriority, Object>> entry :
+        for (Map.Entry<Option<?>, Map<OptionPriority, Object>> entry :
                 mOptions.tailMap(query).entrySet()) {
             if (!entry.getKey().getId().startsWith(idStem)) {
                 // We've reached the end of the range that contains our search stem.

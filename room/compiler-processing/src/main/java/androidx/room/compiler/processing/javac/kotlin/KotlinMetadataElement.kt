@@ -31,9 +31,11 @@ internal class KotlinMetadataElement(
 ) {
     private val typeInfo: KmClassTypeInfo by lazy {
         lateinit var result: KmClassTypeInfo
-        classMetadata.accept(ClassAsKmTypeReader {
-            result = it
-        })
+        classMetadata.accept(
+            ClassAsKmTypeReader {
+                result = it
+            }
+        )
         result
     }
     val kmType
@@ -47,9 +49,9 @@ internal class KotlinMetadataElement(
     private val ExecutableElement.descriptor: String
         get() = descriptor()
 
-    fun findPrimaryConstructorSignature() = constructorList.first {
+    fun findPrimaryConstructorSignature() = constructorList.firstOrNull {
         it.isPrimary()
-    }.descriptor
+    }?.descriptor
 
     fun isObject(): Boolean = classMetadata.isObject()
 

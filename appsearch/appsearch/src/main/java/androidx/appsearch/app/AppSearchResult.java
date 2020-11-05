@@ -19,8 +19,11 @@ package androidx.appsearch.app;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -31,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class AppSearchResult<ValueType> {
     /**
-     * Result codes from {@link AppSearchManager} methods.
+     * Result codes from {@link AppSearchSession} methods.
      * @hide
      */
     @IntDef(value = {
@@ -109,7 +112,7 @@ public final class AppSearchResult<ValueType> {
     /**
      * Returns the result value associated with this result, if it was successful.
      *
-     * <p>See the documentation of the particular {@link AppSearchManager} call producing this
+     * <p>See the documentation of the particular {@link AppSearchSession} call producing this
      * {@link AppSearchResult} for what is placed in the result value by that call.
      *
      * @throws IllegalStateException if this {@link AppSearchResult} is not successful.
@@ -127,7 +130,7 @@ public final class AppSearchResult<ValueType> {
      *
      * <p>If {@link #isSuccess} is {@code true}, the error message is always {@code null}. The error
      * message may be {@code null} even if {@link #isSuccess} is {@code false}. See the
-     * documentation of the particular {@link AppSearchManager} call producing this
+     * documentation of the particular {@link AppSearchSession} call producing this
      * {@link AppSearchResult} for what is returned by {@link #getErrorMessage}.
      */
     @Nullable
@@ -181,5 +184,27 @@ public final class AppSearchResult<ValueType> {
     public static <ValueType> AppSearchResult<ValueType> newFailedResult(
             @ResultCode int resultCode, @Nullable String errorMessage) {
         return new AppSearchResult<>(resultCode, /*resultValue=*/ null, errorMessage);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
+            @NonNull Throwable t) {
+        if (t instanceof AppSearchException) {
+            return ((AppSearchException) t).toAppSearchResult();
+        }
+
+        @AppSearchResult.ResultCode int resultCode;
+        if (t instanceof IllegalStateException) {
+            resultCode = AppSearchResult.RESULT_INTERNAL_ERROR;
+        } else if (t instanceof IllegalArgumentException) {
+            resultCode = AppSearchResult.RESULT_INVALID_ARGUMENT;
+        } else if (t instanceof IOException) {
+            resultCode = AppSearchResult.RESULT_IO_ERROR;
+        } else {
+            resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
+        }
+        return AppSearchResult.newFailedResult(resultCode, t.toString());
     }
 }

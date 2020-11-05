@@ -29,7 +29,6 @@ import android.os.Build;
 
 import androidx.annotation.ColorRes;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +43,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 // minSdk For Bundle#getBinder
 @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2)
-@SmallTest
 public class CustomTabsIntentTest {
 
     @Test

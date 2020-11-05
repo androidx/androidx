@@ -27,6 +27,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -47,6 +48,7 @@ import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.CameraView.CaptureMode;
+import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -154,6 +156,7 @@ final class CameraXModule {
         }
     }
 
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     @RequiresPermission(permission.CAMERA)
     void bindToLifecycleAfterViewMeasured() {
         if (mNewLifecycle == null) {
@@ -261,6 +264,7 @@ final class CameraXModule {
                 "Explicit open/close of camera not yet supported. Use bindtoLifecycle() instead.");
     }
 
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     public void takePicture(Executor executor, OnImageCapturedCallback callback) {
         if (mImageCapture == null) {
             return;
@@ -277,6 +281,7 @@ final class CameraXModule {
         mImageCapture.takePicture(executor, callback);
     }
 
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     public void takePicture(@NonNull ImageCapture.OutputFileOptions outputFileOptions,
             @NonNull Executor executor, OnImageSavedCallback callback) {
         if (mImageCapture == null) {

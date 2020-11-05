@@ -205,7 +205,6 @@ public class NavHostFragment extends Fragment implements NavHost {
     @CallSuper
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         final Context context = requireContext();
 
         mNavController = new NavHostController(context);
@@ -254,6 +253,11 @@ public class NavHostFragment extends Fragment implements NavHost {
                 mNavController.setGraph(graphId, startDestinationArgs);
             }
         }
+
+        // We purposefully run this last as this will trigger the onCreate() of
+        // child fragments, which may be relying on having the NavController already
+        // created and having its state restored by that point.
+        super.onCreate(savedInstanceState);
     }
 
     /**

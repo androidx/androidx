@@ -27,8 +27,9 @@ import simpleRun
 
 class TypeAssignmentTest {
     companion object {
-        private val TEST_OBJECT = JavaFileObjects.forSourceString("foo.bar.MyObject",
-                """
+        private val TEST_OBJECT = JavaFileObjects.forSourceString(
+            "foo.bar.MyObject",
+            """
             package foo.bar;
             import java.util.Set;
             import java.util.HashSet;
@@ -42,7 +43,8 @@ class TypeAssignmentTest {
                 Map<String, ?> mUnboundedMap;
                 Map<String, String> mStringMap;
             }
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -51,9 +53,11 @@ class TypeAssignmentTest {
             val testObject = processingEnv.requireTypeElement("foo.bar.MyObject")
             val string = testObject.getField("mString")
             val integer = testObject.getField("mInteger")
-            assertThat( integer.type
-                .isAssignableFromWithoutVariance(string.type),
-                    `is`(false))
+            assertThat(
+                integer.type
+                    .isAssignableFromWithoutVariance(string.type),
+                `is`(false)
+            )
         }
     }
 

@@ -34,7 +34,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
-import androidx.tvprovider.media.tv.TvContractCompat.Channels.Type;
 
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
@@ -126,7 +125,7 @@ public class PreviewChannel {
      * @return what type of channel this is. For preview channels, the type is always
      * TvContractCompat.Channels.TYPE_PREVIEW
      */
-    @Type
+    @Channels.Type
     public String getType() {
         return mValues.getAsString(Channels.COLUMN_TYPE);
     }
@@ -374,7 +373,7 @@ public class PreviewChannel {
         }
 
         // Not public because this is always the same: setType(TvContractCompat.Channels.TYPE_PREVIEW)
-        Builder setType(@Type String type) {
+        Builder setType(@Channels.Type String type) {
             mValues.put(Channels.COLUMN_TYPE, type);
             return this;
         }

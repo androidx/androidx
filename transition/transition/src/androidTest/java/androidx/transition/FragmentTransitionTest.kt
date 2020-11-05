@@ -876,8 +876,10 @@ class FragmentTransitionTest(
             fail("Expected IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             assertThat(e)
-                .hasMessageThat().contains("A shared element with the target name 'blueSquare' " +
-                        "has already been added to the transaction.")
+                .hasMessageThat().contains(
+                    "A shared element with the target name 'blueSquare' " +
+                        "has already been added to the transaction."
+                )
         }
 
         try {
@@ -885,8 +887,10 @@ class FragmentTransitionTest(
             fail("Expected IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             assertThat(e)
-                .hasMessageThat().contains("A shared element with the source name 'blueSquare' " +
-                        "has already been added to the transaction.")
+                .hasMessageThat().contains(
+                    "A shared element with the source name 'blueSquare' " +
+                        "has already been added to the transaction."
+                )
         }
     }
 

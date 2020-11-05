@@ -34,7 +34,7 @@
             android:id="@+id/preview_snapshot"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerInside" />
+            android:scaleType="centerCrop" />
     </FrameLayout>
     <HorizontalScrollView
         android:layout_width="wrap_content"

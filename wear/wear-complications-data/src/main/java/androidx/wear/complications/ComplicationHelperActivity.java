@@ -263,7 +263,7 @@ public final class ComplicationHelperActivity extends Activity
         intent.putExtra(EXTRA_WATCH_FACE_COMPONENT, watchFaceComponent);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                ProviderUpdateRequester.EXTRA_PENDING_INTENT,
+                ProviderUpdateRequesterConstants.EXTRA_PENDING_INTENT,
                 PendingIntent.getActivity(this, 0, new Intent(""), 0));
         sendBroadcast(intent);
     }

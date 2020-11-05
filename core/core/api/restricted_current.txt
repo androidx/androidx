@@ -1078,6 +1078,7 @@ package androidx.core.content {
     method public int delete(android.net.Uri, String?, String![]?);
     method public String! getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
+    method public static android.net.Uri getUriForFile(android.content.Context, String, java.io.File, String);
     method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues!);
     method public boolean onCreate();
     method public android.database.Cursor! query(android.net.Uri, String![]?, String?, String![]?, String?);
@@ -1296,13 +1297,13 @@ package androidx.core.content.res {
   }
 
   public final class ResourcesCompat {
+    method public static android.graphics.Typeface? getCachedFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
     method @ColorInt public static int getColor(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static android.content.res.ColorStateList? getColorStateList(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.res.Resources, @DrawableRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static android.graphics.drawable.Drawable? getDrawableForDensity(android.content.res.Resources, @DrawableRes int, int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static float getFloat(android.content.res.Resources, @DimenRes int);
     method public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
-    method public static android.graphics.Typeface? getFont(android.content.Context, @FontRes int, boolean) throws android.content.res.Resources.NotFoundException;
     method public static void getFont(android.content.Context, @FontRes int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler?) throws android.content.res.Resources.NotFoundException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFont(android.content.Context, @FontRes int, android.util.TypedValue!, int, androidx.core.content.res.ResourcesCompat.FontCallback?) throws android.content.res.Resources.NotFoundException;
     field @AnyRes public static final int ID_NULL = 0; // 0x0
@@ -1718,6 +1719,7 @@ package androidx.core.location {
 
   public abstract class GnssStatusCompat {
     method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
+    method @FloatRange(from=0, to=63) public abstract float getBasebandCn0DbHz(@IntRange(from=0) int);
     method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
     method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
     method public abstract int getConstellationType(@IntRange(from=0) int);
@@ -1725,6 +1727,7 @@ package androidx.core.location {
     method @IntRange(from=0) public abstract int getSatelliteCount();
     method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
     method public abstract boolean hasAlmanacData(@IntRange(from=0) int);
+    method public abstract boolean hasBasebandCn0DbHz(@IntRange(from=0) int);
     method public abstract boolean hasCarrierFrequencyHz(@IntRange(from=0) int);
     method public abstract boolean hasEphemerisData(@IntRange(from=0) int);
     method public abstract boolean usedInFix(@IntRange(from=0) int);
@@ -2725,6 +2728,7 @@ package androidx.core.view {
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
     method public static float getTranslationZ(android.view.View);
+    method public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
     method public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
@@ -2979,6 +2983,7 @@ package androidx.core.view {
   }
 
   public final class WindowCompat {
+    method public static androidx.core.view.WindowInsetsControllerCompat? getInsetsController(android.view.Window, android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.Window, @IdRes int);
     method public static void setDecorFitsSystemWindows(android.view.Window, boolean);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
@@ -3051,6 +3056,22 @@ package androidx.core.view {
   }
 
   @IntDef(flag=true, value={androidx.core.view.WindowInsetsCompat.Type.STATUS_BARS, androidx.core.view.WindowInsetsCompat.Type.NAVIGATION_BARS, androidx.core.view.WindowInsetsCompat.Type.CAPTION_BAR, androidx.core.view.WindowInsetsCompat.Type.IME, androidx.core.view.WindowInsetsCompat.Type.WINDOW_DECOR, androidx.core.view.WindowInsetsCompat.Type.SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.MANDATORY_SYSTEM_GESTURES, androidx.core.view.WindowInsetsCompat.Type.TAPPABLE_ELEMENT, androidx.core.view.WindowInsetsCompat.Type.DISPLAY_CUTOUT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsCompat.Type.InsetsType {
+  }
+
+  public final class WindowInsetsControllerCompat {
+    ctor public WindowInsetsControllerCompat(android.view.Window, android.view.View);
+    method public int getSystemBarsBehavior();
+    method public void hide(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
+    method public boolean isAppearanceLightNavigationBars();
+    method public boolean isAppearanceLightStatusBars();
+    method public void setAppearanceLightNavigationBars(boolean);
+    method public void setAppearanceLightStatusBars(boolean);
+    method public void setSystemBarsBehavior(int);
+    method public void show(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
+    method @RequiresApi(30) public static androidx.core.view.WindowInsetsControllerCompat toWindowInsetsControllerCompat(android.view.WindowInsetsController);
+    field public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1; // 0x1
+    field public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0; // 0x0
+    field public static final int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2; // 0x2
   }
 
 }

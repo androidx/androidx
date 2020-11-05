@@ -786,28 +786,27 @@ class DiffRunner(object):
     # Every time we encounter a group of inodes, we try replacing them and seeing if the replacement passes our test
     # If it does, we accept those changes and continue searching
     # If it doesn't, we split that group into smaller groups and continue
-    numFailuresDuringCurrentWindowSize = 0
     jobId = 0
     workingDir = self.getWorkPath(jobId)
     queue = multiprocessing.Queue()
-    activeJobs = {}
-    boxesById = {}
+    activeTestStatesById = {}
     initialSplitSize = 2
     if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
       initialSplitSize = self.maxNumJobsAtOnce
-    pendingBoxes = self.targetState.splitOnce(initialSplitSize)
+    availableTestStates = self.targetState.splitOnce(initialSplitSize)
     numConsecutiveFailures = 0
     numFailuresSinceLastSplitOrSuccess = 0
     numCompletionsSinceLastPoolSizeChange = 0
     invalidatedIds = set()
     probablyAcceptableStates = []
     numCompletedTests = 2 # Already tested initial passing state and initial failing state
+    numJobsAtFirstSuccessAfterMerge = None
     # continue until all files fail and no jobs are running
-    while numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() or len(activeJobs) > 0:
+    while numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() or len(activeTestStatesById) > 0:
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
-      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in pendingBoxes + boxesById.values()]) - numFailuresSinceLastSplitOrSuccess
+      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + activeTestStatesById.values()]) - numFailuresSinceLastSplitOrSuccess
       estimatedNumTestsRemaining = max(minNumTestsRemaining, 1)
       if numConsecutiveFailures >= 4 and numFailuresSinceLastSplitOrSuccess < 1:
         # If we are splitting often and failing often, then we probably haven't yet
@@ -816,14 +815,14 @@ class DiffRunner(object):
         # So, we estimate that the total work remaining is double what we've completed
         estimatedNumTestsRemaining *= 2
       estimatedRemainingDuration = datetime.timedelta(seconds = elapsedDuration.total_seconds() * float(estimatedNumTestsRemaining) / float(numCompletedTests))
-      message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeJobs)) + " active subprocesses (" + str(len(pendingBoxes) + len(activeJobs)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
+      message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeTestStatesById)) + " active subprocesses (" + str(len(availableTestStates) + len(activeTestStatesById)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
       print(message)
 
-      if len(activeJobs) > 0:
+      if len(activeTestStatesById) > 0:
         # wait for a response from a worker
         response = queue.get()
         identifier = response[0]
-        box = boxesById[identifier]
+        box = activeTestStatesById[identifier]
         didAcceptState = response[1]
         numCompletedTests += 1
         numCompletionsSinceLastPoolSizeChange += 1
@@ -832,8 +831,8 @@ class DiffRunner(object):
           numFailuresSinceLastSplitOrSuccess = 0
           acceptedState = box #.getAllFiles()
           #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
-          maxRunningSize = max([state.size() for state in boxesById.values()])
-          maxRelevantSize = maxRunningSize / len(activeJobs)
+          maxRunningSize = max([state.size() for state in activeTestStatesById.values()])
+          maxRelevantSize = maxRunningSize / len(activeTestStatesById)
           if acceptedState.size() < maxRelevantSize:
             print("Queuing a retest of response of size " + str(acceptedState.size()) + " from job " + str(identifier) + " because a much larger job of size " + str(maxRunningSize) + " is still running")
             probablyAcceptableStates.append(acceptedState)
@@ -851,9 +850,12 @@ class DiffRunner(object):
                   print("Successful state from work path " + str(identifier) + " wasn't correctly copied to bestState. Could the test command be deleting files that previously existed?")
                   sys.exit(1)
               # record that the results from any previously started process are no longer guaranteed to be valid
-              for i in activeJobs.keys():
+              for i in activeTestStatesById.keys():
                 if i != identifier:
                   invalidatedIds.add(i)
+              # record our first success
+              if numJobsAtFirstSuccessAfterMerge is None:
+                numJobsAtFirstSuccessAfterMerge = len(availableTestStates)
         else:
           if not os.path.isdir(self.sampleFailure_path):
             # save sample failure path where user can see it
@@ -884,30 +886,49 @@ class DiffRunner(object):
             split = updatedChild.splitOnce(splitFactor)
             if len(split) > 1:
               numFailuresSinceLastSplitOrSuccess = 0
-            pendingBoxes += split
+            availableTestStates += split
         # clear invalidation status
         if identifier in invalidatedIds:
           invalidatedIds.remove(identifier)
-        del activeJobs[identifier]
-        del boxesById[identifier]
+        del activeTestStatesById[identifier]
+        # Check whether we've had enough failures lately to warrant checking for the possibility of dependencies among files
+        if numJobsAtFirstSuccessAfterMerge is not None:
+          if len(availableTestStates) > 3 * numJobsAtFirstSuccessAfterMerge:
+            # It's plausible that every file in one directory depends on every file in another directory
+            # If this happens, then after we delete the dependent directory, we can delete the dependency directory too
+            # To make sure that we consider deleting the dependency directory, we recombine all of our states and start splitting from there
+            print("#############################################################")
+            print("#                                                           #")
+            print("# Lots of failures since first success!!!!!!!!!!!!!!!!!!!!! #")
+            print("# Recombining all states in case we uncovered a dependency! #")
+            print("#                                                           #")
+            print("#############################################################")
+            rejoinedState = FilesState()
+            for state in availableTestStates:
+              rejoinedState = rejoinedState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
+            rejoinedState = rejoinedState.withoutDuplicatesFrom(self.resetTo_state)
+            availableTestStates = rejoinedState.splitOnce(initialSplitSize)
+            numFailuresSinceLastSplitOrSuccess = 0
+            numJobsAtFirstSuccessAfterMerge = None
+            numCompletionsSinceLastPoolSizeChange = 0
 
       # if probablyAcceptableStates has become large enough, then retest its contents too
-      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= len(activeJobs) + 1 or numConsecutiveFailures >= len(activeJobs) or len(activeJobs) < 1):
+      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= len(activeTestStatesById) + 1 or numConsecutiveFailures >= len(activeTestStatesById) or len(activeTestStatesById) < 1):
         probablyAcceptableState = FilesState()
         for state in probablyAcceptableStates:
           probablyAcceptableState = probablyAcceptableState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
         probablyAcceptableState = probablyAcceptableState.withoutDuplicatesFrom(self.resetTo_state)
         if probablyAcceptableState.size() > 0:
           print("Retesting " + str(len(probablyAcceptableStates)) + " previous likely successful states as a single test: " + probablyAcceptableState.summarize())
-          pendingBoxes = [probablyAcceptableState] + pendingBoxes
+          availableTestStates = [probablyAcceptableState] + availableTestStates
         probablyAcceptableStates = []
-      if len(pendingBoxes) < 1 and len(activeJobs) < 1:
+      if len(availableTestStates) < 1 and len(activeTestStatesById) < 1:
         print("Error: no changes remain left to test. It was expected that applying all changes would fail")
         break
 
       # if we haven't checked everything yet, then try to queue more jobs
       if numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size():
-        pendingBoxes.sort(reverse=True, key=FilesState.size)
+        availableTestStates.sort(reverse=True, key=FilesState.size)
 
         if self.maxNumJobsAtOnce != "auto":
           targetNumJobs = self.maxNumJobsAtOnce
@@ -917,33 +938,33 @@ class DiffRunner(object):
             systemUsageStats = psutil.cpu_times_percent(interval=None)
             systemIdleFraction = systemUsageStats.idle / 100
             if systemIdleFraction >= 0.5:
-              if numCompletionsSinceLastPoolSizeChange <= len(activeJobs):
+              if numCompletionsSinceLastPoolSizeChange <= len(activeTestStatesById):
                 # Not much time has passed since the previous time we changed the pool size
-                targetNumJobs = len(activeJobs) + 1 # just replace existing job
+                targetNumJobs = len(activeTestStatesById) + 1 # just replace existing job
               else:
                 # We've been using less than the target capacity for a while, so add another job
-                targetNumJobs = len(activeJobs) + 2 # replace existing job and add a new one
+                targetNumJobs = len(activeTestStatesById) + 2 # replace existing job and add a new one
                 numCompletionsSinceLastPoolSizeChange = 0
             else:
-              targetNumJobs = len(activeJobs) # don't replace existing job
+              targetNumJobs = len(activeTestStatesById) # don't replace existing job
               numCompletionsSinceLastPoolSizeChange = 0
 
               if targetNumJobs < 1:
                 targetNumJobs = 1
-            print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeJobs) + 1) + ", target num jobs = " + str(targetNumJobs))
+            print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeTestStatesById) + 1) + ", target num jobs = " + str(targetNumJobs))
 
-        while len(activeJobs) < targetNumJobs and len(activeJobs) < self.resetTo_state.size() and len(pendingBoxes) > 0:
+        while len(activeTestStatesById) < targetNumJobs and len(activeTestStatesById) < self.resetTo_state.size() and len(availableTestStates) > 0:
           # find next pending job
-          box = pendingBoxes[0]
+          box = availableTestStates[0]
           # find next unused job id
           jobId = 0
-          while jobId in activeJobs:
+          while jobId in activeTestStatesById:
             jobId += 1
           # start job
           workingDir = self.getWorkPath(jobId)
-          activeJobs[jobId] = runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
-          boxesById[jobId] = box
-          pendingBoxes = pendingBoxes[1:]
+          runJobInOtherProcess(self.testScript_path, workingDir, self.full_resetTo_state, self.assumeNoSideEffects, box, queue, jobId)
+          activeTestStatesById[jobId] = box
+          availableTestStates = availableTestStates[1:]
 
     print("double-checking results")
     wasSuccessful = True

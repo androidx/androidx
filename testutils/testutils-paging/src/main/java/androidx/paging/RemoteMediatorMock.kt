@@ -17,7 +17,12 @@
 package androidx.paging
 
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+
+@OptIn(ExperimentalPagingApi::class)
+typealias LoadCallback = suspend (loadType: LoadType, state: PagingState<Int, Int>) ->
+RemoteMediator.MediatorResult?
 
 @OptIn(ExperimentalPagingApi::class)
 open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<Int, Int>() {
@@ -29,9 +34,27 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
             _newLoadEvents.clear()
             return result
         }
+
     val initializeEvents = mutableListOf<Unit>()
 
+    val incompleteEvents = mutableListOf<LoadEvent<Int, Int>>()
+
     var initializeResult = SKIP_INITIAL_REFRESH
+
+    var loadCallback: LoadCallback? = null
+
+    private suspend fun defaultLoadCallback(
+        loadType: LoadType,
+        state: PagingState<Int, Int>
+    ): MediatorResult.Success {
+        try {
+            delay(loadDelay)
+        } catch (cancel: CancellationException) {
+            incompleteEvents.add(LoadEvent(loadType, state))
+            throw cancel
+        }
+        return MediatorResult.Success(false)
+    }
 
     override suspend fun load(
         loadType: LoadType,
@@ -39,15 +62,18 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
     ): MediatorResult {
         loadEvents.add(LoadEvent(loadType, state))
         _newLoadEvents.add(LoadEvent(loadType, state))
-
-        delay(loadDelay)
-
-        return MediatorResult.Success(false)
+        return loadCallback?.invoke(loadType, state) ?: defaultLoadCallback(loadType, state)
     }
 
     override suspend fun initialize(): InitializeAction {
         initializeEvents.add(Unit)
         return initializeResult
+    }
+
+    fun loadEventCounts() = LoadType.values().associateWith { loadType ->
+        loadEvents.count {
+            it.loadType == loadType
+        }
     }
 
     data class LoadEvent<Key : Any, Value : Any>(

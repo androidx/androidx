@@ -39,8 +39,9 @@ class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
     init {
         if (DEBUG) {
             Log.d(
-                TAG, "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
-                        " $cameraManager, CameraPipe: $cameraPipe]"
+                TAG,
+                "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
+                    " $cameraManager, CameraPipe: $cameraPipe]"
             )
         }
     }
@@ -57,19 +58,11 @@ class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
         TODO("Not implemented.")
     }
 
-    override fun getMaxOutputSize(cameraId: String, imageFormat: Int): Size? {
-        TODO("Not implemented.")
-    }
-
     override fun getSuggestedResolutions(
         cameraId: String,
         existingSurfaces: List<SurfaceConfig>,
         newUseCaseConfigs: List<UseCaseConfig<*>?>
     ): Map<UseCaseConfig<*>, Size> {
-        TODO("Not implemented.")
-    }
-
-    override fun getPreviewSize(): Size {
         TODO("Not implemented.")
     }
 }

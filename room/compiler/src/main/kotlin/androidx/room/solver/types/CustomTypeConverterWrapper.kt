@@ -41,18 +41,24 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             if (custom.isEnclosingClassKotlinObject) {
-                addStatement("$L = $T.INSTANCE.$L($L)",
+                addStatement(
+                    "$L = $T.INSTANCE.$L($L)",
                     outputVarName, custom.typeName,
-                    custom.methodName, inputVarName)
+                    custom.methodName, inputVarName
+                )
             } else if (custom.isStatic) {
-                addStatement("$L = $T.$L($L)",
-                        outputVarName, custom.typeName,
-                        custom.methodName, inputVarName)
+                addStatement(
+                    "$L = $T.$L($L)",
+                    outputVarName, custom.typeName,
+                    custom.methodName, inputVarName
+                )
             } else {
                 if (custom.isProvidedConverter) {
-                    addStatement("$L = $N().$L($L)",
+                    addStatement(
+                        "$L = $N().$L($L)",
                         outputVarName, providedTypeConverter(scope),
-                        custom.methodName, inputVarName)
+                        custom.methodName, inputVarName
+                    )
                 } else {
                     addStatement(
                         "$L = $N.$L($L)",
@@ -73,14 +79,14 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
         val converterField = scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
             baseName, custom.typeName
         ) {
-            override fun getUniqueKey(): String {
-                return "converter_${custom.typeName}"
-            }
+                override fun getUniqueKey(): String {
+                    return "converter_${custom.typeName}"
+                }
 
-            override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
-                builder.addModifiers(Modifier.PRIVATE)
-            }
-        })
+                override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+                    builder.addModifiers(Modifier.PRIVATE)
+                }
+            })
 
         return scope.writer.getOrCreateMethod(object : ClassWriter.SharedMethodSpec(baseName) {
             override fun getUniqueKey(): String {
@@ -123,17 +129,18 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
     fun typeConverter(scope: CodeGenScope): FieldSpec {
         val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
         return scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
-                baseName, custom.typeName) {
-            override fun getUniqueKey(): String {
-                return "converter_${custom.typeName}"
-            }
+            baseName, custom.typeName
+        ) {
+                override fun getUniqueKey(): String {
+                    return "converter_${custom.typeName}"
+                }
 
-            override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
-                builder.addModifiers(Modifier.PRIVATE)
-                builder.addModifiers(Modifier.FINAL)
-                builder.initializer("new $T()", custom.typeName)
-            }
-        })
+                override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
+                    builder.addModifiers(Modifier.PRIVATE)
+                    builder.addModifiers(Modifier.FINAL)
+                    builder.initializer("new $T()", custom.typeName)
+                }
+            })
     }
 }
 

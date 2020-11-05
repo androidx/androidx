@@ -43,9 +43,9 @@ abstract class BaseCardActivity : FragmentActivity() {
     private lateinit var gotoPage: Button
 
     private val translateX get() = viewPager.orientation == ORIENTATION_VERTICAL &&
-            translateCheckBox.isChecked
+        translateCheckBox.isChecked
     private val translateY get() = viewPager.orientation == ORIENTATION_HORIZONTAL &&
-            translateCheckBox.isChecked
+        translateCheckBox.isChecked
 
     protected open val layoutId: Int = R.layout.activity_no_tablayout
 

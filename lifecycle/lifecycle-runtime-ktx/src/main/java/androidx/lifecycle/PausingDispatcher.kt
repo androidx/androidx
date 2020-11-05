@@ -30,7 +30,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenCreated(block)
 
 /**
@@ -38,7 +38,7 @@ suspend fun <T> LifecycleOwner.whenCreated(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.CREATED, block)
 }
 
@@ -48,7 +48,7 @@ suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T 
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenStarted(block)
 
 /**
@@ -56,7 +56,7 @@ suspend fun <T> LifecycleOwner.whenStarted(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.STARTED, block)
 }
 
@@ -66,7 +66,7 @@ suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T 
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
+public suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T =
     lifecycle.whenResumed(block)
 
 /**
@@ -74,7 +74,7 @@ suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T
  *
  * @see Lifecycle.whenStateAtLeast for details
  */
-suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
+public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T {
     return whenStateAtLeast(Lifecycle.State.RESUMED, block)
 }
 
@@ -150,10 +150,10 @@ suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() -> T): T 
  * @param block The block to run when the lifecycle is at least in [minState].
  * @return <T> The return value of the [block]
  */
-suspend fun <T> Lifecycle.whenStateAtLeast(
+public suspend fun <T> Lifecycle.whenStateAtLeast(
     minState: Lifecycle.State,
     block: suspend CoroutineScope.() -> T
-) = withContext(Dispatchers.Main.immediate) {
+): T = withContext(Dispatchers.Main.immediate) {
     val job = coroutineContext[Job] ?: error("when[State] methods should have a parent job")
     val dispatcher = PausingDispatcher()
     val controller =

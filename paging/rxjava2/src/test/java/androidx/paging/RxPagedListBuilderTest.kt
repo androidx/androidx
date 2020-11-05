@@ -45,7 +45,7 @@ class RxPagedListBuilderTest {
             override fun create(): DataSource<Int, String> {
                 val currentList = localData.first()
                 localData = localData.drop(1)
-                return ListDataSource(currentList)
+                return TestPositionalDataSource(currentList)
             }
         }
     }
@@ -203,7 +203,8 @@ class RxPagedListBuilderTest {
         assertEquals(
             listOf(
                 LoadStateEvent(REFRESH, Loading)
-            ), loadStates
+            ),
+            loadStates
         )
 
         fetchScheduler.triggerActions()
@@ -214,7 +215,8 @@ class RxPagedListBuilderTest {
             listOf(
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION))
-            ), loadStates
+            ),
+            loadStates
         )
 
         initPagedList.retry()
@@ -226,7 +228,8 @@ class RxPagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading)
-            ), loadStates
+            ),
+            loadStates
         )
         // flush loadInitial, should succeed now
         fetchScheduler.triggerActions()
@@ -248,7 +251,8 @@ class RxPagedListBuilderTest {
                     REFRESH,
                     NotLoading(endOfPaginationReached = false)
                 )
-            ), loadStates
+            ),
+            loadStates
         )
     }
 

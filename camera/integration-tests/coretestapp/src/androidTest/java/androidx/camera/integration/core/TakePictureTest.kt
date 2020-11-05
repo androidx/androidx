@@ -19,7 +19,6 @@ package androidx.camera.integration.core
 import android.Manifest
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.CoreAppTestUtil.clearDeviceUI
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -53,8 +52,9 @@ class TakePictureTest {
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
 
-        // Clear the device UI before start each test.
-        clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     // Take a photo, wait for callback via imageSavedIdlingResource resource.

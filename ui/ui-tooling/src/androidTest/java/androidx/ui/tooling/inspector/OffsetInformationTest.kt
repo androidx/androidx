@@ -16,20 +16,19 @@
 
 package androidx.ui.tooling.inspector
 
-import junit.framework.TestCase
-
-import androidx.test.filters.SmallTest
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.ToolingTest
 import androidx.ui.tooling.asTree
+import junit.framework.TestCase
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@SmallTest
-@RunWith(JUnit4::class)
+@MediumTest
+@RunWith(AndroidJUnit4::class)
 class OffsetInformationTest : ToolingTest() {
     @Test
     fun testOffset() {
@@ -51,17 +50,17 @@ class OffsetInformationTest : ToolingTest() {
 
         assertArrayEquals(
             arrayListOf(
-                "MyComposeTheme" to 1651,
-                "Column" to 1676,
-                "Text" to 1733,
-                "Greeting" to 1986,
-                "Text" to 2821,
-                "Surface" to 2101,
-                "Button" to 2146,
-                "Text" to 2169,
-                "Surface" to 2018,
-                "TextButton" to 2335,
-                "Row" to 2476
+                "MyComposeTheme" to 1649,
+                "Column" to 1674,
+                "Text" to 1731,
+                "Greeting" to 1984,
+                "Text" to 2819,
+                "Surface" to 2099,
+                "Button" to 2144,
+                "Text" to 2167,
+                "Surface" to 2016,
+                "TextButton" to 2333,
+                "Row" to 2474
             ),
             offsets
         )

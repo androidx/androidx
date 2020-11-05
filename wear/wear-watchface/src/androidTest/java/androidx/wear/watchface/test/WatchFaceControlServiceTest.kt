@@ -19,20 +19,26 @@ package androidx.wear.watchface.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.complications.ComplicationData
-import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
-import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationText
+import androidx.wear.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
+import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.IWatchFaceControlService
 import androidx.wear.watchface.control.WatchFaceControlService
-import androidx.wear.watchface.data.ImmutableSystemState
+import androidx.wear.watchface.control.data.ComplicationScreenshotParams
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
+import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
 import org.junit.Rule
 import org.junit.Test
@@ -43,24 +49,11 @@ private const val API_VERSION = 3
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class WatchFaceControlServiceTest {
-    private val complicationProviders = mapOf(
-        SystemProviders.DAY_OF_WEEK to
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(ComplicationText.plainText("23rd"))
-                .setShortText(ComplicationText.plainText("Mon"))
-                .build(),
-        SystemProviders.STEP_COUNT to
-            ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                .setShortTitle(ComplicationText.plainText("Steps"))
-                .setShortText(ComplicationText.plainText("100"))
-                .build()
-    )
 
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule("wear/wear-watchface")
 
-    @Test
-    fun createTestCanvasWatchFaceService() {
+    private fun createInstance(width: Int, height: Int): IHeadlessWatchFace {
         val instanceService = IWatchFaceControlService.Stub.asInterface(
             WatchFaceControlService().apply {
                 setContext(ApplicationProvider.getApplicationContext<Context>())
@@ -68,29 +61,88 @@ class WatchFaceControlServiceTest {
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE)
             )
         )
-        val instance = instanceService.createWatchFaceInstance(
-            ComponentName(
-                ApplicationProvider.getApplicationContext<Context>(),
-                ExampleCanvasWatchFaceService::class.java
+        return instanceService.createHeadlessWatchFaceInstance(
+            HeadlessWatchFaceInstanceParams(
+                ComponentName(
+                    ApplicationProvider.getApplicationContext<Context>(),
+                    ExampleCanvasWatchFaceService::class.java
+                ),
+                DeviceConfig(
+                    false,
+                    false,
+                    DeviceConfig.SCREEN_SHAPE_ROUND,
+                    0,
+                    0
+                ),
+                width,
+                height
             )
         )
-        val watchFaceService = WatchFaceServiceStub(API_VERSION, complicationProviders)
-        instance.initWithoutSurface(
-            watchFaceService,
-            ImmutableSystemState(false, false),
-            100,
-            100
-        )
+    }
 
-        val bitmap = watchFaceService.watchFaceCommand!!.takeWatchfaceScreenshot(
-            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS).toWireFormat(),
-            100,
-            1234567890,
-            null
+    @Test
+    fun createHeadlessWatchFaceInstance() {
+        val instance = createInstance(100, 100)
+        val bitmap = instance.takeWatchFaceScreenshot(
+            WatchfaceScreenshotParams(
+                RenderParameters(
+                    DrawMode.INTERACTIVE,
+                    RenderParameters.DRAW_ALL_LAYERS,
+                    null
+                ).toWireFormat(),
+                100,
+                1234567890,
+                null,
+                listOf(
+                    IdAndComplicationDataWireFormat(
+                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                        ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                            .setTitle(ComplicationText.plain("23rd"))
+                            .build()
+                            .asWireComplicationData()
+                    ),
+                    IdAndComplicationDataWireFormat(
+                        EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                        ShortTextComplicationData.Builder(ComplicationText.plain("100"))
+                            .setTitle(ComplicationText.plain("Steps"))
+                            .build()
+                            .asWireComplicationData()
+                    )
+                )
+            )
         ).ashmemCompressedImageBundleToBitmap()
 
-        bitmap!!.assertAgainstGolden(screenshotRule, "service_interactive")
+        bitmap.assertAgainstGolden(screenshotRule, "service_interactive")
 
-        instance.destroy()
+        instance.release()
+    }
+
+    @Test
+    fun testCommandTakeComplicationScreenShot() {
+        val instance = createInstance(400, 400)
+        val bitmap = instance.takeComplicationScreenshot(
+            ComplicationScreenshotParams(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                RenderParameters(
+                    DrawMode.AMBIENT,
+                    RenderParameters.DRAW_ALL_LAYERS,
+                    null
+                ).toWireFormat(),
+                100,
+                123456789,
+                ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                    .setTitle(ComplicationText.plain("23rd"))
+                    .build()
+                    .asWireComplicationData(),
+                null
+            )
+        ).ashmemCompressedImageBundleToBitmap()
+
+        bitmap.assertAgainstGolden(
+            screenshotRule,
+            "leftComplication"
+        )
+
+        instance.release()
     }
 }

@@ -49,10 +49,13 @@ class VerityTreeBuilder {
 
     static byte[] computeChunkVerityTreeAndDigest(@NonNull String apkPath)
             throws IOException, NoSuchAlgorithmException {
-        try (RandomAccessFile apk = new RandomAccessFile(apkPath, "r")) {
+        RandomAccessFile apk = new RandomAccessFile(apkPath, "r");
+        try {
             final MessageDigest md = getNewMessageDigest();
             ByteBuffer tree = generateVerityTree(md, apk);
             return getRootHashFromTree(md, tree);
+        } finally {
+            apk.close();
         }
     }
 
@@ -84,7 +87,7 @@ class VerityTreeBuilder {
      * The tree is currently stored only in memory and is never written out.  Nevertheless, it is
      * the actual verity tree format on disk, and is supposed to be re-generated on device.
      */
-    private static ByteBuffer generateVerityTree(MessageDigest md, RandomAccessFile file)
+    private static ByteBuffer generateVerityTree(MessageDigest md, final RandomAccessFile file)
             throws IOException {
         int digestSize = md.getDigestLength();
 
@@ -102,51 +105,58 @@ class VerityTreeBuilder {
             if (i == levelOffset.length - 2) {
                 srcSize = file.length();
                 final FileChannel channel = file.getChannel();
-                digestDataByChunks(md, srcSize, (offset, size, dest) -> {
-                    if (size == 0) {
-                        return;
-                    }
-                    if (size > dest.remaining()) {
-                        throw new IOException();
-                    }
-
-                    long offsetInFile = offset;
-                    int remaining = size;
-                    int prevLimit = dest.limit();
-                    try {
-                        // FileChannel.read(ByteBuffer) reads up to dest.remaining(). Thus, we
-                        // need to adjust the buffer's limit to avoid reading more than size bytes.
-                        dest.limit(dest.position() + size);
-                        while (remaining > 0) {
-                            int chunkSize;
-                            synchronized (file) {
-                                channel.position(offsetInFile);
-                                chunkSize = channel.read(dest);
-                            }
-                            offsetInFile += chunkSize;
-                            remaining -= chunkSize;
+                digestDataByChunks(md, srcSize, new DataSource() {
+                    @Override
+                    public void copyTo(long offset, int size, ByteBuffer dest) throws IOException {
+                        if (size == 0) {
+                            return;
                         }
-                    } finally {
-                        dest.limit(prevLimit);
+                        if (size > dest.remaining()) {
+                            throw new IOException();
+                        }
+
+                        long offsetInFile = offset;
+                        int remaining = size;
+                        int prevLimit = dest.limit();
+                        try {
+                            // FileChannel.read(ByteBuffer) reads up to dest.remaining(). Thus,
+                            // we need to adjust the buffer's limit to avoid reading more than
+                            // size bytes.
+                            dest.limit(dest.position() + size);
+                            while (remaining > 0) {
+                                int chunkSize;
+                                synchronized (file) {
+                                    channel.position(offsetInFile);
+                                    chunkSize = channel.read(dest);
+                                }
+                                offsetInFile += chunkSize;
+                                remaining -= chunkSize;
+                            }
+                        } finally {
+                            dest.limit(prevLimit);
+                        }
                     }
                 }, middleBuffer);
             } else {
                 srcSize = (long) levelOffset[i + 2] - levelOffset[i + 1];
-                ByteBuffer srcBuffer = slice(verityBuffer.asReadOnlyBuffer(), levelOffset[i + 1],
-                        levelOffset[i + 2]).asReadOnlyBuffer();
-                digestDataByChunks(md, srcSize, (offset, size, dest) -> {
-                    int chunkPosition = (int) offset;
-                    int chunkLimit = chunkPosition + size;
+                final ByteBuffer srcBuffer = slice(verityBuffer.asReadOnlyBuffer(),
+                        levelOffset[i + 1], levelOffset[i + 2]).asReadOnlyBuffer();
+                digestDataByChunks(md, srcSize, new DataSource() {
+                    @Override
+                    public void copyTo(long offset, int size, ByteBuffer dest) throws IOException {
+                        int chunkPosition = (int) offset;
+                        int chunkLimit = chunkPosition + size;
 
-                    final ByteBuffer slice;
-                    synchronized (srcBuffer) {
-                        srcBuffer.position(0);  // to ensure position <= limit invariant
-                        srcBuffer.limit(chunkLimit);
-                        srcBuffer.position(chunkPosition);
-                        slice = srcBuffer.slice();
+                        final ByteBuffer slice;
+                        synchronized (srcBuffer) {
+                            srcBuffer.position(0);  // to ensure position <= limit invariant
+                            srcBuffer.limit(chunkLimit);
+                            srcBuffer.position(chunkPosition);
+                            slice = srcBuffer.slice();
+                        }
+
+                        dest.put(slice);
                     }
-
-                    dest.put(slice);
                 }, middleBuffer);
             }
 

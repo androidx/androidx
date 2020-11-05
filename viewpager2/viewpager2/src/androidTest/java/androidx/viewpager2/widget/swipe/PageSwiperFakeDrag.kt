@@ -75,8 +75,10 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         }
 
         if (isInterrupted) {
-            throw IllegalStateException("${javaClass.simpleName} was not reset after it was " +
-                    "interrupted")
+            throw IllegalStateException(
+                "${javaClass.simpleName} was not reset after it was " +
+                    "interrupted"
+            )
         }
 
         // Send the fakeDrag events

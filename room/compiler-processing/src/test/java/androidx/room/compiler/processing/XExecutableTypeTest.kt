@@ -29,7 +29,8 @@ class XExecutableTypeTest {
     @Test
     fun inheritanceResolution() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             interface MyInterface<T> {
                 fun getT(): T
                 fun setT(t:T): Unit
@@ -37,7 +38,7 @@ class XExecutableTypeTest {
                 suspend fun suspendSetT(t:T): Unit
             }
             abstract class Subject : MyInterface<String>
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(src)
@@ -96,7 +97,8 @@ class XExecutableTypeTest {
     @Test
     fun kotlinPropertyInheritance() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             interface MyInterface<T> {
                 val immutableT: T
                 var mutableT: T?
@@ -105,7 +107,7 @@ class XExecutableTypeTest {
             }
             abstract class Subject : MyInterface<String>
             abstract class NullableSubject: MyInterface<String?>
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")

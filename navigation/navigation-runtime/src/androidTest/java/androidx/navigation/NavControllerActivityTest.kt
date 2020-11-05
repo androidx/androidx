@@ -73,9 +73,11 @@ class NavControllerActivityTest {
     fun testNavigateUp() {
         val activity = activityRule.activity
         navController.setGraph(R.navigation.nav_simple)
-        navController.handleDeepLink(Intent().apply {
-            data = Uri.parse("android-app://androidx.navigation.test/test")
-        })
+        navController.handleDeepLink(
+            Intent().apply {
+                data = Uri.parse("android-app://androidx.navigation.test/test")
+            }
+        )
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.second_test)
         assertThat(navigator.backStack.size)

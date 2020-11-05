@@ -1,6 +1,8 @@
-# This file is a list of regexes of messages that are permitted to appear in stdout/stderr
-# Comments and blank lines are ignored
-# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead
+# This file is a list of regexes of messages that are expected to appear in stdout/stderr.
+# Comments and blank lines are ignored.
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
+# Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
+
 # > Task :docs-runner:dokkaJavaPublicDocs
 (logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
 # > Task :contentaccess:integration-tests:testapp:kaptDebugAndroidTestKotlin
@@ -10,16 +12,27 @@ proto file '[^ ]*' directly specified in configuration\. It's likely you specifi
 OUT_DIR=\$OUT_DIR
 DIST_DIR=\$DIST_DIR
 CHECKOUT=\$CHECKOUT
+GRADLE_USER_HOME=\$GRADLE_USER_HOME
+Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\-bin\.zip
+\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
+Welcome to Gradle [0-9]+\.[0-9]+!
 Downloading file:\$SUPPORT/gradle/wrapper/\.\./\.\./\.\./\.\./tools/external/gradle/gradle\-[0-9]+\.[0-9]+\.[0-9]+\-bin\.zip
 \.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.[0-9]+%\.\.\.\.\.\.\.\.\.\.[0-9]+%
 Welcome to Gradle [0-9]+\.[0-9]+\.[0-9]+!
 Here are the highlights of this release:
+\- File system watching is ready for production use
+\- Declare the version of Java your build requires
+\- Java [0-9]+ support
+For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+/release\-notes\.html
+To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
 \- Experimental file\-system watching
 \- Improved version ordering
 \- New samples
 For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/release\-notes\.html
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
 Daemon will be stopped at the end of the build stopping after processing
+Using AndroidX remote build cache
+Remote build cache is disabled when running with \-\-offline\.
 # > Task :buildSrc:build
 # > Configure project :appsearch:appsearch\-local\-backend
 WARNING: NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
@@ -39,31 +52,31 @@ The Kotlin source set test was configured but not added to any Kotlin compilatio
 \* jvmMain
 # > Task :listTaskOutputs
 Wrote \$DIST_DIR/task_outputs\.txt
+Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
+Use '\-\-warning\-mode all' to show the individual deprecation warnings\.
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/command_line_interface\.html\#sec:command_line_warnings
-BUILD SUCCESSFUL in [0-9]+m [0-9]+s
+BUILD SUCCESSFUL in .*
 [0-9]+ actionable task: [0-9]+ executed
 # > Task :docs-fake:processPublicReleaseMainManifest
+\[androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/wear\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+Package name \'androidx\.wear\' used in\: androidx\.wear\:wear\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.wear\:wear\-input\-testing\:[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\.
+\[androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\] \$GRADLE_USER_HOME\/caches\/transforms\-[0-9]+\/files\-[0-9]+\.[0-9]+\/[0-9a-f]{32}\/material\-icons\-extended\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\/AndroidManifest\.xml Warning\:
+Package name \'androidx\.compose\.material\.icons\' used in\: androidx\.compose\.material\:material\-icons\-extended\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\, androidx\.compose\.material\:material\-icons\-core\:[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.
 \$SUPPORT/docs\-fake/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:appComponentFactory was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :doclava:compileJava
+Note\: Some input files use or override a deprecated API\.
 Note: Some input files use or override a deprecated API that is marked for removal\.
 Note: Recompile with \-Xlint:removal for details\.
-# > Task :test-screenshot:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/test\-screenshot_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+Note\: Some input files use unchecked or unsafe operations\.
+Note\: Recompile with \-Xlint\:unchecked for details\.
 # > Task :benchmark:benchmark-junit4:processDebugAndroidTestManifest
-\$SUPPORT/benchmark/junit[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.junit[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :benchmark:benchmark-common:processDebugAndroidTestManifest
-\$SUPPORT/benchmark/common/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :tracing:tracing:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/tracing/tracing/src/androidTest/java/androidx/tracing/TraceTest\.java uses or overrides a deprecated API\.
-# > Task :tracing:tracing-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/tracing\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :ui:ui-tooling:processDebugAndroidTestManifest
-\$SUPPORT/ui/ui\-tooling/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ui\.tooling\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-\$OUT_DIR/ui/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 application@android:debuggable was tagged at manifestMerger[0-9]+\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :generateSdkApi
 javadoc: warning \- The old Doclet and Taglet APIs in the packages
@@ -72,36 +85,24 @@ are planned to be removed in a future JDK release\. These
 components have been superseded by the new APIs in jdk\.javadoc\.doclet\.
 Users are strongly recommended to migrate to the new APIs\.
 # > Task :compose:foundation:foundation-layout:processDebugAndroidTestManifest
-\$OUT_DIR/ui/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :benchmark:benchmark-junit4:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark\-junit[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/benchmark\-common_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+\$OUT_DIR/androidx/compose/foundation/foundation\-layout/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:integration-tests:benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/compose/integration\-tests/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ui\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-\$OUT_DIR/ui/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/integration\-tests/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-geometry:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-geometry/src/commonMain/kotlin/androidx/compose/ui/geometry/Radius\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :compose:navigation:navigation:processDebugAndroidTestManifest
-\$SUPPORT/compose/navigation/navigation/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.compose\.navigation\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :compose:runtime:runtime-saved-instance-state:processDebugAndroidTestManifest
-\$OUT_DIR/ui/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :compose:runtime:runtime-dispatch:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-dispatch_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+\$OUT_DIR/androidx/compose/runtime/runtime\-saved\-instance\-state/build/intermediates/tmp/manifest/androidTest/debug/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:ui:ui-graphics:compileKotlinMetadata
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Color\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 w: \$SUPPORT/compose/ui/ui\-graphics/src/commonMain/kotlin/androidx/compose/ui/graphics/Float[0-9]+\.kt: \([0-9]+, [0-9]+\): The feature "inline classes" is experimental
 # > Task :distpublicDocs
 'Wrote API reference to \$DIST_DIR/androidx\-public\-docs\-[0-9]+\.zip
 # > Task :compose:runtime:runtime:benchmark:processReleaseAndroidTestManifest
-\$OUT_DIR/ui/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+\$OUT_DIR/androidx/compose/runtime/runtime/benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :compose:material:material-icons-extended:processDebugAndroidTestManifest
-\[:compose:material:material\-icons\-extended\] \$OUT_DIR/ui/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
+\[:compose:material:material\-icons\-extended\] \$OUT_DIR/androidx/compose/material/material\-icons\-extended/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.compose\.material\.icons' used in: :compose:material:material\-icons\-extended, :compose:material:material\-icons\-core\.
-# > Task :compose:ui:ui-text-android:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-text\-android_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:ui:ui:compileKotlinMetadata
 w: Runtime JAR files in the classpath should have the same version\. These files were found in the classpath:
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
@@ -122,6 +123,25 @@ w: \$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compos
 \$SUPPORT/benchmark/common/src/main/java/androidx/benchmark/simpleperf/RecordOptions\.java:[0-9]+: warning: \[JavaTimeDefaultTimeZone\] LocalDateTime\.now\(\) is not allowed because it silently uses the system default time\-zone\. You must pass an explicit time\-zone \(e\.g\., ZoneId\.of\("America/Los_Angeles"\)\) to this method\.
 LocalDateTime time = LocalDateTime\.now\(\);
 \^
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package Metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.decoder does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.source does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.trackselection does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.upstream does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.video does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.drm does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.mediacodec does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.text does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.video does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.trackselection does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
 \(see https://errorprone\.info/bugpattern/JavaTimeDefaultTimeZone\)
 Did you mean 'LocalDateTime time = LocalDateTime\.now\(ZoneId\.systemDefault\(\)\);'\?
 [0-9]+ warning
@@ -136,57 +156,20 @@ src/commonMain/kotlin/androidx/compose/runtime/Composer\.kt:[0-9]+: warning: Fie
 src/commonMain/kotlin/androidx/compose/ui/geometry/MutableRect\.kt:[0-9]+: info: Note that adding the `operator` keyword would allow calling this method using operator syntax \[KotlinOperator\]
 # > Task :compose:animation:animation-core:generateApi
 src/commonMain/kotlin/androidx/compose/animation/core/AnimationClock\.kt:[0-9]+: warning: Field BaseAnimationClock\.Companion references hidden type androidx\.compose\.animation\.core\.BaseAnimationClock\.Companion\. \[HiddenTypeParameter\]
-# > Task :compose:ui:ui-unit:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-unit_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :compose:foundation:foundation-layout:generateApi
 src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter orientation references hidden type androidx\.compose\.foundation\.layout\.LayoutOrientation\. \[HiddenTypeParameter\]
 src/commonMain/kotlin/androidx/compose/foundation/layout/RowColumnImpl\.kt:[0-9]+: warning: Parameter crossAxisAlignment references hidden type androidx\.compose\.foundation\.layout\.CrossAxisAlignment\. \[HiddenTypeParameter\]
-# > Task :compose:animation:animation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/animation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-livedata:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-livedata_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation-text:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation\-text_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:navigation:navigation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-rxjava2:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-rxjava[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:runtime:runtime-saved-instance-state:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/runtime\-saved\-instance\-state_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-graphics:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-graphics_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-text:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-text_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui-viewbinding:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-viewbinding_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:foundation:foundation-layout:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/foundation\-layout_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:test-utils:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/test\-utils_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:integration-tests:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/integration\-tests_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :ui:ui-test:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-test_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :ui:ui-tooling:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui\-tooling_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:ui:ui:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/ui_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :compose:material:material:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/material_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :disttipOfTreeDocs
 'Wrote API reference to \$DIST_DIR/androidx\-tipOfTree\-docs\-[0-9]+\.zip
-# > Task :compose:material:material-icons-extended:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/material\-icons\-extended_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :buildOnServer
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache, [0-9]+ up\-to\-date
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
+See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
+See the profiling report at\: file\:\/\/\$OUT_DIR\/gradle\/external\/doclava\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$SUPPORT/lifecycle/lifecycle\-common/src/main/java/androidx/lifecycle/Lifecycling\.java uses or overrides a deprecated API\.
+Note\: Recompile with \-Xlint\:deprecation for details\.
 # > Task :concurrent:concurrent-futures:compileJava
 Note: \$SUPPORT/concurrent/futures/src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter\.java uses or overrides a deprecated API\.
 # > Task :contentpager:contentpager:compileReleaseJavaWithJavac
@@ -200,10 +183,18 @@ Note: \$SUPPORT/recommendation/recommendation/src/main/java/androidx/recommendat
 # > Task :textclassifier:textclassifier:compileReleaseJavaWithJavac
 Note: \$SUPPORT/textclassifier/textclassifier/src/main/java/androidx/textclassifier/TextClassifier\.java uses or overrides a deprecated API\.
 # > Task :publicDocsTask
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.upstream does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.Format;
 symbol:   class Format
 location: package androidx\.media[0-9]+\.exoplayer\.external
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ByteArrayFrame\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: cannot find symbol
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.audio does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.audio does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TextRenderer\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.text does not exist
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/TrackSelector\.java\:[0-9]+\: error\: package androidx\.media[0-9]+\.exoplayer\.external\.source does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: package androidx\.media[0-9]+\.exoplayer\.external\.metadata does not exist
 import androidx\.media[0-9]+\.exoplayer\.external\.metadata\.Metadata;
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ByteArrayFrame\.java:[0-9]+: error: package androidx\.media[0-9]+\.exoplayer\.external\.util does not exist
@@ -213,6 +204,7 @@ import androidx\.media[0-9]+\.exoplayer\.external\.util\.Util;
 public static final Creator<ByteArrayFrame> CREATOR =
 symbol:   class Creator
 location: class ByteArrayFrame
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: cannot find symbol
 public Format getWrappedMetadataFormat\(\) \{
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/DataSourceCallbackDataSource\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.C;
@@ -223,11 +215,13 @@ import androidx\.media[0-9]+\.exoplayer\.external\.upstream\.DataSource;
 import androidx\.media[0-9]+\.exoplayer\.external\.upstream\.DataSpec;
 /\* package \*/ final class DataSourceCallbackDataSource extends BaseDataSource \{
 symbol: class BaseDataSource
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/DataSourceCallbackDataSource\.java\:[0-9]+\: error\: package DataSource does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/DataSourceCallbackDataSource\.java:[0-9]+: error: package DataSource does not exist
 static DataSource\.Factory getFactory\(
 public long open\(DataSpec dataSpec\) throws IOException \{
 symbol:   class DataSpec
 location: class DataSourceCallbackDataSource
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerMediaPlayer[0-9]+Impl\.java\:[0-9]+\: error\: cannot find symbol
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ExoPlayerMediaPlayer[0-9]+Impl\.java:[0-9]+: error: cannot find symbol
 import androidx\.media[0-9]+\.exoplayer\.external\.Player;
 symbol:   class Player
@@ -265,6 +259,7 @@ import androidx\.media[0-9]+\.exoplayer\.external\.video\.VideoRendererEventList
 private final DefaultBandwidthMeter mBandwidthMeter;
 symbol:   class DefaultBandwidthMeter
 location: class ExoPlayerWrapper
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/RenderersFactory\.java\:[0-9]+\: error\: cannot find symbol
 private SimpleExoPlayer mPlayer;
 private DefaultAudioSink mAudioSink;
 symbol:   class DefaultAudioSink
@@ -314,6 +309,7 @@ symbol:   class Metadata
 final DefaultAudioSink audioSink,
 private final SimpleExoPlayer mPlayer;
 location: class MediaItemQueue
+\$OUT_DIR\/androidx\/docs\-fake\/build\/tmp\/expandedArchives\/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-rc[0-9]+\-sources\.jar_[0-9a-f]{32}\/androidx\/media[0-9]+\/player\/ExoPlayerWrapper\.java\:[0-9]+\: error\: package DataSource does not exist
 \$OUT_DIR/androidx/docs\-fake/build/tmp/expandedArchives/media[0-9]+\-player\-[0-9]+\.[0-9]+\.[0-9]+\-beta[0-9]+\-sources\.jar_[0-9a-f]{32}/androidx/media[0-9]+/player/ExoPlayerWrapper\.java:[0-9]+: error: package DataSource does not exist
 private final DataSource\.Factory mDataSourceFactory;
 private final ConcatenatingMediaSource mConcatenatingMediaSource;
@@ -351,58 +347,24 @@ symbol:   class SubtitleInputBuffer
 private final ParsableByteArray mScratch;
 public int supportsFormat\(Format format\) \{
 [0-9]+ warnings
-# > Task :appsearch:appsearch-local-backend:externalNativeBuildRelease
-ninja: no work to do\.
-Build icing_armeabi\-v[0-9]+a
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/io_win[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/statusor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/bytestream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/strtod\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/arena\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/gzip_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/time\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream_impl\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/status\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/structurally_valid\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/implicit_weak_message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_enum_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/stringprintf\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/service\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/int[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/stringpiece\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/mathlimits\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/common\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/message_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/empty\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wire_format_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/any\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/coded_stream\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/substitute\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/error_listener\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/delimited_message_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object icu\-target/CMakeFiles/libandroidicu\.dir/static_shim/shim\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/parse_context\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/field_mask\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/duration\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/unknown_field_set\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_escaping\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/timestamp\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/io/printer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/field_comparator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/api\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/stubs/strutil\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX static library icu\-target/liblibandroidicu\.a
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/source_context\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/object_writer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/compiler/importer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc\.o
+# > Task :appsearch:appsearch-local-storage:externalNativeBuildRelease
+ninja: .*
+\[[0-9]+/[0-9]+\] Re\-running CMake\.\.\.
+Build icing_.*
+\[[0-9]+/[0-9]+\] Building CXX object .*
+\[[0-9]+/[0-9]+\] Linking CXX static library .*
+\[[0-9]+/[0-9]+\] Linking CXX shared library .*
+\-\- Build files have been written to: \$SUPPORT/appsearch/local\-storage/\.cxx/cmake/.*
+\-\- Using prebuilt protoc at: \$CHECKOUT/external/icing/\.\./\.\./prebuilts/protobuf/linux\-x[0-9]+_[0-9]+/protoc
+\-\-
+\-\- [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+\-\- ICU_CC_SOURCES=.*
+\-\- ICU_CC_SHIM_SOURCES=.*
+\-\- Icing_PROTO_FILES=.*
+\-\- Icing_PROTO_SOURCES=.*
+\-\- Icing_CC_SOURCES=.*
+\-\- Configuring done
+\-\- Generating done
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.cc:[0-9]+:
 \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_objectwriter\.h:[0-9]+:[0-9]+: warning: 'StartObject' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
 virtual JsonObjectWriter\* StartObject\(StringPiece name\);
@@ -442,150 +404,14 @@ virtual ObjectWriter\* RenderBytes\(StringPiece name, StringPiece value\) = [0-9
 virtual JsonObjectWriter\* RenderNull\(StringPiece name\);
 virtual ObjectWriter\* RenderNull\(StringPiece name\) = [0-9]+;
 [0-9]+ warnings generated\.
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/reflection_ops\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/extension_set_heavy\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/json_stream_parser\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/repeated_field\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/dynamic_message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/field_mask_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/field_mask_utility\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.cc:[0-9]+:
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info_test_helper\.h:[0-9]+:
 \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.h:[0-9]+:[0-9]+: warning: 'RenderNull' overrides a member function but is not marked 'override' \[\-Winconsistent\-missing\-override\]
 virtual DefaultValueObjectWriter\* RenderNull\(StringPiece name\);
 [0-9]+ warning generated\.
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/time_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/utility\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/type\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/json_util\.cc:[0-9]+:
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/map_field\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/datapiece\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/type_info\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_table_driven_lite\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/type_resolver_util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_reflection\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/protostream_objectsource\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/extension_set\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc\.o
 In file included from \$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/default_value_objectwriter\.cc:[0-9]+:
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/struct\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wrappers\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/message\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/generated_message_table_driven\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/proto_writer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/wire_format\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/compiler/parser\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/internal/protostream_objectwriter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor_database\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/text_format\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/util/message_differencer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object protobuf\-target/CMakeFiles/libprotobuf\.dir\$CHECKOUT/external/protobuf/src/google/protobuf/descriptor\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX static library protobuf\-target/libprotobuf\.a
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/reset\.pb\.cc, icing\-protobuf\-gen/icing/proto/reset\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/term\.pb\.cc, icing\-protobuf\-gen/icing/proto/term\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/status\.pb\.cc, icing\-protobuf\-gen/icing/proto/status\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/scoring\.pb\.cc, icing\-protobuf\-gen/icing/proto/scoring\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/initialize\.pb\.cc, icing\-protobuf\-gen/icing/proto/initialize\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/optimize\.pb\.cc, icing\-protobuf\-gen/icing/proto/optimize\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.cc, icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/persist\.pb\.cc, icing\-protobuf\-gen/icing/proto/persist\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.cc, icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/document\.pb\.cc, icing\-protobuf\-gen/icing/proto/document\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/search\.pb\.cc, icing\-protobuf\-gen/icing/proto/search\.pb\.h
-\[[0-9]+/[0-9]+\] Generating icing\-protobuf\-gen/icing/proto/schema\.pb\.cc, icing\-protobuf\-gen/icing/proto/schema\.pb\.h
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/canonical_errors\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/core/icing\-timer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/str_cat\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/core/icing\-string\-util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/logging\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/memory\-mapped\-file\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/term\-id\-codec\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/logging_raw\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-mmapper\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/absl_ports/annotate\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-storage\-file\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/java/jni\-base\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/clock\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/jni\-cache\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/base/status\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/hit/hit\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/hit/doc\-hit\-info\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/file\-backed\-bitmap\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/reverse_jni/reverse\-jni\-language\-segmenter\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-flash\-bitmap\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-array\-storage\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-storage\-collection\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/hash/farmhash\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/map\-normalizer\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/raw\-query\-tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/text_classifier/lib[0-9]+/utils/java/jni\-helper\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-all\-document\-id\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/file/filesystem\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/index\-block\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/crc[0-9]+\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/plain\-tokenizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-not\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-lite\-index\-options\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/term\-property\-id\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/reverse_jni/reverse\-jni\-language\-segmenter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-filesystem\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-used\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/normalization\-map\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/reverse\-jni\-break\-iterator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/transform/map/map\-normalizer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-or\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/i[0-9]+n\-utils\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/performance\-configuration\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/main/posting\-list\-utils\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-section\-restrict\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/index\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/tokenization/tokenizer\-factory\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/index\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/ranker\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-state\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-and\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-filter\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/iterator/doc\-hit\-info\-iterator\-term\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/document_wrapper\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/jni/icing\-search\-engine\-jni\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/scoring\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/optimize\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/initialize\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/term\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/persist\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/index/lite/lite\-index\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-retriever\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/legacy/index/proto/icing\-dynamic\-trie\-header\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/scoring/scorer\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/reset\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/scoring\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/status\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/snippet\-retriever\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/util/document\-validator\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/document\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/schema\-util\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/query/query\-processor\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/schema\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/section\-manager\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/result/result\-state\-manager\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/schema/schema\-store\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/legacy/index/icing\-dynamic\-trie\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing\-protobuf\-gen/icing/proto/search\.pb\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/icing\-search\-engine\.cc\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/icing\.dir/icing/store/document\-store\.cc\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libicing\.so
-Build icing_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libicing\.so
-Build icing_x[0-9]+
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/x[0-9]+/libicing\.so
-Build icing_x[0-9]+_[0-9]+
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libicing\.so
+\[[0-9]+/[0-9]+\] Generating .*
 # > Task :support-animation-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportAnimationDemos/src/main/java/com/example/android/support/animation/SpringView\.java uses or overrides a deprecated API\.
 # > Task :lint-demos:lint-demo-appcompat:compileDebugJavaWithJavac
@@ -604,73 +430,39 @@ Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/main/java/androi
 # > Task :camera:integration-tests:camera-testapp-core:compileDebugJavaWithJavac
 Note: \$SUPPORT/camera/integration\-tests/coretestapp/src/main/java/androidx/camera/integration/core/CameraXActivity\.java uses or overrides a deprecated API\.
 # > Task :room:integration-tests:room-testapp:processDebugMainManifest
-\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$OUT_DIR/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] \$GRADLE_USER_HOME/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
 Package name 'androidx\.vectordrawable' used in: androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+, androidx\.vectordrawable:vectordrawable:[0-9]+\.[0-9]+\.[0-9]+\.
 # > Task :lifecycle:integration-tests:lifecycle-testapp:compileDebugJavaWithJavac
 Note: \$SUPPORT/lifecycle/integration\-tests/testapp/src/main/java/androidx/lifecycle/testapp/FrameworkLifecycleRegistryActivity\.java uses or overrides a deprecated API\.
 # > Task :support-slices-demos:compileDebugJavaWithJavac
 Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :ads-identifier:processDebugAndroidTestManifest
-\$SUPPORT/ads/ads\-identifier/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ads\.identifier\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :sharetarget:integration-tests:testapp:compileDebugJavaWithJavac
 Note: \$SUPPORT/sharetarget/integration\-tests/testapp/src/main/java/androidx/sharetarget/testapp/MainActivity\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-provider:processDebugAndroidTestManifest
-\$SUPPORT/ads/ads\-identifier\-provider/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.ads\.identifier\.provider\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :hilt:integration-tests:hilt-testapp-viewmodel:compileDebugJavaWithJavac
 Note: \$OUT_DIR/androidx/hilt/integration\-tests/hilt\-testapp\-viewmodel/build/generated/source/kapt/debug/androidx/hilt/integration/viewmodelapp/Hilt_SimpleFragment\.java uses or overrides a deprecated API\.
 # > Task :ads-identifier-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/ads\-identifier\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :internal-testutils-runtime:processDebugAndroidTestManifest
-\$SUPPORT/testutils/testutils\-runtime/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.testutils\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/slices/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/slice\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :internal-testutils-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/internal\-testutils\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :internal-testutils-navigation:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/internal\-testutils\-navigation_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :slice-builders-ktx:processDebugAndroidTestManifest
-\$SUPPORT/slices/builders/ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.builders\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-core:processDebugAndroidTestManifest
-\$SUPPORT/slices/core/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.core\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-remotecallback:processDebugAndroidTestManifest
-\$SUPPORT/slices/remotecallback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.remotecallback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-view:processDebugAndroidTestManifest
-\$SUPPORT/slices/view/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.slice\.view\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :slice-benchmark:compileReleaseAndroidTestJavaWithJavac
 Note: \$SUPPORT/slices/benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java uses or overrides a deprecated API\.
-# > Task :slice-builders-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/slice\-builders\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :support-media-test-client:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/current/client/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'android\.support\.mediacompat\.client\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-client-previous:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/previous/client/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media-test-service:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/current/service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'android\.support\.mediacompat\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-service-previous:processDebugAndroidTestManifest
-\$SUPPORT/media/version\-compat\-tests/previous/service/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media2-test-client:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/client/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.test\.client\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media-test-service:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media/version\-compat\-tests/current/service/src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatCallbackTest\.java uses or overrides a deprecated API\.
 # > Task :support-media2-test-client-previous:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/client/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media2-test-service:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.test\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :support-media2-test-service-previous:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/service/src/androidTest/AndroidManifest\.xml Warning:
 # > Task :support-media-test-client:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media/version\-compat\-tests/current/client/src/androidTest/java/android/support/mediacompat/client/MediaControllerCompatCallbackTest\.java uses or overrides a deprecated API\.
 # > Task :support-media2-test-service:compileDebugAndroidTestJavaWithJavac
@@ -678,51 +470,20 @@ Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/current/service/src/a
 # > Task :support-media2-test-service-previous:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media[0-9]+/session/version\-compat\-tests/previous/service/src/androidTest/java/androidx/media[0-9]+/test/service/MockPlayer\.java uses unchecked or unsafe operations\.
 # > Task :activity:activity:processDebugAndroidTestManifest
-\$SUPPORT/activity/activity/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.activity\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appcompat:appcompat:processDebugAndroidTestManifest
 \[:internal\-testutils\-appcompat\] \$OUT_DIR/androidx/internal\-testutils\-appcompat/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime\.
 # > Task :appcompat:appcompat-resources:processDebugAndroidTestManifest
-\$SUPPORT/appcompat/appcompat\-resources/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appcompat\.resources\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appcompat:appcompat-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/appcompat/appcompat\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appcompat\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/appcompat/appcompat\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :activity:activity-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/activity\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:benchmark-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/benchmark\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-camera2:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-camera[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.camera[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-core:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-core/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.core\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-extensions:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-extensions/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.extensions\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-lifecycle:processDebugAndroidTestManifest
-\$SUPPORT/camera/camera\-lifecycle/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.camera\.lifecycle\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :camera:camera-testing:externalNativeBuildDebug
-Build testing_surface_format_jni_armeabi\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/testing_surface_format_jni\.dir/surface_format_jni\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/testing_surface_format_jni\.dir/jni_hooks\.cpp\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_x[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/x[0-9]+/libtesting_surface_format_jni\.so
-Build testing_surface_format_jni_x[0-9]+_[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libtesting_surface_format_jni\.so
+Build testing_surface_format_.*
 # > Task :tipOfTreeDocsTask
 \$OUT_DIR/androidx/sqlite/sqlite\-inspection/build/generated/source/proto/release/java/androidx/sqlite/inspection/SqliteInspectorProtocol\.java:[0-9]+: error: cannot find symbol
 public static com\.google\.protobuf\.Internal\.EnumVerifier
@@ -738,284 +499,85 @@ static final com\.google\.protobuf\.Internal\.EnumVerifier           INSTANCE = 
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @Documented \[[0-9]+\]
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @TypeQualifierNickname \[[0-9]+\]
 \$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\.jar\(/javax/annotation/meta/TypeQualifierNickname\.java\):[0-9]+: lint: Invalid tag: @Retention\(RetentionPolicy\.RUNTIME\) \[[0-9]+\]
-# > Task :camera:camera-camera2-pipe-integration:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe\-integration_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :collection:collection-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/collection/collection\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.collection\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/collection/collection\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :camera:camera-extensions:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/camera/camera\-extensions/src/androidTest/java/androidx/camera/extensions/PreviewExtenderTest\.java uses unchecked or unsafe operations\.
-# > Task :camera:camera-camera2-pipe:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/camera\-camera[0-9]+\-pipe_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :customview:customview:processDebugAndroidTestManifest
-\$SUPPORT/customview/customview/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.customview\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :core:core-ktx:processDebugAndroidTestManifest
-\$SUPPORT/core/core\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.core\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :appsearch:appsearch:processDebugAndroidTestManifest
-\$SUPPORT/appsearch/appsearch/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appsearch\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :customview:customview:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/customview/customview/src/androidTest/java/androidx/customview/widget/ExploreByTouchHelperTest\.java uses or overrides a deprecated API\.
-# > Task :datastore:datastore-core:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/datastore\-core_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :core:core:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/core/core/src/androidTest/java/androidx/core/content/pm/ShortcutManagerCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :datastore:datastore-preferences:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/datastore\-preferences_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :core:core-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/core\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :drawerlayout:drawerlayout:processDebugAndroidTestManifest
-\$SUPPORT/drawerlayout/drawerlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.drawerlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :dynamicanimation:dynamicanimation:processDebugAndroidTestManifest
-\$SUPPORT/dynamic\-animation/dynamic\-animation/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.dynamicanimation\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :dynamicanimation:dynamicanimation-ktx:processDebugAndroidTestManifest
-\$SUPPORT/dynamic\-animation/dynamic\-animation\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.dynamicanimation\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :exifinterface:exifinterface:processDebugAndroidTestManifest
-\$SUPPORT/exifinterface/exifinterface/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.exifinterface\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :fragment:fragment-testing:processDebugAndroidTestManifest
-\$SUPPORT/fragment/fragment\-testing/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.fragment\.testing\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :appsearch:appsearch-local-backend:externalNativeBuildDebug
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX static library protobuf\-target/libprotobufd\.a
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/x[0-9]+/libicing\.so
-ninja: Entering directory `\$SUPPORT/appsearch/local\-backend/\.cxx/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/appsearch/appsearch\-local\-backend/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libicing\.so
-# > Task :gridlayout:gridlayout:processDebugAndroidTestManifest
-\$SUPPORT/gridlayout/gridlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.gridlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :heifwriter:heifwriter:processDebugAndroidTestManifest
-\$SUPPORT/heifwriter/heifwriter/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.heifwriter\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :exifinterface:exifinterface:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/exifinterface/exifinterface/src/androidTest/java/androidx/exifinterface/media/ExifInterfaceTest\.java uses unchecked or unsafe operations\.
 # > Task :gridlayout:gridlayout:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/gridlayout/gridlayout/src/androidTest/java/androidx/gridlayout/widget/GridLayoutTest\.java uses or overrides a deprecated API\.
-# > Task :dynamicanimation:dynamicanimation-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/dynamicanimation\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :leanback:leanback:processDebugAndroidTestManifest
-\$SUPPORT/leanback/leanback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.leanback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \[:internal\-testutils\-runtime\] \$OUT_DIR/androidx/internal\-testutils\-runtime/build/intermediates/library_manifest/debug/AndroidManifest\.xml Warning:
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
 # > Task :leanback:leanback-tab:processDebugAndroidTestManifest
-\$SUPPORT/leanback/leanback\-tab/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.leanback\.tab\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-extensions/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.extensions\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :fragment:fragment-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :fragment:fragment-truth:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-truth_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :inspection:inspection-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/inspection\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
 warning: unknown enum constant AnnotationTarget\.CLASS
 reason: class file for kotlin\.annotation\.AnnotationTarget not found
 warning: unknown enum constant AnnotationTarget\.FUNCTION
 warning: unknown enum constant AnnotationRetention\.RUNTIME
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
-# > Task :fragment:fragment-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/fragment\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :leanback:leanback-paging:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/leanback\-paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-service/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.service\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
-\$SUPPORT/lifecycle/lifecycle\-viewmodel\-savedstate/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.lifecycle\.viewmodel\.savedstate\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/leanback/leanback\-tab/src/androidTest/java/androidx/leanback/tab/app/PagerAdapter\.java uses or overrides a deprecated API\.
-# > Task :lifecycle:lifecycle-runtime-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-runtime\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-viewmodel-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-viewmodel\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :lifecycle:lifecycle-livedata-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/lifecycle\-livedata\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :media2:media2-common:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/common/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.common\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-player:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/player/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.player\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-session:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/session/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.session\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :media2:media2-common:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/media[0-9]+/common/src/androidTest/java/androidx/media[0-9]+/common/SubtitleDataTest\.java uses or overrides a deprecated API\.
 # > Task :navigation:navigation-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/navigation/benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.navigation\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/navigation/navigation\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :media2:media2-widget:processDebugAndroidTestManifest
-\$SUPPORT/media[0-9]+/widget/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.media[0-9]+\.widget\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :loader:loader-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/loader\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :navigation:navigation-dynamic-features-runtime:processDebugAndroidTestManifest
-\$SUPPORT/navigation/navigation\-dynamic\-features\-runtime/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.navigation\.dynamicfeatures\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :navigation:navigation-fragment:processDebugAndroidTestManifest
 Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :internal\-testutils\-navigation\.
-# > Task :navigation:navigation-common-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-common\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-dynamic-features-fragment:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-dynamic\-features\-fragment_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :mediarouter:mediarouter:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/mediarouter/mediarouter/src/androidTest/java/androidx/mediarouter/app/MediaRouteChooserDialogTest\.java uses or overrides a deprecated API\.
-# > Task :navigation:navigation-dynamic-features-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-dynamic\-features\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-fragment-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-fragment\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :palette:palette:processDebugAndroidTestManifest
-\$SUPPORT/palette/palette/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.palette\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :percentlayout:percentlayout:processDebugAndroidTestManifest
-\$SUPPORT/percentlayout/percentlayout/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.percentlayout\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :preference:preference-ktx:processDebugAndroidTestManifest
-\$SUPPORT/preference/preference\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.preference\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :paging:paging-rxjava2:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging\-rxjava[0-9]+_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-runtime-truth:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-runtime\-truth_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :palette:palette-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/palette\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :navigation:navigation-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/navigation\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :paging:paging-runtime:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging\-runtime_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :recyclerview:recyclerview-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/recyclerview/recyclerview\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :recyclerview:recyclerview-selection:processDebugAndroidTestManifest
-\$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.recyclerview\.selection\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :preference:preference:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/preference/preference/src/androidTest/java/androidx/preference/tests/PreferenceDataStoreTest\.java uses unchecked or unsafe operations\.
 # > Task :remotecallback:remotecallback:processDebugAndroidTestManifest
-\$SUPPORT/remotecallback/remotecallback/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.remotecallback\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :preference:preference-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/preference\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :recyclerview:recyclerview-selection:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/recyclerview/recyclerview\-selection/src/androidTest/java/androidx/recyclerview/selection/DefaultSelectionTrackerTest\.java uses or overrides a deprecated API\.
 # > Task :savedstate:savedstate:processDebugAndroidTestManifest
-\$SUPPORT/savedstate/savedstate/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.savedstate\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :room:room-benchmark:processReleaseAndroidTestManifest
 \$OUT_DIR/androidx/room/room\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :savedstate:savedstate-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/savedstate\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :room:room-runtime:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/room/runtime/src/androidTest/java/androidx/room/migration/TableInfoTest\.java uses unchecked or unsafe operations\.
-# > Task :room:room-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/room\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :room:room-benchmark:kaptReleaseAndroidTestKotlin
 \$OUT_DIR/androidx/room/room\-benchmark/build/tmp/kapt[0-9]+/stubs/releaseAndroidTest/androidx/room/benchmark/RelationBenchmark\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 public abstract java\.util\.List<androidx\.room\.benchmark\.RelationBenchmark\.UserWithItems> getUserWithItems\(\);
 # > Task :sharetarget:sharetarget:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses or overrides a deprecated API\.
 Note: \$SUPPORT/sharetarget/sharetarget/src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest\.java uses unchecked or unsafe operations\.
-# > Task :security:security-crypto-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/security\-crypto\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :appsearch:appsearch-local-backend:processDebugAndroidTestManifest
-\$SUPPORT/appsearch/local\-backend/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.appsearch\.localbackend\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :textclassifier:textclassifier:processDebugAndroidTestManifest
-\$SUPPORT/textclassifier/textclassifier/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.textclassifier\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :transition:transition:processDebugAndroidTestManifest
-\$SUPPORT/transition/transition/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.transition\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :transition:transition-ktx:processDebugAndroidTestManifest
-\$SUPPORT/transition/transition\-ktx/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.transition\.ktx\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :tvprovider:tvprovider:processDebugAndroidTestManifest
-\$SUPPORT/tv\-provider/tv\-provider/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.tvprovider\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :wear:wear:processDebugAndroidTestManifest
-\$SUPPORT/wear/wear/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.wear\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :vectordrawable:vectordrawable:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :viewpager:viewpager:processDebugAndroidTestManifest
-\$SUPPORT/viewpager/viewpager/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.viewpager\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :vectordrawable:vectordrawable-animated:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable\-animated/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.animated\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
-# > Task :vectordrawable:vectordrawable-seekable:processDebugAndroidTestManifest
-\$SUPPORT/vectordrawable/vectordrawable\-seekable/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.vectordrawable\.seekable\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :viewpager2:viewpager2:processDebugAndroidTestManifest
-\$SUPPORT/viewpager[0-9]+/viewpager[0-9]+/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.viewpager[0-9]+\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 Package name 'androidx\.testutils' used in: :internal\-testutils\-appcompat, :internal\-testutils\-runtime, :internal\-testutils\-espresso\.
-# > Task :transition:transition-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/transition\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :wear:wear-watchface:processDebugAndroidTestManifest
-\$SUPPORT/wear/wear\-watchface/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.wear\.watchface\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :window:window:processDebugAndroidTestManifest
-\$SUPPORT/window/window/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.window\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :webkit:webkit:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/webkit/webkit/src/androidTest/java/androidx/webkit/WebSettingsCompatForceDarkTest\.java uses or overrides a deprecated API\.
-# > Task :wear:wear-watchface:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/wear\-watchface_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :work:work-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/work/workmanager\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.work\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/work/work\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :work:work-inspection:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-inspection_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :work:work-runtime-ktx:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-runtime\-ktx_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :benchmark:integration-tests:dry-run-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.integration\.dryrun\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/integration\-tests/dry\-run\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # > Task :benchmark:integration-tests:startup-benchmark:processReleaseAndroidTestManifest
-\$SUPPORT/benchmark/integration\-tests/startup\-benchmark/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.benchmark\.integration\.startup\.benchmark\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 \$OUT_DIR/androidx/benchmark/integration\-tests/startup\-benchmark/build/intermediates/tmp/manifest/androidTest/release/manifestMerger[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-# > Task :work:work-testing:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/work\-testing_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
 # > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildDebug
-Build opengl_renderer_jni_armeabi\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/opengl_renderer_jni\.dir/jni_hooks\.cpp\.o
-\[[0-9]+/[0-9]+\] Building CXX object CMakeFiles/opengl_renderer_jni\.dir/opengl_renderer_jni\.cpp\.o
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/armeabi\-v[0-9]+a/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_arm[0-9]+\-v[0-9]+a
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/arm[0-9]+\-v[0-9]+a/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_x[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/x[0-9]+/libopengl_renderer_jni\.so
-Build opengl_renderer_jni_x[0-9]+_[0-9]+
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/debug/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/debug/obj/x[0-9]+_[0-9]+/libopengl_renderer_jni\.so
+Build opengl_renderer_jni_.*
 # > Task :camera:integration-tests:camera-testapp-extensions:compileDebugAndroidTestJavaWithJavac
 Note: \$SUPPORT/camera/integration\-tests/extensionstestapp/src/androidTest/java/androidx/camera/integration/extensions/ToggleButtonTest\.java uses or overrides a deprecated API\.
 # > Task :camera:integration-tests:camera-testapp-camera2-pipe:minifyReleaseWithR8
@@ -1023,15 +585,6 @@ R[0-9]+: Missing class: java\.lang\.instrument\.ClassFileTransformer
 R[0-9]+: Missing class: sun\.misc\.SignalHandler
 # > Task :camera:integration-tests:camera-testapp-view:minifyReleaseWithR8
 R[0-9]+: Missing class: java\.lang\.ClassValue
-# > Task :camera:integration-tests:camera-testapp-core:externalNativeBuildRelease
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/x[0-9]+/libopengl_renderer_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/nativeBuildStaging/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/integration\-tests/camera\-testapp\-core/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libopengl_renderer_jni\.so
 # > Task :room:integration-tests:room-testapp-noappcompat:compileDebugAndroidTestJavaWithJavac
 \$SUPPORT/room/integration\-tests/noappcompattestapp/src/androidTest/java/androidx/room/integration/noappcompat/BareRelationDatabaseTest\.java:[0-9]+: warning: The return value includes a POJO with a @Relation\. It is usually desired to annotate this method with @Transaction to avoid possibility of inconsistent results between the POJO and its relations\. See https://developer\.android\.com/reference/androidx/room/Transaction\.html for details\.
 UserAndPets getUserWithPets\(long id\);
@@ -1049,6 +602,7 @@ src/main/java/androidx/slice/compat/SliceProviderCompat\.java:[0-9]+: warning: P
 # > Task :appsearch:appsearch-compiler:lint
 \$SUPPORT/appsearch/compiler/lint\-baseline\.xml: Information: [0-9]+ error was filtered out because it is listed in the baseline file, lint\-baseline\.xml
 \[LintBaseline\]
+[0-9]+ errors, [0-9]+ warnings \([0-9]+ errors filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ error filtered by baseline lint\-baseline\.xml\)
 # > Task :slice-view:generateApi
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of hidden type SliceContent in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
@@ -1060,6 +614,7 @@ src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method an
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceContent in androidx\.slice\.widget\.ListContent\.getRowType\(\) \[UnavailableSymbol\]
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
 src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.ListContent\.getListHeight\(\) \[UnavailableSymbol\]
+src/main/java/androidx/slice/widget/ListContent\.java:[0-9]+: warning: Method androidx\.slice\.widget\.ListContent\.getRowItems\(int, androidx\.slice\.widget\.SliceStyle, androidx\.slice\.widget\.SliceViewPolicy\) references hidden type androidx\.slice\.widget\.DisplayedListItems\. \[HiddenTypeParameter\]
 src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.GridContent\.getHeight\(\) \[UnavailableSymbol\]
 src/main/java/androidx/slice/widget/GridContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceViewPolicy in androidx\.slice\.widget\.GridContent\.getHeight\(\) \[UnavailableSymbol\]
 src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter of unavailable type androidx\.slice\.widget\.SliceStyle in androidx\.slice\.widget\.RowContent\.getHeight\(\) \[UnavailableSymbol\]
@@ -1089,8 +644,6 @@ src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warnin
 src/main/java/androidx/appcompat/widget/ActivityChooserView\.java:[0-9]+: warning: Parameter dataModel references hidden type androidx\.appcompat\.widget\.ActivityChooserModel\. \[HiddenTypeParameter\]
 src/main/java/androidx/appcompat/widget/Toolbar\.java:[0-9]+: warning: Parameter outerPresenter references hidden type androidx\.appcompat\.widget\.ActionMenuPresenter\. \[HiddenTypeParameter\]
 # > Task :core:core-appdigest:processDebugAndroidTestManifest
-\$SUPPORT/core/core\-appdigest/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.core\.appdigest\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :core:core:generateApi
 src\/main\/java\/androidx\/core\/app\/NotificationCompat\.java\:[0-9]+\: warning\: Builder constructor arguments must be mandatory \(i\.e\. not \@Nullable\)\: parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon\, CharSequence title\, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]See tools\/metalava\/API\-LINT\.md for how to handle these\.
 src/main/java/androidx/core/app/NotificationCompat\.java:[0-9]+: warning: Builder constructor arguments must be mandatory \(i\.e\. not @Nullable\): parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon, CharSequence title, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]
@@ -1100,15 +653,6 @@ See tools/metalava/API\-LINT\.md for how to handle these\.
 # > Task :cursoradapter:cursoradapter:generateApi
 src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mChangeObserver references hidden type androidx\.cursoradapter\.widget\.CursorAdapter\.ChangeObserver\. \[HiddenTypeParameter\]
 src/main/java/androidx/cursoradapter/widget/CursorAdapter\.java:[0-9]+: warning: Field CursorAdapter\.mCursorFilter references hidden type androidx\.cursoradapter\.widget\.CursorFilter\. \[HiddenTypeParameter\]
-# > Task :camera:camera-testing:externalNativeBuildRelease
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/armeabi\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/armeabi\-v[0-9]+a/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/arm[0-9]+\-v[0-9]+a'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/arm[0-9]+\-v[0-9]+a/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/x[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/x[0-9]+/libtesting_surface_format_jni\.so
-ninja: Entering directory `\$OUT_DIR/androidx/camera/camera\-testing/nativeBuildStaging/cmake/release/x[0-9]+_[0-9]+'
-\[[0-9]+/[0-9]+\] Linking CXX shared library \$OUT_DIR/androidx/camera/camera\-testing/build/intermediates/cmake/release/obj/x[0-9]+_[0-9]+/libtesting_surface_format_jni\.so
 # > Task :camera:camera-camera2:runErrorProne
 \$SUPPORT/camera/camera\-camera[0-9]+/src/main/java/androidx/camera/camera[0-9]+/internal/SupportedSizeConstraints\.java:[0-9]+: warning: \[AutoValueImmutableFields\] AutoValue instances should be deeply immutable\. Therefore, we recommend returning ImmutableSet instead\. Read more at http://goo\.gl/qWo[0-9]+sC
 public abstract Set<Integer> getAffectedFormats\(\);
@@ -1138,22 +682,104 @@ src/main/java/androidx/transition/Transition\.java:[0-9]+: warning: Parameter en
 src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter startValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
 src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter endValues references hidden type androidx\.transition\.TransitionValuesMaps\. \[HiddenTypeParameter\]
 # > Task :activity:integration-tests:testapp:processDebugAndroidTestManifest
-\$SUPPORT/activity/integration\-tests/testapp/src/androidTest/AndroidManifest\.xml Warning:
-Package name 'androidx\.activity\.integration\.testapp\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
+# b/166471969
+.*androidTest.*AndroidManifest.*xml Warning.*:
+Package name.*test' used in: .*AndroidManifest.*xml.*
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
-# > Task :benchmark:benchmark-macro:processDebugAndroidTestManifest
-\$SUPPORT\/benchmark\/macro\/src\/androidTest\/AndroidManifest\.xml Warning\:
-Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml\, manifestMerger[0-9]+\.xml\.
-# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
-ZipFile closed
 # > Task :compose:internal-lint-checks:lint
-Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
 # > Task :leanback:leanback-paging:generateApi
 w\: Runtime JAR files in the classpath have the version [0-9]+\.[0-9]+\, which is older than the API version [0-9]+\.[0-9]+\. Consider using the runtime of version [0-9]+\.[0-9]+\, or pass \'\-api\-version [0-9]+\.[0-9]+\' explicitly to restrict the available APIs to the runtime of version [0-9]+\.[0-9]+\. You can also pass \'\-language\-version [0-9]+\.[0-9]+\' instead\, which will restrict not only the APIs to the specified version\, but also the language features
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
-# > Task :compose:paging:paging:mergeDebugAndroidTestJavaResource
-More than one file was found with OS independent path 'META\-INF/paging_debug\.kotlin_module'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
-# > Task :wear:wear-complications-data:generateApi
-src\/main\/java\/androidx\/wear\/complications\/ComplicationProviderService\.java\:[0-9]+\: warning\: Parameter retailModeProvider references hidden type androidx\.wear\.complications\.ComplicationProviderService\.RetailModeProvider\. \[HiddenTypeParameter\]
+# > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
+Html results of .* zipped into.*\.zip
+# > Task :annotation:annotation-experimental-lint:test
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by com\.intellij\.util\.ReflectionUtil \(file:\$CHECKOUT/prebuilts/androidx/external/com/android/tools/external/com\-intellij/intellij\-core/[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+/intellij\-core\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to method java\.util\.ResourceBundle\.setParent\(java\.util\.ResourceBundle\)
+WARNING: Please consider reporting this to the maintainers of com\.intellij\.util\.ReflectionUtil
+WARNING: Use \-\-illegal\-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
+WARNING: Illegal reflective access by org\.robolectric\.util\.ReflectionHelpers \(file:\$CHECKOUT/prebuilts/androidx/external/org/robolectric/shadowapi/[0-9]+\.[0-9]+\-alpha\-[0-9]+/shadowapi\-[0-9]+\.[0-9]+\-alpha\-[0-9]+\.jar\) to field java\.lang\.reflect\.Field\.modifiers
+WARNING: Please consider reporting this to the maintainers of org\.robolectric\.util\.ReflectionHelpers
+# > Task :compose:compiler:compiler-hosted:integration-tests:test
+wrote dependency log to \$DIST_DIR/affected_module_detector_log\.txt
+Deprecated Gradle features were used in this build\, making it incompatible with Gradle [0-9]+\.[0-9]+\.
+Use \'\-\-warning\-mode all\' to show the individual deprecation warnings\.
+# > Task :enterprise-feedback-testing:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/enterprise/feedback/testing/src/test/java/androidx/enterprise/feedback/FakeKeyedAppStatesReporterTest\.java uses or overrides a deprecated API\.
+# > Task :biometric:biometric:compileDebugUnitTestJavaWithJavac
+Note\: \$SUPPORT\/biometric\/biometric\/src\/test\/java\/androidx\/biometric\/BiometricFragmentTest\.java uses or overrides a deprecated API\.
+Note: \$SUPPORT/biometric/biometric/src/test/java/androidx/biometric/KeyguardUtilsTest\.java uses unchecked or unsafe operations\.
+# > Task :lifecycle:lifecycle-process:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/lifecycle/lifecycle\-process/src/test/java/androidx/lifecycle/DispatcherActivityCallbackTest\.java uses or overrides a deprecated API\.
+# > Task :lifecycle:lifecycle-viewmodel:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/lifecycle/lifecycle\-viewmodel/src/test/java/androidx/lifecycle/ViewModelProviderTest\.java uses unchecked or unsafe operations\.
+# > Task :ipc:ipc-compiler:kaptTestKotlin
+Annotation processors discovery from compile classpath is deprecated\.
+Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
+Run the build with '\-\-info' for more details\.
+# > Task :camera:camera-view:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/camera/camera\-view/src/test/java/androidx/camera/view/PreviewViewTest\.java uses or overrides a deprecated API\.
+# > Task :camera:camera-core:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/ProcessingImageReaderTest\.java uses or overrides a deprecated API\.
+Note: \$SUPPORT/camera/camera\-core/src/test/java/androidx/camera/core/impl/DeferrableSurfaceTest\.java uses unchecked or unsafe operations\.
+# > Task :wear:wear-input:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/wear/wear\-input/src/test/java/androidx/wear/input/WearableButtonsTest\.java uses or overrides a deprecated API\.
+# > Task :lifecycle:integration-tests:incrementality:compileTestKotlin
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-common\-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-stdlib\-jdk[0-9]*-[0-9.]*.jar \(version [^/]*\)
+\$GRADLE_USER_HOME\/wrapper\/dists\/gradle\-[^/]*-bin\/[0-9a-z]+\/gradle\-[^/]*/lib\/kotlin\-reflect\-[0-9.]*.jar \(version [^/]*\)
+w: Consider providing an explicit dependency on kotlin\-reflect [^/]* to prevent strange errors
+# > Task :wear:wear-complications-rendering:compileDebugUnitTestJavaWithJavac
+Note: \$SUPPORT/wear/wear\-complications\-rendering/src/test/java/androidx/wear/complications/rendering/RoundedDrawableTest\.java uses or overrides a deprecated API\.
+# > Task :contentaccess:contentaccess-compiler:test
+WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager \(file:\$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-annotation\-processing\-embeddable/[0-9]+\.[0-9]+\.[0-9]+/kotlin\-annotation\-processing\-embeddable\-[0-9]+\.[0-9]+\.[0-9]+\.jar\) to method com\.sun\.tools\.javac\.file\.BaseFileManager\.handleOption\(com\.sun\.tools\.javac\.main\.Option,java\.lang\.String\)
+WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt[0-9]+\.base\.javac\.KaptJavaFileManager
+# > Task :room:room-compiler:test
+WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+ \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+\-alpha[0-9]+\.jar\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion\$isFromCompiledClass\$[0-9]+
+# > Task :wear:wear-watchface-complications-rendering:compileDebugUnitTestJavaWithJavac
+Note\: \$SUPPORT\/wear\/wear\-watchface\-complications\-rendering\/src\/test\/java\/androidx\/wear\/watchface\/complications\/rendering\/RoundedDrawableTest\.java uses or overrides a deprecated API\.
+# > Task :wear:wear-watchface:testDebugUnitTest
+System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'dispose\' not called
+System\.logW\: A resource was acquired at attached stack trace but never released\. See java\.io\.Closeable for information on avoiding resource leaks\.java\.lang\.Throwable\: Explicit termination method \'release\' not called
+# > Task :benchmark:benchmark-perfetto:mergeDebugAndroidTestJavaResource
+More than one file was found with OS independent path '.*'\. This version of the Android Gradle Plugin chooses the file from the app or dynamic\-feature module, but this can cause unexpected behavior or errors at runtime\. Future versions of the Android Gradle Plugin will throw an error in this case\.
+# > Task :docs-runner:dokkaJavaTipOfTreeDocs
+\$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-reflect\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-reflect\-[0-9]+\.[0-9]+\.[0-9]+\.jar \(version [0-9]+\.[0-9]+\)
+# > Task :benchmark:benchmark-common:mergeDebugAndroidTestJavaResource UP-TO-DATE
+[0-9]+ actionable tasks: [0-9]+ up\-to\-date
+# > Task :browser:browser:processDebugAndroidTestManifest
+\[androidx\.vectordrawable:vectordrawable\-animated:[0-9]+\.[0-9]+\.[0-9]+\] /(.*)/\.gradle/caches/transforms\-[0-9]+/files\-[0-9]+\.[0-9]+/[0-9a-f]{32}/vectordrawable\-animated\-[0-9]+\.[0-9]+\.[0-9]+/AndroidManifest\.xml Warning:
+# > Task :icing:nativeLib:buildEnvironment
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+Project :icing:nativeLib
+classpath
+No dependencies
+A web\-based, searchable dependency report is available by adding the \-\-scan option\.
+# > Task :icing:lint
+Ran lint on variant debug: [0-9]+ issues found
+Ran lint on variant release: [0-9]+ issues found
+# > Task :compose:ui:ui:processDebugAndroidTestManifest
+\$OUT_DIR\/androidx\/compose\/ui\/ui\/build\/intermediates\/tmp\/manifest\/androidTest\/debug\/manifestMerger[0-9]+\.xml Warning\:
+Package name \'androidx\.compose\.ui\.test\' used in\: manifestMerger[0-9]+\.xml\, \:compose\:ui\:ui\-test\.
+# > Task :buildSrc:build UP-TO-DATE
+See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
+A fine\-grained performance profile is available\: use the \-\-scan option\.
+# > Task :annotation:annotation-experimental-lint:compileKotlin
+w\: ATTENTION\!
+This build uses unsafe internal compiler arguments\:
+\-XXLanguage\:\-NewInference
+This mode is not recommended for production use\,
+as no stability\/compatibility guarantees are given on
+compiler or generated code\. Use it at your own risk\!
+# > Task :compose:ui:ui-util:compileReleaseKotlin
+\-XXLanguage\:\+InlineClasses
+# > Task :docs-public:lintDebug
+Wrote HTML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.html
+Wrote XML report to file://\$OUT_DIR/androidx/docs\-public/build/reports/lint\-results\-debug\.xml
+# > Task :compose:compiler:compiler-hosted:lint
+\$SUPPORT/compose/compiler/compiler\-hosted/lint\-baseline\.xml: Information: [0-9]+ errors were filtered out because they are listed in the baseline file, lint\-baseline\.xml

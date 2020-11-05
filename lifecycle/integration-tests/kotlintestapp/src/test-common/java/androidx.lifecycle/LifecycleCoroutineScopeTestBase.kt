@@ -118,7 +118,8 @@ abstract class LifecycleCoroutineScopeTestBase {
             }
             action.join()
             assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
-                "foo")
+                "foo"
+            )
         }
     }
 
@@ -135,7 +136,8 @@ abstract class LifecycleCoroutineScopeTestBase {
             }
             action.join()
             assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
-                "foo")
+                "foo"
+            )
         }
     }
 
@@ -149,11 +151,13 @@ abstract class LifecycleCoroutineScopeTestBase {
             action.cancel()
             action.join()
         }
-        assertThat(runBlocking {
-            owner.lifecycleScope.async {
-                true
-            }.await()
-        }).isTrue()
+        assertThat(
+            runBlocking {
+                owner.lifecycleScope.async {
+                    true
+                }.await()
+            }
+        ).isTrue()
     }
 
     @Test
@@ -165,11 +169,13 @@ abstract class LifecycleCoroutineScopeTestBase {
             }
             action.join()
         }
-        assertThat(runBlocking {
-            owner.lifecycleScope.async {
-                true
-            }.await()
-        }).isTrue()
+        assertThat(
+            runBlocking {
+                owner.lifecycleScope.async {
+                    true
+                }.await()
+            }
+        ).isTrue()
     }
 
     @Test
@@ -180,7 +186,8 @@ abstract class LifecycleCoroutineScopeTestBase {
                 throw IllegalArgumentException("why not ?")
             }
             val result = kotlin.runCatching {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
+                @Suppress(
+                    "IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
                     "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION"
                 )
                 action.await()
@@ -188,10 +195,12 @@ abstract class LifecycleCoroutineScopeTestBase {
             assertThat(result.exceptionOrNull())
                 .isInstanceOf(IllegalArgumentException::class.java)
         }
-        assertThat(runBlocking {
-            owner.lifecycleScope.async {
-                true
-            }.await()
-        }).isTrue()
+        assertThat(
+            runBlocking {
+                owner.lifecycleScope.async {
+                    true
+                }.await()
+            }
+        ).isTrue()
     }
 }

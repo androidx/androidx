@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.test:core:1.2.0")
+    implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_UIAUTOMATOR)
     api("androidx.annotation:annotation:1.0.0")

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+MissingGetterMatchingBuilder: androidx.navigation.fragment.FragmentNavigator.Extras.Builder#addSharedElements(java.util.Map<android.view.View,java.lang.String>):
+    androidx.navigation.fragment.FragmentNavigator.Extras does not declare a `getSharedElementss()` method matching method androidx.navigation.fragment.FragmentNavigator.Extras.Builder.addSharedElements(java.util.Map<android.view.View,java.lang.String>)

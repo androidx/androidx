@@ -20,8 +20,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,7 +32,6 @@ import java.util.List;
  * Tests for {@link Token}.
  */
 @RunWith(JUnit4.class)
-@SmallTest
 public class TokenContentsTest {
     private static final String PACKAGE1 = "com.package.one";
     private static final String PACKAGE2 = "com.package.two";

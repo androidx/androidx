@@ -18,11 +18,10 @@ package androidx.appsearch.exceptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
 
 /**
- * An exception thrown by {@link androidx.appsearch.app.AppSearchManager} or a subcomponent.
+ * An exception thrown by {@link androidx.appsearch.app.AppSearchSession} or a subcomponent.
  *
  * <p>These exceptions can be converted into a failed {@link AppSearchResult}
  * for propagating to the client.
@@ -53,8 +52,7 @@ public class AppSearchException extends Exception {
         mResultCode = resultCode;
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Returns the result code this exception was constructed with. */
     public @AppSearchResult.ResultCode int getResultCode() {
         return mResultCode;
     }

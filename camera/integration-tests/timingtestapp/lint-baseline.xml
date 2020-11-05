@@ -8,7 +8,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/antelope/CameraUtils.kt"
-            line="176"
+            line="180"
             column="51"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/antelope/cameracontrollers/CameraXController.kt"
-            line="274"
+            line="279"
             column="28"/>
     </issue>
 

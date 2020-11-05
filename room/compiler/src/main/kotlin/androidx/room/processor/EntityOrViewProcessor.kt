@@ -41,11 +41,12 @@ private class NonEntityOrViewProcessor(
         context.logger.e(element, ProcessorErrors.NOT_ENTITY_OR_VIEW)
         // Parse this as a Pojo in case there are more errors.
         PojoProcessor.createFor(
-                context = context,
-                element = element,
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null,
-                referenceStack = referenceStack).process()
+            context = context,
+            element = element,
+            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+            parent = null,
+            referenceStack = referenceStack
+        ).process()
         return object : EntityOrView {
             override val fields: Fields = Fields()
             override val tableName: String

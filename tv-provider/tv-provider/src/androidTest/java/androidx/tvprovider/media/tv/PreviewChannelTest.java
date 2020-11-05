@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
@@ -39,7 +40,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
 
@@ -49,7 +49,7 @@ import java.util.Arrays;
  */
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class PreviewChannelTest extends TestCase {
 
     private static final String TAG = "PreviewChannelTest";

@@ -30,7 +30,7 @@ class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
+            .addStatement("$L = $L.getString($L)", outVarName, cursorVarName, indexVarName)
     }
 
     override fun bindToStmt(
@@ -41,9 +41,9 @@ class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
     ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
-                    .addStatement("$L.bindNull($L)", stmtName, indexVarName)
+                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
             nextControlFlow("else")
-                    .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
+                .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
         }
     }

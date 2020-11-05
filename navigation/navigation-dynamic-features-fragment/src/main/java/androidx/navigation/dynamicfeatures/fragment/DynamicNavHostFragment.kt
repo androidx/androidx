@@ -30,7 +30,7 @@ import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 /**
  * The [NavHostFragment] for dynamic features.
  */
-open class DynamicNavHostFragment : NavHostFragment() {
+public open class DynamicNavHostFragment : NavHostFragment() {
 
     override fun onCreateNavHostController(navController: NavHostController) {
         super.onCreateNavHostController(navController)
@@ -40,8 +40,10 @@ open class DynamicNavHostFragment : NavHostFragment() {
 
         navigatorProvider += DynamicActivityNavigator(requireActivity(), installManager)
 
-        val fragmentNavigator = DynamicFragmentNavigator(requireContext(),
-            childFragmentManager, id, installManager)
+        val fragmentNavigator = DynamicFragmentNavigator(
+            requireContext(),
+            childFragmentManager, id, installManager
+        )
         navigatorProvider += fragmentNavigator
 
         val graphNavigator = DynamicGraphNavigator(
@@ -56,8 +58,10 @@ open class DynamicNavHostFragment : NavHostFragment() {
         }
         navigatorProvider += graphNavigator
 
-        navigatorProvider += DynamicIncludeGraphNavigator(requireContext(),
-            navigatorProvider, navController.navInflater, installManager)
+        navigatorProvider += DynamicIncludeGraphNavigator(
+            requireContext(),
+            navigatorProvider, navController.navInflater, installManager
+        )
     }
 
     /**

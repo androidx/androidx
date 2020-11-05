@@ -458,36 +458,8 @@ public class BiometricFragment extends Fragment {
             }
 
             mViewModel.setCanceledFrom(CANCELED_FROM_INTERNAL);
-            authenticateWithFingerprint(fingerprintManagerCompat, context);
-        }
-    }
 
-    /**
-     *  Requests authentication with fingerprint.
-     *
-     * @param fingerprintManagerCompat FingerprintManagerCompat that coordinates access to the
-     *                                 fingerprint hardware.
-     * @param context The application or activity context.
-     */
-    @SuppressWarnings("deprecation")
-    @VisibleForTesting
-    void authenticateWithFingerprint(
-            @NonNull androidx.core.hardware.fingerprint.FingerprintManagerCompat
-                    fingerprintManagerCompat,
-            @NonNull Context context) {
-        try {
-            fingerprintManagerCompat.authenticate(
-                    CryptoObjectUtils.wrapForFingerprintManager(mViewModel.getCryptoObject()),
-                    0 /* flags */,
-                    mViewModel.getCancellationSignalProvider().getFingerprintCancellationSignal(),
-                    mViewModel.getAuthenticationCallbackProvider().getFingerprintCallback(),
-                    null /* handler */
-            );
-        } catch (NullPointerException e) {
-            Log.e(TAG, "NullPointerException in fingerprintManagerCompat authenticate call", e);
-            sendErrorAndDismiss(BiometricPrompt.ERROR_HW_UNAVAILABLE,
-                    ErrorUtils.getFingerprintErrorString(context,
-                            BiometricPrompt.ERROR_HW_UNAVAILABLE));
+            authenticateWithFingerprint(fingerprintManagerCompat, context);
         }
     }
 
@@ -537,20 +509,76 @@ public class BiometricFragment extends Fragment {
                     builder, AuthenticatorUtils.isDeviceCredentialAllowed(authenticators));
         }
 
-        final android.hardware.biometrics.BiometricPrompt biometricPrompt =
-                Api28Impl.buildPrompt(builder);
+        authenticateWithBiometricPrompt(Api28Impl.buildPrompt(builder), getContext());
+    }
+
+    /**
+     * Requests user authentication with the given fingerprint manager.
+     *
+     * @param fingerprintManager The fingerprint manager that will be used for authentication.
+     * @param context            The application context.
+     */
+    @SuppressWarnings("deprecation")
+    @VisibleForTesting
+    void authenticateWithFingerprint(
+            @NonNull androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManager,
+            @NonNull Context context) {
+
+        final androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject crypto =
+                CryptoObjectUtils.wrapForFingerprintManager(mViewModel.getCryptoObject());
+        final androidx.core.os.CancellationSignal cancellationSignal =
+                mViewModel.getCancellationSignalProvider().getFingerprintCancellationSignal();
+        final androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback
+                callback = mViewModel.getAuthenticationCallbackProvider()
+                .getFingerprintCallback();
+
+        try {
+            fingerprintManager.authenticate(
+                    crypto, 0 /* flags */, cancellationSignal, callback, null /* handler */);
+        } catch (NullPointerException e) {
+            // Catch and handle NPE if thrown by framework call to authenticate() (b/151316421).
+            Log.e(TAG, "Got NPE while authenticating with fingerprint.", e);
+            final int errorCode = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+            sendErrorAndDismiss(
+                    errorCode, ErrorUtils.getFingerprintErrorString(context, errorCode));
+        }
+    }
+
+    /**
+     * Requests user authentication with the given framework biometric prompt.
+     *
+     * @param biometricPrompt The biometric prompt that will be used for authentication.
+     * @param context         An application or activity context.
+     */
+    @RequiresApi(Build.VERSION_CODES.P)
+    @VisibleForTesting
+    void authenticateWithBiometricPrompt(
+            @NonNull android.hardware.biometrics.BiometricPrompt biometricPrompt,
+            @Nullable Context context) {
+
+        final android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject =
+                CryptoObjectUtils.wrapForBiometricPrompt(mViewModel.getCryptoObject());
         final android.os.CancellationSignal cancellationSignal =
                 mViewModel.getCancellationSignalProvider().getBiometricCancellationSignal();
         final Executor executor = new PromptExecutor();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
-        android.hardware.biometrics.BiometricPrompt.CryptoObject crypto =
-                CryptoObjectUtils.wrapForBiometricPrompt(mViewModel.getCryptoObject());
-        if (crypto == null) {
-            Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
-        } else {
-            Api28Impl.authenticate(
-                    biometricPrompt, crypto, cancellationSignal, executor, callback);
+
+        try {
+            if (cryptoObject == null) {
+                Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
+            } else {
+                Api28Impl.authenticate(
+                        biometricPrompt, cryptoObject, cancellationSignal, executor, callback);
+            }
+        } catch (NullPointerException e) {
+            // Catch and handle NPE if thrown by framework call to authenticate() (b/151316421).
+            Log.e(TAG, "Got NPE while authenticating with biometric prompt.", e);
+            final int errorCode = BiometricPrompt.ERROR_HW_UNAVAILABLE;
+            final String errorString = context != null
+                    ? context.getString(R.string.default_error_msg)
+                    : "";
+            sendErrorAndDismiss(errorCode, errorString);
         }
     }
 

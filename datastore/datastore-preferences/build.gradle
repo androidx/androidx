@@ -37,22 +37,10 @@ android{
     }
 }
 
-// Include :datastore-preferences-proto
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def jarjarConfigName = "jarjar${suffix}"
-    def jarjarConf = configurations.register(jarjarConfigName)
-    // Treat datastore-preferences-proto as a local jar and package it inside the aar
-    dependencies.add(jarjarConfigName, project.dependencies.project(
-            path: ":datastore:datastore-preferences:datastore-preferences-proto",
-            configuration: jarjarConfigName))
-    dependencies.add("${variantName}Implementation", files(jarjarConf))
-}
-
 dependencies {
     api(KOTLIN_STDLIB)
-    api(project(":datastore:datastore-core"))
+    api(project(":datastore:datastore"))
+    api(project(":datastore:datastore-preferences-core"))
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)
@@ -71,4 +59,5 @@ androidx {
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
+    legacyDisableKotlinStrictApiMode = true
 }

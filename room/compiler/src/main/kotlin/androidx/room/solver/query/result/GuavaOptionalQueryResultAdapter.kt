@@ -38,11 +38,12 @@ class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQue
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
-                    "final $T $L = $T.fromNullable($L)",
-                    ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName),
-                    outVarName,
-                    GuavaBaseTypeNames.OPTIONAL,
-                    valueVarName)
+                "final $T $L = $T.fromNullable($L)",
+                ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName),
+                outVarName,
+                GuavaBaseTypeNames.OPTIONAL,
+                valueVarName
+            )
         }
     }
 }

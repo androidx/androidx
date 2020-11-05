@@ -16,8 +16,10 @@
 
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.params.MeteringRectangle
 import android.view.Surface
 import androidx.camera.camera2.pipe.wrapper.InputConfigData
+import kotlinx.coroutines.Deferred
 import java.io.Closeable
 
 /**
@@ -90,6 +92,21 @@ interface CameraGraph : Closeable {
         HIGH_SPEED,
     }
 
+    companion object Constants3A {
+        // Constants related to controlling the time or frame budget a 3A operation should get.
+        const val DEFAULT_FRAME_LIMIT = 60
+        const val DEFAULT_TIME_LIMIT_MS = 3000
+
+        // Constants related to metering regions.
+        /** No metering region is specified. */
+        val METERING_REGIONS_EMPTY = emptyArray<MeteringRectangle>()
+        /**
+         * No-op metering regions, this will tell camera device to pick the right metering region
+         * for us.
+         */
+        val METERING_REGIONS_DEFAULT = arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
+    }
+
     /**
      * A lock on CameraGraph. It facilitates an exclusive access to the managed camera device. Once
      * this is acquired, a well ordered set of requests can be sent to the camera device without the
@@ -105,5 +122,135 @@ interface CameraGraph : Closeable {
          * CameraCaptureSession as well as any requests that are currently enqueued.
          */
         fun abort()
+
+        /**
+         * Applies the given 3A parameters to the camera device.
+         *
+         * @return earliest FrameNumber at which the parameters were successfully applied.
+         */
+        fun update3A(
+            aeMode: AeMode? = null,
+            afMode: AfMode? = null,
+            awbMode: AwbMode? = null,
+            aeRegions: List<MeteringRectangle>? = null,
+            afRegions: List<MeteringRectangle>? = null,
+            awbRegions: List<MeteringRectangle>? = null
+        ): Deferred<FrameNumber>
+
+        /**
+         * Applies the given 3A parameters to the camera device but for only one frame.
+         *
+         * @return the FrameNumber for which these parameters were applied.
+         */
+        fun submit3A(
+            aeMode: AeMode? = null,
+            afMode: AfMode? = null,
+            awbMode: AwbMode? = null,
+            aeRegions: List<MeteringRectangle>? = null,
+            afRegions: List<MeteringRectangle>? = null,
+            awbRegions: List<MeteringRectangle>? = null
+        ): Deferred<FrameNumber>
+
+        /**
+         * Turns the torch to ON or OFF.
+         *
+         * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
+         * FrameNumber at which it was completely turned off when the switch was OFF.
+         */
+        fun setTorch(torchState: TorchState): Deferred<FrameNumber>
+
+        /**
+         * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
+         * behaviors.
+         *
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for
+         * this operation to complete.
+         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
+         * this operation to complete.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the locks were
+         * applied or the frame number at which the method returned early because either frame limit
+         * or time limit was reached.
+         */
+        fun lock3A(
+            aeLockBehavior: Lock3ABehavior? = null,
+            afLockBehavior: Lock3ABehavior? = null,
+            awbLockBehavior: Lock3ABehavior? = null,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+        ): Deferred<Result3A>
+
+        /**
+         * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
+         * behaviors. This method is similar to the earlier [lock3A] method with additional
+         * capability of applying the given 3A parameters before the lock is obtained.
+         *
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for
+         * this operation to complete.
+         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
+         * this operation to complete.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the locks were
+         * applied or the frame number at which the method returned early because either frame limit
+         * or time limit was reached.
+         */
+        fun lock3A(
+            aeMode: AeMode? = null,
+            afMode: AfMode? = null,
+            awbMode: AwbMode? = null,
+            aeRegions: List<MeteringRectangle>? = null,
+            afRegions: List<MeteringRectangle>? = null,
+            awbRegions: List<MeteringRectangle>? = null,
+            aeLockBehavior: Lock3ABehavior? = null,
+            afLockBehavior: Lock3ABehavior? = null,
+            awbLockBehavior: Lock3ABehavior? = null,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+        ): Deferred<Result3A>
+
+        /**
+         * Unlocks auto-exposure, auto-focus, auto-whitebalance. Once they are unlocked they get
+         * back to their initial state or resume their auto scan depending on the current mode
+         * they are operating in.
+         *
+         * Providing 'true' for a parameter in this method will unlock that component and if 'false'
+         * is provided or the parameter is not specified then it will have no effect on the lock of
+         * that component, i.e if it was locked earlier it will stay locked and if it was already
+         * unlocked, it will stay unlocked.
+         */
+        fun unlock3A(ae: Boolean? = null, af: Boolean? = null, awb: Boolean? = null):
+            Deferred<FrameNumber>
+
+        /**
+         * This methods does pre-capture metering sequence and locks auto-focus. Once the
+         * operation completes, we can proceed to take high-quality pictures.
+         *
+         * Note: Flash will be used during pre-capture metering and during image capture if the
+         * AE mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it
+         * for low light captures or for every capture, respectively.
+         *
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for
+         * this operation to complete.
+         * @param timeLimitMs the maximum time limit in ms we wait before we give up waiting for
+         * this operation to complete.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the locks were
+         * applied or the frame number at which the method returned early because either frame limit
+         * or time limit was reached.
+         */
+        fun lock3AForCapture(
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitMs: Int = DEFAULT_TIME_LIMIT_MS
+        ): Deferred<Result3A>
+
+        /**
+         * After submitting pre-capture metering sequence needed by [lock3AForCapture] method, the
+         * camera system can internally lock the auto-exposure routine for subsequent still image
+         * capture, and if not image capture request is submitted the auto-exposure may not resume
+         * it's normal scan.
+         * This method brings focus and exposure back to normal after high quality image captures
+         * using [lock3AForCapture] method.
+         */
+        fun unlock3APostCapture(): Deferred<FrameNumber>
     }
 }

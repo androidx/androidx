@@ -82,8 +82,9 @@ class InitializationTest(private val config: TestConfig) {
 
         localeUtil.setLocale(config.locale)
 
-        // Clear the device UI before start each test.
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     @After

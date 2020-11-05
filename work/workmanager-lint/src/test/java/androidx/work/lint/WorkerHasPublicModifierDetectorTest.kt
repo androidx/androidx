@@ -44,12 +44,14 @@ class WorkerHasPublicModifierDetectorTest {
             worker
         ).issues(WorkerHasPublicModifierDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 src/com/example/Worker.kt:5: Error: com.example.Worker needs to be public [WorkerHasAPublicModifier]
                 private class Worker: ListenableWorker()
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 

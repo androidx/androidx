@@ -53,8 +53,10 @@ class AutoValuePojoProcessorDelegate(
         autoValueAbstractGetters.forEach {
             val hasRoomAnnotation = it.hasAnnotationWithPackage("androidx.room")
             if (hasRoomAnnotation && !it.hasAnnotation(CopyAnnotations::class)) {
-                context.logger.w(Warning.MISSING_COPY_ANNOTATIONS, it,
-                        ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+                context.logger.w(
+                    Warning.MISSING_COPY_ANNOTATIONS, it,
+                    ProcessorErrors.MISSING_COPY_ANNOTATIONS
+                )
             }
         }
 
@@ -65,17 +67,19 @@ class AutoValuePojoProcessorDelegate(
             .forEach { method ->
                 val annotationName = TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }
                     .java.simpleName
-                context.logger.e(method,
-                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName()))
+                context.logger.e(
+                    method,
+                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName())
+                )
             }
     }
 
     override fun findConstructors(element: XTypeElement): List<XExecutableElement> {
         return autoValueElement.getDeclaredMethods().filter {
             it.isStatic() &&
-                    !it.hasAnnotation(Ignore::class) &&
-                    !it.isPrivate() &&
-                    it.returnType.isSameType(autoValueElement.type)
+                !it.hasAnnotation(Ignore::class) &&
+                !it.isPrivate() &&
+                it.returnType.isSameType(autoValueElement.type)
         }
     }
 
@@ -87,12 +91,14 @@ class AutoValuePojoProcessorDelegate(
         relations: List<androidx.room.vo.Relation>,
         constructor: Constructor?
     ): Pojo {
-        return Pojo(element = element,
-                type = autoValueDeclaredType,
-                fields = fields,
-                embeddedFields = embeddedFields,
-                relations = relations,
-                constructor = constructor)
+        return Pojo(
+            element = element,
+            type = autoValueDeclaredType,
+            fields = fields,
+            embeddedFields = embeddedFields,
+            relations = relations,
+            constructor = constructor
+        )
     }
 
     companion object {

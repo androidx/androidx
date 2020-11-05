@@ -135,8 +135,8 @@ public class PreviewViewTest {
     }
 
     @Before
-    public void setUp() {
-        CoreAppTestUtil.clearDeviceUI(mInstrumentation);
+    public void setUp() throws CoreAppTestUtil.ForegroundOccupiedError {
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
         mActivityRule.launchActivity(null);
     }
 
@@ -420,9 +420,11 @@ public class PreviewViewTest {
 
         updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
-        MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
-        MeteringPoint point = factory.createPoint(100, 100);
-        assertPointIsValid(point);
+        mInstrumentation.runOnMainSync(() -> {
+            MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
+            MeteringPoint point = factory.createPoint(100, 100);
+            assertPointIsValid(point);
+        });
     }
 
     private void assertPointIsValid(MeteringPoint point) {
@@ -625,6 +627,21 @@ public class PreviewViewTest {
         final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
                 R.layout.preview_view_scale_type_fit_end, null);
         assertThat(previewView.getScaleType()).isEqualTo(PreviewView.ScaleType.FIT_END);
+    }
+
+    @Test
+    @UiThreadTest
+    public void defaultImplementationMode_isPerformance() {
+        PreviewView previewView = new PreviewView(mContext);
+        assertThat(previewView.getImplementationMode()).isEqualTo(PERFORMANCE);
+    }
+
+    @Test
+    @UiThreadTest
+    public void getsImplementationModeFromXmlLayout() {
+        PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_implementation_mode_compatible, null);
+        assertThat(previewView.getImplementationMode()).isEqualTo(COMPATIBLE);
     }
 
     @Test

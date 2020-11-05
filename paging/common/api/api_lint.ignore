@@ -9,3 +9,25 @@ ExecutorRegistration: androidx.paging.DataSource#addInvalidatedCallback(androidx
     Registration methods should have overload that accepts delivery Executor: `addInvalidatedCallback`
 ExecutorRegistration: androidx.paging.PagedList#addWeakCallback(androidx.paging.PagedList.Callback):
     Registration methods should have overload that accepts delivery Executor: `addWeakCallback`
+
+
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>):
+    androidx.paging.PagedList does not declare a `getBoundaryCallback()` method matching method androidx.paging.PagedList.Builder.setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setCoroutineScope(kotlinx.coroutines.CoroutineScope):
+    androidx.paging.PagedList does not declare a `getCoroutineScope()` method matching method androidx.paging.PagedList.Builder.setCoroutineScope(kotlinx.coroutines.CoroutineScope)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher):
+    androidx.paging.PagedList does not declare a `getFetchDispatcher()` method matching method androidx.paging.PagedList.Builder.setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setInitialKey(Key):
+    androidx.paging.PagedList does not declare a `getInitialKey()` method matching method androidx.paging.PagedList.Builder.setInitialKey(Key)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher):
+    androidx.paging.PagedList does not declare a `getNotifyDispatcher()` method matching method androidx.paging.PagedList.Builder.setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setEnablePlaceholders(boolean):
+    androidx.paging.PagedList.Config does not declare a `isEnablePlaceholders()` method matching method androidx.paging.PagedList.Config.Builder.setEnablePlaceholders(boolean)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setInitialLoadSizeHint(int):
+    androidx.paging.PagedList.Config does not declare a `getInitialLoadSizeHint()` method matching method androidx.paging.PagedList.Config.Builder.setInitialLoadSizeHint(int)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setMaxSize(int):
+    androidx.paging.PagedList.Config does not declare a `getMaxSize()` method matching method androidx.paging.PagedList.Config.Builder.setMaxSize(int)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPageSize(int):
+    androidx.paging.PagedList.Config does not declare a `getPageSize()` method matching method androidx.paging.PagedList.Config.Builder.setPageSize(int)
+MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPrefetchDistance(int):
+    androidx.paging.PagedList.Config does not declare a `getPrefetchDistance()` method matching method androidx.paging.PagedList.Config.Builder.setPrefetchDistance(int)

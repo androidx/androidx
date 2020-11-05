@@ -22,7 +22,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.util.Consumer
-import androidx.core.view.doOnLayout
 import androidx.window.DeviceState
 import androidx.window.DisplayFeature
 import androidx.window.WindowLayoutInfo
@@ -38,8 +37,8 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
     private val stateLog: StringBuilder = StringBuilder()
 
     private val displayFeatureViews = ArrayList<View>()
-    private val deviceStateChangeCallback = DeviceStateChangeCallback()
-    private val layoutStateChangeCallback = LayoutStateChangeCallback()
+    // Store most recent values for the device state and window layout
+    private val stateContainer = StateContainer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,25 +49,24 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
 
         stateLog.clear()
         stateLog.append(getString(R.string.stateUpdateLog)).append("\n")
+    }
 
+    override fun onStart() {
+        super.onStart()
         windowManager.registerDeviceStateChangeCallback(
             mainThreadExecutor,
-            deviceStateChangeCallback
+            stateContainer.stateConsumer
         )
-
-        window.decorView.doOnLayout {
-            updateCurrentState()
-        }
+        windowManager.registerLayoutChangeCallback(
+            mainThreadExecutor,
+            stateContainer.layoutConsumer
+        )
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        windowManager.registerLayoutChangeCallback(mainThreadExecutor, layoutStateChangeCallback)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        windowManager.unregisterLayoutChangeCallback(layoutStateChangeCallback)
+    override fun onStop() {
+        super.onStop()
+        windowManager.unregisterDeviceStateChangeCallback(stateContainer.stateConsumer)
+        windowManager.unregisterLayoutChangeCallback(stateContainer.layoutConsumer)
     }
 
     /** Updates the device state and display feature positions. */
@@ -83,41 +81,46 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         // Update the UI with the current state
         val stateStringBuilder = StringBuilder()
         // Update the current state string
-        stateStringBuilder.append(getString(R.string.deviceState))
-            .append(": ")
-            .append(windowManager.deviceState)
-            .append("\n")
-
-        val layoutInfo = windowManager.windowLayoutInfo
-        stateStringBuilder.append(getString(R.string.windowLayout))
-            .append(": ")
-            .append(layoutInfo)
-
-        // Add views that represent display features
-        for (displayFeature in layoutInfo.displayFeatures) {
-            val lp = getLayoutParamsForFeatureInFrameLayout(displayFeature, rootLayout) ?: continue
-
-            // Make sure that zero-wide and zero-high features are still shown
-            if (lp.width == 0) {
-                lp.width = 1
-            }
-            if (lp.height == 0) {
-                lp.height = 1
-            }
-
-            val featureView = View(this)
-            val color = when (displayFeature.type) {
-                DisplayFeature.TYPE_FOLD -> getColor(R.color.colorFeatureFold)
-                DisplayFeature.TYPE_HINGE -> getColor(R.color.colorFeatureHinge)
-                else -> getColor(R.color.colorFeatureUnknown)
-            }
-            featureView.foreground = ColorDrawable(color)
-
-            rootLayout.addView(featureView, lp)
-            featureView.id = View.generateViewId()
-
-            displayFeatureViews.add(featureView)
+        stateContainer.lastState?.let { deviceState ->
+            stateStringBuilder.append(getString(R.string.deviceState))
+                .append(": ")
+                .append(deviceState)
+                .append("\n")
         }
+
+        stateContainer.lastLayoutInfo?.let { windowLayoutInfo ->
+            stateStringBuilder.append(getString(R.string.windowLayout))
+                .append(": ")
+                .append(windowLayoutInfo)
+
+            // Add views that represent display features
+            for (displayFeature in windowLayoutInfo.displayFeatures) {
+                val lp = getLayoutParamsForFeatureInFrameLayout(displayFeature, rootLayout)
+                    ?: continue
+
+                // Make sure that zero-wide and zero-high features are still shown
+                if (lp.width == 0) {
+                    lp.width = 1
+                }
+                if (lp.height == 0) {
+                    lp.height = 1
+                }
+
+                val featureView = View(this)
+                val color = when (displayFeature.type) {
+                    DisplayFeature.TYPE_FOLD -> getColor(R.color.colorFeatureFold)
+                    DisplayFeature.TYPE_HINGE -> getColor(R.color.colorFeatureHinge)
+                    else -> getColor(R.color.colorFeatureUnknown)
+                }
+                featureView.foreground = ColorDrawable(color)
+
+                rootLayout.addView(featureView, lp)
+                featureView.id = View.generateViewId()
+
+                displayFeatureViews.add(featureView)
+            }
+        }
+
         findViewById<TextView>(R.id.currentState).text = stateStringBuilder.toString()
     }
 
@@ -136,21 +139,27 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         return currentDate.toString()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        windowManager.unregisterDeviceStateChangeCallback(deviceStateChangeCallback)
-    }
+    inner class StateContainer {
+        var lastState: DeviceState? = null
+        var lastLayoutInfo: WindowLayoutInfo? = null
 
-    inner class DeviceStateChangeCallback : Consumer<DeviceState> {
-        override fun accept(newDeviceState: DeviceState) {
+        val stateConsumer: Consumer<DeviceState>
+        val layoutConsumer: Consumer<WindowLayoutInfo>
+
+        init {
+            stateConsumer = Consumer { state: DeviceState -> update(state) }
+            layoutConsumer = Consumer { layout: WindowLayoutInfo -> update(layout) }
+        }
+
+        fun update(newDeviceState: DeviceState) {
             updateStateLog(newDeviceState)
+            lastState = newDeviceState
             updateCurrentState()
         }
-    }
 
-    inner class LayoutStateChangeCallback : Consumer<WindowLayoutInfo> {
-        override fun accept(newLayoutInfo: WindowLayoutInfo) {
+        fun update(newLayoutInfo: WindowLayoutInfo) {
             updateStateLog(newLayoutInfo)
+            lastLayoutInfo = newLayoutInfo
             updateCurrentState()
         }
     }

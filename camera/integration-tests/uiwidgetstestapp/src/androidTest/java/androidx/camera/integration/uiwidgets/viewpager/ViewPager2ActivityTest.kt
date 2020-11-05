@@ -60,8 +60,10 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
         private const val ACTION_IDLE_TIMEOUT: Long = 5000
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}")
-        fun data() = listOf(CameraSelector.LENS_FACING_FRONT,
-            CameraSelector.LENS_FACING_BACK)
+        fun data() = listOf(
+            CameraSelector.LENS_FACING_FRONT,
+            CameraSelector.LENS_FACING_BACK
+        )
     }
 
     @get:Rule
@@ -74,8 +76,9 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
-        // Clear the device UI before start each test.
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
     // The test makes sure the camera PreviewView is in the streaming state.
@@ -140,14 +143,14 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     }
 
     private fun launchActivity(lensFacing: Int):
-            ActivityScenario<ViewPager2Activity> {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext<Context>(),
-            ViewPager2Activity::class.java
-        )
-        intent.putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
-        return ActivityScenario.launch<ViewPager2Activity>(intent)
-    }
+        ActivityScenario<ViewPager2Activity> {
+            val intent = Intent(
+                ApplicationProvider.getApplicationContext<Context>(),
+                ViewPager2Activity::class.java
+            )
+            intent.putExtra(BaseActivity.INTENT_LENS_FACING, lensFacing)
+            return ActivityScenario.launch<ViewPager2Activity>(intent)
+        }
 
     private fun getTextureView(previewView: PreviewView): TextureView? {
         var index: Int = 0

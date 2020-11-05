@@ -18,6 +18,7 @@ package androidx.window;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
 import android.graphics.Point;
@@ -45,7 +46,9 @@ public final class WindowBoundsHelperTest {
             new ActivityScenarioRule<>(TestActivity.class);
 
     @Test
-    public void testGetCurrentWindowBounds_matchParentWindowSize_avoidCutouts() {
+    public void testGetCurrentWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
+        assumePlatformBeforeR();
+
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
             assumeFalse(isInMultiWindowMode(activity));
 
@@ -61,7 +64,9 @@ public final class WindowBoundsHelperTest {
     }
 
     @Test
-    public void testGetCurrentWindowBounds_fixedWindowSize_avoidCutouts() {
+    public void testGetCurrentWindowBounds_fixedWindowSize_avoidCutouts_preR() {
+        assumePlatformBeforeR();
+
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
             assumeFalse(isInMultiWindowMode(activity));
 
@@ -77,7 +82,9 @@ public final class WindowBoundsHelperTest {
     }
 
     @Test
-    public void testGetCurrentWindowBounds_matchParentWindowSize_layoutBehindCutouts() {
+    public void testGetCurrentWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
+        assumePlatformBeforeR();
+
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
             assumeFalse(isInMultiWindowMode(activity));
 
@@ -93,7 +100,9 @@ public final class WindowBoundsHelperTest {
     }
 
     @Test
-    public void testGetCurrentWindowBounds_fixedWindowSize_layoutBehindCutouts() {
+    public void testGetCurrentWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
+        assumePlatformBeforeR();
+
         testGetCurrentWindowBoundsMatchesRealDisplaySize(activity -> {
             assumeFalse(isInMultiWindowMode(activity));
 
@@ -105,25 +114,140 @@ public final class WindowBoundsHelperTest {
                         WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
             }
             activity.getWindow().setAttributes(lp);
+        });
+    }
+
+    @Test
+    public void testGetCurrentWindowBounds_postR() {
+        assumePlatformROrAbove();
+
+        runActionsAcrossActivityLifecycle(activity -> { }, activity -> {
+            Rect bounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+            Rect windowMetricsBounds =
+                    activity.getWindowManager().getCurrentWindowMetrics().getBounds();
+            assertEquals(windowMetricsBounds, bounds);
+        });
+    }
+
+    @Test
+    public void testGetMaximumWindowBounds_matchParentWindowSize_avoidCutouts_preR() {
+        assumePlatformBeforeR();
+
+        testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
+            assumeFalse(isInMultiWindowMode(activity));
+
+            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                lp.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+            }
+            activity.getWindow().setAttributes(lp);
+        });
+    }
+
+    @Test
+    public void testGetMaximumWindowBounds_fixedWindowSize_avoidCutouts_preR() {
+        assumePlatformBeforeR();
+
+        testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
+            assumeFalse(isInMultiWindowMode(activity));
+
+            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+            lp.width = 100;
+            lp.height = 100;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                lp.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+            }
+            activity.getWindow().setAttributes(lp);
+        });
+    }
+
+    @Test
+    public void testGetMaximumWindowBounds_matchParentWindowSize_layoutBehindCutouts_preR() {
+        assumePlatformBeforeR();
+
+        testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
+            assumeFalse(isInMultiWindowMode(activity));
+
+            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                lp.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            }
+            activity.getWindow().setAttributes(lp);
+        });
+    }
+
+    @Test
+    public void testGetMaximumWindowBounds_fixedWindowSize_layoutBehindCutouts_preR() {
+        assumePlatformBeforeR();
+
+        testGetMaximumWindowBoundsMatchesRealDisplaySize(activity -> {
+            assumeFalse(isInMultiWindowMode(activity));
+
+            WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+            lp.width = 100;
+            lp.height = 100;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                lp.layoutInDisplayCutoutMode =
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            }
+            activity.getWindow().setAttributes(lp);
+        });
+    }
+
+    @Test
+    public void testGetMaximumWindowBounds_postR() {
+        assumePlatformROrAbove();
+
+        runActionsAcrossActivityLifecycle(activity -> { }, activity -> {
+            Rect bounds = WindowBoundsHelper.getInstance().computeMaximumWindowBounds(activity);
+            Rect windowMetricsBounds =
+                    activity.getWindowManager().getMaximumWindowMetrics().getBounds();
+            assertEquals(windowMetricsBounds, bounds);
         });
     }
 
     private void testGetCurrentWindowBoundsMatchesRealDisplaySize(
             ActivityScenario.ActivityAction<TestActivity> initialAction) {
+        ActivityScenario.ActivityAction<TestActivity> assertWindowBoundsMatchesDisplayAction =
+                new AssertCurrentWindowBoundsEqualsRealDisplaySizeAction();
+        runActionsAcrossActivityLifecycle(initialAction, assertWindowBoundsMatchesDisplayAction);
+    }
+
+    private void testGetMaximumWindowBoundsMatchesRealDisplaySize(
+            ActivityScenario.ActivityAction<TestActivity> initialAction) {
+        ActivityScenario.ActivityAction<TestActivity> assertWindowBoundsMatchesDisplayAction =
+                new AssertMaximumWindowBoundsEqualsRealDisplaySizeAction();
+        runActionsAcrossActivityLifecycle(initialAction, assertWindowBoundsMatchesDisplayAction);
+    }
+
+    /**
+     * Creates and launches an activity performing the supplied actions at various points in the
+     * activity lifecycle.
+     *
+     * @param initialAction the action that will run once before the activity is created.
+     * @param verifyAction the action to run once after each change in activity lifecycle state.
+     */
+    private void runActionsAcrossActivityLifecycle(
+            ActivityScenario.ActivityAction<TestActivity> initialAction,
+            ActivityScenario.ActivityAction<TestActivity> verifyAction) {
         ActivityScenario<TestActivity> scenario = mActivityScenarioRule.getScenario();
         scenario.onActivity(initialAction);
 
-        ActivityScenario.ActivityAction<TestActivity> assertWindowBoundsAction =
-                new AssertWindowBoundsEqualsRealDisplaySizeAction();
-
         scenario.moveToState(Lifecycle.State.CREATED);
-        scenario.onActivity(assertWindowBoundsAction);
+        scenario.onActivity(verifyAction);
 
         scenario.moveToState(Lifecycle.State.STARTED);
-        scenario.onActivity(assertWindowBoundsAction);
+        scenario.onActivity(verifyAction);
 
         scenario.moveToState(Lifecycle.State.RESUMED);
-        scenario.onActivity(assertWindowBoundsAction);
+        scenario.onActivity(verifyAction);
     }
 
     private static boolean isInMultiWindowMode(Activity activity) {
@@ -133,7 +257,15 @@ public final class WindowBoundsHelperTest {
         return false;
     }
 
-    private static final class AssertWindowBoundsEqualsRealDisplaySizeAction implements
+    private static void assumePlatformBeforeR() {
+        assumeTrue(Build.VERSION.SDK_INT < Build.VERSION_CODES.R);
+    }
+
+    private static void assumePlatformROrAbove() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R);
+    }
+
+    private static final class AssertCurrentWindowBoundsEqualsRealDisplaySizeAction implements
             ActivityScenario.ActivityAction<TestActivity> {
         @Override
         public void perform(TestActivity activity) {
@@ -147,6 +279,27 @@ public final class WindowBoundsHelperTest {
             Point realDisplaySize = WindowBoundsHelper.getRealSizeForDisplay(display);
 
             Rect bounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+            assertEquals("Window bounds width does not match real display width",
+                    realDisplaySize.x, bounds.width());
+            assertEquals("Window bounds height does not match real display height",
+                    realDisplaySize.y, bounds.height());
+        }
+    }
+
+    private static final class AssertMaximumWindowBoundsEqualsRealDisplaySizeAction implements
+            ActivityScenario.ActivityAction<TestActivity> {
+        @Override
+        public void perform(TestActivity activity) {
+            Display display;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                display = activity.getDisplay();
+            } else {
+                display = activity.getWindowManager().getDefaultDisplay();
+            }
+
+            Point realDisplaySize = WindowBoundsHelper.getRealSizeForDisplay(display);
+
+            Rect bounds = WindowBoundsHelper.getInstance().computeMaximumWindowBounds(activity);
             assertEquals("Window bounds width does not match real display width",
                     realDisplaySize.x, bounds.width());
             assertEquals("Window bounds height does not match real display height",

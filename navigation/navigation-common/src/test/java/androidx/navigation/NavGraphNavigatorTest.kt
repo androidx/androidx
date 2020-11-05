@@ -42,9 +42,11 @@ class NavGraphNavigatorTest {
     fun setup() {
         provider = NavigatorProvider().apply {
             addNavigator(NoOpNavigator().also { noOpNavigator = it })
-            addNavigator(NavGraphNavigator(this).also {
-                navGraphNavigator = it
-            })
+            addNavigator(
+                NavGraphNavigator(this).also {
+                    navGraphNavigator = it
+                }
+            )
         }
     }
 
@@ -100,8 +102,12 @@ class NavGraphNavigatorTest {
         val destination = createFirstDestination()
         val graph = createGraphWithDestination(destination)
         // singleTop should still show as added on an empty stack
-        assertThat(navGraphNavigator.navigate(graph, null,
-            NavOptions.Builder().setLaunchSingleTop(true).build(), null))
+        assertThat(
+            navGraphNavigator.navigate(
+                graph, null,
+                NavOptions.Builder().setLaunchSingleTop(true).build(), null
+            )
+        )
             .isEqualTo(destination)
     }
 
@@ -111,8 +117,12 @@ class NavGraphNavigatorTest {
         val graph = createGraphWithDestination(destination)
         assertThat(navGraphNavigator.navigate(graph, null, null, null))
             .isEqualTo(destination)
-        assertThat(navGraphNavigator.navigate(graph, null,
-            NavOptions.Builder().setLaunchSingleTop(true).build(), null))
+        assertThat(
+            navGraphNavigator.navigate(
+                graph, null,
+                NavOptions.Builder().setLaunchSingleTop(true).build(), null
+            )
+        )
             .isEqualTo(destination)
     }
 
@@ -126,8 +136,12 @@ class NavGraphNavigatorTest {
         }
         assertThat(navGraphNavigator.navigate(graph, null, null, null))
             .isEqualTo(destination)
-        assertThat(navGraphNavigator.navigate(secondGraph, null,
-            NavOptions.Builder().setLaunchSingleTop(true).build(), null))
+        assertThat(
+            navGraphNavigator.navigate(
+                secondGraph, null,
+                NavOptions.Builder().setLaunchSingleTop(true).build(), null
+            )
+        )
             .isEqualTo(secondDestination)
     }
 
@@ -140,8 +154,12 @@ class NavGraphNavigatorTest {
         val graph = createGraphWithDestination(nestedGraph)
         assertThat(navGraphNavigator.navigate(graph, null, null, null))
             .isEqualTo(destination)
-        assertThat(navGraphNavigator.navigate(graph, null,
-            NavOptions.Builder().setLaunchSingleTop(true).build(), null))
+        assertThat(
+            navGraphNavigator.navigate(
+                graph, null,
+                NavOptions.Builder().setLaunchSingleTop(true).build(), null
+            )
+        )
             .isEqualTo(destination)
     }
 }

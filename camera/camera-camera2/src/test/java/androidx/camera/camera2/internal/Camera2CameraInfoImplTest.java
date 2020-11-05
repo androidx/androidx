@@ -39,7 +39,6 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,6 @@ import org.robolectric.shadows.ShadowCameraManager;
 
 import java.util.concurrent.Executor;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

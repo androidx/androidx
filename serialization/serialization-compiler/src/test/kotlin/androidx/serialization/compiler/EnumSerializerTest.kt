@@ -27,7 +27,9 @@ import javax.tools.JavaFileObject
 class EnumSerializerTest {
     @Test
     fun test() {
-        val enum = JavaFileObjects.forSourceString("com.example.TestEnum", """
+        val enum = JavaFileObjects.forSourceString(
+            "com.example.TestEnum",
+            """
             package com.example;
             
             import androidx.serialization.EnumValue;
@@ -40,10 +42,13 @@ class EnumSerializerTest {
                 @EnumValue(2)
                 TWO
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /* ktlint-disable max-line-length */
-        val serializer = JavaFileObjects.forSourceString("com.example.TestEnumSerializer", """
+        val serializer = JavaFileObjects.forSourceString(
+            "com.example.TestEnumSerializer",
+            """
             package com.example;
 
             import androidx.annotation.NonNull;
@@ -83,7 +88,8 @@ class EnumSerializerTest {
                     }
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
         /* ktlint-enable max-line-length */
 
         assertThat(compile(enum))

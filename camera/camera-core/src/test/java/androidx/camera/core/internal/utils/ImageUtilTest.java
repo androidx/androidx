@@ -36,7 +36,6 @@ import android.util.Size;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +50,6 @@ import java.nio.ByteBuffer;
 /**
  * Unit tests for {@link ImageUtil}.
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

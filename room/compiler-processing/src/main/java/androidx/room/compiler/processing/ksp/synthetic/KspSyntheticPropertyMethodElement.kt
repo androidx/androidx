@@ -34,6 +34,7 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.overrides
 import java.util.Locale
 
 /**
@@ -47,9 +48,11 @@ import java.util.Locale
 internal sealed class KspSyntheticPropertyMethodElement(
     val env: KspProcessingEnv,
     val field: KspFieldElement
-) : XMethodElement, XEquality, XHasModifiers by KspHasModifiers(
-    field.declaration
-) {
+) : XMethodElement,
+    XEquality,
+    XHasModifiers by KspHasModifiers(
+        field.declaration
+    ) {
     // NOTE: modifiers of the property are not necessarily my modifiers.
     //  that being said, it only matters if it is private in which case KAPT does not generate the
     //  synthetic hence we don't either.
@@ -86,21 +89,26 @@ internal sealed class KspSyntheticPropertyMethodElement(
         return XEquality.hashCode(equalityItems)
     }
 
+    final override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
+        return env.resolver.overrides(this, other)
+    }
+
     internal class Getter(
         env: KspProcessingEnv,
         field: KspFieldElement
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field
-    ), XAnnotated by KspAnnotated.create(
-        env = env,
-        delegate = field.declaration.getter,
-        filter = NO_USE_SITE
-    ) + KspAnnotated.create(
-        env = env,
-        delegate = field.declaration,
-        filter = PROPERTY_GETTER
-    ) {
+    ),
+        XAnnotated by KspAnnotated.create(
+            env = env,
+            delegate = field.declaration.getter,
+            filter = NO_USE_SITE
+        ) + KspAnnotated.create(
+            env = env,
+            delegate = field.declaration,
+            filter = PROPERTY_GETTER
+        ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "getter")
         }
@@ -126,11 +134,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
             return "synthetic property getter"
         }
 
-        override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-            return other is Getter &&
-                field.declaration.overrides(other.field.declaration)
-        }
-
         override fun copyTo(newContainer: XTypeElement): XMethodElement {
             check(newContainer is KspTypeElement)
             return Getter(
@@ -146,15 +149,16 @@ internal sealed class KspSyntheticPropertyMethodElement(
     ) : KspSyntheticPropertyMethodElement(
         env = env,
         field = field
-    ), XAnnotated by KspAnnotated.create(
-        env = env,
-        delegate = field.declaration.setter,
-        filter = NO_USE_SITE
-    ) + KspAnnotated.create(
-        env = env,
-        delegate = field.declaration,
-        filter = PROPERTY_SETTER
-    ) {
+    ),
+        XAnnotated by KspAnnotated.create(
+            env = env,
+            delegate = field.declaration.setter,
+            filter = NO_USE_SITE
+        ) + KspAnnotated.create(
+            env = env,
+            delegate = field.declaration,
+            filter = PROPERTY_SETTER
+        ) {
         override val equalityItems: Array<out Any?> by lazy {
             arrayOf(field, "setter")
         }
@@ -186,11 +190,6 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         override fun kindName(): String {
             return "synthetic property getter"
-        }
-
-        override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
-            return other is Setter &&
-                field.declaration.overrides(other.field.declaration)
         }
 
         override fun copyTo(newContainer: XTypeElement): XMethodElement {

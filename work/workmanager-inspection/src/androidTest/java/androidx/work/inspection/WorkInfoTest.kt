@@ -17,6 +17,7 @@
 package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -34,6 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@FlakyTest // b/172087217
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class WorkInfoTest {
@@ -117,8 +119,8 @@ class WorkInfoTest {
         testEnvironment.workManager.enqueue(request)
         testEnvironment.receiveFilteredEvent { event ->
             event.hasWorkUpdated() &&
-                    event.workUpdated.hasData() &&
-                    event.workUpdated.data.entriesCount == 1
+                event.workUpdated.hasData() &&
+                event.workUpdated.data.entriesCount == 1
         }.let { event ->
             assertThat(event.workUpdated.id).isEqualTo(request.stringId)
             val expectedEntry = DataEntry.newBuilder()
@@ -136,7 +138,7 @@ class WorkInfoTest {
         testEnvironment.workManager.enqueue(request)
         testEnvironment.receiveFilteredEvent { event ->
             event.hasWorkUpdated() &&
-                    event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+                event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
         }.let { event ->
             assertThat(event.workUpdated.id).isEqualTo(request.stringId)
         }

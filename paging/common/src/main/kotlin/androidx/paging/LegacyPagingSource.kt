@@ -96,9 +96,10 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
                 }
             }
             PAGE_KEYED -> null
-            ITEM_KEYED -> state.anchorPosition
-                ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
-                ?.let { item -> dataSource.getKeyInternal(item) }
+            ITEM_KEYED ->
+                state.anchorPosition
+                    ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
+                    ?.let { item -> dataSource.getKeyInternal(item) }
         }
     }
 

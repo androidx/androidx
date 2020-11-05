@@ -16,11 +16,14 @@
 
 package androidx.window;
 
+import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
 import static androidx.window.Version.VERSION_1_0;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,9 +32,6 @@ import android.os.IBinder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.window.extensions.ExtensionDeviceState;
-import androidx.window.extensions.ExtensionDisplayFeature;
-import androidx.window.extensions.ExtensionWindowLayoutInfo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,34 +55,25 @@ public class ExtensionCompatDeviceTest extends WindowTestBase implements CompatD
 
     @Test
     @Override
-    public void testGetDeviceState() {
-        ExtensionDeviceState extensionDeviceState =
-                mExtensionCompat.mWindowExtension.getDeviceState();
-        DeviceState deviceState = mExtensionCompat.getDeviceState();
-        assertEquals(extensionDeviceState.getPosture(), deviceState.getPosture());
+    public void testDeviceStateCallback() {
+        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
+        mExtensionCompat.setExtensionCallback(callbackInterface);
+        mExtensionCompat.onDeviceStateListenersChanged(false);
+
+        verify(callbackInterface).onDeviceStateChanged(any());
     }
 
     @Test
     @Override
-    public void testGetWindowLayout() {
+    public void testWindowLayoutCallback() {
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         IBinder windowToken = getActivityWindowToken(activity);
         assertNotNull(windowToken);
+        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
+        mExtensionCompat.setExtensionCallback(callbackInterface);
+        mExtensionCompat.onWindowLayoutChangeListenerAdded(activity);
 
-        ExtensionWindowLayoutInfo extensionWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(activity);
-        WindowLayoutInfo windowLayoutInfo = mExtensionCompat.getWindowLayoutInfo(activity);
-
-        assertEquals(windowLayoutInfo.getDisplayFeatures().size(),
-                extensionWindowLayoutInfo.getDisplayFeatures().size());
-        for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
-            DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
-            ExtensionDisplayFeature sidecarDisplayFeature =
-                    extensionWindowLayoutInfo.getDisplayFeatures().get(i);
-
-            assertEquals(feature.getType(), sidecarDisplayFeature.getType());
-            assertEquals(feature.getBounds(), sidecarDisplayFeature.getBounds());
-        }
+        verify(callbackInterface).onWindowLayoutChanged(any(), any());
     }
 
     private void assumeExtensionV1_0() {

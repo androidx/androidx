@@ -23,8 +23,9 @@ import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
 
 class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
-        out = env.getArrayType(TypeName.BYTE),
-        typeAffinity = SQLTypeAffinity.BLOB) {
+    out = env.getArrayType(TypeName.BYTE),
+    typeAffinity = SQLTypeAffinity.BLOB
+) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,
@@ -32,7 +33,7 @@ class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         scope.builder()
-                .addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
+            .addStatement("$L = $L.getBlob($L)", outVarName, cursorVarName, indexVarName)
     }
 
     override fun bindToStmt(
@@ -43,9 +44,9 @@ class ByteArrayColumnTypeAdapter(env: XProcessingEnv) : ColumnTypeAdapter(
     ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName)
-                    .addStatement("$L.bindNull($L)", stmtName, indexVarName)
+                .addStatement("$L.bindNull($L)", stmtName, indexVarName)
             nextControlFlow("else")
-                    .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
+                .addStatement("$L.bindBlob($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
         }
     }

@@ -242,9 +242,11 @@ interface BooksDao {
     @Update
     suspend fun updateBookWithResultSuspend(book: Book): Int
 
-    @Query("""SELECT * FROM book WHERE
+    @Query(
+        """SELECT * FROM book WHERE
             bookId IN(:bookIds)
-            order by bookId DESC""")
+            order by bookId DESC"""
+    )
     fun getBooksMultiLineQuery(bookIds: List<String>): List<Book>
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
@@ -275,23 +277,31 @@ interface BooksDao {
     fun getBookMaybe(bookId: String): Maybe<Book>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisher(): List<BookWithPublisher>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherLiveData(): LiveData<List<BookWithPublisher>>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Query("SELECT * FROM book INNER JOIN publisher " +
-            "ON book.bookPublisherId = publisher.publisherId ")
+    @Query(
+        "SELECT * FROM book INNER JOIN publisher " +
+            "ON book.bookPublisherId = publisher.publisherId "
+    )
     fun getBooksWithPublisherListenableFuture(): ListenableFuture<List<BookWithPublisher>>
 
     @Transaction

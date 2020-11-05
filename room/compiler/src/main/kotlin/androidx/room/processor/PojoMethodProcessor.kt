@@ -31,9 +31,9 @@ class PojoMethodProcessor(
     fun process(): PojoMethod {
         val asMember = element.asMemberOf(owner)
         return PojoMethod(
-                element = element,
-                resolvedType = asMember,
-                name = element.name
+            element = element,
+            resolvedType = asMember,
+            name = element.name
         )
     }
 }

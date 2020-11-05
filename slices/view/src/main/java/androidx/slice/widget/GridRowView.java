@@ -101,6 +101,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
     boolean mMaxCellUpdateScheduled;
 
+    private int mHiddenItemCount;
+
     public GridRowView(Context context) {
         this(context, null);
     }
@@ -251,10 +253,12 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         }
         int maxCells = mMaxCells;
         boolean hasSeeMore = mGridContent.getSeeMoreItem() != null;
+        mHiddenItemCount = 0;
         for (int i = 0; i < cells.size(); i++) {
             if (mViewContainer.getChildCount() >= maxCells) {
+                mHiddenItemCount = cells.size() - maxCells;
                 if (hasSeeMore) {
-                    addSeeMoreCount(cells.size() - maxCells);
+                    addSeeMoreCount(mHiddenItemCount);
                 }
                 break;
             }
@@ -294,9 +298,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
             // Update text appearance
             TextView moreText = seeMoreView.findViewById(R.id.text_see_more);
-            if (mSliceStyle != null) {
+            if (mSliceStyle != null && mRowStyle != null) {
                 moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
-                moreText.setTextColor(mSliceStyle.getTitleColor());
+                moreText.setTextColor(mRowStyle.getTitleColor());
             }
         }
         mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
@@ -413,11 +417,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
         TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
                 ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-        if (mSliceStyle != null) {
+        if (mSliceStyle != null && mRowStyle != null) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
                     ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
             tv.setTextColor(isTitle
-                    ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
+                    ? mRowStyle.getTitleColor() : mRowStyle.getSubtitleColor());
         }
         CharSequence text = FORMAT_LONG.equals(format)
                 ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
@@ -573,6 +577,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         mViewContainer.removeAllViews();
         setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT);
         makeEntireGridClickable(false);
+    }
+
+    @Override
+    public int getHiddenItemCount() {
+        return mHiddenItemCount;
     }
 
     private ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =

@@ -21,7 +21,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("indexNone")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("indexExact")
@@ -45,15 +45,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String indexNoneCopy = dataClass.indexNone;
     if (indexNoneCopy != null) {
-      builder.setProperty("indexNone", indexNoneCopy);
+      builder.setPropertyString("indexNone", indexNoneCopy);
     }
     String indexExactCopy = dataClass.indexExact;
     if (indexExactCopy != null) {
-      builder.setProperty("indexExact", indexExactCopy);
+      builder.setPropertyString("indexExact", indexExactCopy);
     }
     String indexPrefixCopy = dataClass.indexPrefix;
     if (indexPrefixCopy != null) {
-      builder.setProperty("indexPrefix", indexPrefixCopy);
+      builder.setPropertyString("indexPrefix", indexPrefixCopy);
     }
     return builder.build();
   }

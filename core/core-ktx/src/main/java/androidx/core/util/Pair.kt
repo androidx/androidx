@@ -32,7 +32,7 @@ import kotlin.Pair as KotlinPair
  */
 @SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline operator fun <F, S> Pair<F, S>.component1() = first
+public inline operator fun <F, S> Pair<F, S>.component1(): F = first
 
 /**
  * Returns the second component of the pair.
@@ -44,14 +44,14 @@ inline operator fun <F, S> Pair<F, S>.component1() = first
  */
 @SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline operator fun <F, S> Pair<F, S>.component2() = second
+public inline operator fun <F, S> Pair<F, S>.component2(): S = second
 
 /** Returns this [AndroidX `Pair`][Pair] as a [Kotlin `Pair`][KotlinPair]. */
-inline fun <F, S> Pair<F, S>.toKotlinPair() = KotlinPair(first, second)
+public inline fun <F, S> Pair<F, S>.toKotlinPair(): kotlin.Pair<F, S> = KotlinPair(first, second)
 
 /** Returns this [Kotlin `Pair`][KotlinPair] as an [AndroidX `Pair`][Pair]. */
 // Note: the return type is explicitly specified here to prevent always seeing platform types.
-inline fun <F, S> KotlinPair<F, S>.toAndroidXPair(): Pair<F, S> = Pair(first, second)
+public inline fun <F, S> KotlinPair<F, S>.toAndroidXPair(): Pair<F, S> = Pair(first, second)
 
 /**
  * Returns the first component of the pair.
@@ -63,7 +63,7 @@ inline fun <F, S> KotlinPair<F, S>.toAndroidXPair(): Pair<F, S> = Pair(first, se
  */
 @SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline operator fun <F, S> AndroidPair<F, S>.component1() = first
+public inline operator fun <F, S> AndroidPair<F, S>.component1(): F = first
 
 /**
  * Returns the second component of the pair.
@@ -75,11 +75,13 @@ inline operator fun <F, S> AndroidPair<F, S>.component1() = first
  */
 @SuppressLint("UnknownNullness")
 @Suppress("HasPlatformType") // Intentionally propagating platform type with unknown nullability.
-inline operator fun <F, S> AndroidPair<F, S>.component2() = second
+public inline operator fun <F, S> AndroidPair<F, S>.component2(): S = second
 
 /** Returns this [Android `Pair`][AndroidPair] as a [Kotlin `Pair`][KotlinPair]. */
-inline fun <F, S> AndroidPair<F, S>.toKotlinPair() = KotlinPair(first, second)
+public inline fun <F, S> AndroidPair<F, S>.toKotlinPair(): kotlin.Pair<F, S> =
+    KotlinPair(first, second)
 
 /** Returns this [Kotlin `Pair`][KotlinPair] as an [Android `Pair`][AndroidPair]. */
 // Note: the return type is explicitly specified here to prevent always seeing platform types.
-inline fun <F, S> KotlinPair<F, S>.toAndroidPair(): AndroidPair<F, S> = AndroidPair(first, second)
+public inline fun <F, S> KotlinPair<F, S>.toAndroidPair(): AndroidPair<F, S> =
+    AndroidPair(first, second)

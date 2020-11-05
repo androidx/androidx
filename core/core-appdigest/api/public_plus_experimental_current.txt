@@ -12,8 +12,8 @@ package androidx.core.appdigest {
     field @Deprecated public static final int TYPE_WHOLE_MD5 = 2; // 0x2
     field public static final int TYPE_WHOLE_MERKLE_ROOT_4K_SHA256 = 1; // 0x1
     field @Deprecated public static final int TYPE_WHOLE_SHA1 = 4; // 0x4
-    field public static final int TYPE_WHOLE_SHA256 = 8; // 0x8
-    field public static final int TYPE_WHOLE_SHA512 = 16; // 0x10
+    field @Deprecated public static final int TYPE_WHOLE_SHA256 = 8; // 0x8
+    field @Deprecated public static final int TYPE_WHOLE_SHA512 = 16; // 0x10
   }
 
   public final class Checksums {

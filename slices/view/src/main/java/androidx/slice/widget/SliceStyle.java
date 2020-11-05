@@ -25,10 +25,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.SliceItem;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
@@ -80,7 +83,11 @@ public class SliceStyle {
     private final boolean mExpandToAvailableHeight;
     private final boolean mHideHeaderRow;
 
-    private RowStyle mRowStyle;
+    private final int mDefaultRowStyleRes;
+    private final SparseArray<RowStyle> mResourceToRowStyle = new SparseArray<>();
+    private RowStyleFactory mRowStyleFactory;
+
+    private final Context mContext;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -114,10 +121,7 @@ public class SliceStyle {
             mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
             mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridBottomPadding, 0);
 
-            int rowStyleRes = a.getResourceId(R.styleable.SliceView_rowStyle, 0);
-            if (rowStyleRes != 0) {
-                mRowStyle = new RowStyle(context, rowStyleRes);
-            }
+            mDefaultRowStyleRes = a.getResourceId(R.styleable.SliceView_rowStyle, 0);
 
             int defaultRowMinHeight = context.getResources().getDimensionPixelSize(
                     R.dimen.abc_slice_row_min_height);
@@ -149,6 +153,8 @@ public class SliceStyle {
                     R.styleable.SliceView_expandToAvailableHeight, false);
 
             mHideHeaderRow = a.getBoolean(R.styleable.SliceView_hideHeaderRow, false);
+
+            mContext = context;
         } finally {
             a.recycle();
         }
@@ -248,8 +254,38 @@ public class SliceStyle {
         return mGridBottomPadding;
     }
 
-    public RowStyle getRowStyle() {
-        return mRowStyle;
+    /**
+     * Returns the {@link RowStyle} to use for the given {@link SliceItem}.
+     */
+    @NonNull
+    public RowStyle getRowStyle(@Nullable SliceItem sliceItem) {
+        int rowStyleRes = mDefaultRowStyleRes;
+
+        if (sliceItem != null && mRowStyleFactory != null) {
+            int maybeStyleRes = mRowStyleFactory.getRowStyleRes(sliceItem);
+            if (maybeStyleRes != 0) {
+                rowStyleRes = maybeStyleRes;
+            }
+        }
+
+        if (rowStyleRes == 0) {
+            // Return default values.
+            return new RowStyle(mContext, this);
+        }
+
+        RowStyle rowStyle = mResourceToRowStyle.get(rowStyleRes);
+        if (rowStyle == null) {
+            rowStyle = new RowStyle(mContext, rowStyleRes, this);
+            mResourceToRowStyle.put(rowStyleRes, rowStyle);
+        }
+        return rowStyle;
+    }
+
+    /**
+     * Sets the {@link RowStyleFactory} which allows multiple children to have different styles.
+     */
+    public void setRowStyleFactory(@Nullable RowStyleFactory rowStyleFactory) {
+        mRowStyleFactory = rowStyleFactory;
     }
 
     public int getRowRangeHeight() {
@@ -358,8 +394,9 @@ public class SliceStyle {
                 : maxHeight <= 0 ? desiredHeight
                 : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {
-            height = getListItemsHeight(getListItemsForNonScrollingList(list, height, policy),
-                                        policy);
+            height = getListItemsHeight(
+                getListItemsForNonScrollingList(list, height, policy).getDisplayedItems(),
+                policy);
         }
         return height;
     }
@@ -391,23 +428,27 @@ public class SliceStyle {
      * @return the list of items that can be displayed in the provided height.
      */
     @NonNull
-    public ArrayList<SliceContent> getListItemsForNonScrollingList(ListContent list,
-                                                                    int availableHeight,
-                                                                    SliceViewPolicy policy) {
+    public DisplayedListItems getListItemsForNonScrollingList(ListContent list,
+                                                             int availableHeight,
+                                                             SliceViewPolicy policy) {
         ArrayList<SliceContent> visibleItems = new ArrayList<>();
+        int hiddenItemCount = 0;
         if (list.getRowItems() == null || list.getRowItems().size() == 0) {
-            return visibleItems;
+            return new DisplayedListItems(visibleItems, hiddenItemCount);
         }
-        final int minItemCountForSeeMore = list.getRowItems() != null ? 2 : 1;
+
+        final boolean skipFirstItem = shouldSkipFirstListItem(list.getRowItems());
+
         int visibleHeight = 0;
-        int rowCount = list.getRowItems().size();
+        final int rowCount = list.getRowItems().size();
         for (int i = 0; i < rowCount; i++) {
             SliceContent listItem = list.getRowItems().get(i);
-            if (i == 0 && shouldSkipFirstListItem(list.getRowItems())) {
+            if (i == 0 && skipFirstItem) {
                 continue;
             }
             int itemHeight = listItem.getHeight(this, policy);
             if (availableHeight > 0 && visibleHeight + itemHeight > availableHeight) {
+                hiddenItemCount = rowCount - i;
                 break;
             } else {
                 visibleHeight += itemHeight;
@@ -416,9 +457,10 @@ public class SliceStyle {
         }
 
 
-        // Only add see more if we're at least showing one item and it's not the header
+        // Only add see more if we're at least showing one item and it's not the header.
+        final int minItemCountForSeeMore = skipFirstItem ? 1 : 2;
         if (list.getSeeMoreItem() != null && visibleItems.size() >= minItemCountForSeeMore
-                && visibleItems.size() != rowCount) {
+                && hiddenItemCount > 0) {
             // Need to show see more
             int seeMoreHeight = list.getSeeMoreItem().getHeight(this, policy);
             visibleHeight += seeMoreHeight;
@@ -430,6 +472,7 @@ public class SliceStyle {
                 SliceContent lastItem = visibleItems.get(lastIndex);
                 visibleHeight -= lastItem.getHeight(this, policy);
                 visibleItems.remove(lastIndex);
+                hiddenItemCount++;
             }
 
             if (visibleItems.size() >= minItemCountForSeeMore) {
@@ -443,7 +486,7 @@ public class SliceStyle {
             // Didn't have enough space to show anything; should still show something
             visibleItems.add(list.getRowItems().get(0));
         }
-        return visibleItems;
+        return new DisplayedListItems(visibleItems, hiddenItemCount);
     }
 
     /**
@@ -466,4 +509,5 @@ public class SliceStyle {
         return getHideHeaderRow() && rowItems.size() > 1 && rowItems.get(0) instanceof RowContent
                 && ((RowContent) rowItems.get(0)).getIsHeader();
     }
+
 }

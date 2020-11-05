@@ -53,7 +53,6 @@ import android.os.IBinder;
 import android.os.Messenger;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +89,6 @@ public class DefaultKeyedAppStatesReporterTest {
     private final TestKeyedAppStatesCallback mCallback = new TestKeyedAppStatesCallback();
 
     @Test
-    @SmallTest
     public void construct_nullContext_throwsNullPointerException() {
         try {
             new DefaultKeyedAppStatesReporter(null);
@@ -100,7 +98,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void construct_nullExecutor_throwsNullPointerException() {
         try {
             new DefaultKeyedAppStatesReporter(mContext, null);
@@ -110,7 +107,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setStates_constructedWithExecutor_usesExecutor() {
         TestExecutor testExecutor = new TestExecutor();
         KeyedAppStatesReporter reporter =
@@ -122,7 +118,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setIncludesAppStateBundle() {
         setTestHandlerReceivesStates();
 
@@ -170,7 +165,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setEmpty_doesNotSend() {
         setTestHandlerReceivesStates();
 
@@ -181,7 +175,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setEmpty_reportsSuccess() {
         setTestHandlerReceivesStates();
 
@@ -193,7 +186,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setNotImmediate() {
         setTestHandlerReceivesStates();
 
@@ -205,7 +197,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setNotImmediateDeprecated() {
         setTestHandlerReceivesStates();
 
@@ -217,7 +208,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setNotImmediate_reportsSuccess() {
         setTestHandlerReceivesStates();
 
@@ -230,7 +220,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setImmediate() {
         setTestHandlerReceivesStates();
 
@@ -242,7 +231,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setImmediateDeprecated() {
         setTestHandlerReceivesStates();
 
@@ -254,7 +242,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void setImmediate_reportsSuccess() {
         setTestHandlerReceivesStates();
 
@@ -268,7 +255,6 @@ public class DefaultKeyedAppStatesReporterTest {
 
 
     @Test
-    @SmallTest
     public void set_doesNotGoToNormalApps() {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
@@ -281,7 +267,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_goesToDeviceOwner() {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
@@ -295,7 +280,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_goesToProfileOwner() {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
@@ -309,7 +293,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_goesToPhonesky() {
         ComponentName phoneskyComponentName = new ComponentName(PHONESKY_PACKAGE_NAME, "");
         addComponentAsRespondingToAppStatesIntent(phoneskyComponentName);
@@ -323,7 +306,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_goesToMultiple() {
         // Arrange
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
@@ -346,7 +328,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_goesToMultiple_reportsSingleSuccess() {
         // Arrange
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
@@ -369,7 +350,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_changeProfileOwner_goesToNewProfileOwner() {
         // Arrange
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
@@ -395,7 +375,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_changeDeviceOwner_goesToNewDeviceOwner() {
         // Arrange
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
@@ -421,7 +400,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void set_deadConnection_reconnectsAndSendsToNewApp() {
         // Arrange
@@ -450,7 +428,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(maxSdk = 25)
     public void set_connectionHasDisconnected_sdkLessThan26_reconnectsAndSendsToNewApp() {
         // Arrange
@@ -479,7 +456,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void set_connectionHasDisconnected_doesNotSend() {
         // Arrange
@@ -503,7 +479,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void set_connectionHasDisconnected_doesNotCallback() {
         // Arrange
@@ -525,7 +500,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void set_sendsWhenReconnected() {
         // Arrange
@@ -549,7 +523,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void set_reportsSuccessWhenReconnected() {
         // Arrange
@@ -573,7 +546,6 @@ public class DefaultKeyedAppStatesReporterTest {
     }
 
     @Test
-    @SmallTest
     public void set_connectionHasReconnected_doesSend() {
         // Arrange
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);

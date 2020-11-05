@@ -48,7 +48,8 @@ class CoroutineTransactionMethodBinder(
         val innerContinuationParamName = "__cont"
         val functionImpl = Function1TypeSpecBuilder(
             parameterTypeName = ParameterizedTypeName.get(
-                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)),
+                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName)
+            ),
             parameterName = innerContinuationParamName,
             returnTypeName = ClassName.OBJECT
         ) {

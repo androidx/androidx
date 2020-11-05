@@ -17,7 +17,13 @@
 package androidx.core.location;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.provider.Settings.Secure.LOCATION_MODE;
+import static android.provider.Settings.Secure.LOCATION_MODE_OFF;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import android.content.Context;
 import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.LocationManager;
@@ -25,6 +31,9 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
+import android.provider.Settings.Secure;
+import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -35,12 +44,12 @@ import androidx.collection.SimpleArrayMap;
 import androidx.core.os.HandlerExecutor;
 import androidx.core.util.Preconditions;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -50,6 +59,8 @@ public final class LocationManagerCompat {
 
     private static final long PRE_N_LOOPER_TIMEOUT_S = 4;
 
+    private static Field sContextField;
+
     /**
      * Returns the current enabled/disabled state of location.
      *
@@ -58,16 +69,36 @@ public final class LocationManagerCompat {
     public static boolean isLocationEnabled(@NonNull LocationManager locationManager) {
         if (VERSION.SDK_INT >= VERSION_CODES.P) {
             return locationManager.isLocationEnabled();
-        } else {
-            // NOTE: for KitKat and above, it's preferable to use the proper API at the time to get
-            // the location mode, Secure.getInt(context, LOCATION_MODE, LOCATION_MODE_OFF). however,
-            // this requires a context we don't have directly (we could either ask the client to
-            // pass one in, or use reflection to get it from the location manager), and since KitKat
-            // and above remained backwards compatible, we can fallback to pre-kitkat behavior.
-
-            return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-                || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         }
+
+        if (VERSION.SDK_INT <= VERSION_CODES.KITKAT) {
+            // kitkat and below have pointless location permission requirements when using
+            // isProviderEnabled(). instead we attempt to reflect a context so that we can query
+            // the underlying setting. if this fails, we fallback to isProviderEnabled() which may
+            // require the caller to hold location permissions
+            try {
+                if (sContextField == null) {
+                    sContextField = LocationManager.class.getDeclaredField("mContext");
+                }
+                sContextField.setAccessible(true);
+                Context context = (Context) sContextField.get(locationManager);
+
+                if (VERSION.SDK_INT == VERSION_CODES.KITKAT) {
+                    return Secure.getInt(context.getContentResolver(), LOCATION_MODE,
+                            LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
+                } else {
+                    return !TextUtils.isEmpty(
+                            Settings.Secure.getString(context.getContentResolver(),
+                                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
+                }
+            } catch (ClassCastException | SecurityException | NoSuchFieldException
+                    | IllegalAccessException e) {
+                // oh well, fallback to isProviderEnabled()
+            }
+        }
+
+        return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     @GuardedBy("sGnssStatusListeners")
@@ -159,7 +190,6 @@ public final class LocationManagerCompat {
                     sGnssStatusListeners.put(callback, transport);
                     return true;
                 } else {
-                    transport.unregister();
                     return false;
                 }
             }
@@ -189,20 +219,41 @@ public final class LocationManagerCompat {
                 } else if (!baseHandler.post(task)) {
                     throw new IllegalStateException(baseHandler + " is shutting down");
                 }
+
+                boolean interrupted = false;
                 try {
-                    if (task.get(PRE_N_LOOPER_TIMEOUT_S, TimeUnit.SECONDS)) {
-                        sGnssStatusListeners.put(callback, myTransport);
-                        return true;
-                    } else {
-                        transport.unregister();
-                        return false;
+                    long remainingNanos = SECONDS.toNanos(PRE_N_LOOPER_TIMEOUT_S);
+                    long end = System.nanoTime() + remainingNanos;
+                    while (true) {
+                        try {
+                            if (task.get(remainingNanos, NANOSECONDS)) {
+                                sGnssStatusListeners.put(callback, myTransport);
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } catch (InterruptedException e) {
+                            // this is conceptually not an interruptible operation
+                            interrupted = true;
+                            remainingNanos = end - System.nanoTime();
+                        }
                     }
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new IllegalStateException(e);
+                } catch (ExecutionException e) {
+                    if (e.getCause() instanceof RuntimeException) {
+                        throw (RuntimeException) e.getCause();
+                    } else if (e.getCause() instanceof Error) {
+                        throw (Error) e.getCause();
+                    } else {
+                        throw new IllegalStateException(e);
+                    }
                 } catch (TimeoutException e) {
                     throw new IllegalStateException(baseHandler + " appears to be blocked, please"
                             + " run registerGnssStatusCallback() directly on a Looper thread or "
                             + "ensure the main Looper is not blocked by this thread", e);
+                } finally {
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
         }

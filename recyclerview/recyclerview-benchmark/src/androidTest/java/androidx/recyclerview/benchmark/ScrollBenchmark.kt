@@ -133,7 +133,8 @@ private class TrivialAdapter : RecyclerView.Adapter<TrivialViewHolder>() {
 
     var inflater: (ViewGroup) -> View = {
         LayoutInflater.from(it.context).inflate(
-            R.layout.item_view, it, false)
+            R.layout.item_view, it, false
+        )
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrivialViewHolder {

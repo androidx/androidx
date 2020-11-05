@@ -37,8 +37,11 @@ open class ContactsBasedTest {
 
     @get:Rule
     var storagePermissions =
-        GrantPermissionRule.grant(Manifest.permission.READ_CONTACTS, Manifest.permission
-            .WRITE_CONTACTS)!!
+        GrantPermissionRule.grant(
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission
+                .WRITE_CONTACTS
+        )!!
 
     @Before
     fun setup() {

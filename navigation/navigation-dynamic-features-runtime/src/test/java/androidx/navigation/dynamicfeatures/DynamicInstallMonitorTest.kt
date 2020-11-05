@@ -16,7 +16,6 @@
 
 package androidx.navigation.dynamicfeatures
 
-import androidx.test.filters.SmallTest
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +26,6 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 @RunWith(JUnit4::class)
-@SmallTest
 class DynamicInstallMonitorTest {
     @Test
     fun testCancelInstall_sessionIdZero() {

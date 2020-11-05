@@ -103,16 +103,19 @@ fun runProcessorTest(
     val sources = if (sources.isEmpty()) {
         // synthesize a source to trigger compilation
         listOf(
-            Source.java("foo.bar.SyntheticSource", """
+            Source.java(
+                "foo.bar.SyntheticSource",
+                """
             package foo.bar;
             public class SyntheticSource {}
-        """.trimIndent())
+                """.trimIndent()
+            )
         )
     } else {
         sources
     }
     // we can compile w/ javac only if all code is in java
-    if (sources.all { it is Source.JavaSource }) {
+    if (sources.canCompileWithJava()) {
         runJavaProcessorTest(sources = sources, handler = handler, succeed = true)
     }
     runKaptTest(sources = sources, handler = handler, succeed = true)
@@ -136,10 +139,21 @@ fun runProcessorTestForFailedCompilation(
     sources: List<Source>,
     handler: (TestInvocation) -> Unit
 ) {
-    // run with java processor
-    runJavaProcessorTest(sources = sources, handler = handler, succeed = false)
+    if (sources.canCompileWithJava()) {
+        // run with java processor
+        runJavaProcessorTest(sources = sources, handler = handler, succeed = false)
+    }
     // now run with kapt
     runKaptTest(sources = sources, handler = handler, succeed = false)
+}
+
+fun runProcessorTestForFailedCompilationIncludingKsp(
+    sources: List<Source>,
+    handler: (TestInvocation) -> Unit
+) {
+    runProcessorTestForFailedCompilation(sources = sources, handler = handler)
+    // now run with ksp
+    runKspTest(sources = sources, handler = handler, succeed = false)
 }
 
 fun runJavaProcessorTest(
@@ -186,3 +200,5 @@ fun runKspTest(
     }
     kspProcessor.throwIfFailed()
 }
+
+private fun List<Source>.canCompileWithJava() = all { it is Source.JavaSource }

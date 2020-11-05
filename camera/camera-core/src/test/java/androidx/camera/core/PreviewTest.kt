@@ -36,7 +36,6 @@ import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -55,7 +54,6 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 /**
  * Unit tests for [Preview].
  */
-@SmallTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(

@@ -69,7 +69,7 @@ class MultiNavHostFragmentTest {
             val childFragment = withActivity {
                 supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
                     ?.childFragmentManager?.findFragmentById(R.id.nav_host_fragment) as
-                        BasicNavHostFragment
+                    BasicNavHostFragment
             }
 
             navController.popBackStack()

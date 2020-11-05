@@ -57,7 +57,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                         val info = ForegroundInfo(0, notification, 1)
                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }
@@ -115,7 +115,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                         val info = ForegroundInfo(0, notification, 9)
                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }

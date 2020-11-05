@@ -67,13 +67,13 @@ class AutoValuePojoProcessorDelegateTest {
     @Test
     fun goodPojo() {
         singleRun(
-                """
+            """
                 @AutoValue.CopyAnnotations
                 @PrimaryKey
                 abstract long getId();
                 static MyPojo create(long id) { return new AutoValue_MyPojo(id); }
                 """,
-                """
+            """
                 @PrimaryKey
                 private final long id;
                 AutoValue_MyPojo(long id) { this.id = id; }
@@ -90,7 +90,8 @@ class AutoValuePojoProcessorDelegateTest {
     @Test
     fun goodLibraryPojo() {
         val libraryClasspath = compileLibrarySources(
-            JavaFileObjects.forSourceString(MY_POJO.toString(),
+            JavaFileObjects.forSourceString(
+                MY_POJO.toString(),
                 """
                     $HEADER
                     @AutoValue.CopyAnnotations
@@ -98,33 +99,36 @@ class AutoValuePojoProcessorDelegateTest {
                     abstract long getArg0();
                     static MyPojo create(long arg0) { return new AutoValue_MyPojo(arg0); }
                     $FOOTER
-                    """)
+                    """
+            )
         )
         simpleRun(classpathFiles = libraryClasspath) { invocation ->
-                PojoProcessor.createFor(context = invocation.context,
-                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    parent = null).process()
+            PojoProcessor.createFor(
+                context = invocation.context,
+                element = invocation.processingEnv.requireTypeElement(MY_POJO),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null
+            ).process()
         }.compilesWithoutError().withWarningCount(0)
     }
 
     @Test
     fun missingCopyAnnotationsWarning() {
         singleRun(
-                """
+            """
                 @PrimaryKey
                 abstract long getId();
                 static MyPojo create(long id) { return new AutoValue_MyPojo(id); }
                 """,
-                """
+            """
                 private final long id;
                 AutoValue_MyPojo(long id) { this.id = id; }
                 long getId() { return this.id; }
                 """
         ) { _ -> }
-                .compilesWithoutError()
-                .withWarningCount(1)
-                .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            .compilesWithoutError()
+            .withWarningCount(1)
+            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
     }
 
     @Test
@@ -140,7 +144,7 @@ class AutoValuePojoProcessorDelegateTest {
             }
             """
         singleRunFullClass(
-                """
+            """
                 package foo.bar;
 
                 import androidx.room.*;
@@ -156,7 +160,7 @@ class AutoValuePojoProcessorDelegateTest {
                     }
                 $FOOTER
                 """,
-                """
+            """
                 $AUTO_VALUE_HEADER
                     private final long id;
                     private final String value;
@@ -165,11 +169,11 @@ class AutoValuePojoProcessorDelegateTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-                parent.toJFO("foo.bar.ParentPojo")
+            parent.toJFO("foo.bar.ParentPojo")
         ) { _, _ -> }
-                .compilesWithoutError()
-                .withWarningCount(2)
-                .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            .compilesWithoutError()
+            .withWarningCount(2)
+            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
     }
 
     @Test
@@ -185,7 +189,7 @@ class AutoValuePojoProcessorDelegateTest {
             }
             """
         singleRunFullClass(
-                """
+            """
                 package foo.bar;
 
                 import androidx.room.*;
@@ -201,7 +205,7 @@ class AutoValuePojoProcessorDelegateTest {
                     }
                 $FOOTER
                 """,
-                """
+            """
                 $AUTO_VALUE_HEADER
                     private final long id;
                     private final String value;
@@ -210,11 +214,11 @@ class AutoValuePojoProcessorDelegateTest {
                     public String getValue() { return this.value; };
                 $FOOTER
                 """,
-                parent.toJFO("foo.bar.InterfacePojo")
+            parent.toJFO("foo.bar.InterfacePojo")
         ) { _, _ -> }
-                .compilesWithoutError()
-                .withWarningCount(2)
-                .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            .compilesWithoutError()
+            .withWarningCount(2)
+            .withWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
     }
 
     private fun singleRun(
@@ -236,19 +240,19 @@ class AutoValuePojoProcessorDelegateTest {
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         return singleRunFullClass(
-                pojoCode = """
+            pojoCode = """
                     $HEADER
                     $pojoCode
                     $FOOTER
                     """,
-                autoValuePojoCode = """
+            autoValuePojoCode = """
                     $AUTO_VALUE_HEADER
                     $autoValuePojoCode
                     $FOOTER
                     """,
-                jfos = jfos,
-                classpathFiles = classpathFiles,
-                handler = handler
+            jfos = jfos,
+            classpathFiles = classpathFiles,
+            handler = handler
         )
     }
 
@@ -264,11 +268,13 @@ class AutoValuePojoProcessorDelegateTest {
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
         return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
-                    PojoProcessor.createFor(context = invocation.context,
-                            element = invocation.processingEnv.requireTypeElement(MY_POJO),
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                            parent = null).process(),
-                    invocation
+                PojoProcessor.createFor(
+                    context = invocation.context,
+                    element = invocation.processingEnv.requireTypeElement(MY_POJO),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
+                ).process(),
+                invocation
             )
         }
     }

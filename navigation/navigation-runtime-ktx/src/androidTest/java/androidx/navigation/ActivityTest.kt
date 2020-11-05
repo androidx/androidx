@@ -40,15 +40,19 @@ class ActivityTest {
         Navigation.setViewNavController(view, navController)
 
         val foundNavController = activityRule.activity.findNavController(VIEW_ID)
-        assertTrue("View should have NavController set",
-                foundNavController == navController)
+        assertTrue(
+            "View should have NavController set",
+            foundNavController == navController
+        )
     }
 
     @Test fun findNavControllerNull() {
         try {
             activityRule.activity.findNavController(VIEW_ID)
-            fail("findNavController should throw IllegalStateException if a NavController" +
-                    " was not set")
+            fail(
+                "findNavController should throw IllegalStateException if a NavController" +
+                    " was not set"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }
@@ -57,8 +61,10 @@ class ActivityTest {
     @Test fun findNavControllerInvalidViewId() {
         try {
             activityRule.activity.findNavController(INVALID_VIEW_ID)
-            fail("findNavController should throw IllegalArgumentException if the view" +
-                    " does not exist")
+            fail(
+                "findNavController should throw IllegalArgumentException if the view" +
+                    " does not exist"
+            )
         } catch (e: IllegalArgumentException) {
             // Expected
         }
@@ -90,7 +96,8 @@ class ActivityTest {
         } catch (e: IllegalStateException) {
             assertThat(e).hasMessageThat().isEqualTo(
                 "Activity ${activityRule.activity} has null extras in " +
-                        activityRule.activity.intent)
+                    activityRule.activity.intent
+            )
         }
     }
 }
@@ -114,8 +121,10 @@ class TestActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(View(this).apply {
-            id = VIEW_ID
-        })
+        setContentView(
+            View(this).apply {
+                id = VIEW_ID
+            }
+        )
     }
 }

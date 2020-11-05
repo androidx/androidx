@@ -8,7 +8,7 @@
         errorLine2="        ~~~~">
         <location
             file="src/androidTest/java/androidx/sqlite/inspection/SqlDelightInvalidationTest.kt"
-            line="72"
+            line="73"
             column="9"/>
     </issue>
 

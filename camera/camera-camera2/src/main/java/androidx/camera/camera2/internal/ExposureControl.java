@@ -206,7 +206,7 @@ public class ExposureControl {
                         mRunningCompleter = completer;
 
                         mCameraControl.addCaptureResultListener(mRunningCaptureResultListener);
-                        mCameraControl.updateSessionConfig();
+                        mCameraControl.updateSessionConfigSynchronous();
                     });
 
                     return "setExposureCompensationIndex[" + exposure + "]";

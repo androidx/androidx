@@ -48,7 +48,8 @@ import java.io.File
 class MainActivity : ComponentActivity() {
 
     val requestLocation = registerForActivityResult(
-        RequestPermission(), ACCESS_FINE_LOCATION) { isGranted ->
+        RequestPermission(), ACCESS_FINE_LOCATION
+    ) { isGranted ->
         toast("Location granted: $isGranted")
     }
 
@@ -72,8 +73,10 @@ class MainActivity : ComponentActivity() {
         toast("Got documents: $docs")
     }
 
-    val intentSender = registerForActivityResult(ActivityResultContracts
-        .StartIntentSenderForResult()) {
+    val intentSender = registerForActivityResult(
+        ActivityResultContracts
+            .StartIntentSenderForResult()
+    ) {
         toast("Received intent sender callback")
     }
 
@@ -102,8 +105,12 @@ class MainActivity : ComponentActivity() {
                     openDocuments.launch(arrayOf("*/*"))
                 }
                 button("Start IntentSender") {
-                    val request = IntentSenderRequest.Builder(PendingIntent.getActivity(context,
-                        0, Intent(MediaStore.ACTION_IMAGE_CAPTURE), 0).intentSender)
+                    val request = IntentSenderRequest.Builder(
+                        PendingIntent.getActivity(
+                            context,
+                            0, Intent(MediaStore.ACTION_IMAGE_CAPTURE), 0
+                        ).intentSender
+                    )
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK, 1)
                         .build()
                     intentSender.launch(request)

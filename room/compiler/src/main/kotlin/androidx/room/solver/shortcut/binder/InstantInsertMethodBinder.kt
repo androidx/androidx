@@ -39,10 +39,10 @@ class InstantInsertMethodBinder(adapter: InsertMethodAdapter?) : InsertMethodBin
             addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
         }
         adapter?.createInsertionMethodBody(
-                parameters = parameters,
-                insertionAdapters = insertionAdapters,
-                dbField = dbField,
-                scope = scope
+            parameters = parameters,
+            insertionAdapters = insertionAdapters,
+            dbField = dbField,
+            scope = scope
         )
     }
 }

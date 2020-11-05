@@ -73,7 +73,7 @@ import org.junit.runners.model.Statement
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
  */
-class BenchmarkRule internal constructor(
+public class BenchmarkRule internal constructor(
     /**
      * Used to disable reporting, for correctness tests that shouldn't report values
      * (and would trigger warnings if they did, e.g. debuggable=true)
@@ -81,7 +81,7 @@ class BenchmarkRule internal constructor(
      */
     private val enableReport: Boolean
 ) : TestRule {
-    constructor() : this(true)
+    public constructor() : this(true)
 
     internal // synthetic access
     val internalState = BenchmarkState()
@@ -106,7 +106,7 @@ class BenchmarkRule internal constructor(
      *
      * @throws [IllegalStateException] if the BenchmarkRule isn't correctly applied to a test.
      */
-    fun getState(): BenchmarkState {
+    public fun getState(): BenchmarkState {
         // Note: this is an explicit method instead of an accessor to help convey it's only for Java
         // Kotlin users should call the [measureRepeated] method.
         if (!applied) {
@@ -123,12 +123,12 @@ class BenchmarkRule internal constructor(
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val scope = Scope()
+    public val scope: Scope = Scope()
 
     /**
      * Handle used for controlling timing during [measureRepeated].
      */
-    inner class Scope internal constructor() {
+    public inner class Scope internal constructor() {
         /**
          * Disable timing for a block of code.
          *
@@ -145,7 +145,7 @@ class BenchmarkRule internal constructor(
          * }
          * ```
          */
-        inline fun <T> runWithTimingDisabled(block: () -> T): T {
+        public inline fun <T> runWithTimingDisabled(block: () -> T): T {
             getOuterState().pauseTiming()
             // Note: we only bother with tracing for the runWithTimingDisabled function for
             // Kotlin callers, as it's more difficult to corrupt the trace with incorrectly
@@ -235,7 +235,7 @@ class BenchmarkRule internal constructor(
  *
  * @param block The block of code to benchmark.
  */
-inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.() -> Unit) {
+public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.() -> Unit) {
     // Note: this is an extension function to discourage calling from Java.
 
     // Extract members to locals, to ensure we check #applied, and we don't hit accessors

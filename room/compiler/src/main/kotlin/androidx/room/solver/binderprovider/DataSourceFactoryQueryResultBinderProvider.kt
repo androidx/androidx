@@ -42,14 +42,16 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
             ListQueryResultAdapter(it)
         }
 
-        val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (adapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         val countedBinder = PositionalDataSourceQueryResultBinder(adapter, tableNames)
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
     override fun matches(declared: XDeclaredType): Boolean =
-            declared.typeArguments.size == 2 && isLivePagedList(declared)
+        declared.typeArguments.size == 2 && isLivePagedList(declared)
 
     private fun isLivePagedList(declared: XDeclaredType): Boolean {
         if (dataSourceFactoryType == null) {

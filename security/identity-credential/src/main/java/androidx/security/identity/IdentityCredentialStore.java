@@ -22,6 +22,7 @@ import android.os.Build;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -224,4 +225,24 @@ public abstract class IdentityCredentialStore {
     public @interface Ciphersuite {
     }
 
+    /** @hide
+     *
+     *  See Util.getIdentityCredentialStore() in the tests for why this is made available to tests.
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static @NonNull IdentityCredentialStore getSoftwareIdentityCredentialStore(@NonNull
+            Context context) {
+        return SoftwareIdentityCredentialStore.getInstance(context);
+    }
+
+    /** @hide
+     *
+     *  See Util.getIdentityCredentialStore() in the tests for why this is made available to tests.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public static @NonNull IdentityCredentialStore getHardwareIdentityCredentialStore(@NonNull
+            Context context) {
+        return HardwareIdentityCredentialStore.getInstance(context);
+    }
 }

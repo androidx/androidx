@@ -31,9 +31,13 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomWarnings
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(version = MigrationDbKotlin.LATEST_VERSION,
-        entities = arrayOf(MigrationDbKotlin.Entity1::class, MigrationDbKotlin.Entity2::class,
-                MigrationDbKotlin.Entity4::class))
+@Database(
+    version = MigrationDbKotlin.LATEST_VERSION,
+    entities = arrayOf(
+        MigrationDbKotlin.Entity1::class, MigrationDbKotlin.Entity2::class,
+        MigrationDbKotlin.Entity4::class
+    )
+)
 abstract class MigrationDbKotlin : RoomDatabase() {
 
     internal abstract fun dao(): MigrationDao
@@ -65,10 +69,16 @@ abstract class MigrationDbKotlin : RoomDatabase() {
     }
 
     @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
-    @Entity(foreignKeys = arrayOf(ForeignKey(entity = Entity1::class,
-            parentColumns = arrayOf("name"),
-            childColumns = arrayOf("name"),
-            deferred = true)))
+    @Entity(
+        foreignKeys = arrayOf(
+            ForeignKey(
+                entity = Entity1::class,
+                parentColumns = arrayOf("name"),
+                childColumns = arrayOf("name"),
+                deferred = true
+            )
+        )
+    )
     data class Entity4(@PrimaryKey var id: Int = 0, var name: String?) {
         companion object {
             val TABLE_NAME = "Entity4"
@@ -102,8 +112,10 @@ abstract class MigrationDbKotlin : RoomDatabase() {
             val values = ContentValues()
             values.put("id", id)
             values.put("name", name)
-            val insertionId = mDb.insert(Entity1.TABLE_NAME,
-                    SQLiteDatabase.CONFLICT_REPLACE, values)
+            val insertionId = mDb.insert(
+                Entity1.TABLE_NAME,
+                SQLiteDatabase.CONFLICT_REPLACE, values
+            )
             if (insertionId == -1L) {
                 throw RuntimeException("test failure")
             }
@@ -119,8 +131,10 @@ abstract class MigrationDbKotlin : RoomDatabase() {
             val values = ContentValues()
             values.put("id", id)
             values.put("name", name)
-            val insertionId = mDb.insert(Entity2.TABLE_NAME,
-                    SQLiteDatabase.CONFLICT_REPLACE, values)
+            val insertionId = mDb.insert(
+                Entity2.TABLE_NAME,
+                SQLiteDatabase.CONFLICT_REPLACE, values
+            )
             if (insertionId == -1L) {
                 throw RuntimeException("test failure")
             }

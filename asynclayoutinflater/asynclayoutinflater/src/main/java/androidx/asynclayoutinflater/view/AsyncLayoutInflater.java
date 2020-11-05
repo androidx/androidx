@@ -18,7 +18,6 @@ package androidx.asynclayoutinflater.view;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -93,7 +92,7 @@ public final class AsyncLayoutInflater {
         mInflateThread.enqueue(request);
     }
 
-    private Callback mHandlerCallback = new Callback() {
+    private Handler.Callback mHandlerCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             InflateRequest request = (InflateRequest) msg.obj;

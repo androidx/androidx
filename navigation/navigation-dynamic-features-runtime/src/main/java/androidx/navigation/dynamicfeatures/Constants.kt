@@ -24,8 +24,8 @@ import androidx.annotation.RestrictTo
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object Constants {
-    const val KEY_NAVIGATED = "dfn:navigated"
-    const val DESTINATION_ID = "dfn:destinationId"
-    const val DESTINATION_ARGS = "dfn:destinationArgs"
+public object Constants {
+    public const val KEY_NAVIGATED: String = "dfn:navigated"
+    public const val DESTINATION_ID: String = "dfn:destinationId"
+    public const val DESTINATION_ARGS: String = "dfn:destinationArgs"
 }

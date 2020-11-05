@@ -29,7 +29,9 @@ internal abstract class JavacExecutableElement(
 ) : JavacElement(
     env,
     element
-), XExecutableElement, XHasModifiers by JavacHasModifiers(element) {
+),
+    XExecutableElement,
+    XHasModifiers by JavacHasModifiers(element) {
     abstract val kotlinMetadata: KmExecutable?
 
     val descriptor by lazy {

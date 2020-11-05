@@ -16,7 +16,8 @@
 
 from build_log_simplifier import collapse_consecutive_blank_lines
 from build_log_simplifier import collapse_tasks_having_no_output
-from build_log_simplifier import generate_suggested_exemptions
+from build_log_simplifier import remove_unmatched_exemptions
+from build_log_simplifier import suggest_missing_exemptions
 from build_log_simplifier import normalize_paths
 from build_log_simplifier import regexes_matcher
 from build_log_simplifier import remove_control_characters
@@ -69,8 +70,47 @@ def test_regexes_matcher_index_first_matching_regex():
     assert(matcher.index_first_matching_regex("single") == 2)
     assert(matcher.index_first_matching_regex("absent") is None)
 
-def test_generate_suggested_exemptions():
-    print("test_generate_suggested_exemptions")
+def test_remove_unmatched_exemptions():
+    print("test_remove_unmatched_exemptions")
+    lines = [
+        "task two message one",
+        "task four message one",
+    ]
+
+    current_config = [
+        "# > Task :one",
+        "task one message one",
+        "# TODO(bug): remove this",
+        "# > Task :two",
+        "task two message one",
+        "# TODO(bug): remove this too",
+        "# > Task :three",
+        "task three message one",
+        "# > Task :four",
+        "task four message one",
+        "# TODO: maybe remove this too?",
+        "# > Task :five",
+        "task five message one"
+    ]
+
+    expected_config = [
+        "# TODO(bug): remove this",
+        "# > Task :two",
+        "task two message one",
+        "# > Task :four",
+        "task four message one",
+    ]
+
+    actual_updated_config = remove_unmatched_exemptions(lines, current_config)
+    if actual_updated_config != expected_config:
+        fail("test_remove_unmatched_exemptions gave incorrect response.\n\n" +
+            "Input log             : " + str(lines) + "\n\n" +
+            "Input config          : " + str(current_config) + "\n\n" +
+            "Expected output config: " + str(expected_config) + "\n\n" +
+            "Actual output config  : " + str(actual_updated_config))
+
+def test_suggest_missing_exemptions():
+    print("test_suggest_missing_exemptions")
     lines = [
         "> Task :one",
         "task one message one",
@@ -190,9 +230,9 @@ def test_collapse_consecutive_blank_lines():
         )
 
 def validate_suggested_exemptions(lines, config, expected_config):
-    suggested_config = generate_suggested_exemptions(lines, config)
+    suggested_config = suggest_missing_exemptions(lines, config)
     if suggested_config != expected_config:
-        fail("generate_suggested_exemptions incorrect response.\n" +
+        fail("suggest_missing_exemptions incorrect response.\n" +
              "Lines: " + str(lines) + ",\n" +
              "config: " + str(config) + ",\n" +
              "expected suggestion: " + str(expected_config) + ",\n"
@@ -221,11 +261,12 @@ def test_remove_control_characters():
 def main():
     test_collapse_consecutive_blank_lines()
     test_collapse_tasks_having_no_output()
-    test_generate_suggested_exemptions()
+    test_suggest_missing_exemptions()
     test_normalize_paths()
     test_regexes_matcher_get_matching_regexes()
     test_regexes_matcher_index_first_matching_regex()
     test_remove_control_characters()
+    test_remove_unmatched_exemptions()
 
 if __name__ == "__main__":
     main()

@@ -72,9 +72,14 @@ elif [[ "$1" == "prune" ]]; then
     | awk '{print $1}' \
     | while read line
     do
-      STATUS=`fn_aosp_ls $(fn_git_changeid $line) | jq .status`
-      if [[ $STATUS == "\"MERGED\"" ]] || [[ $STATUS == "\"ABANDONED\"" ]]; then
-        git branch -D $line
+      CHANGE_ID=`fn_git_changeid $line`
+      if [ ! -z "$CHANGE_ID" ]; then
+        STATUS=`fn_aosp_ls "$CHANGE_ID" | jq .status`
+        if [[ $STATUS == "\"MERGED\"" ]] || [[ $STATUS == "\"ABANDONED\"" ]]; then
+          git branch -D $line
+        fi
+      else
+        echo "Failed to prune $line due to missing Change-Id"
       fi
     done
 elif [[ "$1" == "c" ]]; then

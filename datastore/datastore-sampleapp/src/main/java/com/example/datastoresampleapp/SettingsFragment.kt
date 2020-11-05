@@ -22,10 +22,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.CorruptionException
-import androidx.datastore.DataStore
-import androidx.datastore.DataStoreFactory
-import androidx.datastore.Serializer
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.Serializer
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import androidx.preference.PreferenceFragmentCompat
@@ -70,9 +70,8 @@ class SettingsFragment() : PreferenceFragmentCompat() {
 
     private val settingsStore: DataStore<Settings> by lazy {
         DataStoreFactory.create(
-            { File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME) },
-            SettingsSerializer
-        )
+            serializer = SettingsSerializer
+        ) { File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME) }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -148,6 +147,8 @@ private val Preference.changeFlow: Flow<Pair<Preference?, Any?>>
     }
 
 private object SettingsSerializer : Serializer<Settings> {
+    override val defaultValue: Settings = Settings.getDefaultInstance()
+
     override fun readFrom(input: InputStream): Settings {
         try {
             return Settings.parseFrom(input)

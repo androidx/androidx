@@ -192,6 +192,17 @@ class LegacyPagingSourceTest {
         val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
         val dataSource = pagingSource.dataSource
 
+        var kotlinInvalidated = false
+        dataSource.addInvalidatedCallback {
+            kotlinInvalidated = true
+        }
+        var javaInvalidated = false
+        dataSource.addInvalidatedCallback(object : DataSource.InvalidatedCallback {
+            override fun onInvalidated() {
+                javaInvalidated = true
+            }
+        })
+
         assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
 
@@ -199,12 +210,25 @@ class LegacyPagingSourceTest {
 
         assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
+        assertTrue { kotlinInvalidated }
+        assertTrue { javaInvalidated }
     }
 
     @Test
     fun invalidateFromDataSource() {
         val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
         val dataSource = pagingSource.dataSource
+
+        var kotlinInvalidated = false
+        dataSource.addInvalidatedCallback {
+            kotlinInvalidated = true
+        }
+        var javaInvalidated = false
+        dataSource.addInvalidatedCallback(object : DataSource.InvalidatedCallback {
+            override fun onInvalidated() {
+                javaInvalidated = true
+            }
+        })
 
         assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -213,6 +237,8 @@ class LegacyPagingSourceTest {
 
         assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
+        assertTrue { kotlinInvalidated }
+        assertTrue { javaInvalidated }
     }
 
     @Test

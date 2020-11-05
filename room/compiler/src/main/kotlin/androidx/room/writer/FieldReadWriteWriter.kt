@@ -74,9 +74,13 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             val rootNode = Node(rootVar, null)
             rootNode.directFields = fieldsWithIndices.filter { it.field.parent == null }
             val parentNodes = allParents.associate {
-                Pair(it, Node(
+                Pair(
+                    it,
+                    Node(
                         varName = scope.getTmpVar("_tmp${it.field.name.capitalize(Locale.US)}"),
-                        fieldParent = it))
+                        fieldParent = it
+                    )
+                )
             }
             parentNodes.values.forEach { node ->
                 val fieldParent = node.fieldParent!!
@@ -101,9 +105,9 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 fun bindWithDescendants() {
                     node.directFields.forEach {
                         FieldReadWriteWriter(it).bindToStatement(
-                                ownerVar = node.varName,
-                                stmtParamVar = stmtParamVar,
-                                scope = scope
+                            ownerVar = node.varName,
+                            stmtParamVar = stmtParamVar,
+                            scope = scope
                         )
                     }
                     node.subNodes.forEach(::visitNode)
@@ -112,9 +116,9 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 val fieldParent = node.fieldParent
                 if (fieldParent != null) {
                     fieldParent.getter.writeGet(
-                            ownerVar = node.parentNode!!.varName,
-                            outVar = node.varName,
-                            builder = scope.builder()
+                        ownerVar = node.parentNode!!.varName,
+                        outVar = node.varName,
+                        builder = scope.builder()
                     )
                     scope.builder().apply {
                         beginControlFlow("if($L != null)", node.varName).apply {
@@ -193,7 +197,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         FieldReadWriteWriter(fwi).readIntoTmpVar(
                             cursorVar,
                             fwi.field.setter.type.typeName,
-                            scope)
+                            scope
+                        )
                     }
                     // read decomposed fields (e.g. embedded)
                     node.subNodes.forEach(::visitNode)
@@ -202,37 +207,43 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         relation.field.parent === fieldParent
                     }.associate {
                         it.writeReadCollectionIntoTmpVar(
-                                cursorVarName = cursorVar,
-                                fieldsWithIndices = fieldsWithIndices,
-                                scope = scope)
+                            cursorVarName = cursorVar,
+                            fieldsWithIndices = fieldsWithIndices,
+                            scope = scope
+                        )
                     }
 
                     // construct the object
                     if (fieldParent != null) {
-                        construct(outVar = node.varName,
-                                constructor = fieldParent.pojo.constructor,
-                                typeName = fieldParent.field.typeName,
-                                localEmbeddeds = node.subNodes,
-                                localRelations = relationFields,
-                                localVariableNames = constructorFields,
-                                scope = scope)
+                        construct(
+                            outVar = node.varName,
+                            constructor = fieldParent.pojo.constructor,
+                            typeName = fieldParent.field.typeName,
+                            localEmbeddeds = node.subNodes,
+                            localRelations = relationFields,
+                            localVariableNames = constructorFields,
+                            scope = scope
+                        )
                     } else {
-                        construct(outVar = node.varName,
-                                constructor = outPojo.constructor,
-                                typeName = outPojo.typeName,
-                                localEmbeddeds = node.subNodes,
-                                localRelations = relationFields,
-                                localVariableNames = constructorFields,
-                                scope = scope)
+                        construct(
+                            outVar = node.varName,
+                            constructor = outPojo.constructor,
+                            typeName = outPojo.typeName,
+                            localEmbeddeds = node.subNodes,
+                            localRelations = relationFields,
+                            localVariableNames = constructorFields,
+                            scope = scope
+                        )
                     }
                     // ready any field that was not part of the constructor
                     node.directFields.filterNot {
                         it.field.setter.callType == CallType.CONSTRUCTOR
                     }.forEach { fwi ->
                         FieldReadWriteWriter(fwi).readFromCursor(
-                                ownerVar = node.varName,
-                                cursorVar = cursorVar,
-                                scope = scope)
+                            ownerVar = node.varName,
+                            cursorVar = cursorVar,
+                            scope = scope
+                        )
                     }
                     // assign sub nodes to fields if they were not part of the constructor.
                     node.subNodes.mapNotNull {
@@ -244,18 +255,20 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         }
                     }.forEach { (varName, setter) ->
                         setter.writeSet(
-                                ownerVar = node.varName,
-                                inVar = varName,
-                                builder = scope.builder())
+                            ownerVar = node.varName,
+                            inVar = varName,
+                            builder = scope.builder()
+                        )
                     }
                     // assign relation fields that were not part of the constructor
                     relationFields.filterNot { (_, field) ->
                         field.setter.callType == CallType.CONSTRUCTOR
                     }.forEach { (varName, field) ->
                         field.setter.writeSet(
-                                ownerVar = node.varName,
-                                inVar = varName,
-                                builder = scope.builder())
+                            ownerVar = node.varName,
+                            inVar = varName,
+                            builder = scope.builder()
+                        )
                     }
                 }
                 if (fieldParent == null) {
@@ -264,8 +277,10 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     readNode()
                 } else {
                     // always declare, we'll set below
-                    scope.builder().addStatement("final $T $L", fieldParent.pojo.typeName,
-                                        node.varName)
+                    scope.builder().addStatement(
+                        "final $T $L", fieldParent.pojo.typeName,
+                        node.varName
+                    )
                     if (fieldParent.nonNull) {
                         readNode()
                     } else {
@@ -322,12 +337,15 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 scope.builder().apply {
                     when (field.setter.callType) {
                         CallType.FIELD -> {
-                            reader.readFromCursor("$ownerVar.${field.setter.name}", cursorVar,
-                                    indexVar, scope)
+                            reader.readFromCursor(
+                                "$ownerVar.${field.setter.name}", cursorVar,
+                                indexVar, scope
+                            )
                         }
                         CallType.METHOD -> {
                             val tmpField = scope.getTmpVar(
-                                "_tmp${field.name.capitalize(Locale.US)}")
+                                "_tmp${field.name.capitalize(Locale.US)}"
+                            )
                             addStatement("final $T $L", field.setter.type.typeName, tmpField)
                             reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
                             addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)

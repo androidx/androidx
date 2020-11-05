@@ -48,15 +48,15 @@ class PagingState<Key : Any, Value : Any> constructor(
 
     override fun equals(other: Any?): Boolean {
         return other is PagingState<*, *> &&
-                pages == other.pages &&
-                anchorPosition == other.anchorPosition &&
-                config == other.config &&
-                leadingPlaceholderCount == other.leadingPlaceholderCount
+            pages == other.pages &&
+            anchorPosition == other.anchorPosition &&
+            config == other.config &&
+            leadingPlaceholderCount == other.leadingPlaceholderCount
     }
 
     override fun hashCode(): Int {
         return pages.hashCode() + anchorPosition.hashCode() + config.hashCode() +
-                leadingPlaceholderCount.hashCode()
+            leadingPlaceholderCount.hashCode()
     }
 
     /**

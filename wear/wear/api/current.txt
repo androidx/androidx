@@ -77,6 +77,68 @@ package androidx.wear.ambient {
 
 }
 
+package androidx.wear.ongoingactivity {
+
+  @RequiresApi(24) public final class OngoingActivity {
+    method public void apply(android.content.Context);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context, java.util.function.Predicate<androidx.wear.ongoingactivity.OngoingActivityData!>);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context);
+    method public static androidx.wear.ongoingactivity.OngoingActivity? fromExistingOngoingActivity(android.content.Context, int);
+    method public void update(android.content.Context, androidx.wear.ongoingactivity.OngoingActivityStatus);
+  }
+
+  public static final class OngoingActivity.Builder {
+    ctor public OngoingActivity.Builder(android.content.Context, int, androidx.core.app.NotificationCompat.Builder);
+    method public androidx.wear.ongoingactivity.OngoingActivity build();
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(android.graphics.drawable.Icon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setAnimatedIcon(@DrawableRes int);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setLocusId(androidx.core.content.LocusIdCompat);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setOngoingActivityId(int);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStaticIcon(android.graphics.drawable.Icon);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStaticIcon(@DrawableRes int);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setStatus(androidx.wear.ongoingactivity.OngoingActivityStatus);
+    method public androidx.wear.ongoingactivity.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent);
+  }
+
+  public class OngoingActivityData {
+    method public static androidx.wear.ongoingactivity.OngoingActivityData? create(android.app.Notification);
+    method public android.graphics.drawable.Icon? getAnimatedIcon();
+    method public androidx.core.content.LocusIdCompat? getLocusId();
+    method public int getOngoingActivityId();
+    method public android.graphics.drawable.Icon? getStaticIcon();
+    method public androidx.wear.ongoingactivity.OngoingActivityStatus? getStatus();
+    method public android.app.PendingIntent? getTouchIntent();
+  }
+
+  public abstract class OngoingActivityStatus {
+    ctor public OngoingActivityStatus();
+    method public abstract long getNextChangeTimeMillis(long);
+    method public abstract CharSequence getText(android.content.Context, long);
+  }
+
+  public class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+    ctor public TextOngoingActivityStatus(String);
+    method public long getNextChangeTimeMillis(long);
+    method public CharSequence getText(android.content.Context, long);
+  }
+
+  public class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+    ctor public TimerOngoingActivityStatus(long, boolean, long, long);
+    ctor public TimerOngoingActivityStatus(long, boolean, long);
+    ctor public TimerOngoingActivityStatus(long, boolean);
+    ctor public TimerOngoingActivityStatus(long);
+    method public long getNextChangeTimeMillis(long);
+    method public long getPausedAtMillis();
+    method public CharSequence getText(android.content.Context, long);
+    method public long getTimeZeroMillis();
+    method public long getTotalDurationMillis();
+    method public boolean hasTotalDuration();
+    method public boolean isCountDown();
+    method public boolean isPaused();
+  }
+
+}
+
 package androidx.wear.utils {
 
   public class MetadataConstants {
@@ -212,6 +274,77 @@ package androidx.wear.widget {
     method public void onDismissed(androidx.wear.widget.SwipeDismissFrameLayout!);
     method public void onSwipeCanceled(androidx.wear.widget.SwipeDismissFrameLayout!);
     method public void onSwipeStarted(androidx.wear.widget.SwipeDismissFrameLayout!);
+  }
+
+  @UiThread public class WearArcLayout extends android.view.ViewGroup {
+    ctor public WearArcLayout(android.content.Context);
+    ctor public WearArcLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public WearArcLayout(android.content.Context, android.util.AttributeSet?, int);
+    ctor public WearArcLayout(android.content.Context, android.util.AttributeSet?, int, int);
+    method public float getAnchorAngleDegrees();
+    method public int getAnchorType();
+    method public boolean getClockwise();
+    method public void setAnchorAngleDegrees(float);
+    method public void setAnchorType(int);
+    method public void setClockwise(boolean);
+    field public static final int ANCHOR_CENTER = 1; // 0x1
+    field public static final int ANCHOR_END = 2; // 0x2
+    field public static final int ANCHOR_START = 0; // 0x0
+  }
+
+  public static interface WearArcLayout.ArcLayoutWidget {
+    method public void checkInvalidAttributeAsChild(boolean);
+    method public float getSweepAngleDegrees();
+    method public int getThicknessPx();
+    method public boolean handleLayoutRotate(float);
+  }
+
+  public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
+    ctor public WearArcLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
+    ctor public WearArcLayout.LayoutParams(int, int);
+    ctor public WearArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
+    method public boolean getRotate();
+    method public int getVerticalAlignment();
+    method public void setRotate(boolean);
+    method public void setVerticalAlignment(int);
+    field public static final int VALIGN_CENTER = 1; // 0x1
+    field public static final int VALIGN_INNER = 2; // 0x2
+    field public static final int VALIGN_OUTER = 0; // 0x0
+  }
+
+  public class WearCurvedTextView extends android.view.View implements androidx.wear.widget.WearArcLayout.ArcLayoutWidget {
+    ctor public WearCurvedTextView(android.content.Context);
+    ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?);
+    ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?, int);
+    ctor public WearCurvedTextView(android.content.Context, android.util.AttributeSet?, int, int);
+    method public void checkInvalidAttributeAsChild(boolean);
+    method public float getAnchorAngleDegrees();
+    method public int getAnchorType();
+    method public boolean getClockwise();
+    method public android.text.TextUtils.TruncateAt? getEllipsize();
+    method public String? getFontFeatureSettings();
+    method public String? getFontVariationSettings();
+    method public float getLetterSpacing();
+    method public float getSweepAngleDegrees();
+    method public float getSweepDegrees();
+    method public String getText();
+    method @ColorInt public int getTextColor();
+    method public float getTextSize();
+    method public int getThicknessPx();
+    method public android.graphics.Typeface? getTypeface();
+    method public boolean handleLayoutRotate(float);
+    method public void setAnchorAngleDegrees(float);
+    method public void setAnchorType(int);
+    method public void setClockwise(boolean);
+    method public void setEllipsize(android.text.TextUtils.TruncateAt?);
+    method public void setFontFeatureSettings(String?);
+    method public void setFontVariationSettings(String?);
+    method public void setLetterSpacing(float);
+    method public void setSweepDegrees(float);
+    method public void setText(String);
+    method public void setTextColor(@ColorInt int);
+    method public void setTextSize(float);
+    method public void setTypeface(android.graphics.Typeface?);
   }
 
   public class WearableLinearLayoutManager extends androidx.recyclerview.widget.LinearLayoutManager {

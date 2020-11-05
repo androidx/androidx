@@ -147,7 +147,7 @@ final class ZoomControl {
             updateLiveData(zoomState);
 
             mZoomImpl.resetZoom();
-            mCamera2CameraControlImpl.updateSessionConfig();
+            mCamera2CameraControlImpl.updateSessionConfigSynchronous();
         }
     }
 
@@ -220,7 +220,7 @@ final class ZoomControl {
         updateLiveData(zoomState);
 
         mZoomImpl.setZoomRatio(zoomState.getZoomRatio(), completer);
-        mCamera2CameraControlImpl.updateSessionConfig();
+        mCamera2CameraControlImpl.updateSessionConfigSynchronous();
     }
 
     /**

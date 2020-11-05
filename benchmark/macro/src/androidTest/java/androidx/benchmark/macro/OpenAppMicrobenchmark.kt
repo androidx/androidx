@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -39,6 +40,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
+@SuppressLint("UnsupportedTestRunner")
 @RunWith(Microbenchmark::class)
 class OpenAppMicrobenchmark {
 

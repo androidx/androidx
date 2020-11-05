@@ -27,9 +27,11 @@ import static org.junit.Assert.assertEquals;
 
 import android.graphics.Typeface;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -77,5 +79,44 @@ public class SwitchCompatTest {
                 .check(matches(asViewMatcher(thumbColor(expectedThumbTint))));
         onView(withId(R.id.switch_tint))
                 .check(matches(asViewMatcher(trackColor(expectedTrackTint))));
+    }
+
+    @Test
+    public void testAccessibility_default() {
+        SwitchCompat switchButton = mContainer.findViewById(R.id.switch_tint);
+        AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
+        switchButton.onInitializeAccessibilityNodeInfo(info);
+        assertEquals("android.widget.Switch", info.getClassName());
+        assertEquals(mActivity.getResources().getString(R.string.sample_text1), info.getText());
+        assertEquals(
+                mActivity.getResources().getString(androidx.appcompat.R.string.abc_capital_off),
+                ViewCompat.getStateDescription(switchButton)
+        );
+    }
+
+    @Test
+    public void testAccessibility_textOnOff() {
+        final SwitchCompat switchButton = mContainer.findViewById(R.id.switch_textOnOff);
+        AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
+        switchButton.onInitializeAccessibilityNodeInfo(info);
+        assertEquals("android.widget.Switch", info.getClassName());
+        assertEquals(mActivity.getResources().getString(R.string.sample_text1), info.getText());
+        assertEquals("testStateOff", ViewCompat.getStateDescription(switchButton));
+        final CharSequence newTextOff = "new text off";
+        final CharSequence newTextOn = "new text on";
+        mActivity.runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        switchButton.toggle();
+                        assertEquals("testStateOn", ViewCompat.getStateDescription(switchButton));
+                        switchButton.setTextOff(newTextOff);
+                        switchButton.setTextOn(newTextOn);
+                        assertEquals(newTextOn, ViewCompat.getStateDescription(switchButton));
+                        switchButton.toggle();
+                        assertEquals(newTextOff, ViewCompat.getStateDescription(switchButton));
+                    }
+                }
+        );
     }
 }

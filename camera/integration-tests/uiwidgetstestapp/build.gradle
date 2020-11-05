@@ -74,4 +74,6 @@ dependencies {
     androidTestImplementation(TRUTH)
     debugImplementation(ANDROIDX_TEST_CORE)
     debugImplementation("androidx.fragment:fragment-testing:1.2.5")
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 }

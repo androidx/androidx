@@ -12,7 +12,13 @@ You can learn more about using it from [Android Jetpack landing page](https://de
 
 For contributions via GitHub, see the [GitHub Contribution Guide](CONTRIBUTING.md).
 
-Note: The contributions workflow via GitHub is currently experimental - only contributions to [Paging](paging), [Room](room) and [WorkManager](work) are being accepted at this time.
+Note: The contributions workflow via GitHub is currently experimental - only contributions to the following projects are being accepted at this time:
+* [Activity](activity)
+* [Fragment](fragment)
+* [Navigation](navigation)
+* [Paging](paging)
+* [Room](room)
+* [WorkManager](work)
 
 ## Code Review Etiquette
 When contributing to Jetpack, follow the [code review etiquette](code-review.md).
@@ -73,10 +79,12 @@ To open the project with the specific version of Android Studio recommended for 
 
 ```bash
 cd path/to/checkout/frameworks/support/
-./studiow
+ANDROIDX_PROJECTS=MAIN ./gradlew studio
 ```
 
 and accept the license agreement when prompted. Now you're ready to edit, run, and test!
+
+You can also the following sets of projects: `ALL`, `MAIN`, `COMPOSE`, or `FLAN`
 
 If you get “Unregistered VCS root detected” click “Add root” to enable git integration for Android Studio.
 

@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,6 +50,7 @@ public class TemplateView extends SliceChildView implements
     private List<SliceContent> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
+    private int mHiddenItemCount;
 
     public TemplateView(Context context) {
         super(context);
@@ -167,18 +169,13 @@ public class TemplateView extends SliceChildView implements
     }
 
     @Override
-    public void setStyle(SliceStyle style) {
-        super.setStyle(style);
+    public void setStyle(SliceStyle style, @NonNull RowStyle rowStyle) {
+        super.setStyle(style, rowStyle);
         mAdapter.setStyle(style);
-        applyRowStyle();
+        applyRowStyle(rowStyle);
     }
 
-    private void applyRowStyle() {
-        if (mSliceStyle == null || mSliceStyle.getRowStyle() == null) {
-            return;
-        }
-
-        final RowStyle rowStyle = mSliceStyle.getRowStyle();
+    private void applyRowStyle(RowStyle rowStyle) {
         if (rowStyle.getDisableRecyclerViewItemAnimator()) {
             mRecyclerView.setItemAnimator(null);
         }
@@ -206,7 +203,10 @@ public class TemplateView extends SliceChildView implements
             resetView();
             return;
         }
-        mDisplayedItems = mListContent.getRowItems(height, mSliceStyle, mViewPolicy);
+        DisplayedListItems response = mListContent.getRowItems(
+                height, mSliceStyle, mViewPolicy);
+        mDisplayedItems = response.getDisplayedItems();
+        mHiddenItemCount = response.getHiddenItemCount();
         mDisplayedItemsHeight = mListContent.getListHeight(mDisplayedItems, mSliceStyle,
                 mViewPolicy);
         mAdapter.setSliceItems(mDisplayedItems, mTintColor, mViewPolicy.getMode());
@@ -258,5 +258,10 @@ public class TemplateView extends SliceChildView implements
         if (mListContent != null) {
             updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
         }
+    }
+
+    @Override
+    public int getHiddenItemCount() {
+        return mHiddenItemCount;
     }
 }

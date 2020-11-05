@@ -79,7 +79,9 @@ object DataTransformationsKeyValue {
 
     private fun nullOrInvalid(key: CameraMetadataKey, keyData: Any?): String? {
         if (keyData == null) return "MISSING DATA"
-        throw IllegalArgumentException("keyData of type ${keyData::class.simpleName} for $key is" +
-                " not supported")
+        throw IllegalArgumentException(
+            "keyData of type ${keyData::class.simpleName} for $key is" +
+                " not supported"
+        )
     }
 }

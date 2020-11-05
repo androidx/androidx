@@ -42,24 +42,14 @@ public final class SystemState implements VersionedParcelable, Parcelable {
     @ParcelField(2)
     int mInterruptionFilter;
 
-    @ParcelField(3)
-    int mUnreadCount;
-
-    @ParcelField(4)
-    int mNotificationCount;
-
     /** Used by VersionedParcelable. */
     SystemState() {}
 
     public SystemState(
             boolean inAmbientMode,
-            int interruptionFilter,
-            int unreadCount,
-            int notificationCount) {
+            int interruptionFilter) {
         mInAmbientMode = inAmbientMode;
         mInterruptionFilter = interruptionFilter;
-        mUnreadCount = unreadCount;
-        mNotificationCount = notificationCount;
     }
 
     public boolean getInAmbientMode() {
@@ -68,14 +58,6 @@ public final class SystemState implements VersionedParcelable, Parcelable {
 
     public int getInterruptionFilter() {
         return mInterruptionFilter;
-    }
-
-    public int getUnreadCount() {
-        return mUnreadCount;
-    }
-
-    public int getNotificationCount() {
-        return mNotificationCount;
     }
 
     /** Serializes this SystemState to the specified {@link Parcel}. */
@@ -93,9 +75,8 @@ public final class SystemState implements VersionedParcelable, Parcelable {
             new Parcelable.Creator<SystemState>() {
                 @Override
                 public SystemState createFromParcel(Parcel source) {
-                    return SystemStateParcelizer.read(
-                            ParcelUtils.fromParcelable(source.readParcelable(
-                                    getClass().getClassLoader())));
+                    return ParcelUtils.fromParcelable(
+                            source.readParcelable(getClass().getClassLoader()));
                 }
 
                 @Override

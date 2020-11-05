@@ -499,6 +499,9 @@ public class ShortcutManagerCompat {
     @VisibleForTesting
     static boolean convertUriIconToBitmapIcon(@NonNull final Context context,
             @NonNull final ShortcutInfoCompat info) {
+        if (info.mIcon == null) {
+            return false;
+        }
         final int type = info.mIcon.mType;
         if (type != TYPE_URI_ADAPTIVE_BITMAP && type != TYPE_URI) {
             return true;
@@ -520,7 +523,8 @@ public class ShortcutManagerCompat {
     @VisibleForTesting
     static void convertUriIconsToBitmapIcons(@NonNull final Context context,
             @NonNull final List<ShortcutInfoCompat> shortcutInfoList) {
-        for (ShortcutInfoCompat info : shortcutInfoList) {
+        final List<ShortcutInfoCompat> shortcuts = new ArrayList<>(shortcutInfoList);
+        for (ShortcutInfoCompat info : shortcuts) {
             if (!convertUriIconToBitmapIcon(context, info)) {
                 shortcutInfoList.remove(info);
             }

@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -38,18 +39,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.VideoCapture;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.SensorRotationListener;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileOptions;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.fragment.app.Fragment;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -76,6 +82,8 @@ public class CameraControllerFragment extends Fragment {
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
     private ExecutorService mExecutorService;
+    private ToggleButton mCaptureEnabledToggle;
+    private ToggleButton mAnalysisEnabledToggle;
     private ToggleButton mVideoEnabledToggle;
     private ToggleButton mPinchToZoomToggle;
     private ToggleButton mTapToFocusToggle;
@@ -114,6 +122,7 @@ public class CameraControllerFragment extends Fragment {
 
     @NonNull
     @Override
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
@@ -122,7 +131,9 @@ public class CameraControllerFragment extends Fragment {
         mSensorRotationListener = new RotationListener(requireContext());
         mSensorRotationListener.enable();
         mCameraController = new LifecycleCameraController(requireContext());
-        mCameraController.bindToLifecycle(getViewLifecycleOwner());
+        checkFailedFuture(mCameraController.getInitializationFuture());
+        runSafely(() -> mCameraController.bindToLifecycle(getViewLifecycleOwner()));
+
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
         mPreviewView = view.findViewById(R.id.preview_view);
@@ -151,15 +162,15 @@ public class CameraControllerFragment extends Fragment {
         // Set up the front/back camera toggle.
         mCameraToggle = view.findViewById(R.id.camera_toggle);
         mCameraToggle.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setCameraSelector(value
-                        ? CameraSelector.DEFAULT_BACK_CAMERA
-                        : CameraSelector.DEFAULT_FRONT_CAMERA));
+                (compoundButton, value) ->
+                        runSafely(() -> mCameraController.setCameraSelector(value
+                                ? CameraSelector.DEFAULT_BACK_CAMERA
+                                : CameraSelector.DEFAULT_FRONT_CAMERA)));
 
         // Image Capture enable switch.
-        ToggleButton captureEnabled = view.findViewById(R.id.capture_enabled);
-        captureEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setImageCaptureEnabled(value));
-        captureEnabled.setChecked(mCameraController.isImageCaptureEnabled());
+        mCaptureEnabledToggle = view.findViewById(R.id.capture_enabled);
+        mCaptureEnabledToggle.setOnCheckedChangeListener(this::onUseCaseToggled);
+        mCaptureEnabledToggle.setChecked(mCameraController.isImageCaptureEnabled());
 
         // Flash mode for image capture.
         mFlashMode = view.findViewById(R.id.flash_mode);
@@ -203,10 +214,10 @@ public class CameraControllerFragment extends Fragment {
                 });
 
         // Set up analysis UI.
-        ToggleButton analysisEnabled = view.findViewById(R.id.analysis_enabled);
-        analysisEnabled.setOnCheckedChangeListener(
-                (compoundButton, value) -> mCameraController.setImageAnalysisEnabled(value));
-        analysisEnabled.setChecked(mCameraController.isImageAnalysisEnabled());
+        mAnalysisEnabledToggle = view.findViewById(R.id.analysis_enabled);
+        mAnalysisEnabledToggle.setOnCheckedChangeListener(
+                this::onUseCaseToggled);
+        mAnalysisEnabledToggle.setChecked(mCameraController.isImageAnalysisEnabled());
 
         ToggleButton analyzerSet = view.findViewById(R.id.analyzer_set);
         analyzerSet.setOnCheckedChangeListener(
@@ -223,7 +234,7 @@ public class CameraControllerFragment extends Fragment {
         mVideoEnabledToggle = view.findViewById(R.id.video_enabled);
         mVideoEnabledToggle.setOnCheckedChangeListener(
                 (compoundButton, checked) -> {
-                    mCameraController.setVideoCaptureEnabled(checked);
+                    onUseCaseToggled(compoundButton, checked);
                     updateUiText();
                 });
 
@@ -235,15 +246,13 @@ public class CameraControllerFragment extends Fragment {
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
                 contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
                 contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
-                VideoCapture.OutputFileOptions outputFileOptions =
-                        new VideoCapture.OutputFileOptions.Builder(resolver,
-                                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                                contentValues).build();
+                OutputFileOptions outputFileOptions = OutputFileOptions.builder(resolver,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues).build();
                 mCameraController.startRecording(outputFileOptions, mExecutorService,
-                        new VideoCapture.OnVideoSavedCallback() {
+                        new OnVideoSavedCallback() {
                             @Override
                             public void onVideoSaved(
-                                    @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                                    @NonNull OutputFileResults outputFileResults) {
                                 toast("Video saved to: "
                                         + outputFileResults.getSavedUri());
                             }
@@ -275,14 +284,14 @@ public class CameraControllerFragment extends Fragment {
                 (compoundButton, checked) -> mCameraController.setTapToFocusEnabled(checked));
 
         ((ToggleButton) view.findViewById(R.id.torch_toggle)).setOnCheckedChangeListener(
-                (compoundButton, checked) -> logFailedFuture(
+                (compoundButton, checked) -> checkFailedFuture(
                         mCameraController.enableTorch(checked)));
 
         ((SeekBar) view.findViewById(R.id.linear_zoom_slider)).setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-                        logFailedFuture(mCameraController.setLinearZoom(
+                        checkFailedFuture(mCameraController.setLinearZoom(
                                 (float) progress / seekBar.getMax()));
                     }
 
@@ -320,7 +329,7 @@ public class CameraControllerFragment extends Fragment {
         mSensorRotationListener.disable();
     }
 
-    void logFailedFuture(ListenableFuture<Void> voidFuture) {
+    void checkFailedFuture(ListenableFuture<Void> voidFuture) {
         Futures.addCallback(voidFuture, new FutureCallback<Void>() {
 
             @Override
@@ -330,7 +339,7 @@ public class CameraControllerFragment extends Fragment {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.e(TAG, "Future failed. ", t);
+                toast(t.getMessage());
             }
         }, CameraXExecutors.mainThreadExecutor());
     }
@@ -361,6 +370,7 @@ public class CameraControllerFragment extends Fragment {
     /**
      * Updates UI text based on the state of {@link #mCameraController}.
      */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     private void updateUiText() {
         mFlashMode.setText(getFlashModeTextResId());
         mCameraToggle.setChecked(mCameraController.getCameraSelector().getLensFacing()
@@ -403,6 +413,37 @@ public class CameraControllerFragment extends Fragment {
         } else {
             mCameraController.clearImageAnalysisAnalyzer();
         }
+    }
+
+    /**
+     * Executes the runnable and catches {@link IllegalStateException}.
+     */
+    private void runSafely(@NonNull Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (IllegalStateException ex) {
+            toast("Failed to bind use cases.");
+        }
+    }
+
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    private void onUseCaseToggled(CompoundButton compoundButton, boolean value) {
+        if (mCaptureEnabledToggle == null || mAnalysisEnabledToggle == null
+                || mVideoEnabledToggle == null) {
+            return;
+        }
+        int useCaseEnabledFlags = 0;
+        if (mCaptureEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.IMAGE_CAPTURE;
+        }
+        if (mAnalysisEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.IMAGE_ANALYSIS;
+        }
+        if (mVideoEnabledToggle.isChecked()) {
+            useCaseEnabledFlags = useCaseEnabledFlags | CameraController.VIDEO_CAPTURE;
+        }
+        final int finalUseCaseEnabledFlags = useCaseEnabledFlags;
+        runSafely(() -> mCameraController.setEnabledUseCases(finalUseCaseEnabledFlags));
     }
 
     // -----------------

@@ -21,6 +21,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -43,7 +44,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
  * The installation process itself is handled within the [AbstractProgressFragment] itself.
  * Navigation to the target destination will occur once the installation is completed.
  */
-abstract class AbstractProgressFragment : Fragment {
+public abstract class AbstractProgressFragment : Fragment {
 
     internal companion object {
         private const val INSTALL_REQUEST_CODE = 1
@@ -61,9 +62,9 @@ abstract class AbstractProgressFragment : Fragment {
     }
     private var navigated = false
 
-    constructor()
+    public constructor()
 
-    constructor(contentLayoutId: Int) : super(contentLayoutId)
+    public constructor(contentLayoutId: Int) : super(contentLayoutId)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,24 +73,22 @@ abstract class AbstractProgressFragment : Fragment {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (navigated) {
             findNavController().popBackStack()
             return
         }
         var monitor = installViewModel.installMonitor
         if (monitor == null) {
-            Log.i(TAG, "onResume: monitor is null, navigating")
+            Log.i(TAG, "onViewCreated: monitor is null, navigating")
             navigate()
             monitor = installViewModel.installMonitor
         }
         if (monitor != null) {
-            Log.i(TAG, "onResume: monitor is now not null, observing")
-            monitor.status.observe(this, StateObserver(monitor))
+            Log.i(TAG, "onViewCreated: monitor is now not null, observing")
+            monitor.status.observe(viewLifecycleOwner, StateObserver(monitor))
         }
     }
-
     /**
      * Navigates to an installed dynamic feature module or kicks off installation.
      *
@@ -128,35 +127,37 @@ abstract class AbstractProgressFragment : Fragment {
                         onInstalled()
                         navigate()
                     }
-                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> try {
-                        val splitInstallManager = monitor.splitInstallManager
-                        if (splitInstallManager == null) {
-                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                            return
-                        }
-                        splitInstallManager.startConfirmationDialogForResult(
-                            sessionState,
-                            IntentSenderForResultStarter { intent,
-                                                           requestCode,
-                                                           fillInIntent,
-                                                           flagsMask,
-                                                           flagsValues,
-                                                           extraFlags,
-                                                           options ->
-                                startIntentSenderForResult(
-                                    intent,
+                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION ->
+                        try {
+                            val splitInstallManager = monitor.splitInstallManager
+                            if (splitInstallManager == null) {
+                                onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                                return
+                            }
+                            splitInstallManager.startConfirmationDialogForResult(
+                                sessionState,
+                                IntentSenderForResultStarter { intent,
                                     requestCode,
                                     fillInIntent,
                                     flagsMask,
                                     flagsValues,
                                     extraFlags,
-                                    options
-                                )
-                            }, INSTALL_REQUEST_CODE
-                        )
-                    } catch (e: IntentSender.SendIntentException) {
-                        onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                    }
+                                    options ->
+                                    startIntentSenderForResult(
+                                        intent,
+                                        requestCode,
+                                        fillInIntent,
+                                        flagsMask,
+                                        flagsValues,
+                                        extraFlags,
+                                        options
+                                    )
+                                },
+                                INSTALL_REQUEST_CODE
+                            )
+                        } catch (e: IntentSender.SendIntentException) {
+                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                        }
                     SplitInstallSessionStatus.CANCELED -> onCancelled()
                     SplitInstallSessionStatus.FAILED -> onFailed(sessionState.errorCode())
                     SplitInstallSessionStatus.UNKNOWN ->
@@ -217,5 +218,5 @@ abstract class AbstractProgressFragment : Fragment {
      * Called when requested module has been successfully installed, just before the
      * [NavController][androidx.navigation.NavController] navigates to the final destination.
      */
-    protected open fun onInstalled() = Unit
+    protected open fun onInstalled(): Unit = Unit
 }

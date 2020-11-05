@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
@@ -263,10 +264,15 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
                     R.attr.mediaRouteTvIconDrawable,
                     R.attr.mediaRouteSpeakerIconDrawable,
                     R.attr.mediaRouteSpeakerGroupIconDrawable});
-            mDefaultIcon = styledAttributes.getDrawable(0);
-            mTvIcon = styledAttributes.getDrawable(1);
-            mSpeakerIcon = styledAttributes.getDrawable(2);
-            mSpeakerGroupIcon = styledAttributes.getDrawable(3);
+
+            mDefaultIcon = AppCompatResources.getDrawable(context,
+                    styledAttributes.getResourceId(0, 0));
+            mTvIcon = AppCompatResources.getDrawable(context,
+                    styledAttributes.getResourceId(1, 0));
+            mSpeakerIcon = AppCompatResources.getDrawable(context,
+                    styledAttributes.getResourceId(2, 0));
+            mSpeakerGroupIcon = AppCompatResources.getDrawable(context,
+                    styledAttributes.getResourceId(3, 0));
             styledAttributes.recycle();
         }
 

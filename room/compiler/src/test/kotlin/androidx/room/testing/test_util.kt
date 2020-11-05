@@ -93,32 +93,46 @@ object COMMON {
         loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.toString())
     }
     val COMPUTABLE_LIVE_DATA by lazy {
-        loadJavaCode("common/input/ComputableLiveData.java",
-                LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString())
+        loadJavaCode(
+            "common/input/ComputableLiveData.java",
+            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.toString()
+        )
     }
     val PUBLISHER by lazy {
-        loadJavaCode("common/input/reactivestreams/Publisher.java",
-                ReactiveStreamsTypeNames.PUBLISHER.toString())
+        loadJavaCode(
+            "common/input/reactivestreams/Publisher.java",
+            ReactiveStreamsTypeNames.PUBLISHER.toString()
+        )
     }
     val RX2_FLOWABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Flowable.java",
-                RxJava2TypeNames.FLOWABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava2/Flowable.java",
+            RxJava2TypeNames.FLOWABLE.toString()
+        )
     }
     val RX2_OBSERVABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Observable.java",
-                RxJava2TypeNames.OBSERVABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava2/Observable.java",
+            RxJava2TypeNames.OBSERVABLE.toString()
+        )
     }
     val RX2_SINGLE by lazy {
-        loadJavaCode("common/input/rxjava2/Single.java",
-                RxJava2TypeNames.SINGLE.toString())
+        loadJavaCode(
+            "common/input/rxjava2/Single.java",
+            RxJava2TypeNames.SINGLE.toString()
+        )
     }
     val RX2_MAYBE by lazy {
-        loadJavaCode("common/input/rxjava2/Maybe.java",
-                RxJava2TypeNames.MAYBE.toString())
+        loadJavaCode(
+            "common/input/rxjava2/Maybe.java",
+            RxJava2TypeNames.MAYBE.toString()
+        )
     }
     val RX2_COMPLETABLE by lazy {
-        loadJavaCode("common/input/rxjava2/Completable.java",
-                RxJava2TypeNames.COMPLETABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava2/Completable.java",
+            RxJava2TypeNames.COMPLETABLE.toString()
+        )
     }
 
     val RX2_ROOM by lazy {
@@ -126,24 +140,34 @@ object COMMON {
     }
 
     val RX3_FLOWABLE by lazy {
-        loadJavaCode("common/input/rxjava3/Flowable.java",
-            RxJava3TypeNames.FLOWABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava3/Flowable.java",
+            RxJava3TypeNames.FLOWABLE.toString()
+        )
     }
     val RX3_OBSERVABLE by lazy {
-        loadJavaCode("common/input/rxjava3/Observable.java",
-            RxJava3TypeNames.OBSERVABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava3/Observable.java",
+            RxJava3TypeNames.OBSERVABLE.toString()
+        )
     }
     val RX3_SINGLE by lazy {
-        loadJavaCode("common/input/rxjava3/Single.java",
-            RxJava3TypeNames.SINGLE.toString())
+        loadJavaCode(
+            "common/input/rxjava3/Single.java",
+            RxJava3TypeNames.SINGLE.toString()
+        )
     }
     val RX3_MAYBE by lazy {
-        loadJavaCode("common/input/rxjava3/Maybe.java",
-            RxJava3TypeNames.MAYBE.toString())
+        loadJavaCode(
+            "common/input/rxjava3/Maybe.java",
+            RxJava3TypeNames.MAYBE.toString()
+        )
     }
     val RX3_COMPLETABLE by lazy {
-        loadJavaCode("common/input/rxjava3/Completable.java",
-            RxJava3TypeNames.COMPLETABLE.toString())
+        loadJavaCode(
+            "common/input/rxjava3/Completable.java",
+            RxJava3TypeNames.COMPLETABLE.toString()
+        )
     }
 
     val RX3_ROOM by lazy {
@@ -155,33 +179,45 @@ object COMMON {
     }
 
     val POSITIONAL_DATA_SOURCE by lazy {
-        loadJavaCode("common/input/PositionalDataSource.java",
-                PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())
+        loadJavaCode(
+            "common/input/PositionalDataSource.java",
+            PagingTypeNames.POSITIONAL_DATA_SOURCE.toString()
+        )
     }
 
     val LISTENABLE_FUTURE by lazy {
-        loadJavaCode("common/input/guava/ListenableFuture.java",
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
+        loadJavaCode(
+            "common/input/guava/ListenableFuture.java",
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString()
+        )
     }
 
     val GUAVA_ROOM by lazy {
-        loadJavaCode("common/input/GuavaRoom.java",
-            RoomGuavaTypeNames.GUAVA_ROOM.toString())
+        loadJavaCode(
+            "common/input/GuavaRoom.java",
+            RoomGuavaTypeNames.GUAVA_ROOM.toString()
+        )
     }
 
     val CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/Channel.java",
-            KotlinTypeNames.CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/Channel.java",
+            KotlinTypeNames.CHANNEL.toString()
+        )
     }
 
     val SEND_CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/SendChannel.java",
-            KotlinTypeNames.SEND_CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/SendChannel.java",
+            KotlinTypeNames.SEND_CHANNEL.toString()
+        )
     }
 
     val RECEIVE_CHANNEL by lazy {
-        loadJavaCode("common/input/coroutines/ReceiveChannel.java",
-            KotlinTypeNames.RECEIVE_CHANNEL.toString())
+        loadJavaCode(
+            "common/input/coroutines/ReceiveChannel.java",
+            KotlinTypeNames.RECEIVE_CHANNEL.toString()
+        )
     }
 }
 fun testCodeGenScope(): CodeGenScope {
@@ -195,20 +231,22 @@ fun simpleRun(
     f: (TestInvocation) -> Unit
 ): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
-            .apply {
-                if (classpathFiles.isNotEmpty()) {
-                    withClasspath(classpathFiles)
-                }
+        .that(jfos.toList() + JavaFileObjects.forSourceLines("NoOp", "final class NoOp {}"))
+        .apply {
+            if (classpathFiles.isNotEmpty()) {
+                withClasspath(classpathFiles)
             }
-            .withCompilerOptions(options)
-            .processedWith(TestProcessor.builder()
-                    .nextRunHandler {
-                        f(it)
-                        true
-                    }
-                    .forAnnotations("*")
-                    .build())
+        }
+        .withCompilerOptions(options)
+        .processedWith(
+            TestProcessor.builder()
+                .nextRunHandler {
+                    f(it)
+                    true
+                }
+                .forAnnotations("*")
+                .build()
+        )
 }
 
 fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
@@ -217,8 +255,10 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    return DatabaseVerifier.create(invocation.context, mock(XElement::class.java),
-            invocation.getEntities(), invocation.getViews())!!
+    return DatabaseVerifier.create(
+        invocation.context, mock(XElement::class.java),
+        invocation.getEntities(), invocation.getViews()
+    )!!
 }
 
 fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {

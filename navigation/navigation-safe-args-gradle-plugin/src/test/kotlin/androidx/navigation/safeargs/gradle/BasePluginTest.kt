@@ -113,7 +113,7 @@ abstract class BasePluginTest {
                     maven { url "${props.prebuiltsRoot}/androidx/internal" }
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
     }
 

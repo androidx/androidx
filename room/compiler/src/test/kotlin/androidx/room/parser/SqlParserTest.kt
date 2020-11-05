@@ -72,8 +72,8 @@ class SqlParserTest {
     fun upsertQuery() {
         val parsed = SqlParser.parse(
             "INSERT INTO notes (id, content) VALUES (:id, :content) " +
-                    "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
-                    "revision = revision + 1, modifiedTime = strftime('%s','now')"
+                "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
+                "revision = revision + 1, modifiedTime = strftime('%s','now')"
         )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
@@ -159,7 +159,8 @@ class SqlParserTest {
         val query = SqlParser.parse("SELECT a.name, b.last_name from user a, book b")
         assertThat(query.errors, `is`(emptyList()))
         assertThat(
-            query.tables, `is`(
+            query.tables,
+            `is`(
                 setOf(
                     Table("user", "a"),
                     Table("book", "b")
@@ -172,11 +173,12 @@ class SqlParserTest {
     fun tablePrefixInSelect_where() {
         val query = SqlParser.parse(
             "SELECT a.name, b.last_name from user a, book b" +
-                    " WHERE a.name = b.name"
+                " WHERE a.name = b.name"
         )
         assertThat(query.errors, `is`(emptyList()))
         assertThat(
-            query.tables, `is`(
+            query.tables,
+            `is`(
                 setOf(
                     Table("user", "a"),
                     Table("book", "b")

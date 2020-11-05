@@ -226,6 +226,7 @@ package androidx.slice.core {
   }
 
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
+    field public static final int ACTION_WITH_LABEL = 6; // 0x6
     field public static final int DETERMINATE_RANGE = 0; // 0x0
     field public static final String HINT_ACTIVITY = "activity";
     field public static final String HINT_CACHED = "cached";
@@ -233,6 +234,7 @@ package androidx.slice.core {
     field public static final String HINT_OVERLAY = "overlay";
     field public static final String HINT_RAW = "raw";
     field public static final String HINT_SELECTION_OPTION = "selection_option";
+    field public static final String HINT_SHOW_LABEL = "show_label";
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final int INDETERMINATE_RANGE = 1; // 0x1
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
@@ -251,7 +253,7 @@ package androidx.slice.core {
     field public static final int UNKNOWN_IMAGE = 5; // 0x5
   }
 
-  @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.RAW_IMAGE_SMALL, androidx.slice.core.SliceHints.RAW_IMAGE_LARGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
+  @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.RAW_IMAGE_SMALL, androidx.slice.core.SliceHints.RAW_IMAGE_LARGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE, androidx.slice.core.SliceHints.ACTION_WITH_LABEL}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
   }
 
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceQuery {

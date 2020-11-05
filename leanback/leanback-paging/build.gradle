@@ -54,4 +54,5 @@ androidx {
     inceptionYear = "2020"
     description = "AndroidX Leanback Paging"
     failOnDeprecationWarnings = false
+    legacyDisableKotlinStrictApiMode = true
 }

@@ -191,6 +191,7 @@ public @interface AppSearchDocument {
          * <p>If not specified, defaults to {@link
          * AppSearchSchema.PropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed and
          * cannot be queried).
+         * TODO(b/171857731) renamed to TermMatchType when using String-specific indexing config.
          */
         @AppSearchSchema.PropertyConfig.IndexingType int indexingType()
                 default AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
@@ -201,7 +202,7 @@ public @interface AppSearchDocument {
          * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
          *
          * <p>Please make sure you understand the consequences of required fields on
-         * {@link androidx.appsearch.app.AppSearchManager#setSchema schema migration} before setting
+         * {@link androidx.appsearch.app.AppSearchSession#setSchema schema migration} before setting
          * this attribute to {@code true}.
          */
         boolean required() default false;

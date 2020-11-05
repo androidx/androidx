@@ -65,33 +65,38 @@ class InsertionMethodProcessorTest {
     @Test
     fun readNoParams() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void foo();
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(0))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
             assertThat(insertion.entities.size, `is`(0))
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT)
+            ProcessorErrors.INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT
+        )
     }
 
     @Test
     fun insertSingle() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public long foo(User user);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
             assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
             assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.entities["user"]?.isPartialEntity, `is`(false))
-            assertThat(insertion.entities["user"]?.pojo?.typeName,
-                    `is`(ClassName.get("foo.bar", "User") as TypeName))
+            assertThat(
+                insertion.entities["user"]?.pojo?.typeName,
+                `is`(ClassName.get("foo.bar", "User") as TypeName)
+            )
             assertThat(insertion.returnType.typeName, `is`(TypeName.LONG))
         }.compilesWithoutError()
     }
@@ -99,25 +104,27 @@ class InsertionMethodProcessorTest {
     @Test
     fun insertNotAnEntity() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void foo(NotAnEntity notValid);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             assertThat(insertion.entities.size, `is`(0))
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
+            ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
         )
     }
 
     @Test
     fun insertTwo() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void foo(User u1, User u2);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
 
             assertThat(insertion.parameters.size, `is`(2))
@@ -136,40 +143,55 @@ class InsertionMethodProcessorTest {
     @Test
     fun insertList() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public List<Long> insertUsers(List<User> users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(
+            assertThat(
+                param.type.typeName,
+                `is`(
                     ParameterizedTypeName.get(
-                            ClassName.get("java.util", "List"),
-                            USER_TYPE_NAME) as TypeName))
+                        ClassName.get("java.util", "List"),
+                        USER_TYPE_NAME
+                    ) as TypeName
+                )
+            )
             assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
-            assertThat(insertion.returnType.typeName, `is`(
+            assertThat(
+                insertion.returnType.typeName,
+                `is`(
                     ParameterizedTypeName.get(
-                            ClassName.get("java.util", "List"),
-                            ClassName.get("java.lang", "Long")) as TypeName
-            ))
+                        ClassName.get("java.util", "List"),
+                        ClassName.get("java.lang", "Long")
+                    ) as TypeName
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun insertArray() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void insertUsers(User[] users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(
-                    ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName))
+            assertThat(
+                param.type.typeName,
+                `is`(
+                    ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName
+                )
+            )
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
@@ -179,17 +201,23 @@ class InsertionMethodProcessorTest {
     @Test
     fun insertSet() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void insertUsers(Set<User> users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(
+            assertThat(
+                param.type.typeName,
+                `is`(
                     ParameterizedTypeName.get(
-                            ClassName.get("java.util", "Set"),
-                            COMMON.USER_TYPE_NAME) as TypeName))
+                        ClassName.get("java.util", "Set"),
+                        COMMON.USER_TYPE_NAME
+                    ) as TypeName
+                )
+            )
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
@@ -199,17 +227,23 @@ class InsertionMethodProcessorTest {
     @Test
     fun insertQueue() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void insertUsers(Queue<User> users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insertUsers"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(
+            assertThat(
+                param.type.typeName,
+                `is`(
                     ParameterizedTypeName.get(
-                            ClassName.get("java.util", "Queue"),
-                            USER_TYPE_NAME) as TypeName))
+                        ClassName.get("java.util", "Queue"),
+                        USER_TYPE_NAME
+                    ) as TypeName
+                )
+            )
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
@@ -218,17 +252,24 @@ class InsertionMethodProcessorTest {
 
     @Test
     fun insertIterable() {
-        singleInsertMethod("""
+        singleInsertMethod(
+            """
                 @Insert
                 abstract public void insert(Iterable<User> users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(
+            assertThat(
+                param.type.typeName,
+                `is`(
                     ParameterizedTypeName.get(
-                            ClassName.get("java.lang", "Iterable"),
-                            USER_TYPE_NAME) as TypeName))
+                        ClassName.get("java.lang", "Iterable"),
+                        USER_TYPE_NAME
+                    ) as TypeName
+                )
+            )
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
@@ -237,17 +278,25 @@ class InsertionMethodProcessorTest {
 
     @Test
     fun insertCustomCollection() {
-        singleInsertMethod("""
+        singleInsertMethod(
+            """
                 static class MyList<Irrelevant, Item> extends ArrayList<Item> {}
                 @Insert
                 abstract public void insert(MyList<String, User> users);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("insert"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
-            assertThat(param.type.typeName, `is`(ParameterizedTypeName.get(
-                    ClassName.get("foo.bar", "MyClass.MyList"),
-                    CommonTypeNames.STRING, USER_TYPE_NAME) as TypeName))
+            assertThat(
+                param.type.typeName,
+                `is`(
+                    ParameterizedTypeName.get(
+                        ClassName.get("foo.bar", "MyClass.MyList"),
+                        CommonTypeNames.STRING, USER_TYPE_NAME
+                    ) as TypeName
+                )
+            )
             assertThat(insertion.entities.size, `is`(1))
             assertThat(insertion.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
@@ -257,15 +306,20 @@ class InsertionMethodProcessorTest {
     @Test
     fun insertDifferentTypes() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void foo(User u1, Book b1);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.parameters.size, `is`(2))
-            assertThat(insertion.parameters[0].type.typeName.toString(),
-                    `is`("foo.bar.User"))
-            assertThat(insertion.parameters[1].type.typeName.toString(),
-                    `is`("foo.bar.Book"))
+            assertThat(
+                insertion.parameters[0].type.typeName.toString(),
+                `is`("foo.bar.User")
+            )
+            assertThat(
+                insertion.parameters[1].type.typeName.toString(),
+                `is`("foo.bar.Book")
+            )
             assertThat(insertion.parameters.map { it.name }, `is`(listOf("u1", "b1")))
             assertThat(insertion.returnType.typeName, `is`(TypeName.VOID))
             assertThat(insertion.entities.size, `is`(2))
@@ -277,10 +331,11 @@ class InsertionMethodProcessorTest {
     @Test
     fun onConflict_Default() {
         singleInsertMethod(
-                """
+            """
                 @Insert
                 abstract public void foo(User user);
-                """) { insertion, _ ->
+                """
+        ) { insertion, _ ->
             assertThat(insertion.onConflict, `is`(OnConflictStrategy.ABORT))
         }.compilesWithoutError()
     }
@@ -288,27 +343,29 @@ class InsertionMethodProcessorTest {
     @Test
     fun onConflict_Invalid() {
         singleInsertMethod(
-                """
+            """
                 @Insert(onConflict = -1)
                 abstract public void foo(User user);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
     }
 
     @Test
     fun onConflict_EachValue() {
         listOf(
-                Pair("REPLACE", 1),
-                Pair("ROLLBACK", 2),
-                Pair("ABORT", 3),
-                Pair("FAIL", 4),
-                Pair("IGNORE", 5)
+            Pair("REPLACE", 1),
+            Pair("ROLLBACK", 2),
+            Pair("ABORT", 3),
+            Pair("FAIL", 4),
+            Pair("IGNORE", 5)
         ).forEach { pair ->
             singleInsertMethod(
-                    """
+                """
                 @Insert(onConflict=OnConflictStrategy.${pair.first})
                 abstract public void foo(User user);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.onConflict, `is`(pair.second))
             }.compilesWithoutError()
         }
@@ -317,126 +374,156 @@ class InsertionMethodProcessorTest {
     @Test
     fun invalidReturnType() {
         listOf(
-                "int",
-                "${RxJava2TypeNames.SINGLE}<Int>",
-                "${RxJava2TypeNames.MAYBE}<Int>",
-                "${RxJava2TypeNames.SINGLE}<String>",
-                "${RxJava2TypeNames.MAYBE}<String>",
-                "${RxJava2TypeNames.SINGLE}<User>",
-                "${RxJava2TypeNames.MAYBE}<User>"
+            "int",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<String>",
+            "${RxJava2TypeNames.MAYBE}<String>",
+            "${RxJava2TypeNames.SINGLE}<User>",
+            "${RxJava2TypeNames.MAYBE}<User>"
         ).forEach { type ->
             singleInsertMethod(
-                    """
+                """
                 @Insert
                 abstract public $type foo(User user);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
             }.failsToCompile().withErrorContaining(
-                    ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER)
+                ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            )
         }
     }
 
     @Test
     fun mismatchedReturnType() {
         listOf(
-                "long[]",
-                "Long[]",
-                "List<Long>",
-                "${RxJava2TypeNames.SINGLE}<List<Long>>",
-                "${RxJava2TypeNames.MAYBE}<List<Long>>"
+            "long[]",
+            "Long[]",
+            "List<Long>",
+            "${RxJava2TypeNames.SINGLE}<List<Long>>",
+            "${RxJava2TypeNames.MAYBE}<List<Long>>"
         ).forEach { type ->
             singleInsertMethod(
-                    """
+                """
                 @Insert
                 abstract public $type foo(User user);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
             }.failsToCompile().withErrorContaining(
-                    ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER)
+                ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            )
         }
     }
 
     @Test
     fun mismatchedReturnType2() {
         listOf(
-                "long",
-                "Long",
-                "${RxJava2TypeNames.SINGLE}<Long>",
-                "${RxJava2TypeNames.MAYBE}<Long>"
+            "long",
+            "Long",
+            "${RxJava2TypeNames.SINGLE}<Long>",
+            "${RxJava2TypeNames.MAYBE}<Long>"
         ).forEach { type ->
             singleInsertMethod(
-                    """
+                """
                 @Insert
                 abstract public $type foo(User... user);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
             }.failsToCompile().withErrorContaining(
-                    ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER)
+                ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            )
         }
     }
 
     @Test
     fun mismatchedReturnType3() {
         listOf(
-                "long",
-                "Long",
-                "${RxJava2TypeNames.SINGLE}<Long>",
-                "${RxJava2TypeNames.MAYBE}<Long>"
+            "long",
+            "Long",
+            "${RxJava2TypeNames.SINGLE}<Long>",
+            "${RxJava2TypeNames.MAYBE}<Long>"
         ).forEach { type ->
             singleInsertMethod(
-                    """
+                """
                 @Insert
                 abstract public $type foo(User user1, User user2);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.methodBinder.adapter, `is`(nullValue()))
             }.failsToCompile().withErrorContaining(
-                    ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER)
+                ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            )
         }
     }
 
     @Test
     fun validReturnTypes() {
         listOf(
-                Pair("void", InsertMethodAdapter.InsertionType.INSERT_VOID),
-                Pair("long", InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
-                Pair("long[]", InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY),
-                Pair("Long[]", InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY_BOX),
-                Pair("List<Long>", InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
-                Pair(RxJava2TypeNames.COMPLETABLE,
-                        InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT),
-                Pair("${RxJava2TypeNames.SINGLE}<Long>",
-                        InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
-                Pair("${RxJava2TypeNames.SINGLE}<List<Long>>",
-                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
-                Pair("${RxJava2TypeNames.MAYBE}<Long>",
-                        InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
-                Pair("${RxJava2TypeNames.MAYBE}<List<Long>>",
-                        InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
-                Pair(RxJava3TypeNames.COMPLETABLE,
-                    InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT),
-                Pair("${RxJava3TypeNames.SINGLE}<Long>",
-                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
-                Pair("${RxJava3TypeNames.SINGLE}<List<Long>>",
-                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
-                Pair("${RxJava3TypeNames.MAYBE}<Long>",
-                    InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
-                Pair("${RxJava3TypeNames.MAYBE}<List<Long>>",
-                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST)
+            Pair("void", InsertMethodAdapter.InsertionType.INSERT_VOID),
+            Pair("long", InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID),
+            Pair("long[]", InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY),
+            Pair("Long[]", InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY_BOX),
+            Pair("List<Long>", InsertMethodAdapter.InsertionType.INSERT_ID_LIST),
+            Pair(
+                RxJava2TypeNames.COMPLETABLE,
+                InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT
+            ),
+            Pair(
+                "${RxJava2TypeNames.SINGLE}<Long>",
+                InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID
+            ),
+            Pair(
+                "${RxJava2TypeNames.SINGLE}<List<Long>>",
+                InsertMethodAdapter.InsertionType.INSERT_ID_LIST
+            ),
+            Pair(
+                "${RxJava2TypeNames.MAYBE}<Long>",
+                InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID
+            ),
+            Pair(
+                "${RxJava2TypeNames.MAYBE}<List<Long>>",
+                InsertMethodAdapter.InsertionType.INSERT_ID_LIST
+            ),
+            Pair(
+                RxJava3TypeNames.COMPLETABLE,
+                InsertMethodAdapter.InsertionType.INSERT_VOID_OBJECT
+            ),
+            Pair(
+                "${RxJava3TypeNames.SINGLE}<Long>",
+                InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID
+            ),
+            Pair(
+                "${RxJava3TypeNames.SINGLE}<List<Long>>",
+                InsertMethodAdapter.InsertionType.INSERT_ID_LIST
+            ),
+            Pair(
+                "${RxJava3TypeNames.MAYBE}<Long>",
+                InsertMethodAdapter.InsertionType.INSERT_SINGLE_ID
+            ),
+            Pair(
+                "${RxJava3TypeNames.MAYBE}<List<Long>>",
+                InsertMethodAdapter.InsertionType.INSERT_ID_LIST
+            )
         ).forEach { pair ->
             val dots = if (pair.second in setOf(
-                            InsertMethodAdapter.InsertionType.INSERT_ID_LIST,
-                            InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY,
-                            InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY_BOX
-                    )) {
+                    InsertMethodAdapter.InsertionType.INSERT_ID_LIST,
+                    InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY,
+                    InsertMethodAdapter.InsertionType.INSERT_ID_ARRAY_BOX
+                )
+            ) {
                 "..."
             } else {
                 ""
             }
             singleInsertMethod(
-                    """
+                """
                 @Insert
                 abstract public ${pair.first} foo(User$dots user);
-                """) { insertion, _ ->
+                """
+            ) { insertion, _ ->
                 assertThat(insertion.methodBinder.adapter, `is`(notNullValue()))
             }.compilesWithoutError()
         }
@@ -460,7 +547,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public long foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { insertion, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { insertion, _ ->
             assertThat(insertion.name, `is`("foo"))
             assertThat(insertion.parameters.size, `is`(1))
             val param = insertion.parameters.first()
@@ -479,7 +567,8 @@ class InsertionMethodProcessorTest {
             """
                 @Insert(entity = User.class)
                 abstract public long foo(User user);
-                """) { _, _ ->
+                """
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -501,7 +590,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public void foo(Username usernameA, Username usernameB);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -521,11 +611,13 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public void foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
             ProcessorErrors.missingRequiredColumnsInPartialEntity(
                 partialEntityName = USERNAME_TYPE_NAME.toString(),
-                missingColumnNames = listOf("ageColumn"))
+                missingColumnNames = listOf("ageColumn")
+            )
         )
     }
 
@@ -558,7 +650,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = Pet.class)
                 abstract public long foo(PetName petName);
                 """,
-            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+            additionalJFOs = listOf(petNameJfo, petJfo)
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -589,11 +682,13 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = Pet.class)
                 abstract public long foo(PetName petName);
                 """,
-            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+            additionalJFOs = listOf(petNameJfo, petJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
             ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
                 partialEntityName = "foo.bar.PetName",
-                primaryKeyNames = listOf("petId"))
+                primaryKeyNames = listOf("petId")
+            )
         )
     }
 
@@ -624,7 +719,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = Pet.class)
                 abstract public long foo(PetName petName);
                 """,
-            additionalJFOs = listOf(petNameJfo, petJfo)) { _, _ ->
+            additionalJFOs = listOf(petNameJfo, petJfo)
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -645,9 +741,11 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public long foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-            ProcessorErrors.cannotFindAsEntityField("foo.bar.User"))
+            ProcessorErrors.cannotFindAsEntityField("foo.bar.User")
+        )
     }
 
     @Test
@@ -670,7 +768,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public long foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo)
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -703,7 +802,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public long foo(Username username);
                 """,
-            additionalJFOs = listOf(usernameJfo, fullnameJfo)) { _, _ ->
+            additionalJFOs = listOf(usernameJfo, fullnameJfo)
+        ) { _, _ ->
         }.compilesWithoutError()
     }
 
@@ -736,7 +836,8 @@ class InsertionMethodProcessorTest {
                 @Insert(entity = User.class)
                 abstract public long foo(UserPets userPets);
                 """,
-            additionalJFOs = listOf(userPetsJfo, petJfo)) { _, _ ->
+            additionalJFOs = listOf(userPetsJfo, petJfo)
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_RELATION_IN_PARTIAL_ENTITY)
     }
 
@@ -746,32 +847,41 @@ class InsertionMethodProcessorTest {
         handler: (InsertionMethod, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX),
-                        COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
-                        COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
-                        COMMON.RX3_MAYBE, COMMON.RX3_SINGLE) + additionalJFOs
-                )
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Insert::class, Dao::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                .getElementsAnnotatedWith(Dao::class.java)
-                                .map {
-                                    Pair(it,
-                                        it.asTypeElement().getAllMethods().filter {
-                                            it.hasAnnotation(Insert::class)
-                                        }
-                                    )
-                                }.first { it.second.isNotEmpty() }
-                            val processor = InsertionMethodProcessor(
-                                    baseContext = invocation.context,
-                                    containing = owner.asDeclaredType(),
-                                    executableElement = methods.first())
-                            val processed = processor.process()
-                            handler(processed, invocation)
-                            true
-                        }
-                        .build())
+            .that(
+                listOf(
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.MyClass",
+                        DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
+                    ),
+                    COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+                    COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
+                    COMMON.RX3_MAYBE, COMMON.RX3_SINGLE
+                ) + additionalJFOs
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(Insert::class, Dao::class)
+                    .nextRunHandler { invocation ->
+                        val (owner, methods) = invocation.roundEnv
+                            .getElementsAnnotatedWith(Dao::class.java)
+                            .map {
+                                Pair(
+                                    it,
+                                    it.asTypeElement().getAllMethods().filter {
+                                        it.hasAnnotation(Insert::class)
+                                    }
+                                )
+                            }.first { it.second.isNotEmpty() }
+                        val processor = InsertionMethodProcessor(
+                            baseContext = invocation.context,
+                            containing = owner.asDeclaredType(),
+                            executableElement = methods.first()
+                        )
+                        val processed = processor.process()
+                        handler(processed, invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 }

@@ -195,29 +195,36 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
 
     private suspend fun loadInitial(params: LoadInitialParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<Key, Value>() {
-                override fun onResult(
-                    data: List<Value>,
-                    position: Int,
-                    totalCount: Int,
-                    previousPageKey: Key?,
-                    nextPageKey: Key?
-                ) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = previousPageKey,
-                            nextKey = nextPageKey,
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
+            loadInitial(
+                params,
+                object : LoadInitialCallback<Key, Value>() {
+                    override fun onResult(
+                        data: List<Value>,
+                        position: Int,
+                        totalCount: Int,
+                        previousPageKey: Key?,
+                        nextPageKey: Key?
+                    ) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = previousPageKey,
+                                nextKey = nextPageKey,
+                                itemsBefore = position,
+                                itemsAfter = totalCount - data.size - position
+                            )
                         )
-                    )
-                }
+                    }
 
-                override fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) {
-                    cont.resume(BaseResult(data, previousPageKey, nextPageKey))
+                    override fun onResult(
+                        data: List<Value>,
+                        previousPageKey: Key?,
+                        nextPageKey: Key?
+                    ) {
+                        cont.resume(BaseResult(data, previousPageKey, nextPageKey))
+                    }
                 }
-            })
+            )
         }
 
     private suspend fun loadBefore(params: LoadParams<Key>) =

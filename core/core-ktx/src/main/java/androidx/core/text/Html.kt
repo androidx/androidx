@@ -36,7 +36,7 @@ import androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
  *
  * @see Html.fromHtml
  */
-inline fun String.parseAsHtml(
+public inline fun String.parseAsHtml(
     flags: Int = FROM_HTML_MODE_LEGACY,
     imageGetter: ImageGetter? = null,
     tagHandler: TagHandler? = null
@@ -47,6 +47,6 @@ inline fun String.parseAsHtml(
  *
  * @see Html.toHtml
  */
-inline fun Spanned.toHtml(
+public inline fun Spanned.toHtml(
     option: Int = TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
 ): String = HtmlCompat.toHtml(this, option)

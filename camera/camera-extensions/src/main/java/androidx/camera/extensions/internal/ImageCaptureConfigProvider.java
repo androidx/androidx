@@ -80,7 +80,7 @@ public class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureCo
         }
         mContext = context;
 
-        String cameraId = Camera2CameraInfo.fromCameraInfo(cameraInfo).getCameraId();
+        String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
         CameraCharacteristics cameraCharacteristics =
                 Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
         mImpl.init(cameraId, cameraCharacteristics);

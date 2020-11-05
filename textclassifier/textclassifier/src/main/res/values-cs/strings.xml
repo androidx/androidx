@@ -16,7 +16,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="6099716515489216517">"Poslat e-mail"</string>
+    <string name="email" msgid="6099716515489216517">"E-mail"</string>
     <string name="email_desc" msgid="2189760120923982860">"Napsat na vybranou e‑mailovou adresu"</string>
     <string name="dial" msgid="2101464860090311277">"Zavolat"</string>
     <string name="dial_desc" msgid="1195407206406821463">"Zavolat na vybrané telefonní číslo"</string>

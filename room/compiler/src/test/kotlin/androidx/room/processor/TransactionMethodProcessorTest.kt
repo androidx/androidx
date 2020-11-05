@@ -52,10 +52,11 @@ class TransactionMethodProcessorTest {
     @Test
     fun simple() {
         singleTransactionMethod(
-                """
+            """
                 @Transaction
                 public String doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.compilesWithoutError()
     }
@@ -63,10 +64,11 @@ class TransactionMethodProcessorTest {
     @Test
     fun modifier_private() {
         singleTransactionMethod(
-                """
+            """
                 @Transaction
                 private String doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile().withErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
     }
@@ -74,10 +76,11 @@ class TransactionMethodProcessorTest {
     @Test
     fun modifier_final() {
         singleTransactionMethod(
-                """
+            """
                 @Transaction
                 public final String doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile().withErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
     }
@@ -88,7 +91,8 @@ class TransactionMethodProcessorTest {
             """
                 @Transaction
                 public LiveData<String> doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -104,7 +108,8 @@ class TransactionMethodProcessorTest {
             """
                 @Transaction
                 public io.reactivex.Flowable<String> doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -122,7 +127,8 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.rxjava3.core.Flowable<String> doInTransaction(int param) { 
                     return null; 
                 }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -138,7 +144,8 @@ class TransactionMethodProcessorTest {
             """
                 @Transaction
                 public io.reactivex.Completable doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -156,7 +163,8 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.rxjava3.core.Completable doInTransaction(int param) { 
                     return null;
                 }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -172,7 +180,8 @@ class TransactionMethodProcessorTest {
             """
                 @Transaction
                 public io.reactivex.Single<String> doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -190,7 +199,8 @@ class TransactionMethodProcessorTest {
                 public io.reactivex.rxjava3.core.Single<String> doInTransaction(int param) {
                     return null;
                 }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -206,7 +216,8 @@ class TransactionMethodProcessorTest {
             """
                 @Transaction
                 public ListenableFuture<String> doInTransaction(int param) { return null; }
-                """) { transaction, _ ->
+                """
+        ) { transaction, _ ->
             assertThat(transaction.name, `is`("doInTransaction"))
         }.failsToCompile()
             .withErrorContaining(
@@ -224,31 +235,41 @@ class TransactionMethodProcessorTest {
         handler: (TransactionMethod, TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
+            .that(
+                listOf(
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
+                    ),
+                    COMMON.LIVE_DATA, COMMON.RX2_FLOWABLE, COMMON.PUBLISHER, COMMON.RX2_COMPLETABLE,
                     COMMON.RX2_SINGLE, COMMON.RX3_FLOWABLE, COMMON.RX3_COMPLETABLE,
-                    COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Transaction::class, Dao::class)
-                        .nextRunHandler { invocation ->
-                            val (owner, methods) = invocation.roundEnv
-                                    .getElementsAnnotatedWith(Dao::class.java)
-                                    .map {
-                                        Pair(it,
-                                            it.asTypeElement().getAllMethods().filter {
-                                                it.hasAnnotation(Transaction::class)
-                                            }
-                                        )
-                                    }.first { it.second.isNotEmpty() }
-                            val processor = TransactionMethodProcessor(
-                                    baseContext = invocation.context,
-                                    containing = owner.asDeclaredType(),
-                                    executableElement = methods.first())
-                            val processed = processor.process()
-                            handler(processed, invocation)
-                            true
-                        }
-                        .build())
+                    COMMON.RX3_SINGLE, COMMON.LISTENABLE_FUTURE
+                )
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(Transaction::class, Dao::class)
+                    .nextRunHandler { invocation ->
+                        val (owner, methods) = invocation.roundEnv
+                            .getElementsAnnotatedWith(Dao::class.java)
+                            .map {
+                                Pair(
+                                    it,
+                                    it.asTypeElement().getAllMethods().filter {
+                                        it.hasAnnotation(Transaction::class)
+                                    }
+                                )
+                            }.first { it.second.isNotEmpty() }
+                        val processor = TransactionMethodProcessor(
+                            baseContext = invocation.context,
+                            containing = owner.asDeclaredType(),
+                            executableElement = methods.first()
+                        )
+                        val processed = processor.process()
+                        handler(processed, invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 }

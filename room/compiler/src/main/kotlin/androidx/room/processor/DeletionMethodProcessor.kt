@@ -37,9 +37,9 @@ class DeletionMethodProcessor(
         val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)
 
         context.checker.check(
-                methodBinder.adapter != null,
-                executableElement,
-                ProcessorErrors.CANNOT_FIND_DELETE_RESULT_ADAPTER
+            methodBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.CANNOT_FIND_DELETE_RESULT_ADAPTER
         )
 
         val (entities, params) = delegate.extractParams(
@@ -49,11 +49,11 @@ class DeletionMethodProcessor(
         )
 
         return DeletionMethod(
-                element = delegate.executableElement,
-                name = delegate.executableElement.name,
-                entities = entities,
-                parameters = params,
-                methodBinder = methodBinder
+            element = delegate.executableElement,
+            name = delegate.executableElement.name,
+            entities = entities,
+            parameters = params,
+            methodBinder = methodBinder
         )
     }
 }

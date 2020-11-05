@@ -63,7 +63,8 @@ class DynamicIncludeGraphNavigatorTest {
         )
         with(navController) {
             navigatorProvider.addNavigator(
-                DynamicGraphNavigator(navigatorProvider, installManager))
+                DynamicGraphNavigator(navigatorProvider, installManager)
+            )
             navigatorProvider.addNavigator(navigator)
             navigatorProvider.addNavigator(NoOpNavigator())
             setGraph(navGraphId)
@@ -83,13 +84,19 @@ class DynamicIncludeGraphNavigatorTest {
             moduleName = FEATURE_NAME
         }
         assertThat(
-            dynamicNavGraph.getPackageOrDefault(context, "\${applicationId}.something" +
-                    ".$FEATURE_NAME")
+            dynamicNavGraph.getPackageOrDefault(
+                context,
+                "\${applicationId}.something" +
+                    ".$FEATURE_NAME"
+            )
         ).isEqualTo("$packageName.something.$FEATURE_NAME")
 
         assertThat(
-            dynamicNavGraph.getPackageOrDefault(context, "something.\${applicationId}" +
-                    ".$FEATURE_NAME")
+            dynamicNavGraph.getPackageOrDefault(
+                context,
+                "something.\${applicationId}" +
+                    ".$FEATURE_NAME"
+            )
         ).isEqualTo("something.$packageName.$FEATURE_NAME")
 
         assertThat(
@@ -103,10 +110,12 @@ class DynamicIncludeGraphNavigatorTest {
             setupInternal(R.navigation.nav_invalid_id)
             fail("Inflating nav_invalid_id should fail with an IllegalStateException")
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().containsMatch(".*" +
+            assertThat(e).hasMessageThat().containsMatch(
+                ".*" +
                     "androidx.navigation.dynamicfeatures.test:id/featureFragmentNested" +
                     ".*" +
-                    "androidx.navigation.dynamicfeatures.test:id/dynamic_graph")
+                    "androidx.navigation.dynamicfeatures.test:id/dynamic_graph"
+            )
         }
     }
 

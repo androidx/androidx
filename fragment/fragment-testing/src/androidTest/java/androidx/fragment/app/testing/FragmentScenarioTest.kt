@@ -212,7 +212,7 @@ class FragmentScenarioTest {
                             if (event == Lifecycle.Event.ON_START) {
                                 tagSetBeforeOnStart =
                                     fragment.requireView().getTag(view_tag_id) ==
-                                        "fakeNavController"
+                                    "fakeNavController"
                             }
                         }
                     )

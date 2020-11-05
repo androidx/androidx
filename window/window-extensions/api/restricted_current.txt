@@ -20,8 +20,6 @@ package androidx.window.extensions {
   }
 
   public interface ExtensionInterface {
-    method public androidx.window.extensions.ExtensionDeviceState getDeviceState();
-    method public androidx.window.extensions.ExtensionWindowLayoutInfo getWindowLayoutInfo(android.content.Context);
     method public void onDeviceStateListenersChanged(boolean);
     method public void onWindowLayoutChangeListenerAdded(android.content.Context);
     method public void onWindowLayoutChangeListenerRemoved(android.content.Context);

@@ -50,6 +50,9 @@ public class CameraQuirks {
         if (AeFpsRangeLegacyQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new AeFpsRangeLegacyQuirk(cameraCharacteristicsCompat));
         }
+        if (AspectRatioLegacyApi21Quirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AspectRatioLegacyApi21Quirk());
+        }
         return new Quirks(quirks);
     }
 }

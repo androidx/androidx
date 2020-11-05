@@ -30,10 +30,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.video.ExperimentalVideo;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
@@ -73,7 +75,7 @@ public class CameraViewFragment extends Fragment {
 
 
     private View mCameraHolder;
-    private CameraView mCameraView;
+    CameraView mCameraView;
     private View mCaptureView;
     private CompoundButton mModeButton;
     @Nullable
@@ -150,6 +152,7 @@ public class CameraViewFragment extends Fragment {
     }
 
     @Override
+    @UseExperimental(markerClass = ExperimentalVideo.class)
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
@@ -258,7 +261,8 @@ public class CameraViewFragment extends Fragment {
         }
     }
 
-    private void updateModeButtonIcon() {
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    void updateModeButtonIcon() {
         if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
             mModeButton.setButtonDrawable(R.drawable.ic_photo_camera);
         } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {
@@ -269,6 +273,7 @@ public class CameraViewFragment extends Fragment {
     }
 
     @Override
+    @NonNull
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,

@@ -23,7 +23,7 @@ package androidx.tracing
  * @param label A name of the code section to appear in the trace.
  * @param block A block of code which is being traced.
  */
-inline fun <T> trace(label: String, crossinline block: () -> T): T {
+public inline fun <T> trace(label: String, crossinline block: () -> T): T {
     try {
         Trace.beginSection(label)
         return block()
@@ -39,7 +39,7 @@ inline fun <T> trace(label: String, crossinline block: () -> T): T {
  * @param methodName The method name to appear in the trace.
  * @param cookie Unique identifier for distinguishing simultaneous events
  */
-suspend inline fun <T> traceAsync(
+public suspend inline fun <T> traceAsync(
     methodName: String,
     cookie: Int,
     crossinline block: suspend () -> T

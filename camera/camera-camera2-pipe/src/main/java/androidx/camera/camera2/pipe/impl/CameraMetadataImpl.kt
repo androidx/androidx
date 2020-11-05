@@ -24,6 +24,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
 
 /**
  * This implementation provides access to CameraCharacteristics and lazy caching of properties
@@ -146,13 +147,13 @@ class CameraMetadataImpl constructor(
 
     private val _streamMap: Lazy<StreamConfigurationMap> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
-            val start = Metrics.monotonicNanos()
+            val start = Timestamps.now()
             val result =
                 Debug.trace("Camera-${camera.value}#SCALER_STREAM_CONFIGURATION_MAP") {
                     get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
                 }
-            val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
-            Log.info { "Loaded stream map for ($camera) in ${duration.formatMilliTime()}" }
+            val duration = Timestamps.now() - start
+            Log.info { "Loaded stream map for ($camera) in ${duration.formatMs()}" }
 
             result
         }

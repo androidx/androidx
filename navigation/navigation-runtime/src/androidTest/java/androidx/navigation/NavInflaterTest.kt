@@ -84,8 +84,10 @@ class NavInflaterTest {
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
         assertThat(graph).isNotNull()
-        val expectedUri = Uri.parse("android-app://" +
-                instrumentation.targetContext.packageName + "/test")
+        val expectedUri = Uri.parse(
+            "android-app://" +
+                instrumentation.targetContext.packageName + "/test"
+        )
         val expectedDeepLinkRequest = NavDeepLinkRequest.Builder.fromUri(expectedUri).build()
         val result = graph.matchDeepLink(expectedDeepLinkRequest)
         assertThat(result)
@@ -119,8 +121,12 @@ class NavInflaterTest {
 
         assertThat(graph).isNotNull()
         val expectedDeepLinkRequest = NavDeepLinkRequest.Builder
-            .fromUri(Uri.parse("android-app://" +
-                    instrumentation.targetContext.packageName + "/test/param1/param2")).build()
+            .fromUri(
+                Uri.parse(
+                    "android-app://" +
+                        instrumentation.targetContext.packageName + "/test/param1/param2"
+                )
+            ).build()
         val result = graph.matchDeepLink(expectedDeepLinkRequest)
         assertThat(result)
             .isNotNull()
@@ -171,9 +177,11 @@ class NavInflaterTest {
             .isEqualTo(NavType.BoolType to false)
         assertThat(defaultArguments["test_boolean_with_argType"]?.run { type to defaultValue })
             .isEqualTo(NavType.BoolType to true)
-        assertThat(defaultArguments["test_boolean_with_argType_false"]?.run {
-            type to defaultValue
-        }).isEqualTo(NavType.BoolType to false)
+        assertThat(
+            defaultArguments["test_boolean_with_argType_false"]?.run {
+                type to defaultValue
+            }
+        ).isEqualTo(NavType.BoolType to false)
     }
 
     @Test
@@ -209,9 +217,11 @@ class NavInflaterTest {
         assertThat(defaultArguments["test_string_integer"]?.run { type to defaultValue })
             .isEqualTo(NavType.StringType to "123")
 
-        assertThat(defaultArguments["test_string_no_default"]?.run {
-            type to isDefaultValuePresent
-        }).isEqualTo(NavType.StringType to false)
+        assertThat(
+            defaultArguments["test_string_no_default"]?.run {
+                type to isDefaultValuePresent
+            }
+        ).isEqualTo(NavType.StringType to false)
     }
 
     @Test

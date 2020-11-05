@@ -60,7 +60,7 @@ class DiffUtilTest {
                     LOG:
                     $log
                     END_LOG
-                """.trimIndent()
+                    """.trimIndent()
                 )
             }
         }

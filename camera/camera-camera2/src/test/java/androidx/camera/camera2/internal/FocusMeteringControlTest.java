@@ -59,7 +59,6 @@ import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -80,7 +79,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @DoNotInstrument
@@ -570,7 +568,8 @@ public class FocusMeteringControlTest {
                 new FocusMeteringAction.Builder(mPoint1).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
 
-        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1))
+                .updateSessionConfigSynchronous();
     }
 
     @Test
@@ -1024,9 +1023,9 @@ public class FocusMeteringControlTest {
         Mockito.reset(mCamera2CameraControlImpl);
 
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1))
+                .updateSessionConfigSynchronous();
     }
-
 
     @Test
     public void cancelFocusAndMetering_triggerCancelAfProperly() {

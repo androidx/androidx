@@ -78,6 +78,8 @@
     List of known device models for which all biometric sensors checked by
     BiometricManager#canAuthenticate() meet or exceed the Class 3 (Strong) security threshold.
     -->
-    <string-array name="assume_strong_biometrics_prefixes">
+    <string-array name="assume_strong_biometrics_models">
+        <item>Pixel 4</item>
+        <item>Pixel 4 XL</item>
     </string-array>
 </resources>

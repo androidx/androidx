@@ -17,12 +17,33 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 
 /**
  * Construct a new [NavGraph]
  */
-inline fun NavController.createGraph(
+public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
+
+/**
+ * Creates and returns a [Flow] that will emit the currently active [NavBackStackEntry] whenever
+ * it changes. If there is no active [NavBackStackEntry], no item will be emitted.
+ */
+@ExperimentalCoroutinesApi
+public val NavController.currentBackStackEntryFlow: Flow<NavBackStackEntry> get() = callbackFlow {
+    val listener = NavController.OnDestinationChangedListener { controller, _, _ ->
+        controller.currentBackStackEntry?.let(::sendBlocking)
+    }
+
+    addOnDestinationChangedListener(listener)
+    awaitClose {
+        removeOnDestinationChangedListener(listener)
+    }
+}

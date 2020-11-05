@@ -39,4 +39,12 @@
             app:track="@drawable/switch_track_red"
             app:trackTint="#0ff" />
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_textOnOff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textOn="testStateOn"
+        android:textOff="testStateOff"
+        android:text="@string/sample_text1" />
+
 </LinearLayout>

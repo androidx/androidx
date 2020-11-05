@@ -31,6 +31,8 @@ import android.view.Surface;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -87,6 +89,53 @@ public class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
 
         assertThat(fakeUseCase.getCamera()).isNull();
+    }
+
+    @Test
+    public void attachUseCases_restoreInteropConfig() {
+        // Set an config to CameraControl.
+        Config.Option<Integer> option = Config.Option.create("OPTION_ID", Integer.class);
+        Integer value = 1;
+        MutableOptionsBundle originalConfig = MutableOptionsBundle.create();
+        originalConfig.insertOption(option, value);
+        mFakeCamera.getCameraControlInternal().addInteropConfig(originalConfig);
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        // This caches the original config and clears it from CameraControl internally.
+        cameraUseCaseAdapter.detachUseCases();
+
+        // Set a different config.
+        mFakeCamera.getCameraControlInternal().addInteropConfig(MutableOptionsBundle.create());
+
+        // This restores the cached config to CameraControl.
+        cameraUseCaseAdapter.attachUseCases();
+
+        // Check the config in CameraControl has the same value as the original config.
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().containsOption(
+                        option)).isTrue();
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().retrieveOption(
+                        option)).isEqualTo(value);
+    }
+
+    @Test
+    public void detachUseCases_clearInteropConfig() {
+        // Set an config to CameraControl.
+        Config config = MutableOptionsBundle.create();
+        mFakeCamera.getCameraControlInternal().addInteropConfig(config);
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        // This caches the original config and clears it from CameraControl internally.
+        cameraUseCaseAdapter.detachUseCases();
+
+        // Check the config in CameraControl is empty.
+        assertThat(
+                mFakeCamera.getCameraControlInternal().getInteropConfig().listOptions()).isEmpty();
     }
 
     @Test

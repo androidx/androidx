@@ -103,17 +103,23 @@ fun insertSeparatorsFutureSample() {
      */
     pagingDataStream.map { pagingData ->
         // map outer stream, so we can perform transformations on each paging generation
-        pagingData.insertSeparatorsAsync(AsyncFunction<AdjacentItems<String>, String?> {
-            Futures.submit(Callable<String?> {
-                val (before, after) = it!!
-                if (after != null && before?.first() != after.first()) {
-                    // separator - after is first item that starts with its first letter
-                    after.first().toUpperCase().toString()
-                } else {
-                    // no separator - either end of list, or first letters of before/after are the same
-                    null
-                }
-            }, executor)
-        }, executor)
+        pagingData.insertSeparatorsAsync(
+            AsyncFunction<AdjacentItems<String>, String?> {
+                Futures.submit(
+                    Callable<String?> {
+                        val (before, after) = it!!
+                        if (after != null && before?.first() != after.first()) {
+                            // separator - after is first item that starts with its first letter
+                            after.first().toUpperCase().toString()
+                        } else {
+                            // no separator - either end of list, or first letters of before/after are the same
+                            null
+                        }
+                    },
+                    executor
+                )
+            },
+            executor
+        )
     }
 }

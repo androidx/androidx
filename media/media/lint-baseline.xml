@@ -239,7 +239,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="294"
+            line="297"
             column="21"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="602"
+            line="603"
             column="20"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="604"
+            line="605"
             column="20"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2219"
+            line="2220"
             column="24"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2240"
+            line="2241"
             column="50"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2243"
+            line="2244"
             column="36"/>
     </issue>
 
@@ -624,52 +624,8 @@
         errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="3948"
+            line="3963"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            mObject = new android.media.session.MediaSessionManager.RemoteUserInfo("
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
-            line="68"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            super(remoteUserInfo.getPackageName(), remoteUserInfo.getPid(),"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
-            line="74"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="            super(remoteUserInfo.getPackageName(), remoteUserInfo.getPid(),"
-        errorLine2="                                                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
-            line="74"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
-        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
-        errorLine1="                    remoteUserInfo.getUid());"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
-            line="75"
-            column="36"/>
     </issue>
 
     <issue
@@ -1614,7 +1570,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1305"
+            line="1306"
             column="37"/>
     </issue>
 
@@ -1625,7 +1581,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1327"
+            line="1328"
             column="12"/>
     </issue>
 
@@ -1636,7 +1592,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1327"
+            line="1328"
             column="27"/>
     </issue>
 
@@ -1647,7 +1603,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1332"
+            line="1333"
             column="22"/>
     </issue>
 
@@ -1658,7 +1614,7 @@
         errorLine2="                                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1332"
+            line="1333"
             column="41"/>
     </issue>
 
@@ -1669,7 +1625,7 @@
         errorLine2="                                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1332"
+            line="1333"
             column="61"/>
     </issue>
 
@@ -1680,7 +1636,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1423"
+            line="1424"
             column="29"/>
     </issue>
 
@@ -1691,7 +1647,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1423"
+            line="1424"
             column="40"/>
     </issue>
 
@@ -1702,7 +1658,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1433"
+            line="1434"
             column="31"/>
     </issue>
 
@@ -1713,7 +1669,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1454"
+            line="1455"
             column="28"/>
     </issue>
 
@@ -1724,7 +1680,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1480"
+            line="1481"
             column="49"/>
     </issue>
 
@@ -1735,7 +1691,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1505"
+            line="1506"
             column="56"/>
     </issue>
 
@@ -1746,7 +1702,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1518"
+            line="1519"
             column="33"/>
     </issue>
 
@@ -1757,7 +1713,7 @@
         errorLine2="                 ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1553"
+            line="1554"
             column="18"/>
     </issue>
 
@@ -1768,7 +1724,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1961"
+            line="1962"
             column="16"/>
     </issue>
 
@@ -1779,7 +1735,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
-            line="1968"
+            line="1969"
             column="16"/>
     </issue>
 
@@ -1900,7 +1856,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="276"
+            line="279"
             column="19"/>
     </issue>
 
@@ -1911,7 +1867,7 @@
         errorLine2="                                                                ~~~~~~~">
         <location
             file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
-            line="276"
+            line="279"
             column="65"/>
     </issue>
 
@@ -2967,7 +2923,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="618"
+            line="619"
             column="29"/>
     </issue>
 
@@ -2978,7 +2934,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="634"
+            line="635"
             column="29"/>
     </issue>
 
@@ -2989,7 +2945,7 @@
         errorLine2="                                               ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="634"
+            line="635"
             column="48"/>
     </issue>
 
@@ -3000,7 +2956,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="650"
+            line="651"
             column="36"/>
     </issue>
 
@@ -3011,7 +2967,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="667"
+            line="668"
             column="40"/>
     </issue>
 
@@ -3022,7 +2978,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="709"
+            line="710"
             column="37"/>
     </issue>
 
@@ -3033,7 +2989,7 @@
         errorLine2="                                 ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="753"
+            line="754"
             column="34"/>
     </issue>
 
@@ -3044,7 +3000,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="753"
+            line="754"
             column="48"/>
     </issue>
 
@@ -3055,7 +3011,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="783"
+            line="784"
             column="12"/>
     </issue>
 
@@ -3066,7 +3022,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="793"
+            line="794"
             column="12"/>
     </issue>
 
@@ -3077,7 +3033,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="802"
+            line="803"
             column="34"/>
     </issue>
 
@@ -3088,7 +3044,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="814"
+            line="815"
             column="29"/>
     </issue>
 
@@ -3099,7 +3055,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="830"
+            line="831"
             column="26"/>
     </issue>
 
@@ -3110,7 +3066,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="854"
+            line="855"
             column="31"/>
     </issue>
 
@@ -3121,7 +3077,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="923"
+            line="924"
             column="27"/>
     </issue>
 
@@ -3132,7 +3088,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="937"
+            line="938"
             column="12"/>
     </issue>
 
@@ -3143,7 +3099,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="951"
+            line="952"
             column="12"/>
     </issue>
 
@@ -3154,7 +3110,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="987"
+            line="988"
             column="12"/>
     </issue>
 
@@ -3165,7 +3121,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="998"
+            line="999"
             column="43"/>
     </issue>
 
@@ -3176,7 +3132,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1011"
+            line="1012"
             column="46"/>
     </issue>
 
@@ -3187,7 +3143,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1034"
+            line="1035"
             column="19"/>
     </issue>
 
@@ -3198,7 +3154,7 @@
         errorLine2="                                                      ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1034"
+            line="1035"
             column="55"/>
     </issue>
 
@@ -3209,7 +3165,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1034"
+            line="1035"
             column="72"/>
     </issue>
 
@@ -3220,7 +3176,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1167"
+            line="1168"
             column="31"/>
     </issue>
 
@@ -3231,7 +3187,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1167"
+            line="1168"
             column="47"/>
     </issue>
 
@@ -3242,7 +3198,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1167"
+            line="1168"
             column="62"/>
     </issue>
 
@@ -3253,7 +3209,7 @@
         errorLine2="                                          ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1181"
+            line="1182"
             column="43"/>
     </issue>
 
@@ -3264,7 +3220,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1274"
+            line="1275"
             column="42"/>
     </issue>
 
@@ -3275,7 +3231,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1274"
+            line="1275"
             column="58"/>
     </issue>
 
@@ -3286,7 +3242,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1284"
+            line="1285"
             column="41"/>
     </issue>
 
@@ -3297,7 +3253,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1284"
+            line="1285"
             column="55"/>
     </issue>
 
@@ -3308,7 +3264,7 @@
         errorLine2="                                     ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1292"
+            line="1293"
             column="38"/>
     </issue>
 
@@ -3319,7 +3275,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1292"
+            line="1293"
             column="47"/>
     </issue>
 
@@ -3330,7 +3286,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1305"
+            line="1306"
             column="39"/>
     </issue>
 
@@ -3341,7 +3297,7 @@
         errorLine2="                                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1305"
+            line="1306"
             column="55"/>
     </issue>
 
@@ -3352,7 +3308,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1314"
+            line="1315"
             column="38"/>
     </issue>
 
@@ -3363,7 +3319,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1314"
+            line="1315"
             column="52"/>
     </issue>
 
@@ -3374,7 +3330,7 @@
         errorLine2="                                  ~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1320"
+            line="1321"
             column="35"/>
     </issue>
 
@@ -3385,7 +3341,7 @@
         errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1320"
+            line="1321"
             column="44"/>
     </issue>
 
@@ -3396,7 +3352,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1379"
+            line="1380"
             column="33"/>
     </issue>
 
@@ -3407,7 +3363,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1388"
+            line="1389"
             column="33"/>
     </issue>
 
@@ -3418,7 +3374,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1388"
+            line="1389"
             column="54"/>
     </issue>
 
@@ -3429,7 +3385,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1459"
+            line="1460"
             column="36"/>
     </issue>
 
@@ -3440,7 +3396,7 @@
         errorLine2="                                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1459"
+            line="1460"
             column="51"/>
     </issue>
 
@@ -3451,7 +3407,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1469"
+            line="1470"
             column="36"/>
     </issue>
 
@@ -3462,7 +3418,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1481"
+            line="1482"
             column="36"/>
     </issue>
 
@@ -3473,7 +3429,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1492"
+            line="1493"
             column="39"/>
     </issue>
 
@@ -3484,7 +3440,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1952"
+            line="1953"
             column="23"/>
     </issue>
 
@@ -3495,7 +3451,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1952"
+            line="1953"
             column="39"/>
     </issue>
 
@@ -3506,7 +3462,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1970"
+            line="1971"
             column="23"/>
     </issue>
 
@@ -3517,7 +3473,7 @@
         errorLine2="                                      ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1970"
+            line="1971"
             column="39"/>
     </issue>
 
@@ -3528,7 +3484,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1970"
+            line="1971"
             column="53"/>
     </issue>
 
@@ -3539,7 +3495,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="1987"
+            line="1988"
             column="35"/>
     </issue>
 
@@ -3550,7 +3506,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2031"
+            line="2032"
             column="16"/>
     </issue>
 
@@ -3561,7 +3517,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2039"
+            line="2040"
             column="16"/>
     </issue>
 
@@ -3572,7 +3528,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2049"
+            line="2050"
             column="36"/>
     </issue>
 
@@ -3583,7 +3539,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2059"
+            line="2060"
             column="16"/>
     </issue>
 
@@ -3594,7 +3550,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2069"
+            line="2070"
             column="38"/>
     </issue>
 
@@ -3605,7 +3561,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2079"
+            line="2080"
             column="16"/>
     </issue>
 
@@ -3616,7 +3572,7 @@
         errorLine2="                      ~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2101"
+            line="2102"
             column="23"/>
     </issue>
 
@@ -3627,7 +3583,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2101"
+            line="2102"
             column="40"/>
     </issue>
 
@@ -3638,7 +3594,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2156"
+            line="2157"
             column="26"/>
     </issue>
 
@@ -3649,7 +3605,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2183"
+            line="2184"
             column="16"/>
     </issue>
 
@@ -3660,7 +3616,7 @@
         errorLine2="                                  ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2195"
+            line="2196"
             column="35"/>
     </issue>
 
@@ -3671,7 +3627,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2215"
+            line="2216"
             column="16"/>
     </issue>
 
@@ -3682,7 +3638,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2235"
+            line="2236"
             column="23"/>
     </issue>
 
@@ -3693,7 +3649,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2235"
+            line="2236"
             column="47"/>
     </issue>
 
@@ -3704,7 +3660,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2257"
+            line="2258"
             column="23"/>
     </issue>
 
@@ -3715,7 +3671,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
-            line="2257"
+            line="2258"
             column="57"/>
     </issue>
 
@@ -3726,7 +3682,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/MediaSessionManager.java"
-            line="176"
+            line="184"
             column="17"/>
     </issue>
 

@@ -16,56 +16,61 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.animation.ColorPropKey
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
 
-private enum class PressState { Pressed, Released }
-
-private val color = ColorPropKey()
-
-private val definition = transitionDefinition<PressState> {
-    state(PressState.Released) {
-        this[color] = Color.Red
+val CheckBoxCorner = DpPropKey("CheckBox Corner")
+enum class CheckBoxState { Unselected, Selected }
+val CheckBoxTransitionDefinition = transitionDefinition<CheckBoxState> {
+    state(CheckBoxState.Selected) {
+        this[CheckBoxCorner] = 28.dp
     }
-    state(PressState.Pressed) {
-        this[color] = Color.Blue
-    }
-    transition {
-        color using spring(
-            stiffness = 50f
-        )
+    state(CheckBoxState.Unselected) {
+        this[CheckBoxCorner] = 0.dp
     }
 }
 
-@Preview
+@Preview("Single CheckBox")
 @Composable
-fun PressStateAnimation() {
-    val toState = remember { mutableStateOf(PressState.Released) }
-    val pressIndicator =
-        Modifier.pressIndicatorGestureFilter(
-            onStart = { toState.value = PressState.Pressed },
-            onStop = { toState.value = PressState.Released },
-            onCancel = { toState.value = PressState.Released }
-        )
+fun CheckBoxPreview() {
+    CheckBox()
+}
 
-    val state = transition(label = "colorAnim", definition = definition, toState = toState.value)
-    ColorRect(pressIndicator, color = state[color])
+@Preview(name = "CheckBox + Scaffold")
+@Composable
+fun CheckBoxScaffoldPreview() {
+    Scaffold {
+        CheckBox()
+    }
 }
 
 @Composable
-private fun ColorRect(modifier: Modifier = Modifier, color: Color) {
-    Canvas(modifier.fillMaxSize()) {
-        drawRect(color)
+private fun CheckBox() {
+    val (selected, onSelected) = remember { mutableStateOf(false) }
+    val state = transition(
+        label = "checkBoxAnim",
+        definition = CheckBoxTransitionDefinition,
+        toState = if (selected) CheckBoxState.Selected else CheckBoxState.Unselected
+    )
+    Surface(
+        shape = MaterialTheme.shapes.large.copy(topLeft = CornerSize(state[CheckBoxCorner])),
+        modifier = Modifier.toggleable(value = selected, onValueChange = onSelected)
+    ) {
+        Icon(asset = Icons.Filled.Done)
     }
 }

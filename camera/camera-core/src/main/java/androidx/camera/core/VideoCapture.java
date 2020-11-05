@@ -270,8 +270,16 @@ public final class VideoCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return factory.getConfig(VideoCaptureConfig.class);
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+
+        if (applyDefaultConfig) {
+            captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
+        }
+
+        return captureConfig == null ? null :
+                getUseCaseConfigBuilder(captureConfig).getUseCaseConfig();
     }
 
     /**
@@ -518,18 +526,6 @@ public final class VideoCapture extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return Builder.fromConfig(config);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Builder.fromConfig(getCurrentConfig());
     }
 
     /**
@@ -1113,6 +1109,7 @@ public final class VideoCapture extends UseCase {
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         /** Surface occupancy prioirty to this use case */
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
+        private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_16_9;
 
         private static final VideoCaptureConfig DEFAULT_CONFIG;
 
@@ -1127,7 +1124,8 @@ public final class VideoCapture extends UseCase {
                     .setAudioRecordSource(DEFAULT_AUDIO_RECORD_SOURCE)
                     .setAudioMinBufferSize(DEFAULT_AUDIO_MIN_BUFFER_SIZE)
                     .setMaxResolution(DEFAULT_MAX_RESOLUTION)
-                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+                    .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }

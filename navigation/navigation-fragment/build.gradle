@@ -40,7 +40,9 @@ dependencies {
     androidTestImplementation project(':internal-testutils-runtime'), {
         exclude group: 'androidx.fragment', module: 'fragment'
     }
-    androidTestImplementation(project(':internal-testutils-navigation'))
+    androidTestImplementation(project(':internal-testutils-navigation'), {
+        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+    })
 }
 
 androidx {

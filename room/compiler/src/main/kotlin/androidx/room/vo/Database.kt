@@ -49,10 +49,14 @@ data class Database(
     }
 
     val bundle by lazy {
-        DatabaseBundle(version, identityHash, entities.map(Entity::toBundle),
-                views.map(DatabaseView::toBundle),
-                listOf(RoomMasterTable.CREATE_QUERY,
-                        RoomMasterTable.createInsertQuery(identityHash)))
+        DatabaseBundle(
+            version, identityHash, entities.map(Entity::toBundle),
+            views.map(DatabaseView::toBundle),
+            listOf(
+                RoomMasterTable.CREATE_QUERY,
+                RoomMasterTable.createInsertQuery(identityHash)
+            )
+        )
     }
 
     /**
@@ -68,28 +72,28 @@ data class Database(
 
     val legacyIdentityHash: String by lazy {
         val entityDescriptions = entities
-                .sortedBy { it.tableName }
-                .map { it.createTableQuery }
+            .sortedBy { it.tableName }
+            .map { it.createTableQuery }
         val indexDescriptions = entities
-                .flatMap { entity ->
-                    entity.indices.map { index ->
-                        // For legacy purposes we need to remove the later added 'IF NOT EXISTS'
-                        // part of the create statement, otherwise old valid legacy hashes stop
-                        // being accepted even though the schema has not changed. b/139306173
-                        if (index.unique) {
-                            "CREATE UNIQUE INDEX"
-                        } else {
-                            // The extra space between 'CREATE' and 'INDEX' is on purpose, this
-                            // is a typo we have to live with.
-                            "CREATE  INDEX"
-                        } + index.createQuery(entity.tableName).substringAfter("IF NOT EXISTS")
-                    }
+            .flatMap { entity ->
+                entity.indices.map { index ->
+                    // For legacy purposes we need to remove the later added 'IF NOT EXISTS'
+                    // part of the create statement, otherwise old valid legacy hashes stop
+                    // being accepted even though the schema has not changed. b/139306173
+                    if (index.unique) {
+                        "CREATE UNIQUE INDEX"
+                    } else {
+                        // The extra space between 'CREATE' and 'INDEX' is on purpose, this
+                        // is a typo we have to live with.
+                        "CREATE  INDEX"
+                    } + index.createQuery(entity.tableName).substringAfter("IF NOT EXISTS")
                 }
+            }
         val viewDescriptions = views
-                .sortedBy { it.viewName }
-                .map { it.viewName + it.query.original }
+            .sortedBy { it.viewName }
+            .map { it.viewName + it.query.original }
         val input = (entityDescriptions + indexDescriptions + viewDescriptions)
-                .joinToString("¯\\_(ツ)_/¯")
+            .joinToString("¯\\_(ツ)_/¯")
         DigestUtils.md5Hex(input)
     }
 

@@ -21,7 +21,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
@@ -33,7 +33,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String[] arrStringCopy = dataClass.arrString;
     if (arrStringCopy != null) {
-      builder.setProperty("arrString", arrStringCopy);
+      builder.setPropertyString("arrString", arrStringCopy);
     }
     return builder.build();
   }

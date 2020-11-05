@@ -30,6 +30,7 @@ import androidx.core.util.Preconditions;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -64,20 +65,14 @@ public class GenericDocument {
     /** The default time-to-live in millisecond of a document, which is infinity. */
     private static final long DEFAULT_TTL_MILLIS = 0L;
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String PROPERTIES_FIELD = "properties";
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String BYTE_ARRAY_FIELD = "byteArray";
-
-    static final String SCHEMA_TYPE_FIELD = "schemaType";
-    static final String URI_FIELD = "uri";
-    static final String SCORE_FIELD = "score";
-    static final String TTL_MILLIS_FIELD = "ttlMillis";
-    static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
-    static final String NAMESPACE_FIELD = "namespace";
+    private static final String PROPERTIES_FIELD = "properties";
+    private static final String BYTE_ARRAY_FIELD = "byteArray";
+    private static final String SCHEMA_TYPE_FIELD = "schemaType";
+    private static final String URI_FIELD = "uri";
+    private static final String SCORE_FIELD = "score";
+    private static final String TTL_MILLIS_FIELD = "ttlMillis";
+    private static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
+    private static final String NAMESPACE_FIELD = "namespace";
 
     /**
      * The maximum number of indexed properties a document can have.
@@ -187,6 +182,12 @@ public class GenericDocument {
      */
     public int getScore() {
         return mBundle.getInt(SCORE_FIELD, DEFAULT_SCORE);
+    }
+
+    /** Returns the names of all properties defined in this document. */
+    @NonNull
+    public Set<String> getPropertyNames() {
+        return Collections.unmodifiableSet(mProperties.keySet());
     }
 
     /**
@@ -669,6 +670,9 @@ public class GenericDocument {
      *
      * @param <BuilderType> Type of subclass who extends this.
      */
+    // This builder is specifically designed to be extended by classes deriving from
+    // GenericDocument.
+    @SuppressLint("StaticFinalBuilder")
     public static class Builder<BuilderType extends Builder> {
 
         private final Bundle mProperties = new Bundle();
@@ -681,10 +685,10 @@ public class GenericDocument {
          *
          * @param uri The uri of {@link GenericDocument}.
          * @param schemaType The schema type of the {@link GenericDocument}. The passed-in
-         *        {@code schemaType} must be defined using {@link AppSearchManager#setSchema} prior
+         *        {@code schemaType} must be defined using {@link AppSearchSession#setSchema} prior
          *        to inserting a document of this {@code schemaType} into the AppSearch index using
-         *        {@link AppSearchManager#putDocuments}. Otherwise, the document will be
-         *        rejected by {@link AppSearchManager#putDocuments}.
+         *        {@link AppSearchSession#putDocuments}. Otherwise, the document will be
+         *        rejected by {@link AppSearchSession#putDocuments}.
          */
         @SuppressWarnings("unchecked")
         public Builder(@NonNull String uri, @NonNull String schemaType) {
@@ -773,7 +777,7 @@ public class GenericDocument {
          * @param values The {@code String} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull String... values) {
+        public BuilderType setPropertyString(@NonNull String key, @NonNull String... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -789,7 +793,7 @@ public class GenericDocument {
          * @param values The {@code boolean} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull boolean... values) {
+        public BuilderType setPropertyBoolean(@NonNull String key, @NonNull boolean... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -805,7 +809,7 @@ public class GenericDocument {
          * @param values The {@code long} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull long... values) {
+        public BuilderType setPropertyLong(@NonNull String key, @NonNull long... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -821,7 +825,7 @@ public class GenericDocument {
          * @param values The {@code double} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull double... values) {
+        public BuilderType setPropertyDouble(@NonNull String key, @NonNull double... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -836,7 +840,7 @@ public class GenericDocument {
          * @param values The {@code byte[]} of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull byte[]... values) {
+        public BuilderType setPropertyBytes(@NonNull String key, @NonNull byte[]... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
@@ -852,7 +856,8 @@ public class GenericDocument {
          * @param values The {@link GenericDocument} values of the property.
          */
         @NonNull
-        public BuilderType setProperty(@NonNull String key, @NonNull GenericDocument... values) {
+        public BuilderType setPropertyDocument(
+                @NonNull String key, @NonNull GenericDocument... values) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);

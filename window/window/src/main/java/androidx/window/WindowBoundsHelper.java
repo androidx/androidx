@@ -104,14 +104,13 @@ class WindowBoundsHelper {
      * <p>
      * Note: The value of this is based on the last windowing state reported to the client.
      *
+     * @see android.view.WindowManager#getCurrentWindowMetrics()
      * @see android.view.WindowMetrics#getBounds()
      */
     @NonNull
     Rect computeCurrentWindowBounds(Activity activity) {
         if (Build.VERSION.SDK_INT >= R) {
-            android.view.WindowManager platformWindowManager =
-                    activity.getSystemService(android.view.WindowManager.class);
-            return platformWindowManager.getCurrentWindowMetrics().getBounds();
+            return activity.getWindowManager().getCurrentWindowMetrics().getBounds();
         } else if (Build.VERSION.SDK_INT >= Q) {
             return computeWindowBoundsQ(activity);
         } else if (Build.VERSION.SDK_INT >= P) {
@@ -120,6 +119,27 @@ class WindowBoundsHelper {
             return computeWindowBoundsN(activity);
         } else {
             return computeWindowBoundsJellyBean(activity);
+        }
+    }
+
+    /**
+     * Computes the maximum size and position of the area the window can expect with
+     * {@link android.view.WindowManager.LayoutParams#MATCH_PARENT MATCH_PARENT} width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     * <p>
+     * The value returned from this method will always match {@link Display#getRealSize(Point)} on
+     * {@link Build.VERSION_CODES#Q Android 10} and below.
+     *
+     * @see android.view.WindowManager#getMaximumWindowMetrics()
+     */
+    @NonNull
+    Rect computeMaximumWindowBounds(Activity activity) {
+        if (Build.VERSION.SDK_INT >= R) {
+            return activity.getWindowManager().getMaximumWindowMetrics().getBounds();
+        } else {
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            Point displaySize = getRealSizeForDisplay(display);
+            return new Rect(0, 0, displaySize.x, displaySize.y);
         }
     }
 

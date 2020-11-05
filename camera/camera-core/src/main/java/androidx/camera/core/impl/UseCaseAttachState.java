@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Collection of use cases which are attached to a specific camera.
@@ -162,7 +161,7 @@ public final class UseCaseAttachState {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
         List<String> list = new ArrayList<>();
-        for (Entry<String, UseCaseAttachInfo> attachedUseCase :
+        for (Map.Entry<String, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getAttached()) {
@@ -180,7 +179,7 @@ public final class UseCaseAttachState {
     public SessionConfig.ValidatingBuilder getAttachedBuilder() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         List<String> list = new ArrayList<>();
-        for (Entry<String, UseCaseAttachInfo> attachedUseCase :
+        for (Map.Entry<String, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getAttached()) {
@@ -205,7 +204,7 @@ public final class UseCaseAttachState {
 
     private Collection<SessionConfig> getSessionConfigs(AttachStateFilter attachStateFilter) {
         List<SessionConfig> sessionConfigs = new ArrayList<>();
-        for (Entry<String, UseCaseAttachInfo> attachedUseCase :
+        for (Map.Entry<String, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             if (attachStateFilter == null || attachStateFilter.filter(attachedUseCase.getValue())) {
                 sessionConfigs.add(attachedUseCase.getValue().getSessionConfig());

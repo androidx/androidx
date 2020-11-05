@@ -28,8 +28,8 @@ import org.junit.Test
 class NavHostTest {
     private val navController =
         NavController(ApplicationProvider.getApplicationContext() as Context).apply {
-        navigatorProvider += TestNavigator()
-    }
+            navigatorProvider += TestNavigator()
+        }
     private val navHost = NavHost { this@NavHostTest.navController }
 
     @Test
@@ -37,8 +37,10 @@ class NavHostTest {
         val graph = navHost.createGraph(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
     }
 }
 

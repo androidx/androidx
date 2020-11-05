@@ -116,9 +116,11 @@ class TypeAdapterStore private constructor(
 
     companion object {
         fun copy(context: Context, store: TypeAdapterStore): TypeAdapterStore {
-            return TypeAdapterStore(context = context,
-                    columnTypeAdapters = store.columnTypeAdapters,
-                    typeConverters = store.typeConverters)
+            return TypeAdapterStore(
+                context = context,
+                columnTypeAdapters = store.columnTypeAdapters,
+                typeConverters = store.typeConverters
+            )
         }
 
         fun create(context: Context, vararg extras: Any): TypeAdapterStore {
@@ -144,19 +146,21 @@ class TypeAdapterStore private constructor(
             }
 
             val primitives = PrimitiveColumnTypeAdapter
-                    .createPrimitiveAdapters(context.processingEnv)
+                .createPrimitiveAdapters(context.processingEnv)
             primitives.forEach(::addColumnAdapter)
             BoxedPrimitiveColumnTypeAdapter
-                    .createBoxedPrimitiveAdapters(primitives)
-                    .forEach(::addColumnAdapter)
+                .createBoxedPrimitiveAdapters(primitives)
+                .forEach(::addColumnAdapter)
             addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
             addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
             addColumnAdapter(ByteBufferColumnTypeAdapter(context.processingEnv))
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
-                    .forEach(::addTypeConverter)
-            return TypeAdapterStore(context = context, columnTypeAdapters = adapters,
-                    typeConverters = converters)
+                .forEach(::addTypeConverter)
+            return TypeAdapterStore(
+                context = context, columnTypeAdapters = adapters,
+                typeConverters = converters
+            )
         }
     }
 
@@ -250,8 +254,10 @@ class TypeAdapterStore private constructor(
         // we could not find a two way version, search for anything
         val targetTypes = targetTypeMirrorsFor(affinity)
         val converter = findTypeConverter(targetTypes, output) ?: return null
-        return CompositeAdapter(output,
-                getAllColumnAdapters(converter.from).first(), null, converter)
+        return CompositeAdapter(
+            output,
+            getAllColumnAdapters(converter.from).first(), null, converter
+        )
     }
 
     /**
@@ -269,7 +275,7 @@ class TypeAdapterStore private constructor(
             else -> {
                 typeConverters.firstOrNull {
                     it.from.isSameType(converter.to) &&
-                            it.to.isSameType(converter.from)
+                        it.to.isSameType(converter.from)
                 }
             }
         }
@@ -291,9 +297,11 @@ class TypeAdapterStore private constructor(
         val intoStatement = findTypeConverter(out, targetTypes) ?: return null
         // ok found a converter, try the reverse now
         val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
-        ?: return null
-        return CompositeAdapter(out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
-                fromCursor)
+            ?: return null
+        return CompositeAdapter(
+            out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
+            fromCursor
+        )
     }
 
     private fun findDirectAdapterFor(
@@ -401,7 +409,7 @@ class TypeAdapterStore private constructor(
             return null
         } else if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val rowAdapter =
-                    findRowAdapter(typeMirror.componentType, query) ?: return null
+                findRowAdapter(typeMirror.componentType, query) ?: return null
             return ArrayQueryResultAdapter(rowAdapter)
         } else {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
@@ -425,20 +433,22 @@ class TypeAdapterStore private constructor(
             val resultInfo = query.resultInfo
 
             val (rowAdapter, rowAdapterLogs) = if (resultInfo != null && query.errors.isEmpty() &&
-                    resultInfo.error == null) {
+                resultInfo.error == null
+            ) {
                 // if result info is not null, first try a pojo row adapter
                 context.collectLogs { subContext ->
                     val pojo = PojoProcessor.createFor(
-                            context = subContext,
-                            element = typeMirror.asTypeElement(),
-                            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                            parent = null
+                        context = subContext,
+                        element = typeMirror.asTypeElement(),
+                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        parent = null
                     ).process()
                     PojoRowAdapter(
-                            context = subContext,
-                            info = resultInfo,
-                            pojo = pojo,
-                            out = typeMirror)
+                        context = subContext,
+                        info = resultInfo,
+                        pojo = pojo,
+                        out = typeMirror
+                    )
                 }
             } else {
                 Pair(null, null)
@@ -448,10 +458,12 @@ class TypeAdapterStore private constructor(
                 // we don't know what query returns. Check for entity.
                 val asElement = typeMirror.asTypeElement()
                 if (asElement.isEntityElement()) {
-                    return EntityRowAdapter(EntityProcessor(
+                    return EntityRowAdapter(
+                        EntityProcessor(
                             context = context,
                             element = asElement.asTypeElement()
-                    ).process())
+                        ).process()
+                    )
                 }
             }
 
@@ -461,8 +473,10 @@ class TypeAdapterStore private constructor(
             }
 
             if ((resultInfo?.columns?.size ?: 1) == 1) {
-                val singleColumn = findCursorValueReader(typeMirror,
-                        resultInfo?.columns?.get(0)?.type)
+                val singleColumn = findCursorValueReader(
+                    typeMirror,
+                    resultInfo?.columns?.get(0)?.type
+                )
                 if (singleColumn != null) {
                     return SingleColumnRowAdapter(singleColumn)
                 }
@@ -476,16 +490,17 @@ class TypeAdapterStore private constructor(
                 // just go w/ pojo and hope for the best. this happens for @RawQuery where we
                 // try to guess user's intention and hope that their query fits the result.
                 val pojo = PojoProcessor.createFor(
-                        context = context,
-                        element = typeMirror.asTypeElement(),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                        parent = null
+                    context = context,
+                    element = typeMirror.asTypeElement(),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null
                 ).process()
                 return PojoRowAdapter(
-                        context = context,
-                        info = null,
-                        pojo = pojo,
-                        out = typeMirror)
+                    context = context,
+                    info = null,
+                    pojo = pojo,
+                    out = typeMirror
+                )
             }
             return null
         } else {
@@ -496,10 +511,12 @@ class TypeAdapterStore private constructor(
 
     fun findQueryParameterAdapter(typeMirror: XType): QueryParameterAdapter? {
         if (typeMirror.isType() &&
-            context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)) {
+            context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)
+        ) {
             val declared = typeMirror.asDeclaredType()
             val binder = findStatementValueBinder(
-                declared.typeArguments.first().extendsBoundOrSelf(), null)
+                declared.typeArguments.first().extendsBoundOrSelf(), null
+            )
             if (binder != null) {
                 return CollectionQueryParameterAdapter(binder)
             } else {
@@ -586,19 +603,19 @@ class TypeAdapterStore private constructor(
      * prioritized.
      */
     private fun getAllTypeConverters(input: XType, excludes: List<XType>):
-            List<TypeConverter> {
-        // for input, check assignability because it defines whether we can use the method or not.
-        // for excludes, use exact match
-        return typeConverters.filter { converter ->
-            converter.from.isAssignableFrom(input) &&
+        List<TypeConverter> {
+            // for input, check assignability because it defines whether we can use the method or not.
+            // for excludes, use exact match
+            return typeConverters.filter { converter ->
+                converter.from.isAssignableFrom(input) &&
                     !excludes.any { it.isSameType(converter.to) }
-        }.sortedByDescending {
-            // if it is the same, prioritize
-            if (it.from.isSameType(input)) {
-                2
-            } else {
-                1
+            }.sortedByDescending {
+                // if it is the same, prioritize
+                if (it.from.isSameType(input)) {
+                    2
+                } else {
+                    1
+                }
             }
         }
-    }
 }

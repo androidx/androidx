@@ -16,8 +16,6 @@
 
 package androidx.window;
 
-import static androidx.window.DeviceState.POSTURE_MAX_KNOWN;
-import static androidx.window.DeviceState.POSTURE_UNKNOWN;
 import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.Version.VERSION_0_1;
 import static androidx.window.WindowManager.getActivityFromContext;
@@ -29,11 +27,13 @@ import android.graphics.Rect;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.SimpleArrayMap;
+import androidx.core.util.Consumer;
 import androidx.window.sidecar.SidecarDeviceState;
 import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarInterface;
@@ -41,7 +41,6 @@ import androidx.window.sidecar.SidecarProvider;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Extension interface compatibility wrapper for v0.1 sidecar. */
@@ -54,28 +53,46 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     protected final SimpleArrayMap<IBinder, Context> mWindowListenerRegisteredContexts =
             new SimpleArrayMap<>();
 
+    private ExtensionCallbackInterface mExtensionCallback;
+    private SidecarAdapter mSidecarAdapter;
+
     @VisibleForTesting
     final SidecarInterface mSidecar;
 
     SidecarCompat(Context context) {
-        this(SidecarProvider.getSidecarImpl(context));
+        this(SidecarProvider.getSidecarImpl(context), new SidecarAdapter());
         if (mSidecar == null) {
             throw new IllegalArgumentException("Sidecar provider returned null");
         }
     }
 
     @VisibleForTesting
-    SidecarCompat(@NonNull SidecarInterface sidecar) {
+    SidecarCompat(@NonNull SidecarInterface sidecar, SidecarAdapter sidecarAdapter) {
+        // Empty implementation to avoid null checks.
+        mExtensionCallback = new ExtensionCallbackInterface() {
+            @Override
+            public void onDeviceStateChanged(@NonNull DeviceState newDeviceState) {
+
+            }
+
+            @Override
+            public void onWindowLayoutChanged(@NonNull Context context,
+                    @NonNull WindowLayoutInfo newLayout) {
+
+            }
+        };
         mSidecar = sidecar;
+        mSidecarAdapter = sidecarAdapter;
     }
 
     @Override
     public void setExtensionCallback(@NonNull ExtensionCallbackInterface extensionCallback) {
+        mExtensionCallback = extensionCallback;
         mSidecar.setSidecarCallback(new SidecarInterface.SidecarCallback() {
             @Override
             @SuppressLint("SyntheticAccessor")
             public void onDeviceStateChanged(@NonNull SidecarDeviceState newDeviceState) {
-                extensionCallback.onDeviceStateChanged(deviceStateFromSidecar(newDeviceState));
+                extensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(newDeviceState));
             }
 
             @Override
@@ -89,20 +106,25 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                     return;
                 }
 
+                Activity activity = getActivityFromContext(context);
+                if (activity == null) {
+                    throw new IllegalArgumentException(
+                            "Used non-Activity Context with WindowManager. Please use an Activity "
+                                    + "or a ContextWrapper around an Activity instead.");
+                }
                 extensionCallback.onWindowLayoutChanged(context,
-                        windowLayoutInfoFromSidecar(context, newLayout));
+                        mSidecarAdapter.translate(activity, newLayout));
             }
         });
     }
 
     @NonNull
-    @Override
-    public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
-        Activity activity = assertActivityContext(context);
+    @VisibleForTesting
+    WindowLayoutInfo getWindowLayoutInfo(@NonNull Activity activity) {
         IBinder windowToken = getActivityWindowToken(activity);
 
         SidecarWindowLayoutInfo windowLayoutInfo = mSidecar.getWindowLayoutInfo(windowToken);
-        return windowLayoutInfoFromSidecar(context, windowLayoutInfo);
+        return mSidecarAdapter.translate(activity, windowLayoutInfo);
     }
 
     @Override
@@ -110,9 +132,21 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         Activity activity = assertActivityContext(context);
         IBinder windowToken = getActivityWindowToken(activity);
 
+        if (windowToken != null) {
+            register(windowToken, activity);
+        } else {
+            FirstAttachAdapter attachAdapter = new FirstAttachAdapter((token) -> {
+                register(token, activity);
+            });
+            activity.getWindow().getDecorView().addOnAttachStateChangeListener(attachAdapter);
+        }
+    }
+
+    private void register(IBinder windowToken, Activity activity) {
         mWindowListenerRegisteredContexts.put(windowToken, activity);
 
         mSidecar.onWindowLayoutChangeListenerAdded(windowToken);
+        mExtensionCallback.onWindowLayoutChanged(activity, getWindowLayoutInfo(activity));
     }
 
     @Override
@@ -125,15 +159,12 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         mWindowListenerRegisteredContexts.remove(windowToken);
     }
 
-    @NonNull
-    @Override
-    public DeviceState getDeviceState() {
-        SidecarDeviceState deviceState = mSidecar.getDeviceState();
-        return deviceStateFromSidecar(deviceState);
-    }
-
     @Override
     public void onDeviceStateListenersChanged(boolean isEmpty) {
+        if (!isEmpty) {
+            SidecarDeviceState deviceState = mSidecar.getDeviceState();
+            mExtensionCallback.onDeviceStateChanged(mSidecarAdapter.translate(deviceState));
+        }
         mSidecar.onDeviceStateListenersChanged(isEmpty);
     }
 
@@ -150,6 +181,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
                         + rSetSidecarCallback);
             }
 
+            // DO NOT REMOVE SINCE THIS IS VALIDATING THE INTERFACE.
             // sidecar.getDeviceState()
             SidecarDeviceState tmpDeviceState = mSidecar.getDeviceState();
 
@@ -239,109 +271,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
         }
     }
 
-    /**
-     * Converts the display feature from extension. Can return {@code null} if there is an issue
-     * with the value passed from extension.
-     */
-    @Nullable
-    private static DisplayFeature displayFeatureFromExtension(SidecarDisplayFeature feature,
-            Rect windowBounds) {
-        Rect bounds = feature.getRect();
-        if (bounds.width() == 0 && bounds.height() == 0) {
-            if (DEBUG) {
-                Log.d(TAG, "Passed a display feature with empty rect, skipping: " + feature);
-            }
-            return null;
-        }
-
-        if (feature.getType() == SidecarDisplayFeature.TYPE_FOLD) {
-            if (bounds.width() != 0 && bounds.height() != 0) {
-                // Bounds for fold types are expected to be zero-wide or zero-high.
-                // See DisplayFeature#getBounds().
-                if (DEBUG) {
-                    Log.d(TAG, "Passed a non-zero area display feature expected to be zero-area, "
-                            + "skipping: " + feature);
-                }
-                return null;
-            }
-        }
-        if (feature.getType() == SidecarDisplayFeature.TYPE_HINGE
-                || feature.getType() == SidecarDisplayFeature.TYPE_FOLD) {
-            if (!((bounds.left == 0 && bounds.right == windowBounds.width())
-                    || (bounds.top == 0 && bounds.bottom == windowBounds.height()))) {
-                // Bounds for fold and hinge types are expected to span the entire window space.
-                // See DisplayFeature#getBounds().
-                if (DEBUG) {
-                    Log.d(TAG, "Passed a display feature expected to span the entire window but "
-                            + "does not, skipping: " + feature);
-                }
-                return null;
-            }
-        }
-
-        return new DisplayFeature(feature.getRect(), feature.getType());
-    }
-
-    @NonNull
-    private static List<DisplayFeature> displayFeatureListFromSidecar(
-            SidecarWindowLayoutInfo sidecarWindowLayoutInfo,
-            Rect windowBounds) {
-        List<DisplayFeature> displayFeatures = new ArrayList<>();
-        if (sidecarWindowLayoutInfo.displayFeatures == null) {
-            return displayFeatures;
-        }
-
-        for (SidecarDisplayFeature sidecarFeature : sidecarWindowLayoutInfo.displayFeatures) {
-            final DisplayFeature displayFeature = displayFeatureFromExtension(sidecarFeature,
-                    windowBounds);
-            if (displayFeature != null) {
-                displayFeatures.add(displayFeature);
-            }
-        }
-        return displayFeatures;
-    }
-
-    @NonNull
-    private static WindowLayoutInfo windowLayoutInfoFromSidecar(
-            @NonNull Context context, @Nullable SidecarWindowLayoutInfo extensionInfo) {
-        if (extensionInfo == null) {
-            return new WindowLayoutInfo(new ArrayList<>());
-        }
-
-        Activity activity = getActivityFromContext(context);
-        if (activity == null) {
-            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
-                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
-        }
-        Rect windowBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
-        List<DisplayFeature> displayFeatures = displayFeatureListFromSidecar(extensionInfo,
-                windowBounds);
-        return new WindowLayoutInfo(displayFeatures);
-    }
-
-    @DeviceState.Posture
-    private static int postureFromSidecar(SidecarDeviceState sidecarDeviceState) {
-        int sidecarPosture = sidecarDeviceState.posture;
-        if (sidecarPosture > POSTURE_MAX_KNOWN) {
-            if (DEBUG) {
-                Log.d(TAG, "Unknown posture reported, WindowManager library should be updated");
-            }
-            return POSTURE_UNKNOWN;
-        }
-        return sidecarPosture;
-    }
-
-    @NonNull
-    private static DeviceState deviceStateFromSidecar(
-            @Nullable SidecarDeviceState sidecarDeviceState) {
-        if (sidecarDeviceState == null) {
-            return new DeviceState(POSTURE_UNKNOWN);
-        }
-
-        int posture = postureFromSidecar(sidecarDeviceState);
-        return new DeviceState(posture);
-    }
-
     private Activity assertActivityContext(Context context) {
         Activity activity = getActivityFromContext(context);
         if (activity == null) {
@@ -354,5 +283,28 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     @Nullable
     private IBinder getActivityWindowToken(Activity activity) {
         return activity.getWindow() != null ? activity.getWindow().getAttributes().token : null;
+    }
+
+    /**
+     * An adapter that will run a callback when a window is attached and then be removed from the
+     * listener set.
+     */
+    private static class FirstAttachAdapter implements View.OnAttachStateChangeListener {
+
+        private final Consumer<IBinder> mCallback;
+
+        FirstAttachAdapter(Consumer<IBinder> callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        public void onViewAttachedToWindow(View view) {
+            mCallback.accept(view.getWindowToken());
+            view.removeOnAttachStateChangeListener(this);
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View view) {
+        }
     }
 }

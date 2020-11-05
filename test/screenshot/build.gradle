@@ -44,9 +44,3 @@ androidx {
     name = "AndroidX Library Screenshot Test"
     mavenGroup = LibraryGroups.TESTSCREENSHOT
 }
-
-android {
-    defaultConfig {
-        testInstrumentationRunnerArgument("thisisignored", "thisisignored --no-isolated-storage")
-    }
-}

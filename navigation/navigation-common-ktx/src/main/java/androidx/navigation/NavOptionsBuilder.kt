@@ -21,19 +21,19 @@ import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 
 @DslMarker
-annotation class NavOptionsDsl
+public annotation class NavOptionsDsl
 
 /**
  * Construct a new [NavOptions]
  */
-fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
-        NavOptionsBuilder().apply(optionsBuilder).build()
+public fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
+    NavOptionsBuilder().apply(optionsBuilder).build()
 
 /**
  * DSL for constructing a new [NavOptions]
  */
 @NavOptionsDsl
-class NavOptionsBuilder {
+public class NavOptionsBuilder {
     private val builder = NavOptions.Builder()
 
     /**
@@ -43,14 +43,14 @@ class NavOptionsBuilder {
      * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP]
      * works with activites.
      */
-    var launchSingleTop = false
+    public var launchSingleTop: Boolean = false
 
     /**
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
     @IdRes
-    var popUpTo: Int = -1
+    public var popUpTo: Int = -1
         set(value) {
             field = value
             inclusive = false
@@ -61,7 +61,7 @@ class NavOptionsBuilder {
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
-    fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit) {
+    public fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpTo = id
         inclusive = PopUpToBuilder().apply(popUpToBuilder).inclusive
     }
@@ -71,12 +71,12 @@ class NavOptionsBuilder {
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    fun anim(animBuilder: AnimBuilder.() -> Unit) {
+    public fun anim(animBuilder: AnimBuilder.() -> Unit) {
         AnimBuilder().apply(animBuilder).run {
             this@NavOptionsBuilder.builder.setEnterAnim(enter)
-                    .setExitAnim(exit)
-                    .setPopEnterAnim(popEnter)
-                    .setPopExitAnim(popExit)
+                .setExitAnim(exit)
+                .setPopEnterAnim(popEnter)
+                .setPopExitAnim(popExit)
         }
     }
 
@@ -90,18 +90,18 @@ class NavOptionsBuilder {
  * DSL for customizing [NavOptionsBuilder.popUpTo] operations.
  */
 @NavOptionsDsl
-class PopUpToBuilder {
+public class PopUpToBuilder {
     /**
      * Whether the `popUpTo` destination should be popped from the back stack.
      */
-    var inclusive: Boolean = false
+    public var inclusive: Boolean = false
 }
 
 /**
  * DSL for setting custom Animation or Animator resources on a [NavOptionsBuilder]
  */
 @NavOptionsDsl
-class AnimBuilder {
+public class AnimBuilder {
     /**
      * The custom Animation or Animator resource for the enter animation.
      *
@@ -109,7 +109,7 @@ class AnimBuilder {
      */
     @AnimRes
     @AnimatorRes
-    var enter = -1
+    public var enter: Int = -1
 
     /**
      * The custom Animation or Animator resource for the exit animation.
@@ -118,7 +118,7 @@ class AnimBuilder {
      */
     @AnimRes
     @AnimatorRes
-    var exit = -1
+    public var exit: Int = -1
 
     /**
      * The custom Animation or Animator resource for the enter animation
@@ -128,7 +128,7 @@ class AnimBuilder {
      */
     @AnimRes
     @AnimatorRes
-    var popEnter = -1
+    public var popEnter: Int = -1
 
     /**
      * The custom Animation or Animator resource for the exit animation
@@ -138,5 +138,5 @@ class AnimBuilder {
      */
     @AnimRes
     @AnimatorRes
-    var popExit = -1
+    public var popExit: Int = -1
 }

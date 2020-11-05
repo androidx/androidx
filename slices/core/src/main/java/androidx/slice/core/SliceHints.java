@@ -96,6 +96,11 @@ public class SliceHints {
     public static final String HINT_OVERLAY = "overlay";
 
     /**
+     * Hint indicating that the button in this slice should be shown as text button.
+     */
+    public static final String HINT_SHOW_LABEL = "show_label";
+
+    /**
      * Subtype indicating that this slice represents a selection. The options will be included as
      * sub-slices.
      */
@@ -126,11 +131,6 @@ public class SliceHints {
 
     public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
 
-    @IntDef({
-            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE
-    })
-    @Retention(SOURCE)
-    public @interface ImageMode{}
 
     /**
      * Indicates that an image should be presented as an icon and it can be tinted.
@@ -158,6 +158,18 @@ public class SliceHints {
      * Indicates that an image mode is unknown.
      */
     public static final int UNKNOWN_IMAGE = 5;
+    /**
+     * Indicates that an action with label.
+     */
+    public static final int ACTION_WITH_LABEL = 6;
+
+    @IntDef({
+            LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE,
+            ACTION_WITH_LABEL
+    })
+    @Retention(SOURCE)
+    public @interface ImageMode {
+    }
 
     /**
      * Constant representing infinity.

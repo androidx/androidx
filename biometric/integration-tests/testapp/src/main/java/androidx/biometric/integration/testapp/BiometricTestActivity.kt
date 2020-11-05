@@ -300,9 +300,11 @@ class BiometricTestActivity : FragmentActivity() {
          */
         @RequiresApi(Build.VERSION_CODES.M)
         private fun getCipher(): Cipher {
-            return Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" +
+            return Cipher.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES + "/" +
                     KeyProperties.BLOCK_MODE_CBC + "/" +
-                    KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    KeyProperties.ENCRYPTION_PADDING_PKCS7
+            )
         }
 
         /**

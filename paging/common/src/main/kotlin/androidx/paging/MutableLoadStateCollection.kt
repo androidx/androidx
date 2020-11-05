@@ -24,9 +24,9 @@ import androidx.annotation.RestrictTo
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class MutableLoadStateCollection(hasRemoteState: Boolean) {
+class MutableLoadStateCollection {
     private var source: LoadStates = LoadStates.IDLE
-    private var mediator: LoadStates? = if (hasRemoteState) LoadStates.IDLE else null
+    private var mediator: LoadStates? = null
 
     fun snapshot() = CombinedLoadStates(source, mediator)
 
@@ -51,33 +51,12 @@ class MutableLoadStateCollection(hasRemoteState: Boolean) {
         return (if (remote) mediator else source)?.get(type)
     }
 
-    internal inline fun forEach(op: (LoadType, Boolean, LoadState?) -> Unit) {
+    internal inline fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
         source.forEach { type, state ->
             op(type, false, state)
         }
         mediator?.forEach { type, state ->
             op(type, true, state)
-        }
-    }
-
-    private fun LoadStates.get(type: LoadType): LoadState = when (type) {
-        LoadType.REFRESH -> refresh
-        LoadType.PREPEND -> prepend
-        LoadType.APPEND -> append
-    }
-
-    private fun LoadStates.modifyState(
-        type: LoadType,
-        state: LoadState
-    ): LoadStates {
-        return if (get(type) == state) {
-            this
-        } else {
-            when (type) {
-                LoadType.REFRESH -> copy(refresh = state)
-                LoadType.PREPEND -> copy(prepend = state)
-                LoadType.APPEND -> copy(append = state)
-            }
         }
     }
 }

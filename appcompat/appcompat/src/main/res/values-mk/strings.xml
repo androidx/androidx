@@ -25,7 +25,7 @@
     <string name="abc_search_hint" msgid="7208076849092622260">"Пребарување…"</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"Пребарај барање"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"Исчисти барање"</string>
-    <string name="abc_searchview_description_submit" msgid="1486535517437947103">"Поднеси барање"</string>
+    <string name="abc_searchview_description_submit" msgid="1486535517437947103">"Испрати барање"</string>
     <string name="abc_searchview_description_voice" msgid="2293578557972875415">"Гласовно пребарување"</string>
     <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"Избери апликација"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"Прикажи ги сите"</string>

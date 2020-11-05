@@ -202,7 +202,7 @@ class VirtualCameraManager @Inject constructor(
         scope: CoroutineScope
     ): ActiveCamera {
         val metadata = cameraMetadata.get(cameraId)
-        val requestTimestamp = Metrics.monotonicNanos()
+        val requestTimestamp = Timestamps.now()
 
         var cameraState: AndroidCameraState
         var attempts = 0

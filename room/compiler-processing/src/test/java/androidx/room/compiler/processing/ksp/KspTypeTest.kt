@@ -23,10 +23,11 @@ import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
-import org.jetbrains.kotlin.ksp.getClassDeclarationByName
-import org.jetbrains.kotlin.ksp.getDeclaredFunctions
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
+import com.squareup.javapoet.WildcardTypeName
+import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeReference
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,13 +37,14 @@ class KspTypeTest {
     @Test
     fun assignability() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             class Baz : AbstractClass(), MyInterface {
             }
             abstract class AbstractClass {}
             interface MyInterface {}
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(listOf(src), succeed = true) {
             val subject = it.processingEnv.requireType("foo.bar.Baz")
@@ -75,11 +77,12 @@ class KspTypeTest {
     @Test
     fun errorType() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             val errorType : IDontExist = TODO()
             val listOfErrorType : List<IDontExist> = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -106,11 +109,12 @@ class KspTypeTest {
     @Test
     fun typeArguments() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             val listOfNullableStrings : List<String?> = TODO()
             val listOfInts : List<Int> = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -153,7 +157,8 @@ class KspTypeTest {
     @Test
     fun equality() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             val listOfNullableStrings : List<String?> = TODO()
             val listOfNullableStrings_2 : List<String?> = TODO()
@@ -161,7 +166,7 @@ class KspTypeTest {
             val listOfNonNullStrings_2 : List<String> = TODO()
             val nullableString : String? = TODO()
             val nonNullString : String = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -197,13 +202,14 @@ class KspTypeTest {
     @Test
     fun rawType() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             package foo.bar;
             val simple : Int = 0
             val list : List<String> = TODO()
             val map : Map<String, String> = TODO()
             val listOfMaps : List<Map<String, String>> = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -234,13 +240,14 @@ class KspTypeTest {
     @Test
     fun noneType() {
         val src = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             public class Baz {
                 void voidMethod() {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val resolver = (invocation.processingEnv as KspProcessingEnv).resolver
@@ -257,7 +264,8 @@ class KspTypeTest {
     @Test
     fun isTypeChecks() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             val intProp : Int = 0
             val nullableIntProp : Int? = null
             val longProp : Long = 0
@@ -266,7 +274,7 @@ class KspTypeTest {
             val nullableByteProp :Byte? = null
             val errorProp : IDontExist = TODO()
             val nullableErrorProp : IDontExist? = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -299,7 +307,8 @@ class KspTypeTest {
     @Test
     fun defaultValue() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             val intProp : Int = 3 // kotlin default value is unrelated, will be ignored
             val nullableIntProp : Int? = null
             val longProp : Long = 3
@@ -310,7 +319,7 @@ class KspTypeTest {
             val errorProp : IDontExist = TODO()
             val nullableErrorProp : IDontExist? = TODO()
             val stringProp : String = "abc"
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -336,12 +345,13 @@ class KspTypeTest {
     @Test
     fun isTypeOf() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             val intProp : Int = 3
             val longProp : Long = 3
             val stringProp : String = "abc"
             val listProp : List<String> = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -383,7 +393,8 @@ class KspTypeTest {
     @Test
     fun isSameType() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             val intProp : Int = 3
             val intProp2 : Int = 4
             val longProp : Long = 0L
@@ -392,7 +403,7 @@ class KspTypeTest {
             val listOfStrings2 : List<String> = TODO()
             val listOfInts : List<Int> = TODO()
             val listOfNullableStrings : List<String?> = TODO()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -418,12 +429,13 @@ class KspTypeTest {
     @Test
     fun extendsBounds() {
         val src = Source.kotlin(
-            "foo.kt", """
+            "foo.kt",
+            """
             open class Foo;
             class Bar<T : Foo> {
             }
             class Bar_NullableFoo<T : Foo?>
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -453,14 +465,15 @@ class KspTypeTest {
     @Test
     fun wildcardJava() {
         val src = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             import java.util.List;
             public class Baz {
                 private void wildcardMethod(List<? extends Number> list) {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(
             listOf(src),
@@ -476,26 +489,26 @@ class KspTypeTest {
             val paramType = invocation.wrap(method.parameters.first().type!!)
             val arg1 = paramType.typeArguments.single()
             assertThat(arg1.typeName)
-                .isEqualTo(ClassName.get("kotlin", "Number"))
+                .isEqualTo(
+                    WildcardTypeName.subtypeOf(
+                        ClassName.get("kotlin", "Number")
+                    )
+                )
             assertThat(arg1.extendsBound()).isNull()
         }
     }
 
-    private fun TestInvocation.requirePropertyType(name: String): KspType {
+    private fun TestInvocation.requirePropertyType(name: String): KspDeclaredType {
         (processingEnv as KspProcessingEnv).resolver.getAllFiles().forEach { file ->
             val prop = file.declarations.first {
                 it.simpleName.asString() == name
             } as KSPropertyDeclaration
-            return checkNotNull(prop.type?.let {
-                wrap(it)
-            }) {
-                "cannot find type for $name"
-            }
+            return wrap(prop.type)
         }
         throw IllegalStateException("cannot find any property with name $name")
     }
 
-    private fun TestInvocation.wrap(typeRef: KSTypeReference): KspType {
+    private fun TestInvocation.wrap(typeRef: KSTypeReference): KspDeclaredType {
         return (processingEnv as KspProcessingEnv).wrap(typeRef)
     }
 }

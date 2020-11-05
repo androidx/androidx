@@ -32,5 +32,5 @@ import androidx.navigation.NavController
  *
  * @return True if the [NavController] was able to navigate to the destination.
  */
-fun MenuItem.onNavDestinationSelected(navController: NavController): Boolean =
-        NavigationUI.onNavDestinationSelected(this, navController)
+public fun MenuItem.onNavDestinationSelected(navController: NavController): Boolean =
+    NavigationUI.onNavDestinationSelected(this, navController)

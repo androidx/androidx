@@ -23,11 +23,12 @@ import android.opengl.GLES20
 import android.opengl.GLU
 import android.opengl.GLUtils
 import android.opengl.Matrix
-import android.support.wearable.complications.ComplicationData
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
@@ -40,8 +41,9 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -77,18 +79,18 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
         watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -96,30 +98,31 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(
                     EXAMPLE_OPENGL_COMPLICATION_ID,
                     watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    intArrayOf(
-                        ComplicationData.TYPE_RANGED_VALUE,
-                        ComplicationData.TYPE_LONG_TEXT,
-                        ComplicationData.TYPE_SHORT_TEXT,
-                        ComplicationData.TYPE_ICON,
-                        ComplicationData.TYPE_SMALL_IMAGE
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
                     .build()
-            )
+            ),
+            userStyleRepository
         )
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
+            colorStyleSetting,
             complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
         return WatchFace.Builder(
@@ -130,7 +133,7 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             renderer,
             watchFaceHost,
             watchState
-        ).setStatusBarGravity(Gravity.RIGHT or Gravity.TOP).build()
+        ).setWear2StatusBarGravity(Gravity.RIGHT or Gravity.TOP).build()
     }
 }
 
@@ -138,7 +141,7 @@ class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val userStyleRepository: UserStyleRepository,
     watchState: WatchState,
-    private val colorStyleCategory: ListUserStyleCategory,
+    private val colorStyleSetting: ListUserStyleSetting,
     private val complication: Complication
 ) : GlesRenderer(surfaceHolder, userStyleRepository, watchState) {
 
@@ -221,7 +224,8 @@ class ExampleOpenGLRenderer(
                 createHand(
                     coloredTriangleProgram,
                     0.02f /* width */,
-                    1.0f /* height */, floatArrayOf(
+                    1.0f /* height */,
+                    floatArrayOf(
                         1.0f /* red */,
                         0.0f /* green */,
                         0.0f /* blue */,
@@ -232,7 +236,8 @@ class ExampleOpenGLRenderer(
                 createHand(
                     coloredTriangleProgram,
                     0.02f /* width */,
-                    1.0f /* height */, floatArrayOf(
+                    1.0f /* height */,
+                    floatArrayOf(
                         0.0f /* red */,
                         1.0f /* green */,
                         0.0f /* blue */,
@@ -243,7 +248,8 @@ class ExampleOpenGLRenderer(
         minuteHandTriangle = createHand(
             coloredTriangleProgram,
             0.06f /* width */,
-            1f /* height */, floatArrayOf(
+            1f /* height */,
+            floatArrayOf(
                 0.7f /* red */,
                 0.7f /* green */,
                 0.7f /* blue */,
@@ -253,7 +259,8 @@ class ExampleOpenGLRenderer(
         hourHandTriangle = createHand(
             coloredTriangleProgram,
             0.1f /* width */,
-            0.6f /* height */, floatArrayOf(
+            0.6f /* height */,
+            floatArrayOf(
                 0.9f /* red */,
                 0.9f /* green */,
                 0.9f /* blue */,
@@ -381,7 +388,8 @@ class ExampleOpenGLRenderer(
             )
         }
         return Gles2ColoredTriangleList(
-            program, trianglesCoords, floatArrayOf(
+            program, trianglesCoords,
+            floatArrayOf(
                 1.0f /* red */,
                 1.0f /* green */,
                 1.0f /* blue */,
@@ -417,7 +425,8 @@ class ExampleOpenGLRenderer(
             index += 9
         }
         return Gles2ColoredTriangleList(
-            program, trianglesCoords, floatArrayOf(
+            program, trianglesCoords,
+            floatArrayOf(
                 0.5f /* red */,
                 0.5f /* green */,
                 0.5f /* blue */,
@@ -551,7 +560,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (userStyleRepository.userStyle.options[colorStyleCategory]!!.id) {
+            when (userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -618,7 +627,8 @@ class ExampleOpenGLRenderer(
                     0
                 )
                 secondHandTriangleMap[
-                    userStyleRepository.userStyle.options[colorStyleCategory]!!.id]
+                    userStyleRepository.userStyle.selectedOptions[colorStyleSetting]!!.id
+                ]
                     ?.draw(mvpMatrix)
             }
         }
@@ -928,8 +938,10 @@ class Gles2TexturedTriangleList(
             ("must be multiple of VERTICE_PER_TRIANGLE * COORDS_PER_VERTEX coordinates")
         }
         require(textureCoords.size % (VERTICE_PER_TRIANGLE * TEXTURE_COORDS_PER_VERTEX) == 0) {
-            ("must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
-                "coordinates")
+            (
+                "must be multiple of VERTICE_PER_TRIANGLE * NUM_TEXTURE_COMPONENTS texture " +
+                    "coordinates"
+                )
         }
     }
 

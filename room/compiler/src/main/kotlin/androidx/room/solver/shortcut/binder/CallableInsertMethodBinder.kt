@@ -38,33 +38,33 @@ class CallableInsertMethodBinder(
     adapter: InsertMethodAdapter?
 ) : InsertMethodBinder(adapter) {
 
-        companion object {
-            fun createInsertBinder(
-                typeArg: XType,
-                adapter: InsertMethodAdapter?,
-                addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
-            ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
-        }
+    companion object {
+        fun createInsertBinder(
+            typeArg: XType,
+            adapter: InsertMethodAdapter?,
+            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+        ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
+    }
 
-        override fun convertAndReturn(
-            parameters: List<ShortcutQueryParameter>,
-            insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
-            dbField: FieldSpec,
-            scope: CodeGenScope
-        ) {
-            val adapterScope = scope.fork()
-            val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
-                adapter?.createInsertionMethodBody(
-                    parameters = parameters,
-                    insertionAdapters = insertionAdapters,
-                    dbField = dbField,
-                    scope = adapterScope
-                )
-                addCode(adapterScope.generate())
-            }.build()
+    override fun convertAndReturn(
+        parameters: List<ShortcutQueryParameter>,
+        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
+        scope: CodeGenScope
+    ) {
+        val adapterScope = scope.fork()
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
+            adapter?.createInsertionMethodBody(
+                parameters = parameters,
+                insertionAdapters = insertionAdapters,
+                dbField = dbField,
+                scope = adapterScope
+            )
+            addCode(adapterScope.generate())
+        }.build()
 
-            scope.builder().apply {
-                addStmntBlock(callableImpl, dbField)
-            }
+        scope.builder().apply {
+            addStmntBlock(callableImpl, dbField)
         }
     }
+}

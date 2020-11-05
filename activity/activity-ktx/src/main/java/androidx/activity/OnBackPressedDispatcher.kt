@@ -27,7 +27,7 @@ import androidx.lifecycle.LifecycleOwner
  *
  * A default [enabled] state can be supplied.
  */
-fun OnBackPressedDispatcher.addCallback(
+public fun OnBackPressedDispatcher.addCallback(
     owner: LifecycleOwner? = null,
     enabled: Boolean = true,
     onBackPressed: OnBackPressedCallback.() -> Unit

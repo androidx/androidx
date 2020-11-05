@@ -85,16 +85,20 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val boolean = invocation
-                    .processingEnv
-                    .requireType("java.lang.Boolean")
+                .processingEnv
+                .requireType("java.lang.Boolean")
             val adapter = store.findColumnTypeAdapter(boolean, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
-            assertThat(composite.intoStatementConverter?.from?.typeName,
-                    `is`(TypeName.BOOLEAN.box()))
-            assertThat(composite.columnTypeAdapter.out.typeName,
-                    `is`(TypeName.INT.box()))
+            assertThat(
+                composite.intoStatementConverter?.from?.typeName,
+                `is`(TypeName.BOOLEAN.box())
+            )
+            assertThat(
+                composite.columnTypeAdapter.out.typeName,
+                `is`(TypeName.INT.box())
+            )
         }.compilesWithoutError()
     }
 
@@ -108,27 +112,39 @@ class TypeAdapterStoreTest {
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().toString().trim(), `is`("""
+            assertThat(
+                bindScope.generate().toString().trim(),
+                `is`(
+                    """
                     final int ${tmp(0)};
                     ${tmp(0)} = fooVar ? 1 : 0;
                     stmt.bindLong(41, ${tmp(0)});
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
 
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
-            assertThat(cursorScope.generate().toString().trim(), `is`("""
+            assertThat(
+                cursorScope.generate().toString().trim(),
+                `is`(
+                    """
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(7);
                     res = ${tmp(0)} != 0;
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun testVia2TypeAdapters() {
         singleRun { invocation ->
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv),
-                    pointTypeConverters(invocation.processingEnv))
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv),
+                pointTypeConverters(invocation.processingEnv)
+            )
             val pointType = invocation.processingEnv.requireType("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(pointType, null)
             assertThat(adapter, notNullValue())
@@ -136,38 +152,53 @@ class TypeAdapterStoreTest {
 
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().toString().trim(), `is`("""
+            assertThat(
+                bindScope.generate().toString().trim(),
+                `is`(
+                    """
                     final int ${tmp(0)};
                     final boolean ${tmp(1)};
                     ${tmp(1)} = foo.bar.Point.toBoolean(fooVar);
                     ${tmp(0)} = ${tmp(1)} ? 1 : 0;
                     stmt.bindLong(41, ${tmp(0)});
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
 
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
-            assertThat(cursorScope.generate().toString().trim(), `is`("""
+            assertThat(
+                cursorScope.generate().toString().trim(),
+                `is`(
+                    """
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(11);
                     final boolean ${tmp(1)};
                     ${tmp(1)} = ${tmp(0)} != 0;
                     res = foo.bar.Point.fromBoolean(${tmp(1)});
-                    """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun testDate() {
         singleRun { (processingEnv) ->
-            val store = TypeAdapterStore.create(Context(processingEnv),
-                    dateTypeConverters(processingEnv))
+            val store = TypeAdapterStore.create(
+                Context(processingEnv),
+                dateTypeConverters(processingEnv)
+            )
             val tDate = processingEnv.requireType("java.util.Date")
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
             val bindScope = testCodeGenScope()
             adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
-            assertThat(bindScope.generate().toString().trim(), `is`("""
+            assertThat(
+                bindScope.generate().toString().trim(),
+                `is`(
+                    """
                 final java.lang.Long _tmp;
                 if (curs.isNull(0)) {
                   _tmp = null;
@@ -175,7 +206,9 @@ class TypeAdapterStoreTest {
                   _tmp = curs.getLong(0);
                 }
                 // convert Long to Date;
-            """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
         }.compilesWithoutError()
     }
 
@@ -183,15 +216,20 @@ class TypeAdapterStoreTest {
     fun testIntList() {
         singleRun { invocation ->
             val binders = createIntListToStringBinders(invocation)
-            val store = TypeAdapterStore.create(Context(invocation.processingEnv), binders[0],
-                    binders[1])
+            val store = TypeAdapterStore.create(
+                Context(invocation.processingEnv), binders[0],
+                binders[1]
+            )
 
             val adapter = store.findColumnTypeAdapter(binders[0].from, null)
             assertThat(adapter, notNullValue())
 
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().toString().trim(), `is`("""
+            assertThat(
+                bindScope.generate().toString().trim(),
+                `is`(
+                    """
                 final java.lang.String ${tmp(0)};
                 ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
                 if (${tmp(0)} == null) {
@@ -199,10 +237,14 @@ class TypeAdapterStoreTest {
                 } else {
                   stmt.bindString(41, ${tmp(0)});
                 }
-                """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
 
-            val converter = store.findTypeConverter(binders[0].from,
-                    invocation.context.COMMON_TYPES.STRING)
+            val converter = store.findTypeConverter(
+                binders[0].from,
+                invocation.context.COMMON_TYPES.STRING
+            )
             assertThat(converter, notNullValue())
             assertThat(store.reverse(converter!!), `is`(binders[1]))
         }.compilesWithoutError()
@@ -219,8 +261,10 @@ class TypeAdapterStoreTest {
             val stmtBinder = store.findStatementValueBinder(binders[0].from, null)
             assertThat(stmtBinder, notNullValue())
 
-            val converter = store.findTypeConverter(binders[0].from,
-                    invocation.context.COMMON_TYPES.STRING)
+            val converter = store.findTypeConverter(
+                binders[0].from,
+                invocation.context.COMMON_TYPES.STRING
+            )
             assertThat(converter, notNullValue())
             assertThat(store.reverse(converter!!), nullValue())
         }
@@ -230,12 +274,14 @@ class TypeAdapterStoreTest {
     fun testMissingRx2Room() {
         simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv
-                    .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
+                .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
                     it.matches(publisherElement.asDeclaredType())
-                }, `is`(true))
+                },
+                `is`(true)
+            )
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
     }
 
@@ -248,7 +294,9 @@ class TypeAdapterStoreTest {
             assertThat(
                 RxQueryResultBinderProvider.getAll(invocation.context).any {
                     it.matches(publisherElement.asDeclaredType())
-                }, `is`(true))
+                },
+                `is`(true)
+            )
         }.failsToCompile().withErrorContaining(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
     }
 
@@ -259,14 +307,16 @@ class TypeAdapterStoreTest {
             COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
             simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
-                    invocation ->
+                invocation ->
                 val publisher = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
                 assertThat(publisher, notNullValue())
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
                         it.matches(publisher.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -283,7 +333,9 @@ class TypeAdapterStoreTest {
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
                         it.matches(flowable.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -301,7 +353,9 @@ class TypeAdapterStoreTest {
                 assertThat(
                     RxQueryResultBinderProvider.getAll(invocation.context).any {
                         it.matches(observable.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -319,7 +373,9 @@ class TypeAdapterStoreTest {
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
                         it.matches(single.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -336,7 +392,9 @@ class TypeAdapterStoreTest {
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
                         it.matches(maybe.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -353,7 +411,9 @@ class TypeAdapterStoreTest {
                 assertThat(
                     RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
                         it.matches(completable.asDeclaredType())
-                    }, `is`(true))
+                    },
+                    `is`(true)
+                )
             }.compilesWithoutError()
         }
     }
@@ -361,11 +421,15 @@ class TypeAdapterStoreTest {
     @Test
     fun testFindInsertListenableFuture() {
         simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
-                invocation ->
+            invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
-            assertThat(GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
-                future.asDeclaredType()), `is`(true))
+            assertThat(
+                GuavaListenableFutureInsertMethodBinderProvider(invocation.context).matches(
+                    future.asDeclaredType()
+                ),
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -378,7 +442,9 @@ class TypeAdapterStoreTest {
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
                     it.matches(single.asDeclaredType())
-                }, `is`(true))
+                },
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -391,7 +457,9 @@ class TypeAdapterStoreTest {
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
                     it.matches(maybe.asDeclaredType())
-                }, `is`(true))
+                },
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -400,24 +468,29 @@ class TypeAdapterStoreTest {
         simpleRun(jfos = arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv
-                    .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
+                .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
             assertThat(completable, notNullValue())
             assertThat(
                 RxCallableDeleteOrUpdateMethodBinderProvider.getAll(invocation.context).any {
                     it.matches(completable.asDeclaredType())
-                }, `is`(true))
+                },
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
     @Test
     fun testFindDeleteOrUpdateListenableFuture() {
         simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
-                invocation ->
+            invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
             assertThat(future, notNullValue())
-            assertThat(GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
-                .matches(future.asDeclaredType()), `is`(true))
+            assertThat(
+                GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(invocation.context)
+                    .matches(future.asDeclaredType()),
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -426,10 +499,14 @@ class TypeAdapterStoreTest {
         simpleRun(jfos = arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
             invocation ->
             val liveData = invocation.processingEnv
-                    .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
+                .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
             assertThat(liveData, notNullValue())
-            assertThat(LiveDataQueryResultBinderProvider(invocation.context).matches(
-                    liveData.asDeclaredType()), `is`(true))
+            assertThat(
+                LiveDataQueryResultBinderProvider(invocation.context).matches(
+                    liveData.asDeclaredType()
+                ),
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -443,8 +520,11 @@ class TypeAdapterStoreTest {
                 .getDeclaredType(pagingSourceElement, intType, intType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
-            assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                `is`(true)
+            )
         }
     }
 
@@ -458,8 +538,11 @@ class TypeAdapterStoreTest {
                 .getDeclaredType(pagingSourceElement, stringType, stringType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
-            assertThat(PagingSourceQueryResultBinderProvider(invocation.context)
-                .matches(pagingSourceIntIntType.asDeclaredType()), `is`(true))
+            assertThat(
+                PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(pagingSourceIntIntType.asDeclaredType()),
+                `is`(true)
+            )
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
     }
 
@@ -469,8 +552,12 @@ class TypeAdapterStoreTest {
             invocation ->
             val dataSource = invocation.processingEnv.requireTypeElement(DataSource::class)
             assertThat(dataSource, notNullValue())
-            assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()), `is`(true))
+            assertThat(
+                DataSourceQueryResultBinderProvider(invocation.context).matches(
+                    dataSource.asDeclaredType()
+                ),
+                `is`(true)
+            )
         }.failsToCompile().withErrorContaining(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
     }
 
@@ -482,8 +569,12 @@ class TypeAdapterStoreTest {
             val dataSource = invocation.processingEnv
                 .requireTypeElement(androidx.paging.PositionalDataSource::class)
             assertThat(dataSource, notNullValue())
-            assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
-                    dataSource.asDeclaredType()), `is`(true))
+            assertThat(
+                DataSourceQueryResultBinderProvider(invocation.context).matches(
+                    dataSource.asDeclaredType()
+                ),
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -492,10 +583,14 @@ class TypeAdapterStoreTest {
         simpleRun(jfos = arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
             val pagedListProvider = invocation.processingEnv
-                    .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
+                .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)
             assertThat(pagedListProvider, notNullValue())
-            assertThat(DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
-                    pagedListProvider.asDeclaredType()), `is`(true))
+            assertThat(
+                DataSourceFactoryQueryResultBinderProvider(invocation.context).matches(
+                    pagedListProvider.asDeclaredType()
+                ),
+                `is`(true)
+            )
         }.compilesWithoutError()
     }
 
@@ -504,30 +599,37 @@ class TypeAdapterStoreTest {
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
 
-        val intListConverter = object : TypeConverter(listOfInts,
-                invocation.context.COMMON_TYPES.STRING) {
+        val intListConverter = object : TypeConverter(
+            listOfInts,
+            invocation.context.COMMON_TYPES.STRING
+        ) {
             override fun convert(
                 inputVarName: String,
                 outputVarName: String,
                 scope: CodeGenScope
             ) {
                 scope.builder().apply {
-                    addStatement("$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
-                            inputVarName)
+                    addStatement(
+                        "$L = $T.joinIntoString($L)", outputVarName, STRING_UTIL,
+                        inputVarName
+                    )
                 }
             }
         }
 
         val stringToIntListConverter = object : TypeConverter(
-                invocation.context.COMMON_TYPES.STRING, listOfInts) {
+            invocation.context.COMMON_TYPES.STRING, listOfInts
+        ) {
             override fun convert(
                 inputVarName: String,
                 outputVarName: String,
                 scope: CodeGenScope
             ) {
                 scope.builder().apply {
-                    addStatement("$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
-                            inputVarName)
+                    addStatement(
+                        "$L = $T.splitToIntList($L)", outputVarName, STRING_UTIL,
+                        inputVarName
+                    )
                 }
             }
         }
@@ -536,14 +638,19 @@ class TypeAdapterStoreTest {
 
     fun singleRun(handler: (TestInvocation) -> Unit): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(JavaFileObjects.forSourceString("foo.bar.DummyClass",
+            .that(
+                listOf(
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.DummyClass",
                         """
                         package foo.bar;
                         import androidx.room.*;
                         @Entity
                         public class DummyClass {}
                         """
-                ), JavaFileObjects.forSourceString("foo.bar.Point",
+                    ),
+                    JavaFileObjects.forSourceString(
+                        "foo.bar.Point",
                         """
                         package foo.bar;
                         import androidx.room.*;
@@ -562,44 +669,52 @@ class TypeAdapterStoreTest {
                             }
                         }
                         """
-                )))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(Entity::class)
-                        .nextRunHandler { invocation ->
-                            handler(invocation)
-                            true
-                        }
-                        .build())
+                    )
+                )
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(Entity::class)
+                    .nextRunHandler { invocation ->
+                        handler(invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 
     fun pointTypeConverters(env: XProcessingEnv): List<TypeConverter> {
         val tPoint = env.requireType("foo.bar.Point")
         val tBoolean = env.requireType(TypeName.BOOLEAN)
         return listOf(
-                object : TypeConverter(tPoint, tBoolean) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().apply {
-                            addStatement("$L = $T.toBoolean($L)", outputVarName, from.typeName,
-                                inputVarName)
-                        }
-                    }
-                },
-                object : TypeConverter(tBoolean, tPoint) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().apply {
-                            addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint.typeName,
-                                    inputVarName)
-                        }
+            object : TypeConverter(tPoint, tBoolean) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().apply {
+                        addStatement(
+                            "$L = $T.toBoolean($L)", outputVarName, from.typeName,
+                            inputVarName
+                        )
                     }
                 }
+            },
+            object : TypeConverter(tBoolean, tPoint) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().apply {
+                        addStatement(
+                            "$L = $T.fromBoolean($L)", outputVarName, tPoint.typeName,
+                            inputVarName
+                        )
+                    }
+                }
+            }
         )
     }
 
@@ -607,28 +722,28 @@ class TypeAdapterStoreTest {
         val tDate = env.requireType("java.util.Date")
         val tLong = env.requireType("java.lang.Long")
         return listOf(
-                object : TypeConverter(tDate, tLong) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().apply {
-                            addStatement("// convert Date to Long")
-                        }
-                    }
-                },
-                object : TypeConverter(tLong, tDate) {
-                    override fun convert(
-                        inputVarName: String,
-                        outputVarName: String,
-                        scope: CodeGenScope
-                    ) {
-                        scope.builder().apply {
-                            addStatement("// convert Long to Date")
-                        }
+            object : TypeConverter(tDate, tLong) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().apply {
+                        addStatement("// convert Date to Long")
                     }
                 }
+            },
+            object : TypeConverter(tLong, tDate) {
+                override fun convert(
+                    inputVarName: String,
+                    outputVarName: String,
+                    scope: CodeGenScope
+                ) {
+                    scope.builder().apply {
+                        addStatement("// convert Long to Date")
+                    }
+                }
+            }
         )
     }
 }

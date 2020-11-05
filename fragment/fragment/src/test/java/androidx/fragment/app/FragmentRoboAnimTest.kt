@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
-import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +32,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@LargeTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(sdk = [Build.VERSION_CODES.O_MR1], manifest = Config.NONE)

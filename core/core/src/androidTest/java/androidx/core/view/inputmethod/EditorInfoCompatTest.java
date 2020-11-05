@@ -35,15 +35,15 @@ import android.view.inputmethod.InputConnection;
 import androidx.annotation.Nullable;
 import androidx.core.app.TestActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivity> {
     private static final int LONG_EXP_TEXT_LENGTH =
             EditorInfoCompat.MEMORY_EFFICIENT_TEXT_LENGTH * 2;

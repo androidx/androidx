@@ -775,6 +775,9 @@ public class SwitchCompat extends CompoundButton {
     public void setTextOn(CharSequence textOn) {
         mTextOn = textOn;
         requestLayout();
+        // Default state is derived from on/off-text, so state has to be updated when on/off-text
+        // are updated.
+        setOnStateDescription();
     }
 
     /**
@@ -794,6 +797,9 @@ public class SwitchCompat extends CompoundButton {
     public void setTextOff(CharSequence textOff) {
         mTextOff = textOff;
         requestLayout();
+        // Default state is derived from on/off-text, so state has to be updated when on/off-text
+        // are updated.
+        setOffStateDescription();
     }
 
     /**
@@ -1087,6 +1093,12 @@ public class SwitchCompat extends CompoundButton {
         // Calling the super method may result in setChecked() getting called
         // recursively with a different value, so load the REAL value...
         checked = isChecked();
+
+        if (checked) {
+            setOnStateDescription();
+        } else {
+            setOffStateDescription();
+        }
 
         if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
             animateThumbToCheckedState(checked);
@@ -1421,17 +1433,6 @@ public class SwitchCompat extends CompoundButton {
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
         info.setClassName(ACCESSIBILITY_EVENT_CLASS_NAME);
-        CharSequence switchText = isChecked() ? mTextOn : mTextOff;
-        if (!TextUtils.isEmpty(switchText)) {
-            CharSequence oldText = info.getText();
-            if (TextUtils.isEmpty(oldText)) {
-                info.setText(switchText);
-            } else {
-                StringBuilder newText = new StringBuilder();
-                newText.append(oldText).append(' ').append(switchText);
-                info.setText(newText);
-            }
-        }
     }
 
     /**
@@ -1449,5 +1450,19 @@ public class SwitchCompat extends CompoundButton {
      */
     private static float constrain(float amount, float low, float high) {
         return amount < low ? low : (amount > high ? high : amount);
+    }
+
+    private void setOnStateDescription() {
+        ViewCompat.setStateDescription(
+                this,
+                mTextOn == null ? getResources().getString(R.string.abc_capital_on) : mTextOn
+        );
+    }
+
+    private void setOffStateDescription() {
+        ViewCompat.setStateDescription(
+                this,
+                mTextOff == null ? getResources().getString(R.string.abc_capital_off) : mTextOff
+        );
     }
 }

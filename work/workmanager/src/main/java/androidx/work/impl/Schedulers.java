@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import static androidx.work.impl.Scheduler.MAX_GREEDY_SCHEDULER_LIMIT;
 import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
 
 import android.content.Context;
@@ -74,7 +75,8 @@ public class Schedulers {
                     configuration.getMaxSchedulerLimit());
 
             // Enqueued workSpecs when scheduling limits are NOT applicable.
-            allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling();
+            allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
+                    MAX_GREEDY_SCHEDULER_LIMIT);
 
             if (eligibleWorkSpecsForLimitedSlots != null
                     && eligibleWorkSpecsForLimitedSlots.size() > 0) {

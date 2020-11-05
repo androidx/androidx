@@ -55,8 +55,8 @@ class PeriodicEnqueueIssueDetector : Detector(), SourceCodeScanner {
             val periodic = node.valueArguments.filter { argument ->
                 val type = argument.getExpressionType()?.canonicalText
                 type == "androidx.work.PeriodicWorkRequest" ||
-                        type == "java.util.List<? extends androidx.work.PeriodicWorkRequest>" ||
-                        type == "java.util.List<? extends androidx.work.WorkRequest>"
+                    type == "java.util.List<? extends androidx.work.PeriodicWorkRequest>" ||
+                    type == "java.util.List<? extends androidx.work.WorkRequest>"
             }
             if (periodic.isNotEmpty()) {
                 context.report(

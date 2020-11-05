@@ -28,16 +28,16 @@ import android.graphics.drawable.Icon
  * @param[ambientImage] the image to be shown when the device is in ambient mode to save power or
  * avoid burn in
  */
-class MonochromaticImage internal constructor(
-    val image: Icon,
-    val ambientImage: Icon?
+public class MonochromaticImage internal constructor(
+    public val image: Icon,
+    public val ambientImage: Icon?
 ) {
     /**
      * Builder for [MonochromaticImage].
      *
      * @param[image] the [Icon] representing the image
      */
-    class Builder(private var image: Icon) {
+    public class Builder(private var image: Icon) {
         private var ambientImage: Icon? = null
 
         /**
@@ -45,12 +45,12 @@ class MonochromaticImage internal constructor(
          * burn in. If no ambient variant is provided, the watch face may not show anything while
          * in ambient mode.
          */
-        fun setAmbientImage(ambientImage: Icon?) = apply {
+        public fun setAmbientImage(ambientImage: Icon?): Builder = apply {
             this.ambientImage = ambientImage
         }
 
         /** Constructs the [MonochromaticImage]. */
-        fun build() = MonochromaticImage(image, ambientImage)
+        public fun build(): MonochromaticImage = MonochromaticImage(image, ambientImage)
     }
 
     /** Adds a [MonochromaticImage] to a builder for [WireComplicationData]. */
@@ -65,7 +65,7 @@ class MonochromaticImage internal constructor(
  *
  * This is used to guide rendering on the watch face.
  */
-enum class SmallImageType {
+public enum class SmallImageType {
     /**
      * Type for images that have a transparent background and are expected to be drawn
      * entirely within the space available, such as a launcher image. Watch faces may add padding
@@ -94,10 +94,10 @@ enum class SmallImageType {
  * @param[ambientImage] the image to be shown when the device is in ambient mode to save power or
  * avoid burn in
  */
-class SmallImage internal constructor(
-    val image: Icon,
-    val type: SmallImageType,
-    val ambientImage: Icon?
+public class SmallImage internal constructor(
+    public val image: Icon,
+    public val type: SmallImageType,
+    public val ambientImage: Icon?
 ) {
     /**
      * Builder for [MonochromaticImage].
@@ -105,7 +105,7 @@ class SmallImage internal constructor(
      * @param[image] the [Icon] representing the image
      * @param[type] the style of the image provided, to guide how it should be displayed
      */
-    class Builder(private val image: Icon, private val type: SmallImageType) {
+    public class Builder(private val image: Icon, private val type: SmallImageType) {
         private var ambientImage: Icon? = null
 
         /**
@@ -113,12 +113,12 @@ class SmallImage internal constructor(
          * burn in. If no ambient variant is provided, the watch face may not show anything while
          * in ambient mode.
          */
-        fun setAmbientImage(ambientImage: Icon?) = apply {
+        public fun setAmbientImage(ambientImage: Icon?): Builder = apply {
             this.ambientImage = ambientImage
         }
 
         /** Builds a [SmallImage]. */
-        fun build() = SmallImage(image, type, ambientImage)
+        public fun build(): SmallImage = SmallImage(image, type, ambientImage)
     }
 
     /** Adds a [SmallImage] to a builder for [WireComplicationData]. */
@@ -142,17 +142,17 @@ class SmallImage internal constructor(
  *
  * @param[image] the image itself
  */
-class BackgroundImage internal constructor(
-    val image: Icon
+public class BackgroundImage internal constructor(
+    public val image: Icon
 ) {
     /**
      * Builder for [BackgroundImage].
      *
      * @param[image] the [Icon] representing the image
      */
-    class Builder(private val image: Icon) {
+    public class Builder(private val image: Icon) {
         /** Builds a [BackgroundImage]. */
-        fun build() = BackgroundImage(image)
+        public fun build(): BackgroundImage = BackgroundImage(image)
     }
 
     /** Adds a [BackgroundImage] to a builder for [WireComplicationData]. */

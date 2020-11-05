@@ -28,7 +28,7 @@ import androidx.sqlite.inspection.test.MessageFactory.createKeepDatabasesOpenRes
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -39,32 +39,32 @@ import org.junit.runner.RunWith
 import java.io.File
 
 private const val OPEN_DATABASE_COMMAND_SIGNATURE_API11: String = "openDatabase" +
-        "(" +
-        "Ljava/lang/String;" +
-        "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
-        "I" +
-        "Landroid/database/DatabaseErrorHandler;" +
-        ")" +
-        "Landroid/database/sqlite/SQLiteDatabase;"
+    "(" +
+    "Ljava/lang/String;" +
+    "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
+    "I" +
+    "Landroid/database/DatabaseErrorHandler;" +
+    ")" +
+    "Landroid/database/sqlite/SQLiteDatabase;"
 
 private const val OPEN_DATABASE_COMMAND_SIGNATURE_API27: String = "openDatabase" +
-        "(" +
-        "Ljava/io/File;" +
-        "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
-        ")" +
-        "Landroid/database/sqlite/SQLiteDatabase;"
+    "(" +
+    "Ljava/io/File;" +
+    "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
+    ")" +
+    "Landroid/database/sqlite/SQLiteDatabase;"
 
 private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27 = "createInMemory" +
-        "(" +
-        "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
-        ")" +
-        "Landroid/database/sqlite/SQLiteDatabase;"
+    "(" +
+    "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
+    ")" +
+    "Landroid/database/sqlite/SQLiteDatabase;"
 
 private const val ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE = "onAllReferencesReleased()V"
 
 private const val RELEASE_REFERENCE_COMMAND_SIGNATURE = "releaseReference()V"
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrackDatabasesTest {
     @get:Rule
@@ -116,20 +116,20 @@ class TrackDatabasesTest {
         assertThat(hookEntries).hasSize(wantedSignatures.size)
         assertThat(hookEntries.map { it.originMethod }.containsAll(wantedSignatures)).isTrue()
         hookEntries.forEachIndexed { ix, entry ->
-                // expect one exit hook tracking database open events
-                assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
-                assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
+            // expect one exit hook tracking database open events
+            assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
+            assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
 
-                // verify that executing the registered hook will result in tracking events
-                testEnvironment.assertNoQueuedEvents()
-                @Suppress("UNCHECKED_CAST")
-                val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
-                val database = Database("db3_$ix").createInstance(temporaryFolder)
-                assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
-                testEnvironment.receiveEvent().let { event ->
-                    assertThat(event.databaseOpened.path).isEqualTo(database.displayName)
-                }
+            // verify that executing the registered hook will result in tracking events
+            testEnvironment.assertNoQueuedEvents()
+            @Suppress("UNCHECKED_CAST")
+            val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
+            val database = Database("db3_$ix").createInstance(temporaryFolder)
+            assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
+            testEnvironment.receiveEvent().let { event ->
+                assertThat(event.databaseOpened.path).isEqualTo(database.displayName)
             }
+        }
 
         assertThat(testEnvironment.consumeRegisteredHooks()).isEmpty()
     }

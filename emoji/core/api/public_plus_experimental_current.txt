@@ -36,11 +36,16 @@ package androidx.emoji.text {
     method public androidx.emoji.text.EmojiCompat.Config! registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     method public androidx.emoji.text.EmojiCompat.Config! setEmojiSpanIndicatorColor(@ColorInt int);
     method public androidx.emoji.text.EmojiCompat.Config! setEmojiSpanIndicatorEnabled(boolean);
+    method public androidx.emoji.text.EmojiCompat.Config setGlyphChecker(androidx.emoji.text.EmojiCompat.GlyphChecker);
     method public androidx.emoji.text.EmojiCompat.Config! setMetadataLoadStrategy(int);
     method public androidx.emoji.text.EmojiCompat.Config! setReplaceAll(boolean);
     method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean);
     method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer!>?);
     method public androidx.emoji.text.EmojiCompat.Config! unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
+  }
+
+  public static interface EmojiCompat.GlyphChecker {
+    method public boolean hasGlyph(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
   }
 
   public abstract static class EmojiCompat.InitCallback {

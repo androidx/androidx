@@ -70,7 +70,7 @@ src/sample/optin/UseJavaExperimentalFromJava.java:56: Error: This declaration is
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
 4 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -189,7 +189,7 @@ src/sample/optin/UseJavaPackageFromJava.java:54: Error: This declaration is opt-
         callPackageExperimental();
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -219,7 +219,7 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -247,7 +247,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val ANDROIDX_REQUIRES_OPT_IN_KT: TestFile = kotlin("""
+        val ANDROIDX_REQUIRES_OPT_IN_KT: TestFile = kotlin(
+            """
             package androidx.annotation;
 
             import kotlin.annotation.Retention
@@ -263,7 +264,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
                     ERROR
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing OptIn.kt from the experimental annotation library.
@@ -271,7 +273,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val ANDROIDX_OPT_IN_KT: TestFile = kotlin("""
+        val ANDROIDX_OPT_IN_KT: TestFile = kotlin(
+            """
             package androidx.annotation;
 
             import kotlin.annotation.Retention
@@ -294,7 +297,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
             annotation class OptIn(
                 vararg val markerClass: KClass<out Annotation>
             )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing OptIn.kt from the Kotlin standard library.
@@ -302,7 +306,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
          * This is a workaround for the Kotlin standard library used by the Lint test harness not
          * including the Experimental annotation by default.
          */
-        val OPT_IN_KT: TestFile = kotlin("""
+        val OPT_IN_KT: TestFile = kotlin(
+            """
             package kotlin
 
             import kotlin.annotation.AnnotationRetention.BINARY
@@ -335,7 +340,8 @@ src/sample/optin/UseJavaPackageFromKt.kt:54: Error: This declaration is opt-in a
             public annotation class OptIn(
                 vararg val markerClass: KClass<out Annotation>
             )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing the package-level annotation for the sample.optin.foo package.

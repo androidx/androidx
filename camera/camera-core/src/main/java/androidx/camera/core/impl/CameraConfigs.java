@@ -35,9 +35,13 @@ public class CameraConfigs {
 
     static final class EmptyCameraConfig implements CameraConfig {
         private final UseCaseConfigFactory mUseCaseConfigFactory = new UseCaseConfigFactory() {
+            /**
+             * Returns the configuration for the given capture type, or <code>null</code> if the
+             * configuration cannot be produced.
+             */
             @Nullable
             @Override
-            public <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType) {
+            public Config getConfig(@NonNull CaptureType captureType) {
                 return null;
             }
         };

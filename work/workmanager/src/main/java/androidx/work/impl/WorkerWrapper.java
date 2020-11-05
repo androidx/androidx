@@ -439,7 +439,9 @@ public class WorkerWrapper implements Runnable {
                         mAppContext, RescheduleReceiver.class, false);
             }
             if (needsReschedule) {
+                // Set state to ENQUEUED again.
                 // Reset scheduled state so its picked up by background schedulers again.
+                mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
                 mWorkSpecDao.markWorkSpecScheduled(mWorkSpecId, SCHEDULE_NOT_REQUESTED_YET);
             }
             if (mWorkSpec != null && mWorker != null && mWorker.isRunInForeground()) {

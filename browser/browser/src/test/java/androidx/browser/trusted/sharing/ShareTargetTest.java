@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 
 import androidx.browser.trusted.sharing.ShareTarget.FileFormField;
 import androidx.browser.trusted.sharing.ShareTarget.Params;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +36,6 @@ import java.util.List;
  */
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
-@SmallTest
 public class ShareTargetTest {
 
     private static final String ACTION = "action.html";

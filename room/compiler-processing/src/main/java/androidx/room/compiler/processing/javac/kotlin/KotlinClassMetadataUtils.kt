@@ -335,7 +335,8 @@ internal class ClassAsKmTypeReader(
                     typeArguments = typeParameters.map {
                         it.asKmType()
                     },
-                    extendsBound = null),
+                    extendsBound = null
+                ),
                 superType = superType
             )
         )

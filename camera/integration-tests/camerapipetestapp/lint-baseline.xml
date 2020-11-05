@@ -8,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/Viewfinder.kt"
-            line="311"
+            line="314"
             column="9"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/Viewfinder.kt"
-            line="379"
+            line="382"
             column="9"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/Viewfinder.kt"
-            line="405"
+            line="408"
             column="9"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"
-            line="44"
+            line="47"
             column="43"/>
     </issue>
 
@@ -135,61 +135,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeBgOverlayDark100` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeBgOverlayDark100&quot;>#DD101010&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="34"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeBgRecord` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeBgRecord&quot;>#FFD00000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="36"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeBgRecordRipple` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeBgRecordRipple&quot;>#FFE00000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="37"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeBtnOverlay100` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeBtnOverlay100&quot;>#33404040&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="39"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeBtnOverlay200` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeBtnOverlay200&quot;>#33FFFFFF&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="40"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.color.cameraPipeThemeFgLight700` appears to be unused"
         errorLine1="    &lt;color name=&quot;cameraPipeThemeFgLight700&quot;>#FFD0D0D0&lt;/color>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -201,34 +146,12 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeFgLight800` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeFgLight800&quot;>#FFF8F8F8&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="43"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.color.cameraPipeThemeFgLight900` appears to be unused"
         errorLine1="    &lt;color name=&quot;cameraPipeThemeFgLight900&quot;>#FFFCFCFC&lt;/color>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
             line="44"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.cameraPipeThemeFgOverlay` appears to be unused"
-        errorLine1="    &lt;color name=&quot;cameraPipeThemeFgOverlay&quot;>#33000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="46"
             column="12"/>
     </issue>
 
@@ -263,28 +186,6 @@
             file="src/main/res/values/colors.xml"
             line="49"
             column="12"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `defaultResolution` of class `SimpleCamera` requires synthetic accessor"
-        errorLine1="                ((it.width * it.height) - (defaultResolution.width *"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"
-            line="70"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `defaultResolution` of class `SimpleCamera` requires synthetic accessor"
-        errorLine1="                        defaultResolution.height)).absoluteValue"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"
-            line="71"
-            column="25"/>
     </issue>
 
 </issues>

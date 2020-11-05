@@ -114,7 +114,9 @@ class DataVisualizations(activity: Activity) {
 
             val keyValueViewParams = RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams
-                .MATCH_PARENT, heightPixels)
+                    .MATCH_PARENT,
+                heightPixels
+            )
             keyValueView.layoutParams = keyValueViewParams
 
             keyValueLayout.key_value_layout.value_layout.addView(keyValueView)
@@ -145,8 +147,10 @@ class DataVisualizations(activity: Activity) {
                     dataHolder,
                     paints = paints
                 )
-                else -> throw Exception("Visualization is not supported for this graphDataHolder " +
-                        "implementation")
+                else -> throw Exception(
+                    "Visualization is not supported for this graphDataHolder " +
+                        "implementation"
+                )
             }
 
             val graphLayout = View.inflate(context, R.layout.graph_layout, null)
@@ -163,7 +167,9 @@ class DataVisualizations(activity: Activity) {
 
             val graphLayoutParams = RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams
-                .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    .WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
             graphLayoutParams.setMargins(0, 0, 0, 20)
             graphLayout.layoutParams = graphLayoutParams
 
@@ -180,7 +186,9 @@ class DataVisualizations(activity: Activity) {
 
                 val keyValueViewParams = RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams
-                    .MATCH_PARENT, 30)
+                        .MATCH_PARENT,
+                    30
+                )
                 keyValueView.layoutParams = keyValueViewParams
 
                 keyValueLayout.key_value_layout.value_layout.addView(keyValueView)

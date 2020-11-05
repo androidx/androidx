@@ -34,10 +34,11 @@ android {
 }
 
 dependencies {
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+
     implementation("androidx.appcompat:appcompat:1.1.0")
 
     implementation(projectOrArtifact(":annotation:annotation-experimental"))
-    implementation(projectOrArtifact(":annotation:annotation-sampled"))
     implementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx"))
     implementation(projectOrArtifact(":fragment:fragment-ktx"))
     implementation(project(":paging:paging-common"))

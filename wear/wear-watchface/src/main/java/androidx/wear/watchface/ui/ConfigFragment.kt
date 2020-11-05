@@ -37,6 +37,7 @@ import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.widget.SwipeDismissFrameLayout
@@ -45,7 +46,7 @@ import androidx.wear.widget.WearableRecyclerView
 
 /**
  * Top level configuration fragment. Lets the user select whether they want to select a complication
- * to configure, configure a background complication or select an option from a user style category.
+ * to configure, configure a background complication or select an option from a user style setting.
  * Should only be used if theres's at least two items from that list.
  *
  * @hide
@@ -74,7 +75,7 @@ internal class ConfigFragment : Fragment() {
         savedState: Bundle?
     ): View {
         view = inflater.inflate(R.layout.config_layout, container, false) as
-                SwipeDismissFrameLayout
+            SwipeDismissFrameLayout
 
         view.addCallback(object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
@@ -99,10 +100,10 @@ internal class ConfigFragment : Fragment() {
                 ConfigOption(
                     id = Constants.KEY_COMPLICATIONS_SETTINGS,
                     icon =
-                    Icon.createWithResource(
-                        context,
-                        R.drawable.ic_elements_settings_complications
-                    ),
+                        Icon.createWithResource(
+                            context,
+                            R.drawable.ic_elements_settings_complications
+                        ),
                     title = resources.getString(R.string.settings_complications),
                     summary = ""
                 )
@@ -113,13 +114,13 @@ internal class ConfigFragment : Fragment() {
             configOptions.add(createBackgroundConfigOption())
         }
 
-        for (styleCategory in watchFaceConfigActivity.styleSchema) {
+        for (styleCategory in watchFaceConfigActivity.styleSchema.userStyleSettings) {
             configOptions.add(
                 ConfigOption(
                     id = styleCategory.id,
                     icon = styleCategory.icon,
-                    title = styleCategory.displayName,
-                    summary = styleCategory.description
+                    title = styleCategory.displayName.toString(),
+                    summary = styleCategory.description.toString()
                 )
             )
         }
@@ -153,13 +154,16 @@ internal class ConfigFragment : Fragment() {
             watchFaceConfigActivity.watchFaceComponentName,
             intArrayOf(watchFaceConfigActivity.backgroundComplicationId!!)
         )
-        future.addListener({
-            val provideInfo = future.get()
-            provideInfo.info?.apply {
-                backgroundConfigOption.summary = providerName!!
-                configViewAdapter.notifyDataSetChanged()
-            }
-        }, { runnable -> runnable.run() })
+        future.addListener(
+            {
+                val provideInfo = future.get()
+                provideInfo.info?.apply {
+                    backgroundConfigOption.summary = providerName!!
+                    configViewAdapter.notifyDataSetChanged()
+                }
+            },
+            { runnable -> runnable.run() }
+        )
         return backgroundConfigOption
     }
 
@@ -185,10 +189,11 @@ internal class ConfigFragment : Fragment() {
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
                 val backgroundComplication =
                     watchFaceConfigActivity.watchFaceConfigDelegate.getComplicationsMap()[
-                            watchFaceConfigActivity.backgroundComplicationId!!]!!
+                        watchFaceConfigActivity.backgroundComplicationId!!
+                    ]!!
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
                     backgroundComplication.id,
-                    *backgroundComplication.supportedTypes
+                    *ComplicationType.toWireTypes(backgroundComplication.supportedTypes)
                 )
             }
 

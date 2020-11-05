@@ -16,6 +16,8 @@
 
 package androidx.work.impl.workers;
 
+import static androidx.work.impl.Scheduler.MAX_GREEDY_SCHEDULER_LIMIT;
+
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
@@ -64,7 +66,8 @@ public class DiagnosticsWorker extends Worker {
         long startAt = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
         List<WorkSpec> completed = workSpecDao.getRecentlyCompletedWork(startAt);
         List<WorkSpec> running = workSpecDao.getRunningWork();
-        List<WorkSpec> enqueued = workSpecDao.getAllEligibleWorkSpecsForScheduling();
+        List<WorkSpec> enqueued = workSpecDao.getAllEligibleWorkSpecsForScheduling(
+                MAX_GREEDY_SCHEDULER_LIMIT);
 
         if (completed != null && !completed.isEmpty()) {
             Logger.get().info(TAG, "Recently completed work:\n\n");

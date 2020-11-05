@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.icu.util.Calendar
 import android.opengl.EGL14
@@ -32,7 +33,7 @@ import androidx.wear.watchface.style.UserStyleRepository
 
 import java.nio.ByteBuffer
 
-private val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
+internal val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
     EGL14.EGL_RENDERABLE_TYPE,
     EGL14.EGL_OPENGL_ES2_BIT,
     EGL14.EGL_RED_SIZE,
@@ -49,13 +50,13 @@ private val EGL_CONFIG_ATTRIB_LIST = intArrayOf(
 private val EGL_CONTEXT_ATTRIB_LIST =
     intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE)
 
-private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
+internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
 /**
  * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
  * class.
  */
-abstract class GlesRenderer (
+public abstract class GlesRenderer @JvmOverloads constructor(
     /** The [SurfaceHolder] that [render] will draw into. */
     surfaceHolder: SurfaceHolder,
 
@@ -63,7 +64,13 @@ abstract class GlesRenderer (
     userStyleRepository: UserStyleRepository,
 
     /** The associated [WatchState]. */
-    watchState: WatchState
+    watchState: WatchState,
+
+    /** Attributes for [EGL14.eglChooseConfig]. By default this selects an RGBAB8888 back buffer. */
+    private val eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
+
+    /** The attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this is empty. */
+    private val eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
 ) : Renderer(surfaceHolder, userStyleRepository, watchState) {
     /** @hide */
     private companion object {
@@ -98,29 +105,19 @@ abstract class GlesRenderer (
         }
     }
 
-    private var eglSurface: EGLSurface? =
-        createWindowSurface(eglDisplay!!, eglConfig, surfaceHolder)
-
+    private var eglSurface: EGLSurface? = null
     private var calledOnGlContextCreated = false
 
     /**
-     * Returns the attributes to be passed to [EGL14.eglChooseConfig]. By default this selects
-     * an RGBAB8888 back buffer.
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    protected open fun getConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
-
-    /**
-     * Chooses the EGLConfig to use, by default this calls [getEglConfigAttribList] to get
-     * the attributes list to pass to [EGL14.eglChooseConfig].
+     * Chooses the EGLConfig to use.
      * @throws RuntimeException if [EGL14.eglChooseConfig] fails
      */
-    protected open fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
+    private fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
         val numEglConfigs = IntArray(1)
         val eglConfigs = arrayOfNulls<EGLConfig>(1)
         if (!EGL14.eglChooseConfig(
                 eglDisplay,
-                getConfigAttribList(),
+                eglConfigAttribList,
                 0,
                 eglConfigs,
                 0,
@@ -137,29 +134,30 @@ abstract class GlesRenderer (
         return eglConfigs[0]!!
     }
 
-    /**
-     * Returns the attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this
-     * is empty.
-     */
-    @SuppressWarnings("SyntheticAccessor")
-    protected open fun getSurfaceAttribList() = EGL_SURFACE_ATTRIB_LIST
-
-    private fun createWindowSurface(
-        eglDisplay: EGLDisplay,
-        eglConfig: EGLConfig,
-        surfaceHolder: SurfaceHolder
-    ): EGLSurface {
-        val result = EGL14.eglCreateWindowSurface(
+    private fun createWindowSurface(width: Int, height: Int) {
+        if (eglSurface != null) {
+            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
+                Log.w(TAG, "eglDestroySurface failed")
+            }
+        }
+        eglSurface = EGL14.eglCreateWindowSurface(
             eglDisplay,
             eglConfig,
             surfaceHolder.surface,
-            getSurfaceAttribList(),
+            eglSurfaceAttribList,
             0
         )
-        if (result == EGL14.EGL_NO_SURFACE) {
+        if (eglSurface == EGL14.EGL_NO_SURFACE) {
             throw RuntimeException("eglCreateWindowSurface failed")
         }
-        return result
+
+        makeContextCurrent()
+        GLES20.glViewport(0, 0, width, height)
+        if (!calledOnGlContextCreated) {
+            calledOnGlContextCreated = true
+            onGlContextCreated()
+        }
+        onGlSurfaceCreated(width, height)
     }
 
     @CallSuper
@@ -194,40 +192,39 @@ abstract class GlesRenderer (
         }
     }
 
-    @CallSuper
-    override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        super.onSurfaceChanged(holder, format, width, height)
-
-        if (eglSurface != null) {
-            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                Log.w(TAG, "eglDestroySurface failed")
+    internal override fun onPostCreate() {
+        surfaceHolder.addCallback(object : SurfaceHolder.Callback {
+            @SuppressLint("SyntheticAccessor")
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+                createWindowSurface(width, height)
             }
-        }
-        eglSurface = createWindowSurface(eglDisplay!!, eglConfig, holder)
-        makeContextCurrent()
-        GLES20.glViewport(0, 0, width, height)
-        if (!calledOnGlContextCreated) {
-            calledOnGlContextCreated = true
-            onGlContextCreated()
-        }
-        onGlSurfaceCreated(width, height)
-    }
 
-    @CallSuper
-    override fun onSurfaceDestroyed(holder: SurfaceHolder) {
-        try {
-            if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
-                Log.w(TAG, "eglDestroySurface failed")
+            @SuppressLint("SyntheticAccessor")
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                if (!EGL14.eglDestroySurface(eglDisplay, eglSurface)) {
+                    Log.w(TAG, "eglDestroySurface failed")
+                }
+                eglSurface = null
             }
-            eglSurface = null
-        } finally {
-            super.onSurfaceDestroyed(holder)
-        }
+
+            override fun surfaceCreated(holder: SurfaceHolder) {
+            }
+        })
+
+        createWindowSurface(
+            surfaceHolder.surfaceFrame.width(),
+            surfaceHolder.surfaceFrame.height()
+        )
     }
 
     /** Called when a new GL context is created. It's safe to use GL APIs in this method. */
     @UiThread
-    open fun onGlContextCreated() {}
+    public open fun onGlContextCreated() {}
 
     /**
      * Called when a new GL surface is created. It's safe to use GL APIs in this method.
@@ -236,7 +233,7 @@ abstract class GlesRenderer (
      * @param height height of surface in pixels
      */
     @UiThread
-    open fun onGlSurfaceCreated(width: Int, height: Int) {}
+    public open fun onGlSurfaceCreated(width: Int, height: Int) {}
 
     internal override fun renderInternal(
         calendar: Calendar
@@ -300,5 +297,5 @@ abstract class GlesRenderer (
      * @param calendar The current [Calendar]
      */
     @UiThread
-    abstract fun render(calendar: Calendar)
+    public abstract fun render(calendar: Calendar)
 }

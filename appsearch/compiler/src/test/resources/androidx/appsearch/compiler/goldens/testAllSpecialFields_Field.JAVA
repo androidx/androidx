@@ -21,7 +21,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
@@ -38,7 +38,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     builder.setCreationTimestampMillis(dataClass.creationTs);
     builder.setTtlMillis(dataClass.ttlMs);
     builder.setScore(dataClass.score);
-    builder.setProperty("price", dataClass.price);
+    builder.setPropertyLong("price", dataClass.price);
     return builder.build();
   }
 

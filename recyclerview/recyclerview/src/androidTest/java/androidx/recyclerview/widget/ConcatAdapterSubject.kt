@@ -99,12 +99,12 @@ internal class ConcatAdapterSubject(
 
     object Factory : Subject.Factory<ConcatAdapterSubject, ConcatAdapter> {
         override fun createSubject(metadata: FailureMetadata, actual: ConcatAdapter):
-                ConcatAdapterSubject {
-            return ConcatAdapterSubject(
-                metadata = metadata,
-                adapter = actual
-            )
-        }
+            ConcatAdapterSubject {
+                return ConcatAdapterSubject(
+                    metadata = metadata,
+                    adapter = actual
+                )
+            }
     }
 
     companion object {
@@ -144,13 +144,13 @@ internal class ConcatAdapterSubject(
                 metadata: FailureMetadata,
                 globalPosition: Int
             ):
-                    BindingSubject {
-                return BindingSubject(
-                    metadata = metadata,
-                    recyclerView = recyclerView,
-                    globalPosition = globalPosition
-                )
-            }
+                BindingSubject {
+                    return BindingSubject(
+                        metadata = metadata,
+                        recyclerView = recyclerView,
+                        globalPosition = globalPosition
+                    )
+                }
         }
     }
 }

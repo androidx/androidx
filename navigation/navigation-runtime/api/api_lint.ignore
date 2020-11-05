@@ -13,5 +13,9 @@ MissingBuildMethod: androidx.navigation.NavDeepLinkBuilder:
     androidx.navigation.NavDeepLinkBuilder does not declare a `build()` method, but builder classes are expected to
 
 
+MissingGetterMatchingBuilder: androidx.navigation.ActivityNavigator.Extras.Builder#addFlags(int):
+    androidx.navigation.ActivityNavigator.Extras does not declare a `getFlagss()` method matching method androidx.navigation.ActivityNavigator.Extras.Builder.addFlags(int)
+
+
 TopLevelBuilder: androidx.navigation.NavDeepLinkBuilder:
     Builder should be defined as inner class: androidx.navigation.NavDeepLinkBuilder

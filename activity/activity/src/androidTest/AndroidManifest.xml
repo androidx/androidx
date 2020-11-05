@@ -29,6 +29,7 @@
         <activity android:name="androidx.activity.EmptyContentActivity" />
         <activity android:name="androidx.activity.AutoRestarterActivity"/>
         <activity android:name="androidx.activity.ResultComponentActivity"/>
+        <activity android:name="androidx.activity.ResumeViewModelActivity" />
     </application>
 
 </manifest>

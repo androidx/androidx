@@ -24,13 +24,13 @@ import androidx.navigation.Navigator
  * You can set a [DynamicInstallMonitor] here to be notified of install state changes as well as any
  * [Navigator.Extras].
  */
-class DynamicExtras @JvmOverloads constructor(
+public class DynamicExtras @JvmOverloads constructor(
     /**
      * @return The [DynamicInstallMonitor] used.
      */
-    val installMonitor: DynamicInstallMonitor? = null,
+    public val installMonitor: DynamicInstallMonitor? = null,
     /**
      * @return [Navigator.Extras] associated with these [DynamicExtras].
      */
-    val destinationExtras: Navigator.Extras? = null
+    public val destinationExtras: Navigator.Extras? = null
 ) : Navigator.Extras

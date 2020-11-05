@@ -35,8 +35,10 @@ fun getFeaturePositionInViewRect(
     view.getLocationInWindow(viewLocationInWindow)
 
     // Intersect the feature rectangle in window with view rectangle to clip the bounds.
-    val viewRect = Rect(viewLocationInWindow[0], viewLocationInWindow[1],
-        viewLocationInWindow[0] + view.width, viewLocationInWindow[1] + view.height)
+    val viewRect = Rect(
+        viewLocationInWindow[0], viewLocationInWindow[1],
+        viewLocationInWindow[0] + view.width, viewLocationInWindow[1] + view.height
+    )
 
     // Include padding if needed
     if (includePadding) {
@@ -49,7 +51,8 @@ fun getFeaturePositionInViewRect(
     val featureRectInView = Rect(displayFeature.bounds)
     val intersects = featureRectInView.intersect(viewRect)
     if ((featureRectInView.width() == 0 && featureRectInView.height() == 0) ||
-        !intersects) {
+        !intersects
+    ) {
         return null
     }
 
@@ -64,12 +67,12 @@ fun getFeaturePositionInViewRect(
  * [FrameLayout].
  */
 fun getLayoutParamsForFeatureInFrameLayout(displayFeature: DisplayFeature, view: FrameLayout):
-        FrameLayout.LayoutParams? {
-    val featureRectInView = getFeaturePositionInViewRect(displayFeature, view) ?: return null
+    FrameLayout.LayoutParams? {
+        val featureRectInView = getFeaturePositionInViewRect(displayFeature, view) ?: return null
 
-    val lp = FrameLayout.LayoutParams(featureRectInView.width(), featureRectInView.height())
-    lp.leftMargin = featureRectInView.left
-    lp.topMargin = featureRectInView.top
+        val lp = FrameLayout.LayoutParams(featureRectInView.width(), featureRectInView.height())
+        lp.leftMargin = featureRectInView.left
+        lp.topMargin = featureRectInView.top
 
-    return lp
-}
+        return lp
+    }

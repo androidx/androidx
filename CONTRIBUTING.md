@@ -9,6 +9,9 @@ The Android team has been exploring how we could make it easier to develop libra
 ### What can you contribute to?
 
 You can start contributing to any of the following library groups from GitHub:
+  - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
+  - [Fragment](https://developer.android.com/guide/components/fragments)
+  - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
   - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
@@ -19,7 +22,7 @@ Our tooling currently supports **macOS and Linux**. This new setup is a **work-i
 
 ## Getting Started
 
-We have tried to make contributing to androidx a lot easier with this new setup. Just start by creating a fork of the [AndroidX/androidx](https://github.com/AndroidX/androidx) GitHub repository.
+We have tried to make contributing to androidx a lot easier with this new setup. Just start by creating a fork of the [androidx/androidx](https://github.com/androidx/androidx) GitHub repository.
 
 ### One Time Setup
 
@@ -41,6 +44,9 @@ The list of folders that can be contributed to, using the GitHub repository are:
 
 ```
 androidx
+  -- activity
+  -- fragment
+  -- navigation
   -- paging
   -- room
   -- work
@@ -48,12 +54,22 @@ androidx
 
 **Note:** For other projects, you will still need to use the Gerrit workflow used by the Android Open Source Project (AOSP). For more information, please look at the [README](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:README.md).
 
-Fork the [AndroidX/androidx](https://github.com/AndroidX/androidx) repository.
+Fork the [androidx/androidx](https://github.com/androidx/androidx) repository.
 
 We recommend cloning using blob filter to reduce checkout size:
 ```bash
 git clone https://github.com/YOUR_USERNAME/androidx.git
 ```
+
+---
+
+> NOTE: If you are low on disk space, then you can use the following command to save some space in your checkout. :point_left:
+
+```bash
+# Filters any blob > 10M
+git clone --filter=blob:limit=10M https://github.com/YOUR_USERNAME/androidx.git
+```
+---
 
 Let’s assume that you want to make a contribution to Room. The first step is to launch Android Studio and import the Room project.
 
@@ -104,7 +120,7 @@ Once your changes look good, you can push them to your fork of the repository. N
 ./gradlew updateApi
 ```
 
-If you are adding new APIs, then you might **additionally need to update** [LibraryVersions.kt](https://github.com/AndroidX/androidx/blob/androidx-master-dev/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt) as well, before running the updateApi task. This is **relevant when the library’s API is frozen** (betas, rc’s and stable versions). For alpha versions, you don’t have to update this file.
+If you are adding new APIs, then you might **additionally need to update** [LibraryVersions.kt](https://github.com/androidx/androidx/blob/androidx-master-dev/buildSrc/src/main/kotlin/androidx/build/LibraryVersions.kt) as well, before running the updateApi task. This is **relevant when the library’s API is frozen** (betas, rc’s and stable versions). For alpha versions, you don’t have to update this file.
 
 This helps the AndroidX project keep track of API changes and avoid inadvertently adding APIs or introduce backwards incompatible changes.
 
@@ -114,7 +130,7 @@ This helps the AndroidX project keep track of API changes and avoid inadvertentl
 
 ### Making a Pull Request
 
-To create a pull request click on [this](https://github.com/AndroidX/androidx/pulls) link and then click on New Pull Request.
+To create a pull request click on [this](https://github.com/androidx/androidx/pulls) link and then click on New Pull Request.
 
 Then click on the compare across forks and select your forked repository as the HEAD repository. Then click Create.
 

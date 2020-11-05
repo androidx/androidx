@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
+import androidx.build.LibraryType
 import androidx.build.Publish
 
 plugins {
@@ -28,7 +28,7 @@ dependencies {
 
 androidx {
     name = "<NAME>"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenGroup = LibraryGroups.<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<NAME>"

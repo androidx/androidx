@@ -62,7 +62,7 @@ import kotlin.annotation.Target
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class RequiresOptIn(
+public annotation class RequiresOptIn(
     /**
      * Defines the reporting level for incorrect usages of this opt-in API.
      */
@@ -77,7 +77,7 @@ annotation class RequiresOptIn(
      *     <li>Suppressing propagation of the opt-in aspect by annotating the usage with [OptIn]
      *     and specifying the marker annotation
      */
-    enum class Level {
+    public enum class Level {
         /**
          * Specifies that a warning should be reported on incorrect usages of this opt-in API.
          */

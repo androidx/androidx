@@ -26,25 +26,25 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("listOfString")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("setOfInt")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("repeatedByteArray")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("byteArray")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
@@ -57,7 +57,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> listOfStringCopy = dataClass.listOfString;
     if (listOfStringCopy != null) {
       String[] listOfStringConv = listOfStringCopy.toArray(new String[0]);
-      builder.setProperty("listOfString", listOfStringConv);
+      builder.setPropertyString("listOfString", listOfStringConv);
     }
     Collection<Integer> setOfIntCopy = dataClass.setOfInt;
     if (setOfIntCopy != null) {
@@ -66,15 +66,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       for (Integer item : setOfIntCopy) {
         setOfIntConv[i++] = item;
       }
-      builder.setProperty("setOfInt", setOfIntConv);
+      builder.setPropertyLong("setOfInt", setOfIntConv);
     }
     byte[][] repeatedByteArrayCopy = dataClass.repeatedByteArray;
     if (repeatedByteArrayCopy != null) {
-      builder.setProperty("repeatedByteArray", repeatedByteArrayCopy);
+      builder.setPropertyBytes("repeatedByteArray", repeatedByteArrayCopy);
     }
     byte[] byteArrayCopy = dataClass.byteArray;
     if (byteArrayCopy != null) {
-      builder.setProperty("byteArray", byteArrayCopy);
+      builder.setPropertyBytes("byteArray", byteArrayCopy);
     }
     return builder.build();
   }

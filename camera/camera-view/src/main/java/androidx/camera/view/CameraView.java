@@ -25,6 +25,7 @@ import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -55,11 +56,14 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileOptions;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
@@ -72,7 +76,7 @@ import java.util.concurrent.Executor;
  * A {@link View} that displays a preview of the camera with methods {@link
  * #takePicture(Executor, OnImageCapturedCallback)},
  * {@link #takePicture(ImageCapture.OutputFileOptions, Executor, OnImageSavedCallback)},
- * {@link #startRecording(File , Executor , OnVideoSavedCallback callback)}
+ * {@link #startRecording(File, Executor, OnVideoSavedCallback callback)}
  * and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
@@ -412,7 +416,7 @@ public final class CameraView extends FrameLayout {
 
     /**
      * Sets the maximum video duration before
-     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)} is called
+     * {@link OnVideoSavedCallback#onVideoSaved(OutputFileResults)} is called
      * automatically.
      * Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
      */
@@ -430,7 +434,7 @@ public final class CameraView extends FrameLayout {
 
     /**
      * Sets the maximum video size in bytes before
-     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)}
+     * {@link OnVideoSavedCallback#onVideoSaved(OutputFileResults)}
      * is called automatically. Use {@link #INDEFINITE_VIDEO_SIZE} to disable the size restriction.
      */
     private void setMaxVideoSize(long size) {
@@ -473,35 +477,66 @@ public final class CameraView extends FrameLayout {
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback which will receive success or failure.
      */
+    @ExperimentalVideo
     public void startRecording(@NonNull File file, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
-        VideoCapture.OutputFileOptions options = new VideoCapture.OutputFileOptions.Builder(
-                file).build();
+        OutputFileOptions options = OutputFileOptions.builder(file).build();
         startRecording(options, executor, callback);
     }
 
     /**
      * Takes a video and calls the OnVideoSavedCallback when done.
      *
-     * @param outputFileOptions     Options to store the newly captured video.
-     * @param executor              The executor in which the callback methods will be run.
-     * @param callback              Callback which will receive success or failure.
-     *
-     * @hide
+     * @param fd     The destination {@link ParcelFileDescriptor}.
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback which will receive success or failure.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
+    @ExperimentalVideo
+    public void startRecording(@NonNull ParcelFileDescriptor fd, @NonNull Executor executor,
+            @NonNull OnVideoSavedCallback callback) {
+        OutputFileOptions options = OutputFileOptions.builder(fd).build();
+        startRecording(options, executor, callback);
+    }
+
+    /**
+     * Takes a video and calls the OnVideoSavedCallback when done.
+     *
+     * @param outputFileOptions Options to store the newly captured video.
+     * @param executor          The executor in which the callback methods will be run.
+     * @param callback          Callback which will receive success or failure.
+     */
+    @ExperimentalVideo
+    public void startRecording(@NonNull OutputFileOptions outputFileOptions,
             @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
-        mCameraModule.startRecording(outputFileOptions, executor, callback);
+        VideoCapture.OnVideoSavedCallback callbackWrapper =
+                new VideoCapture.OnVideoSavedCallback() {
+                    @Override
+                    public void onVideoSaved(
+                            @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                        callback.onVideoSaved(
+                                OutputFileResults.create(outputFileResults.getSavedUri()));
+                    }
+
+                    @Override
+                    public void onError(int videoCaptureError, @NonNull String message,
+                            @Nullable Throwable cause) {
+                        callback.onError(videoCaptureError, message, cause);
+                    }
+                };
+
+        mCameraModule.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
+                callbackWrapper);
     }
 
     /** Stops an in progress video. */
+    @ExperimentalVideo
     public void stopRecording() {
         mCameraModule.stopRecording();
     }
 
     /** @return True if currently recording. */
+    @ExperimentalVideo
     public boolean isRecording() {
         return mCameraModule.isRecording();
     }
@@ -751,11 +786,13 @@ public final class CameraView extends FrameLayout {
         /** A mode where image capture is enabled. */
         IMAGE(0),
         /** A mode where video capture is enabled. */
+        @ExperimentalVideo
         VIDEO(1),
         /**
          * A mode where both image capture and video capture are simultaneously enabled. Note that
          * this mode may not be available on every device.
          */
+        @ExperimentalVideo
         MIXED(2);
 
         private final int mId;

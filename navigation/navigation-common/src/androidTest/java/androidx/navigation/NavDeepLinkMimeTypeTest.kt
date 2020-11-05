@@ -39,7 +39,7 @@ class NavDeepLinkMimeTypeTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "The given mimeType $mimeType does not match to required \"type/subtype\" " +
-                            "format"
+                        "format"
                 )
         }
     }
@@ -50,8 +50,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, mimeType)))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, mimeType
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -61,8 +66,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(DEEP_LINK_EXACT_HTTPS, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                Uri.parse(DEEP_LINK_EXACT_HTTPS), null, mimeType)))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        Uri.parse(DEEP_LINK_EXACT_HTTPS), null, mimeType
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -72,8 +82,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "type/subtype")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "type/subtype"
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -83,8 +98,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "type/subtype")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "type/subtype"
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -94,8 +114,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "type/subtype")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "type/subtype"
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -105,8 +130,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "*/*")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "*/*"
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -116,8 +146,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "type/*")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "type/*"
+                    )
+                )
+            )
             .isTrue()
     }
 
@@ -127,8 +162,13 @@ class NavDeepLinkMimeTypeTest {
         val deepLink = NavDeepLink(null, null, mimeType)
 
         assertWithMessage("The mimeTypes should match")
-            .that(deepLink.matches(NavDeepLinkRequest(
-                null, null, "*/subtype")))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        null, null, "*/subtype"
+                    )
+                )
+            )
             .isTrue()
     }
 }

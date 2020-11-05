@@ -36,32 +36,42 @@ class NavParserTest {
     @Test
     fun testNaiveGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val navGraph = NavParser.parseNavigationFile(testData("naive_test.xml"),
-            "a.b", "foo.app", Context())
+        val navGraph = NavParser.parseNavigationFile(
+            testData("naive_test.xml"),
+            "a.b", "foo.app", Context()
+        )
 
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
-        val expectedFirst = Destination(id("first_screen"), nameFirst, "fragment",
-                listOf(Argument("myarg1", StringType, StringValue("one"))),
-                listOf(Action(id("next"), id("next_fragment"), listOf(
+        val expectedFirst = Destination(
+            id("first_screen"), nameFirst, "fragment",
+            listOf(Argument("myarg1", StringType, StringValue("one"))),
+            listOf(
+                Action(
+                    id("next"), id("next_fragment"),
+                    listOf(
                         Argument("myarg2", StringType),
                         Argument("randomArgument", StringType),
                         Argument("intArgument", IntType, IntValue("261")),
                         Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
                         Argument(
-                                "activityInfo",
-                                ObjectType("android.content.pm.ActivityInfo")
+                            "activityInfo",
+                            ObjectType("android.content.pm.ActivityInfo")
                         ),
                         Argument(
-                                "activityInfoNull",
-                                ObjectType("android.content.pm.ActivityInfo"),
-                                NullValue,
-                                true
+                            "activityInfoNull",
+                            ObjectType("android.content.pm.ActivityInfo"),
+                            NullValue,
+                            true
                         ),
                         Argument("intArrayArg", IntArrayType),
                         Argument("stringArrayArg", StringArrayType),
-                        Argument("objectArrayArg", ObjectArrayType(
-                            "android.content.pm.ActivityInfo")),
+                        Argument(
+                            "objectArrayArg",
+                            ObjectArrayType(
+                                "android.content.pm.ActivityInfo"
+                            )
+                        ),
                         Argument(
                             "enumArg",
                             ObjectType("java.nio.file.AccessMode"),
@@ -82,55 +92,72 @@ class NavParserTest {
                         ),
                         Argument("implicitNullString", StringType, NullValue, true),
                         Argument("explicitNullString", StringType, NullValue, true)
-                    ))))
+                    )
+                )
+            )
+        )
 
-        val expectedNext = Destination(id("next_fragment"), nameNext, "fragment",
-                listOf(Argument("myarg2", StringType)),
-                listOf(Action(id("next"), id("first_screen")),
-                        Action(id("finish"), null)))
+        val expectedNext = Destination(
+            id("next_fragment"), nameNext, "fragment",
+            listOf(Argument("myarg2", StringType)),
+            listOf(
+                Action(id("next"), id("first_screen")),
+                Action(id("finish"), null)
+            )
+        )
 
-        val expectedGraph = Destination(null, null, "navigation", emptyList(), emptyList(),
-                listOf(expectedFirst, expectedNext))
+        val expectedGraph = Destination(
+            null, null, "navigation", emptyList(), emptyList(),
+            listOf(expectedFirst, expectedNext)
+        )
         assertThat(navGraph, `is`(expectedGraph))
     }
 
     @Test
     fun testNestedGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val navGraph = NavParser.parseNavigationFile(testData("nested_login_test.xml"),
-                "a.b", "foo.app", Context())
+        val navGraph = NavParser.parseNavigationFile(
+            testData("nested_login_test.xml"),
+            "a.b", "foo.app", Context()
+        )
 
         val expectedMainFragment = Destination(
-                id = id("main_fragment"),
-                name = ClassName.get("foo.app", "MainFragment"),
-                type = "fragment",
-                args = emptyList(),
-                actions = listOf(Action(id("start_login"), id("login"))))
+            id = id("main_fragment"),
+            name = ClassName.get("foo.app", "MainFragment"),
+            type = "fragment",
+            args = emptyList(),
+            actions = listOf(Action(id("start_login"), id("login")))
+        )
 
         val expectedNestedFragment1 = Destination(
-                id = id("login_fragment"),
-                name = ClassName.get("foo.app.account", "LoginFragment"),
-                type = "fragment",
-                args = emptyList(),
-                actions = listOf(Action(id("register"), id("register_fragment"))))
+            id = id("login_fragment"),
+            name = ClassName.get("foo.app.account", "LoginFragment"),
+            type = "fragment",
+            args = emptyList(),
+            actions = listOf(Action(id("register"), id("register_fragment")))
+        )
 
         val expectedNestedFragment2 = Destination(
-                id = id("register_fragment"),
-                name = ClassName.get("foo.app.account", "RegisterFragment"),
-                type = "fragment",
-                args = emptyList(),
-                actions = emptyList())
+            id = id("register_fragment"),
+            name = ClassName.get("foo.app.account", "RegisterFragment"),
+            type = "fragment",
+            args = emptyList(),
+            actions = emptyList()
+        )
 
         val expectedNestedGraph = Destination(
-                id = id("login"),
-                name = ClassName.get("a.b", "Login"),
-                type = "navigation",
-                args = emptyList(),
-                actions = listOf(Action(id("action_done"), null)),
-                nested = listOf(expectedNestedFragment1, expectedNestedFragment2))
+            id = id("login"),
+            name = ClassName.get("a.b", "Login"),
+            type = "navigation",
+            args = emptyList(),
+            actions = listOf(Action(id("action_done"), null)),
+            nested = listOf(expectedNestedFragment1, expectedNestedFragment2)
+        )
 
-        val expectedGraph = Destination(null, null, "navigation", emptyList(), emptyList(),
-                listOf(expectedMainFragment, expectedNestedGraph))
+        val expectedGraph = Destination(
+            null, null, "navigation", emptyList(), emptyList(),
+            listOf(expectedMainFragment, expectedNestedGraph)
+        )
 
         assertThat(navGraph, `is`(expectedGraph))
     }
@@ -139,20 +166,28 @@ class NavParserTest {
     fun testNestedIncludedGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
         val nestedIncludeNavGraph = NavParser.parseNavigationFile(
-                testData("nested_include_login_test.xml"), "a.b", "foo.app", Context())
+            testData("nested_include_login_test.xml"), "a.b", "foo.app", Context()
+        )
 
         val expectedMainFragment = Destination(
-                id = id("main_fragment"),
-                name = ClassName.get("foo.app", "MainFragment"),
-                type = "fragment",
-                args = emptyList(),
-                actions = listOf(Action(id("start_login"), id("login"))))
+            id = id("main_fragment"),
+            name = ClassName.get("foo.app", "MainFragment"),
+            type = "fragment",
+            args = emptyList(),
+            actions = listOf(Action(id("start_login"), id("login")))
+        )
 
-        val expectedIncluded = IncludedDestination(ResReference("a.b", "navigation",
-                "to_include_login_test"))
+        val expectedIncluded = IncludedDestination(
+            ResReference(
+                "a.b", "navigation",
+                "to_include_login_test"
+            )
+        )
 
-        val expectedGraph = Destination(null, null, "navigation", emptyList(), emptyList(),
-                listOf(expectedMainFragment), listOf(expectedIncluded))
+        val expectedGraph = Destination(
+            null, null, "navigation", emptyList(), emptyList(),
+            listOf(expectedMainFragment), listOf(expectedIncluded)
+        )
 
         assertThat(nestedIncludeNavGraph, `is`(expectedGraph))
     }
@@ -161,12 +196,18 @@ class NavParserTest {
     fun testReferenceParsing() {
         assertThat(parseReference("@+id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
         assertThat(parseReference("@id/next", "a.b"), `is`(ResReference("a.b", "id", "next")))
-        assertThat(parseReference("@android:string/text", "a.b"),
-                `is`(ResReference("android", "string", "text")))
-        assertThat(parseReference("@android:id/text", "a.b"),
-                `is`(ResReference("android", "id", "text")))
-        assertThat(parseReference("@not.android:string/text", "a.b"),
-                `is`(ResReference("not.android", "string", "text")))
+        assertThat(
+            parseReference("@android:string/text", "a.b"),
+            `is`(ResReference("android", "string", "text"))
+        )
+        assertThat(
+            parseReference("@android:id/text", "a.b"),
+            `is`(ResReference("android", "id", "text"))
+        )
+        assertThat(
+            parseReference("@not.android:string/text", "a.b"),
+            `is`(ResReference("not.android", "string", "text"))
+        )
     }
 
     @Test
@@ -227,41 +268,73 @@ class NavParserTest {
         assertThat(infer("123L"), `is`(longArg("123L")))
         assertThat(infer("1234123412341234L"), `is`(longArg("1234123412341234L")))
 
-        assertThat(infer("@integer/test_integer_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "integer", "test_integer_arg")))
-        assertThat(infer("@dimen/test_dimen_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "dimen", "test_dimen_arg")))
-        assertThat(infer("@style/AppTheme"),
-            `is`(resolvedReferenceArg("a.b", ReferenceType, "style", "AppTheme")))
-        assertThat(infer("@string/test_string_arg"),
-            `is`(resolvedReferenceArg("a.b", StringType, "string", "test_string_arg")))
-        assertThat(infer("@color/test_color_arg"),
-            `is`(resolvedReferenceArg("a.b", IntType, "color", "test_color_arg")))
+        assertThat(
+            infer("@integer/test_integer_arg"),
+            `is`(resolvedReferenceArg("a.b", IntType, "integer", "test_integer_arg"))
+        )
+        assertThat(
+            infer("@dimen/test_dimen_arg"),
+            `is`(resolvedReferenceArg("a.b", IntType, "dimen", "test_dimen_arg"))
+        )
+        assertThat(
+            infer("@style/AppTheme"),
+            `is`(resolvedReferenceArg("a.b", ReferenceType, "style", "AppTheme"))
+        )
+        assertThat(
+            infer("@string/test_string_arg"),
+            `is`(resolvedReferenceArg("a.b", StringType, "string", "test_string_arg"))
+        )
+        assertThat(
+            infer("@color/test_color_arg"),
+            `is`(resolvedReferenceArg("a.b", IntType, "color", "test_color_arg"))
+        )
     }
 
     @Test
     fun testArgSanitizedName() {
-        assertEquals("camelCaseName",
-                Argument("camelCaseName", IntType).sanitizedName)
-        assertEquals("ALLCAPSNAME",
-                Argument("ALLCAPSNAME", IntType).sanitizedName)
-        assertEquals("alllowercasename",
-                Argument("alllowercasename", IntType).sanitizedName)
-        assertEquals("nameWithUnderscore",
-                Argument("name_with_underscore", IntType).sanitizedName)
-        assertEquals("NameWithUnderscore",
-                Argument("Name_With_Underscore", IntType).sanitizedName)
-        assertEquals("NAMEWITHUNDERSCORE",
-                Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName)
-        assertEquals("nameWithSpaces",
-                Argument("name with spaces", IntType).sanitizedName)
-        assertEquals("nameWithDot",
-                Argument("name.with.dot", IntType).sanitizedName)
-        assertEquals("nameWithDollars",
-                Argument("name\$with\$dollars", IntType).sanitizedName)
-        assertEquals("nameWithBangs",
-                Argument("name!with!bangs", IntType).sanitizedName)
-        assertEquals("nameWithHyphens",
-                Argument("name-with-hyphens", IntType).sanitizedName)
+        assertEquals(
+            "camelCaseName",
+            Argument("camelCaseName", IntType).sanitizedName
+        )
+        assertEquals(
+            "ALLCAPSNAME",
+            Argument("ALLCAPSNAME", IntType).sanitizedName
+        )
+        assertEquals(
+            "alllowercasename",
+            Argument("alllowercasename", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithUnderscore",
+            Argument("name_with_underscore", IntType).sanitizedName
+        )
+        assertEquals(
+            "NameWithUnderscore",
+            Argument("Name_With_Underscore", IntType).sanitizedName
+        )
+        assertEquals(
+            "NAMEWITHUNDERSCORE",
+            Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithSpaces",
+            Argument("name with spaces", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithDot",
+            Argument("name.with.dot", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithDollars",
+            Argument("name\$with\$dollars", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithBangs",
+            Argument("name!with!bangs", IntType).sanitizedName
+        )
+        assertEquals(
+            "nameWithHyphens",
+            Argument("name-with-hyphens", IntType).sanitizedName
+        )
     }
 }

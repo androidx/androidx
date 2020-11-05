@@ -23,7 +23,8 @@ import com.android.tools.lint.checks.infrastructure.TestFile
 object Stubs {
 
     val WORKER_FACTORY: TestFile = kotlin(
-        "androidx/work/WorkerFactory.kt", """
+        "androidx/work/WorkerFactory.kt",
+        """
         package androidx.work
 
         open class WorkerFactory
@@ -145,7 +146,8 @@ object Stubs {
     ).indented().within("src")
 
     val CONSTRAINTS: TestFile = java(
-        "androidx/work/Constraints.java", """
+        "androidx/work/Constraints.java",
+        """
         package androidx.work;
 
         class Constraints {

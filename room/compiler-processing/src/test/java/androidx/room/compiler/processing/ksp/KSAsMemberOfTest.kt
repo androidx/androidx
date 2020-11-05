@@ -26,17 +26,18 @@ import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
-import org.jetbrains.kotlin.ksp.getDeclaredProperties
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
-import org.jetbrains.kotlin.ksp.symbol.Nullability
+import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.Nullability
 import org.junit.Test
 
 class KSAsMemberOfTest {
     @Test
     fun asMemberOfInheritance() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class BaseClass<T, R>(val genericProp : T) {
                 val listOfGeneric : List<T> = TODO()
                 val mapOfStringToGeneric2 : Map<String, R> = TODO()
@@ -45,7 +46,7 @@ class KSAsMemberOfTest {
             class SubClass(x : Int) : BaseClass<Int, List<String>>(x) {
                 val subClassProp : String = "abc"
             }
-        """.trimIndent()
+            """.trimIndent()
         )
 
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
@@ -85,7 +86,8 @@ class KSAsMemberOfTest {
     @Test
     fun asMemberOfNullabilityResolution() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             open class MyInterface<T> {
                 val inheritedProp: T = TODO()
                 var nullableProp: T? = TODO()
@@ -94,7 +96,7 @@ class KSAsMemberOfTest {
             }
             abstract class NonNullSubject : MyInterface<String>()
             abstract class NullableSubject: MyInterface<String?>()
-        """.trimIndent()
+            """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val myInterface = invocation.requireClass("MyInterface")
