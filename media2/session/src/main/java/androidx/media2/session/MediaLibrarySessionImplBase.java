@@ -58,7 +58,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken token,
+    MediaBrowserServiceCompat createLegacyBrowserServiceLocked(Context context, SessionToken token,
             Token sessionToken) {
         return new MediaLibraryServiceLegacyStub(context, this, sessionToken);
     }
