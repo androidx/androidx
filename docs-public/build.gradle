@@ -37,8 +37,6 @@ dependencies {
     docs("androidx.compose.foundation:foundation:1.0.0-alpha07")
     docs("androidx.compose.foundation:foundation-layout:1.0.0-alpha07")
     samples("androidx.compose.foundation:foundation-layout-samples:1.0.0-alpha07")
-    docs("androidx.compose.foundation:foundation-text:1.0.0-alpha07")
-    samples("androidx.compose.foundation:foundation-text-samples:1.0.0-alpha07")
     samples("androidx.compose.foundation:foundation-samples:1.0.0-alpha07")
     docs("androidx.compose.material:material:1.0.0-alpha07")
     docs("androidx.compose.material:material-icons-core:1.0.0-alpha07")
