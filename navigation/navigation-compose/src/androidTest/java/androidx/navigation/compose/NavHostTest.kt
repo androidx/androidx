@@ -17,12 +17,21 @@
 package androidx.navigation.compose
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
@@ -30,6 +39,7 @@ import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -84,6 +94,58 @@ class NavHostTest {
     }
 
     @Test
+    fun testNavigateOutsideStateChange() {
+        lateinit var navController: NavHostController
+        val text = "myButton"
+        var counter = 0
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            var state by remember { mutableStateOf(0) }
+            Column(Modifier.fillMaxSize()) {
+                NavHost(navController, startDestination = "first") {
+                    composable("first") { }
+                    composable("second") { }
+                }
+                Button(
+                    onClick = {
+                        state++
+                        counter = state
+                    }
+                ) {
+                    Text(text)
+                }
+            }
+        }
+
+        assertWithMessage("Destination should be added to the graph")
+            .that("first" in navController.graph)
+            .isTrue()
+
+        composeTestRule.runOnIdle {
+            navController.navigate("second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("second destination should be current")
+                .that(
+                    navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
+                ).isTrue()
+        }
+
+        composeTestRule.onNodeWithText(text)
+            .performClick()
+
+        composeTestRule.runOnIdle {
+            // ensure our click listener was fired
+            assertThat(counter).isEqualTo(1)
+            assertWithMessage("second destination should be current")
+                .that(
+                    navController.currentDestination?.hasDeepLink(Uri.parse(createRoute("second")))
+                ).isTrue()
+        }
+    }
+
+    @Test
     fun testPop() {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
@@ -113,8 +175,8 @@ class NavHostTest {
         lateinit var state: MutableState<String>
         composeTestRule.setContent {
             state = remember { mutableStateOf("first") }
-
-            navController = TestNavHostController(ContextAmbient.current)
+            val context = ContextAmbient.current
+            navController = remember { TestNavHostController(context) }
 
             NavHost(navController, startDestination = state.value) {
                 test("first")
@@ -127,9 +189,9 @@ class NavHostTest {
         }
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Second destination should be current")
+            assertWithMessage("First destination should be current")
                 .that(
-                    navController.currentDestination?.hasDeepLink(createRoute("second").toUri())
+                    navController.currentDestination?.hasDeepLink(createRoute("first").toUri())
                 ).isTrue()
         }
     }
