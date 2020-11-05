@@ -222,7 +222,7 @@ public abstract class Screen implements LifecycleOwner {
         return mCarContext.getCarService(ScreenManager.class);
     }
 
-    // TODO(rampara): Replace code tags with links on addition of navigation module.
+    // TODO(rampara): Replace code tags with link on submission of notification module
     /**
      * Returns the {@link Template} to present in the car screen.
      *
@@ -245,7 +245,7 @@ public abstract class Screen implements LifecycleOwner {
      * which the last template of the 5 must be one of the following types:
      *
      * <ul>
-     *   <li>{@code androidx.car.app.navigation.model.NavigationTemplate}
+     *   <li>{@link androidx.car.app.navigation.model.NavigationTemplate}
      *   <li>{@link androidx.car.app.model.PaneTemplate}
      *   <li>{@link androidx.car.app.model.MessageTemplate}
      * </ul>
@@ -288,7 +288,7 @@ public abstract class Screen implements LifecycleOwner {
      * <h5>Reset Operations</h5>
      *
      * Certain {@link Template} classes have special semantics that signify the end of a task. For
-     * example, the {@code androidx.car.app.navigation.model.NavigationTemplate} is a template
+     * example, the {@link androidx.car.app.navigation.model.NavigationTemplate} is a template
      * that is expected to stay on the screen and be refreshed with new turn-by-turn instructions
      * for the user’s consumption. Upon reaching one of these templates, the host will reset the
      * template quota, treating that template as if it is the first step of a new task, thus

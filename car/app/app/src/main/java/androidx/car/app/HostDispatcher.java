@@ -29,8 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext.CarServiceType;
-// TODO(rampara): Uncomment on addition of navigation module
-//import androidx.car.app.navigation.INavigationHost;
+import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
 
@@ -47,8 +46,8 @@ public class HostDispatcher {
     private ICarHost mCarHost;
     @Nullable
     private IAppHost mAppHost;
-    // TODO(rampara): Uncomment on addition of navigation module
-//  @Nullable private INavigationHost navigationHost;
+    @Nullable
+    private INavigationHost mNavigationHost;
 
     /**
      * Dispatches the {@code call} to the host for the given {@code hostType}.
@@ -85,8 +84,7 @@ public class HostDispatcher {
 
         mCarHost = null;
         mAppHost = null;
-        // TODO(rampara): Uncomment on addition of navigation module
-//    navigationHost = null;
+        mNavigationHost = null;
     }
 
     /**
@@ -114,17 +112,17 @@ public class HostDispatcher {
                 host = mAppHost;
                 break;
             case CarContext.NAVIGATION_SERVICE:
-                // TODO(rampara): Uncomment on addition of navigation module
-//        if (navigationHost == null) {
-//          navigationHost =
-//              RemoteUtils.call(
-//                  () ->
-//                      INavigationHost.Stub.asInterface(
-//                          requireNonNull(carHost).getHost(CarContext.NAVIGATION_SERVICE)),
-//                  "getHost(Navigation)");
-//        }
-//        host = navigationHost;
-//        break;
+                if (mNavigationHost == null) {
+                    mNavigationHost =
+                            RemoteUtils.call(
+                                    () ->
+                                            INavigationHost.Stub.asInterface(
+                                                    requireNonNull(mCarHost).getHost(
+                                                            CarContext.NAVIGATION_SERVICE)),
+                                    "getHost(Navigation)");
+                }
+                host = mNavigationHost;
+                break;
             case CarContext.CAR_SERVICE:
                 host = mCarHost;
                 break;
