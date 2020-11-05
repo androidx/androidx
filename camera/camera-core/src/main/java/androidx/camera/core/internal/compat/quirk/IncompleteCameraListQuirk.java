@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.impl.quirk;
+package androidx.camera.core.internal.compat.quirk;
 
 import android.os.Build;
 
@@ -33,9 +33,6 @@ import java.util.List;
  */
 public class IncompleteCameraListQuirk implements Quirk {
 
-    private IncompleteCameraListQuirk() {
-    }
-
     /** The devices have b/167201193 occur */
     private static final List<String> KNOWN_AFFECTED_DEVICES =
             new ArrayList<>(Arrays.asList("a5y17lte", "tb-8704x", "a7y17lte", "on7xelte",
@@ -45,11 +42,7 @@ public class IncompleteCameraListQuirk implements Quirk {
                     "a6plte", "hwtrt-q", "co2_sprout", "h3223", "davinci", "vince", "armor_x5",
                     "a2corelte", "j6lte"));
 
-    /**
-     * @return true if the device might report an incomplete camera id list, otherwise false.
-     */
-    public static boolean isCurrentDeviceAffected() {
+    static boolean load() {
         return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase());
     }
-
 }
