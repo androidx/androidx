@@ -75,7 +75,10 @@ public final class Bundleable implements Parcelable {
             new Creator<Bundleable>() {
                 @Override
                 public Bundleable createFromParcel(final Parcel source) {
-                    return new Bundleable(requireNonNull(source.readBundle()));
+                    // To work around a lint warning that indicates the default class loader will
+                    // not work for restoring our own classes.
+                    return new Bundleable(
+                            requireNonNull(source.readBundle(getClass().getClassLoader())));
                 }
 
                 @Override
