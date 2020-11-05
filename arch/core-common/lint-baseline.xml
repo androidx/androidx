@@ -136,17 +136,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Entry&lt;K, V> put(@NonNull K key, @NonNull V v) {"
-        errorLine2="              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="74"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public V remove(@NonNull K key) {"
         errorLine2="           ~">
         <location
@@ -197,6 +186,17 @@
             file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
             line="175"
             column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Map.Entry&lt;K, V> next() {"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="344"
+            column="16"/>
     </issue>
 
 </issues>

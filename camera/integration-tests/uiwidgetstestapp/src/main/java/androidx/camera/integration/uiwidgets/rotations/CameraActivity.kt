@@ -96,10 +96,13 @@ open class CameraActivity : AppCompatActivity() {
 
     private fun setUpCamera() {
         val cameraProcessFuture = ProcessCameraProvider.getInstance(this)
-        cameraProcessFuture.addListener(Runnable {
-            val cameraProvider = cameraProcessFuture.get()
-            setUpCamera(cameraProvider)
-        }, ContextCompat.getMainExecutor(this))
+        cameraProcessFuture.addListener(
+            Runnable {
+                val cameraProvider = cameraProcessFuture.get()
+                setUpCamera(cameraProvider)
+            },
+            ContextCompat.getMainExecutor(this)
+        )
     }
 
     private fun setUpCamera(cameraProvider: ProcessCameraProvider) {
@@ -171,7 +174,8 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "InMemory image capture failed", exception)
                 }
-            })
+            }
+        )
     }
 
     private fun ImageCapture.setFileCallback() {
@@ -191,7 +195,8 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "File image capture failed", exception)
                 }
-            })
+            }
+        )
     }
 
     private fun ImageCapture.setOutputStreamCallback() {
@@ -212,7 +217,8 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "OutputStream image capture failed", exception)
                 }
-            })
+            }
+        )
     }
 
     private fun ImageCapture.setMediaStoreCallback() {
@@ -238,7 +244,8 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureDone.release()
                     Log.e(TAG, "MediaStore image capture failed", exception)
                 }
-            })
+            }
+        )
     }
 
     protected fun isImageAnalysisInitialized(): Boolean {

@@ -33,6 +33,7 @@ import java.util.HashMap;
 class TestWindowBoundsHelper extends WindowBoundsHelper {
     private Rect mGlobalOverriddenBounds;
     private final HashMap<Activity, Rect> mOverriddenBounds = new HashMap<>();
+    private final HashMap<Activity, Rect> mOverriddenMaximumBounds = new HashMap<>();
 
     /**
      * Overrides the bounds returned from this helper for the given context. Passing null {@code
@@ -43,6 +44,14 @@ class TestWindowBoundsHelper extends WindowBoundsHelper {
      */
     void setCurrentBoundsForActivity(@NonNull Activity activity, @Nullable Rect bounds) {
         mOverriddenBounds.put(activity, bounds);
+    }
+
+    /**
+     * Overrides the max bounds returned from this helper for the given context. Passing {@code
+     * null} {@code bounds} has the effect of clearing the bounds override.
+     */
+    void setMaximumBoundsForActivity(@NonNull Activity activity, @Nullable Rect bounds) {
+        mOverriddenMaximumBounds.put(activity, bounds);
     }
 
     /**
@@ -68,6 +77,17 @@ class TestWindowBoundsHelper extends WindowBoundsHelper {
         return super.computeCurrentWindowBounds(activity);
     }
 
+    @NonNull
+    @Override
+    Rect computeMaximumWindowBounds(Activity activity) {
+        Rect bounds = mOverriddenMaximumBounds.get(activity);
+        if (bounds != null) {
+            return bounds;
+        }
+
+        return super.computeMaximumWindowBounds(activity);
+    }
+
     /**
      * Clears any overrides set with {@link #setCurrentBounds(Rect)} or
      * {@link #setCurrentBoundsForActivity(Activity, Rect)}.
@@ -75,5 +95,6 @@ class TestWindowBoundsHelper extends WindowBoundsHelper {
     void reset() {
         mGlobalOverriddenBounds = null;
         mOverriddenBounds.clear();
+        mOverriddenMaximumBounds.clear();
     }
 }

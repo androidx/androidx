@@ -46,15 +46,20 @@ class DatabaseViewProcessorTest {
         """
 
         val ENTITIES = listOf(
-                JavaFileObjects.forSourceString("foo.bar.Team", DATABASE_PREFIX + """
+            JavaFileObjects.forSourceString(
+                "foo.bar.Team",
+                DATABASE_PREFIX + """
                     @Entity
                     public class Team {
                         @PrimaryKey
                         public int id;
                         public String name;
                     }
-                """),
-                JavaFileObjects.forSourceString("foo.bar.Employee", DATABASE_PREFIX + """
+                """
+            ),
+            JavaFileObjects.forSourceString(
+                "foo.bar.Employee",
+                DATABASE_PREFIX + """
                     @Entity
                     public class Employee {
                         @PrimaryKey
@@ -64,17 +69,21 @@ class DatabaseViewProcessorTest {
                         public int teamId;
                         public Integer managerId;
                     }
-                """)
+                """
+            )
         )
     }
 
     @Test
     fun basic() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView("SELECT * FROM Team")
             public class MyView {
             }
-        """) { view, _ ->
+        """
+        ) { view, _ ->
             assertThat(view.query.original).isEqualTo("SELECT * FROM Team")
             assertThat(view.query.errors).isEmpty()
             assertThat(view.query.tables).hasSize(1)
@@ -85,91 +94,122 @@ class DatabaseViewProcessorTest {
             val resultInfo = view.query.resultInfo!!
             assertThat(resultInfo.columns).hasSize(2)
             assertThat(resultInfo.columns).containsAtLeast(
-                    ColumnInfo("id", SQLTypeAffinity.INTEGER),
-                    ColumnInfo("name", SQLTypeAffinity.TEXT))
+                ColumnInfo("id", SQLTypeAffinity.INTEGER),
+                ColumnInfo("name", SQLTypeAffinity.TEXT)
+            )
             assertThat(view.viewName).isEqualTo("MyView")
         }.compilesWithoutError()
     }
 
     @Test
     fun viewName() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView(value = "SELECT * FROM Team", viewName = "abc")
             public class MyView {
             }
-        """) { view, _ ->
+        """
+        ) { view, _ ->
             assertThat(view.viewName).isEqualTo("abc")
         }.compilesWithoutError()
     }
 
     @Test
     fun viewName_sqlite() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView(value = "SELECT * FROM Team", viewName = "sqlite_bad_name")
             public class MyView {
             }
-        """, verify = false) { _, _ ->
+        """,
+            verify = false
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE)
     }
 
     @Test
     fun nonSelect() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView("DELETE FROM Team")
             public class MyView {
             }
-        """, verify = false) { _, _ ->
+        """,
+            verify = false
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
     }
 
     @Test
     fun arguments() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView("SELECT * FROM Team WHERE id = :id")
             public class MyView {
             }
-        """, verify = false) { _, _ ->
+        """,
+            verify = false
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
     }
 
     @Test
     fun emptyQuery() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             @DatabaseView("")
             public class MyView {
             }
-        """, verify = false) { _, _ ->
+        """,
+            verify = false
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(ParserErrors.NOT_ONE_QUERY)
     }
 
     @Test
     fun missingAnnotation() {
-        singleView("foo.bar.MyView", """
+        singleView(
+            "foo.bar.MyView",
+            """
             public class MyView {
             }
-        """, verify = false) { _, _ ->
+        """,
+            verify = false
+        ) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW)
+            ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
+        )
     }
 
     @Test
     fun referenceOtherView() {
-        val summary = JavaFileObjects.forSourceString("foo.bar.EmployeeSummary",
-                DATABASE_PREFIX + """
+        val summary = JavaFileObjects.forSourceString(
+            "foo.bar.EmployeeSummary",
+            DATABASE_PREFIX + """
                     @DatabaseView("SELECT id, name, managerId FROM Employee")
                     public class EmployeeSummary {
                         public int id;
                         public String name;
                         public Integer managerId;
                     }
-                """)
-        singleView("foo.bar.EmployeeName", """
+                """
+        )
+        singleView(
+            "foo.bar.EmployeeName",
+            """
             @DatabaseView("SELECT id, name FROM EmployeeSummary")
             public class EmployeeName {
                 public int id;
                 public String name;
             }
-        """, ENTITIES + summary) { view, _ ->
+        """,
+            ENTITIES + summary
+        ) { view, _ ->
             assertThat(view.viewName).isEqualTo("EmployeeName")
         }.compilesWithoutError()
     }
@@ -182,30 +222,35 @@ class DatabaseViewProcessorTest {
         handler: (view: DatabaseView, invocation: TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfos + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(
-                                androidx.room.DatabaseView::class,
-                                androidx.room.Entity::class,
-                                androidx.room.PrimaryKey::class,
-                                androidx.room.Embedded::class,
-                                androidx.room.ColumnInfo::class,
-                                NonNull::class)
-                        .nextRunHandler { invocation ->
-                            val view = invocation.roundEnv
-                                    .rootElements
-                                    .first { it.toString() == name }
-                            val verifier = if (verify) {
-                                createVerifierFromEntitiesAndViews(invocation)
-                            } else null
-                            val processor = DatabaseViewProcessor(invocation.context,
-                                    view.asTypeElement())
-                            val processedView = processor.process()
-                            processedView.query.resultInfo =
-                                    verifier?.analyze(processedView.query.original)
-                            handler(processedView, invocation)
-                            true
-                        }
-                        .build())
+            .that(jfos + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(
+                        androidx.room.DatabaseView::class,
+                        androidx.room.Entity::class,
+                        androidx.room.PrimaryKey::class,
+                        androidx.room.Embedded::class,
+                        androidx.room.ColumnInfo::class,
+                        NonNull::class
+                    )
+                    .nextRunHandler { invocation ->
+                        val view = invocation.roundEnv
+                            .rootElements
+                            .first { it.toString() == name }
+                        val verifier = if (verify) {
+                            createVerifierFromEntitiesAndViews(invocation)
+                        } else null
+                        val processor = DatabaseViewProcessor(
+                            invocation.context,
+                            view.asTypeElement()
+                        )
+                        val processedView = processor.process()
+                        processedView.query.resultInfo =
+                            verifier?.analyze(processedView.query.original)
+                        handler(processedView, invocation)
+                        true
+                    }
+                    .build()
+            )
     }
 }

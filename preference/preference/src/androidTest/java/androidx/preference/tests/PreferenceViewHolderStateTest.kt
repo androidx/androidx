@@ -158,11 +158,13 @@ class PreferenceViewHolderStateTest {
 
         // Scroll until the end, ensuring all Preferences have been bound.
         onView(withId(R.id.recycler_view))
-            .perform(repeatedlyUntil(
-                swipeUp(),
-                hasDescendant(withText("${disabledTitle}40")),
-                maxAttempts
-            ))
+            .perform(
+                repeatedlyUntil(
+                    swipeUp(),
+                    hasDescendant(withText("${disabledTitle}40")),
+                    maxAttempts
+                )
+            )
 
         // All preferences should have the correct title color
         preferences.forEach { preference ->

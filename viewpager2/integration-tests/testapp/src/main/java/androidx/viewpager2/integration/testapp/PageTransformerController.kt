@@ -58,10 +58,12 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
                 id: Long
             ) {
                 val selected = transformers.first { it.first == parent.selectedItem }.second
-                viewPager.setPageTransformer(CompositePageTransformer().also {
-                    it.addTransformer(cancelTranslationsTransformer)
-                    it.addTransformer(selected)
-                })
+                viewPager.setPageTransformer(
+                    CompositePageTransformer().also {
+                        it.addTransformer(cancelTranslationsTransformer)
+                        it.addTransformer(selected)
+                    }
+                )
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>) {}

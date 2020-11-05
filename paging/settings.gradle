@@ -19,6 +19,7 @@ rootProject.name = "paging-playground"
 apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
+    if (name.startsWith(":paging:paging-compose")) return false
     if (name.startsWith(":paging")) return true
     return false
 })

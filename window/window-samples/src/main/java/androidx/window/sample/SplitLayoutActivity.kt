@@ -18,7 +18,6 @@ package androidx.window.sample
 
 import android.os.Bundle
 import androidx.core.util.Consumer
-import androidx.core.view.doOnLayout
 import androidx.window.WindowLayoutInfo
 import androidx.window.WindowManager
 
@@ -33,19 +32,15 @@ class SplitLayoutActivity : BaseSampleActivity() {
         setContentView(R.layout.activity_split_layout)
         windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
             ?: WindowManager(this)
-        findViewById<SplitLayout>(R.id.rootLayout).doOnLayout {
-            findViewById<SplitLayout>(R.id.split_layout)
-                .updateWindowLayout(windowManager.windowLayoutInfo)
-        }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    override fun onStart() {
+        super.onStart()
         windowManager.registerLayoutChangeCallback(mainThreadExecutor, layoutStateChangeCallback)
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
+    override fun onStop() {
+        super.onStop()
         windowManager.unregisterLayoutChangeCallback(layoutStateChangeCallback)
     }
 

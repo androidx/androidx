@@ -19,7 +19,6 @@ package androidx.navigation.dynamicfeatures
 import androidx.navigation.NavDestination
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -28,11 +27,11 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
-@SmallTest
 class DynamicGraphNavigatorTest {
 
     private val navigator =
-        DynamicGraphNavigator(mock(NavigatorProvider::class.java),
+        DynamicGraphNavigator(
+            mock(NavigatorProvider::class.java),
             TestDynamicInstallManager()
         )
 

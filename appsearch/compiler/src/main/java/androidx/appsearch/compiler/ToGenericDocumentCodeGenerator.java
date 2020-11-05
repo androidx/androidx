@@ -233,21 +233,26 @@ class ToGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder()
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
+        String setPropertyMethod;
         if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
+            setPropertyMethod = "setPropertyLong";
             body.addStatement(
                     "long[] $NConv = new long[$NCopy.size()]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
+            setPropertyMethod = "setPropertyDouble";
             body.addStatement(
                     "double[] $NConv = new double[$NCopy.size()]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
+            setPropertyMethod = "setPropertyBoolean";
             body.addStatement(
                     "boolean[] $NConv = new boolean[$NCopy.size()]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+            setPropertyMethod = "setPropertyBytes";
             body.addStatement(
                     "byte[][] $NConv = new byte[$NCopy.size()][]", fieldName, fieldName);
 
@@ -261,10 +266,7 @@ class ToGenericDocumentCodeGenerator {
                 .add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent()
                 .addStatement("$NConv[i++] = item", fieldName)
                 .unindent().add("}\n")
-                .addStatement(
-                        "builder.setProperty($S, $NConv)",
-                        propertyName,
-                        fieldName)
+                .addStatement("builder.$N($S, $NConv)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -294,7 +296,7 @@ class ToGenericDocumentCodeGenerator {
         }
 
         body.addStatement(
-                "builder.setProperty($S, $NConv)", propertyName, fieldName)
+                "builder.setPropertyString($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -340,7 +342,7 @@ class ToGenericDocumentCodeGenerator {
 
         body.unindent().add("}\n");
 
-        body.addStatement("builder.setProperty($S, $NConv)", propertyName, fieldName)
+        body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");   //  if ($NCopy != null) {
 
         method.add(body.build());
@@ -402,23 +404,28 @@ class ToGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder()
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
+        String setPropertyMethod;
         if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
+            setPropertyMethod = "setPropertyLong";
             body.addStatement(
                     "long[] $NConv = new long[$NCopy.length]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
+            setPropertyMethod = "setPropertyDouble";
             body.addStatement(
                     "double[] $NConv = new double[$NCopy.length]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
+            setPropertyMethod = "setPropertyBoolean";
             body.addStatement(
                     "boolean[] $NConv = new boolean[$NCopy.length]", fieldName, fieldName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mByteBoxType)) {
+            setPropertyMethod = "setPropertyBytes";
             body.addStatement(
                     "byte[] $NConv = new byte[$NCopy.length]", fieldName, fieldName);
 
@@ -432,10 +439,7 @@ class ToGenericDocumentCodeGenerator {
                 .indent()
                 .addStatement("$NConv[i] = $NCopy[i]", fieldName, fieldName)
                 .unindent().add("}\n")
-                .addStatement(
-                        "builder.setProperty($S, $NConv)",
-                        propertyName,
-                        fieldName)
+                .addStatement("builder.$N($S, $NConv)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -454,17 +458,24 @@ class ToGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder()
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
-        if (!typeUtil.isSameType(propertyType, mHelper.mStringType)
-                && !typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+        String setPropertyMethod;
+        if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
+            setPropertyMethod = "setPropertyString";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
+            setPropertyMethod = "setPropertyLong";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)) {
+            setPropertyMethod = "setPropertyDouble";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
+            setPropertyMethod = "setPropertyBoolean";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+            setPropertyMethod = "setPropertyBytes";
+        } else {
             // This is not a type 2b array.
             return false;
         }
 
         body.addStatement(
-                "builder.setProperty($S, $NCopy)", propertyName, fieldName)
+                "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -508,7 +519,7 @@ class ToGenericDocumentCodeGenerator {
                 fieldName, fieldName);
         body.unindent().add("}\n");
 
-        body.addStatement("builder.setProperty($S, $NConv)", propertyName, fieldName)
+        body.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");    //  if ($NCopy != null) {
 
         method.add(body.build());
@@ -558,19 +569,26 @@ class ToGenericDocumentCodeGenerator {
                         createAppSearchFieldRead(fieldName))
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
-        if (!typeUtil.isSameType(propertyType, mHelper.mStringType)
-                && !typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+        String setPropertyMethod;
+        if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
+            setPropertyMethod = "setPropertyString";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
+                || typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
+            setPropertyMethod = "setPropertyLong";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
+                || typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
+            setPropertyMethod = "setPropertyDouble";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)) {
+            setPropertyMethod = "setPropertyBoolean";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+            setPropertyMethod = "setPropertyBytes";
+        } else {
             // This is not a type 3a field
             return false;
         }
 
         body.addStatement(
-                "builder.setProperty($S, $NCopy)", propertyName, fieldName)
+                "builder.$N($S, $NCopy)", setPropertyMethod, propertyName, fieldName)
                 .unindent().add("}\n");
 
         method.add(body.build());
@@ -586,22 +604,27 @@ class ToGenericDocumentCodeGenerator {
             @NonNull String propertyName,
             @NonNull TypeMirror propertyType) {
         Types typeUtil = mEnv.getTypeUtils();
-        if (!typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
+        String setPropertyMethod;
+        if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
+                || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
+            setPropertyMethod = "setPropertyLong";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
+                || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
+            setPropertyMethod = "setPropertyDouble";
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
+            setPropertyMethod = "setPropertyBoolean";
+        } else {
             // This is not a type 3b field
             return false;
         }
 
         method.addStatement(
-                "builder.setProperty($S, $L)",
+                "builder.$N($S, $L)",
+                setPropertyMethod,
                 propertyName,
                 createAppSearchFieldRead(fieldName));
         return true;
     }
-
 
     //   3c: FieldCallToGenericDocument
     //       Field is of a class which is annotated with @AppSearchDocument.
@@ -635,7 +658,7 @@ class ToGenericDocumentCodeGenerator {
                         + ".toGenericDocument($NCopy)", fieldName,
                 mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
                 propertyName);
-        method.addStatement("builder.setProperty($S, $NConv)", propertyName, fieldName);
+        method.addStatement("builder.setPropertyDocument($S, $NConv)", propertyName, fieldName);
 
         method.unindent().add("}\n");
         return true;

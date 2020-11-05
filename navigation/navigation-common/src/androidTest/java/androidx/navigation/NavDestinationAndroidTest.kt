@@ -34,7 +34,8 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users/{id}")
 
         val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43"))
+            Uri.parse("https://www.example.com/users/43")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -55,7 +56,8 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users/{name}")
 
         val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/index.html"))
+            Uri.parse("https://www.example.com/users/index.html")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -92,7 +94,8 @@ class NavDestinationAndroidTest {
         destination.addDeepLink("www.example.com/users/{id}/posts/{postId}")
 
         val match = destination.matchDeepLink(
-            Uri.parse("https://www.example.com/users/43/posts/99"))
+            Uri.parse("https://www.example.com/users/43/posts/99")
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -113,16 +116,27 @@ class NavDestinationAndroidTest {
         val destination = NoOpNavigator().createDestination()
 
         destination.addArgument("deeplink1", stringArgument())
-        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink1}",
-            null, "*/*"))
+        destination.addDeepLink(
+            NavDeepLink(
+                "www.example.com/users/{deeplink1}",
+                null, "*/*"
+            )
+        )
 
         destination.addArgument("deeplink2", stringArgument())
-        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink2}",
-            null, "image/*"))
+        destination.addDeepLink(
+            NavDeepLink(
+                "www.example.com/users/{deeplink2}",
+                null, "image/*"
+            )
+        )
 
         val match = destination.matchDeepLink(
-            NavDeepLinkRequest(Uri.parse("https://www.example.com/users/result"), null,
-                "image/jpg"))
+            NavDeepLinkRequest(
+                Uri.parse("https://www.example.com/users/result"), null,
+                "image/jpg"
+            )
+        )
 
         assertWithMessage("Deep link should match")
             .that(match)
@@ -170,9 +184,11 @@ class NavDestinationAndroidTest {
         destination.addArgument("stringArg", stringArgument("aaa"))
         destination.addArgument("intArg", intArgument(123))
 
-        val bundle = destination.addInDefaultArgs(Bundle().apply {
-            putString("stringArg", "bbb")
-        })
+        val bundle = destination.addInDefaultArgs(
+            Bundle().apply {
+                putString("stringArg", "bbb")
+            }
+        )
         assertThat(bundle?.getString("stringArg")).isEqualTo("bbb")
         assertThat(bundle?.getInt("intArg")).isEqualTo(123)
     }
@@ -183,8 +199,10 @@ class NavDestinationAndroidTest {
         destination.addArgument("stringArg", stringArgument("aaa"))
         destination.addArgument("intArg", intArgument(123))
 
-        destination.addInDefaultArgs(Bundle().apply {
-            putInt("stringArg", 123)
-        })
+        destination.addInDefaultArgs(
+            Bundle().apply {
+                putInt("stringArg", 123)
+            }
+        )
     }
 }

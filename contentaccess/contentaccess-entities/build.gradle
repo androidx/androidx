@@ -37,4 +37,5 @@ androidx {
     mavenGroup = LibraryGroups.CONTENTACCESS
     inceptionYear = "2020"
     description = "Contains predefined entities which can be used with ContentAccess."
+    legacyDisableKotlinStrictApiMode = true
 }

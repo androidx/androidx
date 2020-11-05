@@ -37,7 +37,7 @@ import androidx.navigation.NavigatorProvider
  * by setting the `app:progressDestinationId` attribute in your navigation XML file.
  */
 @Navigator.Name("navigation")
-class DynamicGraphNavigator(
+public class DynamicGraphNavigator(
     private val navigatorProvider: NavigatorProvider,
     private val installManager: DynamicInstallManager
 ) : NavGraphNavigator(navigatorProvider) {
@@ -96,7 +96,7 @@ class DynamicGraphNavigator(
      *
      * @param progressDestinationSupplier The default progress destination supplier.
      */
-    fun installDefaultProgressDestination(
+    public fun installDefaultProgressDestination(
         progressDestinationSupplier: () -> NavDestination
     ) {
         this.defaultProgressDestinationSupplier = progressDestinationSupplier
@@ -117,8 +117,10 @@ class DynamicGraphNavigator(
         }
 
         val progressDestination = dynamicNavGraph.findNode(progressDestinationId)
-            ?: throw IllegalStateException("The progress destination id must be set and " +
-                    "accessible to the module of this navigator.")
+            ?: throw IllegalStateException(
+                "The progress destination id must be set and " +
+                    "accessible to the module of this navigator."
+            )
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
             progressDestination.navigatorName
         )
@@ -134,11 +136,11 @@ class DynamicGraphNavigator(
         val progressDestinationSupplier = defaultProgressDestinationSupplier
         checkNotNull(progressDestinationSupplier) {
             "You must set a default progress destination " +
-                    "using DynamicNavGraphNavigator.installDefaultProgressDestination or " +
-                    "pass in an DynamicInstallMonitor in the DynamicExtras.\n" +
-                    "Alternatively, when using NavHostFragment make sure to swap it with " +
-                    "DynamicNavHostFragment. This will take care of setting the default " +
-                    "progress destination for you."
+                "using DynamicNavGraphNavigator.installDefaultProgressDestination or " +
+                "pass in an DynamicInstallMonitor in the DynamicExtras.\n" +
+                "Alternatively, when using NavHostFragment make sure to swap it with " +
+                "DynamicNavHostFragment. This will take care of setting the default " +
+                "progress destination for you."
         }
         val progressDestination = progressDestinationSupplier.invoke()
         dynamicNavGraph.addDestination(progressDestination)
@@ -164,7 +166,7 @@ class DynamicGraphNavigator(
     /**
      * The [NavGraph] for dynamic features.
      */
-    class DynamicNavGraph(
+    public class DynamicNavGraph(
         /**
          * @hide
          */
@@ -187,10 +189,10 @@ class DynamicGraphNavigator(
                 return destination.parent as? DynamicNavGraph
                     ?: throw IllegalStateException(
                         "Dynamic destinations must be part of a DynamicNavGraph.\n" +
-                                "You can use DynamicNavHostFragment, which will take care of " +
-                                "setting up the NavController for Dynamic destinations.\n" +
-                                "If you're not using Fragments, you must set up the " +
-                                "NavigatorProvider manually."
+                            "You can use DynamicNavHostFragment, which will take care of " +
+                            "setting up the NavController for Dynamic destinations.\n" +
+                            "If you're not using Fragments, you must set up the " +
+                            "NavigatorProvider manually."
                     )
             }
         }
@@ -198,20 +200,21 @@ class DynamicGraphNavigator(
         /**
          * The dynamic feature's module name.
          */
-        var moduleName: String? = null
+        public var moduleName: String? = null
 
         /**
          * Resource id of progress destination. This will be preferred over any
          * default progress destination set by [installDefaultProgressDestination].
          */
-        var progressDestination: Int = 0
+        public var progressDestination: Int = 0
 
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
             context.withStyledAttributes(attrs, R.styleable.DynamicGraphNavigator) {
                 moduleName = getString(R.styleable.DynamicGraphNavigator_moduleName)
                 progressDestination = getResourceId(
-                    R.styleable.DynamicGraphNavigator_progressDestination, 0)
+                    R.styleable.DynamicGraphNavigator_progressDestination, 0
+                )
                 if (progressDestination == 0) {
                     navGraphNavigator.destinationsWithoutDefaultProgressDestination
                         .add(this@DynamicNavGraph)

@@ -40,7 +40,7 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
 
     override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+            declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(declared: XDeclaredType): DeleteOrUpdateMethodBinder {
         if (!hasGuavaRoom) {

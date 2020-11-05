@@ -79,7 +79,7 @@ public final class SurfaceRequest {
     // cancellation listeners.
     private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
 
-    private DeferrableSurface mInternalDeferrableSurface;
+    private final DeferrableSurface mInternalDeferrableSurface;
 
     @Nullable
     private TransformationInfo mTransformationInfo;

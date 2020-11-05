@@ -34,7 +34,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
-    implementation(project(":internal-testutils-navigation"))
+    implementation(project(":internal-testutils-navigation"), {
+        exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
+    })
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

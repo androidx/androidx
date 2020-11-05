@@ -23,11 +23,19 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.opengl.GLES20
 import android.opengl.GLUtils
+import androidx.annotation.Px
 
 /** Helper for rendering a complication to a GLES20 texture. */
-class GlesTextureComplication(
-    val renderer: CanvasComplicationRenderer,
+public class GlesTextureComplication(
+    /** The [CanvasComplication] to render to texture. */
+    public val canvasComplication: CanvasComplication,
+
+    /** The width of the texture to create. */
+    @Px
     textureWidth: Int,
+
+    /** The height of the texture to create. */
+    @Px
     textureHeight: Int,
 
     /** The texture type, e.g. GLES20.GL_TEXTURE_2D */
@@ -43,15 +51,15 @@ class GlesTextureComplication(
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
     /** Renders the complication to an OpenGL texture. */
-    fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
+    public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
-        renderer.render(canvas, bounds, calendar, renderParameters)
+        canvasComplication.render(canvas, bounds, calendar, renderParameters)
         bind()
         GLUtils.texImage2D(textureType, 0, bitmap, 0)
     }
 
     /** Bind the texture to the active texture target. */
-    fun bind() {
+    public fun bind() {
         GLES20.glBindTexture(textureType, texture)
     }
 

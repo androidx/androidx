@@ -42,7 +42,7 @@ abstract class PagingDataDiffer<T : Any>(
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
-    private val combinedLoadStates = MutableLoadStateCollection(hasRemoteState = false)
+    private val combinedLoadStates = MutableLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
     private val dataRefreshedListeners = CopyOnWriteArrayList<(isEmpty: Boolean) -> Unit>()
 
@@ -178,7 +178,7 @@ abstract class PagingDataDiffer<T : Any>(
                             event.combinedLoadStates.prepend.endOfPaginationReached
                         val appendDone = event.combinedLoadStates.append.endOfPaginationReached
                         val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                                !(event.loadType == APPEND && appendDone)
+                            !(event.loadType == APPEND && appendDone)
 
                         if (!canContinueLoading) {
                             // Reset lastAccessedIndexUnfulfilled since endOfPaginationReached
@@ -187,8 +187,8 @@ abstract class PagingDataDiffer<T : Any>(
                         } else if (lastAccessedIndexUnfulfilled) {
                             val shouldResendHint =
                                 lastAccessedIndex < presenter.placeholdersBefore ||
-                                        lastAccessedIndex > presenter.placeholdersBefore +
-                                        presenter.storageCount
+                                    lastAccessedIndex > presenter.placeholdersBefore +
+                                    presenter.storageCount
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
@@ -272,6 +272,9 @@ abstract class PagingDataDiffer<T : Any>(
         receiver?.refresh()
     }
 
+    /**
+     * @return Total number of presented items, including placeholders.
+     */
     val size: Int
         get() = presenter.size
 
@@ -299,8 +302,17 @@ abstract class PagingDataDiffer<T : Any>(
      * `false` otherwise.
      */
     @Deprecated(
-        "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
-                "getItemCount, and will be removed in a future alpha version"
+        message = "dataRefreshFlow is now redundant with the information passed from " +
+            "loadStateFlow and size(), and will be removed in a future alpha version",
+        replaceWith = ReplaceWith(
+            """loadStateFlow.map { it.source.refresh }
+                .filter { it is LoadState.NotLoading }
+                .distinctUntilChanged()""",
+            "androidx.paging.LoadState",
+            "kotlinx.coroutines.flow.distinctUntilChanged",
+            "kotlinx.coroutines.flow.filter",
+            "kotlinx.coroutines.flow.map",
+        )
     )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
@@ -354,7 +366,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and size(), and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
@@ -370,7 +382,7 @@ abstract class PagingDataDiffer<T : Any>(
      */
     @Deprecated(
         "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-                "and getItemCount, and will be removed in a future alpha version"
+            "and size(), and will be removed in a future alpha version"
     )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {

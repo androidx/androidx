@@ -47,7 +47,7 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
     companion object {
 
         private const val DESCRIPTION = "Remove androidx.work.impl.WorkManagerInitializer from " +
-                "your AndroidManifest.xml when using on-demand initialization."
+            "your AndroidManifest.xml when using on-demand initialization."
 
         val ISSUE = Issue.create(
             id = "RemoveWorkManagerInitializer",

@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.os.Build
 import android.util.JsonWriter
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -37,8 +38,23 @@ internal object ResultWriter {
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
             val file = File(Arguments.testOutputDir, "$packageName-benchmarkData.json")
+            Log.d(
+                BenchmarkState.TAG,
+                "writing results to ${file.absolutePath}"
+            )
             writeReport(file, reports)
-            InstrumentationResults.reportAdditionalFileToCopy("results_json", file.absolutePath)
+            InstrumentationResults.reportAdditionalFileToCopy(
+                "results_json",
+                file.absolutePath,
+                // since we keep appending the same file, defer reporting path until end of suite
+                // note: this requires using InstrumentationResultsRunListener
+                reportOnRunEndOnly = true
+            )
+        } else {
+            Log.d(
+                BenchmarkState.TAG,
+                "androidx.benchmark.output.enable not set, not writing results json"
+            )
         }
     }
 
@@ -54,10 +70,10 @@ internal object ResultWriter {
                         """
                             Failed to create file for benchmark report in:
                             $parent
-                            Make sure the instrumentation argument additionalOutputDir is set to 
-                            a writable directory on device. If using a version of Android Gradle 
-                            Plugin that doesn't support additionalOutputDir, ensure your app's 
-                            manifest file enables legacy storage behavior by adding the 
+                            Make sure the instrumentation argument additionalTestOutputDir is set
+                            to a writable directory on device. If using a version of Android Gradle
+                            Plugin that doesn't support additionalTestOutputDir, ensure your app's
+                            manifest file enables legacy storage behavior by adding the
                             application attribute: android:requestLegacyExternalStorage="true"
                         """.trimIndent(),
                         exception

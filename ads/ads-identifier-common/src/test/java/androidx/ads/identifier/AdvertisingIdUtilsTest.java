@@ -26,8 +26,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 
-import androidx.test.filters.SmallTest;
-
 import com.google.common.collect.Lists;
 
 import org.junit.Before;
@@ -40,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AdvertisingIdUtilsTest {

@@ -40,11 +40,12 @@ class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryRes
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
-                    "final $T $L = $T.ofNullable($L)",
-                    ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName),
-                    outVarName,
-                    CommonTypeNames.OPTIONAL,
-                    valueVarName)
+                "final $T $L = $T.ofNullable($L)",
+                ParameterizedTypeName.get(CommonTypeNames.OPTIONAL, type?.typeName),
+                outVarName,
+                CommonTypeNames.OPTIONAL,
+                valueVarName
+            )
         }
     }
 }

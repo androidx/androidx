@@ -31,7 +31,8 @@ class ElementExtTest {
     @Test
     fun methodsInClass() {
         val parentCode = JavaFileObjects.forSourceLines(
-            "foo.bar.Parent", """
+            "foo.bar.Parent",
+            """
             package foo.bar;
 
             public class Parent {
@@ -42,10 +43,11 @@ class ElementExtTest {
                 private static void parentStaticPrivate() {}
                 public static void parentStaticPublic() {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         val childCode = JavaFileObjects.forSourceLines(
-            "foo.bar.Child", """
+            "foo.bar.Child",
+            """
             package foo.bar;
 
             public class Child extends Parent {
@@ -56,7 +58,7 @@ class ElementExtTest {
                 private static void childStaticPrivate() {}
                 public static void childStaticPublic() {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         simpleRun(
             jfos = arrayOf(parentCode, childCode)
@@ -81,7 +83,7 @@ class ElementExtTest {
             assertThat(parent.getAllNonPrivateInstanceMethods())
                 .containsExactlyElementsIn(
                     parentMethods + objectMethods -
-                            listOf("parentPrivate", "parentStaticPrivate", "parentStaticPublic")
+                        listOf("parentPrivate", "parentStaticPrivate", "parentStaticPublic")
                 )
 
             assertThat(child.getDeclaredMethods()).containsExactlyElementsIn(
@@ -89,17 +91,17 @@ class ElementExtTest {
             )
             assertThat(child.getAllMethods()).containsExactlyElementsIn(
                 childMethods + parentMethods + objectMethods -
-                        listOf("parentPrivate", "parentStaticPrivate", "overridden") +
-                        "overridden" // add 1 overridden back
+                    listOf("parentPrivate", "parentStaticPrivate", "overridden") +
+                    "overridden" // add 1 overridden back
             )
             assertThat(child.getAllNonPrivateInstanceMethods())
                 .containsExactlyElementsIn(
                     childMethods + parentMethods + objectMethods -
-                            listOf(
-                                "parentPrivate", "parentStaticPrivate", "parentStaticPublic",
-                                "childPrivate", "childStaticPrivate", "childStaticPublic",
-                                "overridden"
-                            ) + "overridden" // add 1 overridden back
+                        listOf(
+                            "parentPrivate", "parentStaticPrivate", "parentStaticPublic",
+                            "childPrivate", "childStaticPrivate", "childStaticPublic",
+                            "overridden"
+                        ) + "overridden" // add 1 overridden back
                 )
 
             assertThat(child.getConstructors()).hasSize(1)
@@ -110,7 +112,8 @@ class ElementExtTest {
     @Test
     fun methodsInInterface() {
         val parentCode = JavaFileObjects.forSourceLines(
-            "foo.bar.Parent", """
+            "foo.bar.Parent",
+            """
             package foo.bar;
 
             public interface Parent {
@@ -119,10 +122,11 @@ class ElementExtTest {
                 private static void parentStaticPrivate() {}
                 public static void parentStaticPublic() {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         val childCode = JavaFileObjects.forSourceLines(
-            "foo.bar.Child", """
+            "foo.bar.Child",
+            """
             package foo.bar;
 
             public interface Child extends Parent {
@@ -131,7 +135,7 @@ class ElementExtTest {
                 private static void childStaticPrivate() {}
                 public static void childStaticPublic() {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         simpleRun(
             jfos = arrayOf(parentCode, childCode)
@@ -158,8 +162,8 @@ class ElementExtTest {
                 .containsExactlyElementsIn(childMethods)
             assertThat(child.getAllMethods()).containsExactlyElementsIn(
                 childMethods + parentMethods -
-                        listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
-                        "overridden" // add 1 overridden back
+                    listOf("parentStaticPrivate", "parentStaticPublic", "overridden") +
+                    "overridden" // add 1 overridden back
             )
             assertThat(child.getAllNonPrivateInstanceMethods())
                 .containsExactly(
@@ -174,7 +178,8 @@ class ElementExtTest {
     @Test
     fun types() {
         val testCode = JavaFileObjects.forSourceLines(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
 
             public class Baz {
@@ -183,7 +188,7 @@ class ElementExtTest {
                     return 3;
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         simpleRun(
             jfos = arrayOf(testCode)

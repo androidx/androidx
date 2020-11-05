@@ -53,26 +53,33 @@ class FtsTableEntityProcessor internal constructor(
     }
 
     private fun doProcess(): FtsEntity {
-        context.checker.hasAnnotation(element, androidx.room.Entity::class,
-                ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+        context.checker.hasAnnotation(
+            element, androidx.room.Entity::class,
+            ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
+        )
         val entityAnnotation = element.toAnnotationBox(androidx.room.Entity::class)
         val tableName: String
         if (entityAnnotation != null) {
             tableName = extractTableName(element, entityAnnotation.value)
-            context.checker.check(extractIndices(entityAnnotation, tableName).isEmpty(),
-                    element, ProcessorErrors.INDICES_IN_FTS_ENTITY)
-            context.checker.check(extractForeignKeys(entityAnnotation).isEmpty(),
-                    element, ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
+            context.checker.check(
+                extractIndices(entityAnnotation, tableName).isEmpty(),
+                element, ProcessorErrors.INDICES_IN_FTS_ENTITY
+            )
+            context.checker.check(
+                extractForeignKeys(entityAnnotation).isEmpty(),
+                element, ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY
+            )
         } else {
             tableName = element.name
         }
 
         val pojo = PojoProcessor.createFor(
-                context = context,
-                element = element,
-                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
-                parent = null,
-                referenceStack = referenceStack).process()
+            context = context,
+            element = element,
+            bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+            parent = null,
+            referenceStack = referenceStack
+        ).process()
 
         context.checker.check(pojo.relations.isEmpty(), element, ProcessorErrors.RELATION_IN_ENTITY)
 
@@ -96,23 +103,28 @@ class FtsTableEntityProcessor internal constructor(
         findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
 
         val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
-        context.checker.check(missingNotIndexed.isEmpty(), element,
-                ProcessorErrors.missingNotIndexedField(missingNotIndexed))
+        context.checker.check(
+            missingNotIndexed.isEmpty(), element,
+            ProcessorErrors.missingNotIndexedField(missingNotIndexed)
+        )
 
-        context.checker.check(ftsOptions.prefixSizes.all { it > 0 },
-                element, ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
+        context.checker.check(
+            ftsOptions.prefixSizes.all { it > 0 },
+            element, ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES
+        )
 
         val entity = FtsEntity(
-                element = element,
-                tableName = tableName,
-                type = pojo.type,
-                fields = pojo.fields,
-                embeddedFields = pojo.embeddedFields,
-                primaryKey = primaryKey,
-                constructor = pojo.constructor,
-                ftsVersion = ftsVersion,
-                ftsOptions = ftsOptions,
-                shadowTableName = shadowTableName)
+            element = element,
+            tableName = tableName,
+            type = pojo.type,
+            fields = pojo.fields,
+            embeddedFields = pojo.embeddedFields,
+            primaryKey = primaryKey,
+            constructor = pojo.constructor,
+            ftsVersion = ftsVersion,
+            ftsOptions = ftsOptions,
+            shadowTableName = shadowTableName
+        )
 
         validateExternalContentEntity(entity)
 
@@ -128,19 +140,21 @@ class FtsTableEntityProcessor internal constructor(
             matchInfo = MatchInfo.FTS4,
             notIndexedColumns = emptyList(),
             prefixSizes = emptyList(),
-            preferredOrder = Order.ASC)
+            preferredOrder = Order.ASC
+        )
 
     private fun getFts4Options(annotation: XAnnotationBox<Fts4>): FtsOptions {
         val contentEntity: Entity? = getContentEntity(annotation.getAsType("contentEntity"))
         return FtsOptions(
-                tokenizer = annotation.value.tokenizer,
-                tokenizerArgs = annotation.value.tokenizerArgs.asList(),
-                contentEntity = contentEntity,
-                languageIdColumnName = annotation.value.languageId,
-                matchInfo = annotation.value.matchInfo,
-                notIndexedColumns = annotation.value.notIndexed.asList(),
-                prefixSizes = annotation.value.prefix.asList(),
-                preferredOrder = annotation.value.order)
+            tokenizer = annotation.value.tokenizer,
+            tokenizerArgs = annotation.value.tokenizerArgs.asList(),
+            contentEntity = contentEntity,
+            languageIdColumnName = annotation.value.languageId,
+            matchInfo = annotation.value.matchInfo,
+            notIndexedColumns = annotation.value.notIndexed.asList(),
+            prefixSizes = annotation.value.prefix.asList(),
+            preferredOrder = annotation.value.order
+        )
     }
 
     private fun getContentEntity(entityType: XType?): Entity? {
@@ -155,8 +169,10 @@ class FtsTableEntityProcessor internal constructor(
         }
         val contentEntityElement = entityType.asTypeElement()
         if (!contentEntityElement.hasAnnotation(androidx.room.Entity::class)) {
-            context.logger.e(contentEntityElement,
-                    ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString()))
+            context.logger.e(
+                contentEntityElement,
+                ProcessorErrors.externalContentNotAnEntity(contentEntityElement.toString())
+            )
             return null
         }
         return EntityProcessor(context, contentEntityElement, referenceStack).process()
@@ -168,24 +184,30 @@ class FtsTableEntityProcessor internal constructor(
     ): PrimaryKey {
         val keysFromEntityAnnotation =
             entityAnnotation?.value?.primaryKeys?.mapNotNull { pkColumnName ->
-                        val field = fields.firstOrNull { it.columnName == pkColumnName }
-                        context.checker.check(field != null, element,
-                                ProcessorErrors.primaryKeyColumnDoesNotExist(pkColumnName,
-                                        fields.map { it.columnName }))
-                        field?.let { pkField ->
-                            PrimaryKey(
-                                    declaredIn = pkField.element.enclosingTypeElement,
-                                    fields = Fields(pkField),
-                                    autoGenerateId = true)
-                        }
-                    } ?: emptyList()
+                val field = fields.firstOrNull { it.columnName == pkColumnName }
+                context.checker.check(
+                    field != null, element,
+                    ProcessorErrors.primaryKeyColumnDoesNotExist(
+                        pkColumnName,
+                        fields.map { it.columnName }
+                    )
+                )
+                field?.let { pkField ->
+                    PrimaryKey(
+                        declaredIn = pkField.element.enclosingTypeElement,
+                        fields = Fields(pkField),
+                        autoGenerateId = true
+                    )
+                }
+            } ?: emptyList()
 
         val keysFromPrimaryKeyAnnotations = fields.mapNotNull { field ->
             if (field.element.hasAnnotation(androidx.room.PrimaryKey::class)) {
                 PrimaryKey(
-                        declaredIn = field.element.enclosingTypeElement,
-                        fields = Fields(field),
-                        autoGenerateId = true)
+                    declaredIn = field.element.enclosingTypeElement,
+                    fields = Fields(field),
+                    autoGenerateId = true
+                )
             } else {
                 null
             }
@@ -193,20 +215,28 @@ class FtsTableEntityProcessor internal constructor(
         val primaryKeys = keysFromEntityAnnotation + keysFromPrimaryKeyAnnotations
         if (primaryKeys.isEmpty()) {
             fields.firstOrNull { it.columnName == "rowid" }?.let {
-                context.checker.check(it.element.hasAnnotation(androidx.room.PrimaryKey::class),
-                        it.element, ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID)
+                context.checker.check(
+                    it.element.hasAnnotation(androidx.room.PrimaryKey::class),
+                    it.element, ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID
+                )
             }
             return PrimaryKey.MISSING
         }
-        context.checker.check(primaryKeys.size == 1, element,
-                ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
+        context.checker.check(
+            primaryKeys.size == 1, element,
+            ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY
+        )
         val primaryKey = primaryKeys.first()
-        context.checker.check(primaryKey.columnNames.first() == "rowid",
-                primaryKey.declaredIn ?: element,
-                ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME)
-        context.checker.check(primaryKey.fields.first().affinity == SQLTypeAffinity.INTEGER,
-                primaryKey.declaredIn ?: element,
-                ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY)
+        context.checker.check(
+            primaryKey.columnNames.first() == "rowid",
+            primaryKey.declaredIn ?: element,
+            ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME
+        )
+        context.checker.check(
+            primaryKey.fields.first().affinity == SQLTypeAffinity.INTEGER,
+            primaryKey.declaredIn ?: element,
+            ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY
+        )
         return primaryKey
     }
 
@@ -220,10 +250,13 @@ class FtsTableEntityProcessor internal constructor(
         ftsEntity.nonHiddenFields.filterNot {
             contentEntity.fields.any { contentField -> contentField.columnName == it.columnName }
         }.forEach {
-            context.logger.e(it.element, ProcessorErrors.missingFtsContentField(
-                element.qualifiedName, it.columnName,
-                contentEntity.element.qualifiedName
-            ))
+            context.logger.e(
+                it.element,
+                ProcessorErrors.missingFtsContentField(
+                    element.qualifiedName, it.columnName,
+                    contentEntity.element.qualifiedName
+                )
+            )
         }
     }
 
@@ -241,8 +274,10 @@ class FtsTableEntityProcessor internal constructor(
             return LanguageId.MISSING
         }
 
-        context.checker.check(languageIdField.affinity == SQLTypeAffinity.INTEGER,
-                languageIdField.element, ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY)
+        context.checker.check(
+            languageIdField.affinity == SQLTypeAffinity.INTEGER,
+            languageIdField.element, ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY
+        )
         return LanguageId(languageIdField.element, languageIdField)
     }
 }

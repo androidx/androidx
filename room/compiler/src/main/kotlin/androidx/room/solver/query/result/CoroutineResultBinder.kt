@@ -60,7 +60,8 @@ class CoroutineResultBinder(
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
-                cancellationSignalVar = "null")
+                cancellationSignalVar = "null"
+            )
         }.build()
 
         scope.builder().apply {
@@ -71,7 +72,8 @@ class CoroutineResultBinder(
                 if (inTransaction) "true" else "false",
                 cancellationSignalVar,
                 callableImpl,
-                continuationParamName)
+                continuationParamName
+            )
         }
     }
 

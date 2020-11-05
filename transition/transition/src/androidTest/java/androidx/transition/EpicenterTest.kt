@@ -89,11 +89,14 @@ class EpicenterTest : BaseTest() {
     private fun setupTestView(): View {
         val view = View(rule.activity)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            rule.activity.root.addView(view, FrameLayout.LayoutParams(100, 100)
-                .apply {
-                    leftMargin = 50
-                    topMargin = 50
-                })
+            rule.activity.root.addView(
+                view,
+                FrameLayout.LayoutParams(100, 100)
+                    .apply {
+                        leftMargin = 50
+                        topMargin = 50
+                    }
+            )
             view.left = 50
             view.top = 50
             view.right = 150

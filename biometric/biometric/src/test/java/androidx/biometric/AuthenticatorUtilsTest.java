@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.biometric.BiometricManager.Authenticators;
-import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +31,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import javax.crypto.Cipher;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class AuthenticatorUtilsTest {

@@ -35,8 +35,14 @@ class NavDeepLinkActionTest {
         val deepLink = NavDeepLink(DEEP_LINK_EXACT_HTTPS, DEEP_LINK_ACTION, null)
 
         assertWithMessage("The actions should not have matched")
-            .that(deepLink.matches(NavDeepLinkRequest(Uri.parse(DEEP_LINK_EXACT_HTTPS),
-                null, null)))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        Uri.parse(DEEP_LINK_EXACT_HTTPS),
+                        null, null
+                    )
+                )
+            )
             .isFalse()
     }
 
@@ -45,8 +51,14 @@ class NavDeepLinkActionTest {
         val deepLink = NavDeepLink(DEEP_LINK_EXACT_HTTPS, DEEP_LINK_ACTION, null)
 
         assertWithMessage("The actions should have matched")
-            .that(deepLink.matches(NavDeepLinkRequest(Uri.parse(DEEP_LINK_EXACT_HTTPS),
-                DEEP_LINK_ACTION, null)))
+            .that(
+                deepLink.matches(
+                    NavDeepLinkRequest(
+                        Uri.parse(DEEP_LINK_EXACT_HTTPS),
+                        DEEP_LINK_ACTION, null
+                    )
+                )
+            )
             .isTrue()
     }
 

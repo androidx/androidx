@@ -42,7 +42,7 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
     open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
     override fun matches(declared: XDeclaredType): Boolean =
-            declared.typeArguments.size == 1 && matchesRxType(declared)
+        declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XDeclaredType): Boolean {
         return declared.rawType.typeName == rxType.className
@@ -85,7 +85,7 @@ private class RxCompletableInsertMethodBinderProvider(
      * Like this, the generated Callable.call method will return Void.
      */
     override fun extractTypeArg(declared: XDeclaredType): XType =
-            context.COMMON_TYPES.VOID
+        context.COMMON_TYPES.VOID
 
     override fun matches(declared: XDeclaredType): Boolean = isCompletable(declared)
 

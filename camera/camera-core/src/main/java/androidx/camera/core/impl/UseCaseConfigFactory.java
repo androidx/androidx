@@ -27,6 +27,29 @@ import androidx.camera.core.InitializationException;
  */
 public interface UseCaseConfigFactory {
 
+    enum CaptureType {
+        /**
+         * Capture type for still image capture. A still capture which can be a single or
+         * multiple frames which are combined into a single image.
+         */
+        IMAGE_CAPTURE,
+
+        /**
+         * Capture type for preview. A use case of this type is consuming a stream of frames.
+         */
+        PREVIEW,
+
+        /**
+         * Capture type for image analysis. A use case of this type is consuming a stream of frames.
+         */
+        IMAGE_ANALYSIS,
+
+        /**
+         * Capture type for video capture. A use case of this type is consuming a stream of frames.
+         */
+        VIDEO_CAPTURE
+    }
+
     /**
      * Interface for deferring creation of a UseCaseConfigFactory.
      */
@@ -43,9 +66,9 @@ public interface UseCaseConfigFactory {
     }
 
     /**
-     * Returns the configuration for the given type, or <code>null</code> if the configuration
-     * cannot be produced.
+     * Returns the configuration for the given capture type, or <code>null</code> if the
+     * configuration cannot be produced.
      */
     @Nullable
-    <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType);
+    Config getConfig(@NonNull CaptureType captureType);
 }

@@ -28,7 +28,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * [onContextAvailable] will be called on the UI thread immediately when
  * the Context becomes available.
  */
-suspend inline fun <R> ContextAware.withContextAvailable(
+public suspend inline fun <R> ContextAware.withContextAvailable(
     crossinline onContextAvailable: (Context) -> R
 ): R {
     val availableContext = peekAvailableContext()

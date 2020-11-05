@@ -39,15 +39,20 @@ class MediaStoreEntitiesTest {
 
     @After
     fun deleteAllAdded() {
-        contentResolver.delete(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg"))
+        contentResolver.delete(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg")
+        )
     }
 
     @JvmField
     @Rule
     var storagePermissions =
-        GrantPermissionRule.grant(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission
-            .WRITE_EXTERNAL_STORAGE)!!
+        GrantPermissionRule.grant(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission
+                .WRITE_EXTERNAL_STORAGE
+        )!!
 
     @ContentAccessObject
     @Suppress("deprecation")

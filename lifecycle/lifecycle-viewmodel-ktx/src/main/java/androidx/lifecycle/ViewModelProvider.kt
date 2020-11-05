@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * @see ViewModelProvider.get(Class)
  */
 @MainThread
-inline fun <reified VM : ViewModel> ViewModelProvider.get() = get(VM::class.java)
+public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class.java)
 
 /**
  * An implementation of [Lazy] used by [androidx.fragment.app.Fragment.viewModels] and
@@ -38,7 +38,7 @@ inline fun <reified VM : ViewModel> ViewModelProvider.get() = get(VM::class.java
  * [factoryProducer] is a lambda that will be called during initialization,
  * returned [ViewModelProvider.Factory] will be used for creation of [VM]
  */
-class ViewModelLazy<VM : ViewModel> (
+public class ViewModelLazy<VM : ViewModel> (
     private val viewModelClass: KClass<VM>,
     private val storeProducer: () -> ViewModelStore,
     private val factoryProducer: () -> ViewModelProvider.Factory
@@ -59,5 +59,5 @@ class ViewModelLazy<VM : ViewModel> (
             }
         }
 
-    override fun isInitialized() = cached != null
+    override fun isInitialized(): Boolean = cached != null
 }

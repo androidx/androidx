@@ -37,7 +37,8 @@ class XElementTest {
         runProcessorTest(
             listOf(
                 Source.java(
-                    "foo.bar.Baz", """
+                    "foo.bar.Baz",
+                    """
                 package foo.bar;
                 public abstract class Baz {
                     private int privateField;
@@ -55,7 +56,7 @@ class XElementTest {
                     abstract void abstractMethod();
                     static void staticMethod() {}
                 }
-            """.trimIndent()
+                    """.trimIndent()
                 )
             )
         ) {
@@ -116,7 +117,8 @@ class XElementTest {
     @Test
     fun typeParams() {
         val genericBase = Source.java(
-            "foo.bar.Base", """
+            "foo.bar.Base",
+            """
                 package foo.bar;
                 public class Base<T> {
                     protected T returnT() {
@@ -135,7 +137,8 @@ class XElementTest {
             """.trimIndent()
         )
         val boundedChild = Source.java(
-            "foo.bar.Child", """
+            "foo.bar.Child",
+            """
                 package foo.bar;
                 public class Child extends Base<String> {
                 }
@@ -182,7 +185,8 @@ class XElementTest {
     @Test
     fun annotationAvailability() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             import org.junit.*;
             import org.junit.runner.*;
@@ -197,7 +201,7 @@ class XElementTest {
                 @org.junit.Test
                 void testMethod() {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             listOf(source)
@@ -239,11 +243,12 @@ class XElementTest {
     @Test
     fun nonType() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             class Baz {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             listOf(source)
@@ -257,7 +262,8 @@ class XElementTest {
     @Test
     fun isSomething() {
         val subject = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             class Baz {
                 int field;
@@ -265,7 +271,7 @@ class XElementTest {
                 void method() {}
                 static interface Inner {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(subject)
@@ -296,12 +302,13 @@ class XElementTest {
     @Test
     fun notATypeElement() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             class Baz {
                 public static int x;
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             listOf(source)
@@ -320,7 +327,8 @@ class XElementTest {
     @Test
     fun nullability() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
 
             import androidx.annotation.*;
@@ -333,7 +341,7 @@ class XElementTest {
                 @Nullable
                 public static List<String> nullableAnnotated;
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(source)

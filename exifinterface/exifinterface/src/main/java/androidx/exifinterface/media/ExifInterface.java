@@ -24,7 +24,6 @@ import android.location.Location;
 import android.media.MediaDataSource;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
-import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
@@ -33,7 +32,6 @@ import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.io.BufferedInputStream;
@@ -455,6 +453,10 @@ public class ExifInterface {
      *      <li>Length = 19</li>
      *      <li>Default = None</li>
      *  </ul>
+     *
+     *  <p>Note: The format "YYYY-MM-DD HH:MM:SS" is also supported for reading. For writing,
+     *  however, calling {@link #setAttribute(String, String)} with the "YYYY-MM-DD HH:MM:SS"
+     *  format will automatically convert it to the primary format, "YYYY:MM:DD HH:MM:SS".
      */
     public static final String TAG_DATETIME = "DateTime";
     /**
@@ -746,6 +748,10 @@ public class ExifInterface {
      *      <li>Length = 19</li>
      *      <li>Default = None</li>
      *  </ul>
+     *
+     *  <p>Note: The format "YYYY-MM-DD HH:MM:SS" is also supported for reading. For writing,
+     *  however, calling {@link #setAttribute(String, String)} with the "YYYY-MM-DD HH:MM:SS"
+     *  format will automatically convert it to the primary format, "YYYY:MM:DD HH:MM:SS".
      */
     public static final String TAG_DATETIME_ORIGINAL = "DateTimeOriginal";
     /**
@@ -764,6 +770,10 @@ public class ExifInterface {
      *      <li>Length = 19</li>
      *      <li>Default = None</li>
      *  </ul>
+     *
+     *  <p>Note: The format "YYYY-MM-DD HH:MM:SS" is also supported for reading. For writing,
+     *  however, calling {@link #setAttribute(String, String)} with the "YYYY-MM-DD HH:MM:SS"
+     *  format will automatically convert it to the primary format, "YYYY:MM:DD HH:MM:SS".
      */
     public static final String TAG_DATETIME_DIGITIZED = "DateTimeDigitized";
     /**
@@ -3000,7 +3010,8 @@ public class ExifInterface {
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
 
-    private static SimpleDateFormat sFormatter;
+    private static SimpleDateFormat sFormatterPrimary;
+    private static SimpleDateFormat sFormatterSecondary;
 
     // See Exchangeable image file format for digital still cameras: Exif version 2.2.
     // The following values are for parsing EXIF data area. There are tag groups in EXIF data area.
@@ -3623,13 +3634,15 @@ public class ExifInterface {
             new ExifTag(TAG_DEFAULT_CROP_SIZE, 50720, IFD_FORMAT_USHORT, IFD_FORMAT_ULONG)
     };
 
-    // Primary image IFD GPS Info tags (See JEITA CP-3451C Section 4.6.8 Tag Support Levels)
+    // Primary image IFD GPS Info tags (See JEITA CP-3451C Section 4.6.6 Tag Support Levels)
     private static final ExifTag[] IFD_GPS_TAGS = new ExifTag[] {
             new ExifTag(TAG_GPS_VERSION_ID, 0, IFD_FORMAT_BYTE),
             new ExifTag(TAG_GPS_LATITUDE_REF, 1, IFD_FORMAT_STRING),
-            new ExifTag(TAG_GPS_LATITUDE, 2, IFD_FORMAT_URATIONAL),
+            // Allow SRATIONAL to be compatible with apps using wrong format and
+            // even if it is negative, it may be valid latitude / longitude.
+            new ExifTag(TAG_GPS_LATITUDE, 2, IFD_FORMAT_URATIONAL, IFD_FORMAT_SRATIONAL),
             new ExifTag(TAG_GPS_LONGITUDE_REF, 3, IFD_FORMAT_STRING),
-            new ExifTag(TAG_GPS_LONGITUDE, 4, IFD_FORMAT_URATIONAL),
+            new ExifTag(TAG_GPS_LONGITUDE, 4, IFD_FORMAT_URATIONAL, IFD_FORMAT_SRATIONAL),
             new ExifTag(TAG_GPS_ALTITUDE_REF, 5, IFD_FORMAT_BYTE),
             new ExifTag(TAG_GPS_ALTITUDE, 6, IFD_FORMAT_URATIONAL),
             new ExifTag(TAG_GPS_TIMESTAMP, 7, IFD_FORMAT_URATIONAL),
@@ -3839,8 +3852,10 @@ public class ExifInterface {
     private static final int IMAGE_TYPE_WEBP = 14;
 
     static {
-        sFormatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
-        sFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sFormatterPrimary = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
+        sFormatterPrimary.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sFormatterSecondary = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        sFormatterSecondary.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Build up the hash tables to look up Exif tags for reading Exif tags.
         for (int ifdType = 0; ifdType < EXIF_TAGS.length; ++ifdType) {
@@ -3889,10 +3904,17 @@ public class ExifInterface {
     private boolean mXmpIsFromSeparateMarker;
 
     // Pattern to check non zero timestamp
-    private static final Pattern sNonZeroTimePattern = Pattern.compile(".*[1-9].*");
+    private static final Pattern NON_ZERO_TIME_PATTERN = Pattern.compile(".*[1-9].*");
     // Pattern to check gps timestamp
-    private static final Pattern sGpsTimestampPattern =
-            Pattern.compile("^([0-9][0-9]):([0-9][0-9]):([0-9][0-9])$");
+    private static final Pattern GPS_TIMESTAMP_PATTERN =
+            Pattern.compile("^(\\d{2}):(\\d{2}):(\\d{2})$");
+    // Pattern to check date time primary format (e.g. 2020:01:01 00:00:00)
+    private static final Pattern DATETIME_PRIMARY_FORMAT_PATTERN =
+            Pattern.compile("^(\\d{4}):(\\d{2}):(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})$");
+    // Pattern to check date time secondary format (e.g. 2020-01-01 00:00:00)
+    private static final Pattern DATETIME_SECONDARY_FORMAT_PATTERN =
+            Pattern.compile("^(\\d{4})-(\\d{2})-(\\d{2})\\s(\\d{2}):(\\d{2}):(\\d{2})$");
+    private static final int DATETIME_VALUE_STRING_LENGTH = 19;
 
     /**
      * Reads Exif tags from the specified image file.
@@ -3947,8 +3969,12 @@ public class ExifInterface {
             // Keep the original file descriptor in order to save attributes when it's seekable.
             // Otherwise, just close the given file descriptor after reading it because the save
             // feature won't be working.
-            fileDescriptor = OsApi21Impl.dup(fileDescriptor);
-            isFdDuped = true;
+            try {
+                fileDescriptor = Os.dup(fileDescriptor);
+                isFdDuped = true;
+            } catch (Exception e) {
+                throw new IOException("Failed to duplicate file descriptor", e);
+            }
         } else {
             mSeekableFileDescriptor = null;
         }
@@ -4187,6 +4213,28 @@ public class ExifInterface {
         if (tag == null) {
             throw new NullPointerException("tag shouldn't be null");
         }
+        // Validate and convert if necessary.
+        if (TAG_DATETIME.equals(tag) || TAG_DATETIME_ORIGINAL.equals(tag)
+                || TAG_DATETIME_DIGITIZED.equals(tag)) {
+            if (value != null) {
+                boolean isPrimaryFormat = DATETIME_PRIMARY_FORMAT_PATTERN.matcher(value).find();
+                boolean isSecondaryFormat = DATETIME_SECONDARY_FORMAT_PATTERN.matcher(value).find();
+                // Validate
+                if (value.length() != DATETIME_VALUE_STRING_LENGTH
+                        || (!isPrimaryFormat && !isSecondaryFormat)) {
+                    Log.w(TAG, "Invalid value for " + tag + " : " + value);
+                    return;
+                }
+                // If datetime value has secondary format (e.g. 2020-01-01 00:00:00), convert it to
+                // primary format (e.g. 2020:01:01 00:00:00) since it is the format in the
+                // official documentation.
+                // See JEITA CP-3451C Section 4.6.4. D. Other Tags, DateTime
+                if (isSecondaryFormat) {
+                    // Replace "-" with ":" to match the primary format.
+                    value = value.replaceAll("-", ":");
+                }
+            }
+        }
         // Maintain compatibility.
         if (TAG_ISO_SPEED_RATINGS.equals(tag)) {
             if (DEBUG) {
@@ -4198,7 +4246,7 @@ public class ExifInterface {
         // Convert the given value to rational values for backwards compatibility.
         if (value != null && sTagSetForCompatibility.contains(tag)) {
             if (tag.equals(TAG_GPS_TIMESTAMP)) {
-                Matcher m = sGpsTimestampPattern.matcher(value);
+                Matcher m = GPS_TIMESTAMP_PATTERN.matcher(value);
                 if (!m.find()) {
                     Log.w(TAG, "Invalid value for " + tag + " : " + value);
                     return;
@@ -4604,7 +4652,7 @@ public class ExifInterface {
     private static boolean isSeekableFD(FileDescriptor fd) {
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                OsApi21Impl.lseek(fd, 0, OsConstants.SEEK_CUR);
+                Os.lseek(fd, 0, OsConstants.SEEK_CUR);
                 return true;
             } catch (Exception e) {
                 if (DEBUG) {
@@ -4670,9 +4718,13 @@ public class ExifInterface {
             tempFile = File.createTempFile("temp", "tmp");
             if (mFilename != null) {
                 in = new FileInputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
-                in = new FileInputStream(mSeekableFileDescriptor);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                    in = new FileInputStream(mSeekableFileDescriptor);
+                }
             }
             out = new FileOutputStream(tempFile);
             copy(in, out);
@@ -4687,14 +4739,19 @@ public class ExifInterface {
         out = null;
         BufferedInputStream bufferedIn = null;
         BufferedOutputStream bufferedOut = null;
+        boolean shouldKeepTempFile = false;
         try {
             // Save the new file.
             in = new FileInputStream(tempFile);
             if (mFilename != null) {
                 out = new FileOutputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
-                out = new FileOutputStream(mSeekableFileDescriptor);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                    out = new FileOutputStream(mSeekableFileDescriptor);
+                }
             }
             bufferedIn = new BufferedInputStream(in);
             bufferedOut = new BufferedOutputStream(out);
@@ -4706,31 +4763,35 @@ public class ExifInterface {
                 saveWebpAttributes(bufferedIn, bufferedOut);
             }
         } catch (Exception e) {
-            // Restore original file
-            closeQuietly(bufferedIn);
-            closeQuietly(bufferedOut);
-            in = new FileInputStream(tempFile);
-            if (mFilename != null) {
-                out = new FileOutputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                try {
-                    OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
-                    // Catching ErrnoException will raise error in API < 21
-                } catch (Exception exception) {
-                    throw new IOException("Failed to save new file. Original file may be "
-                            + "corrupted since error occurred while trying to restore it.",
-                            exception);
+            try {
+                // Restore original file
+                in = new FileInputStream(tempFile);
+                if (mFilename != null) {
+                    out = new FileOutputStream(mFilename);
+                } else {
+                    // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this
+                    // check is needed to prevent calling Os.lseek at runtime for SDK < 21.
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                        out = new FileOutputStream(mSeekableFileDescriptor);
+                    }
                 }
-                out = new FileOutputStream(mSeekableFileDescriptor);
+                copy(in, out);
+            } catch (Exception exception) {
+                shouldKeepTempFile = true;
+                throw new IOException("Failed to save new file. Original file is stored in "
+                        + tempFile.getAbsolutePath(), exception);
+            } finally {
+                closeQuietly(in);
+                closeQuietly(out);
             }
-            copy(in, out);
-            closeQuietly(in);
-            closeQuietly(out);
             throw new IOException("Failed to save new file", e);
         } finally {
             closeQuietly(bufferedIn);
             closeQuietly(bufferedOut);
-            tempFile.delete();
+            if (!shouldKeepTempFile) {
+                tempFile.delete();
+            }
         }
 
         // Discard the thumbnail in memory
@@ -4794,10 +4855,14 @@ public class ExifInterface {
                 }
             } else if (mFilename != null) {
                 in = new FileInputStream(mFilename);
-            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                newFileDescriptor = OsApi21Impl.dup(mSeekableFileDescriptor);
-                OsApi21Impl.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
-                in = new FileInputStream(newFileDescriptor);
+            } else {
+                // mSeekableFileDescriptor will be non-null only for SDK_INT >= 21, but this check
+                // is needed to prevent calling Os.lseek and Os.dup at runtime for SDK < 21.
+                if (Build.VERSION.SDK_INT >= 21) {
+                    newFileDescriptor = Os.dup(mSeekableFileDescriptor);
+                    Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
+                    in = new FileInputStream(newFileDescriptor);
+                }
             }
             if (in == null) {
                 // Should not be reached this.
@@ -5016,7 +5081,8 @@ public class ExifInterface {
         setAttribute(TAG_GPS_SPEED_REF, "K");
         setAttribute(TAG_GPS_SPEED, new Rational(location.getSpeed()
                 * TimeUnit.HOURS.toSeconds(1) / 1000).toString());
-        String[] dateTime = sFormatter.format(new Date(location.getTime())).split("\\s+", -1);
+        String[] dateTime = sFormatterPrimary.format(
+                new Date(location.getTime())).split("\\s+", -1);
         setAttribute(ExifInterface.TAG_GPS_DATESTAMP, dateTime[0]);
         setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, dateTime[1]);
     }
@@ -5079,7 +5145,7 @@ public class ExifInterface {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setDateTime(@NonNull Long timeStamp) {
         long sub = timeStamp % 1000;
-        setAttribute(TAG_DATETIME, sFormatter.format(new Date(timeStamp)));
+        setAttribute(TAG_DATETIME, sFormatterPrimary.format(new Date(timeStamp)));
         setAttribute(TAG_SUBSEC_TIME, Long.toString(sub));
     }
 
@@ -5130,16 +5196,22 @@ public class ExifInterface {
 
     private static Long parseDateTime(@Nullable String dateTimeString, @Nullable String subSecs,
             @Nullable String offsetString) {
-        if (dateTimeString == null
-                || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return null;
+        if (dateTimeString == null || !NON_ZERO_TIME_PATTERN.matcher(dateTimeString).matches()) {
+            return null;
+        }
 
         ParsePosition pos = new ParsePosition(0);
         try {
             // The exif field is in local time. Parsing it as if it is UTC will yield time
             // since 1/1/1970 local time
-            Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return null;
-            long msecs = datetime.getTime();
+            Date dateTime = sFormatterPrimary.parse(dateTimeString, pos);
+            if (dateTime == null) {
+                dateTime = sFormatterSecondary.parse(dateTimeString, pos);
+                if (dateTime == null) {
+                    return null;
+                }
+            }
+            long msecs = dateTime.getTime();
             if (offsetString != null) {
                 String sign = offsetString.substring(0, 1);
                 int hour = Integer.parseInt(offsetString.substring(1, 3));
@@ -5178,8 +5250,8 @@ public class ExifInterface {
         String date = getAttribute(TAG_GPS_DATESTAMP);
         String time = getAttribute(TAG_GPS_TIMESTAMP);
         if (date == null || time == null
-                || (!sNonZeroTimePattern.matcher(date).matches()
-                && !sNonZeroTimePattern.matcher(time).matches())) {
+                || (!NON_ZERO_TIME_PATTERN.matcher(date).matches()
+                && !NON_ZERO_TIME_PATTERN.matcher(time).matches())) {
             return null;
         }
 
@@ -5187,9 +5259,14 @@ public class ExifInterface {
 
         ParsePosition pos = new ParsePosition(0);
         try {
-            Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return null;
-            return datetime.getTime();
+            Date dateTime = sFormatterPrimary.parse(dateTimeString, pos);
+            if (dateTime == null) {
+                dateTime = sFormatterSecondary.parse(dateTimeString, pos);
+                if (dateTime == null) {
+                    return null;
+                }
+            }
+            return dateTime.getTime();
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -7986,7 +8063,12 @@ public class ExifInterface {
         // Os.dup and Os.close was introduced in API 21 so this method shouldn't be called
         // in API < 21.
         if (Build.VERSION.SDK_INT >= 21) {
-            OsApi21Impl.close(fd);
+            try {
+                Os.close(fd);
+                // Catching ErrnoException will raise error in API < 21
+            } catch (Exception ex) {
+                Log.e(TAG, "Error closing fd.");
+            }
         } else {
             Log.e(TAG, "closeFileDescriptor is called in API < 21, which must be wrong.");
         }
@@ -8073,40 +8155,5 @@ public class ExifInterface {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
-     */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private static class OsApi21Impl {
-        // Prevent instantiation.
-        private OsApi21Impl() {}
-
-        static FileDescriptor dup(FileDescriptor fd) throws IOException {
-            FileDescriptor duplicateFD = null;
-            try {
-                duplicateFD = Os.dup(fd);
-            } catch (ErrnoException e) {
-                throw new IOException("Failed to duplicate file descriptor", e);
-            }
-            return duplicateFD;
-        }
-
-        static void close(FileDescriptor fd) {
-            try {
-                Os.close(fd);
-            } catch (ErrnoException ex) {
-                Log.e(TAG, "Error closing fd.");
-            }
-        }
-
-        static void lseek(FileDescriptor fd, int offset, int osConstant) throws IOException {
-            try {
-                Os.lseek(fd, offset, osConstant);
-            } catch (ErrnoException e) {
-                throw new IOException("Failed to seek file descriptor", e);
-            }
-        }
     }
 }

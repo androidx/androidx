@@ -69,7 +69,9 @@ class NavControllerSubject private constructor(
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
         val factory = Factory<NavControllerSubject, NavController> {
-                metadata, actual -> NavControllerSubject(metadata, actual) }
+            metadata, actual ->
+            NavControllerSubject(metadata, actual)
+        }
 
         @JvmStatic
         fun assertThat(actual: NavController): NavControllerSubject {

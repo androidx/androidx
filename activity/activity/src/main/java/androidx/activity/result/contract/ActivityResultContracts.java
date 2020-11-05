@@ -348,7 +348,7 @@ public final class ActivityResultContracts {
 
     /**
      * An {@link ActivityResultContract} to
-     * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
+     * {@link MediaStore#ACTION_VIDEO_CAPTURE take a video} saving it into the provided
      * content-{@link Uri}.
      * <p>
      * Returns a thumbnail.

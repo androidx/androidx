@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
     final override val pagingSource: PagingSource<K, V>,
-    internal val coroutineScope: CoroutineScope,
-    internal val notifyDispatcher: CoroutineDispatcher,
+    coroutineScope: CoroutineScope,
+    notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     internal val boundaryCallback: BoundaryCallback<V>?,
     config: Config,
@@ -45,9 +45,13 @@ open class ContiguousPagedList<K : Any, V : Any>(
     private val initialLastKey: K?
 ) : PagedList<V>(
     pagingSource,
+    coroutineScope,
+    notifyDispatcher,
     PagedStorage<V>(),
-    config
-), PagedStorage.Callback, LegacyPageFetcher.PageConsumer<V> {
+    config,
+),
+    PagedStorage.Callback,
+    LegacyPageFetcher.PageConsumer<V> {
     internal companion object {
         internal fun getPrependItemsRequested(
             prefetchDistance: Int,
@@ -184,8 +188,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         return continueLoading
     }
 
-    override fun onStateChanged(type: LoadType, state: LoadState) =
-        dispatchStateChange(type, state)
+    override fun onStateChanged(type: LoadType, state: LoadState) {
+        dispatchStateChangeAsync(type, state)
+    }
 
     private fun triggerBoundaryCallback(type: LoadType, page: List<V>) {
         if (boundaryCallback != null) {
@@ -251,9 +256,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
      */
     private fun tryDispatchBoundaryCallbacks(post: Boolean) {
         val dispatchBegin = boundaryCallbackBeginDeferred &&
-                lowestIndexAccessed <= config.prefetchDistance
+            lowestIndexAccessed <= config.prefetchDistance
         val dispatchEnd = boundaryCallbackEndDeferred &&
-                highestIndexAccessed >= size - 1 - config.prefetchDistance
+            highestIndexAccessed >= size - 1 - config.prefetchDistance
 
         if (!dispatchBegin && !dispatchEnd) return
 
@@ -304,7 +309,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 this,
                 initialPage.itemsBefore != COUNT_UNDEFINED &&
-                        initialPage.itemsAfter != COUNT_UNDEFINED
+                    initialPage.itemsAfter != COUNT_UNDEFINED
             )
         } else {
             // If placeholder are disabled, avoid passing leading/trailing nulls, since PagingSource
@@ -374,7 +379,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         // we drop a page. Note that we don't use config.enablePlaceholders, since the
         // PagingSource may have opted not to load any.
         replacePagesWithNulls = storage.placeholdersBefore > 0 ||
-                storage.placeholdersAfter > 0
+            storage.placeholdersAfter > 0
     }
 
     @MainThread

@@ -112,19 +112,23 @@ public class DeviceUtilsTest {
 
     @Test
     public void testCanAssumeStrongBiometrics() {
-        final String[] modelPrefixes = {"foo", "bar"};
+        final String[] modelNames = {"S", "flame", "My phone"};
         when(mContext.getResources()).thenReturn(mResources);
-        when(mResources.getStringArray(R.array.assume_strong_biometrics_prefixes))
-                .thenReturn(modelPrefixes);
+        when(mResources.getStringArray(R.array.assume_strong_biometrics_models))
+                .thenReturn(modelNames);
 
         final boolean isPreApi30 = Build.VERSION.SDK_INT < Build.VERSION_CODES.R;
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "foo")).isEqualTo(isPreApi30);
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bar")).isEqualTo(isPreApi30);
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "foobar")).isEqualTo(isPreApi30);
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bar123")).isEqualTo(isPreApi30);
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "baz")).isFalse();
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "abcxyz")).isFalse();
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "bazfoo")).isFalse();
-        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "FooBar")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "S")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "flame")).isEqualTo(isPreApi30);
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "My phone"))
+                .isEqualTo(isPreApi30);
+
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "s")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "Y")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "Flame")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "coral")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "My Phone")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "Myphone")).isFalse();
+        assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "My phone2")).isFalse();
     }
 }

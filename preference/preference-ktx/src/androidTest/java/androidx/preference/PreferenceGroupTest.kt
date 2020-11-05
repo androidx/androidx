@@ -45,7 +45,7 @@ class PreferenceGroupTest {
     @UiThreadTest
     fun setup() {
         preferenceGroup =
-                rule.activity.setupPreferenceHierarchy(R.xml.test_preferencegroup).preferenceScreen
+            rule.activity.setupPreferenceHierarchy(R.xml.test_preferencegroup).preferenceScreen
     }
 
     @UiThreadTest

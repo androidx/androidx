@@ -55,6 +55,11 @@ public class OpenGLActivity extends AppCompatActivity {
     private static final String TAG = "OpenGLActivity";
 
     /**
+     * Intent Extra string for choosing which Camera implementation to use.
+     */
+    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+
+    /**
      * Intent Extra string for choosing which type of render surface to use to display Preview.
      */
     public static final String INTENT_EXTRA_RENDER_SURFACE_TYPE = "render_surface_type";
@@ -136,6 +141,14 @@ public class OpenGLActivity extends AppCompatActivity {
         DisplayManager dpyMgr =
                 Objects.requireNonNull((DisplayManager) getSystemService(Context.DISPLAY_SERVICE));
         dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
+
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            if (cameraImplementation != null) {
+                CameraXViewModel.configureCameraProvider(cameraImplementation);
+            }
+        }
 
         CameraXViewModel viewModel = new ViewModelProvider(this).get(CameraXViewModel.class);
         viewModel

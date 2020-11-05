@@ -16,15 +16,15 @@
 
 package androidx.room.compiler.processing.ksp
 
-import org.jetbrains.kotlin.ksp.symbol.KSAnnotation
-import org.jetbrains.kotlin.ksp.symbol.KSReferenceElement
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
-import org.jetbrains.kotlin.ksp.symbol.KSVisitor
-import org.jetbrains.kotlin.ksp.symbol.Location
-import org.jetbrains.kotlin.ksp.symbol.Modifier
-import org.jetbrains.kotlin.ksp.symbol.NonExistLocation
-import org.jetbrains.kotlin.ksp.symbol.Origin
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSReferenceElement
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSVisitor
+import com.google.devtools.ksp.symbol.Location
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.NonExistLocation
+import com.google.devtools.ksp.symbol.Origin
 
 /**
  * Creates a new TypeReference from [this] where the resolved type [replacement] but everything
@@ -48,7 +48,7 @@ private class DelegatingTypeReference(
     val original: KSTypeReference,
     val resolved: KSType
 ) : KSTypeReference by original {
-    override fun resolve(): KSType? = resolved
+    override fun resolve() = resolved
 }
 
 private class NoLocationTypeReference(

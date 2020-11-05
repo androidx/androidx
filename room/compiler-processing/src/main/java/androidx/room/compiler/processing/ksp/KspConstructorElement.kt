@@ -17,7 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorElement
-import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal class KspConstructorElement(
     env: KspProcessingEnv,
@@ -27,4 +27,5 @@ internal class KspConstructorElement(
     env = env,
     containing = containing,
     declaration = declaration
-), XConstructorElement
+),
+    XConstructorElement

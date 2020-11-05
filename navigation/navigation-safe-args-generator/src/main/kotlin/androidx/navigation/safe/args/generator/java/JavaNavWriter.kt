@@ -98,7 +98,8 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                     val actionTypeName = ClassName.get(
                         className.packageName(),
                         className.simpleName(),
-                        actionType.name)
+                        actionType.name
+                    )
                     MethodSpec.methodBuilder(methodName)
                         .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -117,8 +118,8 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             val parentTypeSpec = it.wrapped.typeSpec
             parentTypeSpec.methodSpecs.filter { method ->
                 method.hasModifier(Modifier.STATIC) &&
-                        getters.none { it.name == method.name } && // de-dupe local actions
-                        parentGetters.none { it.name == method.name } // de-dupe parent actions
+                    getters.none { it.name == method.name } && // de-dupe local actions
+                    parentGetters.none { it.name == method.name } // de-dupe parent actions
             }.forEach { actionMethod ->
                 val params = actionMethod.parameters.joinToString(", ") { param -> param.name }
                 val methodSpec = MethodSpec.methodBuilder(actionMethod.name)
@@ -126,8 +127,10 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                     .addModifiers(actionMethod.modifiers)
                     .addParameters(actionMethod.parameters)
                     .returns(actionMethod.returnType)
-                    .addStatement("return $T.$L($params)",
-                        ClassName.get(parentPackageName, parentTypeSpec.name), actionMethod.name)
+                    .addStatement(
+                        "return $T.$L($params)",
+                        ClassName.get(parentPackageName, parentTypeSpec.name), actionMethod.name
+                    )
                     .build()
                 parentGetters.add(methodSpec)
             }
@@ -135,9 +138,11 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 
         return TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC)
-            .addTypes(actionTypes
-                .filter { (action, _) -> action.args.isNotEmpty() }
-                .map { (_, actionType) -> actionType })
+            .addTypes(
+                actionTypes
+                    .filter { (action, _) -> action.args.isNotEmpty() }
+                    .map { (_, actionType) -> actionType }
+            )
             .addMethod(constructor)
             .addMethods(getters + parentGetters)
             .build()
@@ -224,9 +229,11 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                 }
                 if (arg.defaultValue == null) {
                     nextControlFlow("else")
-                    addStatement("throw new $T($S)", IllegalArgumentException::class.java,
+                    addStatement(
+                        "throw new $T($S)", IllegalArgumentException::class.java,
                         "Required argument \"${arg.name}\" is missing and does " +
-                                "not have an android:defaultValue")
+                            "not have an android:defaultValue"
+                    )
                 } else {
                     nextControlFlow("else")
                     addStatement(
@@ -388,11 +395,11 @@ private class ClassWithArgsSpecs(
 
     fun copyMapContents(to: String, from: String) = CodeBlock.builder()
         .addStatement(
-        "$N.$N.putAll($N.$N)",
-        to,
-        hashMapFieldSpec.name,
-        from,
-        hashMapFieldSpec.name
+            "$N.$N.putAll($N.$N)",
+            to,
+            hashMapFieldSpec.name,
+            from,
+            hashMapFieldSpec.name
         ).build()
 
     fun getters() = args.map { arg ->
@@ -423,7 +430,8 @@ private class ClassWithArgsSpecs(
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
         addParameter(TypeName.OBJECT, "object")
-        addCode("""
+        addCode(
+            """
                 if (this == object) {
                     return true;
                 }
@@ -431,7 +439,8 @@ private class ClassWithArgsSpecs(
                     return false;
                 }
 
-                """.trimIndent())
+            """.trimIndent()
+        )
         addStatement("$T that = ($T) object", className, className)
         args.forEach { (name, type, _, _, sanitizedName) ->
             beginControlFlow(
@@ -506,19 +515,21 @@ private class ClassWithArgsSpecs(
     ) = MethodSpec.methodBuilder("toString").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
-        addCode(CodeBlock.builder().apply {
-            if (toStringHeaderBlock != null) {
-                add("${BEGIN_STMT}return $L", toStringHeaderBlock)
-            } else {
-                add("${BEGIN_STMT}return $S", "${className.simpleName()}{")
-            }
-            args.forEachIndexed { index, (_, _, _, _, sanitizedName) ->
-                val getterName = getterFromArgName(sanitizedName, "()")
-                val prefix = if (index == 0) "" else ", "
-                add("\n+ $S + $L", "$prefix$sanitizedName=", getterName)
-            }
-            add("\n+ $S;\n$END_STMT", "}")
-        }.build())
+        addCode(
+            CodeBlock.builder().apply {
+                if (toStringHeaderBlock != null) {
+                    add("${BEGIN_STMT}return $L", toStringHeaderBlock)
+                } else {
+                    add("${BEGIN_STMT}return $S", "${className.simpleName()}{")
+                }
+                args.forEachIndexed { index, (_, _, _, _, sanitizedName) ->
+                    val getterName = getterFromArgName(sanitizedName, "()")
+                    val prefix = if (index == 0) "" else ", "
+                    add("\n+ $S + $L", "$prefix$sanitizedName=", getterName)
+                }
+                add("\n+ $S;\n$END_STMT", "}")
+            }.build()
+        )
         returns(ClassName.get(String::class.java))
     }.build()
 
@@ -543,7 +554,8 @@ internal fun MethodSpec.Builder.addNullCheck(
         beginControlFlow("if ($N == null)", variableName).apply {
             addStatement(
                 "throw new $T($S)", IllegalArgumentException::class.java,
-                "Argument \"${arg.name}\" is marked as non-null but was passed a null value.")
+                "Argument \"${arg.name}\" is marked as non-null but was passed a null value."
+            )
         }
         endControlFlow()
     }

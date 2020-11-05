@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -34,8 +33,7 @@ dependencies {
     compileOnly(projectOrArtifact(":inspection:inspection"))
     compileOnly(projectOrArtifact(':lifecycle:lifecycle-runtime'))
     compileOnly(project(':work:work-runtime'))
-    compileOnly(projectOrArtifact(':room:room-runtime'))
-
+    compileOnly("androidx.room:room-runtime:2.2.5")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation(project(':work:work-runtime'))
     androidTestImplementation(project(':work:work-runtime-ktx'))
@@ -48,10 +46,9 @@ dependencies {
 
 androidx {
     name = "Android WorkManager Inspector"
-    publish = Publish.NONE
+    type = LibraryType.IDE_PLUGIN
     mavenGroup = LibraryGroups.WORK
     inceptionYear = "2020"
-    toolingProject = true
     description = "The implementation of WorkManager Inspector."
 }
 

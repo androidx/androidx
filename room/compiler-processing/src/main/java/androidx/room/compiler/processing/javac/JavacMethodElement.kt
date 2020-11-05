@@ -37,7 +37,8 @@ internal class JavacMethodElement(
     env,
     containing,
     element
-), XMethodElement {
+),
+    XMethodElement {
     init {
         check(element.kind == ElementKind.METHOD) {
             "Method element is constructed with invalid type: $element"
@@ -57,7 +58,7 @@ internal class JavacMethodElement(
 
     override val executableType: JavacMethodType by lazy {
         val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
-        JavacMethodType(
+        JavacMethodType.create(
             env = env,
             element = this,
             executableType = MoreTypes.asExecutable(asMemberOf)
@@ -88,7 +89,7 @@ internal class JavacMethodElement(
         } else {
             check(other is JavacDeclaredType)
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
-            JavacMethodType(
+            JavacMethodType.create(
                 env = env,
                 element = this,
                 executableType = MoreTypes.asExecutable(asMemberOf)

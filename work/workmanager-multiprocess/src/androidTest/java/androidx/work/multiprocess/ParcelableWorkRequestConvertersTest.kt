@@ -35,10 +35,10 @@ import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
-class ParcelableWorkRequestConvertersTest {
+public class ParcelableWorkRequestConvertersTest {
     @Test
     @SmallTest
-    fun converterTest1() {
+    public fun converterTest1() {
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .addTag("Test Worker")
             .keepResultsForAtLeast(1, TimeUnit.DAYS)
@@ -48,7 +48,7 @@ class ParcelableWorkRequestConvertersTest {
 
     @Test
     @SmallTest
-    fun converterTest2() {
+    public fun converterTest2() {
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialDelay(1, TimeUnit.HOURS)
             .setInputData(
@@ -70,7 +70,7 @@ class ParcelableWorkRequestConvertersTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
-    fun converterTest3() {
+    public fun converterTest3() {
         val uri = Uri.parse("test://foo")
         val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialDelay(1, TimeUnit.HOURS)
@@ -95,7 +95,7 @@ class ParcelableWorkRequestConvertersTest {
 
     @Test
     @SmallTest
-    fun converterTest4() {
+    public fun converterTest4() {
         val requests = mutableListOf<WorkRequest>()
         repeat(10) {
             requests += OneTimeWorkRequest.Builder(TestWorker::class.java)

@@ -138,16 +138,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         button_single.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(SettingsDialog.DIALOG_TYPE_SINGLE,
+            val testDiag = SettingsDialog.newInstance(
+                SettingsDialog.DIALOG_TYPE_SINGLE,
                 getString(R.string.settings_single_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray())
+                cameras.toTypedArray(), cameraIds.toTypedArray()
+            )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_SINGLE)
         }
 
         button_multi.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(SettingsDialog.DIALOG_TYPE_MULTI,
+            val testDiag = SettingsDialog.newInstance(
+                SettingsDialog.DIALOG_TYPE_MULTI,
                 getString(R.string.settings_multi_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray())
+                cameras.toTypedArray(), cameraIds.toTypedArray()
+            )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_MULTI)
         }
 
@@ -219,8 +223,10 @@ class MainActivity : AppCompatActivity() {
                     as android.content.ClipboardManager
                 val clip = ClipData.newPlainText("Log", log)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(this, getString(R.string.log_copied),
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this, getString(R.string.log_copied),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -259,12 +265,16 @@ class MainActivity : AppCompatActivity() {
      */
     fun checkCameraPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED
+        ) {
             // Launch the permission request for CAMERA
             requestPermission.launch(Manifest.permission.CAMERA)
             return false
-        } else if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        } else if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             // Launch the permission request for WRITE_EXTERNAL_STORAGE
             requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false

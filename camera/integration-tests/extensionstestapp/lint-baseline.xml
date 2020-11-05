@@ -2,35 +2,13 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPreviewCaptureSessionConfigured` of class `CameraExtensionsActivity` requires synthetic accessor"
-        errorLine1="                        mPreviewCaptureSessionConfigured.countDown();"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
-            line="170"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `createUseCases` of class `CameraExtensionsActivity` requires synthetic accessor"
-        errorLine1="                        createUseCases();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
-            line="451"
-            column="25"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"
-            line="399"
+            line="261"
             column="29"/>
     </issue>
 

@@ -41,8 +41,10 @@ class NavDestinationTest {
     @Test
     fun parseClassFromNameAbsolute() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromName(context,
-                "java.lang.String", Any::class.java)
+        val clazz = NavDestination.parseClassFromName(
+            context,
+            "java.lang.String", Any::class.java
+        )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -51,8 +53,10 @@ class NavDestinationTest {
     fun parseClassFromNameAbsoluteInvalid() {
         val context = mock(Context::class.java)
         try {
-            NavDestination.parseClassFromName(context,
-                    "definitely.not.found", Any::class.java)
+            NavDestination.parseClassFromName(
+                context,
+                "definitely.not.found", Any::class.java
+            )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected
@@ -62,8 +66,10 @@ class NavDestinationTest {
     @Test
     fun parseClassFromNameAbsoluteWithType() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromName(context,
-                "java.lang.String", String::class.java)
+        val clazz = NavDestination.parseClassFromName(
+            context,
+            "java.lang.String", String::class.java
+        )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -72,8 +78,10 @@ class NavDestinationTest {
     fun parseClassFromNameAbsoluteWithIncorrectType() {
         val context = mock(Context::class.java)
         try {
-            NavDestination.parseClassFromName(context,
-                    "java.lang.String", List::class.java)
+            NavDestination.parseClassFromName(
+                context,
+                "java.lang.String", List::class.java
+            )
             fail("Incorrect type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected
@@ -84,8 +92,10 @@ class NavDestinationTest {
     fun parseClassFromNameRelative() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromName(context,
-                ".String", Any::class.java)
+        val clazz = NavDestination.parseClassFromName(
+            context,
+            ".String", Any::class.java
+        )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -95,8 +105,10 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
         try {
-            NavDestination.parseClassFromName(context,
-                    ".definitely.not.found", Any::class.java)
+            NavDestination.parseClassFromName(
+                context,
+                ".definitely.not.found", Any::class.java
+            )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected
@@ -107,8 +119,10 @@ class NavDestinationTest {
     fun parseClassFromNameRelativeWithType() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromName(context,
-                ".String", String::class.java)
+        val clazz = NavDestination.parseClassFromName(
+            context,
+            ".String", String::class.java
+        )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -118,8 +132,10 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
         try {
-            NavDestination.parseClassFromName(context,
-                    ".String", List::class.java)
+            NavDestination.parseClassFromName(
+                context,
+                ".String", List::class.java
+            )
             fail("Incorrect type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected

@@ -132,8 +132,10 @@ class SQLiteCopyOpenHelperTest {
                 }
                 val exitCode = it.exitValue()
                 if (exitCode != 0) {
-                    throw IllegalStateException("Copy process exited with non-zero code. " +
-                            "Code: $exitCode")
+                    throw IllegalStateException(
+                        "Copy process exited with non-zero code. " +
+                            "Code: $exitCode"
+                    )
                 }
             }
         } finally {

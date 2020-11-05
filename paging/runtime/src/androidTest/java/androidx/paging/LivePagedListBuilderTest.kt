@@ -25,6 +25,7 @@ import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,10 +40,9 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class LivePagedListBuilderTest {
     private val backgroundExecutor = TestExecutor()
     private val lifecycleOwner = TestLifecycleOwner()
@@ -149,9 +149,12 @@ class LivePagedListBuilderTest {
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
         @Suppress("DEPRECATION")
-        livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
-            pagedListHolder[0] = newList
-        })
+        livePagedList.observe(
+            lifecycleOwner,
+            Observer<PagedList<String>> { newList ->
+                pagedListHolder[0] = newList
+            }
+        )
 
         // initially, immediately get passed empty initial list
         assertNotNull(pagedListHolder[0])
@@ -185,9 +188,12 @@ class LivePagedListBuilderTest {
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
         @Suppress("DEPRECATION")
-        livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
-            pagedListHolder[0] = newList
-        })
+        livePagedList.observe(
+            lifecycleOwner,
+            Observer<PagedList<String>> { newList ->
+                pagedListHolder[0] = newList
+            }
+        )
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -215,7 +221,8 @@ class LivePagedListBuilderTest {
                 ),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION))
-            ), loadStates
+            ),
+            loadStates
         )
 
         initPagedList.retry()
@@ -236,7 +243,8 @@ class LivePagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading)
-            ), loadStates
+            ),
+            loadStates
         )
 
         // the IDLE result shows up on the next PagedList

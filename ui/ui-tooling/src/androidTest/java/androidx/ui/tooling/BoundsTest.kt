@@ -16,31 +16,32 @@
 
 package androidx.ui.tooling
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.resetSourceInfo
 import androidx.compose.runtime.setValue
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.layout.WithConstraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@SmallTest
-@RunWith(JUnit4::class)
+@MediumTest
+@RunWith(AndroidJUnit4::class)
 class BoundsTest : ToolingTest() {
     fun Group.all(): Collection<Group> =
         listOf(this) + this.children.flatMap { it.all() }
@@ -66,13 +67,14 @@ class BoundsTest : ToolingTest() {
 
         activityTestRule.runOnUiThread {
             val tree = slotTableRecord.store.first().asTree()
+
             val boundingBoxes = tree.firstOrNull {
-                it.position?.contains("BoundsTest.kt") == true && it.box.right > 0
+                it.location?.sourceFile?.equals("BoundsTest.kt") == true && it.box.right > 0
             }!!
                 .all()
                 .filter {
-                    val name = it.position
-                    name != null && name.contains("BoundsTest.kt")
+                    val name = it.location?.sourceFile
+                    name != null && name.equals("BoundsTest.kt")
                 }
                 .map {
                     it.box.left
@@ -80,7 +82,6 @@ class BoundsTest : ToolingTest() {
                 .distinct()
                 .sorted()
                 .toTypedArray()
-
             with(Density(activityTestRule.activity)) {
                 println(boundingBoxes.contentDeepToString())
                 arrayOf(
@@ -127,6 +128,7 @@ class BoundsTest : ToolingTest() {
     }
 
     @Test
+    @LargeTest
     fun testDisposeWithComposeTables() {
         val slotTableRecord = SlotTableRecord.create()
         var value by mutableStateOf(0)

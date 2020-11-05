@@ -93,7 +93,8 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
         Bundle testHints = new Bundle();
         testHints.putString("test_key", "test_value");
-        RemoteMediaController controller = createRemoteController(mToken, true, testHints);
+        RemoteMediaController controller = createRemoteController(
+                mToken, /*waitForConnection=*/false, testHints);
 
         // onGetSession() should be called.
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));

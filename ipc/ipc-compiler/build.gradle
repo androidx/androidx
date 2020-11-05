@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-
+import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.LibraryVersions
 
 import static androidx.build.dependencies.DependenciesKt.*
-
-import androidx.build.CompilationTarget
-import androidx.build.LibraryGroups
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -54,10 +51,8 @@ dependencies {
 
 androidx {
     name = "AndroidX IPC - Compiler"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.ANNOTATION_PROCESSOR
     mavenVersion = LibraryVersions.IPC
-    toolingProject = true
-    compilationTarget = CompilationTarget.HOST
     mavenGroup = LibraryGroups.IPC
     inceptionYear = "2020"
     description = "Annotation processor for AndroidX Inter Process Communication Tools"

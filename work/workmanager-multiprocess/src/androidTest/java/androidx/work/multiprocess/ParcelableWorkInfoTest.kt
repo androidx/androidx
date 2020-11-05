@@ -29,11 +29,11 @@ import org.junit.runner.RunWith
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
-class ParcelableWorkInfoTest {
+public class ParcelableWorkInfoTest {
 
     @Test
     @SmallTest
-    fun converterTest1() {
+    public fun converterTest1() {
         val workInfo = WorkInfo(
             UUID.randomUUID(),
             WorkInfo.State.ENQUEUED,
@@ -47,7 +47,7 @@ class ParcelableWorkInfoTest {
 
     @Test
     @SmallTest
-    fun converterTest2() {
+    public fun converterTest2() {
         val data = Data.Builder()
             .put("test", "testString")
             .put("int", 10)
@@ -66,7 +66,7 @@ class ParcelableWorkInfoTest {
 
     @Test
     @SmallTest
-    fun arrayConverterTest1() {
+    public fun arrayConverterTest1() {
         val data = Data.Builder()
             .put("test", "testString")
             .put("int", 10)

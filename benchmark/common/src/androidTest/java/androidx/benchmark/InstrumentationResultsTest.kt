@@ -16,17 +16,17 @@
 
 package androidx.benchmark
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class InstrumentationResultsTest {
     @Test
-    fun ideSummary_alignment() {
+    public fun ideSummary_alignment() {
         val summary1 = InstrumentationResults.ideSummaryLine("foo", 1000, 100)
         val summary2 = InstrumentationResults.ideSummaryLine("fooBarLongerKey", 10000, 0)
 
@@ -37,7 +37,7 @@ class InstrumentationResultsTest {
     }
 
     @Test
-    fun ideSummary_allocs() {
+    public fun ideSummary_allocs() {
         assertEquals(
             "        1,000 ns    foo",
             InstrumentationResults.ideSummaryLine("foo", 1000, null)

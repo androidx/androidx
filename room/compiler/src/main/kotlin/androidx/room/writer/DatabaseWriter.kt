@@ -72,20 +72,22 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         return MethodSpec.methodBuilder("getRequiredTypeConverters").apply {
             addAnnotation(Override::class.java)
             addModifiers(PROTECTED)
-            returns(ParameterizedTypeName.get(
-                CommonTypeNames.MAP,
+            returns(
                 ParameterizedTypeName.get(
-                    ClassName.get(Class::class.java),
-                    WildcardTypeName.subtypeOf(Object::class.java)
-                ),
-                ParameterizedTypeName.get(
-                    CommonTypeNames.LIST,
+                    CommonTypeNames.MAP,
                     ParameterizedTypeName.get(
                         ClassName.get(Class::class.java),
                         WildcardTypeName.subtypeOf(Object::class.java)
+                    ),
+                    ParameterizedTypeName.get(
+                        CommonTypeNames.LIST,
+                        ParameterizedTypeName.get(
+                            ClassName.get(Class::class.java),
+                            WildcardTypeName.subtypeOf(Object::class.java)
+                        )
                     )
                 )
-            ))
+            )
             val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
             val typeConvertersTypeName = ParameterizedTypeName.get(
                 ClassName.get(HashMap::class.java),
@@ -108,11 +110,13 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 typeConvertersTypeName
             )
             database.daoMethods.forEach {
-                addStatement("$L.put($T.class, $T.$L())",
-                typeConvertersVar,
-                it.dao.typeName,
-                it.dao.implTypeName,
-                DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD)
+                addStatement(
+                    "$L.put($T.class, $T.$L())",
+                    typeConvertersVar,
+                    it.dao.typeName,
+                    it.dao.implTypeName,
+                    DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD
+                )
             }
             addStatement("return $L", typeConvertersVar)
         }.build()
@@ -123,12 +127,16 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         return MethodSpec.methodBuilder("clearAllTables").apply {
             addStatement("super.assertNotMainThread()")
             val dbVar = scope.getTmpVar("_db")
-            addStatement("final $T $L = super.getOpenHelper().getWritableDatabase()",
-                    SupportDbTypeNames.DB, dbVar)
+            addStatement(
+                "final $T $L = super.getOpenHelper().getWritableDatabase()",
+                SupportDbTypeNames.DB, dbVar
+            )
             val deferVar = scope.getTmpVar("_supportsDeferForeignKeys")
             if (database.enableForeignKeys) {
-                addStatement("boolean $L = $L.VERSION.SDK_INT >= $L.VERSION_CODES.LOLLIPOP",
-                        deferVar, AndroidTypeNames.BUILD, AndroidTypeNames.BUILD)
+                addStatement(
+                    "boolean $L = $L.VERSION.SDK_INT >= $L.VERSION_CODES.LOLLIPOP",
+                    deferVar, AndroidTypeNames.BUILD, AndroidTypeNames.BUILD
+                )
             }
             addAnnotation(Override::class.java)
             addModifiers(PUBLIC)
@@ -177,8 +185,10 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addModifiers(PROTECTED)
             returns(RoomTypeNames.INVALIDATION_TRACKER)
             val shadowTablesVar = "_shadowTablesMap"
-            val shadowTablesTypeName = ParameterizedTypeName.get(HashMap::class.typeName,
-                    CommonTypeNames.STRING, CommonTypeNames.STRING)
+            val shadowTablesTypeName = ParameterizedTypeName.get(
+                HashMap::class.typeName,
+                CommonTypeNames.STRING, CommonTypeNames.STRING
+            )
             val tableNames = database.entities.joinToString(",") {
                 "\"${it.tableName}\""
             }
@@ -187,32 +197,48 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             }.map {
                 it.tableName to it.shadowTableName
             }
-            addStatement("final $T $L = new $T($L)", shadowTablesTypeName, shadowTablesVar,
-                    shadowTablesTypeName, shadowTableNames.size)
+            addStatement(
+                "final $T $L = new $T($L)", shadowTablesTypeName, shadowTablesVar,
+                shadowTablesTypeName, shadowTableNames.size
+            )
             shadowTableNames.forEach { (tableName, shadowTableName) ->
                 addStatement("$L.put($S, $S)", shadowTablesVar, tableName, shadowTableName)
             }
             val viewTablesVar = scope.getTmpVar("_viewTables")
-            val tablesType = ParameterizedTypeName.get(HashSet::class.typeName,
-                    CommonTypeNames.STRING)
-            val viewTablesType = ParameterizedTypeName.get(HashMap::class.typeName,
-                    CommonTypeNames.STRING,
-                    ParameterizedTypeName.get(CommonTypeNames.SET,
-                            CommonTypeNames.STRING))
-            addStatement("$T $L = new $T($L)", viewTablesType, viewTablesVar, viewTablesType,
-                    database.views.size)
+            val tablesType = ParameterizedTypeName.get(
+                HashSet::class.typeName,
+                CommonTypeNames.STRING
+            )
+            val viewTablesType = ParameterizedTypeName.get(
+                HashMap::class.typeName,
+                CommonTypeNames.STRING,
+                ParameterizedTypeName.get(
+                    CommonTypeNames.SET,
+                    CommonTypeNames.STRING
+                )
+            )
+            addStatement(
+                "$T $L = new $T($L)", viewTablesType, viewTablesVar, viewTablesType,
+                database.views.size
+            )
             for (view in database.views) {
                 val tablesVar = scope.getTmpVar("_tables")
-                addStatement("$T $L = new $T($L)", tablesType, tablesVar, tablesType,
-                        view.tables.size)
+                addStatement(
+                    "$T $L = new $T($L)", tablesType, tablesVar, tablesType,
+                    view.tables.size
+                )
                 for (table in view.tables) {
                     addStatement("$L.add($S)", tablesVar, table)
                 }
-                addStatement("$L.put($S, $L)", viewTablesVar,
-                        view.viewName.toLowerCase(Locale.US), tablesVar)
+                addStatement(
+                    "$L.put($S, $L)", viewTablesVar,
+                    view.viewName.toLowerCase(Locale.US), tablesVar
+                )
             }
-            addStatement("return new $T(this, $L, $L, $L)",
-                    RoomTypeNames.INVALIDATION_TRACKER, shadowTablesVar, viewTablesVar, tableNames)
+            addStatement(
+                "return new $T(this, $L, $L, $L)",
+                RoomTypeNames.INVALIDATION_TRACKER, shadowTablesVar, viewTablesVar, tableNames
+            )
         }.build()
     }
 
@@ -222,8 +248,10 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             database.daoMethods.forEach { method ->
                 val name = method.dao.typeName.simpleName().decapitalize(Locale.US).stripNonJava()
                 val fieldName = scope.getTmpVar("_$name")
-                val field = FieldSpec.builder(method.dao.typeName, fieldName,
-                        PRIVATE, VOLATILE).build()
+                val field = FieldSpec.builder(
+                    method.dao.typeName, fieldName,
+                    PRIVATE, VOLATILE
+                ).build()
                 addField(field)
                 addMethod(createDaoGetter(field, method))
             }
@@ -259,14 +287,16 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addAnnotation(Override::class.java)
             returns(SupportDbTypeNames.SQLITE_OPEN_HELPER)
 
-            val configParam = ParameterSpec.builder(RoomTypeNames.ROOM_DB_CONFIG,
-                    "configuration").build()
+            val configParam = ParameterSpec.builder(
+                RoomTypeNames.ROOM_DB_CONFIG,
+                "configuration"
+            ).build()
             addParameter(configParam)
 
             val openHelperVar = scope.getTmpVar("_helper")
             val openHelperCode = scope.fork()
             SQLiteOpenHelperWriter(database)
-                    .write(openHelperVar, configParam, openHelperCode)
+                .write(openHelperVar, configParam, openHelperCode)
             addCode(openHelperCode.builder().build())
             addStatement("return $L", openHelperVar)
         }.build()

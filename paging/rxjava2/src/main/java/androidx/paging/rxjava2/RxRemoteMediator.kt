@@ -84,9 +84,9 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
     open fun initializeSingle(): Single<InitializeAction> = Single.just(LAUNCH_INITIAL_REFRESH)
 
     final override suspend fun load(loadType: LoadType, state: PagingState<Key, Value>):
-            MediatorResult {
-        return loadSingle(loadType, state).await()
-    }
+        MediatorResult {
+            return loadSingle(loadType, state).await()
+        }
 
     final override suspend fun initialize(): InitializeAction {
         return initializeSingle().await()

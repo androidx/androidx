@@ -37,7 +37,7 @@ package androidx.serialization
  *
  * [1]: https://developers.google.com/protocol-buffers/docs/proto3#scalar
  */
-enum class ProtoEncoding {
+public enum class ProtoEncoding {
     /**
      * Default varint encoding for integral fields, or no specific encoding for other types.
      */

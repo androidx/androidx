@@ -16,13 +16,12 @@
 
 package androidx.camera.camera2.internal;
 
-import android.hardware.camera2.CaptureRequest;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
@@ -36,6 +35,7 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
 
     static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();
 
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void unpack(@NonNull UseCaseConfig<?> config,
             @NonNull final SessionConfig.Builder builder) {
@@ -82,17 +82,6 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
         builder.addImplementationOptions(cameraEventConfig);
 
         // Copy extension keys
-        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
-        for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
-            @SuppressWarnings("unchecked")
-            // No way to get actual type info here, so treat as Object
-                    Option<Object> typeErasedOption = (Option<Object>) option;
-            @SuppressWarnings("unchecked")
-            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
-            configBuilder.setCaptureRequestOptionWithPriority(key,
-                    camera2Config.retrieveOption(typeErasedOption),
-                    camera2Config.getOptionPriority(option));
-        }
-        builder.addImplementationOptions(configBuilder.build());
+        builder.addImplementationOptions(camera2Config.getCaptureRequestOptions());
     }
 }

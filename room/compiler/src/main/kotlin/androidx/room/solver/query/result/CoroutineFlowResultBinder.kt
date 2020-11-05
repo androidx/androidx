@@ -49,7 +49,8 @@ class CoroutineFlowResultBinder(
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
-                cancellationSignalVar = "null")
+                cancellationSignalVar = "null"
+            )
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -65,7 +66,8 @@ class CoroutineFlowResultBinder(
                 if (inTransaction) "true" else "false",
                 String::class.arrayTypeName,
                 tableNamesList,
-                callableImpl)
+                callableImpl
+            )
         }
     }
 }

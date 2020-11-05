@@ -34,6 +34,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -290,6 +291,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
         /**
          * Shows the IME on demand for the given {@link Window}.
          */
+        @DoNotInline
         static void showIme(@NonNull Window dialogWindow) {
             dialogWindow.getDecorView().getWindowInsetsController().show(WindowInsets.Type.ime());
         }

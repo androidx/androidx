@@ -17,8 +17,22 @@
 package androidx.datastore.preferences
 
 import android.content.Context
-import androidx.datastore.DataMigration
-import androidx.datastore.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.clear
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.minusAssign
+import androidx.datastore.preferences.core.plusAssign
+import androidx.datastore.preferences.core.preferencesKey
+import androidx.datastore.preferences.core.preferencesOf
+import androidx.datastore.preferences.core.putAll
+import androidx.datastore.preferences.core.remove
+import androidx.datastore.preferences.core.to
+import androidx.datastore.preferences.core.toMutablePreferences
+import androidx.datastore.preferences.core.toPreferences
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
@@ -50,7 +64,8 @@ class PreferenceDataStoreFactoryTest {
 
     @Before
     fun setUp() {
-        testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
+        testFile =
+            tmp.newFile("test_file." + /*PreferencesSerializer.fileExtension=*/"preferences_pb")
         dataStoreScope = TestCoroutineScope()
         context = ApplicationProvider.getApplicationContext()
     }
@@ -58,11 +73,11 @@ class PreferenceDataStoreFactoryTest {
     @Test
     fun testNewInstance() = runBlockingTest {
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             scope = dataStoreScope
-        )
+        ) { testFile }
 
-        val expectedPreferences = preferencesOf(stringKey to "value")
+        val expectedPreferences =
+            preferencesOf(stringKey to "value")
 
         assertEquals(
             store.edit { prefs ->
@@ -80,19 +95,21 @@ class PreferenceDataStoreFactoryTest {
         val valueToReplace = preferencesOf(booleanKey to true)
 
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             corruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
                 valueToReplace
             },
             scope = dataStoreScope
-        )
+        ) { testFile }
         assertEquals(valueToReplace, store.data.first())
     }
 
     @Test
     fun testMigrationsInstalled() = runBlockingTest {
 
-        val expectedPreferences = preferencesOf(stringKey to "value", booleanKey to true)
+        val expectedPreferences = preferencesOf(
+            stringKey to "value",
+            booleanKey to true
+        )
 
         val migrateTo5 = object : DataMigration<Preferences> {
             override suspend fun shouldMigrate(currentData: Preferences) = true
@@ -113,10 +130,9 @@ class PreferenceDataStoreFactoryTest {
         }
 
         val store = PreferenceDataStoreFactory.create(
-            produceFile = { testFile },
             migrations = listOf(migrateTo5, migratePlus1),
             scope = dataStoreScope
-        )
+        ) { testFile }
 
         assertEquals(expectedPreferences, store.data.first())
     }
@@ -137,18 +153,17 @@ class PreferenceDataStoreFactoryTest {
 
         // Check that the file name is context.filesDir + name + ".preferences_pb"
         store = PreferenceDataStoreFactory.create(
-            produceFile = {
-                File(context.filesDir, "datastore/my_settings.preferences_pb")
-            },
             scope = dataStoreScope
-        )
+        ) {
+            File(context.filesDir, "datastore/my_settings.preferences_pb")
+        }
         assertEquals(prefs, store.data.first())
     }
 
     @Test
     fun testCantMutateInternalState() = runBlockingTest {
         val store =
-            PreferenceDataStoreFactory.create(produceFile = { testFile }, scope = dataStoreScope)
+            PreferenceDataStoreFactory.create(scope = dataStoreScope) { testFile }
 
         var mutableReference: MutablePreferences? = null
         store.edit {
@@ -156,7 +171,10 @@ class PreferenceDataStoreFactoryTest {
             it[stringKey] = "ABCDEF"
         }
 
-        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
+        assertEquals(
+            store.data.first(),
+            preferencesOf(stringKey to "ABCDEF")
+        )
 
         assertFailsWith<IllegalStateException> {
             mutableReference!!.clear()
@@ -185,6 +203,9 @@ class PreferenceDataStoreFactoryTest {
         assertFailsWith<IllegalStateException> {
             mutableReference!![stringKey] = "asdjkfajksdhljkasdhf"
         }
-        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
+        assertEquals(
+            store.data.first(),
+            preferencesOf(stringKey to "ABCDEF")
+        )
     }
 }

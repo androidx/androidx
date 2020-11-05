@@ -26,7 +26,7 @@ plugins {
 dependencies {
     // Public API dependencies
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.3.1")
+    api("androidx.core:core:1.3.2")
     api("androidx.fragment:fragment:1.2.5")
 
     // Internal dependencies

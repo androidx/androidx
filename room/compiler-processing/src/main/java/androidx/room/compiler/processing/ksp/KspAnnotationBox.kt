@@ -18,8 +18,8 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
-import org.jetbrains.kotlin.ksp.symbol.KSAnnotation
-import org.jetbrains.kotlin.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSType
 import java.lang.reflect.Proxy
 
 @Suppress("UNCHECKED_CAST")

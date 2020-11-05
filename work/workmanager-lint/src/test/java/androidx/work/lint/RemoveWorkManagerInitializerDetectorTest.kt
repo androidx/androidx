@@ -157,10 +157,12 @@ class RemoveWorkManagerInitializerDetectorTest {
             customApplication
         ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 project0: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -209,12 +211,14 @@ class RemoveWorkManagerInitializerDetectorTest {
             customApplication
         ).issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
-            .expect("""
+            .expect(
+                """
                 AndroidManifest.xml:5: Error: Remove androidx.work.impl.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization. [RemoveWorkManagerInitializer]
                          <provider
                          ^
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

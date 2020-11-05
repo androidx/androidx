@@ -16,9 +16,9 @@
 package androidx.camera.camera2.pipe.integration
 
 import androidx.camera.core.CameraXConfig
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraFactory
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeDeviceSurfaceManager
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeUseCaseFactory
 
 /**
  * Convenience class for generating a pre-populated CameraPipe [CameraXConfig].
@@ -31,7 +31,7 @@ object CameraPipeConfig {
         return CameraXConfig.Builder()
             .setCameraFactoryProvider(::CameraPipeCameraFactory)
             .setDeviceSurfaceManagerProvider(::CameraPipeDeviceSurfaceManager)
-            .setUseCaseConfigFactoryProvider { ExtendableUseCaseConfigFactory() }
+            .setUseCaseConfigFactoryProvider(::CameraPipeUseCaseFactory)
             .build()
     }
 

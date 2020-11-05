@@ -71,7 +71,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         return null;
     }
 
-    protected Entry<K, V> put(@NonNull K key, @NonNull V v) {
+    Entry<K, V> put(@NonNull K key, @NonNull V v) {
         Entry<K, V> newEntry = new Entry<>(key, v);
         mSize++;
         if (mEnd == null) {
@@ -226,8 +226,8 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         return builder.toString();
     }
 
-    private abstract static class ListIterator<K, V> implements Iterator<Map.Entry<K, V>>,
-            SupportRemove<K, V> {
+    private abstract static class ListIterator<K, V> extends SupportRemove<K, V>
+            implements Iterator<Map.Entry<K, V>> {
         Entry<K, V> mExpectedEnd;
         Entry<K, V> mNext;
 
@@ -311,7 +311,12 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         }
     }
 
-    private class IteratorWithAdditions implements Iterator<Map.Entry<K, V>>, SupportRemove<K, V> {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public class IteratorWithAdditions extends SupportRemove<K, V>
+            implements Iterator<Map.Entry<K, V>> {
         private Entry<K, V> mCurrent;
         private boolean mBeforeStart = true;
 
@@ -320,7 +325,7 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
         @SuppressWarnings("ReferenceEquality")
         @Override
-        public void supportRemove(@NonNull Entry<K, V> entry) {
+        void supportRemove(@NonNull Entry<K, V> entry) {
             if (entry == mCurrent) {
                 mCurrent = mCurrent.mPrevious;
                 mBeforeStart = mCurrent == null;
@@ -347,8 +352,8 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
         }
     }
 
-    interface SupportRemove<K, V> {
-        void supportRemove(@NonNull Entry<K, V> entry);
+    abstract static class SupportRemove<K, V> {
+        abstract void supportRemove(@NonNull Entry<K, V> entry);
     }
 
     static class Entry<K, V> implements Map.Entry<K, V> {

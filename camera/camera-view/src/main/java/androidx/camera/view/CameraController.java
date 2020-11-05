@@ -23,9 +23,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Display;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -52,11 +55,17 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.video.ExperimentalVideo;
+import androidx.camera.view.video.OnVideoSavedCallback;
+import androidx.camera.view.video.OutputFileOptions;
+import androidx.camera.view.video.OutputFileResults;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,8 +81,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * used to set the crop rect so the output from other use cases matches the preview display in a
  * WYSIWYG way. The controller also listens to {@link PreviewView}'s touch events to handle
  * tap-to-focus and pinch-to-zoom features.
+ *
+ * <p> This class provides features of 4 {@link UseCase}s: {@link Preview}, {@link ImageCapture},
+ * {@link ImageAnalysis} and an experimental video capture. {@link Preview} is required and always
+ * enabled. {@link ImageCapture} and {@link ImageAnalysis} are enabled by default. The video
+ * capture feature is experimental. It's disabled by default because it might conflict with other
+ * use cases, especially on lower end devices. It might be necessary to disable {@link ImageCapture}
+ * and/or {@link ImageAnalysis} before the video capture feature can be enabled. Disabling/enabling
+ * {@link UseCase}s freezes the preview for a short period of time. To avoid the glitch, the
+ * {@link UseCase}s need to be enabled/disabled before the controller is set on {@link PreviewView}.
  */
-abstract class CameraController {
+public abstract class CameraController {
 
     private static final String TAG = "CameraController";
 
@@ -88,7 +106,35 @@ abstract class CameraController {
     private static final float AF_SIZE = 1.0f / 6.0f;
     private static final float AE_SIZE = AF_SIZE * 1.5f;
 
+    /**
+     * Bitmask options to enable/disable use cases.
+     */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = { IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE })
+    public @interface UseCases { }
+
+    /**
+     * Bitmask option to enable {@link ImageCapture}. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & IMAGE_CAPTURE) != 0, then controller will enable image capture features.
+     */
+    public static final int IMAGE_CAPTURE = 1;
+    /**
+     * Bitmask option to enable {@link ImageAnalysis}. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & IMAGE_ANALYSIS) != 0, then controller will enable image analysis features.
+     */
+    public static final int IMAGE_ANALYSIS = 1 << 1;
+    /**
+     * Bitmask option to enable video capture use case. In {@link #setEnabledUseCases}, if
+     * (enabledUseCases & VIDEO_CAPTURE) != 0, then controller will enable video capture features.
+     */
+    @ExperimentalVideo
+    public static final int VIDEO_CAPTURE = 1 << 2;
+
     CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
+    // By default, ImageCapture and ImageAnalysis are enabled. VideoCapture is disabled.
+    private int mEnabledUseCases = IMAGE_CAPTURE | IMAGE_ANALYSIS;
 
     // CameraController and PreviewView hold reference to each other. The 2-way link is managed
     // by PreviewView.
@@ -101,12 +147,6 @@ abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @NonNull
     final ImageCapture mImageCapture;
-
-    // ImageCapture is enabled by default.
-    private boolean mImageCaptureEnabled = true;
-
-    // ImageAnalysis is enabled by default.
-    private boolean mImageAnalysisEnabled = true;
 
     @Nullable
     private Executor mAnalysisExecutor;
@@ -121,9 +161,6 @@ abstract class CameraController {
     @SuppressWarnings("WeakerAccess")
     @NonNull
     final VideoCapture mVideoCapture;
-
-    // VideoCapture is disabled by default.
-    private boolean mVideoCaptureEnabled = false;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -187,7 +224,7 @@ abstract class CameraController {
                 ProcessCameraProvider.getInstance(mAppContext),
                 provider -> {
                     mCameraProvider = provider;
-                    startCamera();
+                    startCameraAndTrackStates();
                     return null;
                 }, CameraXExecutors.mainThreadExecutor());
 
@@ -243,9 +280,78 @@ abstract class CameraController {
         return mCamera != null;
     }
 
-    private void checkUseCasesAttachedToCamera() {
-        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
-        Preconditions.checkState(isCameraAttached(), PREVIEW_VIEW_NOT_ATTACHED);
+    /**
+     * Enables or disables use cases.
+     *
+     * <p> Use cases need to be enabled before they can be used. By default, {@link #IMAGE_CAPTURE}
+     * and {@link #IMAGE_ANALYSIS} are enabled, and {@link #VIDEO_CAPTURE} is disabled. This is
+     * necessary because {@link #VIDEO_CAPTURE} is an experimental feature that might not work
+     * with other use cases, especially on lower end devices. When that happens, this method will
+     * fail with an {@link IllegalStateException}.
+     *
+     * <p> To make sure {@link #VIDEO_CAPTURE} works, {@link #IMAGE_CAPTURE} and
+     * {@link #IMAGE_ANALYSIS} needs to be disabled when enabling {@link #VIDEO_CAPTURE}. For
+     * example:
+     *
+     * <pre><code>
+     * // By default, image capture is enabled. Taking picture works.
+     * controller.takePicture(...);
+     *
+     * // Switch to video capture to shoot video.
+     * controller.setEnabledUseCases(VIDEO_CAPTURE);
+     * controller.startRecording(...);
+     * controller.stopRecording(...);
+     *
+     * // Switch back to image capture and image analysis before taking another picture.
+     * controller.setEnabledUseCases(IMAGE_CAPTURE|IMAGE_ANALYSIS);
+     * controller.takePicture(...);
+     *
+     * </code></pre>
+     *
+     * @param enabledUseCases one or more of the following use cases, bitwise-OR-ed together:
+     *                        {@link #IMAGE_CAPTURE}, {@link #IMAGE_ANALYSIS} and/or
+     *                        {@link #VIDEO_CAPTURE}.
+     * @throws IllegalStateException If the current camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
+     * @see UseCase
+     * @see ImageCapture
+     * @see ImageAnalysis
+     */
+    @MainThread
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    public void setEnabledUseCases(@UseCases int enabledUseCases) {
+        Threads.checkMainThread();
+        if (enabledUseCases == mEnabledUseCases) {
+            return;
+        }
+        int oldEnabledUseCases = mEnabledUseCases;
+        mEnabledUseCases = enabledUseCases;
+        if (!isVideoCaptureEnabled()) {
+            stopRecording();
+        }
+        startCameraAndTrackStates(() -> mEnabledUseCases = oldEnabledUseCases);
+    }
+
+    /**
+     * Checks if the given use case mask is enabled.
+     *
+     * @param useCaseMask One of the {@link #IMAGE_CAPTURE}, {@link #IMAGE_ANALYSIS} or
+     *                    {@link #VIDEO_CAPTURE}
+     * @return true if the use case is enabled.
+     */
+    private boolean isUseCaseEnabled(int useCaseMask) {
+        return (mEnabledUseCases & useCaseMask) != 0;
+    }
+
+    /**
+     * Same as {@link #isVideoCaptureEnabled()}.
+     *
+     * <p> This wrapper method is to workaround the limitation that currently only one
+     * {@link UseExperimental} mark class is allowed per method.
+     */
+    @UseExperimental(markerClass = ExperimentalVideo.class)
+    private boolean isVideoCaptureEnabledInternal() {
+        return isVideoCaptureEnabled();
     }
 
     // ------------------
@@ -262,16 +368,12 @@ abstract class CameraController {
             @NonNull ViewPort viewPort, @NonNull Display display) {
         Threads.checkMainThread();
         if (mSurfaceProvider != surfaceProvider) {
-            // Avoid setting provider unnecessarily which restarts Preview pipeline.
             mSurfaceProvider = surfaceProvider;
             mPreview.setSurfaceProvider(surfaceProvider);
         }
         mViewPort = viewPort;
         mPreviewDisplay = display;
         startListeningToRotationEvents();
-        // TODO(b/148791439): startCameraAndTrackStates can be triggered by Preview layout
-        //  change and the exception cannot be caught by the app. We need to set Preview with a
-        //  wrapped SurfaceProvider so that startCameraAndTrackStates() is not called here.
         startCameraAndTrackStates();
     }
 
@@ -325,22 +427,7 @@ abstract class CameraController {
     @MainThread
     public boolean isImageCaptureEnabled() {
         Threads.checkMainThread();
-        return mImageCaptureEnabled;
-    }
-
-    /**
-     * Enables or disables {@link ImageCapture}.
-     *
-     * @see ImageCapture
-     */
-    @MainThread
-    public void setImageCaptureEnabled(boolean imageCaptureEnabled) {
-        Threads.checkMainThread();
-        if (mImageCaptureEnabled == imageCaptureEnabled) {
-            return;
-        }
-        mImageCaptureEnabled = imageCaptureEnabled;
-        startCameraAndTrackStates();
+        return isUseCaseEnabled(IMAGE_CAPTURE);
     }
 
     /**
@@ -364,16 +451,21 @@ abstract class CameraController {
      *
      * @param flashMode the flash mode for {@link ImageCapture}.
      */
+    @MainThread
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         Threads.checkMainThread();
         mImageCapture.setFlashMode(flashMode);
-        startCameraAndTrackStates();
     }
 
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p>The callback will be called only once for every invocation of this method.
+     * <p> The callback will be called only once for every invocation of this method.
+     *
+     * <p> By default, the saved image is mirrored to match the output of the preview if front
+     * camera is used. To override this behavior, the app needs to explicitly set the flag to
+     * {@code false} using {@link ImageCapture.Metadata#setReversedHorizontal} and
+     * {@link OutputFileOptions.Builder#setMetadata}.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
@@ -387,15 +479,30 @@ abstract class CameraController {
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageSavedCallback imageSavedCallback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
+        Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
-        // Mirror the image for front camera.
-        if (mCameraSelector.getLensFacing() != null) {
+        updateMirroringFlagInOutputFileOptions(outputFileOptions);
+        mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
+    }
+
+    /**
+     * Update {@link ImageCapture.OutputFileOptions} based on config.
+     *
+     * <p> Mirror the output image if front camera is used and if the flag is not set explicitly by
+     * the app.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void updateMirroringFlagInOutputFileOptions(
+            @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
+        if (mCameraSelector.getLensFacing() != null
+                && !outputFileOptions.getMetadata().isReversedHorizontalSet()) {
             outputFileOptions.getMetadata().setReversedHorizontal(
                     mCameraSelector.getLensFacing() == CameraSelector.LENS_FACING_FRONT);
         }
-        mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
     }
 
     /**
@@ -412,8 +519,8 @@ abstract class CameraController {
             @NonNull Executor executor,
             @NonNull ImageCapture.OnImageCapturedCallback callback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
+        Preconditions.checkState(isImageCaptureEnabled(), IMAGE_CAPTURE_DISABLED);
 
         mImageCapture.takePicture(executor, callback);
     }
@@ -430,22 +537,7 @@ abstract class CameraController {
     @MainThread
     public boolean isImageAnalysisEnabled() {
         Threads.checkMainThread();
-        return mImageAnalysisEnabled;
-    }
-
-    /**
-     * Enables or disables {@link ImageAnalysis} use case.
-     *
-     * @see ImageAnalysis
-     */
-    @MainThread
-    public void setImageAnalysisEnabled(boolean imageAnalysisEnabled) {
-        Threads.checkMainThread();
-        if (mImageAnalysisEnabled == imageAnalysisEnabled) {
-            return;
-        }
-        mImageAnalysisEnabled = imageAnalysisEnabled;
-        startCameraAndTrackStates();
+        return isUseCaseEnabled(IMAGE_ANALYSIS);
     }
 
     /**
@@ -529,9 +621,13 @@ abstract class CameraController {
     }
 
     /**
-     * Sets the number of images available to the camera pipeline.
+     * Sets the image queue depth of {@link ImageAnalysis}.
      *
-     * @param depth The total number of images available to the camera.
+     * <p> This sets the number of images available in parallel to {@link ImageAnalysis.Analyzer}
+     * . The value is only used if the backpressure strategy is
+     * {@link ImageAnalysis.BackpressureStrategy#STRATEGY_BLOCK_PRODUCER}.
+     *
+     * @param depth The total number of images available.
      * @see ImageAnalysis.Builder#setImageQueueDepth(int)
      */
     @MainThread
@@ -545,7 +641,7 @@ abstract class CameraController {
     }
 
     /**
-     * Gets the number of images available to the camera pipeline.
+     * Gets the image queue depth of {@link ImageAnalysis}.
      *
      * @see ImageAnalysis#getImageQueueDepth()
      */
@@ -584,26 +680,11 @@ abstract class CameraController {
      * <p> Video capture is disabled by default. It has to be enabled before
      * {@link #startRecording} can be called.
      */
+    @ExperimentalVideo
     @MainThread
     public boolean isVideoCaptureEnabled() {
         Threads.checkMainThread();
-        return mVideoCaptureEnabled;
-    }
-
-    /**
-     * Enables or disables video capture use case.
-     */
-    @MainThread
-    public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
-        Threads.checkMainThread();
-        if (mVideoCaptureEnabled == videoCaptureEnabled) {
-            return;
-        }
-        if (!videoCaptureEnabled) {
-            stopRecording();
-        }
-        mVideoCaptureEnabled = videoCaptureEnabled;
-        startCameraAndTrackStates();
+        return isUseCaseEnabled(VIDEO_CAPTURE);
     }
 
     /**
@@ -613,20 +694,22 @@ abstract class CameraController {
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback which will receive success or failure.
      */
+    @ExperimentalVideo
     @MainThread
-    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
-            @NonNull Executor executor, final @NonNull VideoCapture.OnVideoSavedCallback callback) {
+    public void startRecording(@NonNull OutputFileOptions outputFileOptions,
+            @NonNull Executor executor, final @NonNull OnVideoSavedCallback callback) {
         Threads.checkMainThread();
-        checkUseCasesAttachedToCamera();
-        Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
+        Preconditions.checkState(isVideoCaptureEnabled(), VIDEO_CAPTURE_DISABLED);
 
-        mVideoCapture.startRecording(outputFileOptions, executor,
+        mVideoCapture.startRecording(outputFileOptions.toVideoCaptureOutputFileOptions(), executor,
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
                     public void onVideoSaved(
                             @NonNull VideoCapture.OutputFileResults outputFileResults) {
                         mVideoIsRecording.set(false);
-                        callback.onVideoSaved(outputFileResults);
+                        callback.onVideoSaved(
+                                OutputFileResults.create(outputFileResults.getSavedUri()));
                     }
 
                     @Override
@@ -642,6 +725,7 @@ abstract class CameraController {
     /**
      * Stops a in progress video recording.
      */
+    @ExperimentalVideo
     @MainThread
     public void stopRecording() {
         Threads.checkMainThread();
@@ -653,6 +737,7 @@ abstract class CameraController {
     /**
      * Returns whether there is a in progress video recording.
      */
+    @ExperimentalVideo
     @MainThread
     public boolean isRecording() {
         Threads.checkMainThread();
@@ -666,8 +751,13 @@ abstract class CameraController {
     /**
      * Sets the {@link CameraSelector}.
      *
+     * <p> Calling this method with a {@link CameraSelector} that resolves to a different camera
+     * will change the camera being used by the controller.
+     *
      * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
+     * @throws IllegalStateException If the provided camera selector is unable to resolve a
+     *                               camera to be used for the enabled use cases.
      * @see CameraSelector
      */
     @MainThread
@@ -676,14 +766,15 @@ abstract class CameraController {
         if (mCameraSelector == cameraSelector) {
             return;
         }
-        mCameraSelector = cameraSelector;
 
         if (mCameraProvider == null) {
             return;
         }
         mCameraProvider.unbindAll();
 
-        startCameraAndTrackStates();
+        CameraSelector oldCameraSelector = mCameraSelector;
+        mCameraSelector = cameraSelector;
+        startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
     }
 
     /**
@@ -819,6 +910,7 @@ abstract class CameraController {
      *
      * @see CameraInfo#getZoomState()
      */
+    @NonNull
     @MainThread
     public LiveData<ZoomState> getZoomState() {
         Threads.checkMainThread();
@@ -831,7 +923,8 @@ abstract class CameraController {
      * <p>Valid zoom values range from {@link ZoomState#getMinZoomRatio()} to
      * {@link ZoomState#getMaxZoomRatio()}.
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @param zoomRatio The requested zoom ratio.
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
@@ -841,6 +934,7 @@ abstract class CameraController {
      * @see #getZoomState()
      * @see CameraControl#setZoomRatio(float)
      */
+    @NonNull
     @MainThread
     public ListenableFuture<Void> setZoomRatio(float zoomRatio) {
         Threads.checkMainThread();
@@ -859,7 +953,8 @@ abstract class CameraController {
      * linearly with the linearZoom value, for use with slider UI elements (while
      * {@link #setZoomRatio(float)} works well for pinch-zoom gestures).
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
      * It fails with {@link CameraControl.OperationCanceledException} if there is newer value
@@ -897,7 +992,8 @@ abstract class CameraController {
     /**
      * Enable the torch or disable the torch.
      *
-     * <p> No-ops if the controller is not set on a {@link PreviewView}.
+     * <p> No-ops if the camera is not ready. The {@link ListenableFuture} completes successfully
+     * in this case.
      *
      * @param torchEnabled true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
@@ -920,7 +1016,28 @@ abstract class CameraController {
      * Binds use cases, gets a new {@link Camera} instance and tracks the state of the camera.
      */
     void startCameraAndTrackStates() {
-        mCamera = startCamera();
+        startCameraAndTrackStates(null);
+    }
+
+    /**
+     * @param restoreStateRunnable runnable to restore the controller to the previous good state if
+     *                             the binding fails.
+     * @throws IllegalStateException if binding fails.
+     */
+    void startCameraAndTrackStates(@Nullable Runnable restoreStateRunnable) {
+        try {
+            mCamera = startCamera();
+        } catch (IllegalArgumentException exception) {
+            if (restoreStateRunnable != null) {
+                restoreStateRunnable.run();
+            }
+            // Catches the core exception and throw a more readable one.
+            String errorMessage =
+                    "The selected camera does not support the enabled use cases. Please "
+                            + "disable use case and/or select a different camera. e.g. "
+                            + "#setVideoCaptureEnabled(false)";
+            throw new IllegalStateException(errorMessage, exception);
+        }
         if (!isCameraAttached()) {
             Logger.d(TAG, CAMERA_NOT_ATTACHED);
             return;
@@ -934,8 +1051,11 @@ abstract class CameraController {
      *
      * <p> Preview is required. If it is null, then controller is not ready. Return null and ignore
      * other use cases.
+     *
+     * @hide
      */
     @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     protected UseCaseGroup createUseCaseGroup() {
         if (!isCameraInitialized()) {
@@ -950,19 +1070,19 @@ abstract class CameraController {
 
         UseCaseGroup.Builder builder = new UseCaseGroup.Builder().addUseCase(mPreview);
 
-        if (mImageCaptureEnabled) {
+        if (isImageCaptureEnabled()) {
             builder.addUseCase(mImageCapture);
         } else {
             mCameraProvider.unbind(mImageCapture);
         }
 
-        if (mImageAnalysisEnabled) {
+        if (isImageAnalysisEnabled()) {
             builder.addUseCase(mImageAnalysis);
         } else {
             mCameraProvider.unbind(mImageAnalysis);
         }
 
-        if (mVideoCaptureEnabled) {
+        if (isVideoCaptureEnabledInternal()) {
             builder.addUseCase(mVideoCapture);
         } else {
             mCameraProvider.unbind(mVideoCapture);

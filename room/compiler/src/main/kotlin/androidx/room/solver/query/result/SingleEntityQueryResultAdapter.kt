@@ -30,7 +30,7 @@ class SingleEntityQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapte
             rowAdapter?.onCursorReady(cursorVarName, scope)
             addStatement("final $T $L", type.typeName, outVarName)
             beginControlFlow("if($L.moveToFirst())", cursorVarName)
-                rowAdapter?.convert(outVarName, cursorVarName, scope)
+            rowAdapter?.convert(outVarName, cursorVarName, scope)
             nextControlFlow("else").apply {
                 addStatement("$L = $L", outVarName, rowAdapter?.out?.defaultValue())
             }

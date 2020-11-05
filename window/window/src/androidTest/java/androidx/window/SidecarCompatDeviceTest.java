@@ -16,11 +16,15 @@
 
 package androidx.window;
 
+import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
 import static androidx.window.Version.VERSION_0_1;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +40,7 @@ import androidx.window.sidecar.SidecarWindowLayoutInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 
 /**
  * Tests for {@link SidecarCompat} implementation of {@link ExtensionInterfaceCompat} that are
@@ -54,37 +59,66 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
 
     @Test
     @Override
-    public void testGetDeviceState() {
+    public void testDeviceStateCallback() {
         SidecarDeviceState sidecarDeviceState = mSidecarCompat.mSidecar.getDeviceState();
-        DeviceState deviceState = mSidecarCompat.getDeviceState();
-        assertEquals(sidecarDeviceState.posture, deviceState.getPosture());
+        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
+        mSidecarCompat.setExtensionCallback(callbackInterface);
+        mSidecarCompat.onDeviceStateListenersChanged(false);
+
+
+        verify(callbackInterface).onDeviceStateChanged(argThat(
+                deviceState -> deviceState.getPosture() == sidecarDeviceState.posture));
     }
 
     @Test
     @Override
-    public void testGetWindowLayout() {
+    public void testWindowLayoutCallback() {
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         IBinder windowToken = getActivityWindowToken(activity);
         assertNotNull(windowToken);
+        ExtensionCallbackInterface callbackInterface = mock(ExtensionCallbackInterface.class);
+        mSidecarCompat.setExtensionCallback(callbackInterface);
+        mSidecarCompat.onWindowLayoutChangeListenerAdded(activity);
 
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(windowToken);
-        WindowLayoutInfo windowLayoutInfo = mSidecarCompat.getWindowLayoutInfo(activity);
 
-        assertEquals(windowLayoutInfo.getDisplayFeatures().size(),
-                sidecarWindowLayoutInfo.displayFeatures.size());
-        for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
-            DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
-            SidecarDisplayFeature sidecarDisplayFeature =
-                    sidecarWindowLayoutInfo.displayFeatures.get(i);
-
-            assertEquals(feature.getType(), sidecarDisplayFeature.getType());
-            assertEquals(feature.getBounds(), sidecarDisplayFeature.getRect());
-        }
+        verify(callbackInterface).onWindowLayoutChanged(any(),
+                argThat(new SidecarMatcher(sidecarWindowLayoutInfo)));
     }
 
     private void assumeExtensionV01() {
         Version sidecarVersion = SidecarCompat.getSidecarVersion();
         assumeTrue(VERSION_0_1.equals(sidecarVersion));
+    }
+
+    private static class SidecarMatcher implements ArgumentMatcher<WindowLayoutInfo> {
+
+        private final SidecarWindowLayoutInfo mSidecarWindowLayoutInfo;
+
+        SidecarMatcher(SidecarWindowLayoutInfo sidecarWindowLayoutInfo) {
+            mSidecarWindowLayoutInfo = sidecarWindowLayoutInfo;
+        }
+
+        @Override
+        public boolean matches(WindowLayoutInfo windowLayoutInfo) {
+            if (windowLayoutInfo.getDisplayFeatures().size()
+                    != mSidecarWindowLayoutInfo.displayFeatures.size()) {
+                return false;
+            }
+            for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
+                DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
+                SidecarDisplayFeature sidecarDisplayFeature =
+                        mSidecarWindowLayoutInfo.displayFeatures.get(i);
+
+                if (feature.getType() != sidecarDisplayFeature.getType()) {
+                    return false;
+                }
+                if (!feature.getBounds().equals(sidecarDisplayFeature.getRect())) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

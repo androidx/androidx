@@ -237,9 +237,9 @@ public class ImageCaptureTest {
                 new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy image) {
-                        super.onCaptureSuccess(image);
                         imageProxyReference.set(image);
                         semaphore.release();
+                        image.close();
                     }
                 });
 

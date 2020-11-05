@@ -43,7 +43,8 @@ class ProjectionExpanderTest {
 
         val ENTITIES = arrayOf(
             JavaFileObjects.forSourceString(
-                "foo.bar.User", DATABASE_PREFIX + """
+                "foo.bar.User",
+                DATABASE_PREFIX + """
                     @Entity
                     public class User {
                         @PrimaryKey
@@ -55,7 +56,8 @@ class ProjectionExpanderTest {
                 """
             ),
             JavaFileObjects.forSourceString(
-                "foo.bar.Pet", DATABASE_PREFIX + """
+                "foo.bar.Pet",
+                DATABASE_PREFIX + """
                     @Entity
                     public class Pet {
                         @PrimaryKey
@@ -65,7 +67,8 @@ class ProjectionExpanderTest {
                 """
             ),
             JavaFileObjects.forSourceString(
-                "foo.bar.Team", DATABASE_PREFIX + """
+                "foo.bar.Team",
+                DATABASE_PREFIX + """
                     @Entity
                     public class Team {
                         @PrimaryKey
@@ -75,7 +78,8 @@ class ProjectionExpanderTest {
                 """
             ),
             JavaFileObjects.forSourceString(
-                "foo.bar.Employee", DATABASE_PREFIX + """
+                "foo.bar.Employee",
+                DATABASE_PREFIX + """
                     @Entity
                     public class Employee {
                         @PrimaryKey
@@ -86,7 +90,8 @@ class ProjectionExpanderTest {
                 """
             ),
             JavaFileObjects.forSourceString(
-                "foo.bar.EmployeeSummary", DATABASE_PREFIX + """
+                "foo.bar.EmployeeSummary",
+                DATABASE_PREFIX + """
                     public class EmployeeSummary {
                         public int id;
                         public String name;
@@ -238,7 +243,7 @@ class ProjectionExpanderTest {
                 }
             """,
             "SELECT *, (SELECT COUNT(*) FROM User AS u WHERE u.firstName = User.firstName) = 1 " +
-                    "AS hasUniqueFirstName FROM User",
+                "AS hasUniqueFirstName FROM User",
             """
                 SELECT `id`, `firstName`, (SELECT COUNT(*) FROM User AS u
                 WHERE u.firstName = User.firstName) = 1 AS hasUniqueFirstName FROM User
@@ -266,7 +271,8 @@ class ProjectionExpanderTest {
     @Test
     fun extraColumn() {
         testInterpret(
-            "foo.bar.UserVariant", """
+            "foo.bar.UserVariant",
+            """
                 public class UserVariant {
                     public int id;
                     public String firstName;
@@ -313,7 +319,7 @@ class ProjectionExpanderTest {
                 }
             """,
             "SELECT * FROM Employee LEFT OUTER JOIN Employee AS manager_ " +
-                    "ON User.managerId = manager_.id",
+                "ON User.managerId = manager_.id",
             """
                 SELECT `Employee`.`id` AS `id`, `Employee`.`name` AS `name`,
                 `Employee`.`managerId` AS `managerId`, `manager_`.`id` AS `manager_id`,
@@ -327,7 +333,8 @@ class ProjectionExpanderTest {
     @Test
     fun joinWithoutPrefix() {
         testInterpret(
-            "foo.bar.UserAndPet", """
+            "foo.bar.UserAndPet",
+            """
                 public class UserAndPet {
                     @Embedded
                     public User user;
@@ -348,7 +355,8 @@ class ProjectionExpanderTest {
     @Test
     fun embedPojo() {
         testInterpret(
-            "foo.bar.TeamMember", """
+            "foo.bar.TeamMember",
+            """
                 public class TeamMember {
                     @Embedded
                     Team team;
@@ -357,7 +365,7 @@ class ProjectionExpanderTest {
                 }
             """,
             "SELECT * FROM Team LEFT OUTER JOIN Employee AS employee_" +
-                    " ON Team.id = employee_.teamId",
+                " ON Team.id = employee_.teamId",
             """
                 SELECT `Team`.`id` AS `id`, `Team`.`name` AS `name`,
                 `employee_`.`id` AS `employee_id`, `employee_`.`name` AS `employee_name`
@@ -392,7 +400,8 @@ class ProjectionExpanderTest {
     @Test
     fun specifyAlias() {
         testInterpret(
-            "foo.bar.UserPair", """
+            "foo.bar.UserPair",
+            """
                 public class UserPair {
                     @Embedded(prefix = "a_")
                     public User a;
@@ -413,7 +422,8 @@ class ProjectionExpanderTest {
     @Test
     fun parameter() {
         testInterpret(
-            "foo.bar.UserSummary", """
+            "foo.bar.UserSummary",
+            """
                 public class UserSummary {
                     public int id;
                     public String firstName;
@@ -427,7 +437,8 @@ class ProjectionExpanderTest {
     @Test
     fun noNeedToExpand() {
         testInterpret(
-            "foo.bar.UserSummary", """
+            "foo.bar.UserSummary",
+            """
                 public class UserSummary {
                     public int id;
                     public String firstName;
@@ -475,8 +486,8 @@ class ProjectionExpanderTest {
             input = null,
             original = "SELECT * FROM user as u INNER JOIN Employee AS e ON(u.id = e.id)",
             expected = "SELECT `u`.`id` AS `id`, `u`.`firstName` AS `firstName`, `u`" +
-                    ".`lastName` AS `lastName`, `u`.`teamId` AS `teamId` FROM user as u INNER " +
-                    "JOIN Employee AS e ON(u.id = e.id)"
+                ".`lastName` AS `lastName`, `u`.`teamId` AS `teamId` FROM user as u INNER " +
+                "JOIN Employee AS e ON(u.id = e.id)"
         )
     }
 
@@ -542,12 +553,14 @@ class ProjectionExpanderTest {
     @Test
     fun newlineInProjection() {
         queryWithPojo(
-            "foo.bar.UserSummary", """
+            "foo.bar.UserSummary",
+            """
                 public class UserSummary {
                     public int id;
                     public String name;
                 }
-            """, """
+            """,
+            """
                 SELECT User
                 .
                 *,
@@ -561,7 +574,8 @@ class ProjectionExpanderTest {
             """
         ) { expanded, _ ->
             assertThat(
-                expanded, `is`(
+                expanded,
+                `is`(
                     equalTo(
                         """
                 SELECT `User`.`id`,

@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.impl.Timestamps.formatMs
 import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.closeWithTrace
@@ -49,20 +50,20 @@ data class CameraStateClosed(
     val cameraRetryCount: Int? = null,
 
     // Record the number of nanoseconds it took to open the camera, including retry attempts.
-    val cameraRetryDurationNs: Long? = null,
+    val cameraRetryDurationNs: DurationNs? = null,
 
     // Record the exception that was thrown while trying to open the camera
     val cameraException: Throwable? = null,
 
     // Record the number of nanoseconds it took for the final open attempt.
-    val cameraOpenDurationNs: Long? = null,
+    val cameraOpenDurationNs: DurationNs? = null,
 
     // Record the duration the camera device was active. If onOpened is never called, this value
     // will never be set.
-    val cameraActiveDurationNs: Long? = null,
+    val cameraActiveDurationNs: DurationNs? = null,
 
     // Record the duration the camera device took to invoke close() on the CameraDevice object.
-    val cameraClosingDurationNs: Long? = null,
+    val cameraClosingDurationNs: DurationNs? = null,
 
     // Record the Camera2 ErrorCode, if the camera closed due to an error.
     val cameraErrorCode: Int? = null
@@ -162,7 +163,7 @@ internal class AndroidCameraState(
     val cameraId: CameraId,
     val metadata: CameraMetadata,
     private val attemptNumber: Int,
-    private val attemptTimestampNanos: Long
+    private val attemptTimestampNanos: TimestampNs
 ) : CameraDevice.StateCallback() {
     private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
@@ -173,8 +174,8 @@ internal class AndroidCameraState(
     @GuardedBy("lock")
     private var pendingClose: ClosingInfo? = null
 
-    private val requestTimestampNanos: Long
-    private var openTimestampNanos: Long? = null
+    private val requestTimestampNanos: TimestampNs
+    private var openTimestampNanos: TimestampNs? = null
 
     private val _state = MutableStateFlow<CameraState>(CameraStateUnopened)
     val state: StateFlow<CameraState>
@@ -186,7 +187,7 @@ internal class AndroidCameraState(
             if (attemptNumber == 1) {
                 attemptTimestampNanos
             } else {
-                Metrics.monotonicNanos()
+                Timestamps.now()
             }
     }
 
@@ -200,6 +201,7 @@ internal class AndroidCameraState(
 
         closeWith(
             device?.unwrap(),
+            @Suppress("SyntheticAccessor")
             ClosingInfo(ClosedReason.APP_CLOSED)
         )
     }
@@ -210,7 +212,7 @@ internal class AndroidCameraState(
 
     override fun onOpened(cameraDevice: CameraDevice) {
         check(cameraDevice.id == cameraId.value)
-        val openedTimestamp = Metrics.monotonicNanos()
+        val openedTimestamp = Timestamps.now()
         openTimestampNanos = openedTimestamp
 
         Debug.traceStart { "Camera-${cameraId.value}#onOpened" }
@@ -218,10 +220,10 @@ internal class AndroidCameraState(
             val attemptDuration = openedTimestamp - requestTimestampNanos
             val totalDuration = openedTimestamp - attemptTimestampNanos
             if (attemptNumber == 1) {
-                "Opened $cameraId in ${attemptDuration.formatNanoTime()}"
+                "Opened $cameraId in ${attemptDuration.formatMs()}"
             } else {
-                "Opened $cameraId in ${attemptDuration.formatNanoTime()} " +
-                    "(${totalDuration.formatNanoTime()} total) after $attemptNumber attempts."
+                "Opened $cameraId in ${attemptDuration.formatMs()} " +
+                    "(${totalDuration.formatMs()} total) after $attemptNumber attempts."
             }
         }
 
@@ -270,6 +272,7 @@ internal class AndroidCameraState(
 
         closeWith(
             cameraDevice,
+            @Suppress("SyntheticAccessor")
             ClosingInfo(ClosedReason.CAMERA2_DISCONNECTED)
         )
         Debug.traceStop()
@@ -282,6 +285,7 @@ internal class AndroidCameraState(
 
         closeWith(
             cameraDevice,
+            @Suppress("SyntheticAccessor")
             ClosingInfo(ClosedReason.CAMERA2_ERROR, errorCode = errorCode)
         )
         Debug.traceStop()
@@ -292,13 +296,19 @@ internal class AndroidCameraState(
         Debug.traceStart { "Camera-${cameraId.value}#onClosed" }
         Log.debug { "$cameraId: onClosed" }
 
-        closeWith(cameraDevice, ClosingInfo(ClosedReason.CAMERA2_CLOSED))
+        closeWith(
+            cameraDevice,
+            @Suppress("SyntheticAccessor")
+            ClosingInfo(ClosedReason.CAMERA2_CLOSED)
+        )
         Debug.traceStop()
     }
 
     internal fun closeWith(throwable: Throwable) {
+
         closeWith(
             null,
+            @Suppress("SyntheticAccessor")
             ClosingInfo(
                 ClosedReason.CAMERA2_EXCEPTION,
                 exception = throwable
@@ -326,7 +336,7 @@ internal class AndroidCameraState(
     private fun computeClosedState(
         closingInfo: ClosingInfo
     ): CameraStateClosed {
-        val now = Metrics.monotonicNanos()
+        val now = Timestamps.now()
         val openedTimestamp = openTimestampNanos
         val closingTimestamp = closingInfo.closingTimestamp
         val retryDuration = openedTimestamp?.let { it - attemptTimestampNanos }
@@ -356,7 +366,7 @@ internal class AndroidCameraState(
 
     private data class ClosingInfo(
         val reason: ClosedReason,
-        val closingTimestamp: Long = Metrics.monotonicNanos(),
+        val closingTimestamp: TimestampNs = Timestamps.now(),
         val errorCode: Int? = null,
         val exception: Throwable? = null
     )

@@ -16,7 +16,6 @@
 
 package androidx.hilt.integration.viewmodelapp
 
-import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -25,7 +24,7 @@ import javax.inject.Inject
 @Suppress("UNUSED_PARAMETER")
 class SimpleViewModel @ViewModelInject constructor(
     mngr: MyManager,
-    @Assisted savedState: SavedStateHandle
+    savedState: SavedStateHandle
 ) : ViewModel() {
     fun hi() = "$this - hi"
 }

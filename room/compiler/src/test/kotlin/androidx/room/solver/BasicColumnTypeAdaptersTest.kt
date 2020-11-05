@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.writeTo
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName
@@ -93,7 +94,7 @@ class BasicColumnTypeAdaptersTest(
                             } else {
                               st.bindString(6, inp);
                             }
-                            """.trimIndent(),
+                    """.trimIndent(),
                     "out = crs.getString(9);"
                 )
             )
@@ -123,7 +124,8 @@ class BasicColumnTypeAdaptersTest(
                 )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
-                scope.generate().toString().trim(), `is`(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     if (inp == null) {
                       st.bindNull(6);
@@ -151,7 +153,9 @@ class BasicColumnTypeAdaptersTest(
                     .build()
             )
             .build()
-        JavaFile.builder("foo.bar", spec).build().writeTo(invocation.processingEnv.filer)
+        JavaFile.builder("foo.bar", spec).build().writeTo(
+            invocation.processingEnv.filer
+        )
     }
 
     @Test
@@ -177,7 +181,8 @@ class BasicColumnTypeAdaptersTest(
                 )!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
-                scope.generate().toString().trim(), `is`(
+                scope.generate().toString().trim(),
+                `is`(
                     """
                     if (crs.isNull(9)) {
                       out = null;

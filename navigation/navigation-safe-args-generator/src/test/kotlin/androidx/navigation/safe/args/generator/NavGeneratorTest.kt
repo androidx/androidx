@@ -75,14 +75,17 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
 
     @Test
     fun naive_test() {
-        val output = generateSafeArgs("foo", "foo.flavor",
-            testData("naive_test.xml"), workingDir.root)
+        val output = generateSafeArgs(
+            "foo", "foo.flavor",
+            testData("naive_test.xml"), workingDir.root
+        )
         val fileNames = output.fileNames
         val expectedSet = setOf(
-                "androidx.navigation.testapp.MainFragmentDirections",
-                "foo.flavor.NextFragmentDirections",
-                "androidx.navigation.testapp.MainFragmentArgs",
-                "foo.flavor.NextFragmentArgs")
+            "androidx.navigation.testapp.MainFragmentDirections",
+            "foo.flavor.NextFragmentDirections",
+            "androidx.navigation.testapp.MainFragmentArgs",
+            "foo.flavor.NextFragmentArgs"
+        )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
         fileNames.forEach { name ->
@@ -94,14 +97,17 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
 
     @Test
     fun nested_test() {
-        val output = generateSafeArgs("foo", "foo.flavor",
-                testData("nested_login_test.xml"), workingDir.root)
+        val output = generateSafeArgs(
+            "foo", "foo.flavor",
+            testData("nested_login_test.xml"), workingDir.root
+        )
         val fileNames = output.fileNames
         val expectedSet = setOf(
-                "foo.flavor.MainFragmentDirections",
-                "foo.LoginDirections",
-                "foo.flavor.account.LoginFragmentDirections",
-                "foo.flavor.account.RegisterFragmentDirections")
+            "foo.flavor.MainFragmentDirections",
+            "foo.LoginDirections",
+            "foo.flavor.account.LoginFragmentDirections",
+            "foo.flavor.account.RegisterFragmentDirections"
+        )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
         fileNames.forEach { name ->
@@ -112,7 +118,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
 
         val codeFiles = fileNames
             .mapIndexed { index, name -> name to (output.files[index]) }
-                .associate { it }
+            .associate { it }
         codeFiles.forEach { (name, file) ->
             file.assertParsesAs(name, "nested")
         }
@@ -120,13 +126,16 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
 
     @Test
     fun nested_same_action_test() {
-        val output = generateSafeArgs("foo", "foo.flavor",
-            testData("nested_same_action_test.xml"), workingDir.root)
+        val output = generateSafeArgs(
+            "foo", "foo.flavor",
+            testData("nested_same_action_test.xml"), workingDir.root
+        )
         val fileNames = output.fileNames
         val expectedSet = setOf(
             "foo.flavor.MainFragmentDirections",
             "foo.SettingsDirections",
-            "foo.flavor.SettingsFragmentDirections")
+            "foo.flavor.SettingsFragmentDirections"
+        )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
         fileNames.forEach { name ->
@@ -145,15 +154,18 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
 
     @Test
     fun nested_overridden_action_test() {
-        val output = generateSafeArgs("foo", "foo.flavor",
-            testData("nested_overridden_action_test.xml"), workingDir.root)
+        val output = generateSafeArgs(
+            "foo", "foo.flavor",
+            testData("nested_overridden_action_test.xml"), workingDir.root
+        )
         val fileNames = output.fileNames
         val expectedSet = setOf(
             "foo.flavor.MainFragmentDirections",
             "foo.SettingsDirections",
             "foo.flavor.SettingsFragmentDirections",
             "foo.InnerSettingsDirections",
-            "foo.flavor.InnerSettingsFragmentDirections")
+            "foo.flavor.InnerSettingsFragmentDirections"
+        )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
         fileNames.forEach { name ->

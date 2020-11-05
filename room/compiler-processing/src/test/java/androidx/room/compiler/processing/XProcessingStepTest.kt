@@ -61,7 +61,8 @@ class XProcessingStepTest {
             }
         }
         val main = JavaFileObjects.forSourceString(
-            "foo.bar.Main", """
+            "foo.bar.Main",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.*;
             @MainAnnotation(
@@ -72,16 +73,17 @@ class XProcessingStepTest {
             )
             class Main {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         val other = JavaFileObjects.forSourceString(
-            "foo.bar.Other", """
+            "foo.bar.Other",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.*;
             @OtherAnnotation("x")
             class Other {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
@@ -112,9 +114,11 @@ class XProcessingStepTest {
                 elementsByAnnotation[MainAnnotation::class]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
-                        .addAnnotation(AnnotationSpec.builder(OtherAnnotation::class.java).apply {
-                            addMember("value", "\"foo\"")
-                        }.build())
+                        .addAnnotation(
+                            AnnotationSpec.builder(OtherAnnotation::class.java).apply {
+                                addMember("value", "\"foo\"")
+                            }.build()
+                        )
                         .build()
                     JavaFile.builder(className.packageName(), spec)
                         .build()
@@ -131,7 +135,8 @@ class XProcessingStepTest {
             }
         }
         val main = JavaFileObjects.forSourceString(
-            "foo.bar.Main", """
+            "foo.bar.Main",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.*;
             @MainAnnotation(
@@ -142,7 +147,7 @@ class XProcessingStepTest {
             )
             class Main {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()
@@ -187,9 +192,11 @@ class XProcessingStepTest {
                 elementsByAnnotation[MainAnnotation::class]?.forEach {
                     val className = ClassName.get(it.packageName, "${it.name}_Impl")
                     val spec = TypeSpec.classBuilder(className)
-                        .addAnnotation(AnnotationSpec.builder(OtherAnnotation::class.java).apply {
-                            addMember("value", "\"foo\"")
-                        }.build())
+                        .addAnnotation(
+                            AnnotationSpec.builder(OtherAnnotation::class.java).apply {
+                                addMember("value", "\"foo\"")
+                            }.build()
+                        )
                         .build()
                     JavaFile.builder(className.packageName(), spec)
                         .build()
@@ -203,7 +210,8 @@ class XProcessingStepTest {
             }
         }
         val main = JavaFileObjects.forSourceString(
-            "foo.bar.Main", """
+            "foo.bar.Main",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.*;
             @MainAnnotation(
@@ -214,7 +222,7 @@ class XProcessingStepTest {
             )
             class Main {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         assertAbout(
             JavaSourcesSubjectFactory.javaSources()

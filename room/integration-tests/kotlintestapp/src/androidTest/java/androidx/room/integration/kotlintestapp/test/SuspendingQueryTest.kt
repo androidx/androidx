@@ -667,7 +667,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
         val wrappedExecutor = WrappedService(Executors.newCachedThreadPool())
         val localDatabase = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+        )
             .setQueryExecutor(ArchTaskExecutor.getIOThreadExecutor())
             .setTransactionExecutor(wrappedExecutor)
             .build()
@@ -699,7 +700,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
         runBlocking {
             val executorService = Executors.newSingleThreadExecutor()
             val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+            )
                 .setTransactionExecutor(executorService)
                 .build()
 
@@ -734,7 +736,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
         runBlocking {
             val executorService = Executors.newCachedThreadPool()
             val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+            )
                 .setTransactionExecutor(executorService)
                 .build()
 
@@ -756,7 +759,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
     fun withTransaction_databaseOpenError() {
         runBlocking {
             val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+            )
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onOpen(db: SupportSQLiteDatabase) {
                         // this causes all transaction methods to throw, this can happen IRL
@@ -781,7 +785,8 @@ class SuspendingQueryTest : TestDatabaseTest() {
         runBlocking {
             // delegate and delegate just so that we can throw in beginTransaction()
             val localDatabase = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+                ApplicationProvider.getApplicationContext(), TestDatabase::class.java
+            )
                 .openHelperFactory(
                     object : SupportSQLiteOpenHelper.Factory {
                         val factoryDelegate = FrameworkSQLiteOpenHelperFactory()
@@ -830,7 +835,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     assertThat(ex).hasMessageThat()
                         .contains(
                             "Cannot perform this operation because there is no current " +
-                                    "transaction"
+                                "transaction"
                         )
                 } else {
                     assertThat(ex).hasMessageThat()
@@ -858,7 +863,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     assertThat(ex).hasMessageThat()
                         .contains(
                             "Cannot perform this operation because there is no current " +
-                                    "transaction"
+                                "transaction"
                         )
                 } else {
                     assertThat(ex).hasMessageThat()

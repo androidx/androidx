@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +36,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

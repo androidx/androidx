@@ -16,16 +16,14 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
-import org.jetbrains.kotlin.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Nullability
 import kotlin.reflect.KClass
 
 /**
@@ -36,21 +34,12 @@ import kotlin.reflect.KClass
  * We don't necessarily have a [KSTypeReference] (e.g. if we are getting it from an element).
  * Similarly, we may not be able to get a [KSType] (e.g. if it resolves to error).
  */
-internal open class KspType(
+internal abstract class KspType(
     private val env: KspProcessingEnv,
     val ksType: KSType
-) : XDeclaredType, XEquality {
+) : XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
-    }
-
-    override val typeArguments: List<XType> by lazy {
-        ksType.arguments.map {
-            env.wrap(it.type!!)
-        }
-    }
-    override val typeName: TypeName by lazy {
-        ksType.typeName()
     }
 
     override val nullability by lazy {
@@ -62,10 +51,11 @@ internal open class KspType(
     }
 
     private val _typeElement by lazy {
-        check(ksType.declaration is KSClassDeclaration) { """
+        check(ksType.declaration is KSClassDeclaration) {
+            """
             Unexpected case where ksType's declaration is not a KSClassDeclaration.
             Please file a bug.
-        """.trimIndent()
+            """.trimIndent()
         }
         env.wrapClassDeclaration(ksType.declaration as KSClassDeclaration)
     }

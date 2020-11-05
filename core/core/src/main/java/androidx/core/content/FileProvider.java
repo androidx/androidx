@@ -19,6 +19,7 @@ package androidx.core.content;
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -374,6 +375,8 @@ public class FileProvider extends ContentProvider {
     private static final String ATTR_NAME = "name";
     private static final String ATTR_PATH = "path";
 
+    private static final String DISPLAYNAME_FIELD = "displayName";
+
     private static final File DEVICE_ROOT = new File("/");
 
     @GuardedBy("sCache")
@@ -440,6 +443,36 @@ public class FileProvider extends ContentProvider {
     }
 
     /**
+     * Return a content URI for a given {@link File}. Specific temporary
+     * permissions for the content URI can be set with
+     * {@link Context#grantUriPermission(String, Uri, int)}, or added
+     * to an {@link Intent} by calling {@link Intent#setData(Uri) setData()} and then
+     * {@link Intent#setFlags(int) setFlags()}; in both cases, the applicable flags are
+     * {@link Intent#FLAG_GRANT_READ_URI_PERMISSION} and
+     * {@link Intent#FLAG_GRANT_WRITE_URI_PERMISSION}. A FileProvider can only return a
+     * <code>content</code> {@link Uri} for file paths defined in their <code>&lt;paths&gt;</code>
+     * meta-data element. See the Class Overview for more information.
+     *
+     * @param context A {@link Context} for the current component.
+     * @param authority The authority of a {@link FileProvider} defined in a
+     *            {@code <provider>} element in your app's manifest.
+     * @param file A {@link File} pointing to the filename for which you want a
+     * <code>content</code> {@link Uri}.
+     * @param displayName The filename to be displayed. This can be used if the original filename
+     * is undesirable.
+     * @return A content URI for the file.
+     * @throws IllegalArgumentException When the given {@link File} is outside
+     * the paths supported by the provider.
+     */
+    @SuppressLint("StreamFiles")
+    @NonNull
+    public static Uri getUriForFile(@NonNull Context context, @NonNull String authority,
+            @NonNull File file, @NonNull String displayName) {
+        Uri uri = getUriForFile(context, authority, file);
+        return uri.buildUpon().appendQueryParameter(DISPLAYNAME_FIELD, displayName).build();
+    }
+
+    /**
      * Use a content URI returned by
      * {@link #getUriForFile(Context, String, File) getUriForFile()} to get information about a file
      * managed by the FileProvider.
@@ -473,6 +506,7 @@ public class FileProvider extends ContentProvider {
             @Nullable String sortOrder) {
         // ContentProvider has already checked granted permissions
         final File file = mStrategy.getFileForUri(uri);
+        String displayName = uri.getQueryParameter(DISPLAYNAME_FIELD);
 
         if (projection == null) {
             projection = COLUMNS;
@@ -484,7 +518,7 @@ public class FileProvider extends ContentProvider {
         for (String col : projection) {
             if (OpenableColumns.DISPLAY_NAME.equals(col)) {
                 cols[i] = OpenableColumns.DISPLAY_NAME;
-                values[i++] = file.getName();
+                values[i++] = (displayName == null) ? file.getName() : displayName;
             } else if (OpenableColumns.SIZE.equals(col)) {
                 cols[i] = OpenableColumns.SIZE;
                 values[i++] = file.length();
@@ -578,6 +612,7 @@ public class FileProvider extends ContentProvider {
      * write access, or "rwt" for read and write access that truncates any existing file.
      * @return A new {@link ParcelFileDescriptor} with which you can access the file.
      */
+    @SuppressLint("UnknownNullness") // b/171012356
     @Override
     public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {

@@ -157,10 +157,13 @@ class WorkerWrapperForegroundTest {
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
         val latch = CountDownLatch(1)
-        future.addListener(Runnable {
-            assertThat(future.isDone, `is`(true))
-            latch.countDown()
-        }, executor)
+        future.addListener(
+            Runnable {
+                assertThat(future.isDone, `is`(true))
+                latch.countDown()
+            },
+            executor
+        )
 
         latch.await(5, TimeUnit.SECONDS)
         assertThat(latch.count, `is`(0L))

@@ -42,34 +42,37 @@ private fun DataGenerationParams1D.generateNewFloatOrNull(prev: Any?): Float? {
                 val change = (0..5).random()
                 val direction = (0..1).random()
                 val newValue = if (direction == 0) prev - change else prev.toFloat() + change
-                max(min(this.valueUpperBound.toFloat(), newValue), this.valueLowerBound
-                    .toFloat())
-                }
+                max(
+                    min(this.valueUpperBound.toFloat(), newValue),
+                    this.valueLowerBound
+                        .toFloat()
+                )
             }
-            else -> prev
+        }
+        else -> prev
     }
 }
 
 private fun DataGenerationParams1D.generateNewIntOrNull(prev: Any?): Int? {
-        if (prev !is Int?) throw Exception("Can't generate new Int from $prev")
+    if (prev !is Int?) throw Exception("Can't generate new Int from $prev")
 
-        return if ((1..this.changeModeOnceInHowMany).random() == 1 || prev == null) {
-            if ((1..this.nullValueOnceInHowMany).random() == 1) null
-            else (this.valueLowerBound..this.valueUpperBound).random()
-        } else prev
+    return if ((1..this.changeModeOnceInHowMany).random() == 1 || prev == null) {
+        if ((1..this.nullValueOnceInHowMany).random() == 1) null
+        else (this.valueLowerBound..this.valueUpperBound).random()
+    } else prev
 }
 
 private fun DataGenerationParams1D.generateNewBoolOrNull(prev: Any?): Boolean? {
-        if (prev !is Boolean?) throw Exception("Can't generate new Bool from $prev")
-        return if ((1..this.changeModeOnceInHowMany).random() == 1 || prev == null) {
-            val temp = if ((1..this.nullValueOnceInHowMany).random() == 1) null
-            else (0..1).random()
-            when (temp) {
-                0 -> false
-                1 -> true
-                else -> null
-            }
-        } else prev
+    if (prev !is Boolean?) throw Exception("Can't generate new Bool from $prev")
+    return if ((1..this.changeModeOnceInHowMany).random() == 1 || prev == null) {
+        val temp = if ((1..this.nullValueOnceInHowMany).random() == 1) null
+        else (0..1).random()
+        when (temp) {
+            0 -> false
+            1 -> true
+            else -> null
+        }
+    } else prev
 }
 
 /** These parameters can be adjusted to simulate real camera data more */

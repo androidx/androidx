@@ -24,25 +24,25 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("repeatReq")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("repeatNoReq")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("req")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("noReq")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOUBLE)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .build();
@@ -55,20 +55,20 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> repeatReqCopy = dataClass.repeatReq;
     if (repeatReqCopy != null) {
       String[] repeatReqConv = repeatReqCopy.toArray(new String[0]);
-      builder.setProperty("repeatReq", repeatReqConv);
+      builder.setPropertyString("repeatReq", repeatReqConv);
     }
     List<String> repeatNoReqCopy = dataClass.repeatNoReq;
     if (repeatNoReqCopy != null) {
       String[] repeatNoReqConv = repeatNoReqCopy.toArray(new String[0]);
-      builder.setProperty("repeatNoReq", repeatNoReqConv);
+      builder.setPropertyString("repeatNoReq", repeatNoReqConv);
     }
     Float reqCopy = dataClass.req;
     if (reqCopy != null) {
-      builder.setProperty("req", reqCopy);
+      builder.setPropertyDouble("req", reqCopy);
     }
     Float noReqCopy = dataClass.noReq;
     if (noReqCopy != null) {
-      builder.setProperty("noReq", noReqCopy);
+      builder.setPropertyDouble("noReq", noReqCopy);
     }
     return builder.build();
   }

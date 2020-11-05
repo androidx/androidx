@@ -27,7 +27,7 @@ object NavParserErrors {
         "'$value' as reference. Reference must be in format @[+][package:]res_type/resource_name"
 
     fun nullDefaultValueReference(name: String?) = "android:defaultValue is @null, but '$name' " +
-            "is of type \"reference\". Use \"0\" to signify a empty reference id"
+        "is of type \"reference\". Use \"0\" to signify a empty reference id"
 
     fun invalidDefaultValue(value: String, type: NavType) = "Failed to parse defaultValue " +
         "'$value' as $type"
@@ -36,30 +36,30 @@ object NavParserErrors {
         " @[+][package:]id/resource_name "
 
     fun defaultValueObjectType(type: String?) = "'$type' " +
-            "doesn't allow default values other than @null"
+        "doesn't allow default values other than @null"
 
     fun defaultNullButNotNullable(name: String?) = "android:defaultValue is @null, but '$name' " +
-            "is not nullable. Add app:nullable=\"true\" to the argument to make it nullable."
+        "is not nullable. Add app:nullable=\"true\" to the argument to make it nullable."
 
     fun typeIsNotNullable(typeName: String?) = "'$typeName' is a simple type " +
-            "and cannot be nullable. Remove app:nullable=\"true\" from the argument."
+        "and cannot be nullable. Remove app:nullable=\"true\" from the argument."
 
     fun sameSanitizedNameArguments(sanitizedName: String, args: List<Argument>) =
-            "Multiple same name arguments. The named arguments: " +
+        "Multiple same name arguments. The named arguments: " +
             "[${args.joinToString(", ") { it.name }}] result in the generator using " +
-                    "the same name: '$sanitizedName'."
+            "the same name: '$sanitizedName'."
 
     fun sameSanitizedNameActions(sanitizedName: String, actions: List<Action>) =
-            "Multiple same name actions. The action ids: " +
-                    "[${actions.joinToString(", ") { it.id.name }}] result in the " +
-                    "generator using the same name: '$sanitizedName'."
+        "Multiple same name actions. The action ids: " +
+            "[${actions.joinToString(", ") { it.id.name }}] result in the " +
+            "generator using the same name: '$sanitizedName'."
 
     fun deprecatedTypeAttrUsed(name: String) =
-            "The 'type' attribute used by argument '$name' is deprecated. " +
-                    "Please change all instances of 'type' in navigation resources to 'argType'."
+        "The 'type' attribute used by argument '$name' is deprecated. " +
+            "Please change all instances of 'type' in navigation resources to 'argType'."
 
     val MISSING_GRAPH_ATTR = "Missing 'graph' attribute in <include> tag."
 
     fun invalidNavReference(value: String) = "Failed to parse '$value' as a navigation reference." +
-            " Reference must be in format @[package:]navigation/resource_name"
+        " Reference must be in format @[package:]navigation/resource_name"
 }

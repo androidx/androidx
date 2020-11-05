@@ -37,7 +37,8 @@ class FloatingWindowTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
         val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java)
+            FloatingTestNavigator::class.java
+        )
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.start_test)
@@ -61,7 +62,8 @@ class FloatingWindowTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
         val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java)
+            FloatingTestNavigator::class.java
+        )
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.start_test)
         assertThat(floatingNavigator.backStack.size)
@@ -82,7 +84,8 @@ class FloatingWindowTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
         val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java)
+            FloatingTestNavigator::class.java
+        )
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
         assertThat(navController.currentDestination?.id)
             .isEqualTo(R.id.start_test)

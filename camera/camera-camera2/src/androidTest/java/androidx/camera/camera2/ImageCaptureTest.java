@@ -302,13 +302,36 @@ public final class ImageCaptureTest {
     }
 
     @Test
-    public void saveCanSucceed() throws IOException {
+    public void saveCanSucceed_withNonExistingFile() {
+        ImageCapture useCase = mDefaultBuilder.build();
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        File saveLocation = new File(mContext.getCacheDir(),
+                "test" + System.currentTimeMillis() + ".jpg");
+        saveLocation.deleteOnExit();
+        // make sure file does not exist
+        if (saveLocation.exists()) {
+            saveLocation.delete();
+        }
+        assertThat(!saveLocation.exists());
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+                mMainExecutor, callback);
+
+        // Wait for the signal that the image has been saved.
+        verify(callback, timeout(10000)).onImageSaved(any());
+    }
+
+    @Test
+    public void saveCanSucceed_withExistingFile() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
+        assertThat(saveLocation.exists());
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
                 mMainExecutor, callback);

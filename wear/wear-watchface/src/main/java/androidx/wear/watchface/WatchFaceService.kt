@@ -27,6 +27,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -34,27 +35,45 @@ import android.os.PowerManager
 import android.os.RemoteException
 import android.os.Trace
 import android.service.wallpaper.WallpaperService
-import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.Constants
-import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.support.wearable.watchface.toAshmemCompressedImageBundle
 import android.util.Log
 import android.view.Choreographer
+import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
+import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
+import androidx.wear.complications.data.ComplicationData
+import androidx.wear.complications.data.ComplicationType
+import androidx.wear.complications.data.IdAndComplicationData
+import androidx.wear.complications.data.NoDataComplicationData
+import androidx.wear.complications.data.asApiComplicationData
+import androidx.wear.watchface.control.HeadlessWatchFaceImpl
+import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
+import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
+import androidx.wear.watchface.control.InteractiveInstanceManager
+import androidx.wear.watchface.control.InteractiveWatchFaceImpl
+import androidx.wear.watchface.control.WallpaperWatchFaceControlService
+import androidx.wear.watchface.control.data.ComplicationScreenshotParams
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.data.ComplicationDetails
-import androidx.wear.watchface.data.ImmutableSystemState
-import androidx.wear.watchface.data.IndicatorState
-import androidx.wear.watchface.data.RenderParametersWireFormat
+import androidx.wear.watchface.data.ComplicationStateWireFormat
+import androidx.wear.watchface.data.DeviceConfig
+import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
+import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
+import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.util.concurrent.CountDownLatch
+
+/** The wire format for [ComplicationData]. */
+internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
 
 /**
  * After user code finishes, we need up to 100ms of wake lock holding for the drawing to occur. This
@@ -73,24 +92,24 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
         TapType.TAP
     ]
 )
-annotation class TapType {
-    companion object {
-        /** Used in onTapCommand to indicate a "down" touch event on the watch face. */
-        const val TOUCH = 0
+public annotation class TapType {
+    public companion object {
+        /** Used in [WatchFace#onTapCommand] to indicate a "down" touch event on the watch face. */
+        public const val TOUCH: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH
 
         /**
-         * Used in onTapCommand to indicate that a previous TapType.TOUCH touch event has been
-         * canceled. This generally happens when the watch face is touched but then a move or long
-         * press occurs.
+         * Used in [WatchFace#onTapCommand] to indicate that a previous TapType.TOUCH touch event
+         * has been canceled. This generally happens when the watch face is touched but then a
+         * move or long press occurs.
          */
-        const val TOUCH_CANCEL = 1
+        public const val TOUCH_CANCEL: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL
 
         /**
-         * Used in onTapCommaned to indicate that an "up" event on the watch face has occurred that
-         * has not been consumed by another activity. A TapType.TOUCH will always occur first.
-         * This event will not occur if a TapType.TOUCH_CANCEL is sent.
+         * Used in [WatchFace#onTapCommand] to indicate that an "up" event on the watch face has
+         * occurred that has not been consumed by another activity. A TapType.TOUCH will always
+         * occur first. This event will not occur if a TapType.TOUCH_CANCEL is sent.
          */
-        const val TAP = 2
+        public const val TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
     }
 }
 
@@ -180,7 +199,7 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  */
 @TargetApi(26)
-abstract class WatchFaceService : WallpaperService() {
+public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
     private companion object {
@@ -191,6 +210,14 @@ abstract class WatchFaceService : WallpaperService() {
 
         /** Whether to enable tracing for each call to [Engine.onDraw]. */
         private const val TRACE_DRAW = false
+
+        // Reference time for editor screenshots for analog watch faces.
+        // 2020/10/10 at 09:30 Note the date doesn't matter, only the hour.
+        private const val ANALOG_WATCHFACE_REFERENCE_TIME_MS = 1602318600000L
+
+        // Reference time for editor screenshots for digital watch faces.
+        // 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
+        private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
     }
 
     /** Override this factory method to create your WatchFace. */
@@ -200,7 +227,7 @@ abstract class WatchFaceService : WallpaperService() {
         watchState: WatchState
     ): WatchFace
 
-    final override fun onCreateEngine() = EngineWrapper(getHandler()) as Engine
+    final override fun onCreateEngine(): Engine = EngineWrapper(getHandler())
 
     // This is open to allow mocking.
     internal open fun getHandler() = Handler(Looper.getMainLooper())
@@ -211,6 +238,9 @@ abstract class WatchFaceService : WallpaperService() {
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
 
+    // This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
+    internal open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
+
     internal fun setContext(context: Context) {
         attachBaseContext(context)
     }
@@ -219,11 +249,6 @@ abstract class WatchFaceService : WallpaperService() {
         private val uiThreadHandler: Handler
     ) : WallpaperService.Engine(), WatchFaceHostApi {
         private val _context = this@WatchFaceService as Context
-
-        private lateinit var currentSurfaceHolder: SurfaceHolder
-        private var currentSurfaceFormat = 0
-        private var currentSurfaceWidth = 0
-        private var currentSurfaceHeight = 0
 
         internal lateinit var iWatchFaceService: IWatchFaceService
         internal lateinit var watchFace: WatchFace
@@ -281,7 +306,7 @@ abstract class WatchFaceService : WallpaperService() {
             addAction(Intent.ACTION_TIME_TICK)
         }
 
-        // TODO(alexclarke): Migrate all pending logic to operate inside watchFaceCommand.
+        // TODO(alexclarke): Figure out if we can remove this.
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
         private var pendingSetWatchFaceStyle = false
@@ -293,7 +318,6 @@ abstract class WatchFaceService : WallpaperService() {
         private var systemApiVersion = -1
 
         internal var firstSetSystemState = true
-        internal var firstIndicatorState = true
         internal var immutableSystemStateDone = false
 
         internal var lastActiveComplications: IntArray? = null
@@ -301,248 +325,232 @@ abstract class WatchFaceService : WallpaperService() {
 
         private var watchFaceInitStarted = false
 
-        private val watchFaceCommand = object : IWatchFaceCommand.Stub() {
-            override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
+        private var initialUserStyle: UserStyleWireFormat? = null
 
-            override fun ambientUpdate() {
-                uiThreadHandler.runOnHandler {
-                    if (mutableWatchState.isAmbient.value) {
-                        ambientUpdateWakelock.acquire()
-                        watchFace.invalidate()
-                        ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
-                    }
-                }
+        @UiThread
+        fun ambientTickUpdate() {
+            if (mutableWatchState.isAmbient.value) {
+                ambientUpdateWakelock.acquire()
+                watchFace.invalidate()
+                ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
+            }
+        }
+
+        @UiThread
+        fun setSystemState(systemState: SystemState) {
+            if (firstSetSystemState ||
+                systemState.inAmbientMode != mutableWatchState.isAmbient.value
+            ) {
+                mutableWatchState.isAmbient.value = systemState.inAmbientMode
+                updateTimeTickReceiver()
             }
 
-            override fun setSystemState(systemState: SystemState) {
-                uiThreadHandler.runOnHandler {
-                    if (firstSetSystemState ||
-                        systemState.inAmbientMode != mutableWatchState.isAmbient.value
-                    ) {
-                        mutableWatchState.isAmbient.value = systemState.inAmbientMode
-                        updateTimeTickReceiver()
-                    }
-
-                    if (firstSetSystemState ||
-                        systemState.interruptionFilter != mutableWatchState.interruptionFilter.value
-                    ) {
-                        mutableWatchState.interruptionFilter.value = systemState.interruptionFilter
-                    }
-
-                    if (firstSetSystemState ||
-                        systemState.unreadCount != mutableWatchState.unreadNotificationCount.value
-                    ) {
-                        mutableWatchState.unreadNotificationCount.value = systemState.unreadCount
-                    }
-
-                    if (firstSetSystemState ||
-                        systemState.notificationCount != mutableWatchState.notificationCount.value
-                    ) {
-                        mutableWatchState.notificationCount.value = systemState.notificationCount
-                    }
-
-                    firstSetSystemState = false
-                }
+            if (firstSetSystemState ||
+                systemState.interruptionFilter != mutableWatchState.interruptionFilter.value
+            ) {
+                mutableWatchState.interruptionFilter.value = systemState.interruptionFilter
             }
 
-            override fun setIndicatorState(indicatorState: IndicatorState) {
-                uiThreadHandler.runOnHandler {
-                    if (firstIndicatorState ||
-                        indicatorState.isCharging != mutableWatchState.isCharging.value
-                    ) {
-                        mutableWatchState.isCharging.value = indicatorState.isCharging
-                    }
+            firstSetSystemState = false
+        }
 
-                    if (firstIndicatorState ||
-                        indicatorState.inAirplaneMode != mutableWatchState.inAirplaneMode.value
-                    ) {
-                        mutableWatchState.inAirplaneMode.value = indicatorState.inAirplaneMode
-                    }
+        @UiThread
+        fun setUserStyle(userStyle: UserStyleWireFormat) {
+            watchFace.onSetStyleInternal(
+                UserStyle(userStyle, watchFace.userStyleRepository.schema)
+            )
+        }
 
-                    if (firstIndicatorState ||
-                        indicatorState.isConnectedToCompanion !=
-                        mutableWatchState.isConnectedToCompanion.value
-                    ) {
-                        mutableWatchState.isConnectedToCompanion.value =
-                            indicatorState.isConnectedToCompanion
-                    }
+        @UiThread
+        fun setImmutableSystemState(deviceConfig: DeviceConfig) {
+            // These properties never change so set them once only.
+            if (!immutableSystemStateDone) {
+                mutableWatchState.hasLowBitAmbient = deviceConfig.hasLowBitAmbient
+                mutableWatchState.hasBurnInProtection =
+                    deviceConfig.hasBurnInProtection
+                mutableWatchState.screenShape = deviceConfig.screenShape
+                mutableWatchState.analogPreviewReferenceTimeMillis =
+                    deviceConfig.analogPreviewReferenceTimeMillis
+                mutableWatchState.digitalPreviewReferenceTimeMillis =
+                    deviceConfig.digitalPreviewReferenceTimeMillis
 
-                    if (firstIndicatorState ||
-                        indicatorState.inTheaterMode != mutableWatchState.isInTheaterMode.value
-                    ) {
-                        mutableWatchState.isInTheaterMode.value = indicatorState.inTheaterMode
-                    }
-
-                    if (firstIndicatorState ||
-                        indicatorState.isGpsActive != mutableWatchState.isGpsActive.value
-                    ) {
-                        mutableWatchState.isGpsActive.value = indicatorState.isGpsActive
-                    }
-
-                    if (firstIndicatorState ||
-                        indicatorState.isKeyguardLocked != mutableWatchState.isKeyguardLocked.value
-                    ) {
-                        mutableWatchState.isKeyguardLocked.value = indicatorState.isKeyguardLocked
-                    }
-
-                    firstIndicatorState = false
-                }
+                immutableSystemStateDone = true
             }
+        }
 
-            override fun setUserStyle(userStyle: UserStyleWireFormat) {
-                uiThreadHandler.runOnHandler {
-                    watchFace.onSetStyleInternal(
-                        UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
+        @SuppressLint("SyntheticAccessor")
+        fun setComplicationData(complicationId: Int, data: ComplicationData) {
+            if (watchFaceCreated()) {
+                watchFace.onComplicationDataUpdate(complicationId, data)
+            } else {
+                pendingComplicationDataUpdates.add(
+                    PendingComplicationData(complicationId, data)
+                )
+            }
+        }
+
+        @UiThread
+        fun getComplicationState(): List<IdAndComplicationStateWireFormat> =
+            uiThreadHandler.runOnHandler {
+                watchFace.complicationsManager.complications.map {
+                    IdAndComplicationStateWireFormat(
+                        it.key,
+                        ComplicationStateWireFormat(
+                            it.value.computeBounds(watchFace.renderer.screenBounds),
+                            it.value.boundsType,
+                            ComplicationType.toWireTypes(it.value.supportedTypes),
+                            it.value.defaultProviderPolicy.providersAsList(),
+                            it.value.defaultProviderPolicy.systemProviderFallback,
+                            it.value.defaultProviderType.asWireComplicationType(),
+                            it.value.enabled
+                        )
                     )
                 }
             }
 
-            override fun setImmutableSystemState(immutableSystemState: ImmutableSystemState) {
-                uiThreadHandler.runOnHandler {
-                    // These properties never change so set them once only.
-                    if (!immutableSystemStateDone) {
-                        mutableWatchState.hasLowBitAmbient = immutableSystemState.hasLowBitAmbient
-                        mutableWatchState.hasBurnInProtection =
-                            immutableSystemState.hasBurnInProtection
-
-                        immutableSystemStateDone = true
-                    }
-                }
-            }
-
-            @SuppressLint("SyntheticAccessor")
-            override fun setComplicationData(complicationId: Int, data: ComplicationData) {
-                uiThreadHandler.runOnHandler {
-                    if (watchFaceCreated()) {
-                        watchFace.onComplicationDataUpdate(complicationId, data)
-                    } else {
-                        pendingComplicationDataUpdates.add(
-                            PendingComplicationData(complicationId, data)
-                        )
-                    }
-                }
-            }
-
-            override fun requestWatchFaceStyle() {
-                uiThreadHandler.runOnHandler {
-                    try {
-                        iWatchFaceService.setStyle(watchFace.watchFaceStyle)
-                    } catch (e: RemoteException) {
-                        Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
-                    }
-
-                    val activeComplications = lastActiveComplications
-                    if (activeComplications != null) {
-                        setActiveComplications(activeComplications)
-                    }
-
-                    val a11yLabels = lastA11yLabels
-                    if (a11yLabels != null) {
-                        setContentDescriptionLabels(a11yLabels)
-                    }
-                }
-            }
-
-            override fun takeWatchfaceScreenshot(
-                rendererParametersWireFormat: RenderParametersWireFormat,
-                compressionQuality: Int,
-                calendarTimeMillis: Long,
-                userStyle: UserStyleWireFormat?
-            ): Bundle {
-                return uiThreadHandler.runOnHandler {
-                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
-                    if (userStyle != null) {
-                        watchFace.onSetStyleInternal(
-                            UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
-                        )
-                    }
-
-                    val bitmap = watchFace.renderer.takeScreenshot(
-                        Calendar.getInstance().apply {
-                            timeInMillis = calendarTimeMillis
-                        },
-                        RenderParameters(rendererParametersWireFormat)
+        @UiThread
+        fun setComplicationDataList(
+            complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
+        ) {
+            if (watchFaceCreated()) {
+                for (idAndComplicationData in complicationDatumWireFormats) {
+                    watchFace.onComplicationDataUpdate(
+                        idAndComplicationData.id,
+                        idAndComplicationData.complicationData.asApiComplicationData()
                     )
+                }
+            } else {
+                for (idAndComplicationData in complicationDatumWireFormats) {
+                    pendingComplicationDataUpdates.add(
+                        PendingComplicationData(
+                            idAndComplicationData.id,
+                            idAndComplicationData.complicationData.asApiComplicationData()
+                        )
+                    )
+                }
+            }
+        }
 
-                    // Restore previous style if required.
-                    if (userStyle != null) {
-                        watchFace.onSetStyleInternal(UserStyle(oldStyle))
-                    }
+        private fun requestWatchFaceStyle() {
+            try {
+                iWatchFaceService.setStyle(watchFace.watchFaceStyle)
+            } catch (e: RemoteException) {
+                Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
+            }
 
-                    bitmap
-                }.toAshmemCompressedImageBundle(
-                    compressionQuality
+            val activeComplications = lastActiveComplications
+            if (activeComplications != null) {
+                setActiveComplications(activeComplications)
+            }
+
+            val a11yLabels = lastA11yLabels
+            if (a11yLabels != null) {
+                setContentDescriptionLabels(a11yLabels)
+            }
+        }
+
+        @UiThread
+        fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams): Bundle {
+            val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.selectedOptions)
+            params.userStyle?.let {
+                watchFace.onSetStyleInternal(
+                    UserStyle(it, watchFace.userStyleRepository.schema)
                 )
             }
 
-            override fun takeComplicationScreenshot(
-                complicationId: Int,
-                rendererParametersWireFormat: RenderParametersWireFormat,
-                compressionQuality: Int,
-                calendarTimeMillis: Long,
-                complicationData: ComplicationData?,
-                userStyle: UserStyleWireFormat?
-            ): Bundle? {
-                return uiThreadHandler.runOnHandler {
-                    val calendar = Calendar.getInstance().apply {
-                        timeInMillis = calendarTimeMillis
-                    }
-                    val complication = watchFace.complicationsManager[complicationId]
-                    if (complication != null) {
-                        val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
-                        if (userStyle != null) {
-                            watchFace.onSetStyleInternal(
-                                UserStyle(
-                                    userStyle,
-                                    watchFace.userStyleRepository.userStyleCategories
-                                )
-                            )
-                        }
-
-                        val bounds = complication.computeBounds(watchFace.renderer.screenBounds)
-                        val complicationBitmap =
-                            Bitmap.createBitmap(
-                                bounds.width(), bounds.height(),
-                                Bitmap.Config.ARGB_8888
-                            )
-
-                        var prevComplicationData: ComplicationData? = null
-                        if (complicationData != null) {
-                            prevComplicationData = complication.renderer.getData()
-                            complication.renderer.setData(complicationData)
-                        }
-
-                        complication.renderer.render(
-                            Canvas(complicationBitmap),
-                            Rect(0, 0, bounds.width(), bounds.height()),
-                            calendar,
-                            RenderParameters(rendererParametersWireFormat)
-                        )
-
-                        // Restore previous ComplicationData & style if required.
-                        if (complicationData != null) {
-                            complication.renderer.setData(prevComplicationData)
-                        }
-
-                        if (userStyle != null) {
-                            watchFace.onSetStyleInternal(UserStyle(oldStyle))
-                        }
-
-                        complicationBitmap.toAshmemCompressedImageBundle(
-                            compressionQuality
-                        )
-                    } else {
-                        null
-                    }
+            val oldComplicationData =
+                watchFace.complicationsManager.complications.mapValues {
+                    it.value.renderer.idAndData?.complicationData ?: NoDataComplicationData()
+                }
+            params.idAndComplicationDatumWireFormats?.let {
+                for (idAndData in it) {
+                    watchFace.onComplicationDataUpdate(
+                        idAndData.id, idAndData.complicationData.asApiComplicationData()
+                    )
                 }
             }
 
-            override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
-                uiThreadHandler.runOnHandler {
-                    if (watchFaceCreated()) {
-                        watchFace.onTapCommand(tapType, xPos, yPos)
-                    }
+            val bitmap = watchFace.renderer.takeScreenshot(
+                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                    timeInMillis = params.calendarTimeMillis
+                },
+                RenderParameters(params.renderParametersWireFormat)
+            )
+
+            // Restore previous style & complications if required.
+            if (params.userStyle != null) {
+                watchFace.onSetStyleInternal(UserStyle(oldStyle))
+            }
+
+            if (params.idAndComplicationDatumWireFormats != null) {
+                for ((id, data) in oldComplicationData) {
+                    watchFace.onComplicationDataUpdate(id, data)
                 }
+            }
+
+            return bitmap.toAshmemCompressedImageBundle(
+                params.compressionQuality
+            )
+        }
+
+        @UiThread
+        fun takeComplicationScreenshot(params: ComplicationScreenshotParams): Bundle? {
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = params.calendarTimeMillis
+            }
+            return watchFace.complicationsManager[params.complicationId]?.let {
+                val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.selectedOptions)
+                val newStyle = params.userStyle
+                if (newStyle != null) {
+                    watchFace.onSetStyleInternal(
+                        UserStyle(newStyle, watchFace.userStyleRepository.schema)
+                    )
+                }
+
+                val bounds = it.computeBounds(watchFace.renderer.screenBounds)
+                val complicationBitmap =
+                    Bitmap.createBitmap(
+                        bounds.width(), bounds.height(),
+                        Bitmap.Config.ARGB_8888
+                    )
+
+                var prevIdAndComplicationData: IdAndComplicationData? = null
+                var screenshotComplicationData = params.complicationData
+                if (screenshotComplicationData != null) {
+                    prevIdAndComplicationData = it.renderer.idAndData
+                    it.renderer.idAndData =
+                        IdAndComplicationData(
+                            params.complicationId,
+                            screenshotComplicationData
+                        )
+                }
+
+                it.renderer.render(
+                    Canvas(complicationBitmap),
+                    Rect(0, 0, bounds.width(), bounds.height()),
+                    calendar,
+                    RenderParameters(params.renderParametersWireFormat)
+                )
+
+                // Restore previous ComplicationData & style if required.
+                if (params.complicationData != null) {
+                    it.renderer.idAndData = prevIdAndComplicationData
+                }
+
+                if (newStyle != null) {
+                    watchFace.onSetStyleInternal(UserStyle(oldStyle))
+                }
+
+                complicationBitmap.toAshmemCompressedImageBundle(
+                    params.compressionQuality
+                )
+            }
+        }
+
+        @UiThread
+        fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
+            if (watchFaceCreated()) {
+                watchFace.onTapCommand(tapType, xPos, yPos)
             }
         }
 
@@ -559,6 +567,30 @@ abstract class WatchFaceService : WallpaperService() {
             // Disable reference counting for our wake lock so that we can use the same wake lock
             // for user code in invaliate() and after that for having canvas drawn.
             ambientUpdateWakelock.setReferenceCounted(false)
+
+            // Rerender watch face if the surface changes.
+            holder.addCallback(
+                object : SurfaceHolder.Callback {
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        width: Int,
+                        height: Int
+                    ) {
+                        // We can sometimes get this callback before the watchface has been created
+                        // in which case it's safe to drop it.
+                        if (this@EngineWrapper::watchFace.isInitialized) {
+                            invalidate()
+                        }
+                    }
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                    }
+
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                    }
+                }
+            )
         }
 
         override fun onDestroy() {
@@ -586,25 +618,35 @@ abstract class WatchFaceService : WallpaperService() {
             resultRequested: Boolean
         ): Bundle? {
             when (action) {
-                Constants.COMMAND_AMBIENT_UPDATE -> watchFaceCommand.ambientUpdate()
-                Constants.COMMAND_BACKGROUND_ACTION -> onBackgroundAction(extras!!)
-                Constants.COMMAND_COMPLICATION_DATA -> onComplicationDataUpdate(extras!!)
-                Constants.COMMAND_REQUEST_STYLE -> onRequestStyle()
-                Constants.COMMAND_SET_BINDER -> onSetBinder(extras!!)
-                Constants.COMMAND_SET_PROPERTIES -> onPropertiesChanged(extras!!)
-                Constants.COMMAND_TAP -> watchFaceCommand.sendTouchEvent(x, y, TapType.TAP)
-                Constants.COMMAND_TOUCH -> watchFaceCommand.sendTouchEvent(x, y, TapType.TOUCH)
-                Constants.COMMAND_TOUCH_CANCEL -> watchFaceCommand.sendTouchEvent(
-                    x,
-                    y,
-                    TapType.TOUCH_CANCEL
-                )
+                Constants.COMMAND_AMBIENT_UPDATE ->
+                    uiThreadHandler.runOnHandler { ambientTickUpdate() }
+                Constants.COMMAND_BACKGROUND_ACTION ->
+                    uiThreadHandler.runOnHandler { onBackgroundAction(extras!!) }
+                Constants.COMMAND_COMPLICATION_DATA ->
+                    uiThreadHandler.runOnHandler { onComplicationDataUpdate(extras!!) }
+                Constants.COMMAND_REQUEST_STYLE ->
+                    uiThreadHandler.runOnHandler { onRequestStyle() }
+                Constants.COMMAND_SET_BINDER ->
+                    uiThreadHandler.runOnHandler { onSetBinder(extras!!) }
+                Constants.COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST ->
+                    uiThreadHandler.runOnHandler {
+                        onBindWallpaperWatchFaceControlServiceRequest(extras!!)
+                    }
+                Constants.COMMAND_SET_PROPERTIES ->
+                    uiThreadHandler.runOnHandler { onPropertiesChanged(extras!!) }
+                Constants.COMMAND_TAP ->
+                    uiThreadHandler.runOnHandler { sendTouchEvent(x, y, TapType.TAP) }
+                Constants.COMMAND_TOUCH ->
+                    uiThreadHandler.runOnHandler { sendTouchEvent(x, y, TapType.TOUCH) }
+                Constants.COMMAND_TOUCH_CANCEL ->
+                    uiThreadHandler.runOnHandler { sendTouchEvent(x, y, TapType.TOUCH_CANCEL) }
                 else -> {
                 }
             }
             return null
         }
 
+        @UiThread
         fun onBackgroundAction(extras: Bundle) {
             // We can't guarantee the binder has been set and onSurfaceChanged called before this
             // command.
@@ -613,7 +655,7 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            watchFaceCommand.setSystemState(
+            setSystemState(
                 SystemState(
                     extras.getBoolean(
                         Constants.EXTRA_AMBIENT_MODE,
@@ -622,31 +664,9 @@ abstract class WatchFaceService : WallpaperService() {
                     extras.getInt(
                         Constants.EXTRA_INTERRUPTION_FILTER,
                         mutableWatchState.interruptionFilter.getValueOr(0)
-                    ),
-                    extras.getInt(
-                        Constants.EXTRA_UNREAD_COUNT,
-                        mutableWatchState.unreadNotificationCount.getValueOr(0)
-                    ),
-                    extras.getInt(
-                        Constants.EXTRA_NOTIFICATION_COUNT,
-                        mutableWatchState.notificationCount.getValueOr(0)
                     )
                 )
             )
-
-            val statusBundle = extras.getBundle(Constants.EXTRA_INDICATOR_STATUS)
-            if (statusBundle != null) {
-                watchFaceCommand.setIndicatorState(
-                    IndicatorState(
-                        statusBundle.getBoolean(Constants.STATUS_CHARGING),
-                        statusBundle.getBoolean(Constants.STATUS_AIRPLANE_MODE),
-                        statusBundle.getBoolean(Constants.STATUS_CONNECTED),
-                        statusBundle.getBoolean(Constants.STATUS_THEATER_MODE),
-                        statusBundle.getBoolean(Constants.STATUS_GPS_ACTIVE),
-                        statusBundle.getBoolean(Constants.STATUS_KEYGUARD_LOCKED)
-                    )
-                )
-            }
 
             pendingBackgroundAction = null
         }
@@ -668,30 +688,131 @@ abstract class WatchFaceService : WallpaperService() {
                 Log.w(TAG, "Failed to getVersion: ", e)
             }
 
-            if (systemApiVersion >= 3) {
-                val bundle = Bundle().apply {
-                    putBinder(
-                        Constants.EXTRA_WATCH_FACE_COMMAND_BINDER,
-                        watchFaceCommand.asBinder()
-                    )
-                }
-                iWatchFaceService.registerIWatchFaceCommand(bundle)
-            }
-
             maybeCreateWatchFace()
         }
 
-        override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-            currentSurfaceHolder = holder
-            currentSurfaceFormat = format
-            currentSurfaceWidth = width
-            currentSurfaceHeight = height
-
-            if (watchFaceCreated()) {
-                watchFace.onSurfaceChanged(holder, format, width, height)
-            } else {
-                maybeCreateWatchFace()
+        private fun onBindWallpaperWatchFaceControlServiceRequest(extras: Bundle) {
+            val binder = extras.getBinder(Constants.EXTRA_BINDER)
+            if (binder == null) {
+                Log.w(TAG, "Binder is null.")
+                return
             }
+            IWallpaperWatchFaceControlServiceRequest.Stub.asInterface(binder)
+                .registerWallpaperWatchFaceControlService(
+                    WallpaperWatchFaceControlService(this, uiThreadHandler)
+                )
+        }
+
+        override fun getInitialUserStyle(): UserStyleWireFormat? = initialUserStyle
+
+        fun createHeadlessInstance(
+            params: HeadlessWatchFaceInstanceParams
+        ): HeadlessWatchFaceImpl {
+            require(!watchFaceCreated())
+            setImmutableSystemState(params.deviceConfig)
+
+            val host = WatchFaceHost()
+            host.api = this
+
+            // Fake SurfaceHolder with just enough methods implemented for headless rendering.
+            val fakeSurfaceHolder = object : SurfaceHolder {
+                val callbacks = HashSet<SurfaceHolder.Callback>()
+
+                override fun setType(type: Int) {
+                    throw NotImplementedError()
+                }
+
+                override fun getSurface(): Surface {
+                    throw NotImplementedError()
+                }
+
+                override fun setSizeFromLayout() {
+                    throw NotImplementedError()
+                }
+
+                override fun lockCanvas(): Canvas {
+                    throw NotImplementedError()
+                }
+
+                override fun lockCanvas(dirty: Rect?): Canvas {
+                    throw NotImplementedError()
+                }
+
+                override fun getSurfaceFrame() = Rect(0, 0, params.width, params.height)
+
+                override fun setFixedSize(width: Int, height: Int) {
+                    throw NotImplementedError()
+                }
+
+                override fun removeCallback(callback: SurfaceHolder.Callback) {
+                    callbacks.remove(callback)
+                }
+
+                override fun isCreating(): Boolean {
+                    throw NotImplementedError()
+                }
+
+                override fun addCallback(callback: SurfaceHolder.Callback) {
+                    callbacks.add(callback)
+                }
+
+                override fun setFormat(format: Int) {
+                    throw NotImplementedError()
+                }
+
+                override fun setKeepScreenOn(screenOn: Boolean) {
+                    throw NotImplementedError()
+                }
+
+                override fun unlockCanvasAndPost(canvas: Canvas?) {
+                    throw NotImplementedError()
+                }
+            }
+
+            watchFace = createWatchFace(
+                fakeSurfaceHolder,
+                host,
+                mutableWatchState.asWatchState()
+            )
+
+            allowWatchfaceToAnimate = false
+            mutableWatchState.isVisible.value = true
+            mutableWatchState.isAmbient.value = false
+
+            watchFace.renderer.onPostCreate()
+            return HeadlessWatchFaceImpl(this, uiThreadHandler)
+        }
+
+        @UiThread
+        fun createInteractiveInstance(
+            params: WallpaperInteractiveWatchFaceInstanceParams
+        ): InteractiveWatchFaceImpl? {
+            require(!watchFaceCreated())
+
+            setImmutableSystemState(params.deviceConfig)
+            setSystemState(params.systemState)
+            initialUserStyle = params.userStyle
+
+            val host = WatchFaceHost()
+            host.api = this
+            watchFace = createWatchFace(
+                getWallpaperSurfaceHolderOverride() ?: surfaceHolder,
+                host,
+                mutableWatchState.asWatchState()
+            )
+
+            params.idAndComplicationDataWireFormats?.let { setComplicationDataList(it) }
+
+            watchFace.renderer.onPostCreate()
+            val visibility = pendingVisibilityChanged
+            if (visibility != null) {
+                onVisibilityChanged(visibility)
+                pendingVisibilityChanged = null
+            }
+
+            val instance = InteractiveWatchFaceImpl(this, params.instanceId, uiThreadHandler)
+            InteractiveInstanceManager.addInstance(instance)
+            return instance
         }
 
         override fun onSurfaceRedrawNeeded(holder: SurfaceHolder) {
@@ -700,17 +821,10 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun onSurfaceDestroyed(holder: SurfaceHolder) {
-            if (watchFaceCreated()) {
-                watchFace.renderer.onSurfaceDestroyed(holder)
-            }
-        }
-
         private fun maybeCreateWatchFace() {
             // To simplify handling of watch face state, we only construct the [WatchFace]
-            // once both currentSurfaceHolder and iWatchFaceService have been initialized.
-            if (this::currentSurfaceHolder.isInitialized &&
-                this::iWatchFaceService.isInitialized && pendingProperties != null &&
+            // once iWatchFaceService have been initialized and pending properties sent.
+            if (this::iWatchFaceService.isInitialized && pendingProperties != null &&
                 !watchFaceCreated()
             ) {
                 watchFaceInitStarted = true
@@ -722,19 +836,11 @@ abstract class WatchFaceService : WallpaperService() {
                 val host = WatchFaceHost()
                 host.api = this
                 watchFace = createWatchFace(
-                    currentSurfaceHolder,
+                    surfaceHolder,
                     host,
                     mutableWatchState.asWatchState()
                 )
-
-                // Watchfaces especially OpenGL ones often do initialization in
-                // onSurfaceChanged, make sure we send the initial one.
-                watchFace.renderer.onSurfaceChanged(
-                    currentSurfaceHolder,
-                    currentSurfaceFormat,
-                    currentSurfaceWidth,
-                    currentSurfaceHeight
-                )
+                watchFace.renderer.onPostCreate()
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {
@@ -750,7 +856,7 @@ abstract class WatchFaceService : WallpaperService() {
                     pendingVisibilityChanged = null
                 }
                 for (complicationDataUpdate in pendingComplicationDataUpdates) {
-                    watchFaceCommand.setComplicationData(
+                    setComplicationData(
                         complicationDataUpdate.complicationId,
                         complicationDataUpdate.data
                     )
@@ -765,7 +871,7 @@ abstract class WatchFaceService : WallpaperService() {
                 pendingSetWatchFaceStyle = true
                 return
             }
-            watchFaceCommand.requestWatchFaceStyle()
+            requestWatchFaceStyle()
             pendingSetWatchFaceStyle = false
         }
 
@@ -862,13 +968,16 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun onComplicationDataUpdate(extras: Bundle) {
-            extras.classLoader = ComplicationData::class.java.classLoader
-            watchFaceCommand.setComplicationData(
+            extras.classLoader = WireComplicationData::class.java.classLoader
+            val complicationData: WireComplicationData =
+                extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA)!!
+            setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
-                (extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA) as ComplicationData?)!!
+                complicationData.asApiComplicationData()
             )
         }
 
+        @UiThread
         internal fun onPropertiesChanged(properties: Bundle) {
             if (!watchFaceInitStarted) {
                 pendingProperties = properties
@@ -876,10 +985,13 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            watchFaceCommand.setImmutableSystemState(
-                ImmutableSystemState(
+            setImmutableSystemState(
+                DeviceConfig(
                     properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
-                    properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION)
+                    properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION),
+                    SCREEN_SHAPE_ROUND, // TODO(alexclarke): Fix this?
+                    ANALOG_WATCHFACE_REFERENCE_TIME_MS,
+                    DIGITAL_WATCHFACE_REFERENCE_TIME_MS
                 )
             )
         }
@@ -892,6 +1004,11 @@ abstract class WatchFaceService : WallpaperService() {
             @ProviderId fallbackSystemProvider: Int,
             type: Int
         ) {
+            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
+            if (!this::iWatchFaceService.isInitialized) {
+                return
+            }
+
             if (systemApiVersion >= 2) {
                 iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
                     watchFaceComplicationId,
@@ -924,7 +1041,13 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun setActiveComplications(watchFaceComplicationIds: IntArray) {
+            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
+            if (!this::iWatchFaceService.isInitialized) {
+                return
+            }
+
             lastActiveComplications = watchFaceComplicationIds
+
             try {
                 iWatchFaceService.setActiveComplications(
                     watchFaceComplicationIds, /* updateAll= */ !complicationsActivated
@@ -936,6 +1059,11 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
+            // For wear 3.0 watchfaces iWatchFaceService won't have been set.
+            if (!this::iWatchFaceService.isInitialized) {
+                return
+            }
+
             lastA11yLabels = labels
             try {
                 iWatchFaceService.setContentDescriptionLabels(labels)
@@ -944,46 +1072,17 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun registerWatchFaceType(@WatchFaceType watchFaceType: Int) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.registerWatchFaceType(watchFaceType)
-            }
+        override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
+            // TODO(alexclarke): Report programmatic style changes to WCS.
         }
 
-        override fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.registerUserStyleSchema(userStyleSchema)
-            }
-        }
-
-        override fun setCurrentUserStyle(
-            userStyle: UserStyleWireFormat
-        ) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.setCurrentUserStyle(userStyle)
-            }
-        }
-
-        override fun getStoredUserStyle(): UserStyleWireFormat? {
-            if (systemApiVersion < 3) {
-                return null
-            }
-            return iWatchFaceService.storedUserStyle
-        }
-
-        @SuppressLint("WrongConstant")
         override fun setComplicationDetails(
             complicationId: Int,
             bounds: Rect,
             @ComplicationBoundsType boundsType: Int,
             types: IntArray
         ) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.setComplicationDetails(
-                    complicationId,
-                    ComplicationDetails(bounds, boundsType, types)
-                )
-            }
+            // TODO(alexclarke): Report programmatic complication details changes to WCS.
         }
     }
 }
@@ -1004,14 +1103,15 @@ internal fun <R> Handler.runOnHandler(task: () -> R) =
         var returnVal: R? = null
         var exception: Exception? = null
         if (post {
-                try {
-                    returnVal = task.invoke()
-                } catch (e: Exception) {
-                    // Will rethrow on the calling thread.
-                    exception = e
-                }
-                latch.countDown()
-            }) {
+            try {
+                returnVal = task.invoke()
+            } catch (e: Exception) {
+                // Will rethrow on the calling thread.
+                exception = e
+            }
+            latch.countDown()
+        }
+        ) {
             latch.await()
             if (exception != null) {
                 throw exception as Exception

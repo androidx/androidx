@@ -40,7 +40,6 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.MediumTest;
 
 import com.google.common.collect.Iterables;
 
@@ -63,7 +62,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Unit test for {@link ImageAnalysis}.
  */
-@MediumTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

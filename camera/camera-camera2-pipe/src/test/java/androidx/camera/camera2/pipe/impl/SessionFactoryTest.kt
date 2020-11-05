@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.testing.FakeCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import dagger.Component
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,7 +52,6 @@ interface CameraSessionTestComponent {
     fun streamMap(): StreamMap
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 @OptIn(ExperimentalCoroutinesApi::class)

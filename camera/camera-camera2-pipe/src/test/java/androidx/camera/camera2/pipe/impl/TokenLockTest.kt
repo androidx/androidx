@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
@@ -30,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class TokenLockTest {

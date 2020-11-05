@@ -167,6 +167,12 @@ MethodNameUnits: androidx.recyclerview.widget.OrientationHelper#getTotalSpace():
     Expected method name units to be `Bytes`, was `Space` in `getTotalSpace`
 
 
+MissingGetterMatchingBuilder: androidx.recyclerview.widget.ConcatAdapter.Config.Builder#setIsolateViewTypes(boolean):
+    androidx.recyclerview.widget.ConcatAdapter.Config does not declare a `isIsolateViewTypes()` method matching method androidx.recyclerview.widget.ConcatAdapter.Config.Builder.setIsolateViewTypes(boolean)
+MissingGetterMatchingBuilder: androidx.recyclerview.widget.ConcatAdapter.Config.Builder#setStableIdMode(androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode):
+    androidx.recyclerview.widget.ConcatAdapter.Config does not declare a `getStableIdMode()` method matching method androidx.recyclerview.widget.ConcatAdapter.Config.Builder.setStableIdMode(androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode)
+
+
 MissingNullability: androidx.recyclerview.widget.AdapterListUpdateCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
 MissingNullability: androidx.recyclerview.widget.AsyncDifferConfig.Builder#setBackgroundThreadExecutor(java.util.concurrent.Executor) parameter #0:

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -308,6 +309,15 @@ public class InvalidationTracker {
         return tables.toArray(new String[tables.size()]);
     }
 
+    private static void beginTransactionInternal(SupportSQLiteDatabase database) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
+                && database.isWriteAheadLoggingEnabled()) {
+            database.beginTransactionNonExclusive();
+        } else {
+            database.beginTransaction();
+        }
+    }
+
     /**
      * Adds an observer but keeps a weak reference back to it.
      * <p>
@@ -389,7 +399,7 @@ public class InvalidationTracker {
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
                     SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
-                    db.beginTransaction();
+                    db.beginTransactionNonExclusive();
                     try {
                         invalidatedTableIds = checkUpdatedTable();
                         db.setTransactionSuccessful();
@@ -501,7 +511,7 @@ public class InvalidationTracker {
                         return;
                     }
                     final int limit = tablesToSync.length;
-                    database.beginTransaction();
+                    beginTransactionInternal(database);
                     try {
                         for (int tableId = 0; tableId < limit; tableId++) {
                             switch (tablesToSync[tableId]) {

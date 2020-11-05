@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.core;
 
-import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -81,13 +80,14 @@ public final class NewActivityLifecycleTest {
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     @Before
-    public void setup() {
+    public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
         assertThat(mLauncherPackageName, notNullValue());
 
-        // Clear the device UI before start each test.
-        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         mActivityRule.launchActivity(mIntent);
     }

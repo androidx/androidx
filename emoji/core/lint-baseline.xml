@@ -8,7 +8,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="665"
+            line="654"
             column="32"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="713"
+            line="702"
             column="32"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="770"
+            line="759"
             column="32"/>
     </issue>
 
@@ -254,7 +254,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="294"
+            line="302"
             column="19"/>
     </issue>
 
@@ -265,7 +265,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="314"
+            line="322"
             column="19"/>
     </issue>
 
@@ -276,7 +276,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="329"
+            line="337"
             column="19"/>
     </issue>
 
@@ -287,7 +287,7 @@
         errorLine2="                                          ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="329"
+            line="337"
             column="43"/>
     </issue>
 
@@ -298,7 +298,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="355"
+            line="352"
             column="19"/>
     </issue>
 
@@ -309,7 +309,7 @@
         errorLine2="                  ~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="544"
+            line="541"
             column="19"/>
     </issue>
 
@@ -320,7 +320,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="628"
+            line="625"
             column="12"/>
     </issue>
 
@@ -331,7 +331,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="664"
+            line="661"
             column="12"/>
     </issue>
 
@@ -342,7 +342,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="699"
+            line="696"
             column="12"/>
     </issue>
 
@@ -353,7 +353,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="739"
+            line="736"
             column="12"/>
     </issue>
 
@@ -364,7 +364,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="929"
+            line="979"
             column="16"/>
     </issue>
 
@@ -375,7 +375,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="947"
+            line="997"
             column="16"/>
     </issue>
 
@@ -386,7 +386,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="964"
+            line="1014"
             column="16"/>
     </issue>
 
@@ -397,7 +397,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="984"
+            line="1034"
             column="16"/>
     </issue>
 
@@ -408,7 +408,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1003"
+            line="1053"
             column="16"/>
     </issue>
 
@@ -419,7 +419,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1027"
+            line="1077"
             column="16"/>
     </issue>
 
@@ -430,7 +430,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1038"
+            line="1088"
             column="16"/>
     </issue>
 
@@ -441,7 +441,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1079"
+            line="1129"
             column="16"/>
     </issue>
 
@@ -452,7 +452,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"
-            line="1087"
+            line="1150"
             column="25"/>
     </issue>
 
@@ -762,17 +762,6 @@
             file="src/main/java/androidx/emoji/text/EmojiMetadata.java"
             line="120"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public boolean hasGlyph(final CharSequence charSequence, int start, final int end) {"
-        errorLine2="                                      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
-            line="822"
-            column="39"/>
     </issue>
 
     <issue

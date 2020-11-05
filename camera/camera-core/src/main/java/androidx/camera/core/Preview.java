@@ -445,8 +445,16 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return factory.getConfig(PreviewConfig.class);
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+
+        if (applyDefaultConfig) {
+            captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
+        }
+
+        return captureConfig == null ? null :
+                getUseCaseConfigBuilder(captureConfig).getUseCaseConfig();
     }
 
     /**
@@ -478,18 +486,6 @@ public final class Preview extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
         return Preview.Builder.fromConfig(config);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Preview.Builder.fromConfig((PreviewConfig) getCurrentConfig());
     }
 
     /**
@@ -614,13 +610,13 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
+        private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder =
-                    new Builder()
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder().setSurfaceOccupancyPriority(
+                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -784,6 +780,15 @@ public final class Preview extends UseCase {
          *
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.
+         *
+         * <p>For the following devices, the aspect ratio will be forced to
+         * {@link AspectRatio#RATIO_16_9} regardless of the config. On these devices, the
+         * camera HAL produces a preview with a 16:9 aspect ratio regardless of the aspect ratio
+         * of the preview surface.
+         * <ul>
+         *     <li>SM-J710MN, Samsung Galaxy J7 (2016)
+         *     <li>SM-T580, Samsung Galaxy Tab A J7 (2016)
+         * </ul>
          *
          * @param aspectRatio The desired Preview {@link AspectRatio}
          * @return The current Builder.

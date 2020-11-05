@@ -39,15 +39,17 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
     final override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query)
-        val tableNames = ((adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (adapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         if (tableNames.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         return create(
-                typeArg = typeArg,
-                resultAdapter = adapter,
-                tableNames = tableNames
+            typeArg = typeArg,
+            resultAdapter = adapter,
+            tableNames = tableNames
         )
     }
 }

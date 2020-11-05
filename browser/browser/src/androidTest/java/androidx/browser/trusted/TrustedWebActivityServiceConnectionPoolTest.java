@@ -36,6 +36,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -118,6 +119,7 @@ public class TrustedWebActivityServiceConnectionPoolTest {
         }
     }
 
+    @Ignore("Test disabled due to flakiness, see b/153851530")
     @Test
     public void testMultipleExecutions() {
         final AtomicInteger count = new AtomicInteger();

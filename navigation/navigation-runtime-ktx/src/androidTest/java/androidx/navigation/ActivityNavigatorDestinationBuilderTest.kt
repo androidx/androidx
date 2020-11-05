@@ -39,11 +39,15 @@ class ActivityNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have label set",
-                LABEL,
-                graph[DESTINATION_ID].label)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have label set",
+            LABEL,
+            graph[DESTINATION_ID].label
+        )
     }
 
     @Test
@@ -68,11 +72,15 @@ class ActivityNavigatorDestinationBuilderTest {
                 activityClass = TestActivity::class
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have ComponentName set",
-                TestActivity::class.java.name,
-                (graph[DESTINATION_ID] as ActivityNavigator.Destination).component?.className)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have ComponentName set",
+            TestActivity::class.java.name,
+            (graph[DESTINATION_ID] as ActivityNavigator.Destination).component?.className
+        )
     }
 
     @Test
@@ -82,11 +90,15 @@ class ActivityNavigatorDestinationBuilderTest {
                 action = ACTION
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have action set",
-                ACTION,
-                (graph[DESTINATION_ID] as ActivityNavigator.Destination).action)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have action set",
+            ACTION,
+            (graph[DESTINATION_ID] as ActivityNavigator.Destination).action
+        )
     }
 
     @Test
@@ -96,11 +108,15 @@ class ActivityNavigatorDestinationBuilderTest {
                 data = DATA
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have data set",
-                DATA,
-                (graph[DESTINATION_ID] as ActivityNavigator.Destination).data)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have data set",
+            DATA,
+            (graph[DESTINATION_ID] as ActivityNavigator.Destination).data
+        )
     }
 
     @Test
@@ -110,11 +126,15 @@ class ActivityNavigatorDestinationBuilderTest {
                 dataPattern = DATA_PATTERN
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have data pattern set",
-                DATA_PATTERN,
-                (graph[DESTINATION_ID] as ActivityNavigator.Destination).dataPattern)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have data pattern set",
+            DATA_PATTERN,
+            (graph[DESTINATION_ID] as ActivityNavigator.Destination).dataPattern
+        )
     }
 }
 

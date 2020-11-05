@@ -20,9 +20,10 @@ import android.content.Context
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Handler
-import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
+import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
@@ -36,14 +37,16 @@ import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSchema
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
-    var mockSystemTimeMillis: Long
+    var mockSystemTimeMillis: Long,
+    var surfacHolderOverride: SurfaceHolder?
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -63,18 +66,18 @@ internal class TestGlesWatchFaceService(
         mutableWatchState.isVisible.value = true
 
         val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleCategory = ListUserStyleCategory(
-            "color_style_category",
+        val colorStyleSetting = ListUserStyleSetting(
+            "color_style_setting",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListUserStyleCategory.ListOption(
+                ListUserStyleSetting.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
@@ -82,30 +85,31 @@ internal class TestGlesWatchFaceService(
             ),
             listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
         )
-        val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
+        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
         val complicationSlots = ComplicationsManager(
             listOf(
                 Complication.Builder(
                     EXAMPLE_OPENGL_COMPLICATION_ID,
                     watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    intArrayOf(
-                        ComplicationData.TYPE_RANGED_VALUE,
-                        ComplicationData.TYPE_LONG_TEXT,
-                        ComplicationData.TYPE_SHORT_TEXT,
-                        ComplicationData.TYPE_ICON,
-                        ComplicationData.TYPE_SMALL_IMAGE
+                    listOf(
+                        ComplicationType.RANGED_VALUE,
+                        ComplicationType.LONG_TEXT,
+                        ComplicationType.SHORT_TEXT,
+                        ComplicationType.MONOCHROMATIC_IMAGE,
+                        ComplicationType.SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
                     .build()
-            )
+            ),
+            userStyleRepository
         )
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
             userStyleRepository,
             watchState,
-            colorStyleCategory,
+            colorStyleSetting,
             complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
 
@@ -130,4 +134,6 @@ internal class TestGlesWatchFaceService(
 
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
+
+    override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
 }

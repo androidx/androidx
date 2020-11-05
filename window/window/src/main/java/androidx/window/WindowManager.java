@@ -19,6 +19,7 @@ package androidx.window;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,26 +76,6 @@ public final class WindowManager {
     }
 
     /**
-     * Gets current window layout information for the associated {@link Context}. Must be called
-     * only after the it is attached to the window and the layout pass has happened.
-     * @see Activity#onAttachedToWindow()
-     * @see WindowLayoutInfo
-     */
-    @NonNull
-    public WindowLayoutInfo getWindowLayoutInfo() {
-        return mWindowBackend.getWindowLayoutInfo(mContext);
-    }
-
-    /**
-     * Gets the current device state.
-     * @see DeviceState
-     */
-    @NonNull
-    public DeviceState getDeviceState() {
-        return mWindowBackend.getDeviceState();
-    }
-
-    /**
      * Registers a callback for layout changes of the window of the current visual {@link Context}.
      * Must be called only after the it is attached to the window.
      * @see Activity#onAttachedToWindow()
@@ -127,6 +108,57 @@ public final class WindowManager {
     }
 
     /**
+     * Returns the {@link WindowMetrics} according to the current system state.
+     * <p>
+     * The metrics describe the size of the area the window would occupy with
+     * {@link android.view.WindowManager.LayoutParams#MATCH_PARENT MATCH_PARENT} width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     * <p>
+     * The value of this is based on the <b>current</b> windowing state of the system. For
+     * example, for activities in multi-window mode, the metrics returned are based on the
+     * current bounds that the user has selected for the {@link android.app.Activity Activity}'s
+     * window.
+     *
+     * @see #getMaximumWindowMetrics()
+     * @see android.view.WindowManager#getCurrentWindowMetrics()
+     */
+    @NonNull
+    public WindowMetrics getCurrentWindowMetrics() {
+        Activity activity = getActivityFromContext(mContext);
+        Rect currentBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+        return new WindowMetrics(currentBounds);
+    }
+
+    /**
+     * Returns the largest {@link WindowMetrics} an app may expect in the current system state.
+     * <p>
+     * The metrics describe the size of the largest potential area the window might occupy with
+     * {@link android.view.WindowManager.LayoutParams#MATCH_PARENT MATCH_PARENT} width and height
+     * and any combination of flags that would allow the window to extend behind display cutouts.
+     * <p>
+     * The value of this is based on the largest <b>potential</b> windowing state of the system.
+     * For example, for activities in multi-window mode the metrics returned are based on what the
+     * bounds would be if the user expanded the window to cover the entire screen.
+     * <p>
+     * Note that this might still be smaller than the size of the physical display if certain
+     * areas of the display are not available to windows created for the associated {@link Context}.
+     * For example, devices with foldable displays that wrap around the enclosure may split the
+     * physical display into different regions, one for the front and one for the back, each acting
+     * as different logical displays. In this case {@link #getMaximumWindowMetrics()} would return
+     * the region describing the side of the device the associated {@link Context context's}
+     * window is placed.
+     *
+     * @see #getCurrentWindowMetrics()
+     * @see android.view.WindowManager#getMaximumWindowMetrics()
+     */
+    @NonNull
+    public WindowMetrics getMaximumWindowMetrics() {
+        Activity activity = getActivityFromContext(mContext);
+        Rect maxBounds = WindowBoundsHelper.getInstance().computeMaximumWindowBounds(activity);
+        return new WindowMetrics(maxBounds);
+    }
+
+    /**
      * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
      * @return Base {@link Activity} context or {@code null} if not available.
      */
@@ -139,5 +171,22 @@ public final class WindowManager {
             context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
+    }
+
+    /**
+     * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
+     * @return Base {@link Activity} context or throws {@link IllegalArgumentException} if not
+     * available.
+     */
+    @NonNull
+    static Activity assertActivityFromContext(Context context) throws IllegalArgumentException {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
+                + "Please use an Activity or a ContextWrapper around an Activity instead.");
     }
 }

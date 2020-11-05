@@ -17,12 +17,12 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XHasModifiers
-import org.jetbrains.kotlin.ksp.isOpen
-import org.jetbrains.kotlin.ksp.isPrivate
-import org.jetbrains.kotlin.ksp.isProtected
-import org.jetbrains.kotlin.ksp.isPublic
-import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
-import org.jetbrains.kotlin.ksp.symbol.Modifier
+import com.google.devtools.ksp.isOpen
+import com.google.devtools.ksp.isPrivate
+import com.google.devtools.ksp.isProtected
+import com.google.devtools.ksp.isPublic
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 
 /**
  * Implementation of [XHasModifiers] for ksp declarations.

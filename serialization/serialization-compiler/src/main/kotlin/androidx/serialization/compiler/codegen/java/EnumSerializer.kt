@@ -68,7 +68,7 @@ internal fun javaEnumSerializer(
                 switchDefault {
                     addStatement(
                         "throw new \$T(\"Enum value \" + value.toString()\$W+ " +
-                                "\" does not have a serialization ID.\")",
+                            "\" does not have a serialization ID.\")",
                         IllegalArgumentException::class.java
                     )
                 }

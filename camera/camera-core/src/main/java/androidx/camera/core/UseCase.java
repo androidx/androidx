@@ -141,13 +141,15 @@ public abstract class UseCase {
     /**
      * Retrieve the default {@link UseCaseConfig} for the UseCase.
      *
+     * @param applyDefaultConfig true if this is the base config applied to a UseCase.
      * @param factory the factory that contains the default UseCases.
      * @return The UseCaseConfig or null if there is no default Config.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public abstract UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory);
+    public abstract UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory);
 
     /**
      * Create a {@link UseCaseConfig.Builder} for the UseCase.
@@ -448,15 +450,6 @@ public abstract class UseCase {
     public UseCaseConfig<?> getCurrentConfig() {
         return mCurrentConfig;
     }
-
-    /**
-     * Returns a builder based on the current use case config.
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public abstract UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder();
 
     /**
      * Returns the currently attached {@link Camera} or {@code null} if none is attached.

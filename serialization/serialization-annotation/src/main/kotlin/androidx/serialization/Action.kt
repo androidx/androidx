@@ -69,7 +69,7 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
  */
 @Retention(BINARY)
 @Target(FUNCTION)
-annotation class Action(
+public annotation class Action(
     @get:JvmName("value")
     val id: Int,
     val oneWay: Boolean = false

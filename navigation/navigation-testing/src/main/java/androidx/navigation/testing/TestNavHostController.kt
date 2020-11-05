@@ -26,12 +26,12 @@ import java.lang.IllegalArgumentException
 /**
  * Subclass of [NavHostController] that offers additional APIs for testing Navigation.
  */
-class TestNavHostController(context: Context) : NavHostController(context) {
+public class TestNavHostController(context: Context) : NavHostController(context) {
 
     /**
      * Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack.
      */
-    val backStack: List<NavBackStackEntry> get() = getBackStack().toList()
+    public val backStack: List<NavBackStackEntry> get() = getBackStack().toList()
 
     init {
         navigatorProvider = TestNavigatorProvider()
@@ -47,7 +47,7 @@ class TestNavHostController(context: Context) : NavHostController(context) {
      * @throws IllegalArgumentException If the [destination][destId] does not exist on the NavGraph.
      */
     @JvmOverloads
-    fun setCurrentDestination(@IdRes destId: Int, args: Bundle = Bundle()) {
+    public fun setCurrentDestination(@IdRes destId: Int, args: Bundle = Bundle()) {
         val taskStackBuilder = createDeepLink()
             .setDestination(destId)
             .setArguments(args)

@@ -16,11 +16,11 @@
 
 package androidx.window;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.content.ContextWrapper;
@@ -33,16 +33,21 @@ import androidx.test.filters.LargeTest;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Collections;
 import java.util.concurrent.Executor;
 
 /** Tests for {@link WindowManager} class. */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class WindowManagerTest extends WindowTestBase {
+
+    @After
+    public void tearDown() {
+        WindowBoundsHelper.setForTesting(null);
+    }
 
     @Test
     public void testConstructor_activity() {
@@ -65,31 +70,8 @@ public final class WindowManagerTest extends WindowTestBase {
     }
 
     @Test
-    public void testGetWindowLayoutInfo() {
-        WindowBackend backend = mock(WindowBackend.class);
-        Activity activity = mock(Activity.class);
-        WindowManager wm = new WindowManager(activity, backend);
-
-        wm.getWindowLayoutInfo();
-        verify(backend).getWindowLayoutInfo(eq(activity));
-    }
-
-    @Test
-    public void testGetDeviceState() {
-        WindowBackend backend = mock(WindowBackend.class);
-        WindowManager wm = new WindowManager(mock(Activity.class), backend);
-
-        wm.getDeviceState();
-        verify(backend).getDeviceState();
-    }
-
-    @Test
     public void testRegisterLayoutChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        Rect rect = new Rect(1, 0, 1, 4);
-        DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
-        WindowLayoutInfo info = new WindowLayoutInfo(Collections.singletonList(feature));
-        when(backend.getWindowLayoutInfo(any())).thenReturn(info);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
@@ -105,8 +87,6 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterDeviceStateChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        DeviceState state = new DeviceState(DeviceState.POSTURE_CLOSED);
-        when(backend.getDeviceState()).thenReturn(state);
         Activity activity = mock(Activity.class);
         WindowManager wm = new WindowManager(activity, backend);
 
@@ -117,5 +97,37 @@ public final class WindowManagerTest extends WindowTestBase {
 
         wm.unregisterDeviceStateChangeCallback(consumer);
         verify(backend).unregisterDeviceStateChangeCallback(eq(consumer));
+    }
+
+    @Test
+    public void testGetCurrentWindowMetrics() {
+        WindowBackend backend = mock(WindowBackend.class);
+        Activity activity = mock(Activity.class);
+        WindowManager wm = new WindowManager(activity, backend);
+
+        Rect bounds = new Rect(1, 2, 3, 4);
+        TestWindowBoundsHelper mWindowBoundsHelper = new TestWindowBoundsHelper();
+        mWindowBoundsHelper.setCurrentBoundsForActivity(activity, bounds);
+        WindowBoundsHelper.setForTesting(mWindowBoundsHelper);
+
+        WindowMetrics windowMetrics = wm.getCurrentWindowMetrics();
+        assertNotNull(windowMetrics);
+        assertEquals(bounds, windowMetrics.getBounds());
+    }
+
+    @Test
+    public void testGetMaximumWindowMetrics() {
+        WindowBackend backend = mock(WindowBackend.class);
+        Activity activity = mock(Activity.class);
+        WindowManager wm = new WindowManager(activity, backend);
+
+        Rect bounds = new Rect(0, 2, 4, 5);
+        TestWindowBoundsHelper mWindowBoundsHelper = new TestWindowBoundsHelper();
+        mWindowBoundsHelper.setMaximumBoundsForActivity(activity, bounds);
+        WindowBoundsHelper.setForTesting(mWindowBoundsHelper);
+
+        WindowMetrics windowMetrics = wm.getMaximumWindowMetrics();
+        assertNotNull(windowMetrics);
+        assertEquals(bounds, windowMetrics.getBounds());
     }
 }

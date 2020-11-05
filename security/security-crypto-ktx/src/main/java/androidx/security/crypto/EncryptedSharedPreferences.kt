@@ -17,6 +17,7 @@
 package androidx.security.crypto
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme
 import androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme
 
@@ -29,13 +30,13 @@ import androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionSc
  * @param prefValueEncryptionScheme The scheme to use for encrypting values.
  * @return The SharedPreferences instance that encrypts all data.
  */
-fun EncryptedSharedPreferences(
+public fun EncryptedSharedPreferences(
     context: Context,
     fileName: String,
     masterKey: MasterKey,
     prefKeyEncryptionScheme: PrefKeyEncryptionScheme = PrefKeyEncryptionScheme.AES256_SIV,
     prefValueEncryptionScheme: PrefValueEncryptionScheme = PrefValueEncryptionScheme.AES256_GCM
-) = EncryptedSharedPreferences.create(
+): SharedPreferences = EncryptedSharedPreferences.create(
     context,
     fileName,
     masterKey,

@@ -59,7 +59,8 @@ public class FakeOtherUseCase extends UseCase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
     @Override
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
         return null;
     }
 
@@ -72,12 +73,6 @@ public class FakeOtherUseCase extends UseCase {
     @NonNull
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    @NonNull
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
         throw new RuntimeException("Not implemented");
     }
 

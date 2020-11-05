@@ -30,6 +30,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +68,7 @@ class SurfaceViewImplementationTest {
 
     @Before
     fun setUp() {
-        CoreAppTestUtil.clearDeviceUI(mInstrumentation)
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
         mActivityRule.launchActivity(null)
         mContext = ApplicationProvider.getApplicationContext<Context>()
         mParent = FrameLayout(mContext)
@@ -75,6 +76,11 @@ class SurfaceViewImplementationTest {
 
         mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
         mImplementation = SurfaceViewImplementation(mParent, PreviewTransformation())
+    }
+
+    @After
+    fun tearDown() {
+        mSurfaceRequest.deferrableSurface.close()
     }
 
     @Test

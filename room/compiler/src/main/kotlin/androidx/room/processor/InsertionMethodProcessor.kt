@@ -34,17 +34,23 @@ class InsertionMethodProcessor(
     val context = baseContext.fork(executableElement)
     fun process(): InsertionMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
-        val annotation = delegate.extractAnnotation(Insert::class,
-                ProcessorErrors.MISSING_INSERT_ANNOTATION)
+        val annotation = delegate.extractAnnotation(
+            Insert::class,
+            ProcessorErrors.MISSING_INSERT_ANNOTATION
+        )
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
-        context.checker.check(onConflict in REPLACE..IGNORE,
-                executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+        context.checker.check(
+            onConflict in REPLACE..IGNORE,
+            executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
+        )
 
         val returnType = delegate.extractReturnType()
         val returnTypeName = returnType.typeName
-        context.checker.notUnbound(returnTypeName, executableElement,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS)
+        context.checker.notUnbound(
+            returnTypeName, executableElement,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS
+        )
 
         val (entities, params) = delegate.extractParams(
             targetEntityType = annotation?.getAsType("entity"),
@@ -58,21 +64,23 @@ class InsertionMethodProcessor(
                     executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
                         partialEntityName = pojo.typeName.toString(),
-                        primaryKeyNames = entity.primaryKey.fields.columnNames)
+                        primaryKeyNames = entity.primaryKey.fields.columnNames
+                    )
                 )
 
                 // Verify all non null columns without a default value are in the POJO otherwise
                 // the INSERT will fail with a NOT NULL constraint.
                 val missingRequiredFields = (entity.fields - entity.primaryKey.fields).filter {
                     it.nonNull && it.defaultValue == null &&
-                            pojo.findFieldByColumnName(it.columnName) == null
+                        pojo.findFieldByColumnName(it.columnName) == null
                 }
                 context.checker.check(
                     missingRequiredFields.isEmpty(),
                     executableElement,
                     ProcessorErrors.missingRequiredColumnsInPartialEntity(
                         partialEntityName = pojo.typeName.toString(),
-                        missingColumnNames = missingRequiredFields.map { it.columnName })
+                        missingColumnNames = missingRequiredFields.map { it.columnName }
+                    )
                 )
             }
         )
@@ -80,19 +88,19 @@ class InsertionMethodProcessor(
         val methodBinder = delegate.findInsertMethodBinder(returnType, params)
 
         context.checker.check(
-                methodBinder.adapter != null,
-                executableElement,
-                ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
+            methodBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.CANNOT_FIND_INSERT_RESULT_ADAPTER
         )
 
         return InsertionMethod(
-                element = executableElement,
-                name = executableElement.name,
-                returnType = returnType,
-                entities = entities,
-                parameters = params,
-                onConflict = onConflict,
-                methodBinder = methodBinder
+            element = executableElement,
+            name = executableElement.name,
+            returnType = returnType,
+            entities = entities,
+            parameters = params,
+            onConflict = onConflict,
+            methodBinder = methodBinder
         )
     }
 }

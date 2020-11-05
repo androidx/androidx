@@ -71,6 +71,44 @@ class FragmentAnimatorTest {
         assertEnterPopExit(fragment)
     }
 
+    // Ensure Fragments using default transits make it to resumed
+    @Test
+    fun defaultTransitionAddReorderedTrue() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = AnimatorFragment()
+        fm.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.waitForExecution()
+
+        assertThat(fragment.resumeLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.mView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(fragment.mView.alpha).isEqualTo(1f)
+    }
+
+    // Ensure Fragments using default transits make it to resumed
+    @Test
+    fun defaultTransitionAddReorderedFalse() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = AnimatorFragment()
+        fm.beginTransaction()
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(false)
+            .commit()
+        activityRule.waitForExecution()
+
+        assertThat(fragment.resumeLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.mView.visibility).isEqualTo(View.VISIBLE)
+        assertThat(fragment.mView.alpha).isEqualTo(1f)
+    }
+
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators
     @Test
     fun removeAnimators() {
@@ -650,6 +688,7 @@ class FragmentAnimatorTest {
         var wasStarted: Boolean = false
         lateinit var cancelLatch: CountDownLatch
         lateinit var endLatch: CountDownLatch
+        var resumeLatch = CountDownLatch(1)
         var initialized: Boolean = false
 
         override fun onCreateAnimator(
@@ -681,6 +720,11 @@ class FragmentAnimatorTest {
             baseEnter = enter
             baseAnimator = this
             initialized = true
+        }
+
+        override fun onResume() {
+            super.onResume()
+            resumeLatch.countDown()
         }
     }
 

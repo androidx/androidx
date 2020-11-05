@@ -17,7 +17,9 @@
 package androidx.ui.tooling.inspector
 
 import android.util.Log
+import android.view.View
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
+import java.lang.Error
 import java.lang.reflect.Field
 import kotlin.math.abs
 import kotlin.reflect.KClass
@@ -90,11 +93,16 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
     init {
         val textDecorationCombination = TextDecoration.combine(
-            listOf(TextDecoration.LineThrough, TextDecoration.Underline))
+            listOf(TextDecoration.LineThrough, TextDecoration.Underline)
+        )
         valueLookup[textDecorationCombination] = "LineThrough+Underline"
         valueLookup[Color.Unspecified] = "Unspecified"
         valuesLoaded.add(Enum::class.java)
         valuesLoaded.add(Any::class.java)
+
+        // AbsoluteAlignment is not found from an instance of BiasAbsoluteAlignment,
+        // because Alignment has no file level class.
+        loadConstantsFromEnclosedClasses(AbsoluteAlignment::class.java)
     }
 
     /**
@@ -103,7 +111,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      * Attempt to convert the value to a user readable value.
      * For now: return null when a conversion is not possible/found.
      */
-    fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? {
+    fun create(node: InspectorNode, name: String, value: Any?): NodeParameter? {
         val creator = creatorCache ?: ParameterCreator()
         try {
             return creator.create(node, name, value)
@@ -118,10 +126,17 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         }
         val related = generateSequence(javaClass) { it.superclass }.plus(javaClass.interfaces)
         related.forEach { aClass ->
-            val topClass = generateSequence(aClass) { it.enclosingClass }.last()
+            val topClass = generateSequence(aClass) { safeEnclosingClass(it) }.last()
             loadConstantsFromEnclosedClasses(topClass)
             findPackageLevelClass(topClass)?.let { loadConstantsFromStaticFinal(it) }
         }
+    }
+
+    private fun safeEnclosingClass(klass: Class<*>): Class<*>? = try {
+        klass.enclosingClass
+    } catch (_: Error) {
+        // Exceptions seen on API 23...
+        null
     }
 
     private fun findPackageLevelClass(javaClass: Class<*>): Class<*>? = try {
@@ -172,11 +187,11 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             javaClass.declaredMethods.asSequence()
                 .filter {
                     it.returnType != Void.TYPE &&
-                            JavaModifier.isStatic(it.modifiers) &&
-                            JavaModifier.isFinal(it.modifiers) &&
-                            !it.returnType.isPrimitive &&
-                            it.parameterTypes.isEmpty() &&
-                            it.name.startsWith("get")
+                        JavaModifier.isStatic(it.modifiers) &&
+                        JavaModifier.isFinal(it.modifiers) &&
+                        !it.returnType.isPrimitive &&
+                        it.parameterTypes.isEmpty() &&
+                        it.name.startsWith("get")
                 }
                 .mapNotNull { javaClass.getDeclaredField(it.name.substring(3)) }
                 .mapNotNull { constantValueOf(it)?.let { key -> Pair(key, it.name) } }
@@ -184,6 +199,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 .toMap(valueLookup)
         } catch (_: ReflectiveOperationException) {
             // ignore reflection errors
+        } catch (_: NoClassDefFoundError) {
+            // ignore missing classes on lower level SDKs
         }
     }
 
@@ -215,17 +232,17 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
     private fun ignoredValue(value: Any?): Boolean =
         value == null ||
-                ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
-                value::class.java.isPrimitive
+            ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
+            value::class.java.isPrimitive
 
     /**
      * Convenience class for building [NodeParameter]s.
      */
     private inner class ParameterCreator {
-        private var node: MutableInspectorNode? = null
+        private var node: InspectorNode? = null
         private var recursions = 0
 
-        fun create(node: MutableInspectorNode, name: String, value: Any?): NodeParameter? = try {
+        fun create(node: InspectorNode, name: String, value: Any?): NodeParameter? = try {
             this.node = node
             recursions = 0
             create(name, value)
@@ -266,6 +283,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     is String -> NodeParameter(name, ParameterType.String, value)
                     is TextUnit -> createFromTextUnit(name, value)
                     is VectorAsset -> createFromVectorAssert(name, value)
+                    is View -> NodeParameter(name, ParameterType.String, value.javaClass.simpleName)
                     else -> createFromKotlinReflection(name, value)
                 }
             } finally {

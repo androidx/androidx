@@ -25,6 +25,7 @@ plugins {
 dependencies {
     api(project(":internal-testutils-runtime"))
     api(project(":appcompat:appcompat"))
+    api(project(":annotation:annotation-experimental"))
 
     implementation(ANDROIDX_TEST_EXT_JUNIT)
     implementation(ANDROIDX_TEST_CORE)

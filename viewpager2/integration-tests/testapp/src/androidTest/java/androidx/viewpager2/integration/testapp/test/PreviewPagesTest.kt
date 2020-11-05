@@ -69,9 +69,11 @@ class PreviewPagesTest : BaseTest<PreviewPagesActivity>(PreviewPagesActivity::cl
     }
 
     private fun onPage(position: Int): ViewInteraction {
-        return onView(allOf(
-            withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
-            withTagValue(equalTo(position))
-        ))
+        return onView(
+            allOf(
+                withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
+                withTagValue(equalTo(position))
+            )
+        )
     }
 }

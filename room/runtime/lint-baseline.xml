@@ -85,7 +85,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="528"
+            line="606"
             column="40"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="166"
+            line="170"
             column="13"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="211"
+            line="215"
             column="13"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="261"
+            line="265"
             column="13"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="163"
+            line="167"
             column="13"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="205"
+            line="209"
             column="13"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="253"
+            line="257"
             column="13"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="120"
+            line="121"
             column="32"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="120"
+            line="121"
             column="55"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="132"
+            line="133"
             column="32"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="132"
+            line="133"
             column="55"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="133"
+            line="134"
             column="13"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="133"
+            line="134"
             column="50"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="322"
+            line="332"
             column="33"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="475"
+            line="485"
             column="45"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="564"
+            line="574"
             column="16"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="564"
+            line="574"
             column="43"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="564"
+            line="574"
             column="64"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="584"
+            line="594"
             column="16"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="584"
+            line="594"
             column="43"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="585"
+            line="595"
             column="13"/>
     </issue>
 
@@ -734,7 +734,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="693"
+            line="703"
             column="56"/>
     </issue>
 
@@ -844,7 +844,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="83"
+            line="84"
             column="24"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="202"
+            line="260"
             column="65"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="339"
+            line="412"
             column="12"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="429"
+            line="507"
             column="16"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="990"
+            line="1069"
             column="62"/>
     </issue>
 

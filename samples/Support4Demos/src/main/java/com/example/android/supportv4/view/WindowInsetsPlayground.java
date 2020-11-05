@@ -33,7 +33,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsCompat.Type;
 
 import com.example.android.supportv4.R;
 
@@ -94,7 +93,8 @@ public class WindowInsetsPlayground extends Activity {
         View root = findViewById(R.id.insets_root);
         if (enabled) {
             ViewCompat.setOnApplyWindowInsetsListener(root, (v, windowInsets) -> {
-                Insets systemBars = windowInsets.getInsets(Type.systemBars() | Type.ime());
+                Insets systemBars = windowInsets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 
                 updateTextForInsets(windowInsets);
@@ -106,15 +106,16 @@ public class WindowInsetsPlayground extends Activity {
     }
 
     private void updateTextForInsets(@Nullable WindowInsetsCompat insets) {
-        printInsetType(R.id.type_ime, insets, Type.ime());
-        printInsetType(R.id.type_system_bars, insets, Type.systemBars());
-        printInsetType(R.id.type_nav_bars, insets, Type.navigationBars());
-        printInsetType(R.id.type_status_bar, insets, Type.statusBars());
-        printInsetType(R.id.type_caption_bar, insets, Type.captionBar());
-        printInsetType(R.id.type_system_gestures, insets, Type.systemGestures());
-        printInsetType(R.id.type_mand_system_gestures, insets, Type.mandatorySystemGestures());
-        printInsetType(R.id.type_tappable, insets, Type.tappableElement());
-        printInsetType(R.id.type_cutout, insets, Type.displayCutout());
+        printInsetType(R.id.type_ime, insets, WindowInsetsCompat.Type.ime());
+        printInsetType(R.id.type_system_bars, insets, WindowInsetsCompat.Type.systemBars());
+        printInsetType(R.id.type_nav_bars, insets, WindowInsetsCompat.Type.navigationBars());
+        printInsetType(R.id.type_status_bar, insets, WindowInsetsCompat.Type.statusBars());
+        printInsetType(R.id.type_caption_bar, insets, WindowInsetsCompat.Type.captionBar());
+        printInsetType(R.id.type_system_gestures, insets, WindowInsetsCompat.Type.systemGestures());
+        printInsetType(R.id.type_mand_system_gestures, insets,
+                WindowInsetsCompat.Type.mandatorySystemGestures());
+        printInsetType(R.id.type_tappable, insets, WindowInsetsCompat.Type.tappableElement());
+        printInsetType(R.id.type_cutout, insets, WindowInsetsCompat.Type.displayCutout());
 
         printLegacyInset(R.id.insets_system_window,
                 insets != null ? insets.getSystemWindowInsets() : Insets.NONE);
@@ -131,7 +132,7 @@ public class WindowInsetsPlayground extends Activity {
                     .append("<b>Normal:</b> ")
                     .append(insets.getInsets(type).toString())
                     .append("<br>");
-            if ((type & Type.ime()) == 0) {
+            if ((type & WindowInsetsCompat.Type.ime()) == 0) {
                 sb.append("<b>Ignoring Visibility:</b> ")
                         .append(insets.getInsetsIgnoringVisibility(type).toString())
                         .append("<br>");

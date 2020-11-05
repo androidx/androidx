@@ -121,8 +121,8 @@ class NoOpFragmentNavigator : FragmentNavigator(
     FragmentController.createController(object : FragmentHostCallback<Nothing>(
         ApplicationProvider.getApplicationContext(), Handler(Looper.getMainLooper()), 0
     ) {
-        override fun onGetHost() = null
-    }).supportFragmentManager,
+            override fun onGetHost() = null
+        }).supportFragmentManager,
     0
 ) {
     override fun popBackStack() = true

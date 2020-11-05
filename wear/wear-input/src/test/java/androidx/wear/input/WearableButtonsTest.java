@@ -30,7 +30,7 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.wear.R;
+import androidx.wear.input.testing.R;
 import androidx.wear.input.testing.TestWearableButtonsProvider;
 
 import org.junit.Test;

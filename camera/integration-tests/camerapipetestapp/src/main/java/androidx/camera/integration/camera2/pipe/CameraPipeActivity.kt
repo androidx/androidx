@@ -127,7 +127,7 @@ class CameraPipeActivity : Activity() {
         if (lastCameraId == null) {
             return cameraPipe.cameras().findAll().firstOrNull {
                 cameraPipe.cameras().awaitMetadata(it)[CameraCharacteristics.LENS_FACING] ==
-                        CameraCharacteristics.LENS_FACING_BACK
+                    CameraCharacteristics.LENS_FACING_BACK
             } ?: cameraPipe.cameras().findAll().first()
         }
 
@@ -156,11 +156,13 @@ class CameraPipeActivity : Activity() {
 
         // Hide navigation to make the app full screen
         // TODO: Alter this to use window insets class when running on Android R
-        val uiOptions = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        val uiOptions = (
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            )
         window.decorView.systemUiVisibility = uiOptions
 
         // Make portrait / landscape rotation seamless

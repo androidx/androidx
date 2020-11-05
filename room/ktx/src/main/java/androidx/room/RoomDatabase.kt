@@ -44,7 +44,7 @@ import kotlin.coroutines.resume
  *
  * The dispatcher used to execute the given [block] will utilize threads from Room's query executor.
  */
-suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
+public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
     // Use inherited transaction context if available, this allows nested suspending transactions.
     val transactionContext =
         coroutineContext[TransactionElement]?.transactionDispatcher ?: createTransactionContext()

@@ -38,7 +38,7 @@ public final class Configs {
         for (UseCase useCase : useCases) {
             // Combine with default configuration.
             UseCaseConfig<?> combinedUseCaseConfig = useCase.mergeConfigs(null,
-                    useCase.getDefaultConfig(useCaseConfigFactory));
+                    useCase.getDefaultConfig(true, useCaseConfigFactory));
             useCaseToConfigMap.put(useCase, combinedUseCaseConfig);
         }
 

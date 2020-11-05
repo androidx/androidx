@@ -36,6 +36,5 @@ androidx {
     publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.COMPOSE
     mavenGroup = LibraryGroups.UI
-    generateDocs = false
     runApiTasks = new RunApiTasks.Yes()
 }

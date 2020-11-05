@@ -28,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.ServiceType;
-import androidx.tvprovider.media.tv.TvContractCompat.Channels.Type;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels.VideoFormat;
 
 import java.net.URISyntaxException;
@@ -124,7 +123,7 @@ public final class Channel {
     /**
      * @return The value of {@link Channels#COLUMN_TYPE} for the channel.
      */
-    public @Type String getType() {
+    public @Channels.Type String getType() {
         return mValues.getAsString(Channels.COLUMN_TYPE);
     }
 
@@ -673,7 +672,7 @@ public final class Channel {
          * @param type The value of {@link Channels#COLUMN_TYPE} for the channel.
          * @return This Builder object to allow for chaining of calls to builder methods.
          */
-        public Builder setType(@Type String type) {
+        public Builder setType(@Channels.Type String type) {
             mValues.put(Channels.COLUMN_TYPE, type);
             return this;
         }

@@ -28,11 +28,11 @@ import org.junit.runner.RunWith
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
-class ParcelableWorkQueryTest {
+public class ParcelableWorkQueryTest {
 
     @Test
     @SmallTest
-    fun converterTest1() {
+    public fun converterTest1() {
         val workQuery = WorkQuery.Builder.fromUniqueWorkNames(listOf("name1"))
             .addTags(listOf("tag1", "tag2"))
             .addIds(listOf(UUID.randomUUID()))
@@ -44,7 +44,7 @@ class ParcelableWorkQueryTest {
 
     @Test
     @SmallTest
-    fun converterTest2() {
+    public fun converterTest2() {
         val workQuery = WorkQuery.Builder.fromUniqueWorkNames(listOf("name1"))
             .build()
 
@@ -53,7 +53,7 @@ class ParcelableWorkQueryTest {
 
     @Test
     @SmallTest
-    fun converterTest3() {
+    public fun converterTest3() {
         val workQuery = WorkQuery.Builder.fromTags(listOf("tag1", "tag2"))
             .build()
 
@@ -62,7 +62,7 @@ class ParcelableWorkQueryTest {
 
     @Test
     @SmallTest
-    fun converterTest4() {
+    public fun converterTest4() {
         val workQuery = WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
             .build()
 

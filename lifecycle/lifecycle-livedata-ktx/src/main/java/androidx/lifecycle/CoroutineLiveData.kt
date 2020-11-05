@@ -39,7 +39,7 @@ internal const val DEFAULT_TIMEOUT = 5000L
  *
  * @see liveData
  */
-interface LiveDataScope<T> {
+public interface LiveDataScope<T> {
     /**
      * Set's the [LiveData]'s value to the given [value]. If you've called [emitSource] previously,
      * calling [emit] will remove that source.
@@ -50,7 +50,7 @@ interface LiveDataScope<T> {
      *
      * @see emitSource
      */
-    suspend fun emit(value: T)
+    public suspend fun emit(value: T)
 
     /**
      * Add the given [LiveData] as a source, similar to [MediatorLiveData.addSource]. Calling this
@@ -63,7 +63,7 @@ interface LiveDataScope<T> {
      * @see MediatorLiveData.addSource
      * @see MediatorLiveData.removeSource
      */
-    suspend fun emitSource(source: LiveData<T>): DisposableHandle
+    public suspend fun emitSource(source: LiveData<T>): DisposableHandle
 
     /**
      * References the current value of the [LiveData].
@@ -74,7 +74,7 @@ interface LiveDataScope<T> {
      * Note that if the block called [emitSource], then `latestValue` will be last value
      * dispatched by the `source` [LiveData].
      */
-    val latestValue: T?
+    public val latestValue: T?
 }
 
 internal class LiveDataScopeImpl<T>(
@@ -351,7 +351,7 @@ internal class CoroutineLiveData<T>(
  * @param block The block to run when the [LiveData] has active observers.
  */
 @OptIn(ExperimentalTypeInference::class)
-fun <T> liveData(
+public fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT,
     @BuilderInference block: suspend LiveDataScope<T>.() -> Unit
@@ -463,7 +463,7 @@ fun <T> liveData(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalTypeInference::class)
-fun <T> liveData(
+public fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeout: Duration,
     @BuilderInference block: suspend LiveDataScope<T>.() -> Unit

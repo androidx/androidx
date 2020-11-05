@@ -17,13 +17,14 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeVariableName
 
 internal sealed class KspMethodType(
     val env: KspProcessingEnv,
     val origin: KspMethodElement,
-    val containing: KspType
+    val containing: KspDeclaredType
 ) : XMethodType {
     override val parameterTypes: List<XType> by lazy {
         origin.parameters.map {
@@ -35,9 +36,11 @@ internal sealed class KspMethodType(
         origin.declaration.typeParameters.map {
             TypeVariableName.get(
                 it.name.asString(),
-                *(it.bounds.map {
-                    it.typeName()
-                }.toTypedArray())
+                *(
+                    it.bounds.map {
+                        it.typeName()
+                    }.toTypedArray()
+                    )
             )
         }
     }
@@ -45,7 +48,7 @@ internal sealed class KspMethodType(
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType
+        containing: KspDeclaredType
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
             env.wrap(
@@ -55,19 +58,13 @@ internal sealed class KspMethodType(
                 )
             )
         }
-
-        override fun getSuspendFunctionReturnType(): XType {
-            throw IllegalStateException(
-                "cannot call getSuspendFunctionReturnType on a non-suspend method. $this"
-            )
-        }
     }
 
     private class KspSuspendMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType
-    ) : KspMethodType(env, origin, containing) {
+        containing: KspDeclaredType
+    ) : KspMethodType(env, origin, containing), XSuspendMethodType {
         override val returnType: XType
             // suspend functions always return Any?, no need to call asMemberOf
             get() = origin.returnType
@@ -86,7 +83,7 @@ internal sealed class KspMethodType(
         fun create(
             env: KspProcessingEnv,
             origin: KspMethodElement,
-            containing: KspType
+            containing: KspDeclaredType
         ) = if (origin.isSuspendFunction()) {
             KspSuspendMethodType(env, origin, containing)
         } else {

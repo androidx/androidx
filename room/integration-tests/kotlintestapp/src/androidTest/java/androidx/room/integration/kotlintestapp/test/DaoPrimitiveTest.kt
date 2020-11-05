@@ -122,8 +122,11 @@ class DaoPrimitiveTest {
 
     @Test
     fun testLongFooDao() {
-        val db = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getInstrumentation()
-            .getTargetContext(), TestDatabase::class.java).build()
+        val db = Room.inMemoryDatabaseBuilder(
+            InstrumentationRegistry.getInstrumentation()
+                .getTargetContext(),
+            TestDatabase::class.java
+        ).build()
 
         val foo = LongFoo(1, "Elif")
         db.longFooDao().insert(foo)
@@ -135,8 +138,11 @@ class DaoPrimitiveTest {
 
     @Test
     fun testStringFooDao() {
-        val db = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getInstrumentation()
-            .getTargetContext(), TestDatabase::class.java).build()
+        val db = Room.inMemoryDatabaseBuilder(
+            InstrumentationRegistry.getInstrumentation()
+                .getTargetContext(),
+            TestDatabase::class.java
+        ).build()
 
         val foo = StringFoo("Key", "Elif")
         db.stringFooDao().insert(foo)

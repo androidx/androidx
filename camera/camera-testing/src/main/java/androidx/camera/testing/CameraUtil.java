@@ -53,6 +53,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.AssumptionViolatedException;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -565,12 +566,12 @@ public final class CameraUtil {
      * (3) Test the camera can be opened successfully.
      *
      * <p>This method will set {@link PreTestCamera} to throw an exception when the camera is
-     * unavailable if PRETEST_CAMERA_TAG is loggable at the debug level (see
-     * androidx.camera.core.Logger#isDebugEnabled()).
+     * unavailable if PRETEST_CAMERA_TAG is loggable at the debug level (see Log#isLoggable).
      */
     @NonNull
     public static RuleChain grantCameraPermissionAndPreTest() {
-        return RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
+        RuleChain rule =
+                RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA)).around(
                 (base, description) -> new Statement() {
                     @Override
                     public void evaluate() throws Throwable {
@@ -578,8 +579,23 @@ public final class CameraUtil {
                         assumeTrue(deviceHasCamera());
                         base.evaluate();
                     }
-                }).around(
-                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
+                });
+        if (shouldRunPreTest()) {
+            rule = rule.around(
+                    new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
+        }
+        return rule;
+    }
+
+    private static boolean shouldRunPreTest() {
+        if (Build.MODEL.contains("pixel 2") && Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            // TODO(b/170070248) Pixel 2 HAL died easily if the pretest and CameraX open the
+            //  camera device at the same time. Remove the code after the pixel 2 issue fixed.
+            Logger.d(LOG_TAG, "Skip camera pretest (b/170070248)");
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -629,12 +645,11 @@ public final class CameraUtil {
                         if (mThrowOnError) {
                             throw new RuntimeException(
                                     "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
-                        } else {
-                            // Ignore the test, so we only print a log without calling
-                            Logger.w(LOG_TAG,
-                                    "Camera fail, on test " + description.getDisplayName());
-                            base.evaluate();
                         }
+
+                        // Ignore the test, throw the AssumptionViolatedException.
+                        throw new AssumptionViolatedException("Ignore the test since the camera "
+                                + "failed, on test " + description.getDisplayName());
                     }
                 }
             };
@@ -873,7 +888,6 @@ public final class CameraUtil {
             }
 
             if (!hasFront || !hasBack) {
-                error = true;
                 Logger.e(LOG_TAG,
                         "Missing front or back camera, has front camera: " + hasFront + ", has "
                                 + "back camera: " + hasBack);

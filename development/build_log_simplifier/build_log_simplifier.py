@@ -27,7 +27,8 @@ parser = argparse.ArgumentParser(
     """)
 parser.add_argument("--validate", action="store_true", help="Validate that no unrecognized messages exist in the given log")
 parser.add_argument("--update", action="store_true", help="Update our list of recognized messages to include all messages from the given log")
-parser.add_argument("log_path", help="Filepath of log to process", nargs=1)
+parser.add_argument("--gc", action="store_true", help="When generating a new exemptions file, exclude any exemptions that were not found in the given log. Only relevant with --update or --validate")
+parser.add_argument("log_path", help="Filepath of log(s) to process", nargs="+")
 
 # a regexes_matcher can quickly identify which of a set of regexes matches a given text
 class regexes_matcher(object):
@@ -138,7 +139,7 @@ def shorten_uninteresting_stack_frames(lines):
             prev_line_is_boring = True
         elif line.startswith("\tat java.base"):
             if not prev_line_is_boring:
-                result.append("\tat java.base...")
+                result.append("\tat java.base...\n")
             prev_line_is_boring = True
         else:
             result.append(line)
@@ -184,9 +185,16 @@ def remove_known_uninteresting_lines(lines):
           result.append(line)
   return result
 
-def get_exemptions_path():
+
+# Returns the path of the config file holding exemptions for deterministic/consistent output.
+# These exemptions can be garbage collected via the `--gc` argument
+def get_deterministic_exemptions_path():
     return os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
 
+# Returns the path of the config file holding exemptions for nondetermistic/flaky output.
+# These exemptions will not be garbage collected via the `--gc` argument
+def get_flake_exemptions_path():
+    return os.path.join(dir_of_this_script, "build_log_simplifier/message-flakes.ignore")
 
 # Returns a regexes_matcher that matches what is described by our config file
 # Ignores comments and ordering in our config file
@@ -219,7 +227,7 @@ def build_exemptions_code_matcher(config_lines):
         regexes.append(line)
     return regexes_matcher(regexes)
 
-def remove_configured_uninteresting_lines(lines, config_lines, validate_no_duplicates):
+def remove_by_regexes(lines, config_lines, validate_no_duplicates):
     fast_matcher = build_exemptions_matcher(config_lines)
     result = []
     for line in lines:
@@ -312,11 +320,13 @@ def normalize_paths(lines):
     out_dir = None
     dist_dir = None
     checkout_dir = None
+    gradle_user_home = None
     # we read checkout_root from the log file in case this build was run in a location,
     # such as on a build server
     out_marker = "OUT_DIR="
     dist_marker = "DIST_DIR="
     checkout_marker = "CHECKOUT="
+    gradle_user_home_marker="GRADLE_USER_HOME="
     for line in lines:
         if line.startswith(out_marker):
             out_dir = line.split(out_marker)[1].strip()
@@ -327,11 +337,18 @@ def normalize_paths(lines):
         if line.startswith(checkout_marker):
             checkout_dir = line.split(checkout_marker)[1].strip()
             continue
-        if out_dir is not None and dist_dir is not None and checkout_dir is not None:
+        if line.startswith(gradle_user_home_marker):
+            gradle_user_home = line.split(gradle_user_home_marker)[1].strip()
+            continue
+        if out_dir is not None and dist_dir is not None and checkout_dir is not None and gradle_user_home is not None:
             break
 
     # Remove any mentions of these paths, and replace them with consistent values
+    # Make sure to put these paths in the correct order so that more-specific paths will
+    # be matched first
     remove_paths = collections.OrderedDict()
+    if gradle_user_home is not None:
+        remove_paths[gradle_user_home] = "$GRADLE_USER_HOME"
     if dist_dir is not None:
         remove_paths[dist_dir] = "$DIST_DIR"
     if out_dir is not None:
@@ -364,8 +381,16 @@ def generalize_numbers(message):
     return generalized.replace("[[0-9]+-[0-9]+a-f]{[0-9]+}", "[0-9a-f]{32}")
 
 # Given a list of output messages and a list of existing exemption lines,
-# generates an augmented list of exemption lines and writes that to <dest_path>
-def generate_suggested_exemptions(messages, config_lines):
+# generates a new list of exemption lines
+def generate_suggested_exemptions(messages, config_lines, remove_unmatched_lines):
+    new_config = suggest_missing_exemptions(messages, config_lines)
+    if remove_unmatched_lines:
+        new_config = remove_unmatched_exemptions(messages, new_config)
+    return new_config
+
+# Given a list of output messages and a list of existing exemption lines,
+# generates an augmented list of exemptions containing any necessary new exemptions
+def suggest_missing_exemptions(messages, config_lines):
     # given a message, finds the index of the existing exemption for that message, if any
     existing_matcher = build_exemptions_code_matcher(config_lines)
     # the index of the previously matched exemption
@@ -436,6 +461,53 @@ def generate_suggested_exemptions(messages, config_lines):
         exemption_lines += insertions_by_task_name[task_name]
     return exemption_lines
 
+# Searches for config lines in <config_lines> that match no line in <messages>
+# Create and returns a new list of config lines, which excludes unmatched lines and
+# any corresponding comments
+def remove_unmatched_exemptions(messages, config_lines):
+    existing_matcher = build_exemptions_matcher(config_lines)
+    matched_config_lines = set()
+    # find all of the regexes that match at least one message
+    for line in messages:
+        line = line.strip()
+        if line.startswith("#"):
+            continue
+        for regex in existing_matcher.get_matching_regexes(line):
+            matched_config_lines.add(regex)
+    # generate a new list of config lines
+    # keep config lines that were matched in the list of messages
+    # keep comments where there remains a matched config line before the next comment
+    # skip comments that were previously followed by other config lines that were deleted
+    result = []
+    pending_comments = [] # comments that we haven't yet decided to keep or not
+    found_unused_line_after_comment = False
+    for line in config_lines:
+        if line.startswith("#"):
+            # We found a comment
+            if found_unused_line_after_comment:
+                # We found an unused config line more recently than the previous comment,
+                # and now we've found a new comment.
+                if len(pending_comments) > 0:
+                    # We also haven't found any used config lines more recently than the previous comment
+                    # Presumably these pending comments were intended to describe the lines that we're removing
+                    # So, we skip emitting these pending comments too
+                    pending_comments = []
+            pending_comments.append(line)
+            found_unused_line_after_comment = False
+            continue
+        matched = (line in matched_config_lines)
+        if matched:
+            # If this config line is being used, then we keep its comments too
+            result += pending_comments
+            pending_comments = []
+            result.append(line)
+        else:
+            found_unused_line_after_comment = True
+    # If there are any comments at the bottom of the file, then keep them too
+    if not found_unused_line_after_comment:
+        result += pending_comments
+    return result
+
 # opens a file and reads the lines in it
 def readlines(path):
     infile = open(path)
@@ -451,51 +523,66 @@ def writelines(path, lines):
 def main():
     arguments = parser.parse_args()
 
-    # read file
-    log_path = arguments.log_path[0]
-    lines = readlines(log_path)
-    lines = [remove_control_characters(line) for line in lines]
-    lines = normalize_paths(lines)
+    # read each file
+    log_paths = arguments.log_path
+    all_lines = []
+    for log_path in log_paths:
+        lines = readlines(log_path)
+        lines = [remove_control_characters(line) for line in lines]
+        lines = normalize_paths(lines)
+        all_lines += lines
     # load configuration
-    exemption_regexes_from_file = readlines(get_exemptions_path())
+    flake_exemption_regexes = readlines(get_flake_exemptions_path())
+    deterministic_exemption_regexes = readlines(get_deterministic_exemptions_path())
+    exemption_regexes = flake_exemption_regexes + deterministic_exemption_regexes
+    # load configuration
     # remove lines we're not interested in
-    if not arguments.validate:
-        lines = select_failing_task_output(lines)
-    lines = shorten_uninteresting_stack_frames(lines)
-    lines = remove_known_uninteresting_lines(lines)
-    lines = remove_configured_uninteresting_lines(lines, exemption_regexes_from_file, arguments.validate)
-    lines = collapse_tasks_having_no_output(lines)
-    lines = collapse_consecutive_blank_lines(lines)
+    update = arguments.update or arguments.gc
+    validate = update or arguments.validate
+    interesting_lines = all_lines
+    if not validate:
+        interesting_lines = select_failing_task_output(interesting_lines)
+    interesting_lines = shorten_uninteresting_stack_frames(interesting_lines)
+    interesting_lines = remove_known_uninteresting_lines(interesting_lines)
+    interesting_lines = remove_by_regexes(interesting_lines, exemption_regexes, validate)
+    interesting_lines = collapse_tasks_having_no_output(interesting_lines)
+    interesting_lines = collapse_consecutive_blank_lines(interesting_lines)
 
     # process results
-    if arguments.validate:
-        if len(lines) != 0:
+    if update:
+        if arguments.gc or len(interesting_lines) != 0:
+            update_path = get_deterministic_exemptions_path()
+            # filter out any inconsistently observed messages so we don't try to exempt them twice
+            all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
+            # update the deterministic exemptions file based on the result
+            suggested = generate_suggested_exemptions(all_lines, deterministic_exemption_regexes, arguments.gc)
+            writelines(update_path, suggested)
+            print("build_log_simplifier.py updated exemptions " + update_path)
+    elif validate:
+        if len(interesting_lines) != 0:
             print("")
             print("build_log_simplifier.py: Error: Found new messages!")
             print("")
-            print("".join(lines))
-            print("Error: build_log_simplifier.py found " + str(len(lines)) + " new messages found in " + log_path + ".")
-            new_exemptions_path = log_path + ".ignore"
-            suggested = generate_suggested_exemptions(lines, exemption_regexes_from_file)
+            print("".join(interesting_lines))
+            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new messages found in " + ",".join(log_paths) + ".")
+            new_exemptions_path = log_paths[0] + ".ignore"
+            # filter out any inconsistently observed messages so we don't try to exempt them twice
+            all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
+            # update deterministic exemptions file based on the result
+            suggested = generate_suggested_exemptions(all_lines, deterministic_exemption_regexes, arguments.gc)
             writelines(new_exemptions_path, suggested)
             print("")
             print("Please fix or suppress these new messages in the tool that generates them.")
             print("If you cannot, then you can exempt them by doing:")
             print("")
-            print("  1. cp " + new_exemptions_path + " " + get_exemptions_path() + " # or, if this script is running on the build server, you may download this file from there")
+            print("  1. cp " + new_exemptions_path + " " + get_deterministic_exemptions_path() + " # or, if this script is running on the build server, you may download this file from there")
             print("  2. modify the new lines to be more generalized (they are regular expressions) if it is more important to preemptively exempt similar messages than to be notified of new, similar messages")
             print("")
             print("Note that if you exempt these messages by updating the exemption file, this will suppress these messages in the output of CI builds but not in Android Studio.")
             print("Additionally, adding more exemptions to this exemption file will cause the build to run more slowly than fixing or suppressing the message where it is generated.")
             exit(1)
-    elif arguments.update:
-        if len(lines) != 0:
-            update_path = get_exemptions_path()
-            suggested = generate_suggested_exemptions(lines, exemption_regexes_from_file)
-            writelines(update_path, suggested)
-            print("build_log_simplifier.py updated exemptions " + update_path)
     else:
-        print("".join(lines))
+        print("".join(interesting_lines))
 
 if __name__ == "__main__":
     main()

@@ -32,8 +32,9 @@ import androidx.core.util.Consumer;
 import androidx.window.extensions.ExtensionInterface;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -73,7 +74,7 @@ final class ExtensionWindowBackend implements WindowBackend {
     /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
     @VisibleForTesting
-    final HashMap<Context, WindowLayoutInfo> mLastReportedWindowLayouts = new HashMap<>();
+    final Map<Context, WindowLayoutInfo> mLastReportedWindowLayouts = new WeakHashMap<>();
 
     private static final String TAG = "WindowServer";
 
@@ -108,30 +109,6 @@ final class ExtensionWindowBackend implements WindowBackend {
         mWindowExtension.setExtensionCallback(new ExtensionListenerImpl());
     }
 
-    @NonNull
-    @Override
-    public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
-        Activity activity = assertActivityContext(context);
-        assertWindowAttached(activity);
-
-        synchronized (sLock) {
-            WindowLayoutInfo windowLayoutInfo = mWindowExtension != null
-                    ? mWindowExtension.getWindowLayoutInfo(activity) : null;
-            return windowLayoutInfo != null
-                    ? windowLayoutInfo : new WindowLayoutInfo(new ArrayList<>());
-        }
-    }
-
-    @NonNull
-    @Override
-    public DeviceState getDeviceState() {
-        synchronized (sLock) {
-            DeviceState deviceState = mWindowExtension != null
-                    ? mWindowExtension.getDeviceState() : null;
-            return deviceState != null ? deviceState : new DeviceState(DeviceState.POSTURE_UNKNOWN);
-        }
-    }
-
     @Override
     public void registerLayoutChangeCallback(@NonNull Context context,
             @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
@@ -142,28 +119,32 @@ final class ExtensionWindowBackend implements WindowBackend {
                 }
                 return;
             }
+            assertActivityContext(context);
 
-            Activity activity = assertActivityContext(context);
-            assertWindowAttached(activity);
+            // Check if the context was already registered, in case we need to report tracking of a
+            // new context to the extension.
+            boolean isContextRegistered = isContextRegistered(context);
 
-            // Check if the token was already registered, in case we need to report tracking of a
-            // new token to the extension.
-            boolean registeredToken = false;
-            for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-                if (callbackWrapper.mContext.equals(activity)) {
-                    registeredToken = true;
-                    break;
-                }
-            }
-
-            final WindowLayoutChangeCallbackWrapper callbackWrapper =
-                    new WindowLayoutChangeCallbackWrapper(activity, executor, callback);
+            WindowLayoutChangeCallbackWrapper callbackWrapper =
+                    new WindowLayoutChangeCallbackWrapper(context, executor, callback);
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
-            if (!registeredToken) {
-                // Added the first callback for the context.
-                mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
+            if (!isContextRegistered) {
+                mWindowExtension.onWindowLayoutChangeListenerAdded(context);
+            }
+            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(context);
+            if (lastReportedValue != null) {
+                callbackWrapper.accept(lastReportedValue);
             }
         }
+    }
+
+    private boolean isContextRegistered(@NonNull Context context) {
+        for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
+            if (callbackWrapper.mContext.equals(context)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -213,10 +194,13 @@ final class ExtensionWindowBackend implements WindowBackend {
     public void registerDeviceStateChangeCallback(@NonNull Executor executor,
             @NonNull Consumer<DeviceState> callback) {
         synchronized (sLock) {
+            final DeviceStateChangeCallbackWrapper callbackWrapper =
+                    new DeviceStateChangeCallbackWrapper(executor, callback);
             if (mWindowExtension == null) {
                 if (DEBUG) {
                     Log.d(TAG, "Extension not loaded, skipping callback registration.");
                 }
+                callback.accept(new DeviceState(DeviceState.POSTURE_UNKNOWN));
                 return;
             }
 
@@ -224,9 +208,10 @@ final class ExtensionWindowBackend implements WindowBackend {
                 mWindowExtension.onDeviceStateListenersChanged(false /* isEmpty */);
             }
 
-            final DeviceStateChangeCallbackWrapper callbackWrapper =
-                    new DeviceStateChangeCallbackWrapper(executor, callback);
             mDeviceStateChangeCallbacks.add(callbackWrapper);
+            if (mLastReportedDeviceState != null) {
+                callbackWrapper.accept(mLastReportedDeviceState);
+            }
         }
     }
 
@@ -245,6 +230,8 @@ final class ExtensionWindowBackend implements WindowBackend {
                     mDeviceStateChangeCallbacks.remove(callbackWrapper);
                     if (mDeviceStateChangeCallbacks.isEmpty()) {
                         mWindowExtension.onDeviceStateListenersChanged(true /* isEmpty */);
+                        // Clear device state so we do not replay stale data.
+                        mLastReportedDeviceState = null;
                     }
                     return;
                 }
@@ -269,12 +256,7 @@ final class ExtensionWindowBackend implements WindowBackend {
             }
 
             for (DeviceStateChangeCallbackWrapper callbackWrapper : mDeviceStateChangeCallbacks) {
-                callbackWrapper.mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callbackWrapper.mCallback.accept(newDeviceState);
-                    }
-                });
+                callbackWrapper.accept(newDeviceState);
             }
         }
 
@@ -299,12 +281,7 @@ final class ExtensionWindowBackend implements WindowBackend {
                     continue;
                 }
 
-                callbackWrapper.mExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callbackWrapper.mCallback.accept(newLayout);
-                    }
-                });
+                callbackWrapper.accept(newLayout);
             }
         }
     }
@@ -316,12 +293,6 @@ final class ExtensionWindowBackend implements WindowBackend {
                     + "Please use an Activity or a ContextWrapper around an Activity instead.");
         }
         return activity;
-    }
-
-    private static void assertWindowAttached(Activity activity) {
-        if (activity.getWindow() == null || activity.getWindow().getAttributes().token == null) {
-            throw new IllegalStateException("Activity does not have a window attached.");
-        }
     }
 
     /**
@@ -339,6 +310,10 @@ final class ExtensionWindowBackend implements WindowBackend {
             mExecutor = executor;
             mCallback = callback;
         }
+
+        void accept(WindowLayoutInfo layoutInfo) {
+            mExecutor.execute(() -> mCallback.accept(layoutInfo));
+        }
     }
 
     /**
@@ -353,6 +328,10 @@ final class ExtensionWindowBackend implements WindowBackend {
                 @NonNull Consumer<DeviceState> callback) {
             mExecutor = executor;
             mCallback = callback;
+        }
+
+        void accept(DeviceState state) {
+            mExecutor.execute(() -> mCallback.accept(state));
         }
     }
 

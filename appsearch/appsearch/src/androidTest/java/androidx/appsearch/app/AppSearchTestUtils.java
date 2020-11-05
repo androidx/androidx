@@ -34,12 +34,21 @@ public class AppSearchTestUtils {
         return result.getResultValue();
     }
 
+    public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
+            Future<AppSearchBatchResult<K, V>> future) throws Exception {
+        AppSearchBatchResult<K, V> result = future.get();
+        if (!result.isSuccess()) {
+            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
+        }
+        return result;
+    }
+
     public static List<GenericDocument> doGet(
-            AppSearchManager instance, String namespace, String... uris) throws Exception {
+            AppSearchSession session, String namespace, String... uris) throws Exception {
         AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                instance.getByUri(
+                session.getByUri(
                         new GetByUriRequest.Builder()
-                                .setNamespace(namespace).addUris(uris).build()));
+                                .setNamespace(namespace).addUri(uris).build()));
         assertThat(result.getSuccesses()).hasSize(uris.length);
         assertThat(result.getFailures()).isEmpty();
         List<GenericDocument> list = new ArrayList<>(uris.length);
@@ -49,34 +58,16 @@ public class AppSearchTestUtils {
         return list;
     }
 
-    public static List<GenericDocument> doQuery(
-            AppSearchManager instance, String queryExpression, SearchSpec spec)
+    public static List<GenericDocument> convertSearchResultsToDocuments(SearchResults searchResults)
             throws Exception {
-        SearchResults searchResults = instance.query(queryExpression, spec);
-        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
+        List<SearchResult> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
-            for (SearchResults.Result result : results) {
+            for (SearchResult result : results) {
                 documents.add(result.getDocument());
             }
             results = checkIsResultSuccess(searchResults.getNextPage());
         }
         return documents;
-    }
-
-    public static List<GenericDocument> doQuery(AppSearchManager instance, String queryExpression)
-            throws Exception {
-        return doQuery(instance, queryExpression, new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
-    }
-
-    public static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
-            Future<AppSearchBatchResult<K, V>> future) throws Exception {
-        AppSearchBatchResult<K, V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
-        }
-        return result;
     }
 }

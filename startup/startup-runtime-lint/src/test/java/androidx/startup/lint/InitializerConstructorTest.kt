@@ -80,7 +80,7 @@ class InitializerConstructorTest {
                 class TestInitializer(val int: Int): Initializer<Unit> {
                 ^
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }

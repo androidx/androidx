@@ -32,15 +32,18 @@ dependencies {
     implementation(project(":datastore:datastore-preferences"))
 
     // For DataStore with protos
-    implementation(project(":datastore:datastore-core"))
-    api("androidx.preference:preference:1.1.0")
+    implementation(project(":datastore:datastore"))
+
+    // For settings fragment
+    api("androidx.preference:preference:1.1.1")
 
     implementation(PROTOBUF_LITE)
     implementation(KOTLIN_STDLIB)
+    implementation("androidx.appcompat:appcompat:1.2.0")
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(project(":fragment:fragment-ktx"))
-    implementation project(":annotation:annotation-sampled")
+    implementation('androidx.navigation:navigation-fragment-ktx:2.3.0')
+    compileOnly project(":annotation:annotation-sampled")
 }
 
 protobuf {

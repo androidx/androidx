@@ -203,7 +203,8 @@ class PreviewTransformationDeviceTest {
                 CROP_RECT,
                 90,
                 ARBITRARY_ROTATION
-            ), SURFACE_SIZE, BACK_CAMERA
+            ),
+            SURFACE_SIZE, BACK_CAMERA
         )
 
         // Act.

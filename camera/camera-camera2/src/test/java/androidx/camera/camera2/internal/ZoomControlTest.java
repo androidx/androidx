@@ -41,7 +41,6 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -59,7 +58,6 @@ import org.robolectric.shadows.ShadowCameraManager;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 // Not able to write test for Robolectric API 30 because it is not added yet.

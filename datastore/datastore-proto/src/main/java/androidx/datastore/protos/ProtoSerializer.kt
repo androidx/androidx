@@ -16,8 +16,8 @@
 
 package androidx.datastore.protos
 
-import androidx.datastore.CorruptionException
-import androidx.datastore.Serializer
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.Serializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite
@@ -27,7 +27,7 @@ import java.io.OutputStream
 /** Serializer for using DataStore with protos. */
 internal class ProtoSerializer<T : MessageLite>(
     /** The default proto of this type, obtained via {@code T.getDefaultInstance()} */
-    private val defaultValue: T,
+    override val defaultValue: T,
     /**
      *  Set the extensionRegistryLite to use when deserializing T. If no extension registry is
      *  necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.

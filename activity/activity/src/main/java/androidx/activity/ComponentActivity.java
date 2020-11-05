@@ -260,6 +260,14 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             }
         });
+        getLifecycle().addObserver(new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
+                ensureViewModelStore();
+                getLifecycle().removeObserver(this);
+            }
+        });
 
         if (19 <= SDK_INT && SDK_INT <= 23) {
             getLifecycle().addObserver(new ImmLeaksCleaner(this));
@@ -472,6 +480,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             throw new IllegalStateException("Your activity is not yet attached to the "
                     + "Application instance. You can't request ViewModel before onCreate call.");
         }
+        ensureViewModelStore();
+        return mViewModelStore;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void ensureViewModelStore() {
         if (mViewModelStore == null) {
             NonConfigurationInstances nc =
                     (NonConfigurationInstances) getLastNonConfigurationInstance();
@@ -483,7 +497,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 mViewModelStore = new ViewModelStore();
             }
         }
-        return mViewModelStore;
     }
 
     /**

@@ -15,6 +15,10 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+MissingGetterMatchingBuilder: androidx.activity.result.IntentSenderRequest.Builder#setFlags(int, int):
+    androidx.activity.result.IntentSenderRequest does not declare a `getFlags()` method matching method androidx.activity.result.IntentSenderRequest.Builder.setFlags(int,int)
+
+
 MissingNullability: androidx.activity.ComponentActivity#startActivityForResult(android.content.Intent, int) parameter #0:
     Missing nullability on parameter `intent` in method `startActivityForResult`
 MissingNullability: androidx.activity.ComponentActivity#startActivityForResult(android.content.Intent, int, android.os.Bundle) parameter #0:

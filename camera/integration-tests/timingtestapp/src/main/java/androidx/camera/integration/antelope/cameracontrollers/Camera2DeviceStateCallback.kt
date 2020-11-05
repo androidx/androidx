@@ -37,8 +37,10 @@ class Camera2DeviceStateCallback(
      */
     override fun onOpened(cameraDevice: CameraDevice) {
         params.timer.openEnd = System.currentTimeMillis()
-        MainActivity.logd("In CameraStateCallback onOpened: " + cameraDevice.id +
-            " current test: " + testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "In CameraStateCallback onOpened: " + cameraDevice.id +
+                " current test: " + testConfig.currentRunningTest.toString()
+        )
         params.isOpen = true
         params.device = cameraDevice
 
@@ -62,8 +64,10 @@ class Camera2DeviceStateCallback(
      * If this is a switch test, swizzle camera ids and move to the next step of the test.
      */
     override fun onClosed(camera: CameraDevice) {
-        MainActivity.logd("In CameraStateCallback onClosed. Camera: " + params.id +
-            " is closed. testFinished: " + testConfig.testFinished)
+        MainActivity.logd(
+            "In CameraStateCallback onClosed. Camera: " + params.id +
+                " is closed. testFinished: " + testConfig.testFinished
+        )
         params.isOpen = false
 
         if (testConfig.testFinished) {
@@ -74,7 +78,8 @@ class Camera2DeviceStateCallback(
         }
 
         if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)) {
+            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        ) {
 
             // First camera closed, now start the second
             if (testConfig.switchTestCurrentCamera == testConfig.switchTestCameras.get(0)) {

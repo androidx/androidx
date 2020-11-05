@@ -24,11 +24,14 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 
+import android.app.Instrumentation;
+
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.view.PreviewView;
+import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -63,11 +66,15 @@ public final class PreviewViewFragmentTest {
     public GrantPermissionRule mAudioPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+
     @Before
-    public void setup() {
+    public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
         assumeTrue(CameraUtil.deviceHasCamera());
         CoreAppTestUtil.assumeCompatibleDevice();
-        CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
     }
 
     @Test
@@ -187,15 +194,16 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+        mInstrumentation.runOnMainSync(
                 () -> getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END));
 
         // Stop the fragment
         scenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
         scenario.moveToState(Lifecycle.State.RESUMED);
-        assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
-                PreviewView.ScaleType.FIT_END);
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
+                        PreviewView.ScaleType.FIT_END));
     }
 
     @Test
@@ -203,21 +211,23 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        getPreviewView(scenario).setImplementationMode(
-                PreviewView.ImplementationMode.COMPATIBLE);
+        mInstrumentation.runOnMainSync(
+                () -> getPreviewView(scenario).setImplementationMode(
+                        PreviewView.ImplementationMode.COMPATIBLE));
 
         // Stop the fragment
         scenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
         scenario.moveToState(Lifecycle.State.RESUMED);
-        assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
-                PreviewView.ImplementationMode.COMPATIBLE);
+        mInstrumentation.runOnMainSync(
+                () -> assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
+                        PreviewView.ImplementationMode.COMPATIBLE));
     }
 
     @NonNull
     private FragmentScenario<PreviewViewFragment> createScenario() {
         return FragmentScenario.launchInContainer(PreviewViewFragment.class, null, R.style.AppTheme,
-                null);
+                new FragmentFactory());
     }
 
     private void assertPreviewUpdating(@NonNull FragmentScenario<PreviewViewFragment> scenario) {

@@ -22,8 +22,6 @@ import android.location.Location;
 import android.os.Build;
 import android.os.SystemClock;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

@@ -87,4 +87,20 @@ object Log {
     inline fun error(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
+
+    /**
+     * Read the stack trace of a calling method and join it to a formatted string.
+     */
+    fun readStackTrace(limit: Int = 4): String {
+        val elements = Thread.currentThread().stackTrace
+        // Ignore the first 3 elements, which ignores:
+        // VMStack.getThreadStackTrace
+        // Thread.currentThread().getStackTrace()
+        // dumpStackTrace()
+        return elements.drop(3).joinToString(
+            prefix = "\n\t",
+            separator = "\t",
+            limit = limit,
+        )
+    }
 }

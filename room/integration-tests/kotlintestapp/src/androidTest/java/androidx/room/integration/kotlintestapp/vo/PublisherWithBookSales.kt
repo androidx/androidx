@@ -22,9 +22,11 @@ import androidx.room.Relation
 data class PublisherWithBookSales @JvmOverloads constructor(
     @Embedded
     val publisher: Publisher,
-    @Relation(parentColumn = "publisherId", // publisher.publisherId
-            entityColumn = "bookPublisherId", // book.bookPublisherId
-            entity = Book::class,
-            projection = ["salesCnt"])
+    @Relation(
+        parentColumn = "publisherId", // publisher.publisherId
+        entityColumn = "bookPublisherId", // book.bookPublisherId
+        entity = Book::class,
+        projection = ["salesCnt"]
+    )
     var sales: List<Int>? = emptyList()
 )

@@ -15,14 +15,12 @@
  */
 
 @file:OptIn(InternalComposeApi::class)
+
 package androidx.ui.tooling
 
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SlotReader
 import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.isJoinedKey
-import androidx.compose.runtime.joinedKeyLeft
-import androidx.compose.runtime.joinedKeyRight
 import androidx.compose.runtime.keySourceInfoOf
 import androidx.compose.ui.layout.globalPosition
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
@@ -86,7 +84,8 @@ data class ParameterInformation(
     val fromDefault: Boolean,
     val static: Boolean,
     val compared: Boolean,
-    val inlineClass: String?
+    val inlineClass: String?,
+    val stable: Boolean
 )
 
 /**
@@ -163,17 +162,8 @@ class NodeGroup(
  */
 data class JoinedKey(val left: Any?, val right: Any?)
 
-private fun convertKey(key: Any?): Any? =
-    when (key) {
-        is Int -> keySourceInfoOf(key) ?: key
-        else ->
-            if (isJoinedKey(key))
-                JoinedKey(
-                    convertKey(joinedKeyLeft(key)),
-                    convertKey(joinedKeyRight(key))
-                )
-            else key
-    }
+@OptIn(InternalComposeApi::class)
+private fun convertKey(key: Int): Any? = keySourceInfoOf(key)
 
 internal val emptyBox = IntBounds(0, 0, 0, 0)
 
@@ -238,7 +228,7 @@ private class Parameter(
 //   inline-class: <chars not "," or "!">
 //   run: "!" <number>
 //
-// The full description of this grammar can be found in the ComposableFunctionBodyTransfomer of the
+// The full description of this grammar can be found in the ComposableFunctionBodyTransformer of the
 // compose compiler plugin.
 private fun parseParameters(parameters: String): List<Parameter> {
     var currentResult = parametersInformationTokenizer.find(parameters)
@@ -417,10 +407,10 @@ private fun sourceInformationContextOf(
                     // Remove the hash information
                     sourceFile = sourceFile
                         .substring(0 until sourceFile.length - hashText.length - 1)
-                    try {
-                        packageHash = hashText.toInt(36)
+                    packageHash = try {
+                        hashText.toInt(36)
                     } catch (_: NumberFormatException) {
-                        packageHash = -1
+                        -1
                     }
                 }
                 break@loop
@@ -444,30 +434,26 @@ private fun sourceInformationContextOf(
 /**
  * Iterate the slot table and extract a group tree that corresponds to the content of the table.
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalLayoutNodeApi::class, InternalComposeApi::class)
 private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group {
     val key = convertKey(groupKey)
-    val groupData = groupData
+    val groupData = groupAux
     val context = if (groupData != null && groupData is String) {
         sourceInformationContextOf(groupData, parentContext)
     } else null
     val nodeGroup = isNode
-    val end = current + groupSize
+    val end = currentGroup + groupSize
     val node = if (nodeGroup) groupNode else null
-    next()
     val data = mutableListOf<Any?>()
     val children = mutableListOf<Group>()
-    while (current < end && isGroup) {
-        children.add(getGroup(context))
+    for (index in 0 until groupSlotCount) {
+        data.add(groupGet(index))
     }
 
-    // A group can start with data
-    while (!isGroup && current <= end) {
-        data.add(next())
-    }
+    reposition(currentGroup + 1)
 
     // A group ends with a list of groups
-    while (current < end) {
+    while (currentGroup < end) {
         children.add(getGroup(context))
     }
 
@@ -530,6 +516,7 @@ private fun boundsOfLayoutNode(node: LayoutNode): IntBounds {
  * Return a group tree for for the slot table that represents the entire content of the slot
  * table.
  */
+@OptIn(InternalComposeApi::class)
 fun SlotTable.asTree(): Group = read { it.getGroup(null) }
 
 internal fun IntBounds.union(other: IntBounds): IntBounds {
@@ -595,11 +582,13 @@ private fun extractParameterInfo(
                                 field.isAccessible = true
                                 val value = field.get(block)
                                 val fromDefault = (1 shl index) and default != 0
-                                val changedOffset = index * 2 + 1
-                                val parameterChanged =
-                                    ((3 shl changedOffset) and changed) shr changedOffset
-                                val static = parameterChanged == 3
-                                val compared = parameterChanged == 0
+                                val changedOffset = index * BITS_PER_SLOT + 1
+                                val parameterChanged = (
+                                    (SLOT_MASK shl changedOffset) and changed
+                                    ) shr changedOffset
+                                val static = parameterChanged and STATIC_BITS == STATIC_BITS
+                                val compared = parameterChanged and STATIC_BITS == 0
+                                val stable = parameterChanged and STABLE_BITS == 0
                                 parameters.add(
                                     ParameterInformation(
                                         name = field.name.substring(1),
@@ -607,7 +596,8 @@ private fun extractParameterInfo(
                                         fromDefault = fromDefault,
                                         static = static,
                                         compared = compared && !fromDefault,
-                                        inlineClass = metadata.inlineClass
+                                        inlineClass = metadata.inlineClass,
+                                        stable = stable
                                     )
                                 )
                             }
@@ -621,6 +611,11 @@ private fun extractParameterInfo(
     }
     return emptyList()
 }
+
+private const val BITS_PER_SLOT = 3
+private const val SLOT_MASK = 0b111
+private const val STATIC_BITS = 0b011
+private const val STABLE_BITS = 0b100
 
 /**
  * The source position of the group extracted from the key, if one exists for the group.

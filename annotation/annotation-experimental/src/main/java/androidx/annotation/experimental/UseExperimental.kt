@@ -42,7 +42,7 @@ import kotlin.reflect.KClass
     AnnotationTarget.FILE,
     AnnotationTarget.TYPEALIAS
 )
-annotation class UseExperimental(
+public annotation class UseExperimental(
     /**
      * Defines the experimental API(s) whose usage this annotation allows.
      */

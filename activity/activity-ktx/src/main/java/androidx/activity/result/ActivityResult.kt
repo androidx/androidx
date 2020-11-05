@@ -16,16 +16,18 @@
 
 package androidx.activity.result
 
+import android.content.Intent
+
 /**
  * Destructuring declaration for [ActivityResult] to provide the requestCode
  *
  * @return the resultCode of the [ActivityResult]
  */
-operator fun ActivityResult.component1() = resultCode
+public operator fun ActivityResult.component1(): Int = resultCode
 
 /**
  * Destructuring declaration for [ActivityResult] to provide the intent
  *
  * @return the intent of the [ActivityResult]
  */
-operator fun ActivityResult.component2() = data
+public operator fun ActivityResult.component2(): Intent? = data

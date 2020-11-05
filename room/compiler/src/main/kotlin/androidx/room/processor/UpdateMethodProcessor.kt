@@ -34,11 +34,13 @@ class UpdateMethodProcessor(
     fun process(): UpdateMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
         val annotation = delegate
-                .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
+            .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
-        context.checker.check(onConflict in REPLACE..IGNORE,
-                executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+        context.checker.check(
+            onConflict in REPLACE..IGNORE,
+            executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
+        )
 
         val (entities, params) = delegate.extractParams(
             targetEntityType = annotation?.getAsType("entity"),
@@ -47,10 +49,12 @@ class UpdateMethodProcessor(
                 val missingPrimaryKeys = entity.primaryKey.fields.filter {
                     pojo.findFieldByColumnName(it.columnName) == null
                 }
-                context.checker.check(missingPrimaryKeys.isEmpty(), executableElement,
+                context.checker.check(
+                    missingPrimaryKeys.isEmpty(), executableElement,
                     ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
                         partialEntityName = pojo.typeName.toString(),
-                        primaryKeyNames = missingPrimaryKeys.map { it.columnName })
+                        primaryKeyNames = missingPrimaryKeys.map { it.columnName }
+                    )
                 )
             }
         )
@@ -59,18 +63,18 @@ class UpdateMethodProcessor(
         val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)
 
         context.checker.check(
-                methodBinder.adapter != null,
-                executableElement,
-                ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
+            methodBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
         )
 
         return UpdateMethod(
-                element = delegate.executableElement,
-                name = delegate.executableElement.name,
-                entities = entities,
-                onConflictStrategy = onConflict,
-                methodBinder = methodBinder,
-                parameters = params
+            element = delegate.executableElement,
+            name = delegate.executableElement.name,
+            entities = entities,
+            onConflictStrategy = onConflict,
+            methodBinder = methodBinder,
+            parameters = params
         )
     }
 }

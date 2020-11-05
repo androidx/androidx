@@ -60,11 +60,13 @@ internal inline fun TypeSpec.Builder.method(
     vararg modifiers: Modifier,
     init: MethodSpec.Builder.() -> Unit
 ) {
-    addMethod(MethodSpec.methodBuilder(name).run {
-        addModifiers(*modifiers)
-        init()
-        build()
-    })
+    addMethod(
+        MethodSpec.methodBuilder(name).run {
+            addModifiers(*modifiers)
+            init()
+            build()
+        }
+    )
 }
 
 internal inline fun TypeSpec.Builder.overrideMethod(

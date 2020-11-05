@@ -89,13 +89,18 @@ class InspectorNode internal constructor(
     /**
      * The parameters of this Composable.
      */
-    val parameters: List<NodeParameter>,
+    val parameters: List<RawParameter>,
 
     /**
      * The children nodes of this Composable.
      */
     val children: List<InspectorNode>
 )
+
+/**
+ * Parameter definition with a raw value reference.
+ */
+class RawParameter(val name: String, val value: Any?)
 
 /**
  * Mutable version of [InspectorNode].
@@ -114,7 +119,7 @@ internal class MutableInspectorNode {
     var top = 0
     var width = 0
     var height = 0
-    val parameters = mutableListOf<NodeParameter>()
+    val parameters = mutableListOf<RawParameter>()
     val children = mutableListOf<InspectorNode>()
 
     fun reset() {

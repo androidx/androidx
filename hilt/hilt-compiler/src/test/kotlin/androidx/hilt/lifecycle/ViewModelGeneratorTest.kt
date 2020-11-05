@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 class ViewModelGeneratorTest {
 
     @Test
-    fun verifyAssistedFactory_noArg() {
+    fun verifyModule_noArg() {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
@@ -46,39 +46,48 @@ class ViewModelGeneratorTest {
         val expected = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
-        import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Override;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
+        import androidx.lifecycle.ViewModel;
+        import dagger.Module;
+        import dagger.Provides;
+        import dagger.hilt.InstallIn;
+        import dagger.hilt.codegen.OriginatingElement;
+        import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
 
         $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
+        @Module
+        @InstallIn(ViewModelComponent.class)
+        @OriginatingElement(
+            topLevelClass = MyViewModel.class
+        )
+        public final class MyViewModel_HiltModule {
+            private MyViewModel_HiltModule() {
+            }
 
-            @Inject
-            MyViewModel_AssistedFactory() { }
-
-            @Override
-            @NonNull
-            public MyViewModel create(SavedStateHandle arg0) {
-                return new MyViewModel();
+            @Provides
+            @IntoMap
+            @StringKey("androidx.hilt.lifecycle.test.MyViewModel")
+            @InternalViewModelInjectMap
+            public static ViewModel provide() {
+              return new MyViewModel();
             }
         }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
 
         val compilation = compiler()
             .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
                 .hasSourceEquivalentTo(expected)
         }
     }
 
     @Test
-    fun verifyAssistedFactory_savedStateOnlyArg() {
+    fun verifyModule_savedStateOnlyArg() {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
@@ -96,39 +105,49 @@ class ViewModelGeneratorTest {
         val expected = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
         import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Override;
+        import androidx.lifecycle.ViewModel;
+        import dagger.Module;
+        import dagger.Provides;
+        import dagger.hilt.InstallIn;
+        import dagger.hilt.codegen.OriginatingElement;
+        import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
 
         $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
+        @Module
+        @InstallIn(ViewModelComponent.class)
+        @OriginatingElement(
+            topLevelClass = MyViewModel.class
+        )
+        public final class MyViewModel_HiltModule {
+            private MyViewModel_HiltModule() {
+            }
 
-            @Inject
-            MyViewModel_AssistedFactory() { }
-
-            @Override
-            @NonNull
-            public MyViewModel create(SavedStateHandle arg0) {
-                return new MyViewModel(arg0);
+            @Provides
+            @IntoMap
+            @StringKey("androidx.hilt.lifecycle.test.MyViewModel")
+            @InternalViewModelInjectMap
+            public static ViewModel provide(SavedStateHandle savedState) {
+              return new MyViewModel(savedState);
             }
         }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
 
         val compilation = compiler()
             .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
                 .hasSourceEquivalentTo(expected)
         }
     }
 
     @Test
-    fun verifyAssistedFactory_mixedArgs() {
+    fun verifyModule_mixedArgs() {
         val foo = """
         package androidx.hilt.lifecycle.test;
 
@@ -153,50 +172,50 @@ class ViewModelGeneratorTest {
         val expected = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
         import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Long;
-        import java.lang.Override;
+        import androidx.lifecycle.ViewModel;
+        import dagger.Module;
+        import dagger.Provides;
+        import dagger.hilt.InstallIn;
+        import dagger.hilt.codegen.OriginatingElement;
+        import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import java.lang.String;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
-        import javax.inject.Provider;
 
         $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
-
-            private final Provider<String> s;
-            private final Provider<Foo> f;
-            private final Provider<Long> l;
-
-            @Inject
-            MyViewModel_AssistedFactory(Provider<String> s, Provider<Foo> f, Provider<Long> l) {
-                this.s = s;
-                this.f = f;
-                this.l = l;
+        @Module
+        @InstallIn(ViewModelComponent.class)
+        @OriginatingElement(
+            topLevelClass = MyViewModel.class
+        )
+        public final class MyViewModel_HiltModule {
+            private MyViewModel_HiltModule() {
             }
 
-            @Override
-            @NonNull
-            public MyViewModel create(SavedStateHandle arg0) {
-                return new MyViewModel(s.get(), f.get(), arg0, l.get());
+            @Provides
+            @IntoMap
+            @StringKey("androidx.hilt.lifecycle.test.MyViewModel")
+            @InternalViewModelInjectMap
+            public static ViewModel provide(String s, Foo f, SavedStateHandle savedState, long l) {
+              return new MyViewModel(s, f, savedState, l);
             }
         }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
 
         val compilation = compiler()
             .compile(foo, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
                 .hasSourceEquivalentTo(expected)
         }
     }
 
     @Test
-    fun verifyAssistedFactory_mixedAndProviderArgs() {
+    fun verifyModule_mixedAndProviderArgs() {
         val foo = """
         package androidx.hilt.lifecycle.test;
 
@@ -222,47 +241,51 @@ class ViewModelGeneratorTest {
         val expected = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
         import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Override;
+        import androidx.lifecycle.ViewModel;
+        import dagger.Module;
+        import dagger.Provides;
+        import dagger.hilt.InstallIn;
+        import dagger.hilt.codegen.OriginatingElement;
+        import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import java.lang.String;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
         import javax.inject.Provider;
 
         $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
-
-            private final Provider<String> s;
-            private final Provider<Foo> f;
-
-            @Inject
-            MyViewModel_AssistedFactory(Provider<String> s, Provider<Foo> f) {
-                this.s = s;
-                this.f = f;
+        @Module
+        @InstallIn(ViewModelComponent.class)
+        @OriginatingElement(
+            topLevelClass = MyViewModel.class
+        )
+        public final class MyViewModel_HiltModule {
+            private MyViewModel_HiltModule() {
             }
 
-            @Override
-            @NonNull
-            public MyViewModel create(SavedStateHandle arg0) {
-                return new MyViewModel(s.get(), f, arg0);
+            @Provides
+            @IntoMap
+            @StringKey("androidx.hilt.lifecycle.test.MyViewModel")
+            @InternalViewModelInjectMap
+            public static ViewModel provide(String s, Provider<Foo> f, SavedStateHandle savedState) {
+              return new MyViewModel(s, f, savedState);
             }
         }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
 
         val compilation = compiler()
             .compile(foo, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
                 .hasSourceEquivalentTo(expected)
         }
     }
 
     @Test
-    fun verifyAssistedFactory_qualifiedArgs() {
+    fun verifyModule_qualifiedArgs() {
         val myQualifier = """
         package androidx.hilt.lifecycle.test;
 
@@ -295,90 +318,45 @@ class ViewModelGeneratorTest {
         val expected = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
         import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Long;
-        import java.lang.Override;
+        import androidx.lifecycle.ViewModel;
+        import dagger.Module;
+        import dagger.Provides;
+        import dagger.hilt.InstallIn;
+        import dagger.hilt.codegen.OriginatingElement;
+        import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
+import java.lang.Long;
         import java.lang.String;
         import $GENERATED_TYPE;
-        import javax.inject.Inject;
         import javax.inject.Named;
         import javax.inject.Provider;
 
         $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
-
-            private final Provider<String> s;
-            private final Provider<Long> l;
-
-            @Inject
-            MyViewModel_AssistedFactory(@Named("TheString") Provider<String> s,
-                    @MyQualifier Provider<Long> l) {
-                this.s = s;
-                this.l = l;
-            }
-
-            @Override
-            @NonNull
-            public MyViewModel create(SavedStateHandle arg0) {
-                return new MyViewModel(s.get(), l, arg0);
-            }
-        }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-
-        val compilation = compiler()
-            .compile(myQualifier, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).apply {
-            succeeded()
-            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-                .hasSourceEquivalentTo(expected)
-        }
-    }
-
-    @Test
-    fun verifyMultibindModule() {
-        val myViewModel = """
-        package androidx.hilt.lifecycle.test;
-
-        import androidx.lifecycle.ViewModel;
-        import androidx.hilt.lifecycle.ViewModelInject;
-
-        class MyViewModel extends ViewModel {
-            @ViewModelInject
-            MyViewModel() { }
-        }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
-
-        val expected = """
-        package androidx.hilt.lifecycle.test;
-
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
-        import androidx.lifecycle.ViewModel;
-        import dagger.Binds;
-        import dagger.Module;
-        import dagger.hilt.InstallIn;
-        import dagger.hilt.android.components.ActivityRetainedComponent;
-        import dagger.hilt.codegen.OriginatingElement;
-        import dagger.multibindings.IntoMap;
-        import dagger.multibindings.StringKey;
-        import $GENERATED_TYPE;
-
-        $GENERATED_ANNOTATION
         @Module
-        @InstallIn(ActivityRetainedComponent.class)
-        @OriginatingElement(topLevelClass = MyViewModel.class)
-        public interface MyViewModel_HiltModule {
-            @Binds
+        @InstallIn(ViewModelComponent.class)
+        @OriginatingElement(
+            topLevelClass = MyViewModel.class
+        )
+        public final class MyViewModel_HiltModule {
+            private MyViewModel_HiltModule() {
+            }
+
+            @Provides
             @IntoMap
             @StringKey("androidx.hilt.lifecycle.test.MyViewModel")
-            ViewModelAssistedFactory<? extends ViewModel> bind(MyViewModel_AssistedFactory factory)
+            @InternalViewModelInjectMap
+            public static ViewModel provide(@Named("TheString") String s,
+                    @MyQualifier Provider<Long> l, SavedStateHandle savedState) {
+              return new MyViewModel(s, l, savedState);
+            }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
 
         val compilation = compiler()
-            .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
+            .compile(myQualifier, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
             generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
@@ -402,40 +380,15 @@ class ViewModelGeneratorTest {
         }
         """.toJFO("androidx.hilt.lifecycle.test.Outer")
 
-        val expectedFactory = """
-        package androidx.hilt.lifecycle.test;
-
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
-        import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Override;
-        import $GENERATED_TYPE;
-        import javax.inject.Inject;
-
-        $GENERATED_ANNOTATION
-        public final class Outer_InnerViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<Outer.InnerViewModel> {
-
-            @Inject
-            Outer_InnerViewModel_AssistedFactory() { }
-
-            @Override
-            @NonNull
-            public Outer.InnerViewModel create(SavedStateHandle arg0) {
-                return new Outer.InnerViewModel();
-            }
-        }
-        """.toJFO("androidx.hilt.lifecycle.test.Outer_InnerViewModel_AssistedFactory")
-
         val expectedModule = """
         package androidx.hilt.lifecycle.test;
 
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
+        import androidx.hilt.lifecycle.InternalViewModelInjectMap;
+        import androidx.hilt.lifecycle.ViewModelComponent;
         import androidx.lifecycle.ViewModel;
-        import dagger.Binds;
         import dagger.Module;
+        import dagger.Provides;
         import dagger.hilt.InstallIn;
-        import dagger.hilt.android.components.ActivityRetainedComponent;
         import dagger.hilt.codegen.OriginatingElement;
         import dagger.multibindings.IntoMap;
         import dagger.multibindings.StringKey;
@@ -443,14 +396,19 @@ class ViewModelGeneratorTest {
 
         $GENERATED_ANNOTATION
         @Module
-        @InstallIn(ActivityRetainedComponent.class)
+        @InstallIn(ViewModelComponent.class)
         @OriginatingElement(topLevelClass = Outer.class)
-        public interface Outer_InnerViewModel_HiltModule {
-            @Binds
+        public final class Outer_InnerViewModel_HiltModule {
+            private Outer_InnerViewModel_HiltModule() {
+            }
+
+            @Provides
             @IntoMap
             @StringKey("androidx.hilt.lifecycle.test.Outer${'$'}InnerViewModel")
-            ViewModelAssistedFactory<? extends ViewModel> bind(
-                    Outer_InnerViewModel_AssistedFactory factory)
+            @InternalViewModelInjectMap
+            public static ViewModel provide() {
+              return new Outer.InnerViewModel();
+            }
         }
         """.toJFO("androidx.hilt.lifecycle.test.Outer_InnerViewModel_HiltModule")
 
@@ -458,11 +416,6 @@ class ViewModelGeneratorTest {
             .compile(viewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
         assertThat(compilation).apply {
             succeeded()
-            generatedSourceFile(
-                "androidx.hilt.lifecycle.test" +
-                    ".Outer_InnerViewModel_AssistedFactory"
-            )
-                .hasSourceEquivalentTo(expectedFactory)
             generatedSourceFile(
                 "androidx.hilt.lifecycle.test" +
                     ".Outer_InnerViewModel_HiltModule"

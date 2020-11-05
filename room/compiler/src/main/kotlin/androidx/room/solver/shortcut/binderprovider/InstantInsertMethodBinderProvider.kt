@@ -34,7 +34,7 @@ class InstantInsertMethodBinderProvider(private val context: Context) : InsertMe
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         return InstantInsertMethodBinder(
-                context.typeAdapterStore.findInsertAdapter(declared, params)
+            context.typeAdapterStore.findInsertAdapter(declared, params)
         )
     }
 }

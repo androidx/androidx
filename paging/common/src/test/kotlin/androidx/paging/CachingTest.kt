@@ -314,9 +314,11 @@ class CachingTest {
                 onEach?.invoke()
             }
             .onEach {
-                items.addAll(it.pages.flatMap {
-                    it.data
-                })
+                items.addAll(
+                    it.pages.flatMap {
+                        it.data
+                    }
+                )
                 loadedPageCount += it.pages.size
                 if (items.size < expectedSize) {
                     receiver.accessHint(

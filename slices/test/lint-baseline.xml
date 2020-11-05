@@ -8,7 +8,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="129"
+            line="143"
             column="19"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="129"
+            line="143"
             column="30"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="129"
+            line="143"
             column="43"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="149"
+            line="163"
             column="12"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="658"
+            line="678"
             column="19"/>
     </issue>
 

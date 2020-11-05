@@ -43,6 +43,26 @@ data class LoadStates(
         op(LoadType.APPEND, append)
     }
 
+    internal fun modifyState(loadType: LoadType, newState: LoadState): LoadStates {
+        return when (loadType) {
+            LoadType.APPEND -> copy(
+                append = newState
+            )
+            LoadType.PREPEND -> copy(
+                prepend = newState
+            )
+            LoadType.REFRESH -> copy(
+                refresh = newState
+            )
+        }
+    }
+
+    internal fun get(loadType: LoadType) = when (loadType) {
+        LoadType.REFRESH -> refresh
+        LoadType.APPEND -> append
+        LoadType.PREPEND -> prepend
+    }
+
     internal companion object {
         val IDLE = LoadStates(
             refresh = NotLoading.Incomplete,

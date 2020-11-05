@@ -24,7 +24,6 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.camera.core.impl.UseCaseConfig;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

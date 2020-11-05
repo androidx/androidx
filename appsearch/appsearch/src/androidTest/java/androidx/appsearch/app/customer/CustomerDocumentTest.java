@@ -18,7 +18,6 @@ package androidx.appsearch.app.customer;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.GenericDocument;
-import androidx.test.filters.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -31,7 +30,6 @@ import org.junit.Test;
  * <p>This class is intentionally in a different package than {@link GenericDocument} to make sure
  * there are no package-private methods required for external developers to add custom types.
  */
-@SmallTest
 public class CustomerDocumentTest {
 
     private static byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
@@ -48,12 +46,12 @@ public class CustomerDocumentTest {
         CustomerDocument customerDocument = new CustomerDocument.Builder("uri1")
                 .setScore(1)
                 .setCreationTimestampMillis(0)
-                .setProperty("longKey1", 1L, 2L, 3L)
-                .setProperty("doubleKey1", 1.0, 2.0, 3.0)
-                .setProperty("booleanKey1", true, false, true)
-                .setProperty("stringKey1", "test-value1", "test-value2", "test-value3")
-                .setProperty("byteKey1", sByteArray1, sByteArray2)
-                .setProperty("documentKey1", sDocumentProperties1, sDocumentProperties2)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .setPropertyBytes("byteKey1", sByteArray1, sByteArray2)
+                .setPropertyDocument("documentKey1", sDocumentProperties1, sDocumentProperties2)
                 .build();
 
         assertThat(customerDocument.getUri()).isEqualTo("uri1");

@@ -1493,61 +1493,6 @@ package androidx.leanback.transition {
     ctor public SlideNoPropagation(android.content.Context!, android.util.AttributeSet!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TransitionHelper {
-    method public static void addSharedElement(android.app.FragmentTransaction!, android.view.View!, String!);
-    method public static void addTarget(Object!, android.view.View!);
-    method public static void addTransition(Object!, Object!);
-    method public static void addTransitionListener(Object!, androidx.leanback.transition.TransitionListener!);
-    method public static void beginDelayedTransition(android.view.ViewGroup!, Object!);
-    method public static Object! createAutoTransition();
-    method public static Object! createChangeBounds(boolean);
-    method public static Object! createChangeTransform();
-    method public static Object! createDefaultInterpolator(android.content.Context!);
-    method public static Object! createFadeAndShortSlide(int);
-    method public static Object! createFadeAndShortSlide(int, float);
-    method public static Object! createFadeTransition(int);
-    method public static Object! createScale();
-    method public static Object! createScene(android.view.ViewGroup!, Runnable!);
-    method public static Object! createSlide(int);
-    method public static Object! createTransitionSet(boolean);
-    method public static void exclude(Object!, int, boolean);
-    method public static void exclude(Object!, android.view.View!, boolean);
-    method public static void excludeChildren(Object!, int, boolean);
-    method public static void excludeChildren(Object!, android.view.View!, boolean);
-    method public static Object! getEnterTransition(android.view.Window!);
-    method public static Object! getExitTransition(android.view.Window!);
-    method public static Object! getReenterTransition(android.view.Window!);
-    method public static Object! getReturnTransition(android.view.Window!);
-    method public static Object! getSharedElementEnterTransition(android.view.Window!);
-    method public static Object! getSharedElementExitTransition(android.view.Window!);
-    method public static Object! getSharedElementReenterTransition(android.view.Window!);
-    method public static Object! getSharedElementReturnTransition(android.view.Window!);
-    method public static void include(Object!, int);
-    method public static void include(Object!, android.view.View!);
-    method public static Object! loadTransition(android.content.Context!, int);
-    method public static void removeTransitionListener(Object!, androidx.leanback.transition.TransitionListener!);
-    method public static void runTransition(Object!, Object!);
-    method public static void setChangeBoundsDefaultStartDelay(Object!, int);
-    method public static void setChangeBoundsStartDelay(Object!, android.view.View!, int);
-    method public static void setChangeBoundsStartDelay(Object!, int, int);
-    method public static void setChangeBoundsStartDelay(Object!, String!, int);
-    method public static void setDuration(Object!, long);
-    method public static void setEnterTransition(android.view.Window!, Object!);
-    method public static void setEnterTransition(android.app.Fragment!, Object!);
-    method public static void setEpicenterCallback(Object!, androidx.leanback.transition.TransitionEpicenterCallback!);
-    method public static void setExitTransition(android.app.Fragment!, Object!);
-    method public static void setInterpolator(Object!, Object!);
-    method public static void setReturnTransition(android.view.Window!, Object!);
-    method public static void setSharedElementEnterTransition(android.view.Window!, Object!);
-    method public static void setSharedElementEnterTransition(android.app.Fragment!, Object!);
-    method public static void setSharedElementReturnTransition(android.view.Window!, Object!);
-    method public static void setStartDelay(Object!, long);
-    method public static void setTransitionGroup(android.view.ViewGroup!, boolean);
-    method public static boolean systemSupportsEntranceTransitions();
-    field public static final int FADE_IN = 1; // 0x1
-    field public static final int FADE_OUT = 2; // 0x2
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TransitionListener {
     ctor public TransitionListener();
     method public void onTransitionCancel(Object!);

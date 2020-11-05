@@ -49,11 +49,11 @@ class NavTypeTest {
         private val serializables = arrayOf(Bitmap.Config.ALPHA_8)
         private val parcelableNavType = NavType.ParcelableType(ActivityInfo::class.java)
         private val parcelableArrayNavType =
-                NavType.ParcelableArrayType(ActivityInfo::class.java)
+            NavType.ParcelableArrayType(ActivityInfo::class.java)
         private val serializableNavType = NavType.SerializableType(Person::class.java)
         private val enumNavType = NavType.EnumType(Bitmap.Config::class.java)
         private val serializableArrayNavType =
-                NavType.SerializableArrayType(Bitmap.Config::class.java)
+            NavType.SerializableArrayType(Bitmap.Config::class.java)
     }
 
     @Test
@@ -83,7 +83,7 @@ class NavTypeTest {
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo[]", null))
             .isEqualTo(parcelableArrayNavType)
         assertThat(NavType.fromArgType("androidx.navigation.NavTypeTest\$Person", null))
-                .isEqualTo(serializableNavType)
+            .isEqualTo(serializableNavType)
         assertThat(NavType.fromArgType("android.graphics.Bitmap\$Config", null))
             .isEqualTo(enumNavType)
         assertThat(NavType.fromArgType("android.graphics.Bitmap\$Config[]", null))
@@ -135,7 +135,7 @@ class NavTypeTest {
         assertThat(NavType.inferFromValueType(en))
             .isEqualTo(enumNavType)
         assertThat(NavType.inferFromValueType(serializable))
-                .isEqualTo(serializableNavType)
+            .isEqualTo(serializableNavType)
         assertThat(NavType.inferFromValueType(serializables))
             .isEqualTo(serializableArrayNavType)
         assertThat(NavType.inferFromValueType(null))
@@ -213,7 +213,7 @@ class NavTypeTest {
 
         serializableNavType.put(bundle, key, serializable)
         assertThat(serializableNavType.get(bundle, key))
-                .isEqualTo(serializable)
+            .isEqualTo(serializable)
         bundle.clear()
 
         serializableArrayNavType.put(bundle, key, serializables)

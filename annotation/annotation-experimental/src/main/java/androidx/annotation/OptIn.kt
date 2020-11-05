@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
     AnnotationTarget.FILE,
     AnnotationTarget.TYPEALIAS
 )
-annotation class OptIn(
+public annotation class OptIn(
     /**
      * Defines the opt-in API(s) whose usage this annotation allows.
      */

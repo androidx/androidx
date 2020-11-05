@@ -40,6 +40,7 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
@@ -163,7 +164,7 @@ public class MediaRouteButton extends View {
             mCallback = null;
             int remoteIndicatorStaticResId = a.getResourceId(
                     R.styleable.MediaRouteButton_externalRouteEnabledDrawableStatic, 0);
-            mRemoteIndicator = getResources().getDrawable(remoteIndicatorStaticResId);
+            mRemoteIndicator = AppCompatResources.getDrawable(context, remoteIndicatorStaticResId);
             return;
         }
         mRouter = MediaRouter.getInstance(context);
@@ -810,7 +811,7 @@ public class MediaRouteButton extends View {
         protected Drawable doInBackground(Void... params) {
             Drawable.ConstantState remoteIndicatorState = sRemoteIndicatorCache.get(mResId);
             if (remoteIndicatorState == null) {
-                return mContext.getResources().getDrawable(mResId);
+                return AppCompatResources.getDrawable(mContext, mResId);
             } else {
                 return null;
             }

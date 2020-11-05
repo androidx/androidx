@@ -3146,7 +3146,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private int findImmediateChildIndex(View view) {
-        if (mBaseGridView != null && view != mBaseGridView) {
+        if (view != null && mBaseGridView != null && view != mBaseGridView) {
             view = findContainingItemView(view);
             if (view != null) {
                 for (int i = 0, count = getChildCount(); i < count; i++) {

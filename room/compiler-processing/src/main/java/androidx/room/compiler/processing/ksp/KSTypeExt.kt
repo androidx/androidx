@@ -19,12 +19,14 @@ package androidx.room.compiler.processing.ksp
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import com.squareup.javapoet.WildcardTypeName
-import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSType
-import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
-import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
-import org.jetbrains.kotlin.ksp.symbol.Variance
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Variance
 
 internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
@@ -42,7 +44,7 @@ internal fun KSTypeReference?.typeName(): TypeName {
     return if (this == null) {
         ERROR_TYPE_NAME
     } else {
-        requireType().typeName()
+        resolve().typeName()
     }
 }
 
@@ -62,15 +64,32 @@ internal fun KSDeclaration.typeName(): ClassName {
     return ClassName.get(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
 }
 
+internal fun KSTypeArgument.typeName(
+    param: KSTypeParameter
+): TypeName {
+    return when (variance) {
+        Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(type.typeName())
+        Variance.COVARIANT -> WildcardTypeName.subtypeOf(type.typeName())
+        Variance.STAR -> {
+            // for star projected types, JavaPoet uses the name from the declaration if
+            // * is not given explicitly
+            if (type == null) {
+                // explicit *
+                WildcardTypeName.subtypeOf(TypeName.OBJECT)
+            } else {
+                TypeVariableName.get(param.name.asString(), type.typeName())
+            }
+        }
+        else -> type.typeName()
+    }
+}
+
 internal fun KSType.typeName(): TypeName {
     return if (this.arguments.isNotEmpty()) {
-        val args: Array<TypeName> = this.arguments.map {
-            when (it.variance) {
-                Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(it.type.typeName())
-                Variance.COVARIANT -> WildcardTypeName.subtypeOf(it.type.typeName())
-                Variance.STAR -> WildcardTypeName.subtypeOf(TypeName.OBJECT)
-                else -> it.type.typeName()
-            }
+        val args: Array<TypeName> = this.arguments.mapIndexed { index, typeArg ->
+            typeArg.typeName(
+                this.declaration.typeParameters[index]
+            )
         }.toTypedArray()
         val className = declaration.typeName()
         ParameterizedTypeName.get(
@@ -95,14 +114,8 @@ internal fun KSDeclaration.getNormalizedPackageName(): String {
     }
 }
 
-internal fun KSTypeReference.requireType(): KSType {
-    return checkNotNull(resolve()) {
-        "Resolve in type reference should not have returned null, please file a bug. $this"
-    }
-}
-
 internal fun KSTypeArgument.requireType(): KSType {
-    return checkNotNull(type?.requireType()) {
+    return checkNotNull(type?.resolve()) {
         "KSTypeArgument.type should not have been null, please file a bug. $this"
     }
 }

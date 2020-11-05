@@ -74,7 +74,7 @@
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"
-            line="443"
+            line="454"
             column="9"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="        ^">
         <location
             file="src/main/AndroidManifest.xml"
-            line="451"
+            line="462"
             column="9"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="70"
+            line="69"
             column="25"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="71"
+            line="70"
             column="25"/>
     </issue>
 
@@ -2868,7 +2868,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="84"
+            line="83"
             column="25"/>
     </issue>
 
@@ -2879,7 +2879,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"
-            line="85"
+            line="84"
             column="25"/>
     </issue>
 

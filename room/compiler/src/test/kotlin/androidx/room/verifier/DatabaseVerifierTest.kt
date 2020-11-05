@@ -62,7 +62,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             val stmt = verifier.connection.createStatement()
             val rs = stmt.executeQuery("select * from sqlite_master WHERE type='table'")
             assertThat(
-                    rs.collect { set -> set.getString("name") }, hasItem(`is`("User")))
+                rs.collect { set -> set.getString("name") }, hasItem(`is`("User"))
+            )
             val table = verifier.connection.prepareStatement("select * from User")
             assertThat(table.columnNames(), `is`(listOf("id", "name", "lastName", "ratio")))
 
@@ -72,76 +73,114 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
         val db = userDb(invocation)
-        return DatabaseVerifier.create(invocation.context, mock(XElement::class.java),
-                db.entities, db.views)!!
+        return DatabaseVerifier.create(
+            invocation.context, mock(XElement::class.java),
+            db.entities, db.views
+        )!!
     }
 
     @Test
     fun testFullEntityQuery() {
         validQueryTest("select * from User") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER),
                             ColumnInfo("name", SQLTypeAffinity.TEXT),
                             ColumnInfo("lastName", SQLTypeAffinity.TEXT),
                             ColumnInfo("ratio", SQLTypeAffinity.REAL)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
     @Test
     fun testPartialFields() {
         validQueryTest("select id, lastName from User") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER),
                             ColumnInfo("lastName", SQLTypeAffinity.TEXT)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
     @Test
     fun testRenamedField() {
         validQueryTest("select id as myId, lastName from User") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             ColumnInfo("myId", SQLTypeAffinity.INTEGER),
                             ColumnInfo("lastName", SQLTypeAffinity.TEXT)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
     @Test
     fun testGrouped() {
         validQueryTest("select MAX(ratio) from User GROUP BY name") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             // unfortunately, we don't get this information
                             ColumnInfo("MAX(ratio)", SQLTypeAffinity.NULL)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
     @Test
     fun testConcat() {
         validQueryTest("select name || lastName as mergedName from User") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             // unfortunately, we don't get this information
                             ColumnInfo("mergedName", SQLTypeAffinity.NULL)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
     @Test
     fun testResultWithArgs() {
         validQueryTest("select id, name || lastName as mergedName from User where name LIKE ?") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             // unfortunately, we don't get this information
                             ColumnInfo("id", SQLTypeAffinity.INTEGER),
                             ColumnInfo("mergedName", SQLTypeAffinity.NULL)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
@@ -171,12 +210,18 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     @Test
     fun testCollate() {
         validQueryTest("SELECT id, name FROM user ORDER BY name COLLATE LOCALIZED ASC") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             // unfortunately, we don't get this information
                             ColumnInfo("id", SQLTypeAffinity.INTEGER),
                             ColumnInfo("name", SQLTypeAffinity.TEXT)
-                    ))))
+                        )
+                    )
+                )
+            )
         }
     }
 
@@ -185,7 +230,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
             val (_, error) = verifier.analyze(
-                    "SELECT id, name FROM user ORDER BY name COLLATE LOCALIZEDASC")
+                "SELECT id, name FROM user ORDER BY name COLLATE LOCALIZEDASC"
+            )
             assertThat(error, notNullValue())
         }.compilesWithoutError()
     }
@@ -193,12 +239,17 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     @Test
     fun testFullViewQuery() {
         validQueryTest("select * from UserSummary") {
-            assertThat(it, `is`(
-                    QueryResultInfo(listOf(
+            assertThat(
+                it,
+                `is`(
+                    QueryResultInfo(
+                        listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER),
                             ColumnInfo("name", SQLTypeAffinity.TEXT)
-                    ))
-            ))
+                        )
+                    )
+                )
+            )
         }
     }
 
@@ -207,7 +258,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         simpleRun { invocation ->
             val verifier = createVerifier(invocation)
             val (_, error) = verifier.analyze(
-                    "SELECT ratio FROM UserSummary")
+                "SELECT ratio FROM UserSummary"
+            )
             assertThat(error, notNullValue())
             assertThat(error?.message, containsString("no such column: ratio"))
         }.compilesWithoutError()
@@ -274,14 +326,15 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     private fun database(entities: List<Entity>, views: List<DatabaseView>): Database {
         return Database(
-                element = mock(XTypeElement::class.java),
-                type = mock(XType::class.java),
-                entities = entities,
-                views = views,
-                daoMethods = emptyList(),
-                version = -1,
-                exportSchema = false,
-                enableForeignKeys = false)
+            element = mock(XTypeElement::class.java),
+            type = mock(XType::class.java),
+            entities = entities,
+            views = views,
+            daoMethods = emptyList(),
+            version = -1,
+            exportSchema = false,
+            enableForeignKeys = false
+        )
     }
 
     private fun entity(
@@ -306,13 +359,13 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     private fun view(viewName: String, query: String, vararg fields: Field): DatabaseView {
         return DatabaseView(
-                element = mock(XTypeElement::class.java),
-                viewName = viewName,
-                type = mock(XDeclaredType::class.java),
-                fields = fields.toList(),
-                embeddedFields = emptyList(),
-                query = SqlParser.parse(query),
-                constructor = Constructor(mock(XConstructorElement::class.java), emptyList())
+            element = mock(XTypeElement::class.java),
+            viewName = viewName,
+            type = mock(XDeclaredType::class.java),
+            fields = fields.toList(),
+            embeddedFields = emptyList(),
+            query = SqlParser.parse(query),
+            constructor = Constructor(mock(XConstructorElement::class.java), emptyList())
         )
     }
 
@@ -356,9 +409,9 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         return resultSet.collect {
             Pair(it.getString("name"), it.getInt("pk"))
         }
-                .filter { it.second > 0 }
-                .sortedBy { it.second }
-                .map { it.first }
+            .filter { it.second > 0 }
+            .sortedBy { it.second }
+            .map { it.first }
     }
 
     companion object {

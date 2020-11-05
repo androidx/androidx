@@ -23,74 +23,98 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The users style choices represented as a map of [UserStyleCategory] to
- * [UserStyleCategory.Option].
+ * The users style choices represented as a map of [UserStyleSetting] to
+ * [UserStyleSetting.Option].
  */
-class UserStyle(val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
+public class UserStyle(
+    public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
+) {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    constructor(
+    public constructor(
         userStyle: UserStyleWireFormat,
-        userStyleCategories: List<UserStyleCategory>
+        styleSchema: UserStyleSchema
     ) : this(
-        HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-            for (styleCategory in userStyleCategories) {
-                val option = userStyle.mUserStyle[styleCategory.id] ?: continue
-                this[styleCategory] = styleCategory.getCategoryOptionForId(option)
+        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+            for (styleSetting in styleSchema.userStyleSettings) {
+                val option = userStyle.mUserStyle[styleSetting.id] ?: continue
+                this[styleSetting] = styleSetting.getSettingOptionForId(option)
             }
         }
     )
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun toWireFormat() =
-        UserStyleWireFormat(options.entries.associate { it.key.id to it.value.id })
+    public fun toWireFormat(): UserStyleWireFormat =
+        UserStyleWireFormat(selectedOptions.entries.associate { it.key.id to it.value.id })
+}
+
+/** Describes the list of [UserStyleSetting]s the user can configure. */
+public class UserStyleSchema(
+    /**
+     * The user configurable style categories associated with this watch face. Empty if the watch
+     * face doesn't support user styling.
+     */
+    public val userStyleSettings: List<UserStyleSetting>
+) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(wireFormat: UserStyleSchemaWireFormat) : this(
+        wireFormat.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
+    )
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun toWireFormat(): UserStyleSchemaWireFormat =
+        UserStyleSchemaWireFormat(userStyleSettings.map { it.toWireFormat() })
 }
 
 /**
  * In memory storage for user style choices which allows listeners to be registered to observe
  * style changes.
  */
-class UserStyleRepository(
+public class UserStyleRepository(
     /**
-     * The style categories (i.e the style schema) associated with this watch face, that the user
-     * can configure. May be empty. The first entry in each Option list is that category's default
-     * value.
+     * The [UserStyleSchema] for this UserStyleRepository which describes the available style
+     * categories.
      */
-    val userStyleCategories: List<UserStyleCategory>
+    public val schema: UserStyleSchema
 ) {
     /** A listener for observing user style changes. */
-    interface UserStyleListener {
+    public interface UserStyleListener {
         /** Called whenever the user style changes. */
         @UiThread
-        fun onUserStyleChanged(userStyle: UserStyle)
+        public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
     private val styleListeners = HashSet<UserStyleListener>()
 
-    // The current style state which is initialized from the userStyleCategories.
+    // The current style state which is initialized from the userStyleSettings.
     @SuppressWarnings("SyntheticAccessor")
-    private val _style = UserStyle(HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
-        for (category in userStyleCategories) {
-            this[category] = category.getDefaultOption()
+    private val _style = UserStyle(
+        HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
+            for (setting in schema.userStyleSettings) {
+                this[setting] = setting.getDefaultOption()
+            }
         }
-    })
+    )
 
     /** The current user controlled style for rendering etc... */
-    var userStyle: UserStyle
+    public var userStyle: UserStyle
         @UiThread
         get() = _style
         @UiThread
         set(style) {
             var changed = false
-            val hashmap = _style.options as HashMap<UserStyleCategory, UserStyleCategory.Option>
-            for ((category, option) in style.options) {
-                // Ignore an unrecognized category.
-                val styleCategory = _style.options[category] ?: continue
-                if (styleCategory.id != option.id) {
+            val hashmap =
+                _style.selectedOptions as HashMap<UserStyleSetting, UserStyleSetting.Option>
+            for ((setting, option) in style.selectedOptions) {
+                // Ignore an unrecognized setting.
+                val styleSetting = _style.selectedOptions[setting] ?: continue
+                if (styleSetting.id != option.id) {
                     changed = true
                 }
-                hashmap[category] = option
+                hashmap[setting] = option
             }
 
             if (!changed) {
@@ -107,7 +131,7 @@ class UserStyleRepository(
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    fun addUserStyleListener(userStyleListener: UserStyleListener) {
+    public fun addUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.add(userStyleListener)
         userStyleListener.onUserStyleChanged(_style)
     }
@@ -115,12 +139,7 @@ class UserStyleRepository(
     /** Removes a [UserStyleListener] previously added by [addUserStyleListener]. */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    fun removeUserStyleListener(userStyleListener: UserStyleListener) {
+    public fun removeUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.remove(userStyleListener)
     }
-
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    fun toSchemaWireFormat() =
-        UserStyleSchemaWireFormat(userStyleCategories.map { it.toWireFormat() })
 }

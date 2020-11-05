@@ -82,10 +82,12 @@ class ConcatAdapterTest {
     @Test
     fun attachAndDetachAll() {
         val concatenated = ConcatAdapter()
-        val adapter1 = NestedTestAdapter(10,
+        val adapter1 = NestedTestAdapter(
+            10,
             getLayoutParams = {
                 LayoutParams(MATCH_PARENT, 3)
-            })
+            }
+        )
         concatenated.addAdapter(adapter1)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 50)
@@ -95,10 +97,12 @@ class ConcatAdapterTest {
         assertThat(recyclerView.childCount).isEqualTo(0)
         assertThat(adapter1.attachedViewHolders()).isEmpty()
 
-        val adapter2 = NestedTestAdapter(5,
+        val adapter2 = NestedTestAdapter(
+            5,
             getLayoutParams = {
                 LayoutParams(MATCH_PARENT, 3)
-            })
+            }
+        )
         concatenated.addAdapter(adapter2)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
@@ -953,12 +957,12 @@ class ConcatAdapterTest {
 
         val excludedMethods = setOf(
             "registerAdapterDataObserver(" +
-                    "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
+                "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
             "unregisterAdapterDataObserver(" +
-                    "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
+                "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
             "canRestoreState([]) : boolean",
             "onBindViewHolder([androidx.recyclerview.widget.RecyclerView.ViewHolder, int, " +
-                    "java.util.List]) : void"
+                "java.util.List]) : void"
         )
         val adapterMethods = RecyclerView.Adapter::class.java.declaredMethods.filterNot {
             Modifier.isPrivate(it.modifiers) || Modifier.isFinal(it.modifiers)
@@ -974,7 +978,7 @@ class ConcatAdapterTest {
             """
             ConcatAdapter should override all methods in RecyclerView.Adapter for future 
             compatibility. If you want to exclude a method, update the test.
-        """.trimIndent()
+            """.trimIndent()
         ).that(concatenatedAdapterMethods).containsAtLeastElementsIn(adapterMethods)
     }
 
@@ -1000,7 +1004,8 @@ class ConcatAdapterTest {
         val concatenated = ConcatAdapter(
             Builder()
                 .setIsolateViewTypes(false)
-                .build(), adapter1, adapter2
+                .build(),
+            adapter1, adapter2
         )
         assertThat(concatenated).bindView(recyclerView, 2)
             .verifyBoundTo(adapter1, 2)
@@ -1029,7 +1034,8 @@ class ConcatAdapterTest {
         val concatenated = ConcatAdapter(
             Builder()
                 .setIsolateViewTypes(false)
-                .build(), adapter1, adapter2
+                .build(),
+            adapter1, adapter2
         )
         assertThat(concatenated).bindView(recyclerView, 0)
             .verifyBoundTo(adapter1, 0)
@@ -1062,12 +1068,14 @@ class ConcatAdapterTest {
         )
         assertThat(concatenatedAdapter).hasStableIds()
         assertThat(concatenatedAdapter).throwsException {
-            it.addAdapter(NestedTestAdapter(10).also { nested ->
-                nested.setHasStableIds(false)
-            })
+            it.addAdapter(
+                NestedTestAdapter(10).also { nested ->
+                    nested.setHasStableIds(false)
+                }
+            )
         }.hasMessageThat().contains(
             "All sub adapters must have stable ids when stable id mode" +
-                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
+                " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
         )
     }
 
@@ -1078,12 +1086,14 @@ class ConcatAdapterTest {
         )
         assertThat(concatenatedAdapter).hasStableIds()
         assertThat(concatenatedAdapter).throwsException {
-            it.addAdapter(NestedTestAdapter(10).also { nested ->
-                nested.setHasStableIds(false)
-            })
+            it.addAdapter(
+                NestedTestAdapter(10).also { nested ->
+                    nested.setHasStableIds(false)
+                }
+            )
         }.hasMessageThat().contains(
             "All sub adapters must have stable ids when stable id mode" +
-                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
+                " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
         )
     }
 

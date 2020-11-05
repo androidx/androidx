@@ -20,8 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 import android.net.Uri;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -36,7 +34,6 @@ import java.util.List;
  */
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
-@SmallTest
 public class ShareDataTest {
 
     private static final List<Uri> URIS = Arrays.asList(Uri.parse("http://foo"),

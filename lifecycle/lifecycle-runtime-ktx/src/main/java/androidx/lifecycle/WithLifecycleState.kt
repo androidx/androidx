@@ -28,7 +28,7 @@ import kotlin.coroutines.resumeWithException
  * A [CancellationException] that indicates that the [Lifecycle] associated with an operation
  * reached the [Lifecycle.State.DESTROYED] state before the operation could complete.
  */
-class LifecycleDestroyedException : CancellationException()
+public class LifecycleDestroyedException : CancellationException()
 
 /**
  * Run [block] with this [Lifecycle] in a [Lifecycle.State] of at least [state] and
@@ -36,7 +36,7 @@ class LifecycleDestroyedException : CancellationException()
  * if the lifecycle has reached [Lifecycle.State.DESTROYED] by the time of the call or before
  * [block] is able to run.
  */
-suspend inline fun <R> Lifecycle.withStateAtLeast(
+public suspend inline fun <R> Lifecycle.withStateAtLeast(
     state: Lifecycle.State,
     crossinline block: () -> R
 ): R {
@@ -53,7 +53,7 @@ suspend inline fun <R> Lifecycle.withStateAtLeast(
  * if the lifecycle has reached [Lifecycle.State.DESTROYED] by the time of the call or before
  * [block] is able to run.
  */
-suspend inline fun <R> Lifecycle.withCreated(
+public suspend inline fun <R> Lifecycle.withCreated(
     crossinline block: () -> R
 ): R = withStateAtLeastUnchecked(
     state = Lifecycle.State.CREATED,
@@ -66,7 +66,7 @@ suspend inline fun <R> Lifecycle.withCreated(
  * if the lifecycle has reached [Lifecycle.State.DESTROYED] by the time of the call or before
  * [block] is able to run.
  */
-suspend inline fun <R> Lifecycle.withStarted(
+public suspend inline fun <R> Lifecycle.withStarted(
     crossinline block: () -> R
 ): R = withStateAtLeastUnchecked(
     state = Lifecycle.State.STARTED,
@@ -79,7 +79,7 @@ suspend inline fun <R> Lifecycle.withStarted(
  * if the lifecycle has reached [Lifecycle.State.DESTROYED] by the time of the call or before
  * [block] is able to run.
  */
-suspend inline fun <R> Lifecycle.withResumed(
+public suspend inline fun <R> Lifecycle.withResumed(
     crossinline block: () -> R
 ): R = withStateAtLeastUnchecked(
     state = Lifecycle.State.RESUMED,
@@ -92,7 +92,7 @@ suspend inline fun <R> Lifecycle.withResumed(
  * if the lifecycle has reached [Lifecycle.State.DESTROYED] by the time of the call or before
  * [block] is able to run.
  */
-suspend inline fun <R> LifecycleOwner.withStateAtLeast(
+public suspend inline fun <R> LifecycleOwner.withStateAtLeast(
     state: Lifecycle.State,
     crossinline block: () -> R
 ): R = lifecycle.withStateAtLeast(
@@ -106,7 +106,7 @@ suspend inline fun <R> LifecycleOwner.withStateAtLeast(
  * Throws the [CancellationException] [LifecycleDestroyedException] if the lifecycle has reached
  * [Lifecycle.State.DESTROYED] by the time of the call or before [block] is able to run.
  */
-suspend inline fun <R> LifecycleOwner.withCreated(
+public suspend inline fun <R> LifecycleOwner.withCreated(
     crossinline block: () -> R
 ): R = lifecycle.withStateAtLeastUnchecked(
     state = Lifecycle.State.CREATED,
@@ -119,7 +119,7 @@ suspend inline fun <R> LifecycleOwner.withCreated(
  * Throws the [CancellationException] [LifecycleDestroyedException] if the lifecycle has reached
  * [Lifecycle.State.DESTROYED] by the time of the call or before [block] is able to run.
  */
-suspend inline fun <R> LifecycleOwner.withStarted(
+public suspend inline fun <R> LifecycleOwner.withStarted(
     crossinline block: () -> R
 ): R = lifecycle.withStateAtLeastUnchecked(
     state = Lifecycle.State.STARTED,
@@ -132,7 +132,7 @@ suspend inline fun <R> LifecycleOwner.withStarted(
  * Throws the [CancellationException] [LifecycleDestroyedException] if the lifecycle has reached
  * [Lifecycle.State.DESTROYED] by the time of the call or before [block] is able to run.
  */
-suspend inline fun <R> LifecycleOwner.withResumed(
+public suspend inline fun <R> LifecycleOwner.withResumed(
     crossinline block: () -> R
 ): R = lifecycle.withStateAtLeastUnchecked(
     state = Lifecycle.State.RESUMED,

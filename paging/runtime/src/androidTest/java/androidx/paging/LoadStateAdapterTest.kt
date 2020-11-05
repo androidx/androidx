@@ -25,6 +25,7 @@ import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.CHANGE
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.INSERT
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.REMOVED
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -32,10 +33,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class LoadStateAdapterTest {
     class AdapterEventRecorder : RecyclerView.AdapterDataObserver() {
         enum class Event {

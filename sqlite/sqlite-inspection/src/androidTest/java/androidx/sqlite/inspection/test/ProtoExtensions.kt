@@ -81,7 +81,8 @@ object MessageFactory {
                             QueryParameterValue.newBuilder()
                                 .also { builder -> if (param != null) builder.stringValue = param }
                                 .build()
-                        })
+                        }
+                    )
                 }
                 .build()
         ).build()

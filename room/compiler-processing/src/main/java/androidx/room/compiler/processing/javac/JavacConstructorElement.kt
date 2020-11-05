@@ -30,7 +30,8 @@ internal class JavacConstructorElement(
     env,
     containing,
     element
-), XConstructorElement {
+),
+    XConstructorElement {
     init {
         check(element.kind == ElementKind.CONSTRUCTOR) {
             "Constructor element is constructed with invalid type: $element"

@@ -39,12 +39,12 @@ import kotlin.coroutines.resumeWithException
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class CoroutinesRoom private constructor() {
+public class CoroutinesRoom private constructor() {
 
-    companion object {
+    public companion object {
 
         @JvmStatic
-        suspend fun <R> execute(
+        public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,
             callable: Callable<R>
@@ -63,7 +63,7 @@ class CoroutinesRoom private constructor() {
         }
 
         @JvmStatic
-        suspend fun <R> execute(
+        public suspend fun <R> execute(
             db: RoomDatabase,
             inTransaction: Boolean,
             cancellationSignal: CancellationSignal,
@@ -96,7 +96,7 @@ class CoroutinesRoom private constructor() {
         }
 
         @JvmStatic
-        fun <R> createFlow(
+        public fun <R> createFlow(
             db: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,

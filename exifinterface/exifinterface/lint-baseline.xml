@@ -8,7 +8,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7852"
+            line="7930"
             column="9"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                    ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="3950"
+            line="3973"
             column="37"/>
     </issue>
 
@@ -30,52 +30,63 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4610"
+            line="4655"
             column="20"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                   ~~~~~">
+        errorLine1="                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4687"
-            column="20"/>
+            line="4725"
+            column="24"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                   ~~~~~">
+        errorLine1="                    Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                       ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4709"
-            column="20"/>
+            line="4752"
+            column="24"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                newFileDescriptor = Os.dup(mSeekableFileDescriptor);"
-        errorLine2="                                       ~~~">
+        errorLine1="                        Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                           ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4797"
-            column="40"/>
+            line="4775"
+            column="28"/>
     </issue>
 
     <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
-        errorLine1="                Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);"
-        errorLine2="                   ~~~~~">
+        errorLine1="                    newFileDescriptor = Os.dup(mSeekableFileDescriptor);"
+        errorLine2="                                           ~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4798"
-            column="20"/>
+            line="4862"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4863"
+            column="24"/>
     </issue>
 
     <issue
@@ -85,7 +96,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5748"
+            line="5826"
             column="27"/>
     </issue>
 
@@ -96,7 +107,7 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="7989"
+            line="8067"
             column="20"/>
     </issue>
 
@@ -107,7 +118,7 @@
         errorLine2="                              ~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="4962"
+            line="5028"
             column="31"/>
     </issue>
 
@@ -118,7 +129,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5007"
+            line="5073"
             column="28"/>
     </issue>
 

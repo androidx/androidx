@@ -53,7 +53,7 @@ class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScan
 
     companion object {
         private const val DESCRIPTION = "Every Initializer needs to be accompanied by a " +
-                "corresponding <meta-data> entry in the AndroidManifest.xml file."
+            "corresponding <meta-data> entry in the AndroidManifest.xml file."
 
         val ISSUE = Issue.create(
             id = "EnsureInitializerMetadata",

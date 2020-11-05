@@ -49,6 +49,7 @@ class ActivityInjectionTest {
                 assertThat(activity.myViewModel).isNotNull()
                 assertThat(activity.myInjectedViewModel).isNotNull()
                 assertThat(activity.myNestedInjectedViewModel).isNotNull()
+                assertThat(activity.myInjectedViewModelWithSavedState).isNotNull()
             }
         }
     }
@@ -59,5 +60,6 @@ class ActivityInjectionTest {
         val myViewModel by viewModels<MyViewModel>()
         val myInjectedViewModel by viewModels<MyInjectedViewModel>()
         val myNestedInjectedViewModel by viewModels<TopClass.MyNestedInjectedViewModel>()
+        val myInjectedViewModelWithSavedState by viewModels<MyInjectedViewModelWithSavedState>()
     }
 }

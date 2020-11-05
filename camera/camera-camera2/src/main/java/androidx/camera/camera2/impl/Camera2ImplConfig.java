@@ -24,20 +24,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.interop.CaptureRequestOptions;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
-import androidx.camera.core.impl.ReadableConfig;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Internal shared implementation details for camera 2 interop.
  */
-public final class Camera2ImplConfig implements ReadableConfig {
+@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+public final class Camera2ImplConfig extends CaptureRequestOptions {
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
@@ -71,22 +71,26 @@ public final class Camera2ImplConfig implements ReadableConfig {
     @RestrictTo(Scope.LIBRARY)
     public static final Option<CameraEventCallbacks> CAMERA_EVENT_CALLBACK_OPTION =
             Option.create("camera2.cameraEvent.callback", CameraEventCallbacks.class);
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    public static final Option<Object> CAPTURE_REQUEST_TAG_OPTION = Option.create(
+            "camera2.captureRequest.tag", Object.class);
+
     // *********************************************************************************************
 
-    private final Config mConfig;
-
     /**
-     * Creates a Camera2InteropInternal for reading Camera2 options from the given config.
+     * Creates a Camera2ImplConfig for reading Camera2 options from the given config.
      *
      * @param config The config that potentially contains Camera2 options.
      */
     public Camera2ImplConfig(@NonNull Config config) {
-        mConfig = config;
+        super(config);
     }
 
     // Unfortunately, we can't get the Class<T> from the CaptureRequest.Key, so we're forced to
     // erase the type. This shouldn't be a problem as long as we are only using these options
-    // within the Camera2InteropInternal and Camera2InteropInternal.Builder classes.
+    // within the Camera2ImplConfig and Camera2ImplConfig.Builder classes.
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY)
@@ -96,44 +100,14 @@ public final class Camera2ImplConfig implements ReadableConfig {
     }
 
     /**
-     * Returns a value for the given {@link CaptureRequest.Key}.
-     *
-     * @param key            The key to retrieve.
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @param <ValueT>       The type of the value.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public <ValueT> ValueT getCaptureRequestOption(
-            @NonNull CaptureRequest.Key<ValueT> key, @Nullable ValueT valueIfMissing) {
-        @SuppressWarnings(
-                "unchecked") // Type should have been only set via Builder#setCaptureRequestOption()
-                Option<ValueT> opt = (Option<ValueT>) Camera2ImplConfig.createCaptureRequestOption(
-                key);
-        return mConfig.retrieveOption(opt, valueIfMissing);
-    }
-
-
-    /**
      * Returns all capture request options contained in this configuration.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
-    public Set<Option<?>> getCaptureRequestOptions() {
-        final Set<Option<?>> optionSet = new HashSet<>();
-        findOptions(
-                Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
-                new OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        optionSet.add(option);
-                        return true;
-                    }
-                });
-        return optionSet;
+    public CaptureRequestOptions getCaptureRequestOptions() {
+        return CaptureRequestOptions.Builder.from(getConfig()).build();
     }
 
     /**
@@ -147,7 +121,7 @@ public final class Camera2ImplConfig implements ReadableConfig {
      * configuration.
      */
     public int getCaptureRequestTemplate(int valueIfMissing) {
-        return mConfig.retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
     }
 
     /**
@@ -160,7 +134,7 @@ public final class Camera2ImplConfig implements ReadableConfig {
     @Nullable
     public CameraDevice.StateCallback getDeviceStateCallback(
             @Nullable CameraDevice.StateCallback valueIfMissing) {
-        return mConfig.retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
     }
 
 
@@ -174,7 +148,7 @@ public final class Camera2ImplConfig implements ReadableConfig {
     @Nullable
     public CameraCaptureSession.StateCallback getSessionStateCallback(
             @Nullable CameraCaptureSession.StateCallback valueIfMissing) {
-        return mConfig.retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
@@ -187,7 +161,7 @@ public final class Camera2ImplConfig implements ReadableConfig {
     @Nullable
     public CameraCaptureSession.CaptureCallback getSessionCaptureCallback(
             @Nullable CameraCaptureSession.CaptureCallback valueIfMissing) {
-        return mConfig.retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
@@ -200,13 +174,19 @@ public final class Camera2ImplConfig implements ReadableConfig {
     @Nullable
     public CameraEventCallbacks getCameraEventCallback(
             @Nullable CameraEventCallbacks valueIfMissing) {
-        return mConfig.retrieveOption(CAMERA_EVENT_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(CAMERA_EVENT_CALLBACK_OPTION, valueIfMissing);
     }
 
-    @NonNull
-    @Override
-    public Config getConfig() {
-        return mConfig;
+    /**
+     * Returns the capture request tag.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public Object getCaptureRequestTag(@Nullable Object valueIfMissing) {
+        return getConfig().retrieveOption(CAPTURE_REQUEST_TAG_OPTION, valueIfMissing);
     }
 
     /**
@@ -244,11 +224,10 @@ public final class Camera2ImplConfig implements ReadableConfig {
          * {@link OptionPriority}.
          */
         @NonNull
-        public <ValueT> Camera2ImplConfig.Builder setCaptureRequestOptionWithPriority(
+        public <ValueT> Builder setCaptureRequestOptionWithPriority(
                 @NonNull CaptureRequest.Key<ValueT> key, @NonNull ValueT value,
                 @NonNull OptionPriority priority) {
-            Option<Object> opt =
-                    Camera2ImplConfig.createCaptureRequestOption(key);
+            Option<Object> opt = Camera2ImplConfig.createCaptureRequestOption(key);
             mMutableOptionsBundle.insertOption(opt, priority, value);
             return this;
         }

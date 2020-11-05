@@ -76,11 +76,13 @@ class PageFragment : Fragment() {
     ): View = PageView.inflatePage(layoutInflater, container)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setValue(when {
-            savedInstanceState != null -> savedInstanceState.getString(ARG_KEY)!!
-            arguments != null -> arguments!!.getString(ARG_KEY)!!
-            else -> throw IllegalStateException()
-        })
+        setValue(
+            when {
+                savedInstanceState != null -> savedInstanceState.getString(ARG_KEY)!!
+                arguments != null -> arguments!!.getString(ARG_KEY)!!
+                else -> throw IllegalStateException()
+            }
+        )
     }
 
     fun setValue(value: String) {

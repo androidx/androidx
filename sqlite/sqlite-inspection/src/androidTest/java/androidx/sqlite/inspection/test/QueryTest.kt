@@ -124,7 +124,8 @@ class QueryTest {
                 assertThat(response.hasErrorOccurred()).isEqualTo(true)
                 val error = response.errorOccurred.content
                 assertThat(error.message).contains(
-                    "Unable to perform an operation on database (id=$databaseId).")
+                    "Unable to perform an operation on database (id=$databaseId)."
+                )
                 assertThat(error.message).contains("The database may have already been closed.")
                 assertThat(error.stackTrace).isEqualTo("")
                 assertThat(error.recoverability.isRecoverable).isEqualTo(true)
@@ -258,8 +259,8 @@ class QueryTest {
                 table2 to arrayOf("3", "'C'")
             ),
             query = "select * from " +
-                    "(select * from ${table2.name} where id > $paramNameLeft) " +
-                    "where id < $paramNameRight",
+                "(select * from ${table2.name} where id > $paramNameLeft) " +
+                "where id < $paramNameRight",
             queryParams = listOf("1", "3"),
             expectedValues = listOf(listOf(2, "B")),
             expectedTypes = listOf(listOf("integer", "text")),
@@ -462,10 +463,12 @@ class QueryTest {
     fun test_drop_table() = runBlocking {
         // given
         val database = Database("db1", table1, table2)
-        val databaseId = inspectDatabase(database.createInstance(temporaryFolder).also {
-            it.insertValues(table2, "1", "'1'")
-            it.insertValues(table2, "2", "'2'")
-        })
+        val databaseId = inspectDatabase(
+            database.createInstance(temporaryFolder).also {
+                it.insertValues(table2, "1", "'1'")
+                it.insertValues(table2, "2", "'2'")
+            }
+        )
         val initialTotalChanges = queryTotalChanges(databaseId)
         assertThat(querySchema(databaseId)).isNotEmpty()
 

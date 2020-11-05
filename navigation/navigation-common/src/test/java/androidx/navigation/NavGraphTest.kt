@@ -44,9 +44,11 @@ class NavGraphTest {
     fun setup() {
         provider = NavigatorProvider().apply {
             addNavigator(NoOpNavigator().also { noOpNavigator = it })
-            addNavigator(NavGraphNavigator(this).also {
-                navGraphNavigator = it
-            })
+            addNavigator(
+                NavGraphNavigator(this).also {
+                    navGraphNavigator = it
+                }
+            )
         }
     }
 
@@ -59,14 +61,14 @@ class NavGraphTest {
     }
 
     private fun createGraphWithDestination(destination: NavDestination) =
-            navGraphNavigator.createDestination().apply {
-                addDestination(destination)
-            }
+        navGraphNavigator.createDestination().apply {
+            addDestination(destination)
+        }
 
     private fun createGraphWithDestinations(vararg destinations: NavDestination) =
-            navGraphNavigator.createDestination().apply {
-                addDestinations(*destinations)
-            }
+        navGraphNavigator.createDestination().apply {
+            addDestinations(*destinations)
+        }
 
     @Test(expected = IllegalArgumentException::class)
     fun addDestinationWithoutId() {
@@ -96,7 +98,7 @@ class NavGraphTest {
             assertWithMessage("Adding destination with same id as its parent should fail")
                 .that(e).hasMessageThat().contains(
                     "Destination $destination cannot have the same id as graph $graph"
-            )
+                )
         }
     }
 
@@ -110,7 +112,8 @@ class NavGraphTest {
             graph.startDestination = destination.id
         } catch (e: IllegalArgumentException) {
             assertWithMessage("Setting a start destination with same id as its parent should fail")
-                .that(e).hasMessageThat().contains("Start destination " + destination.id +
+                .that(e).hasMessageThat().contains(
+                    "Start destination " + destination.id +
                         " cannot use the same id as the graph $graph"
                 )
         }

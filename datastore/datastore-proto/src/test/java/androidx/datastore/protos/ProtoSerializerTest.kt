@@ -16,7 +16,7 @@
 
 package androidx.datastore.protos
 
-import androidx.datastore.CorruptionException
+import androidx.datastore.core.CorruptionException
 import org.junit.Test
 import androidx.testing.TestMessageProto.FooProto
 import androidx.testing.TestMessageProto.ExtendableProto

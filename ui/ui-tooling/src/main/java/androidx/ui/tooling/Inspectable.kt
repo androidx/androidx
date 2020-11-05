@@ -30,6 +30,7 @@ import java.util.WeakHashMap
  * Storage for the preview generated [SlotTable]s.
  */
 internal interface SlotTableRecord {
+    @OptIn(InternalComposeApi::class)
     val store: Set<SlotTable>
 
     companion object {
@@ -38,8 +39,9 @@ internal interface SlotTableRecord {
 }
 
 private class SlotTableRecordImpl : SlotTableRecord {
+    @OptIn(InternalComposeApi::class)
     override val store: MutableSet<SlotTable> =
-        Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
+        Collections.newSetFromMap(WeakHashMap())
 }
 
 /**

@@ -978,6 +978,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.interrupt();
         Thread.sleep(1000L);
         assertThat(listener.mResult, is(true));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
     }
 
     @Test
@@ -996,6 +997,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         workerWrapper.interrupt();
         Thread.sleep(1000L);
         assertThat(listener.mResult, is(true));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
         verify(mMockScheduler).cancel(work.getStringId());
     }
 
@@ -1074,6 +1076,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         workerWrapper.interrupt();
         assertThat(worker.isStopped(), is(true));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
     }
 
     @Test
@@ -1108,6 +1111,7 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         workerWrapper.interrupt();
         assertThat(worker.isStopped(), is(true));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(ENQUEUED));
     }
 
     @Test

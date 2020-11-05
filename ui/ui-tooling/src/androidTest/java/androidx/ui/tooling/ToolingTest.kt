@@ -20,10 +20,11 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.onGloballyPositioned
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SlotTable
 import androidx.compose.ui.R
 import androidx.compose.ui.platform.AndroidOwner
@@ -56,8 +57,10 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
-                    .fillMaxSize()) {
+                Box(
+                    Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                        .fillMaxSize()
+                ) {
                     composable()
                 }
             }
@@ -70,6 +73,7 @@ open class ToolingTest {
         activityTestRule.onUiThread { }
     }
 
+    @OptIn(InternalComposeApi::class)
     internal fun showAndRecord(content: @Composable () -> Unit): MutableSet<SlotTable>? {
 
         positionedLatch = CountDownLatch(1)
@@ -82,8 +86,10 @@ open class ToolingTest {
                 AndroidOwner.onAndroidOwnerCreatedCallback = null
             }
             activity.setContent {
-                Box(Modifier.onGloballyPositioned { positionedLatch.countDown() }
-                    .fillMaxSize()) {
+                Box(
+                    Modifier.onGloballyPositioned { positionedLatch.countDown() }
+                        .fillMaxSize()
+                ) {
                     content()
                 }
             }

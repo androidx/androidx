@@ -68,9 +68,13 @@ public abstract class ActivityResultRegistry {
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
     private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
 
-    private final transient Map<String, CallbackAndContract<?>> mKeyToCallback = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final transient Map<String, CallbackAndContract<?>> mKeyToCallback = new HashMap<>();
 
-    private final Bundle/*<String, ActivityResult>*/ mPendingResults = new Bundle();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Map<String, Object> mParsedPendingResults = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Bundle/*<String, ActivityResult>*/ mPendingResults = new Bundle();
 
     /**
      * Start the process of executing an {@link ActivityResultContract} in a type-safe way,
@@ -118,41 +122,39 @@ public abstract class ActivityResultRegistry {
         }
 
         final int requestCode = registerKey(key);
-        mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
-
-        final ActivityResult pendingResult = mPendingResults.getParcelable(key);
         LifecycleContainer lifecycleContainer = mKeyToLifecycleContainers.get(key);
         if (lifecycleContainer == null) {
             lifecycleContainer = new LifecycleContainer(lifecycle);
         }
-        if (pendingResult != null) {
-            mPendingResults.remove(key);
-            LifecycleEventObserver observer = new LifecycleEventObserver() {
-                @Override
-                public void onStateChanged(
-                        @NonNull LifecycleOwner lifecycleOwner,
-                        @NonNull Lifecycle.Event event) {
-                    if (Lifecycle.Event.ON_START.equals(event)) {
+        LifecycleEventObserver observer = new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(
+                    @NonNull LifecycleOwner lifecycleOwner,
+                    @NonNull Lifecycle.Event event) {
+                if (Lifecycle.Event.ON_START.equals(event)) {
+                    mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
+                    if (mParsedPendingResults.containsKey(key)) {
+                        @SuppressWarnings("unchecked")
+                        final O parsedPendingResult = (O) mParsedPendingResults.get(key);
+                        mParsedPendingResults.remove(key);
+                        callback.onActivityResult(parsedPendingResult);
+                    }
+                    final ActivityResult pendingResult = mPendingResults.getParcelable(key);
+                    if (pendingResult != null) {
+                        mPendingResults.remove(key);
                         callback.onActivityResult(contract.parseResult(
                                 pendingResult.getResultCode(),
                                 pendingResult.getData()));
                     }
-                }
-            };
-            lifecycleContainer.addObserver(observer);
-            mKeyToLifecycleContainers.put(key, lifecycleContainer);
-        }
-
-        LifecycleEventObserver observer = new LifecycleEventObserver() {
-            @Override
-            public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
-                    @NonNull Lifecycle.Event event) {
-                if (Lifecycle.Event.ON_DESTROY.equals(event)) {
+                } else if (Lifecycle.Event.ON_STOP.equals(event)) {
+                    mKeyToCallback.remove(key);
+                } else if (Lifecycle.Event.ON_DESTROY.equals(event)) {
                     unregister(key);
                 }
             }
         };
         lifecycleContainer.addObserver(observer);
+        mKeyToLifecycleContainers.put(key, lifecycleContainer);
 
         return new ActivityResultLauncher<I>() {
             @Override
@@ -197,6 +199,12 @@ public abstract class ActivityResultRegistry {
         final int requestCode = registerKey(key);
         mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
+        if (mParsedPendingResults.containsKey(key)) {
+            @SuppressWarnings("unchecked")
+            final O parsedPendingResult = (O) mParsedPendingResults.get(key);
+            mParsedPendingResults.remove(key);
+            callback.onActivityResult(parsedPendingResult);
+        }
         final ActivityResult pendingResult = mPendingResults.getParcelable(key);
         if (pendingResult != null) {
             mPendingResults.remove(key);
@@ -237,6 +245,11 @@ public abstract class ActivityResultRegistry {
             mRcToKey.remove(rc);
         }
         mKeyToCallback.remove(key);
+        if (mParsedPendingResults.containsKey(key)) {
+            Log.w(LOG_TAG, "Dropping pending result for request " + key + ": "
+                    + mParsedPendingResults.get(key));
+            mParsedPendingResults.remove(key);
+        }
         if (mPendingResults.containsKey(key)) {
             Log.w(LOG_TAG, "Dropping pending result for request " + key + ": "
                     + mPendingResults.<ActivityResult>getParcelable(key));
@@ -327,12 +340,16 @@ public abstract class ActivityResultRegistry {
 
         CallbackAndContract<?> callbackAndContract = mKeyToCallback.get(key);
         if (callbackAndContract == null || callbackAndContract.mCallback == null) {
-            return false;
+            // Remove any pending result
+            mPendingResults.remove(key);
+            // And add these pre-parsed pending results in their place
+            mParsedPendingResults.put(key, result);
+        } else {
+            @SuppressWarnings("unchecked")
+            ActivityResultCallback<O> callback =
+                    (ActivityResultCallback<O>) callbackAndContract.mCallback;
+            callback.onActivityResult(result);
         }
-        @SuppressWarnings("unchecked")
-        ActivityResultCallback<O> callback =
-                (ActivityResultCallback<O>) callbackAndContract.mCallback;
-        callback.onActivityResult(result);
         return true;
     }
 
@@ -343,6 +360,9 @@ public abstract class ActivityResultRegistry {
             ActivityResultContract<?, O> contract = callbackAndContract.mContract;
             callback.onActivityResult(contract.parseResult(resultCode, data));
         } else {
+            // Remove any parsed pending result
+            mParsedPendingResults.remove(key);
+            // And add these pending results in their place
             mPendingResults.putParcelable(key, new ActivityResult(resultCode, data));
         }
     }

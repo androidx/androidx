@@ -245,7 +245,8 @@ class SeekBarPreferenceTest {
      * A [ViewAction] that drags a [SeekBar] from its left edge to the right edge of the screen
      */
     private fun dragSeekBar(): ViewAction {
-        return GeneralSwipeAction(Swipe.FAST,
+        return GeneralSwipeAction(
+            Swipe.FAST,
             CoordinatesProvider { view ->
                 val location = IntArray(2)
                 view.getLocationOnScreen(location)
@@ -253,7 +254,8 @@ class SeekBarPreferenceTest {
                 val posY = location[1]
                 // Start at the beginning of the seekbar
                 floatArrayOf(posX.toFloat(), posY.toFloat())
-            }, CoordinatesProvider { view ->
+            },
+            CoordinatesProvider { view ->
                 val location = IntArray(2)
                 view.getLocationOnScreen(location)
                 // We want to swipe all the way to the right edge of the screen to avoid
@@ -264,7 +266,8 @@ class SeekBarPreferenceTest {
                 val posX = metrics.widthPixels
                 val posY = location[1]
                 floatArrayOf(posX.toFloat(), posY.toFloat())
-            }, Press.PINPOINT
+            },
+            Press.PINPOINT
         )
     }
 

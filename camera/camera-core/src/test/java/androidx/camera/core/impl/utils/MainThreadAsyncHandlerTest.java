@@ -22,8 +22,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -33,7 +31,6 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

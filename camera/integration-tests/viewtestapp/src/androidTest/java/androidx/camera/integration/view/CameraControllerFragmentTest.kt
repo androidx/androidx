@@ -31,6 +31,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -46,6 +47,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
@@ -84,6 +86,13 @@ class CameraControllerFragmentTest {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
+    @Before
+    fun setup() {
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        CoreAppTestUtil.prepareDeviceUI(instrumentation)
+    }
+
     @Test
     fun fragmentLaunch_cameraInitializationCompletes() {
         val semaphore = Semaphore(0)
@@ -95,7 +104,8 @@ class CameraControllerFragmentTest {
                 }
 
                 override fun onFailure(t: Throwable) {}
-            }, CameraXExecutors.directExecutor()
+            },
+            CameraXExecutors.directExecutor()
         )
         assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
@@ -110,9 +120,7 @@ class CameraControllerFragmentTest {
         val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageAnalysisEnabled = false
-        }
+        onView(withId(R.id.analysis_enabled)).perform(click())
 
         fragment.assertAnalysisStreaming(false)
     }
@@ -122,10 +130,8 @@ class CameraControllerFragmentTest {
         val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageAnalysisEnabled = false
-            fragment.cameraController.isImageAnalysisEnabled = true
-        }
+        onView(withId(R.id.analysis_enabled)).perform(click())
+        onView(withId(R.id.analysis_enabled)).perform(click())
 
         fragment.assertAnalysisStreaming(true)
     }
@@ -146,7 +152,7 @@ class CameraControllerFragmentTest {
     fun canSetAnalysisImageDepth() {
         // Arrange.
         val fragment = createFragmentScenario().getFragment()
-        var currentDepth: Int = 0
+        var currentDepth = 0
 
         // Act.
         instrumentation.runOnMainSync {
@@ -204,7 +210,11 @@ class CameraControllerFragmentTest {
 
         val previewTargetDegrees =
             rotationValueToRotationDegrees(fragment.previewView.display.rotation)
-        var previewBitmap = fragment.previewView.bitmap!!
+
+        lateinit var previewBitmap: Bitmap
+        instrumentation.runOnMainSync {
+            previewBitmap = fragment.previewView.bitmap!!
+        }
         previewBitmap = Bitmap.createScaledBitmap(previewBitmap, width, height, true)
 
         // Rotate capture bitmap to match preview orientation
@@ -233,8 +243,8 @@ class CameraControllerFragmentTest {
         val errorTolerance = 1F
         for ((i, colorShift) in RGB_SHIFTS.withIndex()) {
             val errorMsg = "Color $i Capture\n" +
-                    colorComponentToReadableString(captureBitmap, colorShift) + "Preview\n" +
-                    colorComponentToReadableString(previewBitmap, colorShift)
+                colorComponentToReadableString(captureBitmap, colorShift) + "Preview\n" +
+                colorComponentToReadableString(previewBitmap, colorShift)
             assertWithMessage(errorMsg).that(captureMoment[i].x).isWithin(errorTolerance)
                 .of(previewMoment[i].x)
             assertWithMessage(errorMsg).that(captureMoment[i].y).isWithin(errorTolerance)
@@ -255,11 +265,11 @@ class CameraControllerFragmentTest {
         thrown.expectMessage("ImageCapture disabled")
         val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageCaptureEnabled = false
-        }
 
-        // Act & assert.
+        // Act.
+        onView(withId(R.id.capture_enabled)).perform(click())
+
+        // Assert.
         fragment.assertCanTakePicture()
     }
 
@@ -270,10 +280,8 @@ class CameraControllerFragmentTest {
         fragment.assertPreviewIsStreaming()
 
         // Act.
-        instrumentation.runOnMainSync {
-            fragment.cameraController.isImageCaptureEnabled = false
-            fragment.cameraController.isImageCaptureEnabled = true
-        }
+        onView(withId(R.id.capture_enabled)).perform(click())
+        onView(withId(R.id.capture_enabled)).perform(click())
         fragment.assertPreviewIsStreaming()
 
         // Assert.
@@ -345,8 +353,7 @@ class CameraControllerFragmentTest {
      *
      * @param colorShift: color component in the format of right shift on Int color.
      */
-    private fun colorComponentToReadableString(bitmap1: Bitmap, colorShift: Int):
-            String {
+    private fun colorComponentToReadableString(bitmap1: Bitmap, colorShift: Int): String {
         var result = ""
         for (x in 0 until bitmap1.width) {
             for (y in 0 until bitmap1.height) {
@@ -408,7 +415,7 @@ class CameraControllerFragmentTest {
         )
     }
 
-    private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment?> {
+    private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment> {
         return FragmentScenario.launchInContainer(
             CameraControllerFragment::class.java, null, R.style.AppTheme,
             null
@@ -418,8 +425,7 @@ class CameraControllerFragmentTest {
         }
     }
 
-    private fun FragmentScenario<CameraControllerFragment?>.getFragment():
-            CameraControllerFragment {
+    private fun FragmentScenario<CameraControllerFragment>.getFragment(): CameraControllerFragment {
         var fragment: CameraControllerFragment? = null
         this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
         return fragment!!
@@ -436,11 +442,14 @@ class CameraControllerFragmentTest {
     private fun CameraControllerFragment.assertPreviewState(state: PreviewView.StreamState) {
         val previewStreaming = Semaphore(0)
         instrumentation.runOnMainSync {
-            previewView.previewStreamState.observe(this, Observer {
-                if (it == state) {
-                    previewStreaming.release()
+            previewView.previewStreamState.observe(
+                this,
+                Observer {
+                    if (it == state) {
+                        previewStreaming.release()
+                    }
                 }
-            })
+            )
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }

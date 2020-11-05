@@ -46,7 +46,6 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -64,10 +63,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.Certificate;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation") /* WHOLE_MD5, WHOLE_SHA1 */
 @RunWith(AndroidJUnit4.class)
@@ -117,6 +117,8 @@ public class ChecksumsTest {
 
     @After
     public void onAfter() throws Exception {
+        uninstallPackageSilently(V4_PACKAGE_NAME);
+        assertFalse(isAppInstalled(V4_PACKAGE_NAME));
         uninstallPackageSilently(FIXED_PACKAGE_NAME);
         assertFalse(isAppInstalled(FIXED_PACKAGE_NAME));
     }
@@ -168,7 +170,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedDefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -181,7 +183,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedV1DefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V1);
@@ -194,7 +196,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedSha512DefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V2_SHA512);
@@ -207,7 +209,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedVerityDefaultChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_VERITY);
@@ -220,7 +222,7 @@ public class ChecksumsTest {
         assertEquals(0, checksums.length);
     }
 
-    @MediumTest
+    @LargeTest
     @Test
     public void testAllChecksums() throws Exception {
         Checksum[] checksums = getChecksums(V2V3_PACKAGE_NAME, true, ALL_CHECKSUMS,
@@ -235,7 +237,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksums() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -247,7 +249,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksumsDirectExecutor() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -263,7 +265,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedAllChecksumsSingleThread() throws Exception {
         installPackage(TEST_FIXED_APK);
@@ -292,7 +294,7 @@ public class ChecksumsTest {
     }
 
     @SdkSuppress(minSdkVersion = 29)
-    @MediumTest
+    @LargeTest
     @Test
     public void testFixedV1AllChecksums() throws Exception {
         installPackage(TEST_FIXED_APK_V1);
@@ -334,19 +336,22 @@ public class ChecksumsTest {
         Checksum[] checksums = Checksums.getChecksums(context, packageName, includeSplits,
                 required, trustedInstallers, executor).get();
 
-        Arrays.sort(checksums, (Checksum lhs, Checksum rhs) -> {
-            final String lhsSplit = lhs.getSplitName();
-            final String rhsSplit = rhs.getSplitName();
-            if (Objects.equals(lhsSplit, rhsSplit)) {
-                return Integer.signum(lhs.getType() - rhs.getType());
+        Arrays.sort(checksums, new Comparator<Checksum>() {
+            @Override
+            public int compare(Checksum lhs, Checksum rhs) {
+                final String lhsSplit = lhs.getSplitName();
+                final String rhsSplit = rhs.getSplitName();
+                if ((lhsSplit == rhsSplit) || (lhsSplit != null && lhsSplit.equals(rhsSplit))) {
+                    return Integer.signum(lhs.getType() - rhs.getType());
+                }
+                if (lhsSplit == null) {
+                    return -1;
+                }
+                if (rhsSplit == null) {
+                    return +1;
+                }
+                return lhsSplit.compareTo(rhsSplit);
             }
-            if (lhsSplit == null) {
-                return -1;
-            }
-            if (rhsSplit == null) {
-                return +1;
-            }
-            return lhsSplit.compareTo(rhsSplit);
         });
 
         return checksums;
@@ -401,7 +406,7 @@ public class ChecksumsTest {
         }
 
         private void commitSession(PackageInstaller.Session session) throws Exception {
-            ResolvableFuture<Intent> result = ResolvableFuture.create();
+            final ResolvableFuture<Intent> result = ResolvableFuture.create();
 
             // Create a single-use broadcast receiver
             BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -444,11 +449,16 @@ public class ChecksumsTest {
             }
         }
 
-        static boolean isAppInstalled(String packageName) throws IOException {
+        static boolean isAppInstalled(final String packageName) throws IOException {
             final String commandResult = executeShellCommand("pm list packages");
             final int prefixLength = "package:".length();
             return Arrays.stream(commandResult.split("\\r?\\n"))
-                    .anyMatch(line -> line.substring(prefixLength).equals(packageName));
+                    .anyMatch(new Predicate<String>() {
+                        @Override
+                        public boolean test(String line) {
+                            return line.substring(prefixLength).equals(packageName);
+                        }
+                    });
         }
     }
 

@@ -176,7 +176,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setFrom(@NonNull String from) {
-            setProperty(KEY_FROM, from);
+            setPropertyString(KEY_FROM, from);
             return this;
         }
 
@@ -185,7 +185,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setTo(@NonNull String... to) {
-            setProperty(KEY_TO, to);
+            setPropertyString(KEY_TO, to);
             return this;
         }
 
@@ -194,7 +194,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setCc(@NonNull String... cc) {
-            setProperty(KEY_CC, cc);
+            setPropertyString(KEY_CC, cc);
             return this;
         }
 
@@ -203,7 +203,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setBcc(@NonNull String... bcc) {
-            setProperty(KEY_BCC, bcc);
+            setPropertyString(KEY_BCC, bcc);
             return this;
         }
 
@@ -212,7 +212,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setSubject(@NonNull String subject) {
-            setProperty(KEY_SUBJECT, subject);
+            setPropertyString(KEY_SUBJECT, subject);
             return this;
         }
 
@@ -221,7 +221,7 @@ public class AppSearchEmail extends GenericDocument {
          */
         @NonNull
         public AppSearchEmail.Builder setBody(@NonNull String body) {
-            setProperty(KEY_BODY, body);
+            setPropertyString(KEY_BODY, body);
             return this;
         }
 

@@ -23,7 +23,9 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.interop.CaptureRequestOptions;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -67,16 +69,11 @@ class Camera2CaptureRequestBuilder {
         return surfaceList;
     }
 
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     private static void applyImplementationOptionToCaptureBuilder(
             CaptureRequest.Builder builder, Config config) {
-        Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);
-        for (Config.Option<?> option : camera2Config.getCaptureRequestOptions()) {
-            /* Although type is erased below, it is safe to pass it to CaptureRequest.Builder
-            because these option are created via Camera2Interop.Extender.setCaptureRequestOption
-            (CaptureRequest.Key<ValueT> key, ValueT value) and hence the type compatibility of key
-            and value are ensured by the compiler. */
-            @SuppressWarnings("unchecked")
-            Config.Option<Object> typeErasedOption = (Config.Option<Object>) option;
+        CaptureRequestOptions bundle = CaptureRequestOptions.Builder.from(config).build();
+        for (Config.Option<?> option : bundle.listOptions()) {
             @SuppressWarnings("unchecked")
             CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
 
@@ -84,7 +81,7 @@ class Camera2CaptureRequestBuilder {
             //  send back out to the developer
             try {
                 // Ignores keys that don't exist
-                builder.set(key, camera2Config.retrieveOption(typeErasedOption));
+                builder.set(key, bundle.retrieveOption(option));
             } catch (IllegalArgumentException e) {
                 Logger.e(TAG, "CaptureRequest.Key is not supported: " + key);
             }

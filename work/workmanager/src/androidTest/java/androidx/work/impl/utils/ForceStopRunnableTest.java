@@ -16,10 +16,14 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.impl.utils.ForceStopRunnable.MAX_ATTEMPTS;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -167,6 +171,7 @@ public class ForceStopRunnableTest {
     @Test(expected = IllegalStateException.class)
     public void test_rethrowForNonRecoverableSqliteExceptions() {
         ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).sleep(anyLong());
         when(runnable.cleanUp())
                 .thenThrow(new SQLiteCantOpenDatabaseException("Cannot open database."));
         runnable.run();
@@ -181,9 +186,12 @@ public class ForceStopRunnableTest {
 
         when(mWorkManager.getConfiguration()).thenReturn(configuration);
         ForceStopRunnable runnable = spy(mRunnable);
+        doNothing().when(runnable).sleep(anyLong());
         when(runnable.cleanUp())
                 .thenThrow(new SQLiteCantOpenDatabaseException("Cannot open database."));
         runnable.run();
+        verify(runnable, times(MAX_ATTEMPTS - 1)).sleep(anyLong());
+        verify(runnable, times(MAX_ATTEMPTS)).forceStopRunnable();
         verify(handler, times(1)).handleException(any(Throwable.class));
     }
 }

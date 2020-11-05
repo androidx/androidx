@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.arch.core.internal.SafeIterableMap#put(K, V):
+    Removed method androidx.arch.core.internal.SafeIterableMap.put(K,V)

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 
@@ -31,11 +30,11 @@ import androidx.security.identity.IdentityCredentialStore;
 import androidx.security.identity.NoAuthenticationKeyAvailableException;
 import androidx.security.identity.ResultData;
 import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SmallTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.ByteArrayOutputStream;
 import java.security.InvalidKeyException;
@@ -57,18 +56,15 @@ import co.nstant.in.cbor.CborBuilder;
 import co.nstant.in.cbor.CborEncoder;
 import co.nstant.in.cbor.CborException;
 
-@SmallTest
-@RunWith(JUnit4.class)
+@LargeTest
+@RunWith(AndroidJUnit4.class)
 public class DynamicAuthTest {
     private static final String TAG = "DynamicAuthTest";
 
     @Test
     public void dynamicAuthTest() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        IdentityCredentialStore store = IdentityCredentialStore.getInstance(appContext);
-        if (Util.isHalOptional()) {
-            assumeTrue("IC HAL not found on device", store != null);
-        }
+        IdentityCredentialStore store = Util.getIdentityCredentialStore(appContext);
 
         String credentialName = "test";
 

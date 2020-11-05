@@ -32,8 +32,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
+import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyle
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleSchema
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -49,8 +50,8 @@ internal interface FragmentController {
 
     /** Show the [StyleConfigFragment] which lets the user configure the watch face style. */
     fun showStyleConfigFragment(
-        categoryId: String,
-        styleSchema: List<UserStyleCategory>,
+        settingId: String,
+        styleSchema: UserStyleSchema,
         userStyle: UserStyle
     )
 
@@ -69,12 +70,13 @@ internal interface FragmentController {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @TargetApi(16)
-@SuppressWarnings("ForbiddenSuperClass") // Not intended to be composable.
+@SuppressWarnings("ForbiddenSuperClass")
+public // Not intended to be composable.
 class WatchFaceConfigActivity : FragmentActivity() {
     internal lateinit var watchFaceConfigDelegate: WatchFaceConfigDelegate
         private set
 
-    internal lateinit var styleSchema: List<UserStyleCategory>
+    internal lateinit var styleSchema: UserStyleSchema
         private set
 
     internal lateinit var watchFaceComponentName: ComponentName
@@ -85,7 +87,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
     internal var backgroundComplicationId: Int? = null
         private set
 
-    companion object {
+    public companion object {
         private const val TAG = "WatchFaceConfigActivity"
 
         private val sComponentNameToIWatchFaceConfig =
@@ -94,7 +96,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         /** @hide */
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
-        fun registerWatchFace(
+        public fun registerWatchFace(
             componentName: ComponentName,
             watchFaceConfigDelegate: WatchFaceConfigDelegate
         ) {
@@ -103,7 +105,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
-        fun unregisterWatchFace(componentName: ComponentName) {
+        public fun unregisterWatchFace(componentName: ComponentName) {
             sComponentNameToIWatchFaceConfig.remove(componentName)
         }
 
@@ -120,46 +122,51 @@ class WatchFaceConfigActivity : FragmentActivity() {
         val componentName: ComponentName =
             intent.getParcelableExtra(Constants.EXTRA_WATCH_FACE_COMPONENT) ?: return
 
-        init(componentName, object : FragmentController {
-            @SuppressLint("SyntheticAccessor")
-            override fun showConfigFragment() {
-                showFragment(ConfigFragment())
-            }
+        init(
+            componentName,
+            object : FragmentController {
+                @SuppressLint("SyntheticAccessor")
+                override fun showConfigFragment() {
+                    showFragment(ConfigFragment())
+                }
 
-            @SuppressLint("SyntheticAccessor")
-            override fun showComplicationConfigSelectionFragment() {
-                showFragment(ComplicationConfigFragment())
-            }
+                @SuppressLint("SyntheticAccessor")
+                override fun showComplicationConfigSelectionFragment() {
+                    showFragment(ComplicationConfigFragment())
+                }
 
-            @SuppressLint("SyntheticAccessor")
-            override fun showStyleConfigFragment(
-                categoryId: String,
-                styleSchema: List<UserStyleCategory>,
-                userStyle: UserStyle
-            ) {
-                showFragment(StyleConfigFragment.newInstance(categoryId, styleSchema, userStyle))
-            }
+                @SuppressLint("SyntheticAccessor")
+                override fun showStyleConfigFragment(
+                    settingId: String,
+                    styleSchema: UserStyleSchema,
+                    userStyle: UserStyle
+                ) {
+                    showFragment(
+                        StyleConfigFragment.newInstance(settingId, styleSchema, userStyle)
+                    )
+                }
 
-            /**
-             * Displays a config screen which allows the user to select the data source for the
-             * complication.
-             */
-            @SuppressWarnings("deprecation")
-            override fun showComplicationConfig(
-                complicationId: Int,
-                vararg supportedComplicationDataTypes: Int
-            ) {
-                startActivityForResult(
-                    ComplicationHelperActivity.createProviderChooserHelperIntent(
-                        context,
-                        watchFaceComponentName,
-                        complicationId,
-                        supportedComplicationDataTypes
-                    ),
-                    Constants.PROVIDER_CHOOSER_REQUEST_CODE
-                )
+                /**
+                 * Displays a config screen which allows the user to select the data source for the
+                 * complication.
+                 */
+                @SuppressWarnings("deprecation")
+                override fun showComplicationConfig(
+                    complicationId: Int,
+                    vararg supportedComplicationDataTypes: Int
+                ) {
+                    startActivityForResult(
+                        ComplicationHelperActivity.createProviderChooserHelperIntent(
+                            context,
+                            watchFaceComponentName,
+                            complicationId,
+                            supportedComplicationDataTypes
+                        ),
+                        Constants.PROVIDER_CHOOSER_REQUEST_CODE
+                    )
+                }
             }
-        })
+        )
     }
 
     private fun focusCurrentFragment() {
@@ -209,13 +216,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        styleSchema = watchFaceConfigDelegate.getUserStyleSchema().mSchema.map {
-            UserStyleCategory.createFromWireFormat(it)
-        }
+        styleSchema = UserStyleSchema(watchFaceConfigDelegate.getUserStyleSchema())
 
         backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
 
-        var topLevelOptionCount = styleSchema.size
+        var topLevelOptionCount = styleSchema.userStyleSettings.size
         val hasBackgroundComplication = backgroundComplicationId != null
         if (hasBackgroundComplication) {
             topLevelOptionCount++
@@ -237,7 +242,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 val onlyComplication = watchFaceConfigDelegate.getComplicationsMap().values.first()
                 fragmentController.showComplicationConfig(
                     onlyComplication.id,
-                    *onlyComplication.supportedTypes
+                    *ComplicationType.toWireTypes(onlyComplication.supportedTypes)
                 )
             }
 
@@ -245,11 +250,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
             numComplications > 1 -> fragmentController.showComplicationConfigSelectionFragment()
 
             // For a single style, go select the option.
-            styleSchema.size == 1 -> {
-                // There should only be a single userStyle category if we get here.
-                val onlyStyleCategory = styleSchema.first()
+            styleSchema.userStyleSettings.size == 1 -> {
+                // There should only be a single userStyle setting if we get here.
+                val onlyStyleSetting = styleSchema.userStyleSettings.first()
                 fragmentController.showStyleConfigFragment(
-                    onlyStyleCategory.id,
+                    onlyStyleSetting.id,
                     styleSchema,
                     UserStyle(
                         watchFaceConfigDelegate.getUserStyle(),

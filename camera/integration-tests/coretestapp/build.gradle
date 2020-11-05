@@ -67,6 +67,7 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -81,6 +82,8 @@ dependencies {
 
     // 3P library
     debugImplementation(LEAKCANARY)
+    // Testing resource dependency for manifest
+    debugImplementation(project(":camera:camera-testing"))
 
     // Testing framework
     androidTestImplementation(ANDROIDX_TEST_CORE)

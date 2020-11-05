@@ -67,7 +67,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceView.OnSliceActionListener mSliceObserver;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mColor;
+    int mTintColor;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceStyle mSliceStyle;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -149,7 +149,7 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
                 mSlices.add(new SliceWrapper(s, mIdGen, mode));
             }
         }
-        mColor = color;
+        mTintColor = color;
         notifyDataSetChanged();
     }
 
@@ -322,6 +322,9 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
             if (mSliceChildView == null || item == null) {
                 return;
             }
+
+            RowStyle rowStyle = mSliceStyle.getRowStyle(item.getSliceItem());
+
             // Click listener used to pipe click events to parent
             mSliceChildView.setOnClickListener(this);
             // Touch listener used to pipe events to touch feedback drawable
@@ -332,8 +335,8 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
                     ? ((RowContent) item).getIsHeader() : position == HEADER_INDEX;
             mSliceChildView.setLoadingActions(mLoadingActions);
             mSliceChildView.setPolicy(mPolicy);
-            mSliceChildView.setTint(mColor);
-            mSliceChildView.setStyle(mSliceStyle);
+            mSliceChildView.setTint(rowStyle.getTintColor());
+            mSliceChildView.setStyle(mSliceStyle, rowStyle);
             mSliceChildView.setShowLastUpdated(isHeader && mShowLastUpdated);
             mSliceChildView.setLastUpdated(isHeader ? mLastUpdated : -1);
             // Only apply top / bottom insets to first / last rows

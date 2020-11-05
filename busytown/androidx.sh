@@ -11,10 +11,8 @@ impl/build.sh allProperties "$@" >/dev/null
 impl/build.sh --no-daemon buildOnServer -Pandroidx.validateNoUnrecognizedMessages checkExternalLicenses \
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
-    -Pandroidx.allWarningsAsErrors --profile "$@"
-
-# Merge some output files
-python3 impl/merge_outputs.py "mergeBuildInfo" "mergeLibraryMetrics" "mergeSourceJars"
+    -Pandroidx.enableAffectedModuleDetection \
+    -Pandroidx.allWarningsAsErrors --profile --offline "$@"
 
 # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
 impl/parse_profile_htmls.sh

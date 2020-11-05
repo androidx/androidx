@@ -15,10 +15,14 @@ package androidx.arch.core.internal {
     method public java.util.Iterator<java.util.Map.Entry<K!,V!>!> iterator();
     method public androidx.arch.core.internal.SafeIterableMap.IteratorWithAdditions! iteratorWithAdditions();
     method public java.util.Map.Entry<K!,V!>! newest();
-    method protected androidx.arch.core.internal.SafeIterableMap.Entry<K!,V!>! put(K, V);
     method public V! putIfAbsent(K, V);
     method public V! remove(K);
     method public int size();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap.IteratorWithAdditions implements java.util.Iterator<java.util.Map.Entry<K,V>> {
+    method public boolean hasNext();
+    method public java.util.Map.Entry<K!,V!>! next();
   }
 
 }

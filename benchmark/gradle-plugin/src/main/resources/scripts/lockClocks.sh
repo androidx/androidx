@@ -110,7 +110,11 @@ function_lock_cpu() {
     enableIndices=''
     disableIndices=''
     cpu=0
-    while [ -d ${CPU_BASE}/cpu${cpu}/cpufreq ]; do
+
+    # Loop through all available cores; We have to check by the parent folder
+    # "cpu#" instead of cpu#/online or cpu#/cpufreq directly, since they may
+    # not be accessible yet.
+    while [ -d ${CPU_BASE}/cpu${cpu} ]; do
         # Try to enable core, so we can find its frequencies.
         # Note: In cases where the online file is inaccessible, it represents a
         # core which cannot be turned off, so we simply assume it is enabled if

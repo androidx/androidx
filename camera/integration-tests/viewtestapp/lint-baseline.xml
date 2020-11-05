@@ -19,7 +19,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="79"
+            line="82"
             column="45"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="80"
+            line="83"
             column="78"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="192"
+            line="198"
             column="41"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="193"
+            line="199"
             column="64"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="202"
+            line="208"
             column="41"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="203"
+            line="209"
             column="64"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="37"
+            line="41"
             column="13"/>
     </issue>
 
@@ -107,96 +107,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="38"
+            line="42"
             column="13"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                            mCameraView.setCameraLensFacing("
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="214"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                            if (mCameraView.isRecording()) {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="238"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                            if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="247"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                                mCameraView.setCaptureMode(CaptureMode.IMAGE);"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="248"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                            } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {"
-        errorLine2="                                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="249"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                                mCameraView.setCaptureMode(CaptureMode.VIDEO);"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="250"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCameraView` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                                mCameraView.setCaptureMode(CaptureMode.MIXED);"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="252"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateModeButtonIcon` of class `CameraViewFragment` requires synthetic accessor"
-        errorLine1="                            CameraViewFragment.this.updateModeButtonIcon();"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="255"
-            column="29"/>
     </issue>
 
     <issue
@@ -206,7 +118,7 @@
         errorLine2="                            ~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="75"
+            line="78"
             column="29"/>
     </issue>
 
@@ -217,7 +129,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="78"
+            line="81"
             column="29"/>
     </issue>
 
@@ -228,7 +140,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="79"
+            line="82"
             column="33"/>
     </issue>
 
@@ -239,7 +151,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="80"
+            line="83"
             column="66"/>
     </issue>
 
@@ -250,7 +162,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CaptureViewOnTouchListener.java"
-            line="84"
+            line="87"
             column="29"/>
     </issue>
 
@@ -261,19 +173,8 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/PreviewViewFragment.java"
-            line="305"
+            line="306"
             column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public View onCreateView("
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/CameraViewFragment.java"
-            line="272"
-            column="12"/>
     </issue>
 
     <issue

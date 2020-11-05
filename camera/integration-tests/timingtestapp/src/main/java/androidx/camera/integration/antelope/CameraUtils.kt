@@ -89,10 +89,12 @@ fun initializeCameras(activity: MainActivity) {
                 // Multi-camera
                 for (capability in cameraCapabilities) {
                     if (capability ==
-                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) {
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+                    ) {
                         hasMulti = true
                     } else if (capability ==
-                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR) {
+                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+                    ) {
                         hasManualControl = true
                     }
                 }
@@ -105,14 +107,16 @@ fun initializeCameras(activity: MainActivity) {
                 isFront = CameraCharacteristics.LENS_FACING_FRONT ==
                     cameraChars.get(CameraCharacteristics.LENS_FACING)
 
-                isExternal = (Build.VERSION.SDK_INT >= 23 &&
-                    CameraCharacteristics.LENS_FACING_EXTERNAL ==
-                    cameraChars.get(CameraCharacteristics.LENS_FACING))
+                isExternal = (
+                    Build.VERSION.SDK_INT >= 23 &&
+                        CameraCharacteristics.LENS_FACING_EXTERNAL ==
+                        cameraChars.get(CameraCharacteristics.LENS_FACING)
+                    )
 
                 characteristics = cameraChars
                 focalLengths =
                     cameraChars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                        ?: FloatArray(0)
+                    ?: FloatArray(0)
                 smallestFocalLength = smallestFocalLength(focalLengths)
                 minDeltaFromNormal = focalLengthMinDeltaFromNormal(focalLengths)
 
@@ -121,7 +125,7 @@ fun initializeCameras(activity: MainActivity) {
                 largestAperture = largestAperture(apertures)
                 minFocusDistance =
                     cameraChars.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
-                        ?: MainActivity.FIXED_FOCUS_DISTANCE
+                    ?: MainActivity.FIXED_FOCUS_DISTANCE
 
                 for (focalLength in focalLengths) {
                     logd("In " + id + " found focalLength: " + focalLength)
@@ -152,7 +156,7 @@ fun initializeCameras(activity: MainActivity) {
                     logd("WE HAVE Mono!")
 
                 isLegacy = cameraChars.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 
                 val activeSensorRect: Rect = cameraChars.get(SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
                 megapixels = (activeSensorRect.width() * activeSensorRect.height()) / 1000000
@@ -182,10 +186,12 @@ fun initializeCameras(activity: MainActivity) {
                 if (map != null) {
                     cam2MaxSize = Collections.max(
                         Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                        CompareSizesByArea())
+                        CompareSizesByArea()
+                    )
                     cam2MinSize = Collections.min(
                         Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                        CompareSizesByArea())
+                        CompareSizesByArea()
+                    )
 
                     // Use minimum image size for preview
                     previewSurfaceView?.holder?.setFixedSize(cam2MinSize.width, cam2MinSize.height)
@@ -247,8 +253,10 @@ fun focalLengthMinDeltaFromNormal(focalLengths: FloatArray): Float =
 fun setAutoFlash(params: CameraParams, requestBuilder: CaptureRequest.Builder?) {
     try {
         if (params.hasFlash) {
-            requestBuilder?.set(CaptureRequest.CONTROL_AE_MODE,
-                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
+            requestBuilder?.set(
+                CaptureRequest.CONTROL_AE_MODE,
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
 
             // Force flash always on
 //            requestBuilder?.set(CaptureRequest.CONTROL_AE_MODE,
@@ -269,9 +277,11 @@ fun getOrientation(params: CameraParams, rotation: Int): Int {
     orientations.append(Surface.ROTATION_180, 270)
     orientations.append(Surface.ROTATION_270, 180)
 
-    logd("Orientation: sensor: " +
-        params.characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) +
-        " and current rotation: " + orientations.get(rotation))
+    logd(
+        "Orientation: sensor: " +
+            params.characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) +
+            " and current rotation: " + orientations.get(rotation)
+    )
     val sensorRotation: Int =
         params.characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
     return (orientations.get(rotation) + sensorRotation + 270) % 360

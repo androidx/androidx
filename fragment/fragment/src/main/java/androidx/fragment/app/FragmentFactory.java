@@ -29,7 +29,8 @@ import java.lang.reflect.InvocationTargetException;
  * @see FragmentManager#setFragmentFactory(FragmentFactory)
  */
 public class FragmentFactory {
-    private static final SimpleArrayMap<String, Class<?>> sClassMap = new SimpleArrayMap<>();
+    private static final SimpleArrayMap<ClassLoader, SimpleArrayMap<String, Class<?>>>
+            sClassCacheMap = new SimpleArrayMap<>();
 
     /**
      * Determine if the given fragment name is a support library fragment class.
@@ -41,11 +42,16 @@ public class FragmentFactory {
     @NonNull
     private static Class<?> loadClass(@NonNull ClassLoader classLoader,
             @NonNull String className) throws ClassNotFoundException {
-        Class<?> clazz = sClassMap.get(className);
+        SimpleArrayMap<String, Class<?>> classMap = sClassCacheMap.get(classLoader);
+        if (classMap == null) {
+            classMap = new SimpleArrayMap<>();
+            sClassCacheMap.put(classLoader, classMap);
+        }
+        Class<?> clazz = classMap.get(className);
         if (clazz == null) {
             // Class not found in the cache, see if it's real, and try to add it
             clazz = Class.forName(className, false, classLoader);
-            sClassMap.put(className, clazz);
+            classMap.put(className, clazz);
         }
         return clazz;
     }

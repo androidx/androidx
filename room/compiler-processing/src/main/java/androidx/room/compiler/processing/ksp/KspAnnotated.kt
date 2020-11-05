@@ -18,9 +18,9 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XAnnotationBox
-import org.jetbrains.kotlin.ksp.symbol.AnnotationUseSiteTarget
-import org.jetbrains.kotlin.ksp.symbol.KSAnnotated
-import org.jetbrains.kotlin.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import kotlin.reflect.KClass
 
 internal sealed class KspAnnotated(
@@ -30,7 +30,7 @@ internal sealed class KspAnnotated(
 
     override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
         return annotations().firstOrNull {
-            val qName = it.annotationType.resolve()?.declaration?.qualifiedName?.asString()
+            val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
             qName == annotation.qualifiedName
         }?.let {
             KspAnnotationBox(
@@ -43,13 +43,13 @@ internal sealed class KspAnnotated(
 
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
         return annotations().any {
-            it.annotationType.resolve()?.declaration?.qualifiedName?.getQualifier() == pkg
+            it.annotationType.resolve().declaration.qualifiedName?.getQualifier() == pkg
         }
     }
 
     override fun hasAnnotation(annotation: KClass<out Annotation>): Boolean {
         return annotations().any {
-            val qName = it.annotationType.resolve()?.declaration?.qualifiedName?.asString()
+            val qName = it.annotationType.resolve().declaration.qualifiedName?.asString()
             qName == annotation.qualifiedName
         }
     }

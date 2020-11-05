@@ -19,6 +19,7 @@ package androidx.camera.lifecycle
 import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
@@ -26,13 +27,13 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
@@ -108,7 +109,7 @@ class ProcessCameraProviderTest {
             // Wrap the context with a TestAppContextWrapper and provide a context with an
             // Application that implements CameraXConfig.Provider. Because the
             // ProcessCameraProvider is already configured, this Application should not be used.
-            val testApp = TestApplication()
+            val testApp = TestApplication(context.packageManager)
             val contextWrapper = TestAppContextWrapper(context, testApp)
             provider = ProcessCameraProvider.getInstance(contextWrapper).await()
             assertThat(provider).isNotNull()
@@ -118,7 +119,7 @@ class ProcessCameraProviderTest {
 
     @Test
     fun unconfiguredGetInstance_usesApplicationProvider() = runBlocking {
-        val testApp = TestApplication()
+        val testApp = TestApplication(context.packageManager)
         val contextWrapper = TestAppContextWrapper(context, testApp)
         provider = ProcessCameraProvider.getInstance(contextWrapper).await()
         assertThat(provider).isNotNull()
@@ -441,7 +442,7 @@ class ProcessCameraProviderTest {
         val appConfigBuilder = CameraXConfig.Builder()
             .setCameraFactoryProvider(cameraFactoryProvider)
             .setDeviceSurfaceManagerProvider { _, _ -> FakeCameraDeviceSurfaceManager() }
-            .setUseCaseConfigFactoryProvider { ExtendableUseCaseConfigFactory() }
+            .setUseCaseConfigFactoryProvider { FakeUseCaseConfigFactory() }
 
         ProcessCameraProvider.configureInstance(appConfigBuilder.build())
 
@@ -571,7 +572,7 @@ private class TestAppContextWrapper(base: Context, val app: Application? = null)
     }
 }
 
-private class TestApplication : Application(), CameraXConfig.Provider {
+private class TestApplication(val pm: PackageManager) : Application(), CameraXConfig.Provider {
     private val used = atomic(false)
     val providerUsed: Boolean
         get() = used.value
@@ -579,6 +580,10 @@ private class TestApplication : Application(), CameraXConfig.Provider {
     override fun getCameraXConfig(): CameraXConfig {
         used.value = true
         return FakeAppConfig.create()
+    }
+
+    override fun getPackageManager(): PackageManager {
+        return pm
     }
 }
 

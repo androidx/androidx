@@ -426,8 +426,16 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
-        return factory.getConfig(ImageCaptureConfig.class);
+    public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
+            @NonNull UseCaseConfigFactory factory) {
+        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+
+        if (applyDefaultConfig) {
+            captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
+        }
+
+        return captureConfig == null ? null :
+                getUseCaseConfigBuilder(captureConfig).getUseCaseConfig();
     }
 
     /**
@@ -478,18 +486,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Builder.fromConfig((ImageCaptureConfig) getCurrentConfig());
-    }
-
-    /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
      * @hide
@@ -525,6 +521,10 @@ public final class ImageCapture extends UseCase {
      * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
      * will remain enabled during photo capture regardless of flashMode setting. When
      * the torch is disabled, flash will function as specified by {@link #setFlashMode(int)}.
+     *
+     * <p>On some LEGACY devices like Samsung A3, taking pictures with {@link #FLASH_MODE_AUTO}
+     * mode could cause a crash. To workaround this CameraX will disable the auto flash behavior
+     * internally on devices that have this issue.
      *
      * @param flashMode the flash mode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON},
      *                  or {@link #FLASH_MODE_OFF}.
@@ -693,11 +693,27 @@ public final class ImageCapture extends UseCase {
     /**
      * Captures a new still image and saves to a file along with application specified metadata.
      *
-     * <p>The callback will be called only once for every invocation of this method.
+     * <p> The callback will be called only once for every invocation of this method.
      *
      * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
      * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
      * disk which causes an additional latency.
+     *
+     * <p> Before triggering the image capture pipeline, if the save location is a {@link File} or
+     * {@link MediaStore}, it is first verified to ensure it's valid and writable. A {@link File}
+     * is verified by attempting to open a {@link java.io.FileOutputStream} to it, whereas a
+     * location in {@link MediaStore} is validated by
+     * {@linkplain ContentResolver#insert(Uri, ContentValues) creating a new row} in the user
+     * defined table, retrieving a {@link Uri} pointing to it, then attempting to open an
+     * {@link OutputStream} to it. The newly created row is
+     * {@linkplain ContentResolver#delete(Uri, String, String[]) deleted}
+     * at the end of the verification. On Huawei devices, this deletion results in the system
+     * displaying a notification informing the user that a photo has been deleted. In order to
+     * avoid this, validating the image capture save location in
+     * {@link android.provider.MediaStore} is skipped on Huawei devices.
+     *
+     * <p> If the validation of the save location fails, {@link OnImageSavedCallback}'s error
+     * callback is invoked with an {@link ImageCaptureException}.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
@@ -1574,8 +1590,9 @@ public final class ImageCapture extends UseCase {
          * {@link ImageProxy#getFormat()}.
          *
          * <p>The image is provided as captured by the underlying {@link ImageReader} without
-         * rotation applied.  rotationDegrees describes the magnitude of clockwise rotation, which
-         * if applied to the image will make it match the currently configured target rotation.
+         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
+         * describes the magnitude of clockwise rotation, which if applied to the image will make
+         * it match the currently configured target rotation.
          *
          * <p>For example, if the current target rotation is set to the display rotation,
          * rotationDegrees is the rotation to apply to the image to match the display orientation.
@@ -1594,7 +1611,6 @@ public final class ImageCapture extends UseCase {
          * @param image The captured image
          */
         public void onCaptureSuccess(@NonNull ImageProxy image) {
-            image.close();
         }
 
         /**
@@ -1619,12 +1635,13 @@ public final class ImageCapture extends UseCase {
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
+        private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
 
         static {
             Builder builder = new Builder().setSurfaceOccupancyPriority(
-                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY).setTargetAspectRatio(DEFAULT_ASPECT_RATIO);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -1842,6 +1859,11 @@ public final class ImageCapture extends UseCase {
         private boolean mIsReversedHorizontal;
 
         /**
+         * Whether the mIsReversedHorizontal has been set by the app explicitly.
+         */
+        private boolean mIsReversedHorizontalSet = false;
+
+        /**
          * Indicates an upside down mirroring, equivalent to a horizontal mirroring (reflection)
          * followed by a 180 degree rotation.
          *
@@ -1864,12 +1886,26 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
+         * Returns true if {@link #setReversedHorizontal} has been called.
+         *
+         * <p> CameraController's default behavior is mirroring the picture when front camera is
+         * used. This method is used to check if reverseHorizontal is set explicitly by the app.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public boolean isReversedHorizontalSet() {
+            return mIsReversedHorizontalSet;
+        }
+
+        /**
          * Sets left-right mirroring of the capture.
          *
          * @param isReversedHorizontal true if the capture is left-right mirrored.
          */
         public void setReversedHorizontal(boolean isReversedHorizontal) {
             mIsReversedHorizontal = isReversedHorizontal;
+            mIsReversedHorizontalSet = true;
         }
 
         /**

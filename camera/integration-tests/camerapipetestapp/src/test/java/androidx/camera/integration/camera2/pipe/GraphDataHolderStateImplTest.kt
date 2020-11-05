@@ -58,7 +58,11 @@ class GraphDataHolderStateImplTest {
                 GraphDataSortedRingBuffer()
             )
 
-        Truth.assertThat(graphDataHolderStateImpl.getStrings()).isEqualTo(listOf("one", "two",
-            "three"))
+        Truth.assertThat(graphDataHolderStateImpl.getStrings()).isEqualTo(
+            listOf(
+                "one", "two",
+                "three"
+            )
+        )
     }
 }

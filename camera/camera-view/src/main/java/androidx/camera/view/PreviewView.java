@@ -16,8 +16,6 @@
 
 package androidx.camera.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -38,11 +36,10 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
@@ -91,7 +88,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link View} visible, or initially hiding the {@link View} by setting its
  * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
-public class PreviewView extends FrameLayout {
+public final class PreviewView extends FrameLayout {
 
     private static final String TAG = "PreviewView";
 
@@ -143,31 +140,41 @@ public class PreviewView extends FrameLayout {
                         right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
                 if (isSizeChanged) {
                     redrawPreview();
-                    attachToControllerIfReady();
+                    attachToControllerIfReady(true);
                 }
             };
 
-    private final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
         @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
         @Override
+        @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
+            if (!Threads.isMainThread()) {
+                // Post on main thread to ensure thread safety.
+                ContextCompat.getMainExecutor(getContext()).execute(
+                        () -> mSurfaceProvider.onSurfaceRequested(surfaceRequest));
+                return;
+            }
             Logger.d(TAG, "Surface requested by Preview.");
+            CameraInternal camera = surfaceRequest.getCamera();
             surfaceRequest.setTransformationInfoListener(
                     ContextCompat.getMainExecutor(getContext()),
                     transformationInfo -> {
-                        Logger.d(TAG, "Preview transformation info updated. " + transformationInfo);
-                        // TODO(b/159127402): maybe switch to COMPATIBLE mode if target rotation is
-                        //  not display rotation.
+                        Logger.d(TAG,
+                                "Preview transformation info updated. " + transformationInfo);
+                        // TODO(b/159127402): maybe switch to COMPATIBLE mode if target
+                        //  rotation is not display rotation.
                         boolean isFrontCamera =
-                                surfaceRequest.getCamera().getCameraInfoInternal().getLensFacing()
+                                camera.getCameraInfoInternal().getLensFacing()
                                         == CameraSelector.LENS_FACING_FRONT;
                         mPreviewTransform.setTransformationInfo(transformationInfo,
                                 surfaceRequest.getResolution(), isFrontCamera);
                         redrawPreview();
                     });
 
-            CameraInternal camera = surfaceRequest.getCamera();
             mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
                     ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
                     : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
@@ -193,21 +200,26 @@ public class PreviewView extends FrameLayout {
         }
     };
 
+    @UiThread
     public PreviewView(@NonNull Context context) {
         this(context, null);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
+    @UiThread
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        Threads.checkMainThread();
         final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
                 R.styleable.PreviewView, defStyleAttr, defStyleRes);
         if (Build.VERSION.SDK_INT >= 29) {
@@ -220,6 +232,11 @@ public class PreviewView extends FrameLayout {
                     R.styleable.PreviewView_scaleType,
                     mPreviewTransform.getScaleType().getId());
             setScaleType(ScaleType.fromId(scaleTypeId));
+
+            int implementationModeId =
+                    attributes.getInteger(R.styleable.PreviewView_implementationMode,
+                            DEFAULT_IMPL_MODE.getId());
+            setImplementationMode(ImplementationMode.fromId(implementationModeId));
         } finally {
             attributes.recycle();
         }
@@ -241,7 +258,7 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
-        attachToControllerIfReady();
+        attachToControllerIfReady(true);
     }
 
     @Override
@@ -298,9 +315,14 @@ public class PreviewView extends FrameLayout {
      * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
      * attributes (e.g. API level, camera hardware support level). If not set, the default mode
      * is {@link ImplementationMode#PERFORMANCE}.
+     *
+     * <p> This method needs to be called before the {@link Preview.SurfaceProvider} is set on
+     * {@link Preview}. Once changed, {@link Preview.SurfaceProvider} needs to be set again. e.g.
+     * {@code preview.setSurfaceProvider(previewView.getSurfaceProvider())}.
      */
     @UiThread
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
+        Threads.checkMainThread();
         mImplementationMode = implementationMode;
     }
 
@@ -315,6 +337,7 @@ public class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public ImplementationMode getImplementationMode() {
+        Threads.checkMainThread();
         return mImplementationMode;
     }
 
@@ -341,27 +364,33 @@ public class PreviewView extends FrameLayout {
 
     /**
      * Applies a {@link ScaleType} to the preview.
-     * <p>
-     * Note that the {@link ScaleType#FILL_CENTER} is applied to the preview by default.
+     *
+     * <p> Once applied, the transformation will take immediate effect. This value can also be set
+     * in the layout XML file via the {@code app:scaleType} attribute.
+     *
+     * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
      * @param scaleType A {@link ScaleType} to apply to the preview.
+     * @attr name app:scaleType
      */
     @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
+        Threads.checkMainThread();
         mPreviewTransform.setScaleType(scaleType);
         redrawPreview();
     }
 
     /**
      * Returns the {@link ScaleType} currently applied to the preview.
-     * <p>
-     * By default, {@link ScaleType#FILL_CENTER} is applied to the preview.
+     *
+     * <p> The default value is {@link ScaleType#FILL_CENTER}.
      *
      * @return The {@link ScaleType} currently applied to the preview.
      */
     @UiThread
     @NonNull
     public ScaleType getScaleType() {
+        Threads.checkMainThread();
         return mPreviewTransform.getScaleType();
     }
 
@@ -387,6 +416,7 @@ public class PreviewView extends FrameLayout {
     @UiThread
     @NonNull
     public MeteringPointFactory getMeteringPointFactory() {
+        Threads.checkMainThread();
         return mPreviewViewMeteringPointFactory;
     }
 
@@ -409,7 +439,6 @@ public class PreviewView extends FrameLayout {
      * state with {@link LiveData#getValue()}, or register an observer with
      * {@link LiveData#observe} .
      */
-    @UiThread
     @NonNull
     public LiveData<StreamState> getPreviewStreamState() {
         return mPreviewStreamStateLiveData;
@@ -426,6 +455,10 @@ public class PreviewView extends FrameLayout {
      * ({@link View#onDraw(Canvas)} for instance).
      * <p>
      * If an error occurs during the copy, an empty {@link Bitmap} will be returned.
+     * <p>
+     * If the preview hasn't started yet, the method may return null or an empty {@link Bitmap}. Use
+     * {@link #getPreviewStreamState()} to get the {@link StreamState} and wait for
+     * {@link StreamState#STREAMING} to make sure the preview is started.
      *
      * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
      * displayed on the {@link PreviewView}, or null if the camera preview hasn't started yet.
@@ -433,6 +466,7 @@ public class PreviewView extends FrameLayout {
     @UiThread
     @Nullable
     public Bitmap getBitmap() {
+        Threads.checkMainThread();
         return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
@@ -444,6 +478,7 @@ public class PreviewView extends FrameLayout {
      * the {@link UseCase}s in the {@link UseCaseGroup} will have the same output image that also
      * matches the aspect ratio of the {@link PreviewView}.
      *
+     * @return null if the view is not currently attached or the view's width/height is zero.
      * @see ViewPort
      * @see UseCaseGroup
      */
@@ -451,6 +486,7 @@ public class PreviewView extends FrameLayout {
     @Nullable
     @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
+        Threads.checkMainThread();
         if (getDisplay() == null) {
             // Returns null if the layout is not ready.
             return null;
@@ -493,6 +529,7 @@ public class PreviewView extends FrameLayout {
      *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                       {@link Surface#ROTATION_180}, or
      *                       {@link Surface#ROTATION_270}.
+     * @return null if the view's width/height is zero.
      * @see ImplementationMode
      */
     @UiThread
@@ -500,6 +537,7 @@ public class PreviewView extends FrameLayout {
     @Nullable
     @ExperimentalUseCaseGroup
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
+        Threads.checkMainThread();
         if (getWidth() == 0 || getHeight() == 0) {
             return null;
         }
@@ -602,12 +640,31 @@ public class PreviewView extends FrameLayout {
          * @see CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
          * @see StreamState#STREAMING
          */
-        PERFORMANCE,
+        PERFORMANCE(0),
 
         /**
          * Use a {@link TextureView} for the preview.
          */
-        COMPATIBLE
+        COMPATIBLE(1);
+
+        private final int mId;
+
+        ImplementationMode(int id) {
+            mId = id;
+        }
+
+        int getId() {
+            return mId;
+        }
+
+        static ImplementationMode fromId(int id) {
+            for (ImplementationMode implementationMode : values()) {
+                if (implementationMode.mId == id) {
+                    return implementationMode;
+                }
+            }
+            throw new IllegalArgumentException("Unknown implementation mode id " + id);
+        }
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
@@ -644,7 +701,8 @@ public class PreviewView extends FrameLayout {
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the start of the view, which is the
          * top left corner in a left-to-right (LTR) layout, or the top right corner in a
-         * right-to-left (RTL) layout.
+         * right-to-left (RTL) layout. The background area not covered by the preview stream
+         * will be black or the background of the {@link PreviewView}
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -652,7 +710,8 @@ public class PreviewView extends FrameLayout {
         FIT_START(3),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-         * within the {@link PreviewView}, and center it inside the view.
+         * within the {@link PreviewView}, and center it inside the view. The background area not
+         * covered by the preview stream will be black or the background of the {@link PreviewView}.
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -662,7 +721,8 @@ public class PreviewView extends FrameLayout {
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the end of the view, which is the
          * bottom right corner in a left-to-right (LTR) layout, or the bottom left corner in a
-         * right-to-left (RTL) layout.
+         * right-to-left (RTL) layout. The background area not covered by the preview stream
+         * will be black or the background of the {@link PreviewView}.
          * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
@@ -702,7 +762,7 @@ public class PreviewView extends FrameLayout {
          * {@link ImplementationMode#COMPATIBLE}. When in {@link ImplementationMode#PERFORMANCE}
          * mode, it is possible that the preview becomes visible slightly after the state has
          * changed. For apps requiring a precise signal for when the preview starts, please set
-         * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
+         * {@link ImplementationMode#COMPATIBLE} mode via {@link #setImplementationMode}.
          */
         STREAMING
     }
@@ -729,11 +789,16 @@ public class PreviewView extends FrameLayout {
      * cases so that the output from other use cases match what the end user sees in
      * {@link PreviewView}. It also enables features like tap-to-focus and pinch-to-zoom.
      *
-     * @hide
-     * @see LifecycleCameraController
+     * <p> Setting it to {@code null} or to a different {@link CameraController} stops the previous
+     * {@link CameraController} from working. The previous {@link CameraController} will remain
+     * detached until it's set on the {@link PreviewView} again.
+     *
+     * @throws IllegalArgumentException If the {@link CameraController}'s camera selector
+     *                                  is unable to resolve a camera to be used for the enabled
+     *                                  use cases.
+     * @see CameraController
      */
-    @MainThread
-    @RestrictTo(LIBRARY_GROUP)
+    @UiThread
     public void setController(@Nullable CameraController cameraController) {
         Threads.checkMainThread();
         if (mCameraController != null && mCameraController != cameraController) {
@@ -742,29 +807,36 @@ public class PreviewView extends FrameLayout {
             mCameraController.clearPreviewSurface();
         }
         mCameraController = cameraController;
-        attachToControllerIfReady();
+        attachToControllerIfReady(false);
     }
 
     /**
      * Get the {@link CameraController}.
-     *
-     * @hide
      */
     @Nullable
-    @MainThread
-    @RestrictTo(LIBRARY_GROUP)
+    @UiThread
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;
     }
 
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    private void attachToControllerIfReady() {
+    private void attachToControllerIfReady(boolean shouldFailSilently) {
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();
         if (mCameraController != null && viewPort != null && isAttachedToWindow()
                 && display != null) {
-            mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+            try {
+                mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+            } catch (IllegalStateException ex) {
+                if (shouldFailSilently) {
+                    // Swallow the exception and fail silently if the method is invoked by View
+                    // events.
+                    Logger.e(TAG, ex.getMessage(), ex);
+                } else {
+                    throw ex;
+                }
+            }
         }
     }
 }

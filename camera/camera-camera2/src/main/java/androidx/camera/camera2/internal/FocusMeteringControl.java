@@ -606,13 +606,13 @@ class FocusMeteringControl {
             mIsInAfAutoMode = true;
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
-            mCameraControl.updateSessionConfig();
+            mCameraControl.updateSessionConfigSynchronous();
             triggerAf(null);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
             mIsFocusSuccessful = false;  // False because AF is not triggered.
-            mCameraControl.updateSessionConfig();
+            mCameraControl.updateSessionConfigSynchronous();
         }
 
         mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
@@ -747,6 +747,6 @@ class FocusMeteringControl {
         mAwbRects = new MeteringRectangle[]{};
 
         mIsInAfAutoMode = false;
-        mCameraControl.updateSessionConfig();
+        mCameraControl.updateSessionConfigSynchronous();
     }
 }

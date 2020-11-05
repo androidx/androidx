@@ -32,8 +32,10 @@ internal class SettingsDialog : DialogFragment() {
     override fun onStart() {
         // If we show a dialog with a title, it doesn't take up the whole screen
         // Adjust the window to take up the full screen
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         super.onStart()
     }
 

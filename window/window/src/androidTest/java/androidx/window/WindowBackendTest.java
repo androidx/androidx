@@ -16,7 +16,8 @@
 
 package androidx.window;
 
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,9 +53,14 @@ public final class WindowBackendTest extends WindowTestBase {
         WindowBackend windowBackend = new FakeWindowBackend(windowLayoutInfo, deviceState);
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
         WindowManager wm = new WindowManager(activity, windowBackend);
+        Consumer<WindowLayoutInfo> layoutInfoConsumer = mock(Consumer.class);
+        Consumer<DeviceState> stateConsumer = mock(Consumer.class);
 
-        assertEquals(windowLayoutInfo, wm.getWindowLayoutInfo());
-        assertEquals(deviceState, wm.getDeviceState());
+        wm.registerLayoutChangeCallback(MoreExecutors.directExecutor(), layoutInfoConsumer);
+        wm.registerDeviceStateChangeCallback(MoreExecutors.directExecutor(), stateConsumer);
+
+        verify(layoutInfoConsumer).accept(windowLayoutInfo);
+        verify(stateConsumer).accept(deviceState);
     }
 
     private WindowLayoutInfo newTestWindowLayout() {
@@ -77,22 +85,10 @@ public final class WindowBackendTest extends WindowTestBase {
             mDeviceState = deviceState;
         }
 
-        @NonNull
-        @Override
-        public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
-            return mWindowLayoutInfo;
-        }
-
-        @NonNull
-        @Override
-        public DeviceState getDeviceState() {
-            return mDeviceState;
-        }
-
         @Override
         public void registerLayoutChangeCallback(@NonNull Context context,
                 @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
-            // Empty
+            executor.execute(() -> callback.accept(mWindowLayoutInfo));
         }
 
         @Override
@@ -103,7 +99,7 @@ public final class WindowBackendTest extends WindowTestBase {
         @Override
         public void registerDeviceStateChangeCallback(@NonNull Executor executor,
                 @NonNull Consumer<DeviceState> callback) {
-            // Empty
+            executor.execute(() -> callback.accept(mDeviceState));
         }
 
         @Override

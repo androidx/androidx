@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Build
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +52,6 @@ data class TestData(
     val value2: String
 )
 
-@SmallTest
 @RunWith(JUnit4::class)
 class DataWithInlineClassJUnitTest {
     @Test
@@ -79,7 +77,6 @@ class DataWithInlineClassJUnitTest {
     }
 }
 
-@SmallTest
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class DataWithInlineClassRobolectricTest {

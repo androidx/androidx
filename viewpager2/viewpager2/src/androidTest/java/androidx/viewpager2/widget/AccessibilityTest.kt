@@ -79,16 +79,20 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             assertBasicState(initialPage)
 
             listOf(1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 3, 2, 1, 0, 1).forEach {
-                    targetPage ->
+                targetPage ->
                 val currentPage = viewPager.currentItem
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
                 runOnUiThreadSync {
                     if (targetPage - currentPage == 1) {
-                        ViewCompat.performAccessibilityAction(viewPager,
-                            getNextPageAction(config.orientation, viewPager.isRtl), null)
+                        ViewCompat.performAccessibilityAction(
+                            viewPager,
+                            getNextPageAction(config.orientation, viewPager.isRtl), null
+                        )
                     } else {
-                        ViewCompat.performAccessibilityAction(viewPager,
-                            getPreviousPageAction(config.orientation, viewPager.isRtl), null)
+                        ViewCompat.performAccessibilityAction(
+                            viewPager,
+                            getPreviousPageAction(config.orientation, viewPager.isRtl), null
+                        )
                     }
                 }
                 latch.await(2, TimeUnit.SECONDS)

@@ -104,7 +104,7 @@ internal class EnumProcessingStep(
             } else {
                 messager.error(enumClass) {
                     "Enum ${enumClass.qualifiedName} is not visible to its package and cannot " +
-                            "be serialized"
+                        "be serialized"
                 }
             }
 
@@ -126,7 +126,7 @@ internal class EnumProcessingStep(
                 } else {
                     messager.error(element) {
                         "To avoid unexpected behavior, all enum constants in a serializable " +
-                                "enum must be annotated with @EnumValue"
+                            "enum must be annotated with @EnumValue"
                     }
                     hasError = true
                 }

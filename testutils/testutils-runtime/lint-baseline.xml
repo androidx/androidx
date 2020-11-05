@@ -2,13 +2,57 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="            durationSetter.invoke(null, 1.0f)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/AnimationActivityTestRule.kt"
+            line="82"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="    private val originalDurationScale = durationGetter.invoke(null) as Float"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
+            line="101"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="        durationSetter.invoke(null, animationDurationScale)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
+            line="104"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Calling Method.invoke without an SDK check"
+        errorLine1="        durationSetter.invoke(null, originalDurationScale)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
+            line="108"
+            column="9"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 24, the call containing class androidx.testutils.LocaleTestUtils is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
         errorLine1="                newConfig.setLocales(locales.unwrap() as LocaleList)"
         errorLine2="                          ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
-            line="200"
+            line="202"
             column="27"/>
     </issue>
 
@@ -19,7 +63,7 @@
         errorLine2="                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
-            line="202"
+            line="204"
             column="27"/>
     </issue>
 

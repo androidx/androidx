@@ -38,7 +38,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
  *
  * To create a custom progress fragment, extend [AbstractProgressFragment].
  */
-class DefaultProgressFragment :
+public class DefaultProgressFragment :
     AbstractProgressFragment(R.layout.dynamic_feature_install_fragment) {
 
     internal companion object {

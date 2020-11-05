@@ -41,23 +41,27 @@ class ActivityTest {
     @Test fun findNavController() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
 
         val foundNavController = contentFragment.findNavController()
-        assertTrue("Fragment should have NavController set",
-                foundNavController == navHostFragment.navController)
+        assertTrue(
+            "Fragment should have NavController set",
+            foundNavController == navHostFragment.navController
+        )
     }
 
     @UiThreadTest
     @Test fun findNavControllerNull() {
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, TestFragment())
-                .commitNow()
+            .add(android.R.id.content, TestFragment())
+            .commitNow()
         try {
             contentFragment.findNavController()
-            fail("findNavController should throw IllegalStateException if a NavController " +
-                    "was not set")
+            fail(
+                "findNavController should throw IllegalStateException if a NavController " +
+                    "was not set"
+            )
         } catch (e: IllegalStateException) {
             // Expected
         }
@@ -72,7 +76,7 @@ class ActivityTest {
 
         // TODO Create a real API to get the current Fragment b/119800853
         val testFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
-                as TestFragment
+            as TestFragment
         assertThat(testFragment.args)
             .isNotNull()
         assertThat(testFragment.args.bundle["test"])

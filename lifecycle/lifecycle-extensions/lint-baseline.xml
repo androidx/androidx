@@ -8,7 +8,7 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/ViewModelProviders.java"
-            line="34"
+            line="33"
             column="14"/>
     </issue>
 

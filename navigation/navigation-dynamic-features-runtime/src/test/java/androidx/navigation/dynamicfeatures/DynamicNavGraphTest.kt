@@ -21,7 +21,6 @@ import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.dynamicfeatures.DynamicGraphNavigator.DynamicNavGraph
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@SmallTest
 class DynamicNavGraphTest {
 
     private val progressId = 1
@@ -43,7 +41,8 @@ class DynamicNavGraphTest {
     fun setup() {
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
-        navigator = DynamicGraphNavigator(provider,
+        navigator = DynamicGraphNavigator(
+            provider,
             TestDynamicInstallManager()
         )
         provider.addNavigator(noOpNavigator)
@@ -57,9 +56,11 @@ class DynamicNavGraphTest {
 
     @Test
     fun testGetOrThrow_CorrectParent() {
-        setupProgressDestination(noOpNavigator.createDestination().apply {
-            id = progressId
-        })
+        setupProgressDestination(
+            noOpNavigator.createDestination().apply {
+                id = progressId
+            }
+        )
         val progressDestination = navigator.navigateToProgressDestination(dynamicNavGraph, null)
         assertNotNull(progressDestination)
         progressDestination?.let {
@@ -76,9 +77,11 @@ class DynamicNavGraphTest {
 
     @Test
     fun testNavigateToProgressDestination_withProviderAndDestination() {
-        setupProgressDestination(noOpNavigator.createDestination().apply {
-            id = progressId
-        })
+        setupProgressDestination(
+            noOpNavigator.createDestination().apply {
+                id = progressId
+            }
+        )
         val destination = navigator.navigateToProgressDestination(dynamicNavGraph, null)
         assertTrue(destination?.parent is DynamicNavGraph)
     }

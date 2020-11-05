@@ -107,7 +107,8 @@ class NavBackStackEntryTest {
 
         val restoredOwner = navController.getViewModelStoreOwner(navGraph.id)
         val restoredViewModel = ViewModelProvider(
-            restoredOwner)[TestSavedStateViewModel::class.java]
+            restoredOwner
+        )[TestSavedStateViewModel::class.java]
         val restoredState: String? = restoredViewModel.savedStateHandle.get("test")
         assertThat(restoredState).isEqualTo("test")
     }
@@ -151,7 +152,7 @@ class NavBackStackEntryTest {
             navController.getViewModelStoreOwner(navGraphId)
             fail(
                 "Attempting to get ViewModelStoreOwner for navGraph not on back stack should " +
-                        "throw IllegalArgumentException"
+                    "throw IllegalArgumentException"
             )
         } catch (e: IllegalArgumentException) {
             assertThat(e)
@@ -217,8 +218,10 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
-        val entry = NavBackStackEntry(ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, NavControllerViewModel())
+        val entry = NavBackStackEntry(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), null, null, NavControllerViewModel()
+        )
 
         assertThat(entry.savedStateHandle).isNotNull()
     }
@@ -226,20 +229,22 @@ class NavBackStackEntryTest {
     @UiThreadTest
     @Test
     fun testGetSavedStateHandleNoViewModelSet() {
-        val entry = NavBackStackEntry(ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, null, null)
+        val entry = NavBackStackEntry(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), null, null, null
+        )
 
         try {
             entry.savedStateHandle
             fail(
                 "Attempting to get SavedStateHandle for back stack entry without " +
-                        "navControllerViewModel set should throw IllegalStateException"
+                    "navControllerViewModel set should throw IllegalStateException"
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "You must call setViewModelStore() on your NavHostController before " +
-                            "accessing the ViewModelStore of a navigation graph."
+                        "accessing the ViewModelStore of a navigation graph."
                 )
         }
     }

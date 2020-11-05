@@ -37,7 +37,7 @@ import androidx.navigation.get
  * Use it for navigating to NavGraphs contained within a dynamic feature module.
  */
 @Navigator.Name("include-dynamic")
-class DynamicIncludeGraphNavigator(
+public class DynamicIncludeGraphNavigator(
     private val context: Context,
     private val navigatorProvider: NavigatorProvider,
     private val navInflater: NavInflater,
@@ -48,7 +48,7 @@ class DynamicIncludeGraphNavigator(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    val packageName: String = context.packageName
+    public val packageName: String = context.packageName
 
     private val createdDestinations = mutableListOf<DynamicIncludeNavGraph>()
 
@@ -90,22 +90,24 @@ class DynamicIncludeGraphNavigator(
     private fun replaceWithIncludedNav(destination: DynamicIncludeNavGraph): NavGraph {
         val graphId = context.resources.getIdentifier(
             destination.graphResourceName, "navigation",
-            destination.graphPackage)
+            destination.graphPackage
+        )
         if (graphId == 0) {
             throw Resources.NotFoundException(
-                "${destination.graphPackage}:navigation/${destination.graphResourceName}")
+                "${destination.graphPackage}:navigation/${destination.graphResourceName}"
+            )
         }
         val includedNav = navInflater.inflate(graphId)
         check(!(includedNav.id != 0 && includedNav.id != destination.id)) {
             "The included <navigation>'s id ${includedNav.displayName} is different from " +
-                    "the destination id ${destination.displayName}. Either remove the " +
-                    "<navigation> id or make them match."
+                "the destination id ${destination.displayName}. Either remove the " +
+                "<navigation> id or make them match."
         }
         includedNav.id = destination.id
         val outerNav = destination.parent
             ?: throw IllegalStateException(
                 "The include-dynamic destination with id ${destination.displayName} " +
-                        "does not have a parent. Make sure it is attached to a NavGraph."
+                    "does not have a parent. Make sure it is attached to a NavGraph."
             )
         outerNav.addDestination(includedNav)
         // Avoid calling replaceWithIncludedNav() on the same destination more than once
@@ -113,7 +115,7 @@ class DynamicIncludeGraphNavigator(
         return includedNav
     }
 
-    override fun popBackStack() = true
+    override fun popBackStack(): Boolean = true
 
     override fun onSaveState(): Bundle? {
         // Return a non-null Bundle to get a callback to onRestoreState
@@ -148,24 +150,24 @@ class DynamicIncludeGraphNavigator(
      * This class contains information to navigate to a DynamicNavGraph which is contained
      * within a dynamic feature module.
      */
-    class DynamicIncludeNavGraph
+    public class DynamicIncludeNavGraph
     internal constructor(navGraphNavigator: Navigator<out NavDestination>) :
         NavDestination(navGraphNavigator) {
 
         /**
          * Resource name of the graph.
          */
-        var graphResourceName: String? = null
+        public var graphResourceName: String? = null
 
         /**
          * The graph's package.
          */
-        var graphPackage: String? = null
+        public var graphPackage: String? = null
 
         /**
          * Name of the module containing the included graph, if set.
          */
-        var moduleName: String? = null
+        public var moduleName: String? = null
 
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
@@ -180,8 +182,8 @@ class DynamicIncludeGraphNavigator(
                         if (it != null) {
                             require(it.isNotEmpty()) {
                                 "`graphPackage` cannot be empty for <include-dynamic>. You can " +
-                                        "omit the `graphPackage` attribute entirely to use the " +
-                                        "default of ${context.packageName}.$moduleName."
+                                    "omit the `graphPackage` attribute entirely to use the " +
+                                    "default of ${context.packageName}.$moduleName."
                             }
                         }
                         getPackageOrDefault(context, it)

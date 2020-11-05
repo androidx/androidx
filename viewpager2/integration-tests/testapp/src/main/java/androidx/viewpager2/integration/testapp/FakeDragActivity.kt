@@ -34,7 +34,7 @@ class FakeDragActivity : FragmentActivity() {
     private var lastValue: Float = 0f
 
     private val isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
-            ViewCompat.LAYOUT_DIRECTION_RTL
+        ViewCompat.LAYOUT_DIRECTION_RTL
 
     private val ViewPager2.isHorizontal: Boolean
         get() {

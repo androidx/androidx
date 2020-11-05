@@ -16,7 +16,10 @@
 
 package androidx.wear.watchface.control;
 
-import androidx.wear.watchface.control.IWatchFaceInstance;
+import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI;
+import androidx.wear.watchface.control.IInteractiveWatchFaceWCS;
+import androidx.wear.watchface.control.IHeadlessWatchFace;
+import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
 
 /**
  * Interface of a service that allows the user to create watch face instances.
@@ -26,7 +29,7 @@ import androidx.wear.watchface.control.IWatchFaceInstance;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 3
+    // Next Id: 4
 
     /**
      * API version number. This should be incremented every time a new method is added.
@@ -42,15 +45,24 @@ interface IWatchFaceControlService {
     int getApiVersion() = 1;
 
     /**
-     * Creates a WatchFace instance for the specified watchFaceName and returns an {@link
-     * IWatchFaceInstance} to control it or null if watchFaceName is unrecognized.
+     * Gets the {@link IInteractiveWatchFaceSysUI} corresponding to the id of an existing watch
+     * face instance, or null if there is no such instance. The id is set when the instance is
+     * created, see {@link WallpaperInteractiveWatchFaceInstanceParams}.
+     */
+    IInteractiveWatchFaceSysUI getInteractiveWatchFaceInstanceSysUI(in String id) = 2;
+
+    /**
+     * Creates a headless WatchFace instance for the specified watchFaceName and returns an {@link
+     * IHeadlessWatchFace} to control it or null if watchFaceName is unrecognized. A
+     * headless watch face will not render asynchronously however it can to render screen shots (of
+     * the specified size) upon request.
      *
-     * The watch face will not be fully initialized until either {@link
-     * IWatchFaceInstance#initWithSurface} or {@link IWatchFaceInstance#initWithoutSurface} have
-     * been called. When finished {@link IWatchFaceInstance#destroy} should be called to release
+     * <p> When finished {@link IHeadlessWatchFace#destroy} should be called to release
      * resources.
      *
+     * @param params The {@link HeadlessWatchFaceInstanceParams} for the watch face to create
      * @since API version 1.
      */
-    IWatchFaceInstance createWatchFaceInstance(in ComponentName watchFaceName) = 2;
+    IHeadlessWatchFace createHeadlessWatchFaceInstance(
+            in HeadlessWatchFaceInstanceParams params) = 3;
 }

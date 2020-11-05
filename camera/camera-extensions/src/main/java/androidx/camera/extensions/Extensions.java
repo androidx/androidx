@@ -28,9 +28,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraFilters;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.ImageCaptureConfig;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
@@ -42,8 +39,7 @@ import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
-import androidx.camera.extensions.internal.ImageCaptureConfigProvider;
-import androidx.camera.extensions.internal.PreviewConfigProvider;
+import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -148,11 +144,8 @@ public class Extensions {
                         new LinkedHashSet<>(camera.getCameraInternals())).iterator().next();
         CameraInfo extensionsCameraInfo = extensionCamera.getCameraInfo();
 
-        ExtendableUseCaseConfigFactory factory = new ExtendableUseCaseConfigFactory();
-        factory.installDefaultProvider(ImageCaptureConfig.class,
-                new ImageCaptureConfigProvider(mode, extensionsCameraInfo, mContext));
-        factory.installDefaultProvider(PreviewConfig.class,
-                new PreviewConfigProvider(mode, extensionsCameraInfo, mContext));
+        ExtensionsUseCaseConfigFactory factory = new ExtensionsUseCaseConfigFactory(mode,
+                extensionsCameraInfo, mContext);
 
         // Set the Camera
         ExtensionsConfig extensionsConfig =

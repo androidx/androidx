@@ -50,24 +50,18 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.ImageAnalysisConfig;
-import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageFormatConstants;
-import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
 import androidx.camera.core.impl.SurfaceConfig.ConfigType;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -91,7 +85,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /** Robolectric test for {@link Camera2DeviceSurfaceManager} class */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -520,15 +513,6 @@ public final class Camera2DeviceSurfaceManagerTest {
         assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
-    @Test
-    public void getMaximumSizeForImageFormat() {
-        Size maximumYUVSize =
-                mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.YUV_420_888);
-        assertEquals(mMaximumSize, maximumYUVSize);
-        Size maximumJPEGSize = mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.JPEG);
-        assertEquals(mMaximumSize, maximumJPEGSize);
-    }
-
     private void setupCamera() {
         mCameraFactory = new FakeCameraFactory();
 
@@ -619,18 +603,8 @@ public final class Camera2DeviceSurfaceManagerTest {
                 };
 
         // Create default configuration factory
-        UseCaseConfigFactory.Provider factoryProvider = context -> {
-            ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
-            configFactory.installDefaultProvider(
-                    ImageAnalysisConfig.class, new ImageAnalysisConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    ImageCaptureConfig.class, new ImageCaptureConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    VideoCaptureConfig.class, new VideoCaptureConfigProvider(context));
-            configFactory.installDefaultProvider(
-                    PreviewConfig.class, new PreviewConfigProvider(context));
-            return configFactory;
-        };
+        UseCaseConfigFactory.Provider factoryProvider = context -> new Camera2UseCaseConfigFactory(
+                context);
 
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
