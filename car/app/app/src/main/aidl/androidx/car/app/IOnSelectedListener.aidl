@@ -18,9 +18,7 @@ package androidx.car.app;
 
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+/** @hide */
 oneway interface IOnSelectedListener {
   void onSelected(int index, IOnDoneCallback callback) = 1;
 }

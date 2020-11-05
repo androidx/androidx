@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
  * A wrapper to allow rethrowing any {@link RuntimeException} that the car app threw, after
  * notifying the host of them.
  */
-// Developers can catch this exception so keeping it for stack traces.
 public class WrappedRuntimeException extends RuntimeException {
     public WrappedRuntimeException(@Nullable Throwable cause) {
         super(cause);

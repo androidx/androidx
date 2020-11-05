@@ -18,9 +18,7 @@ package androidx.car.app;
 
 import androidx.car.app.IOnDoneCallback;
 
-/**
- * @hide
- */
+/** @hide */
 oneway interface IOnCheckedChangeListener {
   void onCheckedChange(boolean isChecked, IOnDoneCallback callback) = 1;
 }

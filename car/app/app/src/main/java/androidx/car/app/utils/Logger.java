@@ -16,17 +16,11 @@
 
 package androidx.car.app.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 /**
  * Logger interface to allow the host to log while using the client library.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
 // TODO: Allow setting logging severity and including throwables
 public interface Logger {
     void log(@NonNull String message);

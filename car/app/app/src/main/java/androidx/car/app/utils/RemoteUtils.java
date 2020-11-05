@@ -155,7 +155,8 @@ public final class RemoteUtils {
     // TODO(rampara): Change method signature to change parameter order.
     @SuppressLint("LambdaLast")
     public static void dispatchHostCall(
-            @NonNull HostCall hostCall, @NonNull IOnDoneCallback callback, @NonNull String callName) {
+            @NonNull HostCall hostCall, @NonNull IOnDoneCallback callback,
+            @NonNull String callName) {
         ThreadUtils.runOnMain(
                 () -> {
                     try {
@@ -188,17 +189,15 @@ public final class RemoteUtils {
     public static void sendFailureResponse(@NonNull IOnDoneCallback callback,
             @NonNull String callName,
             @NonNull Throwable e) {
-        call(
-                () -> {
-                    try {
-                        callback.onFailure(Bundleable.create(new FailureResponse(e)));
-                    } catch (BundlerException bundlerException) {
-                        // Not possible, but catching since BundlerException is not runtime.
-                        throw new IllegalStateException(
-                                "Serialization failure in " + callName, bundlerException);
-                    }
-                    return null;
-                },
-                callName + " onFailure");
+        call(() -> {
+            try {
+                callback.onFailure(Bundleable.create(new FailureResponse(e)));
+            } catch (BundlerException bundlerException) {
+                // Not possible, but catching since BundlerException is not runtime.
+                throw new IllegalStateException(
+                        "Serialization failure in " + callName, bundlerException);
+            }
+            return null;
+        }, callName + " onFailure");
     }
 }

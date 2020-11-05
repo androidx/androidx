@@ -808,8 +808,9 @@ public class Bundler {
         }
     }
 
-    /** A decorator on a {@link BundlerException} that tacks the frame information on its message
-     * . */
+    /**
+     * A decorator on a {@link BundlerException} that tacks the frame information on its message.
+     */
     static class TracedBundlerException extends BundlerException {
         TracedBundlerException(String msg, Trace trace) {
             super(msg + ", frames: " + trace.toFlatString());
