@@ -801,6 +801,9 @@ class SuspendingQueryTest : TestDatabaseTest() {
                                         override fun beginTransaction() {
                                             throw RuntimeException("Error beginning transaction.")
                                         }
+                                        override fun beginTransactionNonExclusive() {
+                                            throw RuntimeException("Error beginning transaction.")
+                                        }
                                     }
                                 }
                             }
