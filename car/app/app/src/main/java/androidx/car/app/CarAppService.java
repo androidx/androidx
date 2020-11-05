@@ -30,6 +30,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.CarContext.CarServiceType;
+import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
@@ -43,9 +44,6 @@ import androidx.lifecycle.LifecycleRegistry;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.security.InvalidParameterException;
-
-// TODO(rampara): Uncomment on addition of navigation module
-//import androidx.car.app.navigation.NavigationManager;
 
 /**
  * The base class for implementing a car app that runs in the car.
@@ -107,8 +105,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
             mRegistry.handleLifecycleEvent(Event.ON_STOP);
 
             // Stop any active navigation
-            // TODO(rampara): Uncomment on addition of navigation module
-//          carContext.getCarService(NavigationManager.class).stopNavigation();
+            mCarContext.getCarService(NavigationManager.class).stopNavigation();
 
             // Destroy all screens in the stack
             mCarContext.getCarService(ScreenManager.class).destroyAndClearScreenStack();
@@ -314,8 +311,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
 
         for (String arg : args) {
             if (AUTO_DRIVE.equals(arg)) {
-                // TODO(rampara): Uncomment on addition of navigation module
-//        runOnMain(carContext.getCarService(NavigationManager.class)::onAutoDriveEnabled);
+                runOnMain(mCarContext.getCarService(NavigationManager.class)::onAutoDriveEnabled);
             }
         }
     }
@@ -431,11 +427,11 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
                                             AppManager.class).getIInterface());
                             return;
                         case CarContext.NAVIGATION_SERVICE:
-                            // TODO(rampara): Uncomment on addition of navigation module
-//                RemoteUtils.sendSuccessResponse(
-//                  callback,
-//                  "getManager",
-//                  carContext.getCarService(NavigationManager.class).getIInterface());
+                            RemoteUtils.sendSuccessResponse(
+                                    callback,
+                                    "getManager",
+                                    mCarContext.getCarService(
+                                            NavigationManager.class).getIInterface());
                             return;
                         default:
                             Log.e(TAG, type + "%s is not a valid manager");
