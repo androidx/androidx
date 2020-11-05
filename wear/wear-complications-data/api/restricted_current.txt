@@ -591,6 +591,7 @@ package androidx.wear.complications.data {
   }
 
   public final class TimeReference {
+    method public static androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
     method public static androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
     method public long getEndDateTimeMillis();
     method public long getStartDateTimeMillis();
@@ -603,6 +604,7 @@ package androidx.wear.complications.data {
   }
 
   public static final class TimeReference.Companion {
+    method public androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
     method public androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
     method public androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
   }
