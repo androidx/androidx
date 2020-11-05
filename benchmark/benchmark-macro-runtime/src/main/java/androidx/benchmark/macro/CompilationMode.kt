@@ -26,7 +26,16 @@ sealed class CompilationMode(
         }
         return compileArgument
     }
-    object None : CompilationMode(null)
-    class SpeedProfile(val warmupIterations: Int = 3) : CompilationMode("speed-profile")
-    object Speed : CompilationMode("speed")
+
+    object None : CompilationMode(null) {
+        override fun toString() = "CompilationMode.None"
+    }
+
+    class SpeedProfile(val warmupIterations: Int = 3) : CompilationMode("speed-profile") {
+        override fun toString() = "CompilationMode.SpeedProfile (iterations =$warmupIterations)"
+    }
+
+    object Speed : CompilationMode("speed") {
+        override fun toString() = "CompilationMode.Speed"
+    }
 }
