@@ -18,7 +18,6 @@ package androidx.window;
 
 import static androidx.window.ExtensionCompat.DEBUG;
 import static androidx.window.Version.VERSION_0_1;
-import static androidx.window.WindowManager.getActivityFromContext;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -50,7 +49,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
 
     // Map of active listeners registered with #onWindowLayoutChangeListenerAdded() and not yet
     // removed by #onWindowLayoutChangeListenerRemoved().
-    protected final SimpleArrayMap<IBinder, Context> mWindowListenerRegisteredContexts =
+    protected final SimpleArrayMap<IBinder, Activity> mWindowListenerRegisteredContexts =
             new SimpleArrayMap<>();
 
     private ExtensionCallbackInterface mExtensionCallback;
@@ -76,7 +75,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             }
 
             @Override
-            public void onWindowLayoutChanged(@NonNull Context context,
+            public void onWindowLayoutChanged(@NonNull Activity activity,
                     @NonNull WindowLayoutInfo newLayout) {
 
             }
@@ -99,20 +98,14 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             @SuppressLint("SyntheticAccessor")
             public void onWindowLayoutChanged(@NonNull IBinder windowToken,
                     @NonNull SidecarWindowLayoutInfo newLayout) {
-                Context context = mWindowListenerRegisteredContexts.get(windowToken);
-                if (context == null) {
-                    Log.w(TAG, "Unable to resolve context from window token. Missing a call"
+                Activity activity = mWindowListenerRegisteredContexts.get(windowToken);
+                if (activity == null) {
+                    Log.w(TAG, "Unable to resolve activity from window token. Missing a call"
                             + "to #onWindowLayoutChangeListenerAdded()?");
                     return;
                 }
 
-                Activity activity = getActivityFromContext(context);
-                if (activity == null) {
-                    throw new IllegalArgumentException(
-                            "Used non-Activity Context with WindowManager. Please use an Activity "
-                                    + "or a ContextWrapper around an Activity instead.");
-                }
-                extensionCallback.onWindowLayoutChanged(context,
+                extensionCallback.onWindowLayoutChanged(activity,
                         mSidecarAdapter.translate(activity, newLayout));
             }
         });
@@ -128,8 +121,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     }
 
     @Override
-    public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
-        Activity activity = assertActivityContext(context);
+    public void onWindowLayoutChangeListenerAdded(@NonNull Activity activity) {
         IBinder windowToken = getActivityWindowToken(activity);
 
         if (windowToken != null) {
@@ -150,8 +142,7 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
     }
 
     @Override
-    public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
-        Activity activity = assertActivityContext(context);
+    public void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity) {
         IBinder windowToken = getActivityWindowToken(activity);
 
         mSidecar.onWindowLayoutChangeListenerRemoved(windowToken);
@@ -269,15 +260,6 @@ final class SidecarCompat implements ExtensionInterfaceCompat {
             }
             return null;
         }
-    }
-
-    private Activity assertActivityContext(Context context) {
-        Activity activity = getActivityFromContext(context);
-        if (activity == null) {
-            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
-                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
-        }
-        return activity;
     }
 
     @Nullable

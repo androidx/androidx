@@ -76,7 +76,7 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
     @Test
     @Override
     public void testTranslate_validFeature() {
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
         Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
         SidecarDisplayFeature foldFeature = sidecarDisplayFeature(bounds,
                 SidecarDisplayFeature.TYPE_FOLD);
@@ -91,7 +91,7 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
 
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
 
         assertEquals(expected, actual);
     }
@@ -105,9 +105,9 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
 
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -128,9 +128,9 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
                 ExtensionInterfaceCompat.ExtensionCallbackInterface.class);
         SidecarAdapter sidecarCallbackAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -152,9 +152,9 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         SidecarAdapter sidecarAdapter = new SidecarAdapter();
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarAdapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }
@@ -176,9 +176,9 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
         SidecarWindowLayoutInfo windowLayoutInfo = sidecarWindowLayoutInfo(
                 extensionDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = sidecarCallbackAdapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue(actual.getDisplayFeatures().isEmpty());
     }

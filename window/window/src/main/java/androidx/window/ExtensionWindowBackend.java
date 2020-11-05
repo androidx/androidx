@@ -17,7 +17,6 @@
 package androidx.window;
 
 import static androidx.window.ExtensionCompat.DEBUG;
-import static androidx.window.WindowManager.getActivityFromContext;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -74,7 +73,7 @@ final class ExtensionWindowBackend implements WindowBackend {
     /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
     @VisibleForTesting
-    final Map<Context, WindowLayoutInfo> mLastReportedWindowLayouts = new WeakHashMap<>();
+    final Map<Activity, WindowLayoutInfo> mLastReportedWindowLayouts = new WeakHashMap<>();
 
     private static final String TAG = "WindowServer";
 
@@ -110,7 +109,7 @@ final class ExtensionWindowBackend implements WindowBackend {
     }
 
     @Override
-    public void registerLayoutChangeCallback(@NonNull Context context,
+    public void registerLayoutChangeCallback(@NonNull Activity activity,
             @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
         synchronized (sLock) {
             if (mWindowExtension == null) {
@@ -119,28 +118,27 @@ final class ExtensionWindowBackend implements WindowBackend {
                 }
                 return;
             }
-            assertActivityContext(context);
 
-            // Check if the context was already registered, in case we need to report tracking of a
-            // new context to the extension.
-            boolean isContextRegistered = isContextRegistered(context);
+            // Check if the activity was already registered, in case we need to report tracking of a
+            // new activity to the extension.
+            boolean isActivityRegistered = isActivityRegistered(activity);
 
             WindowLayoutChangeCallbackWrapper callbackWrapper =
-                    new WindowLayoutChangeCallbackWrapper(context, executor, callback);
+                    new WindowLayoutChangeCallbackWrapper(activity, executor, callback);
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
-            if (!isContextRegistered) {
-                mWindowExtension.onWindowLayoutChangeListenerAdded(context);
+            if (!isActivityRegistered) {
+                mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
             }
-            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(context);
+            WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
             if (lastReportedValue != null) {
                 callbackWrapper.accept(lastReportedValue);
             }
         }
     }
 
-    private boolean isContextRegistered(@NonNull Context context) {
+    private boolean isActivityRegistered(@NonNull Activity activity) {
         for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-            if (callbackWrapper.mContext.equals(context)) {
+            if (callbackWrapper.mActivity.equals(activity)) {
                 return true;
             }
         }
@@ -169,25 +167,25 @@ final class ExtensionWindowBackend implements WindowBackend {
             // Remove the items from the list and notify extension if needed.
             mWindowLayoutChangeCallbacks.removeAll(itemsToRemove);
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : itemsToRemove) {
-                callbackRemovedForContext(callbackWrapper.mContext);
+                callbackRemovedForActivity(callbackWrapper.mActivity);
             }
         }
     }
 
     /**
-     * Checks if there are no more registered callbacks left for the context and inform extension if
-     * needed.
+     * Checks if there are no more registered callbacks left for the activity and inform
+     * extension if needed.
      */
     @GuardedBy("sLock")
-    private void callbackRemovedForContext(Context context) {
+    private void callbackRemovedForActivity(Activity activity) {
         for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-            if (callbackWrapper.mContext.equals(context)) {
+            if (callbackWrapper.mActivity.equals(activity)) {
                 // Found a registered callback for token.
                 return;
             }
         }
-        // No registered callbacks left for context - report to extension.
-        mWindowExtension.onWindowLayoutChangeListenerRemoved(context);
+        // No registered callbacks left for the activity - report to extension.
+        mWindowExtension.onWindowLayoutChangeListenerRemoved(activity);
     }
 
     @Override
@@ -262,10 +260,10 @@ final class ExtensionWindowBackend implements WindowBackend {
 
         @Override
         @SuppressLint("SyntheticAccessor")
-        public void onWindowLayoutChanged(@NonNull Context context,
+        public void onWindowLayoutChanged(@NonNull Activity activity,
                 @NonNull WindowLayoutInfo newLayout) {
             synchronized (sLock) {
-                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(context);
+                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(activity);
                 if (newLayout.equals(lastReportedValue)) {
                     // Skipping, value already reported
                     if (DEBUG) {
@@ -273,11 +271,11 @@ final class ExtensionWindowBackend implements WindowBackend {
                     }
                     return;
                 }
-                mLastReportedWindowLayouts.put(context, newLayout);
+                mLastReportedWindowLayouts.put(activity, newLayout);
             }
 
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-                if (!callbackWrapper.mContext.equals(context)) {
+                if (!callbackWrapper.mActivity.equals(activity)) {
                     continue;
                 }
 
@@ -286,27 +284,18 @@ final class ExtensionWindowBackend implements WindowBackend {
         }
     }
 
-    private Activity assertActivityContext(Context context) {
-        Activity activity = getActivityFromContext(context);
-        if (activity == null) {
-            throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
-                    + "Please use an Activity or a ContextWrapper around an Activity instead.");
-        }
-        return activity;
-    }
-
     /**
      * Wrapper around {@link Consumer<WindowLayoutInfo>} that also includes the {@link Executor}
-     * on which the callback should run and the visual context.
+     * on which the callback should run and the {@link Activity}.
      */
     private static class WindowLayoutChangeCallbackWrapper {
         final Executor mExecutor;
         final Consumer<WindowLayoutInfo> mCallback;
-        final Context mContext;
+        final Activity mActivity;
 
-        WindowLayoutChangeCallbackWrapper(@NonNull Context context, @NonNull Executor executor,
+        WindowLayoutChangeCallbackWrapper(@NonNull Activity activity, @NonNull Executor executor,
                 @NonNull Consumer<WindowLayoutInfo> callback) {
-            mContext = context;
+            mActivity = activity;
             mExecutor = executor;
             mCallback = callback;
         }

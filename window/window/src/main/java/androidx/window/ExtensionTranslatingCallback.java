@@ -19,7 +19,7 @@ package androidx.window;
 import static androidx.window.ExtensionInterfaceCompat.ExtensionCallbackInterface;
 import static androidx.window.extensions.ExtensionInterface.ExtensionCallback;
 
-import android.content.Context;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.window.extensions.ExtensionDeviceState;
@@ -45,8 +45,8 @@ class ExtensionTranslatingCallback implements ExtensionCallback {
     }
 
     @Override
-    public void onWindowLayoutChanged(@NonNull Context context,
+    public void onWindowLayoutChanged(@NonNull Activity activity,
             @NonNull ExtensionWindowLayoutInfo newLayout) {
-        mCallback.onWindowLayoutChanged(context, mAdapter.translate(context, newLayout));
+        mCallback.onWindowLayoutChanged(activity, mAdapter.translate(activity, newLayout));
     }
 }

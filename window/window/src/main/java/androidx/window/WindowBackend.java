@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import android.content.Context;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
@@ -30,14 +30,14 @@ import java.util.concurrent.Executor;
 public interface WindowBackend {
 
     /**
-     * Registers a callback for layout changes of the window of the current visual {@link Context}.
+     * Registers a callback for layout changes of the window for the supplied {@link Activity}.
      * Must be called only after the it is attached to the window.
      */
-    void registerLayoutChangeCallback(@NonNull Context context, @NonNull Executor executor,
+    void registerLayoutChangeCallback(@NonNull Activity activity, @NonNull Executor executor,
             @NonNull Consumer<WindowLayoutInfo> callback);
 
     /**
-     * Unregisters a callback for window layout changes of the {@link Context} window.
+     * Unregisters a callback for window layout changes of the {@link Activity} window.
      */
     void unregisterLayoutChangeCallback(@NonNull Consumer<WindowLayoutInfo> callback);
 
