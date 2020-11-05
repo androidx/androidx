@@ -1032,6 +1032,40 @@ package androidx.car.app.navigation.model {
 
 }
 
+package androidx.car.app.notification {
+
+  public class CarAppExtender implements androidx.core.app.NotificationCompat.Extender {
+    ctor public CarAppExtender(android.app.Notification);
+    method public static androidx.car.app.notification.CarAppExtender.Builder builder();
+    method public androidx.core.app.NotificationCompat.Builder extend(androidx.core.app.NotificationCompat.Builder);
+    method public java.util.List<android.app.Notification.Action!> getActions();
+    method public android.app.PendingIntent? getContentIntent();
+    method public CharSequence? getContentText();
+    method public CharSequence? getContentTitle();
+    method public android.app.PendingIntent? getDeleteIntent();
+    method public int getImportance();
+    method public android.graphics.Bitmap? getLargeIconBitmap();
+    method public int getSmallIconResId();
+    method public boolean isExtended();
+    method public static boolean isExtended(android.app.Notification);
+  }
+
+  public static final class CarAppExtender.Builder {
+    ctor public CarAppExtender.Builder();
+    method public androidx.car.app.notification.CarAppExtender.Builder addAction(@DrawableRes int, CharSequence, android.app.PendingIntent);
+    method public androidx.car.app.notification.CarAppExtender build();
+    method public androidx.car.app.notification.CarAppExtender.Builder clearActions();
+    method public androidx.car.app.notification.CarAppExtender.Builder setContentIntent(android.app.PendingIntent?);
+    method public androidx.car.app.notification.CarAppExtender.Builder setContentText(CharSequence?);
+    method public androidx.car.app.notification.CarAppExtender.Builder setContentTitle(CharSequence?);
+    method public androidx.car.app.notification.CarAppExtender.Builder setDeleteIntent(android.app.PendingIntent?);
+    method public androidx.car.app.notification.CarAppExtender.Builder setImportance(int);
+    method public androidx.car.app.notification.CarAppExtender.Builder setLargeIcon(android.graphics.Bitmap?);
+    method public androidx.car.app.notification.CarAppExtender.Builder setSmallIcon(int);
+  }
+
+}
+
 package androidx.car.app.serialization {
 
   public final class Bundleable implements android.os.Parcelable {
