@@ -76,7 +76,6 @@ internal fun compilationFilter(
         val response = device.executeShellCommand("killall -s SIGUSR1 $packageName")
         if (response.isNotBlank()) {
             Log.d(TAG, "Received dump profile response $response")
-        } else {
             throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
         delay(profileSaveTimeout)
@@ -135,6 +134,6 @@ private fun setSeLinuxPolicyEnforced(instrumentation: Instrumentation, policy: I
     instrumentation.device().executeShellCommand("setenforce $policy")
 }
 
-private fun Instrumentation.device(): UiDevice {
+internal fun Instrumentation.device(): UiDevice {
     return UiDevice.getInstance(this)
 }

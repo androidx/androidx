@@ -102,7 +102,7 @@ fun macrobenchmark(
     }
 }
 
-private fun CompilationMode.compile(packageName: String, block: () -> Unit) {
+internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
     if (this == CompilationMode.None) {
         return // nothing to do
     }
