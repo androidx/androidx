@@ -266,5 +266,9 @@ runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
-  runGradle "$@" -PdisallowExecution --continue
+  if ! runGradle "$@" -PdisallowExecution --continue; then
+    echo >&2
+    echo "TaskUpToDateValidator's second build failed, -PdisallowExecution specified" >&2
+    exit 1
+  fi
 fi
