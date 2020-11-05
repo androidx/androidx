@@ -20,8 +20,6 @@ import android.app.Instrumentation
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 
 private const val TAG = "MacroBenchmarks"
 
@@ -57,13 +55,14 @@ internal fun dropCaches(instrumentation: Instrumentation) {
 
 /**
  * Compiles the application with the specified filter.
+ * For more information: https://source.android.com/devices/tech/dalvik/jit-compiler
  */
 internal fun compilationFilter(
     instrumentation: Instrumentation,
     packageName: String,
     mode: String,
     profileSaveTimeout: Long = 5000
-) = runBlocking {
+) {
     check(mode in COMPILE_MODES) {
         "Invalid compilation mode. Must be one of ${COMPILE_MODES.joinToString(",")}"
     }
@@ -72,13 +71,13 @@ internal fun compilationFilter(
         // For speed profile compilation, ART team recommended to wait for 5 secs when app
         // is in the foreground, dump the profile, wait for another 5 secs before
         // speed-profile compilation.
-        delay(profileSaveTimeout)
+        Thread.sleep(profileSaveTimeout)
         val response = device.executeShellCommand("killall -s SIGUSR1 $packageName")
         if (response.isNotBlank()) {
             Log.d(TAG, "Received dump profile response $response")
             throw RuntimeException("Failed to dump profile for $packageName ($response)")
         }
-        delay(profileSaveTimeout)
+        Thread.sleep(profileSaveTimeout)
     }
     val response = device.executeShellCommand("cmd package compile -f -m $mode $packageName")
     if (!response.contains("Success")) {
@@ -88,12 +87,22 @@ internal fun compilationFilter(
 }
 
 /**
+ * Clears existing compilation profiles.
+ */
+internal fun clearProfile(
+    instrumentation: Instrumentation,
+    packageName: String,
+) {
+    instrumentation.device().executeShellCommand("cmd package compile --reset $packageName")
+}
+
+/**
  * Presses the home button.
  */
-fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) = runBlocking {
+fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) {
     instrumentation.device().pressHome()
     // Sleep for statsd to update the metrics.
-    delay(delayDurationMs)
+    Thread.sleep(delayDurationMs)
 }
 
 /**
