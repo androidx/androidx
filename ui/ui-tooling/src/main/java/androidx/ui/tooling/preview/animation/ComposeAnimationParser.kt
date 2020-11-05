@@ -31,7 +31,6 @@ import androidx.compose.animation.tooling.ComposeAnimationType
 @OptIn(InternalAnimationApi::class)
 internal fun TransitionAnimation<*>.TransitionAnimationClockObserver.parse(): ComposeAnimation {
     Log.d("ComposeAnimationParser", "TransitionAnimation subscribed")
-    animation.monotonic = false
     val states = animation.getStates().filterNotNull().toSet()
     return object : ComposeAnimation {
         override val type: ComposeAnimationType
