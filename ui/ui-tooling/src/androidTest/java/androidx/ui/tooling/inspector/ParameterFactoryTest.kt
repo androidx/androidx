@@ -75,7 +75,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -83,15 +82,16 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ParameterFactoryTest {
-    private val node = MutableInspectorNode()
     private val factory = ParameterFactory(InlineClassConverter())
     private val api = android.os.Build.VERSION.SDK_INT
+    private val node = MutableInspectorNode().apply {
+        width = 1000
+        height = 500
+    }.build()
 
     @Before
     fun before() {
         factory.density = Density(2.0f)
-        node.width = 1000
-        node.height = 500
         isDebugInspectorInfoEnabled = true
     }
 
@@ -101,7 +101,6 @@ class ParameterFactoryTest {
     }
 
     @Test
-    @Ignore("b/172466485")
     fun testAbsoluteAlignment() {
         assertThat(lookup(AbsoluteAlignment.TopLeft))
             .isEqualTo(ParameterType.String to "TopLeft")

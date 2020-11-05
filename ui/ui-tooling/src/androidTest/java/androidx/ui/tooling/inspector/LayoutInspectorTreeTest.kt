@@ -93,9 +93,9 @@ class LayoutInspectorTreeTest : ToolingTest() {
         dumpSlotTableSet(slotTableRecord)
         val builder = LayoutInspectorTree()
         val nodes = builder.convert(view)
-        dumpNodes(nodes)
+        dumpNodes(nodes, builder)
 
-        validate(nodes, checkParameters = true) {
+        validate(nodes, builder, checkParameters = true) {
             node(
                 name = "Box",
                 fileName = "Box.kt",
@@ -404,10 +404,10 @@ class LayoutInspectorTreeTest : ToolingTest() {
         dumpSlotTableSet(slotTableRecord)
         val builder = LayoutInspectorTree()
         val nodes = builder.convert(view)
-        dumpNodes(nodes)
+        dumpNodes(nodes, builder)
 
         if (DEBUG) {
-            validate(nodes, checkParameters = false) {
+            validate(nodes, builder, checkParameters = false) {
                 node("Box", children = listOf("ModalDrawerLayout"))
                 node("ModalDrawerLayout", children = listOf("WithConstraints"))
                 node("WithConstraints", children = listOf("SubcomposeLayout"))
@@ -484,18 +484,20 @@ class LayoutInspectorTreeTest : ToolingTest() {
 
     private fun validate(
         result: List<InspectorNode>,
+        builder: LayoutInspectorTree,
         checkParameters: Boolean,
         block: TreeValidationReceiver.() -> Unit = {}
     ) {
         val nodes = result.flatMap { flatten(it) }.iterator()
-        val tree = TreeValidationReceiver(nodes, density, checkParameters)
+        val tree = TreeValidationReceiver(nodes, density, checkParameters, builder)
         tree.block()
     }
 
     private class TreeValidationReceiver(
         val nodeIterator: Iterator<InspectorNode>,
         val density: Density,
-        val checkParameters: Boolean
+        val checkParameters: Boolean,
+        val builder: LayoutInspectorTree
     ) {
         fun node(
             name: String,
@@ -534,11 +536,12 @@ class LayoutInspectorTreeTest : ToolingTest() {
             }
 
             if (checkParameters) {
-                val params = ParameterValidationReceiver(node.parameters.listIterator())
-                params.block()
-                if (params.parameterIterator.hasNext()) {
+                val params = builder.convertParameters(node)
+                val receiver = ParameterValidationReceiver(params.listIterator())
+                receiver.block()
+                if (receiver.parameterIterator.hasNext()) {
                     val elementNames = mutableListOf<String>()
-                    params.parameterIterator.forEachRemaining { elementNames.add(it.name) }
+                    receiver.parameterIterator.forEachRemaining { elementNames.add(it.name) }
                     error("$name: has more parameters like: ${elementNames.joinToString()}")
                 }
             }
@@ -549,7 +552,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         listOf(node).plus(node.children.flatMap { flatten(it) })
 
     // region DEBUG print methods
-    private fun dumpNodes(nodes: List<InspectorNode>) {
+    private fun dumpNodes(nodes: List<InspectorNode>, builder: LayoutInspectorTree) {
         @Suppress("ConstantConditionIf")
         if (!DEBUG) {
             return
@@ -559,7 +562,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         nodes.forEach { dumpNode(it, indent = 0) }
         println()
         println("=================== validate statements ==========================")
-        nodes.forEach { generateValidate(it) }
+        nodes.forEach { generateValidate(it, builder) }
     }
 
     private fun dumpNode(node: InspectorNode, indent: Int) {
@@ -571,7 +574,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
         node.children.forEach { dumpNode(it, indent + 1) }
     }
 
-    private fun generateValidate(node: InspectorNode) {
+    private fun generateValidate(node: InspectorNode, builder: LayoutInspectorTree) {
         with(density) {
             val left = round(node.left.toDp())
             val top = round(node.top.toDp())
@@ -599,10 +602,10 @@ class LayoutInspectorTreeTest : ToolingTest() {
         println()
         print(")")
         if (node.parameters.isNotEmpty()) {
-            generateParameters(node.parameters, 0)
+            generateParameters(builder.convertParameters(node), 0)
         }
         println()
-        node.children.forEach { generateValidate(it) }
+        node.children.forEach { generateValidate(it, builder) }
     }
 
     private fun generateParameters(parameters: List<NodeParameter>, indent: Int) {
