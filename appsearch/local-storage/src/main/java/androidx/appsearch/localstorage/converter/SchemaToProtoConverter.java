@@ -44,7 +44,7 @@ public final class SchemaToProtoConverter {
     public static SchemaTypeConfigProto convert(@NonNull AppSearchSchema schema) {
         Preconditions.checkNotNull(schema);
         SchemaTypeConfigProto.Builder protoBuilder =
-                SchemaTypeConfigProto.newBuilder().setSchemaType(schema.getSchemaTypeName());
+                SchemaTypeConfigProto.newBuilder().setSchemaType(schema.getSchemaType());
         List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
         for (int i = 0; i < properties.size(); i++) {
             PropertyConfigProto propertyProto = convertProperty(properties.get(i));

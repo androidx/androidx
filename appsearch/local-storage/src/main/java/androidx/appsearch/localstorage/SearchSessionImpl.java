@@ -89,7 +89,7 @@ class SearchSessionImpl implements AppSearchSession {
                 Set<String> schemasHiddenFromPlatformSurfaces =
                         new ArraySet<>(appSearchSchemasHiddenFromPlatformSurfaces.size());
                 for (AppSearchSchema schema : appSearchSchemasHiddenFromPlatformSurfaces) {
-                    schemasHiddenFromPlatformSurfaces.add(schema.getSchemaTypeName());
+                    schemasHiddenFromPlatformSurfaces.add(schema.getSchemaType());
                 }
 
                 mAppSearchImpl.setVisibility(mDatabaseName, schemasHiddenFromPlatformSurfaces);

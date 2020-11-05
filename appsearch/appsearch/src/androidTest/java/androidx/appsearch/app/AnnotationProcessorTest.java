@@ -279,7 +279,7 @@ public class AnnotationProcessorTest {
         SearchResults searchResults = mSession.query("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchema("Gift", AppSearchEmail.SCHEMA_TYPE)
+                        .addSchemaType("Gift", AppSearchEmail.SCHEMA_TYPE)
                         .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
@@ -297,7 +297,7 @@ public class AnnotationProcessorTest {
         searchResults = mSession.query("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchema(AppSearchEmail.SCHEMA_TYPE)
+                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
                         .addSchemaByDataClass(Gift.class)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);

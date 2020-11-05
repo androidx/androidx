@@ -54,7 +54,7 @@ package androidx.appsearch.app {
 
   public final class AppSearchSchema {
     method public java.util.List<androidx.appsearch.app.AppSearchSchema.PropertyConfig!> getProperties();
-    method public String getSchemaTypeName();
+    method public String getSchemaType();
   }
 
   public static final class AppSearchSchema.Builder {
@@ -226,7 +226,7 @@ package androidx.appsearch.app {
     method public int getNumPerPage();
     method public int getOrder();
     method public int getRankingStrategy();
-    method public java.util.List<java.lang.String!> getSchemas();
+    method public java.util.List<java.lang.String!> getSchemaTypes();
     method public int getSnippetCount();
     method public int getSnippetCountPerProperty();
     method public int getTermMatch();
@@ -243,10 +243,10 @@ package androidx.appsearch.app {
     ctor public SearchSpec.Builder();
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addNamespace(java.util.Collection<java.lang.String!>);
-    method public androidx.appsearch.app.SearchSpec.Builder addSchema(java.lang.String!...);
-    method public androidx.appsearch.app.SearchSpec.Builder addSchema(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(java.util.Collection<java.lang.Class<?>!>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.SearchSpec.Builder addSchemaByDataClass(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder addSchemaType(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(int);
     method public androidx.appsearch.app.SearchSpec.Builder setNumPerPage(int);
