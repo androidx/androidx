@@ -2510,6 +2510,14 @@ public class NotificationCompat {
         }
 
         /**
+         * This is called with the extras of the framework {@link Notification} during the
+         * {@link Builder#build()} process, after <code>apply()</code> has been called.  This means
+         * that you only need to add data which won't be populated by the framework Notification
+         * which was built so far.
+         *
+         * Moreover, recovering builders and styles is only supported at API 19 and above, no
+         * implementation is required for current BigTextStyle, BigPictureStyle, or InboxStyle.
+         *
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -2923,7 +2931,7 @@ public class NotificationCompat {
                 "androidx.core.app.NotificationCompat$BigPictureStyle";
 
         private Bitmap mPicture;
-        private Bitmap mBigLargeIcon;
+        private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
 
         public BigPictureStyle() {
@@ -2963,7 +2971,7 @@ public class NotificationCompat {
          * Override the large icon when the big notification is shown.
          */
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Bitmap b) {
-            mBigLargeIcon = b;
+            mBigLargeIcon = IconCompat.createWithBitmap(b);
             mBigLargeIconSet = true;
             return this;
         }
@@ -2990,26 +2998,27 @@ public class NotificationCompat {
                                 .setBigContentTitle(mBigContentTitle)
                                 .bigPicture(mPicture);
                 if (mBigLargeIconSet) {
-                    style.bigLargeIcon(mBigLargeIcon);
+                    if (mBigLargeIcon == null) {
+                        Api16Impl.setBigLargeIcon(style, null);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Context context = null;
+                        if (builder instanceof NotificationCompatBuilder) {
+                            context = ((NotificationCompatBuilder) builder).getContext();
+                        }
+                        Api23Impl.setBigLargeIcon(style, mBigLargeIcon.toIcon(context));
+                    } else if (mBigLargeIcon.getType() == IconCompat.TYPE_BITMAP) {
+                        // Before M, only the Bitmap setter existed
+                        Api16Impl.setBigLargeIcon(style, mBigLargeIcon.getBitmap());
+                    } else {
+                        // TODO(b/172282791): When we add #bigLargeIcon(Icon) we'll need to support
+                        // other icon types here by rendering them into a new Bitmap.
+                        Api16Impl.setBigLargeIcon(style, null);
+                    }
                 }
                 if (mSummaryTextSet) {
-                    style.setSummaryText(mSummaryText);
+                    Api16Impl.setSummaryText(style, mSummaryText);
                 }
             }
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        @Override
-        public void addCompatExtras(@NonNull Bundle extras) {
-            super.addCompatExtras(extras);
-
-            if (mBigLargeIconSet) {
-                extras.putParcelable(EXTRA_LARGE_ICON_BIG, mBigLargeIcon);
-            }
-            extras.putParcelable(EXTRA_PICTURE, mPicture);
         }
 
         /**
@@ -3021,10 +3030,25 @@ public class NotificationCompat {
             super.restoreFromCompatExtras(extras);
 
             if (extras.containsKey(EXTRA_LARGE_ICON_BIG)) {
-                mBigLargeIcon = extras.getParcelable(EXTRA_LARGE_ICON_BIG);
+                mBigLargeIcon = asIconCompat(extras.getParcelable(EXTRA_LARGE_ICON_BIG));
                 mBigLargeIconSet = true;
             }
             mPicture = extras.getParcelable(EXTRA_PICTURE);
+        }
+
+        @Nullable
+        private static IconCompat asIconCompat(@Nullable Parcelable bitmapOrIcon) {
+            if (bitmapOrIcon != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (bitmapOrIcon instanceof Icon) {
+                        return IconCompat.createFromIcon((Icon) bitmapOrIcon);
+                    }
+                }
+                if (bitmapOrIcon instanceof Bitmap) {
+                    return IconCompat.createWithBitmap((Bitmap) bitmapOrIcon);
+                }
+            }
+            return null;
         }
 
         /**
@@ -3036,6 +3060,52 @@ public class NotificationCompat {
             super.clearCompatExtraKeys(extras);
             extras.remove(EXTRA_LARGE_ICON_BIG);
             extras.remove(EXTRA_PICTURE);
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
+         * were added in API 16; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(16)
+        private static class Api16Impl {
+            private Api16Impl() {
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#bigLargeIcon(Bitmap)}
+             */
+            @RequiresApi(16)
+            static void setBigLargeIcon(Notification.BigPictureStyle style, Bitmap icon) {
+                style.bigLargeIcon(icon);
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#setSummaryText(CharSequence)}
+             */
+            @RequiresApi(16)
+            static void setSummaryText(Notification.BigPictureStyle style, CharSequence text) {
+                style.setSummaryText(text);
+            }
+        }
+
+        /**
+         * A class for wrapping calls to {@link Notification.BigPictureStyle} methods which
+         * were added in API 23; these calls must be wrapped to avoid performance issues.
+         * See the UnsafeNewApiCall lint rule for more details.
+         */
+        @RequiresApi(23)
+        private static class Api23Impl {
+            private Api23Impl() {
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#bigLargeIcon(Icon)}
+             */
+            @RequiresApi(23)
+            static void setBigLargeIcon(Notification.BigPictureStyle style, Icon icon) {
+                style.bigLargeIcon(icon);
+            }
         }
     }
 
@@ -3126,17 +3196,6 @@ public class NotificationCompat {
                     style.setSummaryText(mSummaryText);
                 }
             }
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        @Override
-        public void addCompatExtras(@NonNull Bundle extras) {
-            super.addCompatExtras(extras);
-
-            extras.putCharSequence(EXTRA_BIG_TEXT, mBigText);
         }
 
         /**
@@ -4027,18 +4086,6 @@ public class NotificationCompat {
                     style.addLine(text);
                 }
             }
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        @Override
-        public void addCompatExtras(@NonNull Bundle extras) {
-            super.addCompatExtras(extras);
-
-            CharSequence[] arr = new CharSequence[mTexts.size()];
-            extras.putCharSequenceArray(EXTRA_TEXT_LINES, mTexts.toArray(arr));
         }
 
         /**
