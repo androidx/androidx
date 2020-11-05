@@ -32,9 +32,9 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.data.ComplicationBoundsType
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(

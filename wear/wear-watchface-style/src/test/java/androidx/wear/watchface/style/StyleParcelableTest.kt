@@ -20,6 +20,10 @@ import android.graphics.drawable.Icon
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
