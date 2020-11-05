@@ -38,11 +38,12 @@ import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CameraValidator;
 import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.core.impl.quirk.IncompleteCameraListQuirk;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.IncompleteCameraListQuirk;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
@@ -582,7 +583,7 @@ public final class CameraX {
                 mCameraRepository.init(mCameraFactory);
 
                 // Only verify the devices might have the b/167201193
-                if (IncompleteCameraListQuirk.isCurrentDeviceAffected()) {
+                if (DeviceQuirks.get(IncompleteCameraListQuirk.class) != null) {
                     // Please ensure only validate the camera at the last of the initialization.
                     CameraValidator.validateCameras(mAppContext, mCameraRepository);
                 }
