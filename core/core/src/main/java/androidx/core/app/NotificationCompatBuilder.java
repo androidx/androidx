@@ -25,6 +25,7 @@ import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
 
 import android.app.Notification;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -46,6 +47,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccessor {
+    private final Context mContext;
     private final Notification.Builder mBuilder;
     private final NotificationCompat.Builder mBuilderCompat;
 
@@ -65,6 +67,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     @SuppressWarnings("deprecation")
     NotificationCompatBuilder(NotificationCompat.Builder b) {
         mBuilderCompat = b;
+        mContext = b.mContext;
         if (Build.VERSION.SDK_INT >= 26) {
             mBuilder = new Notification.Builder(b.mContext, b.mChannelId);
         } else {
@@ -297,6 +300,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     @Override
     public Notification.Builder getBuilder() {
         return mBuilder;
+    }
+
+    Context getContext() {
+        return mContext;
     }
 
     public Notification build() {
