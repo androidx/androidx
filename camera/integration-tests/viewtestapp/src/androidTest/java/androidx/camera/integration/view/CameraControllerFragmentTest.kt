@@ -47,6 +47,7 @@ import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,6 +71,9 @@ class CameraControllerFragmentTest {
         // and B.
         private val RGB_SHIFTS = ImmutableList.of(/*R*/16, /*G*/ 8, /*B*/0)
         private const val COLOR_MASK = 0xFF
+
+        // The minimum luminance for comparing pictures. Arbitrarily chosen.
+        private const val MIN_LUMINANCE = 50F
     }
 
     @get:Rule
@@ -235,6 +239,16 @@ class CameraControllerFragmentTest {
             Bitmap.createBitmap(captureBitmap, 0, 0, width, height, transformCapture, true)
 
         // Assert.
+        val captureLuminance = getLuminance(captureBitmap)
+        val previewLuminance = getLuminance(previewBitmap)
+        // Skip test if any of the picture is too dark. The phone is likely to be in a low light
+        // environment (e.g. in a unlit test box). In that case the noise is too high to be
+        // useful. The test will be skipped.
+        assumeTrue(
+            "Test skipped. Device most likely in low light environment.",
+            captureLuminance > MIN_LUMINANCE && previewLuminance > MIN_LUMINANCE
+        )
+
         val captureMoment = getRgbMoments(captureBitmap)
         val previewMoment = getRgbMoments(previewBitmap)
         // For a 10x10 image, we allow an 1px error. The 2 bitmaps are different due to
@@ -321,6 +335,23 @@ class CameraControllerFragmentTest {
     /**
      * Calculates the 1st order moment (center of mass) of the R, G and B of the bitmap.
      */
+    private fun getLuminance(bitmap: Bitmap): Float {
+        var totals = 0F
+        for (colorShift in RGB_SHIFTS) {
+            for (x in 0 until bitmap.width) {
+                for (y in 0 until bitmap.height) {
+                    val color = bitmap.getPixel(x, y)
+                    val colorComponent = color shr colorShift and COLOR_MASK
+                    totals += colorComponent
+                }
+            }
+        }
+        return totals / bitmap.width / bitmap.height / RGB_SHIFTS.size
+    }
+
+    /**
+     * Calculates the 1st order moment (center of mass) of the R, G and B of the bitmap.
+     */
     private fun getRgbMoments(bitmap: Bitmap): Array<PointF> {
         val rgbMoments = arrayOf(PointF(0F, 0F), PointF(0F, 0F), PointF(0F, 0F))
         val totals = arrayOf(0F, 0F, 0F)
@@ -334,8 +365,14 @@ class CameraControllerFragmentTest {
                     totals[i] += colorComponent.toFloat()
                 }
             }
-            rgbMoments[i].x /= totals[i]
-            rgbMoments[i].y /= totals[i]
+            if (totals[i] == 0F) {
+                // Check for divide by 0 error.
+                rgbMoments[i].x = 0F
+                rgbMoments[i].y = 0F
+            } else {
+                rgbMoments[i].x /= totals[i]
+                rgbMoments[i].y /= totals[i]
+            }
         }
         return rgbMoments
     }
