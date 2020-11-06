@@ -133,7 +133,13 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             renderer,
             watchFaceHost,
             watchState
-        ).setWear2StatusBarGravity(Gravity.RIGHT or Gravity.TOP).build()
+        ).setLegacyWatchFaceStyle(
+            WatchFace.LegacyWatchFaceOverlayStyle(
+                0,
+                Gravity.RIGHT or Gravity.TOP,
+                true
+            )
+        ).build()
     }
 }
 
