@@ -320,6 +320,7 @@ package androidx.core.app {
     field public static final String CATEGORY_EVENT = "event";
     field public static final String CATEGORY_LOCATION_SHARING = "location_sharing";
     field public static final String CATEGORY_MESSAGE = "msg";
+    field public static final String CATEGORY_MISSED_CALL = "missed_call";
     field public static final String CATEGORY_NAVIGATION = "navigation";
     field public static final String CATEGORY_PROGRESS = "progress";
     field public static final String CATEGORY_PROMO = "promo";

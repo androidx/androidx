@@ -723,6 +723,11 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_STOPWATCH = "stopwatch";
 
+    /**
+     * Notification category: missed call.
+     */
+    public static final String CATEGORY_MISSED_CALL = "missed_call";
+
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
