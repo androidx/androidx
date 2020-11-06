@@ -58,6 +58,7 @@ import org.robolectric.annotation.Config
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
 private const val BACKGROUND_COMPLICATION_ID = 1111
+private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 
 @Config(manifest = Config.NONE)
 @RunWith(WatchFaceTestRunner::class)
@@ -196,7 +197,12 @@ class WatchFaceConfigUiTest {
         val complicationSet = ComplicationsManager(
             complications,
             userStyleRepository,
-            object : Renderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
+            object : Renderer(
+                surfaceHolder,
+                userStyleRepository,
+                watchState.asWatchState(),
+                INTERACTIVE_UPDATE_RATE_MS
+            ) {
                 override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(

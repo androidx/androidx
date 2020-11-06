@@ -55,7 +55,6 @@ import androidx.wear.watchface.ComplicationsManager;
 import androidx.wear.watchface.RenderParameters;
 import androidx.wear.watchface.Renderer;
 import androidx.wear.watchface.WatchFace;
-import androidx.wear.watchface.WatchFaceHost;
 import androidx.wear.watchface.WatchFaceService;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
@@ -714,16 +713,14 @@ public class ComplicationDrawableTest {
         @Override
         protected WatchFace createWatchFace(
                 @NotNull SurfaceHolder surfaceHolder,
-                @NotNull WatchFaceHost watchFaceHost,
                 @NotNull WatchState watchState) {
             UserStyleRepository userStyleRepository =
                     new UserStyleRepository(new UserStyleSchema(new ArrayList<>()));
-            return new WatchFace.Builder(
+            return new WatchFace(
                     WatchFaceType.ANALOG,
-                    100,
                     userStyleRepository,
                     new ComplicationsManager(new ArrayList<>(), userStyleRepository),
-                    new Renderer(surfaceHolder, userStyleRepository, watchState) {
+                    new Renderer(surfaceHolder, userStyleRepository, watchState, 16L) {
                         @NotNull
                         @Override
                         public Bitmap takeScreenshot$wear_watchface_debug(
@@ -736,10 +733,8 @@ public class ComplicationDrawableTest {
                         public void renderInternal$wear_watchface_debug(
                                 @NotNull Calendar calendar) {
                         }
-                    },
-                    watchFaceHost,
-                    watchState
-            ).build();
+                    }
+            );
         }
     }
 }

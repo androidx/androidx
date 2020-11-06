@@ -50,13 +50,13 @@ internal class SysUiApi(
 
     override fun getContentDescriptionLabels(): Array<ContentDescriptionLabel> =
         uiThreadHandler.runOnHandler {
-            engine.watchFace.complicationsManager.getContentDescriptionLabels()
+            engine.watchFaceImpl.complicationsManager.getContentDescriptionLabels()
         }
 
     override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
         uiThreadHandler.runOnHandler { engine.takeWatchFaceScreenshot(params) }
 
-    override fun getPreviewReferenceTimeMillis() = engine.watchFace.previewReferenceTimeMillis
+    override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
 
     override fun setSystemState(systemState: SystemState) {
         uiThreadHandler.runOnHandler { engine.setSystemState(systemState) }
@@ -92,7 +92,7 @@ internal class WCSApi(
     override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
         uiThreadHandler.runOnHandler { engine.takeWatchFaceScreenshot(params) }
 
-    override fun getPreviewReferenceTimeMillis() = engine.watchFace.previewReferenceTimeMillis
+    override fun getPreviewReferenceTimeMillis() = engine.watchFaceImpl.previewReferenceTimeMillis
 
     override fun setCurrentUserStyle(userStyle: UserStyleWireFormat) {
         uiThreadHandler.runOnHandler { engine.setUserStyle(userStyle) }
@@ -109,6 +109,6 @@ internal class WCSApi(
 
     override fun getUserStyleSchema() =
         uiThreadHandler.runOnHandler {
-            engine.watchFace.userStyleRepository.schema.toWireFormat()
+            engine.watchFaceImpl.userStyleRepository.schema.toWireFormat()
         }
 }

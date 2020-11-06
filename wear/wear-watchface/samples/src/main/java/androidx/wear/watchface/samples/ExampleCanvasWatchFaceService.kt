@@ -36,7 +36,6 @@ import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -74,11 +73,13 @@ val LEFT_COMPLICATION = "LEFT_COMPLICATION"
 val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
 val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 
+/** How long each frame is displayed at expected frame rate.  */
+private const val FRAME_PERIOD_MS: Long = 16L
+
 /** A simple example canvas based watch face. */
 open class ExampleCanvasWatchFaceService : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchFaceHost: WatchFaceHost,
         watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
@@ -231,16 +232,12 @@ open class ExampleCanvasWatchFaceService : WatchFaceService() {
             complicationSlots
         )
 
-        return WatchFace.Builder(
+        return WatchFace(
             WatchFaceType.ANALOG,
-            /** mInteractiveUpdateRateMillis */
-            16,
             userStyleRepository,
             complicationSlots,
-            renderer,
-            watchFaceHost,
-            watchState
-        ).build()
+            renderer
+        )
     }
 }
 
@@ -257,8 +254,13 @@ class ExampleCanvasRenderer(
     private val drawPipsStyleSetting: BooleanUserStyleSetting,
     private val watchHandLengthStyleSettingDouble: DoubleRangeUserStyleSetting,
     private val complicationsManager: ComplicationsManager
-) : CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
-
+) : CanvasRenderer(
+    surfaceHolder,
+    userStyleRepository,
+    watchState,
+    CanvasType.HARDWARE,
+    FRAME_PERIOD_MS
+) {
     private val clockHandPaint = Paint().apply {
         isAntiAlias = true
         strokeWidth = context.resources.getDimensionPixelSize(

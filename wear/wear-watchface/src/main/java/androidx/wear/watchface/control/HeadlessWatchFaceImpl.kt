@@ -36,7 +36,7 @@ internal class HeadlessWatchFaceImpl(
     override fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams) =
         uiThreadHandler.runOnHandler { engine!!.takeWatchFaceScreenshot(params) }
 
-    override fun getPreviewReferenceTimeMillis() = engine!!.watchFace.previewReferenceTimeMillis
+    override fun getPreviewReferenceTimeMillis() = engine!!.watchFaceImpl.previewReferenceTimeMillis
 
     override fun getComplicationState() =
         uiThreadHandler.runOnHandler { engine!!.getComplicationState() }
@@ -44,7 +44,8 @@ internal class HeadlessWatchFaceImpl(
     override fun takeComplicationScreenshot(params: ComplicationScreenshotParams) =
         uiThreadHandler.runOnHandler { engine!!.takeComplicationScreenshot(params) }
 
-    override fun getUserStyleSchema() = engine!!.watchFace.userStyleRepository.schema.toWireFormat()
+    override fun getUserStyleSchema() =
+        engine!!.watchFaceImpl.userStyleRepository.schema.toWireFormat()
 
     override fun release() {
         engine?.onDestroy()

@@ -34,7 +34,6 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -50,7 +49,6 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
     class ExampleCanvasWatchFaceService : WatchFaceService() {
         override fun createWatchFace(
             surfaceHolder: SurfaceHolder,
-            watchFaceHost: WatchFaceHost,
             watchState: WatchState
         ): WatchFace {
             val userStyleRepository = UserStyleRepository(
@@ -147,7 +145,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 surfaceHolder,
                 userStyleRepository,
                 watchState,
-                CanvasType.HARDWARE
+                CanvasType.HARDWARE,
+                /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
                     userStyleRepository.addUserStyleListener(
@@ -168,15 +167,12 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 }
             }
 
-            return WatchFace.Builder(
+            return WatchFace(
                 WatchFaceType.ANALOG,
-                /* interactiveUpdateRateMillis */ 16,
                 userStyleRepository,
                 complicationSlots,
-                renderer,
-                watchFaceHost,
-                watchState
-            ).build()
+                renderer
+            )
         }
     }
 

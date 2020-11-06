@@ -28,7 +28,6 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -69,7 +68,6 @@ internal class TestCanvasWatchFaceService(
 
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchFaceHost: WatchFaceHost,
         watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
@@ -223,19 +221,16 @@ internal class TestCanvasWatchFaceService(
             complicationSlots
         )
 
-        return WatchFace.Builder(
+        return WatchFace(
             WatchFaceType.ANALOG,
-            16,
             userStyleRepository,
             complicationSlots,
-            renderer,
-            watchFaceHost,
-            watchState
+            renderer
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
                 return mockSystemTimeMillis
             }
-        }).build()
+        })
     }
 
     override fun getMutableWatchState() = mutableWatchState

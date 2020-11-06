@@ -36,7 +36,6 @@ import androidx.wear.watchface.GlesRenderer
 import androidx.wear.watchface.GlesTextureComplication
 import androidx.wear.watchface.LayerMode
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -75,7 +74,6 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
 class ExampleOpenGLWatchFaceService() : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchFaceHost: WatchFaceHost,
         watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
@@ -125,21 +123,18 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
             colorStyleSetting,
             complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
         )
-        return WatchFace.Builder(
+        return WatchFace(
             WatchFaceType.ANALOG,
-            FRAME_PERIOD_MS,
             userStyleRepository,
             complicationSlots,
-            renderer,
-            watchFaceHost,
-            watchState
+            renderer
         ).setLegacyWatchFaceStyle(
             WatchFace.LegacyWatchFaceOverlayStyle(
                 0,
                 Gravity.RIGHT or Gravity.TOP,
                 true
             )
-        ).build()
+        )
     }
 }
 
@@ -149,7 +144,7 @@ class ExampleOpenGLRenderer(
     watchState: WatchState,
     private val colorStyleSetting: ListUserStyleSetting,
     private val complication: Complication
-) : GlesRenderer(surfaceHolder, userStyleRepository, watchState) {
+) : GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     /** Projection transformation matrix. Converts from 3D to 2D.  */
     private val projectionMatrix = FloatArray(16)

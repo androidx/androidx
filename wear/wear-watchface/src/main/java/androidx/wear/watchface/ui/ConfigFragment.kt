@@ -167,7 +167,7 @@ internal class ConfigFragment : Fragment() {
         return backgroundConfigOption
     }
 
-    /** Called with the result from the call to watchFace.onComplicationConfigTap() above. */
+    /** Called with the result from the call to watchFaceImpl.onComplicationConfigTap() above. */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == Constants.PROVIDER_CHOOSER_REQUEST_CODE &&
             resultCode == Activity.RESULT_OK
