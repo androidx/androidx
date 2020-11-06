@@ -639,7 +639,7 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+    public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         mViewPortCropRect = viewPortCropRect;
     }
 
