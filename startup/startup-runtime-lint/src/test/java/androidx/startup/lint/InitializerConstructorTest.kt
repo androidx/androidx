@@ -68,7 +68,6 @@ class InitializerConstructorTest {
         lint()
             .files(
                 INITIALIZER,
-                TEST_INITIALIZER,
                 component
             )
             .issues(InitializerConstructorDetector.ISSUE)
