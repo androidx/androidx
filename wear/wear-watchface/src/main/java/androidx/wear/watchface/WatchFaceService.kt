@@ -278,7 +278,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
-        private val choreographer = Choreographer.getInstance()
+        private lateinit var choreographer: Choreographer
 
         /**
          * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
@@ -292,6 +292,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (destroyed) {
                     return
                 }
+                require(allowWatchfaceToAnimate)
                 frameCallbackPending = false
                 draw()
             }
@@ -614,7 +615,9 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun onDestroy() {
             destroyed = true
             uiThreadHandler.removeCallbacks(invalidateRunnable)
-            choreographer.removeFrameCallback(frameCallback)
+            if (this::choreographer.isInitialized) {
+                choreographer.removeFrameCallback(frameCallback)
+            }
 
             if (timeTickRegistered) {
                 timeTickRegistered = false
@@ -950,6 +953,9 @@ public abstract class WatchFaceService : WallpaperService() {
                     Log.v(TAG, "invalidate: requesting draw")
                 }
                 frameCallbackPending = true
+                if (!this::choreographer.isInitialized) {
+                    choreographer = Choreographer.getInstance()
+                }
                 choreographer.postFrameCallback(frameCallback)
             } else {
                 if (LOG_VERBOSE) {
