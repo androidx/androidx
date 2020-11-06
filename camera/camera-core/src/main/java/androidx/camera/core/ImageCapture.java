@@ -1662,10 +1662,6 @@ public final class ImageCapture extends UseCase {
      */
     public static final class OutputFileOptions {
 
-        // Empty metadata object used as a placeholder for no user-supplied metadata.
-        // Should be initialized to all default values.
-        private static final Metadata EMPTY_METADATA = new Metadata();
-
         @Nullable
         private final File mFile;
         @Nullable
@@ -1690,7 +1686,7 @@ public final class ImageCapture extends UseCase {
             mSaveCollection = saveCollection;
             mContentValues = contentValues;
             mOutputStream = outputStream;
-            mMetadata = metadata == null ? EMPTY_METADATA : metadata;
+            mMetadata = metadata == null ? new Metadata() : metadata;
         }
 
         @Nullable
