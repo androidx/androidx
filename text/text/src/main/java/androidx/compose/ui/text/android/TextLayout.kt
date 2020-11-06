@@ -202,11 +202,16 @@ class TextLayout constructor(
             if (lineCount < maxLines) {
                 false
             } else {
-                if (ellipsize != null) {
-                    layout.getEllipsisCount(lineCount - 1) > 0
-                } else {
+                /* When maxLines exceeds
+                  1. if ellipsis is applied, ellipsisCount of lastLine is greater than 0.
+                  2. if ellipsis is not applies, lineEnd of the last line is unequals to
+                  charSequence.length.
+                  On certain cases, even though ellipsize is set, text overflow might still be
+                  handled by truncating.
+                  So we have to check both cases, no matter what ellipsis parameter is passed.
+                 */
+                layout.getEllipsisCount(lineCount - 1) > 0 ||
                     layout.getLineEnd(lineCount - 1) != charSequence.length
-                }
             }
     }
 
