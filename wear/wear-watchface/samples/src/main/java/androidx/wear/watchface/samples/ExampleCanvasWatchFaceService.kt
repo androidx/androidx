@@ -40,15 +40,15 @@ import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.style.BooleanUserStyleSetting
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import kotlin.math.cos
 import kotlin.math.sin
 

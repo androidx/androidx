@@ -38,10 +38,10 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.createIdAndComplicationData
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.argumentCaptor

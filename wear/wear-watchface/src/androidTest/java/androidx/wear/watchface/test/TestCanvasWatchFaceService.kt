@@ -41,15 +41,15 @@ import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
-import androidx.wear.watchface.style.BooleanUserStyleSetting
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.ComplicationsUserStyleSetting.ComplicationsOption
-import androidx.wear.watchface.style.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 
 /** A simple canvas test watch face for integration tests. */
 internal class TestCanvasWatchFaceService(

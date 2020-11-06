@@ -37,8 +37,8 @@ import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSchema
 
 /** A simple OpenGL test watch face for integration tests. */
