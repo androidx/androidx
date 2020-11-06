@@ -31,7 +31,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
-    implementation(project(':tracing:tracing-ktx'))
+    implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation(ANDROIDX_TEST_MONITOR)
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
