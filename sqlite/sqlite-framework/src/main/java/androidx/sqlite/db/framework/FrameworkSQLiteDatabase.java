@@ -30,6 +30,8 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
@@ -113,6 +115,21 @@ class FrameworkSQLiteDatabase implements SupportSQLiteDatabase {
     @Override
     public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
         return mDelegate.yieldIfContendedSafely(sleepAfterYieldDelay);
+    }
+
+    @Override
+    public boolean isExecPerConnectionSQLSupported() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
+    }
+
+    @Override
+    public void execPerConnectionSQL(@NonNull String sql, @Nullable Object[] bindArgs) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mDelegate.execPerConnectionSQL(sql, bindArgs);
+        } else {
+            throw new UnsupportedOperationException("execPerConnectionSQL is not supported on a "
+                    + "SDK version lower than 30, current version is: " + Build.VERSION.SDK_INT);
+        }
     }
 
     @Override
