@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link NavigationManager}. */
 @SmallTest
@@ -56,12 +56,12 @@ public class NavigationManagerTest {
     private final TravelEstimate mStepTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
-                    Duration.ofHours(1).getSeconds(),
+                    TimeUnit.HOURS.toSeconds(1),
                     createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"));
     private final TravelEstimate mDestinationTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
-                    Duration.ofHours(1).getSeconds(),
+                    TimeUnit.HOURS.toSeconds(1),
                     createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
