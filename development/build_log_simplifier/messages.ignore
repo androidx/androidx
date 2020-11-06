@@ -123,6 +123,8 @@ w: \$SUPPORT/compose/foundation/foundation/src/commonMain/kotlin/androidx/compos
 \$SUPPORT/benchmark/common/src/main/java/androidx/benchmark/simpleperf/RecordOptions\.java:[0-9]+: warning: \[JavaTimeDefaultTimeZone\] LocalDateTime\.now\(\) is not allowed because it silently uses the system default time\-zone\. You must pass an explicit time\-zone \(e\.g\., ZoneId\.of\("America/Los_Angeles"\)\) to this method\.
 LocalDateTime time = LocalDateTime\.now\(\);
 \^
+cast to Object for a varargs call
+cast to Object\[\] for a non\-varargs call and to suppress this warning
 \$SUPPORT\/lint\-checks\/src\/main\/java\/androidx\/build\/lint\/BanInappropriateExperimentalUsage\.kt\:[0-9]+\: Warning\: \"RequiresOptIn\" looks like a code reference\; surround with backtics in string to display as symbol\, e\.g\. \`RequiresOptIn\` \[LintImplTextFormat\]
 \"\@RequiresOptIn and \@Experimental APIs are considered alpha\, and we do not allow \" \+
 \~\~\~\~\~\~\~\~\~\~\~\~\~
@@ -537,10 +539,19 @@ Package name 'androidx\.testutils' used in: :internal\-testutils\-runtime, :inte
 # > Task :lifecycle:lifecycle-extensions:processDebugAndroidTestManifest
 # > Task :leanback:leanback:compileDebugAndroidTestJavaWithJavac
 warning: unknown enum constant AnnotationTarget\.CLASS
+warning: unknown enum constant AnnotationTarget\.PROPERTY
+warning: unknown enum constant AnnotationTarget\.LOCAL_VARIABLE
+warning: unknown enum constant AnnotationTarget\.VALUE_PARAMETER
+warning: unknown enum constant AnnotationTarget\.CONSTRUCTOR
 reason: class file for kotlin\.annotation\.AnnotationTarget not found
 warning: unknown enum constant AnnotationTarget\.FUNCTION
+warning: unknown enum constant AnnotationTarget\.PROPERTY_GETTER
+warning: unknown enum constant AnnotationTarget\.PROPERTY_SETTER
+warning: unknown enum constant AnnotationTarget\.FILE
+warning: unknown enum constant AnnotationTarget\.TYPEALIAS
 warning: unknown enum constant AnnotationRetention\.RUNTIME
 reason: class file for kotlin\.annotation\.AnnotationRetention not found
+warning: unknown enum constant AnnotationTarget\.ANNOTATION_CLASS
 # > Task :lifecycle:lifecycle-service:processDebugAndroidTestManifest
 # > Task :lifecycle:lifecycle-viewmodel-savedstate:processDebugAndroidTestManifest
 # > Task :leanback:leanback-tab:compileDebugAndroidTestJavaWithJavac
@@ -941,3 +952,30 @@ https\:\/\/developer\.android\.com\/reference\/java\/util\/Locale\.html\#default
 # > Task :car:app:app:lintDebug
 \$SUPPORT\/car\/app\/app\/src\/main\/java\/androidx\/car\/app\/model\/Action\.java\:[0-9]+\: Warning\: Switch statement on an int with known associated constant missing case TYPE_UNKNOWN \[SwitchIntDef\]
 switch \(type\) \{
+# > Task :camera:camera-core:compileDebugJavaWithJavac
+warning: unknown enum constant AnnotationRetention\.BINARY
+# > Task :drawerlayout:drawerlayout:compileDebugJavaWithJavac
+Note: \$SUPPORT/drawerlayout/drawerlayout/src/main/java/androidx/drawerlayout/widget/DrawerLayout\.java uses or overrides a deprecated API\.
+# > Task :viewpager:viewpager:compileDebugJavaWithJavac
+Note: \$SUPPORT/viewpager/viewpager/src/main/java/androidx/viewpager/widget/ViewPager\.java uses or overrides a deprecated API\.
+# > Task :fragment:fragment:compileDebugJavaWithJavac
+Note: \$SUPPORT/fragment/fragment/src/main/java/androidx/fragment/app/FragmentStateManagerControl\.java uses or overrides a deprecated API\.
+# > Task :core:core-animation:compileDebugJavaWithJavac
+Note: \$SUPPORT/core/core\-animation/src/main/java/androidx/core/animation/ValueAnimator\.java uses or overrides a deprecated API\.
+# > Task :biometric:biometric:compileDebugJavaWithJavac
+Note: \$SUPPORT/biometric/biometric/src/main/java/androidx/biometric/BiometricFragment\.java uses or overrides a deprecated API\.
+# > Task :camera:camera-camera2:compileDebugUnitTestJavaWithJavac
+\$SUPPORT/camera/camera\-camera[0-9]+/src/test/java/androidx/camera/camera[0-9]+/internal/compat/workaround/ExcludedSupportedSizesContainerTest\.java:[0-9]+: warning: non\-varargs call of varargs method with inexact argument type for last parameter;
+assertThat\(excludedSizes\)\.containsExactly\(mConfig\.mExcludedSizes\);
+# > Task :navigation:navigation-dynamic-features-fragment:compileDebugKotlin
+w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'startIntentSenderForResult\(IntentSender!, Int, Intent\?, Int, Int, Int, Bundle\?\): Unit' is deprecated\. Deprecated in Java
+w: \$SUPPORT/navigation/navigation\-dynamic\-features\-fragment/src/main/java/androidx/navigation/dynamicfeatures/fragment/ui/AbstractProgressFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityResult\(Int, Int, Intent\?\): Unit' is deprecated\. Deprecated in Java
+# > Task :inspection:inspection-gradle-plugin:test
+[0-9]+ test completed, [0-9]+ failed
+There were failing tests\. See the report at: .*.html
+# > Task :compose:ui:ui:processDebugUnitTestManifest
+\$OUT_DIR/androidx/compose/ui/ui/build/intermediates/tmp/manifest/test/debug/manifestMerger[0-9]+\.xml Warning:
+# > Task :wear:wear-watchface:compileDebugKotlin
+w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/ConfigFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityCreated\(Bundle\?\): Unit' is deprecated\. Deprecated in Java
+w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/StyleConfigFragment\.kt: \([0-9]+, [0-9]+\): 'onActivityCreated\(Bundle\?\): Unit' is deprecated\. Deprecated in Java
+w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/WatchFaceConfigActivity\.kt: \([0-9]+, [0-9]+\): 'startActivityForResult\(Intent!, Int\): Unit' is deprecated\. Deprecated in Java
