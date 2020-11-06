@@ -1,5 +1,771 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="ObsoleteLintCustomCheck"
+        message="Lint found an issue registry (`androidx.annotation.experimental.lint.ExperimentalIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;UnsafeExperimentalUsageError&quot;,&#xA;                    &quot;UnsafeExperimentalUsageWarning&quot;&#xA;        }&#xA;    }&#xA;">
+        <location
+            file="../../../../../../home/jeffrygaston/.gradle/caches/transforms-2/files-2.1/fa51cbf3299ee05e2b24ae2129b79127/annotation-experimental-1.0.0/jars/lint.jar"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="            allFiles.edit()"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="123"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="        return String.format(&quot;SliceSpec{%s,%d}&quot;, mType, mRevision);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceSpec.java"
+            line="112"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            HINT_TITLE,"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="125"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST`"
+        errorLine1="            HINT_LIST,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="126"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LIST_ITEM`"
+        errorLine1="            HINT_LIST_ITEM,"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="127"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LARGE`"
+        errorLine1="            HINT_LARGE,"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="128"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ACTIONS`"
+        errorLine1="            HINT_ACTIONS,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="129"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
+        errorLine1="            HINT_SELECTED,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="130"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_HORIZONTAL`"
+        errorLine1="            HINT_HORIZONTAL,"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="131"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_NO_TINT`"
+        errorLine1="            HINT_NO_TINT,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="132"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PARTIAL`"
+        errorLine1="            HINT_PARTIAL,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="133"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SUMMARY`"
+        errorLine1="            HINT_SUMMARY,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="134"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SEE_MORE`"
+        errorLine1="            HINT_SEE_MORE,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="135"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SHORTCUT`"
+        errorLine1="            HINT_SHORTCUT,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="136"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_KEYWORDS`"
+        errorLine1="            HINT_KEYWORDS,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="137"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TTL`"
+        errorLine1="            HINT_TTL,"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="138"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_LAST_UPDATED`"
+        errorLine1="            HINT_LAST_UPDATED,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="139"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PERMISSION_REQUEST`"
+        errorLine1="            HINT_PERMISSION_REQUEST,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="140"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_ERROR`"
+        errorLine1="            HINT_ERROR,"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_SLICE`"
+        errorLine1="            mItems.add(new SliceItem(slice, FORMAT_SLICE, subType, slice.getHintArray()));"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="377"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_ACTION`"
+        errorLine1="            mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="391"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_ACTION`"
+        errorLine1="            mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="405"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="            mItems.add(new SliceItem(text, FORMAT_TEXT, subType, hints));"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="416"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_IMAGE`"
+        errorLine1="                mItems.add(new SliceItem(icon, FORMAT_IMAGE, subType, hints));"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="439"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_REMOTE_INPUT`"
+        errorLine1="            mItems.add(new SliceItem(remoteInput, FORMAT_REMOTE_INPUT, subType, hints));"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="481"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_INT`"
+        errorLine1="            mItems.add(new SliceItem(value, FORMAT_INT, subType, hints));"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="492"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="514"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="            mItems.add(new SliceItem(time, FORMAT_LONG, subType, hints));"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="537"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_ACTION`"
+        errorLine1="        SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);"
+        errorLine2="                                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="157"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_IMAGE`"
+        errorLine1="        SliceItem iconItem = SliceQuery.find(actionItem.getSlice(), FORMAT_IMAGE);"
+        errorLine2="                                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="164"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="        SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,"
+        errorLine2="                                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="169"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="        SliceItem titleItem = SliceQuery.find(actionItem.getSlice(), FORMAT_TEXT, HINT_TITLE,"
+        errorLine2="                                                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="169"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="        SliceItem cdItem = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_TEXT,"
+        errorLine2="                                                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="174"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="                SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="175"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_TOGGLE`"
+        errorLine1="        mIsToggle = SUBTYPE_TOGGLE.equals(actionItem.getSubType());"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="179"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
+        errorLine1="            mIsChecked = actionItem.hasHint(HINT_SELECTED);"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="181"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_INT`"
+        errorLine1="        SliceItem priority = SliceQuery.findSubtype(actionItem.getSlice(), FORMAT_INT,"
+        errorLine2="                                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="184"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_PRIORITY`"
+        errorLine1="                SUBTYPE_PRIORITY);"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="185"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SHORTCUT`"
+        errorLine1="        return builder.addHints(HINT_SHORTCUT)"
+        errorLine2="                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="324"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SHORTCUT`"
+        errorLine1="        return buildSliceContent(builder).addHints(HINT_SHORTCUT, HINT_TITLE).build();"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="335"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="        return buildSliceContent(builder).addHints(HINT_SHORTCUT, HINT_TITLE).build();"
+        errorLine2="                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="335"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_NO_TINT`"
+        errorLine1="                        : new String[]{HINT_NO_TINT};"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="349"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="            sb.addText(mTitle, null, HINT_TITLE);"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="354"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_CONTENT_DESCRIPTION`"
+        errorLine1="            sb.addText(mContentDescription, SUBTYPE_CONTENT_DESCRIPTION);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="357"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SELECTED`"
+        errorLine1="            sb.addHints(HINT_SELECTED);"
+        errorLine2="                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="360"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_PRIORITY`"
+        errorLine1="            sb.addInt(mPriority, SUBTYPE_PRIORITY);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="363"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_TOGGLE`"
+        errorLine1="        return mIsToggle ? SUBTYPE_TOGGLE : null;"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"
+            line="376"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_ACTION`"
+        errorLine1="    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="102"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_IMAGE`"
+        errorLine1="    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="102"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_INT`"
+        errorLine1="    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,"
+        errorLine2="                                                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="102"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_SLICE`"
+        errorLine1="    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="102"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="    @StringDef({FORMAT_SLICE, FORMAT_TEXT, FORMAT_IMAGE, FORMAT_ACTION, FORMAT_INT,"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="102"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_BUNDLE`"
+        errorLine1="            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG, FORMAT_BUNDLE})"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="103"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG, FORMAT_BUNDLE})"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="103"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_LONG`"
+        errorLine1="            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG, FORMAT_BUNDLE})"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="103"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_REMOTE_INPUT`"
+        errorLine1="            FORMAT_LONG, FORMAT_REMOTE_INPUT, FORMAT_LONG, FORMAT_BUNDLE})"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="103"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="    @ParcelField(value = 2, defaultValue = FORMAT_TEXT)"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="114"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceItem#FORMAT_TEXT`"
+        errorLine1="    String mFormat = FORMAT_TEXT;"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItem.java"
+            line="115"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.app.slice.SliceProvider#SLICE_TYPE`"
+        errorLine1="        return SLICE_TYPE;"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="245"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_SHORTCUT`"
+        errorLine1="                .addHints(Arrays.asList(HINT_TITLE, HINT_SHORTCUT))"
+        errorLine2="                                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="346"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_TITLE`"
+        errorLine1="                .addHints(Arrays.asList(HINT_TITLE, HINT_SHORTCUT))"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="346"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 19): `android.R.attr#colorAccent`"
+        errorLine1="                .getTheme().resolveAttribute(android.R.attr.colorAccent, tv, true);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="351"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#SUBTYPE_COLOR`"
+        errorLine1="                .addInt(deviceDefaultAccent, SUBTYPE_COLOR)"
+        errorLine2="                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="358"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.Slice#HINT_PERMISSION_REQUEST`"
+        errorLine1="        return parent.addHints(Arrays.asList(HINT_PERMISSION_REQUEST)).build();"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"
+            line="361"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceManager#CATEGORY_SLICE`"
+        errorLine1="            queryIntent.addCategory(CATEGORY_SLICE);"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="396"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceManager#SLICE_METADATA_KEY`"
+        errorLine1="                        resolve.activityInfo.metaData.getString(SLICE_METADATA_KEY)),"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="408"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceManager#CATEGORY_SLICE`"
+        errorLine1="            queryIntent.addCategory(CATEGORY_SLICE);"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="558"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.app.slice.SliceManager#SLICE_METADATA_KEY`"
+        errorLine1="                        resolve.activityInfo.metaData.getString(SLICE_METADATA_KEY));"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="570"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="MutatingSharedPrefs"
+        message="Do not modify the set returned by `SharedPreferences.getStringSet()``"
+        errorLine1="            files.add(prefsFile);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="122"
+            column="13"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -98,6 +864,50 @@
             file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
             line="709"
             column="27"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/abc_slice_permission_request.xml"
+            line="31"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/abc_slice_permission_request.xml"
+            line="32"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/abc_slice_permission_request.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;8dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/abc_slice_permission_request.xml"
+            line="41"
+            column="9"/>
     </issue>
 
     <issue

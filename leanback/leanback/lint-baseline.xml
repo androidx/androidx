@@ -1,5 +1,533 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`BaseCardView`) and the declare-styleable (`lbBaseCardView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView,"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/BaseCardView.java"
+            line="159"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the declare-styleable (`lbBaseCardView_Layout`) for a layout parameter class (`LayoutParams`) is expected to be the surrounding class (`BaseCardView`) plus &quot;`_Layout`&quot;, e.g. `BaseCardView_Layout`. (Various editor features rely on this convention.)"
+        errorLine1="            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView_Layout);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/BaseCardView.java"
+            line="866"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`BaseGridView`) and the declare-styleable (`lbBaseGridView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseGridView);"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
+            line="285"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`DatePicker`) and the declare-styleable (`lbDatePicker`) should have the same name (various editor features rely on this convention)"
+        errorLine1="                R.styleable.lbDatePicker);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
+            line="78"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`HorizontalGridView`) and the declare-styleable (`lbHorizontalGridView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
+            line="84"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`ImageCardView`) and the declare-styleable (`lbImageCardView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="                R.styleable.lbImageCardView, defStyleAttr, defStyle);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ImageCardView.java"
+            line="173"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`Picker`) and the declare-styleable (`lbPicker`) should have the same name (various editor features rely on this convention)"
+        errorLine1="                attrs, R.styleable.lbPicker, defStyleAttr, 0);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/Picker.java"
+            line="196"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`PinPicker`) and the declare-styleable (`lbPinPicker`) should have the same name (various editor features rely on this convention)"
+        errorLine1="                attrs, R.styleable.lbPinPicker, defStyleAttr, 0);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
+            line="47"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`ResizingTextView`) and the declare-styleable (`lbResizingTextView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.lbResizingTextView,"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ResizingTextView.java"
+            line="58"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`SearchOrbView`) and the declare-styleable (`lbSearchOrbView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
+            line="185"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`TimePicker`) and the declare-styleable (`lbTimePicker`) should have the same name (various editor features rely on this convention)"
+        errorLine1="                R.styleable.lbTimePicker);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
+            line="110"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="CustomViewStyleable"
+        message="By convention, the custom view (`VerticalGridView`) and the declare-styleable (`lbVerticalGridView`) should have the same name (various editor features rely on this convention)"
+        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
+            line="60"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        String dateFieldsPattern = datePickerFormat.toUpperCase();"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
+            line="244"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="        timeFieldsPattern = timeFieldsPattern.toUpperCase();"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
+            line="281"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 17): `android.view.View#AUTOFILL_TYPE_TEXT`"
+        errorLine1="        return AUTOFILL_TYPE_TEXT;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
+            line="133"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="SimpleDateFormat"
+        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
+        errorLine1="    private final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
+            line="60"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview_logo.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionName=&quot;guidedactions_root&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionGroup=&quot;false&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionName=&quot;guidedactions_list_background&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionName=&quot;guidedactions_content&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionGroup=&quot;false&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="39"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="            android:transitionGroup=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="43"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="            android:transitionName=&quot;guidedactions_sub_list_background&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="48"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="            android:transitionGroup=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedactions.xml"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionName=&quot;guidedactions_root2&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionGroup=&quot;false&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionName=&quot;guidedactions_list_background2&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="28"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionName=&quot;guidedactions_content2&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionGroup=&quot;false&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="            android:transitionGroup=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedbuttonactions.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionName=&quot;guidedstep_background&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_background.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                android:transitionName=&quot;action_fragment_root&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="48"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                android:transitionGroup=&quot;false&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="49"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:transitionName=&quot;action_fragment_background&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="60"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `outlineProvider` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:outlineProvider=&quot;paddedBounds&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="62"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:elevation=&quot;?attr/guidedActionsElevation&quot; />"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="66"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:transitionName=&quot;action_fragment&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="72"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:transitionGroup=&quot;false&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="73"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="                    android:elevation=&quot;?attr/guidedActionsElevation&quot; />"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="77"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:transitionGroup=&quot;true&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_headers_fragment.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="    android:elevation=&quot;@dimen/lb_browse_headers_z&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_headers_fragment.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionGroup=&quot;false&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_fragment.xml"
+            line="21"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionGroup=&quot;false&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_fragment.xml"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="            android:transitionGroup=&quot;true&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_fragment.xml"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
+        errorLine1="        android:transitionGroup=&quot;true&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_title_view.xml"
+            line="41"
+            column="9"/>
+    </issue>
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -10,6 +538,17 @@
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
             line="39"
             column="14"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        for (ResolveInfo info : pm.queryBroadcastReceivers(intent, 0)) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/system/Settings.java"
+            line="169"
+            column="36"/>
     </issue>
 
     <issue
@@ -901,6 +1440,577 @@
             file="src/main/java/androidx/leanback/transition/TransitionHelper.java"
             line="463"
             column="43"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `PLAYBACK_SPEED_FAST_L4`, `PLAYBACK_SPEED_INVALID`, `PLAYBACK_SPEED_NORMAL`, `PLAYBACK_SPEED_PAUSED`"
+        errorLine1="        switch (mPlaybackSpeed) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="407"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `PLAYBACK_SPEED_FAST_L0`, `PLAYBACK_SPEED_FAST_L1`, `PLAYBACK_SPEED_FAST_L2`, `PLAYBACK_SPEED_FAST_L3`, `PLAYBACK_SPEED_FAST_L4`, `PLAYBACK_SPEED_INVALID`, `PLAYBACK_SPEED_NORMAL`, `PLAYBACK_SPEED_PAUSED`"
+        errorLine1="        switch (mPlaybackSpeed) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="423"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="Deprecated"
+        message="`android:editable` is deprecated: Use an `&lt;EditText>` to make it editable"
+        errorLine1="                    android:editable=&quot;true&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_search_bar.xml"
+            line="62"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rAU/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rCA/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rIN/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‏‏‎‎‏‏‎‏‎‏‎‏‎‎‏‎‎‎‎‏‏‎‎‏‎‏‎‏‏‎‏‏‏‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‎‏‏‏‎‏‏‎MediaPlayer error code %1$d extra %2$d‎‏‎‎‏‎&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rXC/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot;>MediaPlayer error code %1$d extra %2$d&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DrawAllocation"
+        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)"
+        errorLine1="                    mSortedAvailableViews.add(new ArrayList&lt;>());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/NonOverlappingLinearLayout.java"
+            line="73"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="                layoutAnimator = ValueAnimator.ofFloat(0f, 1f);"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/AbstractMediaItemPresenter.java"
+            line="643"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="            AnimatorSet logoAnimator = new AnimatorSet();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/OnboardingFragment.java"
+            line="615"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="            AnimatorSet logoAnimator = new AnimatorSet();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/OnboardingSupportFragment.java"
+            line="610"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    private final Handler mHandler = new Handler() {"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
+            line="304"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    private final Handler mHandler = new Handler() {"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
+            line="300"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/listDivider` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;?android:attr/listDivider&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_divider.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/guidedStepBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;?attr/guidedStepBackground&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_background.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="32"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="41"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_error_fragment.xml"
+            line="29"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `FrameLayout` parent is possibly useless; transfer the `background` attribute to the other view"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is useless; transfer the `background` attribute to the other view"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
+            line="41"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="33"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `LinearLayout` parent is possibly useless"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `GuidedActionEditText` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    public boolean onTouchEvent(@NonNull MotionEvent event) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
+            line="160"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_primary.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_primary.xml"
+            line="30"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_secondary.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_secondary.xml"
+            line="30"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="48"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_error_fragment.xml"
+            line="35"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview_logo.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view.xml"
+            line="21"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view_themed_badge_left.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view_themed_badge_right.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_media_item_number_view_flipper.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_onboarding_fragment.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_onboarding_fragment.xml"
+            line="77"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_controls_row.xml"
+            line="40"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="40"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls_row.xml"
+            line="44"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_row_media_item.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_row_media_item_action.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_search_bar.xml"
+            line="42"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_title_view.xml"
+            line="19"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                vh.mButton.setText(line1 + &quot;\n&quot; + line2);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ActionPresenterSelector.java"
+            line="131"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RelativeOverlap"
+        message="`@id/current_time` can overlap `@id/secondary_controls_dock` if @id/current_time grows due to localized text expansion"
+        errorLine1="            &lt;TextView"
+        errorLine2="             ~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls_row.xml"
+            line="105"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingEnd` you should probably also define `paddingStart` for right-to-left symmetry"
+        errorLine1="            android:paddingEnd=&quot;50dp&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_browse_fragment.xml"
+            line="50"
+            column="13"/>
     </issue>
 
     <issue
