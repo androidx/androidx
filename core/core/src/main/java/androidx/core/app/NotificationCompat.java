@@ -2976,7 +2976,7 @@ public class NotificationCompat {
          * Override the large icon when the big notification is shown.
          */
         public @NonNull BigPictureStyle bigLargeIcon(@Nullable Bitmap b) {
-            mBigLargeIcon = IconCompat.createWithBitmap(b);
+            mBigLargeIcon = b == null ? null : IconCompat.createWithBitmap(b);
             mBigLargeIconSet = true;
             return this;
         }
