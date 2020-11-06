@@ -215,7 +215,7 @@ public class WatchFace private constructor(
         /**
          * Sets position of status icons (battery state, lack of connection) on the screen.
          *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
          * the functionality is replaced by... TODO(alexclarke): Design the replacement.
          *
          * @param statusBarGravity This must be any combination of horizontal Gravity constant
@@ -232,7 +232,7 @@ public class WatchFace private constructor(
          * Sets the accent color which can be set by developers to customise watch face. It will be
          * used when drawing the unread notification indicator. Default color is white.
          *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
          * the functionality is replaced by... TODO(alexclarke): Design the replacement.
          */
         public fun setWear2AccentColor(@ColorInt accentColor: Int): Builder = apply {
@@ -242,10 +242,10 @@ public class WatchFace private constructor(
         /**
          * Sets whether this watchface accepts tap events. The default is false.
          *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
+         * Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
          * the functionality is replaced by... TODO(alexclarke): Design the replacement.
          *
-         * <p>Watchfaces that set this {@code true} are indicating they are prepared to receive
+         * Watchfaces that set this `true` are indicating they are prepared to receive
          * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH],
          * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH_CANCEL], and
          * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TAP] events.
