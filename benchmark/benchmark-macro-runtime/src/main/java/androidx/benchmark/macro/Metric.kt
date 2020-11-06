@@ -16,19 +16,55 @@
 
 package androidx.benchmark.macro
 
+import com.android.helpers.CpuUsageHelper
+
 /**
  * Metric interface.
- *
- * Duplicate of Collector interface, but avoids exposing helper impl detail.
- *
- * TODO: remove collector impl detail, use helpers more directly
  */
-sealed class Metric constructor(internal val collector: Collector<*>) {
-    fun start() = collector.start()
+sealed class Metric {
+    abstract fun start()
 
-    fun stop() = collector.stop()
+    abstract fun stop()
+
+    /**
+     * After stopping, collect metrics
+     *
+     * TODO: takes package for package level filtering, but probably want a
+     *  general config object coming into [start].
+     */
+    abstract fun getMetrics(packageName: String): Map<String, List<Long>>
 }
 
-class StartupTimingMetric : Metric(AppStartupCollector())
+class StartupTimingMetric : Metric() {
+    private val helper = AppStartupHelper()
 
-class CpuUsageMetric : Metric(CpuUsageCollector())
+    override fun start() {
+        helper.startCollecting()
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+    }
+
+    override fun getMetrics(packageName: String): Map<String, List<Long>> {
+        return helper.getMetrics(packageName)
+    }
+}
+
+class CpuUsageMetric : Metric() {
+    private val helper = CpuUsageHelper().also {
+        it.setEnableCpuUtilization()
+    }
+
+    override fun start() {
+        helper.startCollecting()
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+    }
+
+    override fun getMetrics(packageName: String): Map<String, List<Long>> {
+        return helper.metrics.mapValues { listOf(it.value) }
+    }
+}

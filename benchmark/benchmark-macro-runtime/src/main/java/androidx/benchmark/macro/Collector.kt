@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro
 
-import androidx.benchmark.InstrumentationResults.instrumentationReport
 import com.android.helpers.ICollectorHelper
 
 /**
@@ -27,25 +26,6 @@ internal interface Collector<T : Any> {
     fun start(): Boolean
     fun stop(): Boolean
     fun metrics(): Map<String, T>
-}
-
-internal fun List<Collector<*>>.start() {
-    this.forEach { it.start() }
-}
-
-internal fun List<Collector<*>>.stop() {
-    this.forEach { it.stop() }
-}
-
-internal fun List<Collector<*>>.report() {
-    instrumentationReport {
-        val summary = this@report.flatMap { collector ->
-            collector.metrics().map { (key, metric) ->
-                "$key: '$metric'"
-            }
-        }.joinToString(separator = "\n")
-        this.ideSummaryRecord(summary)
-    }
 }
 
 /**

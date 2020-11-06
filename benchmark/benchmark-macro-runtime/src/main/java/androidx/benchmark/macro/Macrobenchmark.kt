@@ -17,10 +17,14 @@
 package androidx.benchmark.macro
 
 import android.content.Intent
+import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Stats
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.Collections
+import kotlin.math.max
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -33,6 +37,12 @@ public class MacrobenchmarkScope(
     private val context = instrumentation.context
     private val device = UiDevice.getInstance(instrumentation)
 
+    /**
+     * Launch the package, with a customizable intent.
+     *
+     * If [block] is not specified, launches with [Intent.FLAG_ACTIVITY_NEW_TASK] as well as
+     * [Intent.FLAG_ACTIVITY_CLEAR_TASK]
+     */
     fun launchPackageAndWait(
         block: (Intent) -> Unit = {
             it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -66,9 +76,9 @@ data class MacrobenchmarkConfig(
 )
 
 /**
- * Primary macrobenchmark test entrypoint.
+ * macrobenchmark test entrypoint, which doesn't depend on JUnit.
  *
- * TODO: wrap in a JUnit4 rule, which defines [benchmarkName] based on test name
+ * This function is a building block for public testing APIs
  */
 fun macrobenchmark(
     benchmarkName: String,
@@ -101,13 +111,47 @@ fun macrobenchmark(
         config.metrics.forEach {
             it.stop()
         }
-        config.metrics.map {
-            it.collector
-        }.report()
+
+        val statsList = config.metrics.getStatsList(config.packageName)
+        InstrumentationResults.instrumentationReport {
+            ideSummaryRecord(ideSummaryString(benchmarkName, statsList))
+            statsList.forEach { it.putInBundle(bundle, "") }
+        }
     } finally {
         perfettoCollector.stop("$benchmarkName.trace")
         scope.killProcess()
     }
+}
+
+/**
+ * Capture results from each metric, and create Stats container for each
+ */
+fun List<Metric>.getStatsList(packageName: String): List<Stats> {
+    val metricMap: Map<String, List<Long>> = this.flatMap {
+        it.getMetrics(packageName).toList()
+    }.toMap()
+
+    return metricMap.map { (metricName, values) ->
+        Stats(values.toLongArray(), metricName)
+    }
+}
+
+fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
+    val maxLabelLength = Collections.max(statsList.map { it.name.length })
+
+    // max string length of any printed min/median/max is the largest max value seen. used to pad.
+    val maxValueLength = statsList
+        .map { it.max }
+        .reduce { acc, maxValue -> max(acc, maxValue) }
+        .toString().length
+
+    return "$benchmarkName\n" + statsList.joinToString("\n") {
+        val displayName = it.name.padStart(maxLabelLength)
+        val displayMin = it.min.toString().padStart(maxValueLength)
+        val displayMedian = it.median.toString().padStart(maxValueLength)
+        val displayMax = it.max.toString().padStart(maxValueLength)
+        "$displayName   min: $displayMin,   median $displayMedian,   max $displayMax"
+    } + "\n"
 }
 
 internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
