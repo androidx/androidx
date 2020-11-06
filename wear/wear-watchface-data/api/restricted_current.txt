@@ -5,7 +5,6 @@ package android.support.wearable.watchface {
     field public static final String ACTION_REQUEST_STATE = "com.google.android.wearable.watchfaces.action.REQUEST_STATE";
     field public static final String COMMAND_AMBIENT_UPDATE = "com.google.android.wearable.action.AMBIENT_UPDATE";
     field public static final String COMMAND_BACKGROUND_ACTION = "com.google.android.wearable.action.BACKGROUND_ACTION";
-    field public static final String COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST = "com.google.android.wearable.action.BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST";
     field public static final String COMMAND_COMPLICATION_DATA = "com.google.android.wearable.action.COMPLICATION_DATA";
     field public static final String COMMAND_REQUEST_STYLE = "com.google.android.wearable.action.REQUEST_STYLE";
     field public static final String COMMAND_SET_BINDER = "com.google.android.wearable.action.SET_BINDER";

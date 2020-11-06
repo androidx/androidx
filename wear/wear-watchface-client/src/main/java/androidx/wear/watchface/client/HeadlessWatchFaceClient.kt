@@ -34,7 +34,7 @@ public class HeadlessWatchFaceClient internal constructor(
     private val iHeadlessWatchFace: IHeadlessWatchFace
 ) : AutoCloseable {
 
-    /** Constructs a [HeadlessWatchFaceClient] from a [IBinder]. */
+    /** Constructs a [HeadlessWatchFaceClient] from an [IBinder]. */
     public constructor(binder: IBinder) : this(IHeadlessWatchFace.Stub.asInterface(binder))
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
