@@ -27,7 +27,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlService;
+import androidx.wear.watchface.control.IWatchFaceControlService;
 import androidx.wear.watchface.data.DeviceConfig;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.SystemState;
@@ -36,7 +36,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 import java.util.List;
 
 /**
- * Parameters for {@link IWallpaperWatchFaceControlService#createInteractiveWatchFaceInstance}.
+ * Parameters for {@link IWatchFaceControlService#createPendingInteractiveWatchFace}.
  *
  * @hide
  */

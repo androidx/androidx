@@ -38,8 +38,8 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlService
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
+import androidx.wear.watchface.control.IPendingInteractiveWatchFaceWCS
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.DeviceConfig
@@ -338,33 +338,30 @@ class WatchFaceServiceTest {
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    wallpaperInteractiveWatchFaceInstanceParams,
+                    object : IPendingInteractiveWatchFaceWCS.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFaceWCS.API_VERSION
+
+                        override fun onInteractiveWatchFaceWcsCreated(
+                            iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
+                        ) {
+                            interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
+                            watchFace = testWatchFaceService.watchFace
+                        }
+                    }
+                )
+            )
+
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
 
         // The [SurfaceHolder] must be sent before binding.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-
-        val serviceRequest = object : IWallpaperWatchFaceControlServiceRequest.Stub() {
-            override fun getApiVersion() = IWallpaperWatchFaceControlServiceRequest.API_VERSION
-
-            override fun registerWallpaperWatchFaceControlService(
-                service: IWallpaperWatchFaceControlService
-            ) {
-                interactiveWatchFaceInstanceWCS = service.createInteractiveWatchFaceInstance(
-                    wallpaperInteractiveWatchFaceInstanceParams
-                )
-                watchFace = testWatchFaceService.watchFace
-            }
-        }
-
-        engineWrapper.onCommand(
-            Constants.COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST,
-            0,
-            0,
-            0,
-            Bundle().apply { putBinder(Constants.EXTRA_BINDER, serviceRequest.asBinder()) },
-            false
-        )
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {

@@ -44,6 +44,7 @@ import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
@@ -53,10 +54,8 @@ import androidx.wear.complications.data.NoDataComplicationData
 import androidx.wear.complications.data.asApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlServiceRequest
 import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.InteractiveWatchFaceImpl
-import androidx.wear.watchface.control.WallpaperWatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
@@ -238,8 +237,12 @@ public abstract class WatchFaceService : WallpaperService() {
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
 
-    // This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
-    internal open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
+    /**
+     * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getWallpaperSurfaceHolderOverride(): SurfaceHolder? = null
 
     internal fun setContext(context: Context) {
         attachBaseContext(context)
@@ -326,6 +329,21 @@ public abstract class WatchFaceService : WallpaperService() {
         private var watchFaceInitStarted = false
 
         private var initialUserStyle: UserStyleWireFormat? = null
+        private lateinit var interactiveInstanceId: String
+
+        init {
+            val pendingWallpaperInstance =
+                InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
+
+            // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
+            if (pendingWallpaperInstance != null) {
+                pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
+                    createInteractiveInstance(pendingWallpaperInstance.params).wcsApi
+                )
+
+                interactiveInstanceId = pendingWallpaperInstance.params.instanceId
+            }
+        }
 
         @UiThread
         fun ambientTickUpdate() {
@@ -606,6 +624,11 @@ public abstract class WatchFaceService : WallpaperService() {
             if (!watchFaceCreated()) {
                 watchFace.onDestroy()
             }
+
+            if (this::interactiveInstanceId.isInitialized) {
+                InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
+            }
+
             super.onDestroy()
         }
 
@@ -628,10 +651,6 @@ public abstract class WatchFaceService : WallpaperService() {
                     uiThreadHandler.runOnHandler { onRequestStyle() }
                 Constants.COMMAND_SET_BINDER ->
                     uiThreadHandler.runOnHandler { onSetBinder(extras!!) }
-                Constants.COMMAND_BIND_WALLPAPER_WATCH_FACE_CONTROL_SERVICE_REQUEST ->
-                    uiThreadHandler.runOnHandler {
-                        onBindWallpaperWatchFaceControlServiceRequest(extras!!)
-                    }
                 Constants.COMMAND_SET_PROPERTIES ->
                     uiThreadHandler.runOnHandler { onPropertiesChanged(extras!!) }
                 Constants.COMMAND_TAP ->
@@ -689,18 +708,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             maybeCreateWatchFace()
-        }
-
-        private fun onBindWallpaperWatchFaceControlServiceRequest(extras: Bundle) {
-            val binder = extras.getBinder(Constants.EXTRA_BINDER)
-            if (binder == null) {
-                Log.w(TAG, "Binder is null.")
-                return
-            }
-            IWallpaperWatchFaceControlServiceRequest.Stub.asInterface(binder)
-                .registerWallpaperWatchFaceControlService(
-                    WallpaperWatchFaceControlService(this, uiThreadHandler)
-                )
         }
 
         override fun getInitialUserStyle(): UserStyleWireFormat? = initialUserStyle
@@ -786,7 +793,7 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
-        ): InteractiveWatchFaceImpl? {
+        ): InteractiveWatchFaceImpl {
             require(!watchFaceCreated())
 
             setImmutableSystemState(params.deviceConfig)

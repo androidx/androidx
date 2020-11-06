@@ -19,6 +19,7 @@ package androidx.wear.watchface.client
 import android.app.PendingIntent
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import androidx.annotation.IntDef
@@ -32,10 +33,13 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
 
-/** Controls a stateful remote interactive watch face. */
+/** Controls a stateful remote interactive watch face with an interface tailored for SysUI. */
 public class InteractiveWatchFaceSysUiClient internal constructor(
     private val iInteractiveWatchFaceSysUI: IInteractiveWatchFaceSysUI
 ) : AutoCloseable {
+
+    /** Constructs an [InteractiveWatchFaceSysUiClient] from an [IBinder]. */
+    public constructor(binder: IBinder) : this(IInteractiveWatchFaceSysUI.Stub.asInterface(binder))
 
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
@@ -157,4 +161,7 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
     override fun close() {
         iInteractiveWatchFaceSysUI.release()
     }
+
+    /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
+    public fun asBinder(): IBinder = iInteractiveWatchFaceSysUI.asBinder()
 }
