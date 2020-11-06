@@ -92,7 +92,10 @@ internal open class PreviewAnimationClock(
         }
         clock.subscribe(observer)
         when (observer) {
-            is TransitionAnimation<*>.TransitionAnimationClockObserver -> observer.parse()
+            is TransitionAnimation<*>.TransitionAnimationClockObserver -> {
+                observer.animation.monotonic = false
+                observer.parse()
+            }
             // TODO(b/160126628): support other animation types, e.g. AnimatedValue
             else -> null
         }?.let {
