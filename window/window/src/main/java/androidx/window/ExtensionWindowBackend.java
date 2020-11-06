@@ -345,28 +345,44 @@ final class ExtensionWindowBackend implements WindowBackend {
         try {
             if (isExtensionVersionSupported(ExtensionCompat.getExtensionVersion())) {
                 impl = new ExtensionCompat(context);
-            } else if (isExtensionVersionSupported(SidecarCompat.getSidecarVersion())) {
-                impl = new SidecarCompat(context);
+                if (!impl.validateExtensionInterface()) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Loaded extension doesn't match the interface version");
+                    }
+                    impl = null;
+                }
             }
         } catch (Throwable t) {
             if (DEBUG) {
                 Log.d(TAG, "Failed to load extension: " + t);
             }
-            return null;
+            impl = null;
+        }
+
+        if (impl == null) {
+            // Falling back to Sidecar
+            try {
+                if (isExtensionVersionSupported(SidecarCompat.getSidecarVersion())) {
+                    impl = new SidecarCompat(context);
+                    if (!impl.validateExtensionInterface()) {
+                        if (DEBUG) {
+                            Log.d(TAG, "Loaded Sidecar doesn't match the interface version");
+                        }
+                        impl = null;
+                    }
+                }
+            } catch (Throwable t) {
+                if (DEBUG) {
+                    Log.d(TAG, "Failed to load sidecar: " + t);
+                }
+                impl = null;
+            }
         }
 
         if (impl == null) {
             if (DEBUG) {
-                Log.d(TAG, "No supported extension found");
+                Log.d(TAG, "No supported extension or sidecar found");
             }
-            return null;
-        }
-
-        if (!impl.validateExtensionInterface()) {
-            if (DEBUG) {
-                Log.d(TAG, "Loaded extension doesn't match the interface version");
-            }
-            return null;
         }
 
         return impl;
@@ -378,8 +394,15 @@ final class ExtensionWindowBackend implements WindowBackend {
      */
     @VisibleForTesting
     static boolean isExtensionVersionSupported(@Nullable Version extensionVersion) {
-        return extensionVersion != null
-                && Version.CURRENT.getMajor() >= extensionVersion.getMajor();
+        if (extensionVersion == null) {
+            return false;
+        }
+        if (extensionVersion.getMajor() == 1) {
+            // Disable androidx.window.extensions support in release builds of the library until the
+            // extensions API is finalized.
+            return DEBUG;
+        }
+        return Version.CURRENT.getMajor() >= extensionVersion.getMajor();
     }
 
     /**
