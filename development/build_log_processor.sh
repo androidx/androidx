@@ -65,7 +65,6 @@ function rotateLogs() {
   done
   mv $logFile "$LOG_DIR/gradle.1.log" 2>/dev/null || true
 }
-rotateLogs
 
 rm -f "$logFile"
 # Save OUT_DIR and some other variables into the log file so build_log_simplifier.py can
@@ -106,4 +105,12 @@ else
   summaryLog="$LOG_DIR/error_summary.log"
   $SCRIPT_PATH/build_log_simplifier.py $logFile | tail -n 100 | tee "$summaryLog" >&2
   exit 1
+fi
+
+if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
+  # If we've been asked to validate that no unrecognized messages exist, then this output may be
+  # interesting to the caller and we'll try to avoid overwriting it
+  # This mostly matters on the build server so we can download all of the logs and do garbage
+  # collection of the build output message exemptions
+  rotateLogs
 fi
