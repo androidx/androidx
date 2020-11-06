@@ -26,24 +26,27 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.resources.TextResource
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
 import javax.inject.Inject
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.jvm.isAccessible
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
 abstract class SafeArgsPlugin protected constructor(
-    val providerFactory: ProviderFactory
+    private val providerFactory: ProviderFactory
 ) : Plugin<Project> {
 
     abstract val generateKotlin: Boolean
 
     private fun forEachVariant(extension: BaseExtension, action: (BaseVariant) -> Unit) {
-        when {
-            extension is AppExtension -> extension.applicationVariants.all(action)
-            extension is LibraryExtension -> {
+        when (extension) {
+            is AppExtension -> extension.applicationVariants.all(action)
+            is LibraryExtension -> {
                 extension.libraryVariants.all(action)
             }
             else -> throw GradleException(
@@ -91,10 +94,13 @@ abstract class SafeArgsPlugin protected constructor(
      * Sets the android project application id into the task.
      */
     private fun setApplicationId(task: ArgumentsGenerationTask, variant: BaseVariant) {
-        val appIdTextResource = variant.applicationIdTextResource
-        if (appIdTextResource != null) {
-            task.applicationIdResource = appIdTextResource
-        } else {
+        variant::class.memberFunctions.forEach { function ->
+            if (function.name == "getApplicationIdTextResource") {
+                function.isAccessible = true
+                task.applicationIdResource = function.call(variant)!! as TextResource
+            }
+        }
+        if (task.applicationIdResource == null) {
             // getApplicationIdTextResource() returned null, fallback to getApplicationId()
             task.applicationId = variant.applicationId
         }
