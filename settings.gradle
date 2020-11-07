@@ -214,6 +214,7 @@ includeProject(":compose:foundation:foundation:integration-tests:foundation-demo
 includeProject(":compose:foundation:foundation:foundation-samples", "compose/foundation/foundation/samples", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests", "compose/integration-tests", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:benchmark", "compose/integration-tests/benchmark", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:macro-benchmark", "compose/integration-tests/macro-benchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos", "compose/integration-tests/demos", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos:common", "compose/integration-tests/demos/common", [BuildType.COMPOSE])
 includeProject(":compose:internal-lint-checks", "compose/internal-lint-checks", [BuildType.COMPOSE])
