@@ -73,10 +73,11 @@ public class IdAndComplicationData(
  * leave the slot empty.
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -90,10 +91,11 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALW
  * this type.
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -109,10 +111,11 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWA
  */
 public class NotConfiguredComplicationData :
     ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -180,6 +183,7 @@ public class ShortTextComplicationData internal constructor(
             image?.addToWireComplicationData(this)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -264,6 +268,7 @@ public class LongTextComplicationData internal constructor(
             smallImage?.addToWireComplicationData(this)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -351,6 +356,7 @@ public class RangedValueComplicationData internal constructor(
             setShortTitle(title?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -411,6 +417,7 @@ public class MonochromaticImageComplicationData internal constructor(
             setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -471,6 +478,7 @@ public class SmallImageComplicationData internal constructor(
             setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -533,6 +541,7 @@ public class BackgroundImageComplicationData internal constructor(
             setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -601,6 +610,7 @@ public class NoPermissionComplicationData internal constructor(
             image?.addToWireComplicationData(this)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
