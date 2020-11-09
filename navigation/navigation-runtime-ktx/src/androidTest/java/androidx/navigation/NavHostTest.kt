@@ -30,7 +30,10 @@ class NavHostTest {
         NavController(ApplicationProvider.getApplicationContext() as Context).apply {
             navigatorProvider += TestNavigator()
         }
-    private val navHost = NavHost { this@NavHostTest.navController }
+    private val navHost = object : NavHost {
+        override val navController: NavController
+            get() = this@NavHostTest.navController
+    }
 
     @Test
     fun createGraph() {

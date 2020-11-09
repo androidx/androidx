@@ -54,6 +54,7 @@ package androidx.navigation.fragment {
     method public final androidx.navigation.NavController getNavController();
     method @Deprecated @CallSuper protected void onCreateNavController(androidx.navigation.NavController navController);
     method @CallSuper protected void onCreateNavHostController(androidx.navigation.NavHostController navHostController);
+    property public final androidx.navigation.NavController navController;
     field public static final androidx.navigation.fragment.NavHostFragment.Companion Companion;
   }
 
