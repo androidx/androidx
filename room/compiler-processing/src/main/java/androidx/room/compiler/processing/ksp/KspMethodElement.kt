@@ -114,7 +114,7 @@ internal sealed class KspMethodElement(
         override fun isSuspendFunction() = true
 
         override val returnType: XType by lazy {
-            env.wrap(env.resolver.builtIns.anyType.makeNullable())
+            env.wrapDeclared(env.resolver.builtIns.anyType.makeNullable())
         }
 
         override val parameters: List<XExecutableParameterElement>

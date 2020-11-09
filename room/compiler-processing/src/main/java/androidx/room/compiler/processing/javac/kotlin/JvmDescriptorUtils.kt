@@ -17,6 +17,9 @@
 package androidx.room.compiler.processing.javac.kotlin
 
 import com.google.auto.common.MoreTypes
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.NestingKind
@@ -94,6 +97,53 @@ internal val PrimitiveType.descriptor: String
         TypeKind.BOOLEAN -> "Z"
         else -> error("Unknown primitive type $this")
     }
+
+// see https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2-200
+internal fun String.typeNameFromJvmSignature(): TypeName {
+    check(isNotEmpty())
+    return when (this[0]) {
+        'B' -> TypeName.BYTE
+        'C' -> TypeName.CHAR
+        'D' -> TypeName.DOUBLE
+        'F' -> TypeName.FLOAT
+        'I' -> TypeName.INT
+        'J' -> TypeName.LONG
+        'S' -> TypeName.SHORT
+        'Z' -> TypeName.BOOLEAN
+        'L' -> {
+            val end = lastIndexOf(";")
+            check(end > 0) {
+                "invalid input $this"
+            }
+            val simpleNamesSeparator = lastIndexOf('/')
+            val simpleNamesStart = if (simpleNamesSeparator < 0) {
+                1 // first char is 'L'
+            } else {
+                simpleNamesSeparator + 1
+            }
+            val packageName = if (simpleNamesSeparator < 0) {
+                // no package name
+                ""
+            } else {
+                substring(1, simpleNamesSeparator).replace('/', '.')
+            }
+            val firstSimpleNameSeparator = indexOf('$', startIndex = simpleNamesStart)
+            return if (firstSimpleNameSeparator < 0) {
+                // not nested
+                ClassName.get(packageName, substring(simpleNamesStart, end))
+            } else {
+                // nested class
+                val firstSimpleName = substring(simpleNamesStart, firstSimpleNameSeparator)
+                val restOfSimpleNames = substring(firstSimpleNameSeparator + 1, end)
+                    .split('$')
+                    .toTypedArray()
+                ClassName.get(packageName, firstSimpleName, *restOfSimpleNames)
+            }
+        }
+        '[' -> ArrayTypeName.of(substring(1).typeNameFromJvmSignature())
+        else -> error("unexpected jvm signature $this")
+    }
+}
 
 internal fun TypeMirror.descriptor(): String = accept(JvmDescriptorTypeVisitor, Unit)
 
