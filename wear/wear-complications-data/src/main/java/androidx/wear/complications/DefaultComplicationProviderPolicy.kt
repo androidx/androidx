@@ -44,7 +44,7 @@ public class DefaultComplicationProviderPolicy {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         providers: List<ComponentName>,
-        systemProviderFallback: Int
+        @SystemProviders.ProviderId systemProviderFallback: Int
     ) {
         this.primaryProvider = if (providers.isNotEmpty()) providers[0] else null
         this.secondaryProvider = if (providers.size >= 2) providers[1] else null
@@ -61,7 +61,7 @@ public class DefaultComplicationProviderPolicy {
     /**
      * Uses systemProvider as the default complication provider.
      */
-    public constructor(systemProvider: Int) {
+    public constructor(@SystemProviders.ProviderId systemProvider: Int) {
         primaryProvider = null
         secondaryProvider = null
         systemProviderFallback = systemProvider
@@ -71,7 +71,10 @@ public class DefaultComplicationProviderPolicy {
      * Attempts to use provider as the default complication provider, if not present then
      * systemProviderFallback will be used instead.
      */
-    public constructor(provider: ComponentName, systemProviderFallback: Int) {
+    public constructor(
+        provider: ComponentName,
+        @SystemProviders.ProviderId systemProviderFallback: Int
+    ) {
         primaryProvider = provider
         secondaryProvider = null
         this.systemProviderFallback = systemProviderFallback
@@ -85,7 +88,7 @@ public class DefaultComplicationProviderPolicy {
     public constructor(
         primaryProvider: ComponentName,
         secondaryProvider: ComponentName,
-        systemProviderFallback: Int
+        @SystemProviders.ProviderId systemProviderFallback: Int
     ) {
         this.primaryProvider = primaryProvider
         this.secondaryProvider = secondaryProvider
