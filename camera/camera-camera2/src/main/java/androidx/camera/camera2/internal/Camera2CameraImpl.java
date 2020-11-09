@@ -738,10 +738,15 @@ final class Camera2CameraImpl implements CameraInternal {
     private void updateCameraControlPreviewAspectRatio(Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
             if (useCase instanceof Preview) {
-                Size resolution =
-                        Preconditions.checkNotNull(useCase.getAttachedSurfaceResolution());
-                Rational aspectRatio = new Rational(resolution.getWidth(), resolution.getHeight());
-                mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
+                Size resolution = useCase.getAttachedSurfaceResolution();
+                // The resolution might be null if the use case has been detached. It may happen
+                // in the case of switching cameras extremely quickly.
+                if (resolution != null) {
+                    Rational aspectRatio = new Rational(resolution.getWidth(),
+                            resolution.getHeight());
+                    mCameraControlInternal.setPreviewAspectRatio(aspectRatio);
+                }
+
                 return;
             }
         }
