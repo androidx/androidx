@@ -40,17 +40,22 @@ package androidx.security.identity {
   public abstract class IdentityCredential {
     method public abstract java.security.KeyPair createEphemeralKeyPair();
     method public abstract byte[] decryptMessageFromReader(byte[]) throws androidx.security.identity.MessageDecryptionException;
+    method public byte[] delete(byte[]);
     method public abstract byte[] encryptMessageToReader(byte[]);
     method public abstract java.util.Collection<java.security.cert.X509Certificate!> getAuthKeysNeedingCertification();
     method public abstract int[] getAuthenticationDataUsageCount();
     method public abstract java.util.Collection<java.security.cert.X509Certificate!> getCredentialKeyCertificateChain();
     method public abstract androidx.biometric.BiometricPrompt.CryptoObject? getCryptoObject();
     method public abstract androidx.security.identity.ResultData getEntries(byte[]?, java.util.Map<java.lang.String!,java.util.Collection<java.lang.String!>!>, byte[]?) throws androidx.security.identity.EphemeralPublicKeyNotFoundException, androidx.security.identity.InvalidReaderSignatureException, androidx.security.identity.InvalidRequestMessageException, androidx.security.identity.NoAuthenticationKeyAvailableException;
+    method public byte[] proveOwnership(byte[]);
     method public abstract void setAllowUsingExhaustedKeys(boolean);
+    method public void setAllowUsingExpiredKeys(boolean);
     method public abstract void setAvailableAuthenticationKeys(int, int);
     method public abstract void setReaderEphemeralPublicKey(java.security.PublicKey) throws java.security.InvalidKeyException;
     method public abstract void setSessionTranscript(byte[]);
-    method public abstract void storeStaticAuthenticationData(java.security.cert.X509Certificate, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method @Deprecated public abstract void storeStaticAuthenticationData(java.security.cert.X509Certificate, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method public void storeStaticAuthenticationData(java.security.cert.X509Certificate, android.icu.util.Calendar, byte[]) throws androidx.security.identity.UnknownAuthenticationKeyException;
+    method public byte[] update(androidx.security.identity.PersonalizationData);
   }
 
   public class IdentityCredentialException extends java.lang.Exception {
@@ -60,13 +65,29 @@ package androidx.security.identity {
 
   public abstract class IdentityCredentialStore {
     method public abstract androidx.security.identity.WritableIdentityCredential createCredential(String, String) throws androidx.security.identity.AlreadyPersonalizedException, androidx.security.identity.DocTypeNotSupportedException;
-    method public abstract byte[]? deleteCredentialByName(String);
+    method @Deprecated public abstract byte[]? deleteCredentialByName(String);
+    method public androidx.security.identity.IdentityCredentialStoreCapabilities getCapabilities();
     method public abstract androidx.security.identity.IdentityCredential? getCredentialByName(String, int) throws androidx.security.identity.CipherSuiteNotSupportedException;
     method public static androidx.security.identity.IdentityCredentialStore getDirectAccessInstance(android.content.Context);
+    method public static androidx.security.identity.IdentityCredentialStore? getHardwareInstance(android.content.Context);
     method public static androidx.security.identity.IdentityCredentialStore getInstance(android.content.Context);
-    method public abstract String![] getSupportedDocTypes();
+    method public static androidx.security.identity.IdentityCredentialStore getSoftwareInstance(android.content.Context);
+    method @Deprecated public abstract String![] getSupportedDocTypes();
     method public static boolean isDirectAccessSupported(android.content.Context);
     field public static final int CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256 = 1; // 0x1
+  }
+
+  public class IdentityCredentialStoreCapabilities {
+    method public int getFeatureVersion();
+    method public java.util.Set<java.lang.String!> getSupportedDocTypes();
+    method public boolean isDeleteSupported();
+    method public boolean isDirectAccess();
+    method public boolean isHardwareBacked();
+    method public boolean isProveOwnershipSupported();
+    method public boolean isStaticAuthenticationDataExpirationSupported();
+    method public boolean isUpdateSupported();
+    field public static final int FEATURE_VERSION_202009 = 202009; // 0x31519
+    field public static final int FEATURE_VERSION_202101 = 202101; // 0x31575
   }
 
   public class InvalidReaderSignatureException extends androidx.security.identity.IdentityCredentialException {

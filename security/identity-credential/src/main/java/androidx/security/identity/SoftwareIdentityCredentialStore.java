@@ -22,6 +22,9 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 class SoftwareIdentityCredentialStore extends IdentityCredentialStore {
 
     private static final String TAG = "SoftwareIdentityCredentialStore";
@@ -32,23 +35,51 @@ class SoftwareIdentityCredentialStore extends IdentityCredentialStore {
         mContext = context;
     }
 
+    @SuppressWarnings("deprecation")
     public static @NonNull IdentityCredentialStore getInstance(@NonNull Context context) {
         return new SoftwareIdentityCredentialStore(context);
     }
 
+    @SuppressWarnings("deprecation")
     public static @NonNull IdentityCredentialStore getDirectAccessInstance(@NonNull
             Context context) {
         throw new RuntimeException("Direct-access IdentityCredential is not supported");
     }
 
+    @SuppressWarnings("deprecation")
     public static boolean isDirectAccessSupported(@NonNull Context context) {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NonNull String[] getSupportedDocTypes() {
-        // Any document type is supported.
-        return new String[0];
+        Set<String> docTypeSet = getCapabilities().getSupportedDocTypes();
+        String[] docTypes = new String[docTypeSet.size()];
+        int n = 0;
+        for (String docType : docTypeSet) {
+            docTypes[n++] = docType;
+        }
+        return docTypes;
+    }
+
+    SimpleIdentityCredentialStoreCapabilities mCapabilities = null;
+
+    @Override
+    public @NonNull
+    IdentityCredentialStoreCapabilities getCapabilities() {
+        if (mCapabilities == null) {
+            mCapabilities = new SimpleIdentityCredentialStoreCapabilities(
+                    false,
+                    IdentityCredentialStoreCapabilities.FEATURE_VERSION_202101,
+                    false,
+                    new LinkedHashSet<String>(),
+                    true,
+                    true,
+                    true,
+                    true);
+        }
+        return mCapabilities;
     }
 
     @Override
@@ -71,9 +102,9 @@ class SoftwareIdentityCredentialStore extends IdentityCredentialStore {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @Nullable byte[] deleteCredentialByName(@NonNull String credentialName) {
         return SoftwareIdentityCredential.delete(mContext, credentialName);
     }
-
 }

@@ -16,6 +16,8 @@
 
 package androidx.security.identity;
 
+import android.icu.util.Calendar;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -116,16 +118,34 @@ public abstract class IdentityCredential {
     /**
      * Sets whether to allow using an authentication key which use count has been exceeded if no
      * other key is available. This must be called prior to calling
-     * {@link #getEntries(byte[], Map, byte[])} or using a
-     * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} which references this
-     * object.
+     * {@link #getEntries(byte[], Map, byte[])} or using a {@link BiometricPrompt.CryptoObject}
+     * which references this object.
      *
-     * By default this is set to true.
+     * <p>By default this is set to true.</p>
      *
      * @param allowUsingExhaustedKeys whether to allow using an authentication key which use count
      *                                has been exceeded if no other key is available.
      */
     public abstract void setAllowUsingExhaustedKeys(boolean allowUsingExhaustedKeys);
+
+    /**
+     * Sets whether to allow using an authentication key which has been expired if no
+     * other key is available. This must be called prior to calling
+     * {@link #getEntries(byte[], Map, byte[])} or using a {@link BiometricPrompt.CryptoObject}
+     * which references this object.
+     *
+     * <p>By default this is set to false.
+     *
+     * <p>This is only implemented if
+     * {@link IdentityCredentialStoreCapabilities#isStaticAuthenticationDataExpirationSupported()}
+     * returns {@code true}. If not the call fails with {@link UnsupportedOperationException}.
+     *
+     * @param allowUsingExpiredKeys whether to allow using an authentication key which use count
+     *                              has been exceeded if no other key is available.
+     */
+    public void setAllowUsingExpiredKeys(boolean allowUsingExpiredKeys) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Gets a {@link BiometricPrompt.CryptoObject} which can be used with this
@@ -297,15 +317,41 @@ public abstract class IdentityCredential {
     /**
      * Gets a collection of dynamic authentication keys that need certification.
      *
-     * <p>When there aren't enough certified dynamic authentication keys, either because the key
-     * count has been increased or because one or more keys have reached their usage count, this
-     * method will generate replacement keys and certificates and return them for issuer
-     * certification. The issuer certificates and associated static authentication data must then
-     * be provided back to the {@code IdentityCredential} using
-     * {@link #storeStaticAuthenticationData(X509Certificate, byte[])}.
+     * <p>When there aren't enough certified dynamic authentication keys (either because the key
+     * count has been increased, one or more keys have reached their usage count, or keys have
+     * expired), this method will generate replacement keys and certificates and return them for
+     * issuer certification. The issuer certificates and associated static authentication data
+     * must then be provided back to the {@code IdentityCredential} using
+     * {@link #storeStaticAuthenticationData(X509Certificate, Calendar, byte[])}.
      *
      * <p>Each X.509 certificate is signed by CredentialKey. The certificate chain for CredentialKey
      * can be obtained using the {@link #getCredentialKeyCertificateChain()} method.
+     *
+     * <p>The following non-optional fields for the X.509 certificate are set as follows:
+     * <ul>
+     *  <li>version: INTEGER 2 (means v3 certificate).</li>
+     *  <li>serialNumber: INTEGER 1 (fixed value: same on all certs).</li>
+     *  <li>signature: must be set to ECDSA.</li>
+     *  <li>subject: CN shall be set to "Android Identity Credential Authentication Key" (fixed
+     *  value: same on all certs).</li>
+     *  <li>issuer: CN shall be set to "Android Identity Credential Key" (fixed value: same on
+     *  all certs).</li>
+     *  <li>validity: should be from current time and one year in the future (365 days).</li>
+     *  <li>subjectPublicKeyInfo: must contain attested public key.</li>
+     * </ul>
+     *
+     * <p>If {@link IdentityCredentialStoreCapabilities#isUpdateSupported()} returns
+     * {@code true}, each X.509 certificate contains an X.509 extension at OID 1.3.6.1.4.1.11129
+     * .2.1.26 which contains a DER encoded OCTET STRING with the bytes of the CBOR with the
+     * following CDDL:
+     * <pre>
+     *   ProofOfBinding = [
+     *     "ProofOfBinding",
+     *     bstr,              // Contains SHA-256(ProofOfProvisioning)
+     *   ]
+     * </pre>
+     * <p>This CBOR enables an issuer to determine the exact state of the credential it
+     * returns issuer-signed data for.
      *
      * @return A collection of X.509 certificates for dynamic authentication keys that need issuer
      * certification.
@@ -315,21 +361,49 @@ public abstract class IdentityCredential {
     /**
      * Store authentication data associated with a dynamic authentication key.
      *
-     * This should only be called for an authenticated key returned by
-     * {@link #getAuthKeysNeedingCertification()}.
+     * <p>This should only be called for an authenticated key returned by
+     * {@link #getAuthKeysNeedingCertification()}.</p>
      *
      * @param authenticationKey The dynamic authentication key for which certification and
-     *                          associated static
-     *                          authentication data is being provided.
+     *                          associated static authentication data is being provided.
+     * @param staticAuthData    Static authentication data provided by the issuer that validates
+     *                          the authenticity
+     *                          and integrity of the credential data fields.
+     * @throws UnknownAuthenticationKeyException If the given authentication key is not recognized.
+     * @deprecated Use {@link #storeStaticAuthenticationData(X509Certificate, Calendar, byte[])}
+     *     instead.
+     */
+    @Deprecated
+    public abstract void storeStaticAuthenticationData(
+            @NonNull X509Certificate authenticationKey,
+            @NonNull byte[] staticAuthData)
+            throws UnknownAuthenticationKeyException;
+
+    /**
+     * Store authentication data associated with a dynamic authentication key.
+     *
+     * <p>This should only be called for an authenticated key returned by
+     * {@link #getAuthKeysNeedingCertification()}.</p>
+     *
+     * <p>This is only implemented if
+     * {@link IdentityCredentialStoreCapabilities#isStaticAuthenticationDataExpirationSupported()}
+     * returns {@code true}. If not the call fails with {@link UnsupportedOperationException}.
+     *
+     * @param authenticationKey The dynamic authentication key for which certification and
+     *                          associated static authentication data is being provided.
+     * @param expirationDate    The expiration date of the static authentication data.
      * @param staticAuthData    Static authentication data provided by the issuer that validates
      *                          the authenticity
      *                          and integrity of the credential data fields.
      * @throws UnknownAuthenticationKeyException If the given authentication key is not recognized.
      */
-    public abstract void storeStaticAuthenticationData(
+    public void storeStaticAuthenticationData(
             @NonNull X509Certificate authenticationKey,
+            @NonNull Calendar expirationDate,
             @NonNull byte[] staticAuthData)
-            throws UnknownAuthenticationKeyException;
+            throws UnknownAuthenticationKeyException {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Get the number of times the dynamic authentication keys have been used.
@@ -337,4 +411,88 @@ public abstract class IdentityCredential {
      * @return int array of dynamic authentication key usage counts.
      */
     public @NonNull abstract int[] getAuthenticationDataUsageCount();
+
+
+    /**
+     * Proves ownership of a credential.
+     *
+     * <p>This method returns a COSE_Sign1 data structure signed by the CredentialKey
+     * with payload set to {@code ProofOfOwnership} as defined below.</p>
+     * <pre>
+     *     ProofOfOwnership = [
+     *          "ProofOfOwnership",           ; tstr
+     *          tstr,                         ; DocType
+     *          bstr,                         ; Challenge
+     *          bool                          ; true if this is a test credential, should
+     *                                        ; always be false.
+     *      ]
+     * </pre>
+     *
+     * <p>This is only implemented if
+     * {@link IdentityCredentialStoreCapabilities#isProveOwnershipSupported()}
+     * returns {@code true}. If not the call fails with {@link UnsupportedOperationException}.
+     *
+     * @param challenge is a non-empty byte array whose contents should be unique, fresh and
+     *                  provided by the issuing authority. The value provided is embedded in the
+     *                  generated CBOR and enables the issuing authority to verify that the
+     *                  returned proof is fresh.
+     * @return the COSE_Sign1 data structure above
+     */
+    public @NonNull byte[] proveOwnership(@NonNull byte[] challenge)  {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Deletes a credential.
+     *
+     * <p>This method returns a COSE_Sign1 data structure signed by the CredentialKey
+     * with payload set to {@code ProofOfDeletion} as defined below.</p>
+     * <pre>
+     *     ProofOfDeletion = [
+     *          "ProofOfDeletion",            ; tstr
+     *          tstr,                         ; DocType
+     *          bstr,                         ; Challenge
+     *          bool                          ; true if this is a test credential, should
+     *                                        ; always be false.
+     *      ]
+     * </pre>
+     *
+     * <p>This is only implemented if
+     * {@link IdentityCredentialStoreCapabilities#isDeleteSupported()}
+     * returns {@code true}. If not the call fails with {@link UnsupportedOperationException}.
+     *
+     * @param challenge is a non-empty byte array whose contents should be unique, fresh and
+     *                  provided by the issuing authority. The value provided is embedded in the
+     *                  generated CBOR and enables the issuing authority to verify that the
+     *                  returned proof is fresh.
+     * @return the COSE_Sign1 data structure above
+     */
+    public @NonNull byte[] delete(@NonNull byte[] challenge)  {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Updates the credential with new access control profiles and data items.
+     *
+     * <p>This method is similar to
+     * {@link WritableIdentityCredential#personalize(PersonalizationData)} except that it operates
+     * on an existing credential, see the documentation for that method for the format of the
+     * returned data.
+     *
+     * <p>If this call succeeds an side-effect is that all dynamic authentication keys for the
+     * credential are deleted. The application will need to use
+     * {@link #getAuthKeysNeedingCertification()} to generate replacement keys and return
+     * them for issuer certification.
+     *
+     * <p>This is only implemented if
+     * {@link IdentityCredentialStoreCapabilities#isUpdateSupported()}
+     * returns {@code true}. If not the call fails with {@link UnsupportedOperationException}.
+     *
+     * @param personalizationData   The data to update, including access control profiles
+     *                              and data elements and their values, grouped into namespaces.
+     * @return A COSE_Sign1 data structure, see above.
+     */
+    public @NonNull byte[] update(@NonNull PersonalizationData personalizationData) {
+        throw new UnsupportedOperationException();
+    }
 }

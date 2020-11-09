@@ -31,6 +31,8 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("co.nstant.in:cbor:0.8")
     implementation(project(":biometric:biometric"))
+    implementation("org.bouncycastle:bcprov-jdk15on:1.65")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.56")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
