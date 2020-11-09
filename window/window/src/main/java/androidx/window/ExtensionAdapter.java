@@ -17,7 +17,6 @@
 package androidx.window;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
@@ -62,17 +61,16 @@ final class ExtensionAdapter {
      * Translates a valid {@link ExtensionDisplayFeature} into a valid {@link DisplayFeature}. If
      * a feature is not valid it is removed
      *
-     * @param context    An {@link android.app.Activity} or a {@link android.content.ContextWrapper}
-     *                   around an {@link android.app.Activity}.
+     * @param activity   An {@link android.app.Activity}.
      * @param layoutInfo The source {@link ExtensionWindowLayoutInfo} to be converted
      * @return {@link WindowLayoutInfo} containing the valid {@link DisplayFeature}
      */
     @NonNull
-    WindowLayoutInfo translate(@NonNull Context context,
+    WindowLayoutInfo translate(@NonNull Activity activity,
             @NonNull ExtensionWindowLayoutInfo layoutInfo) {
         List<DisplayFeature> featureList = new ArrayList<>();
         for (ExtensionDisplayFeature sourceFeature : layoutInfo.getDisplayFeatures()) {
-            DisplayFeature targetFeature = translate(context, sourceFeature);
+            DisplayFeature targetFeature = translate(activity, sourceFeature);
             if (targetFeature != null) {
                 featureList.add(targetFeature);
             }
@@ -81,8 +79,9 @@ final class ExtensionAdapter {
     }
 
     @Nullable
-    DisplayFeature translate(Context context, ExtensionDisplayFeature feature) {
-        final Rect windowBounds = windowBounds(context);
+    DisplayFeature translate(Activity activity, ExtensionDisplayFeature feature) {
+        final Rect windowBounds = WindowBoundsHelper.getInstance()
+                .computeCurrentWindowBounds(activity);
         if (!isValid(feature, windowBounds)) {
             return null;
         }
@@ -116,10 +115,5 @@ final class ExtensionAdapter {
         boolean matchesWidth = lhs.left == rhs.left && lhs.right == rhs.right;
         boolean matchesHeight = lhs.top == rhs.top && lhs.bottom == rhs.bottom;
         return matchesWidth || matchesHeight;
-    }
-
-    private Rect windowBounds(Context context) {
-        Activity activity = WindowManager.assertActivityFromContext(context);
-        return WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
     }
 }
