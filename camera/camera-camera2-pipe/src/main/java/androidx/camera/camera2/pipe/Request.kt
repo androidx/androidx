@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
-import android.view.Surface
 
 /**
  * An immutable package of settings and outputs needed to capture a single image from the camera
@@ -156,27 +155,19 @@ data class Request(
          * undefined if this method is invoked and images or metadata may or may not be produced
          * for this request. Repeating requests will not receive onAborted.
          *
-         * @param request the request object
+         * @param request information about this specific request.
          */
         fun onAborted(request: Request) {
         }
 
         /**
          * Invoked after the CaptureRequest(s) have been created, but before the request is
-         * submitted to the camera. This method may be invoked multiple times if the request fails
-         * to submit or if this is a repeating request.
+         * submitted to the Camera. This method may be invoked multiple times if the request
+         * fails to submit or if this is a repeating request.
          *
-         * @param request the request object that was used to create the CaptureRequest
-         * @param requestNumber the internal requestNumber for this request.
-         * @param captureRequest the android CaptureRequest object that was submitted
-         * @param streams the actual Surface objects that were used in this request.
+         * @param requestMetadata information about this specific request.
          */
-        fun onRequestSequenceCreated(
-            request: Request,
-            requestNumber: RequestNumber,
-            captureRequest: CaptureRequestWrapper,
-            streams: Map<StreamId, Surface>
-        ) {
+        fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
         }
 
         /**
