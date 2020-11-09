@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.navigation;
+package androidx.navigation
 
 /**
- * A marker interface for {@link NavDestination} subclasses that float above the view of other
- * destinations (i.e. {@link androidx.navigation.fragment.DialogFragmentNavigator.Destination}).
+ * A marker interface for [NavDestination] subclasses that float above the view of other
+ * destinations (i.e. [androidx.navigation.fragment.DialogFragmentNavigator.Destination]).
  *
- * <p>Destinations that implement this interface will automatically be popped off the back
+ *
+ * Destinations that implement this interface will automatically be popped off the back
  * stack when you navigate to a new destination.
  *
- * <p>{@link androidx.navigation.NavController.OnDestinationChangedListener} instances can also
+ *
+ * [androidx.navigation.NavController.OnDestinationChangedListener] instances can also
  * customize their behavior based on whether the destination is a FloatingWindow.
  */
-public interface FloatingWindow {
-}
+public interface FloatingWindow
