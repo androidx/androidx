@@ -72,10 +72,9 @@ package androidx.wear.watchface.client {
     ctor public InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(android.support.wearable.complications.TimeDependentText text, android.graphics.Rect bounds, android.app.PendingIntent? tapAction);
     method public android.graphics.Rect getBounds();
     method public android.app.PendingIntent? getTapAction();
-    method public android.support.wearable.complications.TimeDependentText getText();
+    method public CharSequence getTextAt(android.content.res.Resources resources, long dateTimeMillis);
     property public final android.graphics.Rect bounds;
     property public final android.app.PendingIntent? tapAction;
-    property public final android.support.wearable.complications.TimeDependentText text;
   }
 
   public final class InteractiveWatchFaceWcsClient implements java.lang.AutoCloseable {

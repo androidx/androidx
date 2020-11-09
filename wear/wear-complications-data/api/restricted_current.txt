@@ -100,7 +100,7 @@ package android.support.wearable.complications {
     field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationProviderInfo!> CREATOR;
   }
 
-  public final class ComplicationText implements android.os.Parcelable {
+  public final class ComplicationText implements android.os.Parcelable android.support.wearable.complications.TimeDependentText {
     method public int describeContents();
     method public long getNextChangeTime(long);
     method public CharSequence getTextAt(android.content.res.Resources, long);
@@ -144,6 +144,12 @@ package android.support.wearable.complications {
   }
 
   @IntDef({android.support.wearable.complications.ComplicationText.FORMAT_STYLE_DEFAULT, android.support.wearable.complications.ComplicationText.FORMAT_STYLE_UPPER_CASE, android.support.wearable.complications.ComplicationText.FORMAT_STYLE_LOWER_CASE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ComplicationText.TimeFormatStyle {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface TimeDependentText extends android.os.Parcelable {
+    method public long getNextChangeTime(long);
+    method public CharSequence getTextAt(android.content.res.Resources, long);
+    method public boolean returnsSameText(long, long);
   }
 
 }
