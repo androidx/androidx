@@ -200,7 +200,7 @@ class WatchFaceServiceImageTest {
         val interactiveWatchFaceInstanceSysUi =
             InteractiveInstanceManager.getAndRetainInstance(
                 interactiveWatchFaceInstanceWCS.instanceId
-            )!!.sysUiApi
+            )!!.createSysUiApi()
 
         interactiveWatchFaceInstanceSysUi.setSystemState(SystemState(ambient, 0))
         interactiveWatchFaceInstanceSysUi.release()

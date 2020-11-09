@@ -338,7 +338,7 @@ public abstract class WatchFaceService : WallpaperService() {
             // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
             if (pendingWallpaperInstance != null) {
                 pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
-                    createInteractiveInstance(pendingWallpaperInstance.params).wcsApi
+                    createInteractiveInstance(pendingWallpaperInstance.params).createWCSApi()
                 )
 
                 interactiveInstanceId = pendingWallpaperInstance.params.instanceId
