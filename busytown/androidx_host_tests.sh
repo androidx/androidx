@@ -10,6 +10,7 @@ impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.displayTestOutput=false \
     -Pandroidx.coverageEnabled=true \
+    -Pandroidx.validateNoUnrecognizedMessages \
     -Pandroidx.allWarningsAsErrors "$@"
 
 echo "Completing $0 at $(date)"
