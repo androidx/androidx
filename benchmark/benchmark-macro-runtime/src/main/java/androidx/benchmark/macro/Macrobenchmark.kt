@@ -33,7 +33,11 @@ public class MacrobenchmarkScope(
     private val context = instrumentation.context
     private val device = UiDevice.getInstance(instrumentation)
 
-    fun launchPackageAndWait(block: (Intent) -> Unit) {
+    fun launchPackageAndWait(
+        block: (Intent) -> Unit = {
+            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+    ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)!!
         block(intent)
         context.startActivity(intent)

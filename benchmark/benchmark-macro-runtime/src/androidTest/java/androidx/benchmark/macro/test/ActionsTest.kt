@@ -16,7 +16,6 @@
 
 package androidx.benchmark.macro.test
 
-import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.compile
@@ -40,9 +39,7 @@ class ActionsTest {
     fun killTest() {
         val scope = MacrobenchmarkScope(PACKAGE_NAME)
         scope.pressHome()
-        scope.launchPackageAndWait { intent ->
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        scope.launchPackageAndWait()
         assertTrue(isProcessAlive(PACKAGE_NAME))
         scope.killProcess()
         assertFalse(isProcessAlive(PACKAGE_NAME))
@@ -58,9 +55,7 @@ class ActionsTest {
         compilation.compile(PACKAGE_NAME) {
             executions += 1
             scope.pressHome()
-            scope.launchPackageAndWait { intent ->
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+            scope.launchPackageAndWait()
         }
         assertEquals(iterations, executions)
     }
