@@ -16,6 +16,7 @@
 
 package androidx.window;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.text.TextUtils;
@@ -65,13 +66,13 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
     }
 
     @Override
-    public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
-        mWindowExtension.onWindowLayoutChangeListenerAdded(context);
+    public void onWindowLayoutChangeListenerAdded(@NonNull Activity activity) {
+        mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
     }
 
     @Override
-    public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
-        mWindowExtension.onWindowLayoutChangeListenerRemoved(context);
+    public void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity) {
+        mWindowExtension.onWindowLayoutChangeListenerRemoved(activity);
     }
 
     @Override
@@ -114,9 +115,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
             // extension.onDeviceStateListenersChanged(boolean);
             mWindowExtension.onDeviceStateListenersChanged(true /* empty */);
 
-            // extension.onWindowLayoutChangeListenerAdded(Context);
+            // extension.onWindowLayoutChangeListenerAdded(Activity);
             Method methodRegisterWindowLayoutChangeListener = mWindowExtension.getClass()
-                    .getMethod("onWindowLayoutChangeListenerAdded", Context.class);
+                    .getMethod("onWindowLayoutChangeListenerAdded", Activity.class);
             Class<?> rtRegisterWindowLayoutChangeListener =
                     methodRegisterWindowLayoutChangeListener.getReturnType();
             if (!rtRegisterWindowLayoutChangeListener.equals(void.class)) {
@@ -125,9 +126,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
                                 + rtRegisterWindowLayoutChangeListener);
             }
 
-            // extension.onWindowLayoutChangeListenerRemoved(Context);
+            // extension.onWindowLayoutChangeListenerRemoved(Activity);
             Method methodUnregisterWindowLayoutChangeListener = mWindowExtension.getClass()
-                    .getMethod("onWindowLayoutChangeListenerRemoved", Context.class);
+                    .getMethod("onWindowLayoutChangeListenerRemoved", Activity.class);
             Class<?> rtUnregisterWindowLayoutChangeListener =
                     methodUnregisterWindowLayoutChangeListener.getReturnType();
             if (!rtUnregisterWindowLayoutChangeListener.equals(void.class)) {

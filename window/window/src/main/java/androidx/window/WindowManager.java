@@ -35,11 +35,12 @@ import java.util.concurrent.Executor;
  */
 public final class WindowManager {
     /**
-     * Visual context that was registered with this instance of {@link WindowManager} at creation.
+     * Activity that was registered with this instance of {@link WindowManager} at creation.
      * This is used to find the token identifier of the window when requesting layout information
-     * from the {@link ExtensionInterface}.
+     * from the {@link androidx.window.sidecar.SidecarInterface} or is passed directly to the
+     * {@link ExtensionInterface}.
      */
-    private Context mContext;
+    private Activity mActivity;
     /**
      * The backend that supplies the information through this class.
      */
@@ -66,12 +67,13 @@ public final class WindowManager {
      *                      Pass a custom {@link WindowBackend} implementation for testing.
      */
     public WindowManager(@NonNull Context context, @NonNull WindowBackend windowBackend) {
-        if (getActivityFromContext(context) == null) {
+        Activity activity = getActivityFromContext(context);
+        if (activity == null) {
             throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
                     + "WindowManager. Please use an Activity or a ContextWrapper around one "
                     + "instead.");
         }
-        mContext = context;
+        mActivity = activity;
         mWindowBackend = windowBackend;
     }
 
@@ -82,7 +84,7 @@ public final class WindowManager {
      */
     public void registerLayoutChangeCallback(@NonNull Executor executor,
             @NonNull Consumer<WindowLayoutInfo> callback) {
-        mWindowBackend.registerLayoutChangeCallback(mContext, executor, callback);
+        mWindowBackend.registerLayoutChangeCallback(mActivity, executor, callback);
     }
 
     /**
@@ -124,8 +126,7 @@ public final class WindowManager {
      */
     @NonNull
     public WindowMetrics getCurrentWindowMetrics() {
-        Activity activity = getActivityFromContext(mContext);
-        Rect currentBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(activity);
+        Rect currentBounds = WindowBoundsHelper.getInstance().computeCurrentWindowBounds(mActivity);
         return new WindowMetrics(currentBounds);
     }
 
@@ -153,8 +154,7 @@ public final class WindowManager {
      */
     @NonNull
     public WindowMetrics getMaximumWindowMetrics() {
-        Activity activity = getActivityFromContext(mContext);
-        Rect maxBounds = WindowBoundsHelper.getInstance().computeMaximumWindowBounds(activity);
+        Rect maxBounds = WindowBoundsHelper.getInstance().computeMaximumWindowBounds(mActivity);
         return new WindowMetrics(maxBounds);
     }
 
@@ -163,7 +163,7 @@ public final class WindowManager {
      * @return Base {@link Activity} context or {@code null} if not available.
      */
     @Nullable
-    static Activity getActivityFromContext(Context context) {
+    private static Activity getActivityFromContext(Context context) {
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {
                 return (Activity) context;
@@ -171,22 +171,5 @@ public final class WindowManager {
             context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
-    }
-
-    /**
-     * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
-     * @return Base {@link Activity} context or throws {@link IllegalArgumentException} if not
-     * available.
-     */
-    @NonNull
-    static Activity assertActivityFromContext(Context context) throws IllegalArgumentException {
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity) {
-                return (Activity) context;
-            }
-            context = ((ContextWrapper) context).getBaseContext();
-        }
-        throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
-                + "Please use an Activity or a ContextWrapper around an Activity instead.");
     }
 }

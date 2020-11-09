@@ -50,7 +50,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /** Tests for {@link ExtensionWindowBackend} class. */
 @LargeTest
@@ -202,15 +201,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
 
         verify(consumer).accept(expectedWindowLayoutInfo);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterLayoutChangeCallback_applicationContext() {
-        ExtensionWindowBackend backend = ExtensionWindowBackend.getInstance(mContext);
-        backend.mWindowExtension = mock(ExtensionInterfaceCompat.class);
-
-        backend.registerLayoutChangeCallback(mContext, mock(Executor.class),
-                mock(Consumer.class));
     }
 
     @Test

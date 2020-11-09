@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import android.content.Context;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
@@ -39,16 +39,16 @@ interface ExtensionInterfaceCompat {
 
     /**
      * Notifies extension that a listener for display feature layout changes was registered for the
-     * given activity or window context. Should notify the {@link ExtensionCallbackInterface} of
+     * given activity context. Should notify the {@link ExtensionCallbackInterface} of
      * the initial {@link WindowLayoutInfo} when it is available.
      */
-    void onWindowLayoutChangeListenerAdded(@NonNull Context context);
+    void onWindowLayoutChangeListenerAdded(@NonNull Activity activity);
 
     /**
      * Notifies extension that a listener for display feature layout changes was removed for the
-     * given activity or window context.
+     * given activity context.
      */
-    void onWindowLayoutChangeListenerRemoved(@NonNull Context context);
+    void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity);
 
     /**
      * Notifies the extension that a device state change listener was updated. Should notify the
@@ -70,7 +70,7 @@ interface ExtensionInterfaceCompat {
         /**
          * Called by extension when the feature layout inside the window changes.
          */
-        void onWindowLayoutChanged(@NonNull Context context,
+        void onWindowLayoutChanged(@NonNull Activity activity,
                 @NonNull WindowLayoutInfo newLayout);
     }
 }
