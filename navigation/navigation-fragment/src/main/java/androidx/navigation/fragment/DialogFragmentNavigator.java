@@ -38,6 +38,8 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigator;
 import androidx.navigation.NavigatorProvider;
 
+import java.util.HashSet;
+
 /**
  * Navigator that uses {@link DialogFragment#show(FragmentManager, String)}. Every
  * destination using this Navigator must set a valid DialogFragment class name with
@@ -52,6 +54,7 @@ public final class DialogFragmentNavigator extends Navigator<DialogFragmentNavig
     private final Context mContext;
     private final FragmentManager mFragmentManager;
     private int mDialogCount = 0;
+    private final HashSet<String> mRestoredTagsAwaitingAttach = new HashSet<>();
 
     private LifecycleEventObserver mObserver = new LifecycleEventObserver() {
         @Override
@@ -145,10 +148,17 @@ public final class DialogFragmentNavigator extends Navigator<DialogFragmentNavig
                 if (fragment != null) {
                     fragment.getLifecycle().addObserver(mObserver);
                 } else {
-                    throw new IllegalStateException("DialogFragment " + index
-                            + " doesn't exist in the FragmentManager");
+                    mRestoredTagsAwaitingAttach.add(DIALOG_TAG + index);
                 }
             }
+        }
+    }
+
+    // TODO: Switch to FragmentOnAttachListener once we depend on Fragment 1.3
+    void onAttachFragment(@NonNull Fragment childFragment) {
+        boolean needToAddObserver = mRestoredTagsAwaitingAttach.remove(childFragment.getTag());
+        if (needToAddObserver) {
+            childFragment.getLifecycle().addObserver(mObserver);
         }
     }
 
