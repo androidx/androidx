@@ -73,9 +73,11 @@ public class WatchState(
     public val isVisible: ObservableWatchData<Boolean>,
 
     /** Whether or not the watch hardware supports low bit ambient support. */
+    @get:JvmName("hasLowBitAmbient")
     public val hasLowBitAmbient: Boolean,
 
     /** Whether or not the watch hardware supports burn in protection. */
+    @get:JvmName("hasBurnInProtection")
     public val hasBurnInProtection: Boolean,
 
     /** The physical shape of the screen. */
