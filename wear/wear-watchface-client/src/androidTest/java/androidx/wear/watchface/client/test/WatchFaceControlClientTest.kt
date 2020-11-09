@@ -325,6 +325,56 @@ class WatchFaceControlClientTest {
             service.close()
         }
     }
+
+    @Test
+    fun getInteractiveWatchFaceInstanceSysUi() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        val wallpaperService = TestExampleCanvasWatchFaceService(context, surfaceHolder)
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        val handler = Handler(Looper.getMainLooper())
+        lateinit var engine: WallpaperService.Engine
+        handler.post { engine = wallpaperService.onCreateEngine() }
+
+        // Wait for the instance to be created.
+        interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        val sysUiInterface = service.getInteractiveWatchFaceInstanceSysUi("testId")
+            .get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        try {
+            val contentDescriptionLabels = sysUiInterface.contentDescriptionLabels
+            assertThat(contentDescriptionLabels.size).isEqualTo(3)
+            // Central clock element. Note we don't know the timezone this test will be running in
+            // so we can't assert the contents of the clock's test.
+            assertThat(contentDescriptionLabels[0].bounds).isEqualTo(Rect(100, 100, 300, 300))
+            assertThat(contentDescriptionLabels[0].getTextAt(context.resources, 0).isNotEmpty())
+
+            // Left complication.
+            assertThat(contentDescriptionLabels[1].bounds).isEqualTo(Rect(80, 160, 160, 240))
+            assertThat(contentDescriptionLabels[1].getTextAt(context.resources, 0))
+                .isEqualTo("ID Left")
+
+            // Right complication.
+            assertThat(contentDescriptionLabels[2].bounds).isEqualTo(Rect(240, 160, 320, 240))
+            assertThat(contentDescriptionLabels[2].getTextAt(context.resources, 0))
+                .isEqualTo("ID Right")
+        } finally {
+            engine.onDestroy()
+            service.close()
+        }
+    }
 }
 
 internal class TestExampleCanvasWatchFaceService(
