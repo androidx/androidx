@@ -984,3 +984,8 @@ w: \$SUPPORT/wear/wear\-watchface/src/main/java/androidx/wear/watchface/ui/Watch
 \$SUPPORT/compose/ui/ui\-tooling/src/main/java/androidx/compose/ui/tooling/preview/UiMode\.kt:[0-9]+: Warning: Field requires API level [0-9]+ \(current min is [0-9]+\): android\.content\.res\.Configuration\#UI_MODE_TYPE_VR_HEADSET \[InlinedApi\]
 UI_MODE_TYPE_VR_HEADSET,
 \~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
+# > Task *:lintDebug
+\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
+Explanation for issues of type "UnknownIssueId":
+Lint will report this issue if it is configured with an issue id it does
+not recognize in for example Gradle files or lint\.xml configuration files\.
