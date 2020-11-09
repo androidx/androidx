@@ -78,17 +78,17 @@ package androidx.wear.watchface {
 
   public final class ComplicationsManager {
     ctor public ComplicationsManager(java.util.Collection<androidx.wear.watchface.Complication> complicationCollection, androidx.wear.watchface.style.UserStyleRepository userStyleRepository);
-    method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationsManager.TapListener tapListener);
+    method @UiThread public void addTapListener(androidx.wear.watchface.ComplicationsManager.TapCallback tapCallback);
     method @UiThread public void bringAttentionToComplication(int complicationId);
     method public operator androidx.wear.watchface.Complication? get(int id);
     method public androidx.wear.watchface.Complication? getBackgroundComplication();
     method public androidx.wear.watchface.Complication? getComplicationAt(int x, int y);
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.Complication> getComplications();
-    method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationsManager.TapListener tapListener);
+    method @UiThread public void removeTapListener(androidx.wear.watchface.ComplicationsManager.TapCallback tapCallback);
     property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.Complication> complications;
   }
 
-  public static interface ComplicationsManager.TapListener {
+  public static interface ComplicationsManager.TapCallback {
     method public default void onComplicationDoubleTapped(int complicationId);
     method public default void onComplicationSingleTapped(int complicationId);
   }
