@@ -1346,6 +1346,28 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(100, n.ledOffMS);
     }
 
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testBigPictureStyle_withNullBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(null)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        // Extras are not populated before KITKAT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertNotNull(extras);
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        }
+    }
+
     @SdkSuppress(minSdkVersion = 24)
     @Test
     public void testBigPictureStyle_isRecovered() {
