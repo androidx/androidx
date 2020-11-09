@@ -16,22 +16,30 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XDeclaredType
-import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
 
-internal open class KspDeclaredType(
+/**
+ * This tries to mimic primitive types in Kotlin.
+ *
+ * Primitiveness of a type cannot always be driven from itself (e.g. its nullability).
+ * For instance, a kotlin.Int might be non-null but still be non primitive if it is derived from a
+ * generic type argument or is part of type parameters.
+ */
+internal class KspPrimitiveType(
     env: KspProcessingEnv,
     ksType: KSType
-) : KspType(env, ksType), XDeclaredType {
+) : KspType(env, ksType) {
     override val typeName: TypeName by lazy {
-        ksType.typeName()
-    }
-
-    override val typeArguments: List<XType> by lazy {
-        ksType.arguments.mapIndexed { index, arg ->
-            env.wrap(ksType.declaration.typeParameters[index], arg)
+        // TODO once we generate type names in java realm, this custom conversion won't be necessary
+        // for now, temporarily, we only do conversion here in place
+        return@lazy checkNotNull(
+            KspTypeMapper.getPrimitiveJavaTypeName(
+                ksType.declaration.qualifiedName!!.asString()
+            )
+        ) {
+            "Internal error. Should've found a java primitive for " +
+                "${ksType.declaration.qualifiedName}"
         }
     }
 }

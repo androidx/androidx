@@ -19,9 +19,11 @@ package androidx.room.compiler.processing.javac.kotlin
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -96,7 +98,7 @@ class JvmDescriptorUtilsTest {
                     "field4:Ljava/util/List;"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -153,7 +155,7 @@ class JvmDescriptorUtilsTest {
                     "method9()Ljava/lang/String;"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -179,7 +181,7 @@ class JvmDescriptorUtilsTest {
         ) { descriptors ->
             assertThat(descriptors)
                 .isEqualTo(setOf("method1(ZI)V", "method2(C)B", "method3(DF)V", "method4(JS)V"))
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -215,7 +217,7 @@ class JvmDescriptorUtilsTest {
                     "method4()Ljava/util/Map;"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -247,7 +249,7 @@ class JvmDescriptorUtilsTest {
                     "method2()Landroidx/room/test/DataClass;"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -296,7 +298,7 @@ class JvmDescriptorUtilsTest {
                     "method4()Landroidx/room/test/DataClass\$StaticInnerData;"
                 )
             )
-        }.compilesWithoutError()
+        }
     }
 
     @Test
@@ -336,7 +338,72 @@ class JvmDescriptorUtilsTest {
                     "method4([I)V"
                 )
             )
-        }.compilesWithoutError()
+        }
+    }
+
+    @Test
+    fun typeNameFromDescriptor() {
+        val extraJfo =
+            """
+            import androidx.room.test.Describe;
+            class Custom {
+                static class Nested1 {
+                    static class Nested2 {
+                        @Describe
+                        Custom c;
+                        @Describe
+                        Custom.Nested1 n1;
+                        @Describe
+                        Custom.Nested1.Nested2 n2;
+                    }
+                }
+            }
+            """.toJFO("Custom")
+        singleRun(
+            """
+            package androidx.room.test;
+
+            class Foo {
+                @Describe
+                int x;
+
+                @Describe
+                java.util.Map map;
+
+                @Describe
+                java.util.Map.Entry entry;
+
+                @Describe
+                int[] intArray;
+
+                @Describe
+                int[][] intArrayOfArray;
+            }
+            """.toJFO("androidx.room.test.Foo"),
+            extraJfo
+        ) {
+            assertThat(
+                it.map {
+                    // the format is name:type so we strip everything before `:`
+                    it.split(':')[1].typeNameFromJvmSignature()
+                }
+            ).containsExactly(
+                TypeName.INT,
+                ClassName.get(Map::class.java),
+                ClassName.get(Map.Entry::class.java),
+                ArrayTypeName.of(
+                    TypeName.INT
+                ),
+                ArrayTypeName.of(
+                    ArrayTypeName.of(
+                        TypeName.INT
+                    )
+                ),
+                ClassName.get("", "Custom"),
+                ClassName.get("", "Custom", "Nested1"),
+                ClassName.get("", "Custom", "Nested1", "Nested2"),
+            )
+        }
     }
 
     private fun String.toJFO(qName: String): JavaFileObject =
@@ -346,27 +413,31 @@ class JvmDescriptorUtilsTest {
     private fun singleRun(
         vararg jfo: JavaFileObject,
         handler: (Set<String>) -> Unit
-    ): CompileTester {
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
+    ) {
+        Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(describeAnnotation) + jfo)
             .processedWith(object : AbstractProcessor() {
                 override fun process(
                     annotations: Set<TypeElement>,
                     roundEnv: RoundEnvironment
                 ): Boolean {
-                    roundEnv.getElementsAnnotatedWith(annotations.first()).map { element ->
-                        when (element.kind) {
-                            FIELD -> MoreElements.asVariable(element).descriptor()
-                            METHOD, CONSTRUCTOR -> MoreElements.asExecutable(element).descriptor()
-                            else -> error("Unsupported element to describe.")
-                        }
-                    }.toSet().let(handler)
+                    if (annotations.isNotEmpty()) {
+                        roundEnv.getElementsAnnotatedWith(annotations.first()).map { element ->
+                            when (element.kind) {
+                                FIELD ->
+                                    MoreElements.asVariable(element).descriptor()
+                                METHOD, CONSTRUCTOR ->
+                                    MoreElements.asExecutable(element).descriptor()
+                                else -> error("Unsupported element to describe.")
+                            }
+                        }.toSet().let(handler)
+                    }
                     return true
                 }
 
-                override fun getSupportedOptions(): Set<String> {
+                override fun getSupportedAnnotationTypes(): Set<String> {
                     return setOf("androidx.room.test.Describe")
                 }
-            })
+            }).compilesWithoutError()
     }
 }

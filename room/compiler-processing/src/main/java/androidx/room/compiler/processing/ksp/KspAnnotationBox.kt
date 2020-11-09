@@ -30,12 +30,12 @@ internal class KspAnnotationBox<T : Annotation>(
 ) : XAnnotationBox<T> {
     override fun getAsType(methodName: String): XType? {
         val value = getFieldValue<KSType>(methodName)
-        return value?.let(env::wrap)
+        return value?.let(env::wrapDeclared)
     }
 
     override fun getAsTypeList(methodName: String): List<XType> {
         val values = getFieldValue<List<KSType>>(methodName) ?: return emptyList()
-        return values.map(env::wrap)
+        return values.map(env::wrapDeclared)
     }
 
     override fun <R : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<R> {

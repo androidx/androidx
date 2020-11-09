@@ -52,7 +52,8 @@ internal sealed class KspMethodType(
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
             env.wrap(
-                origin.declaration.returnTypeAsMemberOf(
+                originatingReference = origin.declaration.returnType!!,
+                ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
                 )
@@ -70,8 +71,9 @@ internal sealed class KspMethodType(
             get() = origin.returnType
 
         override fun getSuspendFunctionReturnType(): XType {
-            return env.wrap(
-                origin.declaration.returnTypeAsMemberOf(
+            // suspend functions work w/ continuation so it is always declared
+            return env.wrapDeclared(
+                ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
                 )
