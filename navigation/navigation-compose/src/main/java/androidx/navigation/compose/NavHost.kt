@@ -127,7 +127,7 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
                 ViewModelStoreOwnerAmbient provides currentNavBackStackEntry,
                 LifecycleOwnerAmbient provides currentNavBackStackEntry
             ) {
-                restorableStateHolder.withRestorableState {
+                restorableStateHolder.RestorableStateProvider {
                     destination.content(currentNavBackStackEntry)
                 }
             }
@@ -137,10 +137,10 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
 
 @OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
-private fun RestorableStateHolder<UUID>.withRestorableState(content: @Composable () -> Unit) {
+private fun RestorableStateHolder<UUID>.RestorableStateProvider(content: @Composable () -> Unit) {
     val viewModel = viewModel<BackStackEntryIdViewModel>()
     viewModel.restorableStateHolder = this
-    withRestorableState(viewModel.id, content)
+    RestorableStateProvider(viewModel.id, content)
 }
 
 @OptIn(ExperimentalRestorableStateHolder::class)
