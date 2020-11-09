@@ -100,7 +100,7 @@ public class WatchFaceControlClient internal constructor(
                     resultFuture.setException(ServiceNotBoundException())
                 } else {
                     resultFuture.set(
-                        InteractiveWatchFaceSysUiClient(
+                        InteractiveWatchFaceSysUiClientImpl(
                             service.getInteractiveWatchFaceInstanceSysUI(instanceId)
                         )
                     )
@@ -142,7 +142,7 @@ public class WatchFaceControlClient internal constructor(
                     resultFuture.setException(ServiceNotBoundException())
                 } else {
                     resultFuture.set(
-                        HeadlessWatchFaceClient(
+                        HeadlessWatchFaceClientImpl(
                             service.createHeadlessWatchFaceInstance(
                                 HeadlessWatchFaceInstanceParams(
                                     watchFaceName,
@@ -224,12 +224,14 @@ public class WatchFaceControlClient internal constructor(
                                 iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
                             ) {
                                 resultFuture.set(
-                                    InteractiveWatchFaceWcsClient(iInteractiveWatchFaceWcs)
+                                    InteractiveWatchFaceWcsClientImpl(iInteractiveWatchFaceWcs)
                                 )
                             }
                         }
                     )
-                    existingInstance?.let { resultFuture.set(InteractiveWatchFaceWcsClient(it)) }
+                    existingInstance?.let {
+                        resultFuture.set(InteractiveWatchFaceWcsClientImpl(it))
+                    }
                 }
             },
             { runnable -> runnable.run() }
