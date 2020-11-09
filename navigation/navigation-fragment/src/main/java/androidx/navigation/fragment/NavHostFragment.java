@@ -306,6 +306,16 @@ public class NavHostFragment extends Fragment implements NavHost {
         navController.getNavigatorProvider().addNavigator(createFragmentNavigator());
     }
 
+    // TODO: DialogFragmentNavigator should use FragmentOnAttachListener from Fragment 1.3
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onAttachFragment(@NonNull Fragment childFragment) {
+        super.onAttachFragment(childFragment);
+        DialogFragmentNavigator dialogFragmentNavigator =
+                mNavController.getNavigatorProvider().getNavigator(DialogFragmentNavigator.class);
+        dialogFragmentNavigator.onAttachFragment(childFragment);
+    }
+
     @CallSuper
     @Override
     public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
