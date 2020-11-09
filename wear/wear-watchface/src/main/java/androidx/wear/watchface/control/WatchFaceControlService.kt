@@ -66,7 +66,7 @@ private class IWatchFaceInstanceServiceStub(
 
     override fun getInteractiveWatchFaceInstanceSysUI(instanceId: String) =
         uiThreadHandler.runOnHandler {
-            InteractiveInstanceManager.getAndRetainInstance(instanceId)?.sysUiApi
+            InteractiveInstanceManager.getAndRetainInstance(instanceId)?.createSysUiApi()
         }
 
     override fun createHeadlessWatchFaceInstance(
