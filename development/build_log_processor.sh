@@ -103,7 +103,7 @@ else
   # https://github.com/gradle/gradle/issues/1005
   # and https://github.com/gradle/gradle/issues/13090
   summaryLog="$LOG_DIR/error_summary.log"
-  $SCRIPT_PATH/build_log_simplifier.py $logFile | tail -n 100 | tee "$summaryLog" >&2
+  $SCRIPT_PATH/build_log_simplifier.py $logFile | tee "$summaryLog" >&2
   exit 1
 fi
 
