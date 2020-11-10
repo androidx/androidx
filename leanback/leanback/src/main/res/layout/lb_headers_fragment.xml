@@ -16,8 +16,10 @@
 -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/browse_headers_root"
     android:transitionGroup="true"
+    tools:ignore="UnusedAttribute"
     android:layout_width="@dimen/lb_browse_headers_width"
     android:layout_height="match_parent"
     android:paddingEnd="@dimen/lb_browse_header_padding_end"

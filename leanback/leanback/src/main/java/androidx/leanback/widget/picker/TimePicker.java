@@ -280,7 +280,7 @@ public class TimePicker extends Picker {
                     + " the size of timeFieldsPattern: " + timeFieldsPattern.length() + " + 1");
         }
         setSeparators(separators);
-        timeFieldsPattern = timeFieldsPattern.toUpperCase();
+        timeFieldsPattern = timeFieldsPattern.toUpperCase(mConstant.locale);
 
         mHourColumn = mMinuteColumn = mAmPmColumn = null;
         mColHourIndex = mColMinuteIndex = mColAmPmIndex = -1;
