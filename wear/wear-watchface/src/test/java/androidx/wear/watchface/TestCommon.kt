@@ -62,7 +62,7 @@ internal class TestWatchFaceService(
         )
 
         complicationsManager.addTapListener(
-            object : ComplicationsManager.TapListener {
+            object : ComplicationsManager.TapCallback {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
                 }

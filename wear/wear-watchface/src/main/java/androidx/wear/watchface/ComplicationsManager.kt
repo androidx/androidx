@@ -59,7 +59,7 @@ public class ComplicationsManager(
      */
     private val userStyleRepository: UserStyleRepository
 ) {
-    public interface TapListener {
+    public interface TapCallback {
         /**
          * Called when the user single taps on a complication.
          *
@@ -112,7 +112,7 @@ public class ComplicationsManager(
             }
         )
 
-    private val complicationListeners = HashSet<TapListener>()
+    private val complicationListeners = HashSet<TapCallback>()
 
     @VisibleForTesting
     internal constructor(
@@ -127,7 +127,7 @@ public class ComplicationsManager(
         watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
         renderer: Renderer,
-        complicationInvalidateCallback: Complication.InvalidateCallback
+        complicationInvalidateListener: Complication.InvalidateListener
     ) {
         this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
@@ -135,7 +135,7 @@ public class ComplicationsManager(
         pendingUpdate = CancellableUniqueTask(watchFaceHostApi.getHandler())
 
         for ((_, complication) in complications) {
-            complication.init(this, complicationInvalidateCallback)
+            complication.init(this, complicationInvalidateListener)
         }
 
         val complicationsStyleCategory =
@@ -408,20 +408,20 @@ public class ComplicationsManager(
     }
 
     /**
-     * Adds a [TapListener] which is called whenever the user interacts with a
+     * Adds a [TapCallback] which is called whenever the user interacts with a
      * complication.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
-    public fun addTapListener(tapListener: TapListener) {
-        complicationListeners.add(tapListener)
+    public fun addTapListener(tapCallback: TapCallback) {
+        complicationListeners.add(tapCallback)
     }
 
     /**
-     * Removes a [TapListener] previously added by [addTapListener].
+     * Removes a [TapCallback] previously added by [addTapListener].
      */
     @UiThread
-    public fun removeTapListener(tapListener: TapListener) {
-        complicationListeners.remove(tapListener)
+    public fun removeTapListener(tapCallback: TapCallback) {
+        complicationListeners.remove(tapCallback)
     }
 }

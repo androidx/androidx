@@ -304,14 +304,14 @@ public class Complication internal constructor(
         canvasComplication.onAttach(this)
     }
 
-    internal interface InvalidateCallback {
+    internal interface InvalidateListener {
         /** Requests redraw. */
         @UiThread
         fun onInvalidate()
     }
 
     private lateinit var complicationsManager: ComplicationsManager
-    private lateinit var invalidateCallback: InvalidateCallback
+    private lateinit var invalidateListener: InvalidateListener
 
     private var _unitSquareBounds = unitSquareBounds
     internal var unitSquareBoundsDirty = true
@@ -486,15 +486,15 @@ public class Complication internal constructor(
      * loading a [Drawable].
      */
     public fun invalidate() {
-        invalidateCallback.onInvalidate()
+        invalidateListener.onInvalidate()
     }
 
     internal fun init(
         complicationsManager: ComplicationsManager,
-        invalidateCallback: InvalidateCallback
+        invalidateListener: InvalidateListener
     ) {
         this.complicationsManager = complicationsManager
-        this.invalidateCallback = invalidateCallback
+        this.invalidateListener = invalidateListener
     }
 
     internal fun scheduleUpdateComplications() {
