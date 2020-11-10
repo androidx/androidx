@@ -263,9 +263,8 @@ public class BiometricFragment extends Fragment {
         if (activity == null) {
             return;
         }
-
         mViewModel = new ViewModelProvider(getActivity()).get(BiometricViewModel.class);
-
+        mViewModel.setClientActivity(activity);
         mViewModel.getAuthenticationResult().observe(
                 this,
                 new Observer<BiometricPrompt.AuthenticationResult>() {

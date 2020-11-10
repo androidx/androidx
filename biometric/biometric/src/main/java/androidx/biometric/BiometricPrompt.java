@@ -25,6 +25,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.biometric.BiometricManager.Authenticators;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -155,6 +156,7 @@ public class BiometricPrompt {
 
     /**
      * An error code that may be returned during authentication.
+     * @hide
      */
     @IntDef({
         ERROR_HW_UNAVAILABLE,
@@ -171,8 +173,9 @@ public class BiometricPrompt {
         ERROR_NEGATIVE_BUTTON,
         ERROR_NO_DEVICE_CREDENTIAL
     })
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
-    @interface AuthenticationError {}
+    public @interface AuthenticationError {}
 
     /**
      * Authentication type reported by {@link AuthenticationResult} when the user authenticated via
