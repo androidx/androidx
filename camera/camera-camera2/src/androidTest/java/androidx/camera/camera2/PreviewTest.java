@@ -49,6 +49,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
@@ -492,6 +493,62 @@ public final class PreviewTest {
         assertThat(preview.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
+    @Test
+    public void setNullSurfaceProvider_shouldStopPreview() throws InterruptedException {
+        // Arrange.
+        final Preview preview = new Preview.Builder().build();
+
+        // Act.
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() ->
+                preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
+                        createSurfaceTextureProvider(
+                                new SurfaceTextureProvider.SurfaceTextureCallback() {
+                                    private boolean mIsReleased = false;
+                                    @Override
+                                    public void onSurfaceTextureReady(
+                                            @NonNull SurfaceTexture surfaceTexture,
+                                            @NonNull Size resolution) {
+                                        surfaceTexture.attachToGLContext(
+                                                GLUtil.getTexIdFromGLContext());
+                                        surfaceTexture.setOnFrameAvailableListener(st -> {
+                                            mSurfaceFutureSemaphore.release();
+                                            synchronized (this) {
+                                                if (!mIsReleased) {
+                                                    surfaceTexture.updateTexImage();
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onSafeToRelease(
+                                            @NonNull SurfaceTexture surfaceTexture) {
+                                        synchronized (this) {
+                                            mIsReleased = true;
+                                            surfaceTexture.release();
+                                        }
+                                    }
+                                })));
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+
+        // Assert.
+        // Wait until preview gets frame.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        // Act.
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        mInstrumentation.runOnMainSync(() ->
+                preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(), null)
+        );
+
+        // Assert.
+        // No frame coming for 3 seconds in 10 seconds timeout.
+        assertThat(noFrameCome(3000L, 10000L)).isTrue();
+    }
+
     private Executor getWorkExecutorWithNamedThread() {
         final ThreadFactory threadFactory = runnable -> new Thread(runnable, ANY_THREAD_NAME);
         return Executors.newSingleThreadExecutor(threadFactory);
@@ -516,5 +573,40 @@ public final class PreviewTest {
                 mSafeToReleaseSemaphore.release();
             }
         });
+    }
+
+    /*
+     * Check if there is no frame callback for `noFrameIntervalMs` milliseconds, then it will
+     * return true; If the total check time is over `timeoutMs` milliseconds, then it will return
+     * false.
+     */
+    private boolean noFrameCome(long noFrameIntervalMs, long timeoutMs)
+            throws InterruptedException {
+        if (noFrameIntervalMs <= 0 || timeoutMs <= 0) {
+            throw new IllegalArgumentException("Time can't be negative value.");
+        }
+        if (timeoutMs < noFrameIntervalMs) {
+            throw new IllegalArgumentException(
+                    "timeoutMs should be larger than noFrameIntervalMs.");
+        }
+        final long checkFrequency = 200L;
+        long totalCheckTime = 0L;
+        long zeroFrameTimer = 0L;
+        do {
+            Thread.sleep(checkFrequency);
+            if (mSurfaceFutureSemaphore.availablePermits() > 0) {
+                // Has frame, reset timer and frame count.
+                zeroFrameTimer = 0;
+                mSurfaceFutureSemaphore.drainPermits();
+            } else {
+                zeroFrameTimer += checkFrequency;
+            }
+            if (zeroFrameTimer > noFrameIntervalMs) {
+                return true;
+            }
+            totalCheckTime += checkFrequency;
+        } while (totalCheckTime < timeoutMs);
+
+        return false;
     }
 }
