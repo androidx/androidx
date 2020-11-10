@@ -43,7 +43,7 @@ internal class KspTypeElement(
     override val declaration: KSClassDeclaration
 ) : KspElement(env, declaration),
     XTypeElement,
-    XHasModifiers by KspHasModifiers(declaration),
+    XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
 
     override val name: String by lazy {

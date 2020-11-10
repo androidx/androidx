@@ -31,7 +31,7 @@ internal class KspFieldElement(
     val containing: KspTypeElement
 ) : KspElement(env, declaration),
     XFieldElement,
-    XHasModifiers by KspHasModifiers(declaration),
+    XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, FIELD) {
 
     override val equalityItems: Array<out Any?> by lazy {

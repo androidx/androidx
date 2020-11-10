@@ -35,6 +35,7 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.overrides
+import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import java.util.Locale
 
 /**
@@ -47,11 +48,13 @@ import java.util.Locale
  */
 internal sealed class KspSyntheticPropertyMethodElement(
     val env: KspProcessingEnv,
-    val field: KspFieldElement
+    val field: KspFieldElement,
+    accessor: KSPropertyAccessor?
 ) : XMethodElement,
     XEquality,
-    XHasModifiers by KspHasModifiers(
-        field.declaration
+    XHasModifiers by KspHasModifiers.createForSyntheticAccessor(
+        field.declaration,
+        accessor
     ) {
     // NOTE: modifiers of the property are not necessarily my modifiers.
     //  that being said, it only matters if it is private in which case KAPT does not generate the
@@ -98,7 +101,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         field: KspFieldElement
     ) : KspSyntheticPropertyMethodElement(
         env = env,
-        field = field
+        field = field,
+        accessor = field.declaration.getter
     ),
         XAnnotated by KspAnnotated.create(
             env = env,
@@ -148,7 +152,8 @@ internal sealed class KspSyntheticPropertyMethodElement(
         field: KspFieldElement
     ) : KspSyntheticPropertyMethodElement(
         env = env,
-        field = field
+        field = field,
+        accessor = field.declaration.setter
     ),
         XAnnotated by KspAnnotated.create(
             env = env,
