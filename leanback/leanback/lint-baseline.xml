@@ -2,145 +2,13 @@
 <issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`BaseCardView`) and the declare-styleable (`lbBaseCardView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView,"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="159"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the declare-styleable (`lbBaseCardView_Layout`) for a layout parameter class (`LayoutParams`) is expected to be the surrounding class (`BaseCardView`) plus &quot;`_Layout`&quot;, e.g. `BaseCardView_Layout`. (Various editor features rely on this convention.)"
-        errorLine1="            TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView_Layout);"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="866"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`BaseGridView`) and the declare-styleable (`lbBaseGridView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseGridView);"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="285"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`DatePicker`) and the declare-styleable (`lbDatePicker`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                R.styleable.lbDatePicker);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="78"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`HorizontalGridView`) and the declare-styleable (`lbHorizontalGridView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="84"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`ImageCardView`) and the declare-styleable (`lbImageCardView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                R.styleable.lbImageCardView, defStyleAttr, defStyle);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="173"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`Picker`) and the declare-styleable (`lbPicker`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                attrs, R.styleable.lbPicker, defStyleAttr, 0);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="196"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`PinPicker`) and the declare-styleable (`lbPinPicker`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                attrs, R.styleable.lbPinPicker, defStyleAttr, 0);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="47"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`ResizingTextView`) and the declare-styleable (`lbResizingTextView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.lbResizingTextView,"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/ResizingTextView.java"
-            line="58"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`SearchOrbView`) and the declare-styleable (`lbSearchOrbView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="185"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`TimePicker`) and the declare-styleable (`lbTimePicker`) should have the same name (various editor features rely on this convention)"
-        errorLine1="                R.styleable.lbTimePicker);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="110"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="CustomViewStyleable"
-        message="By convention, the custom view (`VerticalGridView`) and the declare-styleable (`lbVerticalGridView`) should have the same name (various editor features rely on this convention)"
-        errorLine1="        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="60"
-            column="62"/>
-    </issue>
-
-    <issue
         id="DefaultLocale"
         message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
         errorLine1="        String dateFieldsPattern = datePickerFormat.toUpperCase();"
         errorLine2="                                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="244"
+            line="246"
             column="53"/>
     </issue>
 
@@ -151,7 +19,7 @@
         errorLine2="                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="281"
+            line="283"
             column="47"/>
     </issue>
 
@@ -173,7 +41,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="60"
+            line="61"
             column="44"/>
     </issue>
 
@@ -569,7 +437,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="142"
+            line="144"
             column="58"/>
     </issue>
 
@@ -943,7 +811,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="157"
+            line="159"
             column="38"/>
     </issue>
 
@@ -2094,7 +1962,7 @@
         errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="434"
+            line="436"
             column="20"/>
     </issue>
 
@@ -2116,7 +1984,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="74"/>
     </issue>
 
@@ -3051,7 +2919,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="148"
+            line="149"
             column="25"/>
     </issue>
 
@@ -3062,7 +2930,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="152"
+            line="153"
             column="25"/>
     </issue>
 
@@ -3073,7 +2941,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="152"
+            line="153"
             column="42"/>
     </issue>
 
@@ -3084,7 +2952,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="156"
+            line="158"
             column="25"/>
     </issue>
 
@@ -3095,7 +2963,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="156"
+            line="158"
             column="42"/>
     </issue>
 
@@ -3106,7 +2974,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="598"
+            line="600"
             column="15"/>
     </issue>
 
@@ -3117,7 +2985,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="819"
+            line="821"
             column="12"/>
     </issue>
 
@@ -3128,7 +2996,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="819"
+            line="821"
             column="46"/>
     </issue>
 
@@ -3139,7 +3007,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="824"
+            line="826"
             column="15"/>
     </issue>
 
@@ -3150,7 +3018,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="830"
+            line="832"
             column="15"/>
     </issue>
 
@@ -3161,7 +3029,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="830"
+            line="832"
             column="49"/>
     </issue>
 
@@ -3172,7 +3040,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="839"
+            line="841"
             column="41"/>
     </issue>
 
@@ -3183,7 +3051,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="864"
+            line="867"
             column="29"/>
     </issue>
 
@@ -3194,7 +3062,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="864"
+            line="867"
             column="40"/>
     </issue>
 
@@ -3205,7 +3073,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="884"
+            line="887"
             column="29"/>
     </issue>
 
@@ -3216,7 +3084,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="894"
+            line="897"
             column="29"/>
     </issue>
 
@@ -3315,7 +3183,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="663"
+            line="664"
             column="43"/>
     </issue>
 
@@ -3326,7 +3194,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="676"
+            line="677"
             column="44"/>
     </issue>
 
@@ -3337,7 +3205,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="708"
+            line="709"
             column="54"/>
     </issue>
 
@@ -3348,7 +3216,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="720"
+            line="721"
             column="54"/>
     </issue>
 
@@ -3359,7 +3227,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="729"
+            line="730"
             column="57"/>
     </issue>
 
@@ -3370,7 +3238,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="794"
+            line="795"
             column="69"/>
     </issue>
 
@@ -3381,7 +3249,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="820"
+            line="821"
             column="63"/>
     </issue>
 
@@ -3392,7 +3260,7 @@
         errorLine2="                                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="899"
+            line="900"
             column="63"/>
     </issue>
 
@@ -3403,7 +3271,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="915"
+            line="916"
             column="40"/>
     </issue>
 
@@ -3414,7 +3282,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="915"
+            line="916"
             column="51"/>
     </issue>
 
@@ -3425,7 +3293,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="929"
+            line="930"
             column="12"/>
     </issue>
 
@@ -3436,7 +3304,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="943"
+            line="944"
             column="69"/>
     </issue>
 
@@ -3447,7 +3315,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1039"
+            line="1040"
             column="45"/>
     </issue>
 
@@ -3458,7 +3326,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1047"
+            line="1048"
             column="46"/>
     </issue>
 
@@ -3469,7 +3337,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1055"
+            line="1056"
             column="43"/>
     </issue>
 
@@ -3480,7 +3348,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1063"
+            line="1064"
             column="43"/>
     </issue>
 
@@ -3491,7 +3359,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1071"
+            line="1072"
             column="12"/>
     </issue>
 
@@ -3502,7 +3370,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1076"
+            line="1077"
             column="37"/>
     </issue>
 
@@ -3513,7 +3381,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1087"
+            line="1088"
             column="39"/>
     </issue>
 
@@ -3524,7 +3392,7 @@
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1097"
+            line="1098"
             column="51"/>
     </issue>
 
@@ -3535,7 +3403,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1347"
+            line="1348"
             column="28"/>
     </issue>
 
@@ -6241,7 +6109,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="68"
+            line="69"
             column="23"/>
     </issue>
 
@@ -6252,7 +6120,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="68"
+            line="69"
             column="40"/>
     </issue>
 
@@ -6263,7 +6131,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="72"
+            line="74"
             column="23"/>
     </issue>
 
@@ -6274,7 +6142,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="72"
+            line="74"
             column="40"/>
     </issue>
 
@@ -6285,7 +6153,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="227"
+            line="229"
             column="37"/>
     </issue>
 
@@ -6296,7 +6164,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="285"
+            line="287"
             column="12"/>
     </issue>
 
@@ -9970,7 +9838,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="143"
+            line="144"
             column="32"/>
     </issue>
 
@@ -9981,7 +9849,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="143"
+            line="144"
             column="60"/>
     </issue>
 
@@ -9992,7 +9860,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="13"/>
     </issue>
 
@@ -10003,7 +9871,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="42"/>
     </issue>
 
@@ -10014,7 +9882,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="166"
+            line="169"
             column="33"/>
     </issue>
 
@@ -10025,7 +9893,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="175"
+            line="178"
             column="34"/>
     </issue>
 
@@ -10036,7 +9904,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="242"
+            line="245"
             column="12"/>
     </issue>
 
@@ -10047,7 +9915,7 @@
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="251"
+            line="254"
             column="24"/>
     </issue>
 
@@ -10058,7 +9926,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="258"
+            line="261"
             column="12"/>
     </issue>
 
@@ -10069,7 +9937,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="266"
+            line="269"
             column="34"/>
     </issue>
 
@@ -10080,7 +9948,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="274"
+            line="277"
             column="34"/>
     </issue>
 
@@ -10091,7 +9959,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="283"
+            line="286"
             column="12"/>
     </issue>
 
@@ -10102,7 +9970,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="303"
+            line="302"
             column="12"/>
     </issue>
 
@@ -10113,7 +9981,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="303"
+            line="302"
             column="42"/>
     </issue>
 
@@ -10124,7 +9992,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="334"
+            line="333"
             column="34"/>
     </issue>
 
@@ -10135,7 +10003,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="401"
+            line="400"
             column="12"/>
     </issue>
 
@@ -10146,7 +10014,7 @@
         errorLine2="                                                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="401"
+            line="400"
             column="67"/>
     </issue>
 
@@ -10157,7 +10025,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="418"
+            line="416"
             column="38"/>
     </issue>
 
@@ -10168,7 +10036,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="451"
+            line="449"
             column="38"/>
     </issue>
 
@@ -12555,7 +12423,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="68"
+            line="69"
             column="31"/>
     </issue>
 
@@ -12566,7 +12434,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="72"
+            line="73"
             column="31"/>
     </issue>
 
@@ -12577,7 +12445,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="72"
+            line="73"
             column="48"/>
     </issue>
 
@@ -12588,7 +12456,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="76"
+            line="77"
             column="31"/>
     </issue>
 
@@ -12599,7 +12467,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="76"
+            line="77"
             column="48"/>
     </issue>
 
@@ -12610,7 +12478,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="82"
+            line="84"
             column="35"/>
     </issue>
 
@@ -12621,7 +12489,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="82"
+            line="84"
             column="52"/>
     </issue>
 
@@ -12632,7 +12500,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="313"
+            line="315"
             column="22"/>
     </issue>
 
@@ -12698,7 +12566,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="153"
+            line="154"
             column="26"/>
     </issue>
 
@@ -12709,7 +12577,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="160"
+            line="161"
             column="26"/>
     </issue>
 
@@ -12720,7 +12588,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="160"
+            line="161"
             column="43"/>
     </issue>
 
@@ -12731,7 +12599,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="287"
+            line="289"
             column="26"/>
     </issue>
 
@@ -12742,7 +12610,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="294"
+            line="296"
             column="26"/>
     </issue>
 
@@ -12753,7 +12621,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="294"
+            line="296"
             column="43"/>
     </issue>
 
@@ -12764,7 +12632,7 @@
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="301"
+            line="303"
             column="18"/>
     </issue>
 
@@ -12775,7 +12643,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="317"
+            line="319"
             column="39"/>
     </issue>
 
@@ -12786,7 +12654,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="326"
+            line="328"
             column="30"/>
     </issue>
 
@@ -12797,7 +12665,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="333"
+            line="335"
             column="30"/>
     </issue>
 
@@ -12808,7 +12676,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="367"
+            line="369"
             column="12"/>
     </issue>
 
@@ -12819,7 +12687,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="378"
+            line="380"
             column="12"/>
     </issue>
 
@@ -12830,7 +12698,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="388"
+            line="390"
             column="39"/>
     </issue>
 
@@ -12841,7 +12709,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="406"
+            line="408"
             column="30"/>
     </issue>
 
@@ -12852,7 +12720,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="416"
+            line="418"
             column="12"/>
     </issue>
 
@@ -12863,7 +12731,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="427"
+            line="429"
             column="32"/>
     </issue>
 
@@ -12874,7 +12742,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="437"
+            line="439"
             column="12"/>
     </issue>
 
@@ -12885,7 +12753,7 @@
         errorLine2="                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="448"
+            line="450"
             column="31"/>
     </issue>
 
@@ -12896,7 +12764,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="463"
+            line="465"
             column="12"/>
     </issue>
 
@@ -16240,7 +16108,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="73"
+            line="74"
             column="29"/>
     </issue>
 
@@ -16251,7 +16119,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="102"
+            line="103"
             column="18"/>
     </issue>
 
@@ -16262,7 +16130,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="111"
+            line="112"
             column="36"/>
     </issue>
 
@@ -16273,7 +16141,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="120"
+            line="121"
             column="18"/>
     </issue>
 
@@ -16284,7 +16152,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="136"
+            line="137"
             column="37"/>
     </issue>
 
@@ -16295,7 +16163,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="186"
+            line="187"
             column="19"/>
     </issue>
 
@@ -16306,7 +16174,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="186"
+            line="187"
             column="36"/>
     </issue>
 
@@ -16317,7 +16185,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="193"
+            line="195"
             column="19"/>
     </issue>
 
@@ -16328,7 +16196,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="193"
+            line="195"
             column="36"/>
     </issue>
 
@@ -16339,7 +16207,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="228"
+            line="230"
             column="12"/>
     </issue>
 
@@ -16350,7 +16218,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="254"
+            line="256"
             column="28"/>
     </issue>
 
@@ -16361,7 +16229,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="329"
+            line="331"
             column="46"/>
     </issue>
 
@@ -16372,7 +16240,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="376"
+            line="378"
             column="43"/>
     </issue>
 
@@ -16383,7 +16251,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="388"
+            line="390"
             column="46"/>
     </issue>
 
@@ -16394,7 +16262,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="541"
+            line="543"
             column="37"/>
     </issue>
 
@@ -16405,7 +16273,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="560"
+            line="562"
             column="66"/>
     </issue>
 
@@ -16416,7 +16284,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="696"
+            line="698"
             column="35"/>
     </issue>
 
@@ -16427,7 +16295,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="696"
+            line="698"
             column="47"/>
     </issue>
 
@@ -16493,7 +16361,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="40"
+            line="41"
             column="22"/>
     </issue>
 
@@ -16504,7 +16372,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="40"
+            line="41"
             column="39"/>
     </issue>
 
@@ -16515,7 +16383,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="44"
+            line="46"
             column="22"/>
     </issue>
 
@@ -16526,7 +16394,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="44"
+            line="46"
             column="39"/>
     </issue>
 
@@ -16537,7 +16405,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="87"
+            line="89"
             column="37"/>
     </issue>
 
@@ -16548,7 +16416,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="104"
+            line="106"
             column="12"/>
     </issue>
 
@@ -21696,7 +21564,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="155"
+            line="156"
             column="26"/>
     </issue>
 
@@ -21707,7 +21575,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="159"
+            line="160"
             column="26"/>
     </issue>
 
@@ -21718,7 +21586,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="159"
+            line="160"
             column="43"/>
     </issue>
 
@@ -21729,7 +21597,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="163"
+            line="165"
             column="26"/>
     </issue>
 
@@ -21740,7 +21608,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="163"
+            line="165"
             column="43"/>
     </issue>
 
@@ -21751,7 +21619,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="228"
+            line="230"
             column="25"/>
     </issue>
 
@@ -21762,7 +21630,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="248"
+            line="250"
             column="69"/>
     </issue>
 
@@ -21773,7 +21641,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="264"
+            line="266"
             column="28"/>
     </issue>
 
@@ -21784,7 +21652,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="273"
+            line="275"
             column="12"/>
     </issue>
 
@@ -21795,7 +21663,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="281"
+            line="283"
             column="41"/>
     </issue>
 
@@ -21806,7 +21674,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="317"
+            line="319"
             column="30"/>
     </issue>
 
@@ -21817,7 +21685,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="331"
+            line="333"
             column="12"/>
     </issue>
 
@@ -23137,7 +23005,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="89"
+            line="90"
             column="23"/>
     </issue>
 
@@ -23148,7 +23016,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="89"
+            line="90"
             column="40"/>
     </issue>
 
@@ -23159,7 +23027,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="103"
+            line="105"
             column="23"/>
     </issue>
 
@@ -23170,7 +23038,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="103"
+            line="105"
             column="40"/>
     </issue>
 
@@ -24985,7 +24853,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="44"
+            line="45"
             column="29"/>
     </issue>
 
@@ -24996,7 +24864,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="48"
+            line="49"
             column="29"/>
     </issue>
 
@@ -25007,7 +24875,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="48"
+            line="49"
             column="46"/>
     </issue>
 
@@ -25018,7 +24886,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="52"
+            line="53"
             column="29"/>
     </issue>
 
@@ -25029,7 +24897,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="52"
+            line="53"
             column="46"/>
     </issue>
 
@@ -25040,7 +24908,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="58"
+            line="60"
             column="35"/>
     </issue>
 
@@ -25051,7 +24919,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="58"
+            line="60"
             column="52"/>
     </issue>
 

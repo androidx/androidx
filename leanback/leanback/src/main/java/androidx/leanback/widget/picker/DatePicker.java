@@ -14,6 +14,7 @@
 
 package androidx.leanback.widget.picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
@@ -69,6 +70,7 @@ public class DatePicker extends Picker {
         this(context, attrs, R.attr.datePickerStyle);
     }
 
+    @SuppressLint("CustomViewStyleable")
     public DatePicker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 

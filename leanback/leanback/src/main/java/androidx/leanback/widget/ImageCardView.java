@@ -14,6 +14,7 @@
 package androidx.leanback.widget;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -162,6 +163,7 @@ public class ImageCardView extends BaseCardView {
         buildImageCardView(attrs, defStyleAttr, R.style.Widget_Leanback_ImageCardView);
     }
 
+    @SuppressLint("CustomViewStyleable")
     private void buildImageCardView(AttributeSet attrs, int defStyleAttr, int defStyle) {
         // Make sure the ImageCardView is focusable.
         setFocusable(true);

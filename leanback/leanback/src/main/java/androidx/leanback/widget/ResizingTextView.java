@@ -53,6 +53,7 @@ class ResizingTextView extends TextView {
     private int mDefaultPaddingTop;
     private int mDefaultPaddingBottom;
 
+    @SuppressLint("CustomViewStyleable")
     public ResizingTextView(Context ctx, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(ctx, attrs, defStyleAttr);
         TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.lbResizingTextView,
