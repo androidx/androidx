@@ -14,6 +14,7 @@
 
 package androidx.leanback.widget.picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
@@ -190,6 +191,7 @@ public class Picker extends FrameLayout {
     /**
      * Creates a Picker widget.
      */
+    @SuppressLint("CustomViewStyleable")
     public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(

@@ -16,6 +16,7 @@
 
 package androidx.leanback.widget.picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
@@ -100,6 +101,7 @@ public class TimePicker extends Picker {
      *                     resource that supplies default values for the widget. Can be 0 to not
      *                     look for defaults.
      */
+    @SuppressLint("CustomViewStyleable")
     public TimePicker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
