@@ -37,7 +37,7 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.SystemState
-import androidx.wear.watchface.client.WatchFaceControlClient
+import androidx.wear.watchface.client.WatchFaceControlClientImpl
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
@@ -62,7 +62,7 @@ private const val CONNECT_TIMEOUT_MILLIS = 500L
 @MediumTest
 class WatchFaceControlClientTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val service = WatchFaceControlClient(
+    private val service = WatchFaceControlClientImpl(
         context,
         Intent(context, WatchFaceControlTestService::class.java).apply {
             action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
@@ -350,7 +350,7 @@ class WatchFaceControlClientTest {
         // Wait for the instance to be created.
         interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
-        val sysUiInterface = service.getInteractiveWatchFaceInstanceSysUi("testId")
+        val sysUiInterface = service.getInteractiveWatchFaceSysUiClientInstance("testId")
             .get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
 
         try {
