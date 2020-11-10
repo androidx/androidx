@@ -14,38 +14,36 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.sample
+package androidx.ui.macrobenchmark
 
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.CpuUsageMetric
 import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.StartupTimingMetric
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import org.junit.Ignore
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 
-@LargeTest
-@RunWith(AndroidJUnit4::class)
-class MacroBenchmarkTest {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
-
-    @Test
-    @Ignore("Not running the test in CI")
-    fun basicTest() = benchmarkRule.measureRepeated(
-        MacrobenchmarkConfig(
-            packageName = "androidx.benchmark.integration.macro.target",
-            listOf(StartupTimingMetric(), CpuUsageMetric()),
-            CompilationMode.Speed,
-            killProcessEachIteration = true,
-            iterations = 4
-        )
-    ) {
+/**
+ * Simplified interface for standardizing e.g. package,
+ * compilation types, and iteration count across project
+ */
+fun MacrobenchmarkRule.measureStartup(
+    profileCompiled: Boolean,
+    coldLaunch: Boolean,
+    block: MacrobenchmarkScope.() -> Unit = {
         pressHome()
         launchPackageAndWait()
     }
-}
+) = measureRepeated(
+    MacrobenchmarkConfig(
+        packageName = "androidx.compose.integration.demos",
+        metrics = listOf(StartupTimingMetric()),
+        compilationMode = if (profileCompiled) {
+            CompilationMode.SpeedProfile(warmupIterations = 3)
+        } else {
+            CompilationMode.None
+        },
+        killProcessEachIteration = coldLaunch,
+        iterations = 10
+    ),
+    block
+)
