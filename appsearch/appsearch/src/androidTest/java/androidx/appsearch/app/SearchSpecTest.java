@@ -28,7 +28,7 @@ public class SearchSpecTest {
     @Test
     public void buildSearchSpecWithoutTermMatchType() {
         assertThrows(RuntimeException.class, () -> new SearchSpec.Builder()
-                .addSchema("testSchemaType")
+                .addSchemaType("testSchemaType")
                 .build());
     }
 
@@ -37,7 +37,7 @@ public class SearchSpecTest {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addNamespace("namespace1", "namespace2")
-                .addSchema("schemaTypes1", "schemaTypes2")
+                .addSchemaType("schemaTypes1", "schemaTypes2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
                 .setMaxSnippetSize(15)
@@ -49,7 +49,7 @@ public class SearchSpecTest {
         assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
         assertThat(searchSpec.getNamespaces())
                 .containsExactly("namespace1", "namespace2").inOrder();
-        assertThat(searchSpec.getSchemas())
+        assertThat(searchSpec.getSchemaTypes())
                 .containsExactly("schemaTypes1", "schemaTypes2").inOrder();
         assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
         assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
@@ -65,7 +65,7 @@ public class SearchSpecTest {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addNamespace("namespace1", "namespace2")
-                .addSchema("schemaTypes1", "schemaTypes2")
+                .addSchemaType("schemaTypes1", "schemaTypes2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
                 .setMaxSnippetSize(15)

@@ -234,7 +234,7 @@ public class GlobalSearchSessionTest {
 
         // Query only for email documents
         searchResults = mGlobalAppSearchManager.query("body", new SearchSpec.Builder()
-                .addSchema(AppSearchEmail.SCHEMA_TYPE)
+                .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         documents = convertSearchResultsToDocuments(searchResults);
