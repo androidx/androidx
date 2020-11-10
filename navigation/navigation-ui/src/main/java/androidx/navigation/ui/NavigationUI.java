@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.customview.widget.Openable;
+import androidx.navigation.ActivityNavigator;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.NavGraph;
@@ -73,11 +74,20 @@ public final class NavigationUI {
     public static boolean onNavDestinationSelected(@NonNull MenuItem item,
             @NonNull NavController navController) {
         NavOptions.Builder builder = new NavOptions.Builder()
-                .setLaunchSingleTop(true)
-                .setEnterAnim(R.animator.nav_default_enter_anim)
-                .setExitAnim(R.animator.nav_default_exit_anim)
-                .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
-                .setPopExitAnim(R.animator.nav_default_pop_exit_anim);
+                .setLaunchSingleTop(true);
+        if (navController.getCurrentDestination().getParent().findNode(item.getItemId())
+                instanceof ActivityNavigator.Destination) {
+            builder.setEnterAnim(R.anim.nav_default_enter_anim)
+                    .setExitAnim(R.anim.nav_default_exit_anim)
+                    .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
+                    .setPopExitAnim(R.anim.nav_default_pop_exit_anim);
+
+        } else {
+            builder.setEnterAnim(R.animator.nav_default_enter_anim)
+                    .setExitAnim(R.animator.nav_default_exit_anim)
+                    .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
+                    .setPopExitAnim(R.animator.nav_default_pop_exit_anim);
+        }
         if ((item.getOrder() & Menu.CATEGORY_SECONDARY) == 0) {
             builder.setPopUpTo(findStartDestination(navController.getGraph()).getId(), false);
         }
