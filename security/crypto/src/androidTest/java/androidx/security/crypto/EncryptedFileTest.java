@@ -31,8 +31,8 @@ import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
+import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
 import com.google.crypto.tink.streamingaead.StreamingAeadFactory;
-import com.google.crypto.tink.streamingaead.StreamingAeadKeyTemplates;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -317,7 +317,7 @@ public class EncryptedFileTest {
 
         TinkConfig.register();
         KeysetHandle streadmingAeadKeysetHandle = new AndroidKeysetManager.Builder()
-                .withKeyTemplate(StreamingAeadKeyTemplates.AES256_GCM_HKDF_4KB)
+                .withKeyTemplate(AesGcmHkdfStreamingKeyManager.aes256GcmHkdf4KBTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_file_keyset__",
                         "__androidx_security_crypto_encrypted_file_pref__")
