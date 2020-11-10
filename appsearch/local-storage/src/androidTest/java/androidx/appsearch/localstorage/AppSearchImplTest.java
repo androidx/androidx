@@ -396,7 +396,7 @@ public class AppSearchImplTest {
     @Test
     public void testRemoveEmptyDatabase_NoExceptionThrown() throws Exception {
         SearchSpec searchSpec =
-                new SearchSpec.Builder().addSchema("FakeType").setTermMatch(
+                new SearchSpec.Builder().addSchemaType("FakeType").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("EmptyDatabase",
                 "", searchSpec);
