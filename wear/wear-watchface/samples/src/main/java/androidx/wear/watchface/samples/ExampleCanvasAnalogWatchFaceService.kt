@@ -76,8 +76,8 @@ val LEFT_AND_RIGHT_COMPLICATIONS = "LEFT_AND_RIGHT_COMPLICATIONS"
 /** How long each frame is displayed at expected frame rate.  */
 private const val FRAME_PERIOD_MS: Long = 16L
 
-/** A simple example canvas based watch face. */
-open class ExampleCanvasWatchFaceService : WatchFaceService() {
+/** A simple example canvas based analog watch face. */
+open class ExampleCanvasAnalogWatchFaceService : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState

@@ -42,7 +42,7 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -82,7 +82,7 @@ class WatchFaceControlClientTest {
 
     private val exampleWatchFaceComponentName = ComponentName(
         "androidx.wear.watchface.samples.test",
-        "androidx.wear.watchface.samples.ExampleCanvasWatchFaceService"
+        "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
     )
 
     private val deviceConfig = DeviceConfig(
@@ -111,7 +111,7 @@ class WatchFaceControlClientTest {
         val headlessInstance = service.createHeadlessWatchFaceClient(
             ComponentName(
                 "androidx.wear.watchface.samples.test",
-                "androidx.wear.watchface.samples.ExampleCanvasWatchFaceService"
+                "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
             ),
             DeviceConfig(
                 false,
@@ -207,7 +207,7 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasWatchFaceService(context, surfaceHolder)
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
 
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
         val handler = Handler(Looper.getMainLooper())
@@ -248,7 +248,7 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasWatchFaceService(context, surfaceHolder)
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
 
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
         val handler = Handler(Looper.getMainLooper())
@@ -289,7 +289,7 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasWatchFaceService(context, surfaceHolder)
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
 
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
         val handler = Handler(Looper.getMainLooper())
@@ -340,7 +340,7 @@ class WatchFaceControlClientTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(Rect(0, 0, 400, 400))
 
-        val wallpaperService = TestExampleCanvasWatchFaceService(context, surfaceHolder)
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
 
         // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
         val handler = Handler(Looper.getMainLooper())
@@ -377,10 +377,10 @@ class WatchFaceControlClientTest {
     }
 }
 
-internal class TestExampleCanvasWatchFaceService(
+internal class TestExampleCanvasAnalogWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
-) : ExampleCanvasWatchFaceService() {
+) : ExampleCanvasAnalogWatchFaceService() {
 
     init {
         attachBaseContext(testContext)

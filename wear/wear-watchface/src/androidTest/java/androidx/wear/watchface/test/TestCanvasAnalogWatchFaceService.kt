@@ -50,8 +50,8 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSett
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 
-/** A simple canvas test watch face for integration tests. */
-internal class TestCanvasWatchFaceService(
+/** A simple canvas test analog watch face for integration tests. */
+internal class TestCanvasAnalogWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
