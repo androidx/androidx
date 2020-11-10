@@ -487,7 +487,7 @@ public class WatchFace private constructor(
         var initFinished = false
         complicationsManager.init(
             watchFaceHostApi, calendar, renderer,
-            object : Complication.InvalidateCallback {
+            object : Complication.InvalidateListener {
                 @SuppressWarnings("SyntheticAccessor")
                 override fun onInvalidate() {
                     // Ensure we render a frame if the Complication needs rendering, e.g. because it
