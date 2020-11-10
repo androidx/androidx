@@ -174,7 +174,7 @@ data class Request(
         fun onRequestSequenceCreated(
             request: Request,
             requestNumber: RequestNumber,
-            captureRequest: CaptureRequest,
+            captureRequest: CaptureRequestWrapper,
             streams: Map<StreamId, Surface>
         ) {
         }

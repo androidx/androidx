@@ -26,6 +26,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CaptureRequestWrapper
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
@@ -153,6 +154,17 @@ class FakeFrameInfo(
     override fun unwrap(): TotalCaptureResult? {
         throw UnsupportedOperationException(
             "FakeFrameInfo does not wrap a real TotalCaptureResult object"
+        )
+    }
+}
+
+/**
+ * A fake [CaptureRequestWrapper].
+ */
+class FakeCaptureRequestWrapper : CaptureRequestWrapper {
+    override fun unwrap(): CaptureRequest? {
+        throw UnsupportedOperationException(
+            "FakeCaptureRequestWrapper does not wrap a real CaptureRequest object"
         )
     }
 }
