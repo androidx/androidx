@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,47 +44,30 @@ class LazyPagingItemsTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val items = (1..10).toList().map { "$it" }
+    val items = (1..10).toList().map { it }
 
-    val pagingSource = object : PagingSource<Int, String>() {
-        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
-            val pageNumber = params.key ?: 0
-            val prevKey = if (pageNumber > 0) pageNumber - 1 else null
-            val nextKey = if (pageNumber < items.size) pageNumber + 1 else null
-            val subList = if (pageNumber < items.size) {
-                items.subList(pageNumber, pageNumber + 1)
-            } else {
-                emptyList()
-            }
-
-            return LoadResult.Page(
-                data = subList,
-                prevKey = prevKey,
-                nextKey = nextKey
-            )
-        }
-    }
-
-    val pager = Pager(
-        PagingConfig(
+    private fun createPager(
+        config: PagingConfig = PagingConfig(
             pageSize = 1,
-            enablePlaceholders = true,
-            maxSize = 200
-        )
-    ) {
-        pagingSource
+            enablePlaceholders = false,
+            maxSize = 200,
+            initialLoadSize = 3,
+            prefetchDistance = 1,
+        ),
+        pagingSourceFactory: () -> PagingSource<Int, Int> = {
+            TestPagingSource(items = items, loadDelay = 0)
+        }
+    ): Pager<Int, Int> {
+        return Pager(config = config, pagingSourceFactory = pagingSourceFactory)
     }
 
     @Test
     fun lazyPagingColumnShowsItems() {
         rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.preferredHeight(200.dp)) {
                 items(lazyPagingItems) {
-                    Spacer(
-                        Modifier.preferredHeight(101.dp).fillParentMaxWidth()
-                            .testTag("$it")
-                    )
+                    Spacer(Modifier.preferredHeight(101.dp).fillParentMaxWidth().testTag("$it"))
                 }
             }
         }
@@ -105,7 +90,7 @@ class LazyPagingItemsTest {
     @Test
     fun lazyPagingColumnShowsIndexedItems() {
         rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
             LazyColumn(Modifier.preferredHeight(200.dp)) {
                 itemsIndexed(lazyPagingItems) { index, item ->
                     Spacer(
@@ -134,13 +119,10 @@ class LazyPagingItemsTest {
     @Test
     fun lazyPagingRowShowsItems() {
         rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
             LazyRow(Modifier.preferredWidth(200.dp)) {
                 items(lazyPagingItems) {
-                    Spacer(
-                        Modifier.preferredWidth(101.dp).fillParentMaxHeight()
-                            .testTag("$it")
-                    )
+                    Spacer(Modifier.preferredWidth(101.dp).fillParentMaxHeight().testTag("$it"))
                 }
             }
         }
@@ -163,7 +145,7 @@ class LazyPagingItemsTest {
     @Test
     fun lazyPagingRowShowsIndexedItems() {
         rule.setContent {
-            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            val lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
             LazyRow(Modifier.preferredWidth(200.dp)) {
                 itemsIndexed(lazyPagingItems) { index, item ->
                     Spacer(
@@ -187,5 +169,97 @@ class LazyPagingItemsTest {
 
         rule.onNodeWithTag("3-4")
             .assertDoesNotExist()
+    }
+
+    @Test
+    fun snapshot() {
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
+        }
+
+        // Trigger page fetch until all items are loaded
+        for (i in items.indices) {
+            lazyPagingItems.get(i)
+            rule.waitForIdle()
+        }
+
+        assertThat(lazyPagingItems.snapshot()).isEqualTo(items)
+    }
+
+    @Test
+    fun peek() {
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = createPager().flow.collectAsLazyPagingItems()
+        }
+
+        // Trigger page fetch until all items 0-6 are loaded
+        for (i in 0..4) {
+            lazyPagingItems.get(i)
+            rule.waitForIdle()
+        }
+
+        assertThat(lazyPagingItems.itemCount).isEqualTo(6)
+        for (i in 0..4) {
+            assertThat(lazyPagingItems.peek(i)).isEqualTo(items[i])
+        }
+        // Verify peek does not trigger page fetch.
+        assertThat(lazyPagingItems.itemCount).isEqualTo(6)
+    }
+
+    @Test
+    fun retry() {
+        var factoryCallCount = 0
+        lateinit var pagingSource: TestPagingSource
+        val pager = createPager {
+            factoryCallCount++
+            pagingSource = TestPagingSource(items = items, loadDelay = 0)
+            if (factoryCallCount == 1) {
+                pagingSource.errorNextLoad = true
+            }
+            pagingSource
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+        }
+
+        assertThat(lazyPagingItems.snapshot()).isEmpty()
+
+        lazyPagingItems.retry()
+        rule.waitForIdle()
+
+        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        // Verify retry does not invalidate.
+        assertThat(factoryCallCount).isEqualTo(1)
+    }
+
+    @Test
+    fun refresh() {
+        var factoryCallCount = 0
+        lateinit var pagingSource: TestPagingSource
+        val pager = createPager {
+            factoryCallCount++
+            pagingSource = TestPagingSource(items = items, loadDelay = 0)
+            if (factoryCallCount == 1) {
+                pagingSource.errorNextLoad = true
+            }
+            pagingSource
+        }
+
+        lateinit var lazyPagingItems: LazyPagingItems<Int>
+        rule.setContent {
+            lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+        }
+
+        assertThat(lazyPagingItems.snapshot()).isEmpty()
+
+        lazyPagingItems.refresh()
+        rule.waitForIdle()
+
+        assertThat(lazyPagingItems.snapshot()).isNotEmpty()
+        assertThat(factoryCallCount).isEqualTo(2)
     }
 }
