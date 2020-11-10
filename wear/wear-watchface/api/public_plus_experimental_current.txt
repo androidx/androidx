@@ -240,10 +240,10 @@ package androidx.wear.watchface {
     ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
-    method public boolean getHasBurnInProtection();
-    method public boolean getHasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
     method public int getScreenShape();
+    method public boolean hasBurnInProtection();
+    method public boolean hasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible();
     property public final long analogPreviewReferenceTimeMillis;
