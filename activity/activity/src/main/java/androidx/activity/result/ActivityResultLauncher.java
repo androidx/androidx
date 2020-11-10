@@ -36,7 +36,12 @@ public abstract class ActivityResultLauncher<I> {
     /**
      * Executes an {@link ActivityResultContract}.
      *
+     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * if there was no Activity found to run the given Intent.
+
      * @param input the input required to execute an {@link ActivityResultContract}.
+     *
+     * @throws android.content.ActivityNotFoundException
      */
     public void launch(@SuppressLint("UnknownNullness") I input) {
         launch(input, null);
@@ -45,8 +50,13 @@ public abstract class ActivityResultLauncher<I> {
     /**
      * Executes an {@link ActivityResultContract}.
      *
+     * <p>This method throws {@link android.content.ActivityNotFoundException}
+     * if there was no Activity found to run the given Intent.
+     *
      * @param input the input required to execute an {@link ActivityResultContract}.
      * @param options Additional options for how the Activity should be started.
+     *
+     * @throws android.content.ActivityNotFoundException
      */
     public abstract void launch(@SuppressLint("UnknownNullness") I input,
             @Nullable ActivityOptionsCompat options);
