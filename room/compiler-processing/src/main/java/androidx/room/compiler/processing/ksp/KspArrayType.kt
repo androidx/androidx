@@ -17,23 +17,129 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 
-internal class KspArrayType(
+internal sealed class KspArrayType(
     env: KspProcessingEnv,
     ksType: KSType
-) : KspDeclaredType( // in kotlin, array types are also declared
+) : KspType(
     env, ksType
 ),
     XArrayType {
-    override val componentType: XType by lazy {
-        typeArguments.first().extendsBoundOrSelf()
-    }
 
     override val typeName: TypeName by lazy {
         ArrayTypeName.of(componentType.typeName)
+    }
+
+    override fun boxed() = this
+
+    /**
+     * Kotlin arrays in the form of Array<X>.
+     */
+    private class BoxedArray(
+        env: KspProcessingEnv,
+        ksType: KSType
+    ) : KspArrayType(
+        env, ksType
+    ) {
+        override val componentType: XType by lazy {
+            val arg = ksType.arguments.single()
+            // https://kotlinlang.org/docs/reference/basic-types.html#primitive-type-arrays
+            // these are always boxed
+            env.wrapDeclared(
+                checkNotNull(arg.type?.resolve())
+            )
+        }
+    }
+
+    /**
+     * Built in primitive array types (e.g. IntArray)
+     */
+    private class PrimitiveArray(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        override val componentType: KspType
+    ) : KspArrayType(
+        env, ksType
+    )
+
+    /**
+     * Factory class to create instances of [KspArrayType].
+     */
+    internal class Factory(private val env: KspProcessingEnv) {
+        // map of built in array type to its component type
+        private val builtInArrays = mapOf(
+            "kotlin.BooleanArray" to KspPrimitiveType(env, env.resolver.builtIns.booleanType),
+            "kotlin.ByteArray" to KspPrimitiveType(env, env.resolver.builtIns.byteType),
+            "kotlin.CharArray" to KspPrimitiveType(env, env.resolver.builtIns.charType),
+            "kotlin.DoubleArray" to KspPrimitiveType(env, env.resolver.builtIns.doubleType),
+            "kotlin.FloatArray" to KspPrimitiveType(env, env.resolver.builtIns.floatType),
+            "kotlin.IntArray" to KspPrimitiveType(env, env.resolver.builtIns.intType),
+            "kotlin.LongArray" to KspPrimitiveType(env, env.resolver.builtIns.longType),
+            "kotlin.ShortArray" to KspPrimitiveType(env, env.resolver.builtIns.shortType),
+        )
+
+        // map from the primitive to its array
+        private val reverseBuiltInArrayLookup = builtInArrays.entries
+            .associateBy { it.value.ksType }
+
+        fun createWithComponentType(componentType: KspType): KspArrayType {
+            if (componentType.nullability == XNullability.NONNULL) {
+                val primitiveArrayEntry: Map.Entry<String, KspPrimitiveType>? =
+                    reverseBuiltInArrayLookup[componentType.ksType]
+                if (primitiveArrayEntry != null) {
+                    return PrimitiveArray(
+                        env = env,
+                        ksType = env.resolver.requireType(
+                            primitiveArrayEntry.key
+                        ),
+                        componentType = primitiveArrayEntry.value
+                    )
+                }
+            }
+
+            return BoxedArray(
+                env = env,
+                ksType = env.resolver.builtIns.arrayType.replace(
+                    listOf(
+                        env.resolver.getTypeArgument(
+                            componentType.ksType.createTypeReference(),
+                            Variance.INVARIANT
+                        )
+                    )
+                )
+            )
+        }
+
+        /**
+         * Creates and returns a [KspArrayType] if and only if the given [ksType] represents an
+         * array.
+         */
+        fun createIfArray(ksType: KSType): KspArrayType? {
+            val qName = ksType.declaration.qualifiedName?.asString()
+            if (qName == KOTLIN_ARRAY_Q_NAME) {
+                return BoxedArray(
+                    env = env,
+                    ksType = ksType
+                )
+            }
+            builtInArrays[qName]?.let { primitiveType ->
+                return PrimitiveArray(
+                    env = env,
+                    ksType = ksType,
+                    componentType = primitiveType
+                )
+            }
+            return null
+        }
+    }
+
+    companion object {
+        private const val KOTLIN_ARRAY_Q_NAME = "kotlin.Array"
     }
 }
