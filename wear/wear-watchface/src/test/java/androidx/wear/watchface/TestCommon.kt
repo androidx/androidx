@@ -44,6 +44,7 @@ internal class TestWatchFaceService(
     private val userStyleRepository: UserStyleRepository,
     private val watchState: MutableWatchState,
     private val handler: Handler,
+    private val tapListener: WatchFace.TapListener?
 ) : WatchFaceService() {
     var complicationSingleTapped: Int? = null
     var complicationDoubleTapped: Int? = null
@@ -100,7 +101,7 @@ internal class TestWatchFaceService(
         override fun getSystemTimeMillis(): Long {
             return mockSystemTimeMillis
         }
-    })
+    }).setTapListener(tapListener)
 
     override fun getHandler() = handler
 

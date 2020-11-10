@@ -67,6 +67,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.reset
+import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
@@ -89,6 +90,7 @@ class WatchFaceServiceTest {
     private val handler = mock<Handler>()
     private val iWatchFaceService = mock<IWatchFaceService>()
     private val surfaceHolder = mock<SurfaceHolder>()
+    private val tapListener = mock<WatchFace.TapListener>()
     private val watchState = MutableWatchState()
 
     init {
@@ -294,7 +296,8 @@ class WatchFaceServiceTest {
         userStyleSchema: UserStyleSchema,
         apiVersion: Int = 2,
         hasLowBitAmbient: Boolean = false,
-        hasBurnInProtection: Boolean = false
+        hasBurnInProtection: Boolean = false,
+        tapListener: WatchFace.TapListener? = null
     ) {
         userStyleRepository = UserStyleRepository(userStyleSchema)
         this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
@@ -311,6 +314,7 @@ class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
+            tapListener
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -345,6 +349,7 @@ class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
+            null
         )
 
         InteractiveInstanceManager
@@ -823,6 +828,38 @@ class WatchFaceServiceTest {
     }
 
     @Test
+    fun tapListener_tap() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            tapListener = tapListener
+        )
+
+        // Tap on nothing.
+        tapAt(1, 1)
+
+        verify(tapListener).onTap(TapType.TOUCH, 1, 1)
+        verify(tapListener).onTap(TapType.TAP, 1, 1)
+    }
+
+    @Test
+    fun tapListener_tapComplication() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            tapListener = tapListener
+        )
+
+        // Tap right complication.
+        tapAt(70, 50)
+
+        verify(tapListener, times(0)).onTap(TapType.TOUCH, 70, 50)
+        verify(tapListener, times(0)).onTap(TapType.TAP, 70, 50)
+    }
+
+    @Test
     fun interactiveFrameRate_reducedWhenBatteryLow() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -1001,6 +1038,7 @@ class WatchFaceServiceTest {
             userStyleRepository2,
             watchState,
             handler,
+            null
         )
 
         // Trigger watch face creation.
@@ -1335,6 +1373,7 @@ class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
+            null
         )
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -1554,6 +1593,7 @@ class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
+            null
         )
 
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper

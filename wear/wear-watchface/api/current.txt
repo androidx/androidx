@@ -197,6 +197,7 @@ package androidx.wear.watchface {
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace setPreviewReferenceTimeMillis(long previewReferenceTimeMillis);
+    method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
     property public final Long? overridePreviewReferenceTimeMillis;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;
@@ -217,6 +218,10 @@ package androidx.wear.watchface {
     property public final int statusBarGravity;
     property public final boolean tapEventsAccepted;
     property public final int viewProtectionMode;
+  }
+
+  public static interface WatchFace.TapListener {
+    method @UiThread public void onTap(int originalTapType, @Px int xPos, @Px int yPos);
   }
 
   public final class WatchFaceKt {
