@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.macro.sample
+package androidx.ui.macrobenchmark
 
-import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.CpuUsageMetric
-import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
@@ -30,22 +26,21 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class MacroBenchmarkTest {
+class StartupDemosMacrobenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
-    @Test
     @Ignore("Not running the test in CI")
-    fun basicTest() = benchmarkRule.measureRepeated(
-        MacrobenchmarkConfig(
-            packageName = "androidx.benchmark.integration.macro.target",
-            listOf(StartupTimingMetric(), CpuUsageMetric()),
-            CompilationMode.Speed,
-            killProcessEachIteration = true,
-            iterations = 4
-        )
-    ) {
-        pressHome()
-        launchPackageAndWait()
-    }
+    @Test
+    fun compiledColdStartup() = benchmarkRule.measureStartup(
+        profileCompiled = true,
+        coldLaunch = true
+    )
+
+    @Ignore("Not running the test in CI")
+    @Test
+    fun uncompiledColdStartup() = benchmarkRule.measureStartup(
+        profileCompiled = false,
+        coldLaunch = true
+    )
 }
