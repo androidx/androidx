@@ -17,6 +17,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:lb="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/details_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,6 +37,7 @@
         android:clipToPadding="false"
         android:background="?attr/defaultBrandColor"
         android:elevation="@dimen/lb_details_overview_z"
+        tools:ignore="UnusedAttribute"
         >
 
     <LinearLayout

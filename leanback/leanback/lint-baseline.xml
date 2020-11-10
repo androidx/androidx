@@ -2,402 +2,6 @@
 <issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        String dateFieldsPattern = datePickerFormat.toUpperCase();"
-        errorLine2="                                                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="246"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        timeFieldsPattern = timeFieldsPattern.toUpperCase();"
-        errorLine2="                                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="283"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 26 (current min is 17): `android.view.View#AUTOFILL_TYPE_TEXT`"
-        errorLine1="        return AUTOFILL_TYPE_TEXT;"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="133"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="SimpleDateFormat"
-        message="To get local formatting use `getDateInstance()`, `getDateTimeInstance()`, or `getTimeInstance()`, or use `new SimpleDateFormat(String template, Locale locale)` with for example `Locale.US` for ASCII dates."
-        errorLine1="    private final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="61"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_details_overview.xml"
-            line="37"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
-            line="38"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:elevation=&quot;@dimen/lb_details_overview_z&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_fullwidth_details_overview_logo.xml"
-            line="23"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionName=&quot;guidedactions_root&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionGroup=&quot;false&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="21"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionName=&quot;guidedactions_list_background&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="28"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionName=&quot;guidedactions_content&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="38"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionGroup=&quot;false&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="39"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="            android:transitionGroup=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="43"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="            android:transitionName=&quot;guidedactions_sub_list_background&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="48"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="            android:transitionGroup=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedactions.xml"
-            line="58"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionName=&quot;guidedactions_root2&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionGroup=&quot;false&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="21"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionName=&quot;guidedactions_list_background2&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="28"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionName=&quot;guidedactions_content2&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="35"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionGroup=&quot;false&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="            android:transitionGroup=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedbuttonactions.xml"
-            line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionName=&quot;guidedstep_background&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_background.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                android:transitionName=&quot;action_fragment_root&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="48"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                android:transitionGroup=&quot;false&quot;"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="49"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:transitionName=&quot;action_fragment_background&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="60"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `outlineProvider` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:outlineProvider=&quot;paddedBounds&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="62"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:elevation=&quot;?attr/guidedActionsElevation&quot; />"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="66"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionName` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:transitionName=&quot;action_fragment&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="72"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:transitionGroup=&quot;false&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="73"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="                    android:elevation=&quot;?attr/guidedActionsElevation&quot; />"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="77"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:transitionGroup=&quot;true&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_headers_fragment.xml"
-            line="20"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="    android:elevation=&quot;@dimen/lb_browse_headers_z&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_headers_fragment.xml"
-            line="24"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionGroup=&quot;false&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_playback_fragment.xml"
-            line="21"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionGroup=&quot;false&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_playback_fragment.xml"
-            line="26"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="            android:transitionGroup=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_playback_fragment.xml"
-            line="32"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `transitionGroup` is only used in API level 21 and higher (current min is 17)"
-        errorLine1="        android:transitionGroup=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/lb_title_view.xml"
-            line="41"
-            column="9"/>
-    </issue>
-
-    <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
         errorLine1="public class FocusHighlightHelper {"
@@ -1493,7 +1097,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_guidedstep_background.xml"
-            line="23"
+            line="25"
             column="5"/>
     </issue>
 
@@ -1504,7 +1108,7 @@
         errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_details_overview.xml"
-            line="32"
+            line="33"
             column="6"/>
     </issue>
 
@@ -1515,7 +1119,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_details_overview.xml"
-            line="41"
+            line="43"
             column="6"/>
     </issue>
 
@@ -1537,7 +1141,7 @@
         errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_fullwidth_details_overview.xml"
-            line="31"
+            line="32"
             column="6"/>
     </issue>
 
@@ -1548,7 +1152,7 @@
         errorLine2="     ~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_fullwidth_details_overview.xml"
-            line="41"
+            line="43"
             column="6"/>
     </issue>
 
@@ -1559,7 +1163,7 @@
         errorLine2="         ~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_guidedstep_fragment.xml"
-            line="33"
+            line="34"
             column="10"/>
     </issue>
 
@@ -1602,7 +1206,7 @@
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="160"
+            line="162"
             column="20"/>
     </issue>
 
@@ -1657,7 +1261,7 @@
         errorLine2="         ~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_details_overview.xml"
-            line="48"
+            line="50"
             column="10"/>
     </issue>
 
@@ -1844,7 +1448,7 @@
         errorLine2="     ~~~~~~~~~">
         <location
             file="src/main/res/layout/lb_title_view.xml"
-            line="19"
+            line="20"
             column="6"/>
     </issue>
 
@@ -10212,7 +9816,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="76"
+            line="77"
             column="33"/>
     </issue>
 
@@ -10223,7 +9827,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="80"
+            line="81"
             column="33"/>
     </issue>
 
@@ -10234,7 +9838,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="80"
+            line="81"
             column="46"/>
     </issue>
 
@@ -10245,7 +9849,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="84"
+            line="85"
             column="33"/>
     </issue>
 
@@ -10256,7 +9860,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="84"
+            line="85"
             column="46"/>
     </issue>
 
@@ -10267,7 +9871,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="92"
+            line="93"
             column="35"/>
     </issue>
 
@@ -10278,7 +9882,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="97"
+            line="98"
             column="45"/>
     </issue>
 
@@ -10289,7 +9893,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="109"
+            line="110"
             column="51"/>
     </issue>
 
@@ -10300,7 +9904,7 @@
         errorLine2="                                                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="115"
+            line="116"
             column="67"/>
     </issue>
 
@@ -10311,7 +9915,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="137"
+            line="139"
             column="39"/>
     </issue>
 
@@ -10322,7 +9926,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="142"
+            line="144"
             column="26"/>
     </issue>
 
@@ -10333,7 +9937,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="154"
+            line="156"
             column="54"/>
     </issue>
 
