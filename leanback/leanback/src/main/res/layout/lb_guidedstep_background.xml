@@ -16,8 +16,10 @@
 -->
 <androidx.leanback.widget.NonOverlappingView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/guidedstep_background"
     android:transitionName="guidedstep_background"
+    tools:ignore="UnusedAttribute"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/guidedStepBackground" />

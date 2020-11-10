@@ -16,9 +16,11 @@
 -->
 <!-- Layout for the settings list fragment -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/guidedactions_root"
     android:transitionName="guidedactions_root"
     android:transitionGroup="false"
+    tools:ignore="UnusedAttribute"
     android:layout_width="0dp"
     android:layout_weight="1"
     android:layout_height="match_parent">
@@ -26,6 +28,7 @@
     <androidx.leanback.widget.NonOverlappingView
         android:id="@+id/guidedactions_list_background"
         android:transitionName="guidedactions_list_background"
+        tools:ignore="UnusedAttribute"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
@@ -37,15 +40,18 @@
         android:id="@+id/guidedactions_content"
         android:transitionName="guidedactions_content"
         android:transitionGroup="false"
+        tools:ignore="UnusedAttribute"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.leanback.widget.VerticalGridView
             android:transitionGroup="true"
+            tools:ignore="UnusedAttribute"
             android:id="@+id/guidedactions_list"
             style="?attr/guidedActionsListStyle" />
         <androidx.leanback.widget.NonOverlappingView
             android:id="@+id/guidedactions_sub_list_background"
             android:transitionName="guidedactions_sub_list_background"
+            tools:ignore="UnusedAttribute"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignTop="@+id/guidedactions_sub_list"
@@ -56,6 +62,7 @@
             android:background="?attr/guidedActionsBackgroundDark" />
         <androidx.leanback.widget.VerticalGridView
             android:transitionGroup="true"
+            tools:ignore="UnusedAttribute"
             android:id="@+id/guidedactions_sub_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"

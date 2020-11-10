@@ -17,8 +17,10 @@
 <!-- Layout for the settings list fragment -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/guidedactions_root2"
+    xmlns:tools="http://schemas.android.com/tools"
     android:transitionName="guidedactions_root2"
     android:transitionGroup="false"
+    tools:ignore="UnusedAttribute"
     android:layout_width="0dp"
     android:layout_weight="?attr/guidedButtonActionsWidthWeight"
     android:layout_height="match_parent">
@@ -26,6 +28,7 @@
     <androidx.leanback.widget.NonOverlappingView
         android:id="@+id/guidedactions_list_background2"
         android:transitionName="guidedactions_list_background2"
+        tools:ignore="UnusedAttribute"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/guidedActionsBackgroundDark" />
@@ -34,6 +37,7 @@
         android:id="@+id/guidedactions_content2"
         android:transitionName="guidedactions_content2"
         android:transitionGroup="false"
+        tools:ignore="UnusedAttribute"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <androidx.leanback.widget.VerticalGridView
