@@ -17,45 +17,20 @@
 package androidx.wear.watchface.test
 
 import android.content.Context
-import android.graphics.RectF
-import android.graphics.drawable.Icon
 import android.os.Handler
 import android.view.SurfaceHolder
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
-import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-import androidx.wear.watchface.samples.ExampleCanvasRenderer
-import androidx.wear.watchface.samples.LEFT_AND_RIGHT_COMPLICATIONS
-import androidx.wear.watchface.samples.LEFT_COMPLICATION
-import androidx.wear.watchface.samples.NO_COMPLICATIONS
-import androidx.wear.watchface.samples.R
-import androidx.wear.watchface.samples.RIGHT_COMPLICATION
-import androidx.wear.watchface.samples.WatchFaceColorStyle
-import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
-import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay
-import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting.ComplicationsOption
-import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
-import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
 
 /** A simple canvas test analog watch face for integration tests. */
 internal class TestCanvasAnalogWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
-    var surfacHolderOverride: SurfaceHolder
+    var surfaceHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -72,160 +47,10 @@ internal class TestCanvasAnalogWatchFaceService(
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-
-        val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
-        val colorStyleSetting = ListUserStyleSetting(
-            "color_style_setting",
-            "Colors",
-            "Watchface colorization",
-            icon = null,
-            options = listOf(
-                ListUserStyleSetting.ListOption(
-                    "red_style",
-                    "Red",
-                    Icon.createWithResource(this, R.drawable.red_style)
-                ),
-                ListUserStyleSetting.ListOption(
-                    "green_style",
-                    "Green",
-                    Icon.createWithResource(this, R.drawable.green_style)
-                )
-            ),
-            listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
-        )
-        val drawHourPipsStyleSetting =
-            BooleanUserStyleSetting(
-                "draw_hour_pips_style_setting",
-                "Hour Pips",
-                "Whether or not hour pips should be drawn",
-                null,
-                true,
-                listOf(Layer.BASE_LAYER)
-            )
-        val watchHandLengthStyleSetting =
-            DoubleRangeUserStyleSetting(
-                "watch_hand_length_style_setting",
-                "Hand length",
-                "How long the watch hands should be",
-                null,
-                0.25,
-                1.0,
-                1.0,
-                listOf(Layer.TOP_LAYER)
-            )
-        val complicationsStyleSetting = ComplicationsUserStyleSetting(
-            "complications_style_setting",
-            "Complications",
-            "Number and position",
-            icon = null,
-            complicationConfig = listOf(
-                ComplicationsOption(
-                    LEFT_AND_RIGHT_COMPLICATIONS,
-                    "Both",
-                    null,
-                    listOf(
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
-                            .setEnabled(true).build(),
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
-                            .setEnabled(true).build()
-                    )
-                ),
-                ComplicationsOption(
-                    NO_COMPLICATIONS,
-                    "None",
-                    null,
-                    listOf(
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
-                            .setEnabled(false).build(),
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
-                            .setEnabled(false).build()
-                    )
-                ),
-                ComplicationsOption(
-                    LEFT_COMPLICATION,
-                    "Left",
-                    null,
-                    listOf(
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
-                            .setEnabled(true).build(),
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
-                            .setEnabled(true).build()
-                    )
-                ),
-                ComplicationsOption(
-                    RIGHT_COMPLICATION,
-                    "Right",
-                    null,
-                    listOf(
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
-                            .setEnabled(true).build(),
-                        ComplicationOverlay.Builder(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
-                            .setEnabled(false).build()
-                    )
-                )
-            ),
-            listOf(Layer.COMPLICATIONS)
-        )
-        val userStyleRepository = UserStyleRepository(
-            UserStyleSchema(
-                listOf(
-                    colorStyleSetting,
-                    drawHourPipsStyleSetting,
-                    watchHandLengthStyleSetting,
-                    complicationsStyleSetting
-                )
-            )
-        )
-        val complicationSlots = ComplicationsManager(
-            listOf(
-                Complication.Builder(
-                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    listOf(
-                        ComplicationType.RANGED_VALUE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT,
-                        ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
-                    ),
-                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-                ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
-                    .build(),
-                Complication.Builder(
-                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    listOf(
-                        ComplicationType.RANGED_VALUE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT,
-                        ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
-                    ),
-                    DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
-                ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
-                    .build()
-            ),
-            userStyleRepository
-        )
-        val renderer = ExampleCanvasRenderer(
-            surfaceHolder,
+        return createExampleCanvasAnalogWatchFaceBuilder(
             this,
-            watchFaceStyle,
-            userStyleRepository,
-            watchState,
-            colorStyleSetting,
-            drawHourPipsStyleSetting,
-            watchHandLengthStyleSetting,
-            complicationSlots
-        )
-
-        return WatchFace(
-            WatchFaceType.ANALOG,
-            userStyleRepository,
-            complicationSlots,
-            renderer
+            surfaceHolder,
+            watchState
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
                 return mockSystemTimeMillis
@@ -240,5 +65,5 @@ internal class TestCanvasAnalogWatchFaceService(
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
 
-    override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
