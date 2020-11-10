@@ -78,9 +78,8 @@ public class GenericDocument {
      * The maximum number of indexed properties a document can have.
      *
      * <p>Indexed properties are properties where the
-     * {@link androidx.appsearch.annotation.AppSearchDocument.Property#indexingType} constant is
-     * anything other than {@link
-     * androidx.appsearch.app.AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
+     * {@link AppSearchSchema.PropertyConfig#getIndexingType()} constant is anything other than
+     * {@link AppSearchSchema.PropertyConfig.IndexingType#INDEXING_TYPE_NONE}.
      */
     public static int getMaxIndexedProperties() {
         return MAX_INDEXED_PROPERTIES;
