@@ -281,6 +281,7 @@ public abstract class BaseGridView extends RecyclerView {
         });
     }
 
+    @SuppressLint("CustomViewStyleable")
     void initBaseGridViewAttributes(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbBaseGridView);
         boolean throughFront = a.getBoolean(R.styleable.lbBaseGridView_focusOutFront, false);
