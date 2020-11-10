@@ -29,10 +29,13 @@ class TestPagingSource(
     counted: Boolean = true,
     override val jumpingSupported: Boolean = true,
     val items: List<Int> = ITEMS,
-    private val loadDelay: Long = 1000
+    private val loadDelay: Long = 1000,
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
     var nextLoadResult: LoadResult<Int, Int>? = null
+
+    val getRefreshKeyCalls = mutableListOf<PagingState<Int, Int>>()
+    val loadedPages = mutableListOf<LoadResult.Page<Int, Int>>()
 
     init {
         if (!counted) {
@@ -74,11 +77,14 @@ class TestPagingSource(
             if (end < items.size) end else null,
             start,
             items.size - end
-        )
+        ).also {
+            loadedPages.add(it)
+        }
     }
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
+        getRefreshKeyCalls.add(state)
         return state.anchorPosition
     }
 
