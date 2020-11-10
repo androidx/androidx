@@ -35,17 +35,50 @@ class KspFieldElementTest {
             """
             class Foo {
                 val intField: Int = 0
+                @JvmField
+                val jvmField: Int = 0
+                protected val protectedField: Int = 0
+                @JvmField
+                protected val protectedJvmField: Int = 0
             }
             """.trimIndent()
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val fooElement = invocation.processingEnv.requireTypeElement("Foo")
-            fooElement
-                .getField("intField").let { field ->
-                    assertThat(field.name).isEqualTo("intField")
-                    assertThat(field.kindName()).isEqualTo("property")
-                    assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
-                }
+            fooElement.getField("intField").let { field ->
+                assertThat(field.name).isEqualTo("intField")
+                assertThat(field.kindName()).isEqualTo("property")
+                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
+                assertThat(field.isPublic()).isFalse()
+                assertThat(field.isProtected()).isFalse()
+                // from java, it is private
+                assertThat(field.isPrivate()).isTrue()
+            }
+            fooElement.getField("jvmField").let { field ->
+                assertThat(field.name).isEqualTo("jvmField")
+                assertThat(field.kindName()).isEqualTo("property")
+                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
+                assertThat(field.isPublic()).isTrue()
+                assertThat(field.isProtected()).isFalse()
+                assertThat(field.isPrivate()).isFalse()
+            }
+            fooElement.getField("protectedField").let { field ->
+                assertThat(field.name).isEqualTo("protectedField")
+                assertThat(field.kindName()).isEqualTo("property")
+                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
+                assertThat(field.isPublic()).isFalse()
+                assertThat(field.isProtected()).isFalse()
+                // from java, it is private
+                assertThat(field.isPrivate()).isTrue()
+            }
+            fooElement.getField("protectedJvmField").let { field ->
+                assertThat(field.name).isEqualTo("protectedJvmField")
+                assertThat(field.kindName()).isEqualTo("property")
+                assertThat(field.enclosingTypeElement).isEqualTo(fooElement)
+                assertThat(field.isPublic()).isFalse()
+                assertThat(field.isProtected()).isTrue()
+                assertThat(field.isPrivate()).isFalse()
+            }
         }
     }
 

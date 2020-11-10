@@ -237,6 +237,12 @@ class XExecutableElementTest {
                     private set
                     get() = TODO()
                 private val prop4:String = ""
+                protected var prop5:String = ""
+                var prop6: String
+                    get // this cannot be protected, https://youtrack.jetbrains.com/issue/KT-3110
+                    protected set
+                protected var prop7: String
+                    private set
             }
             """.trimIndent()
         )
@@ -247,21 +253,37 @@ class XExecutableElementTest {
             }
             assertThat(methodNames).containsNoneIn(
                 listOf(
-                    "setX", "setProp3", "setZ", "setProp4", "getProp4"
+                    "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"
                 )
             )
-            listOf("getX", "getProp1", "getProp2", "getProp3").forEach {
-                klass.getMethod(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
-                    assertThat(method.parameters).isEmpty()
+            listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6")
+                .forEach {
+                    klass.getMethod(it).let { method ->
+                        assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                        assertThat(method.parameters).isEmpty()
+                    }
                 }
-            }
             listOf("setY", "setProp2").forEach {
                 klass.getMethod(it).let { method ->
                     assertThat(method.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
                     assertThat(method.parameters.first().type.typeName).isEqualTo(
                         invocation.types.string
                     )
+                    assertThat(method.isPublic()).isTrue()
+                }
+            }
+            listOf("getProp5", "getProp7").forEach {
+                klass.getMethod(it).let { method ->
+                    assertThat(method.isProtected()).isTrue()
+                    assertThat(method.isPublic()).isFalse()
+                    assertThat(method.isPrivate()).isFalse()
+                }
+            }
+            listOf("setProp5", "setProp6").forEach {
+                klass.getMethod(it).let { method ->
+                    assertThat(method.isProtected()).isTrue()
+                    assertThat(method.isPublic()).isFalse()
+                    assertThat(method.isPrivate()).isFalse()
                 }
             }
         }

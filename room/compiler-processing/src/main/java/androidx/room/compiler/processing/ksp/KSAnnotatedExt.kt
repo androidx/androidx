@@ -22,6 +22,10 @@ internal fun KSAnnotated.isJvmStatic() = annotations.any {
     it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmStatic"
 }
 
+internal fun KSAnnotated.isJvmField() = annotations.any {
+    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmField"
+}
+
 internal fun KSAnnotated.isJvmDefault() = annotations.any {
     it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmDefault"
 }
