@@ -278,7 +278,7 @@ public sealed class UserStyleSetting(
          * Overrides to be applied to the corresponding complication's initial config (as specified
          * in [androidx.wear.watchface.Complication]) when the setting is selected.
          */
-        public class ComplicationOverlay internal constructor(
+        public class ComplicationOverlay constructor(
             /** The id of the complication to configure. */
             public val complicationId: Int,
 
@@ -287,31 +287,31 @@ public sealed class UserStyleSetting(
              * null then no changes are made.
              */
             @get:JvmName("isEnabled")
-            public val enabled: Boolean?,
+            public val enabled: Boolean? = null,
 
             /**
              * If non null, the new unit square screen space complication bounds for this
              * configuration. If null then no changes are made.
              */
-            public val bounds: RectF?,
+            public val bounds: RectF? = null,
 
             /**
              * If non null, the new types of complication supported by this complication for this
              * configuration. If null then no changes are made.
              */
-            public val supportedTypes: List<ComplicationType>?,
+            public val supportedTypes: List<ComplicationType>? = null,
 
             /**
              * If non null, the new default complication provider for this configuration. If null
              * then no changes are made.
              */
-            public val defaultProviderPolicy: DefaultComplicationProviderPolicy?,
+            public val defaultProviderPolicy: DefaultComplicationProviderPolicy? = null,
 
             /**
              * If non null, the new default complication provider data type. If null then no changes
              * are made.
              */
-            public val defaultProviderType: ComplicationType?
+            public val defaultProviderType: ComplicationType? = null
         ) {
             public class Builder(
                 /** The id of the complication to configure. */

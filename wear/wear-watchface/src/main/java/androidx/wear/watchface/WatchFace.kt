@@ -37,6 +37,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
@@ -130,6 +131,62 @@ public class WatchFace private constructor(
     }
 
     /**
+     * Legacy Wear 2.0 watch face styling. These settings will be ignored on Wear 3.0 devices.
+     *
+     * @throws IllegalArgumentException if [viewProtectionMode] has an unexpected value
+     */
+    public class LegacyWatchFaceOverlayStyle @JvmOverloads constructor(
+        /**
+         * The view protection mode bit field, must be a combination of
+         *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
+         *     [PROTECT_WHOLE_SCREEN].
+         */
+        public val viewProtectionMode: Int,
+
+        /**
+         * Controls the position of status icons (battery state, lack of connection) on the screen.
+         *
+         * This must be any combination of horizontal Gravity constant
+         *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
+         *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
+         *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
+         *     only the vertical gravity is respected.
+         */
+        public val statusBarGravity: Int,
+
+        /**
+         * Controls whether this watch face accepts tap events.
+         *
+         * Watchfaces that set this {@code true} are indicating they are prepared to receive
+         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH],
+         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TOUCH_CANCEL], and
+         * [IInteractiveWatchFaceSysUI.TAP_TYPE_TAP] events.
+         */
+        @get:JvmName("isTapEventsAccepted")
+        public val tapEventsAccepted: Boolean,
+
+        /**
+         * The accent color which will be used when drawing the unread notification indicator.
+         * Default color is white.
+         */
+        @ColorInt
+        public val accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
+    ) {
+        init {
+            if (viewProtectionMode < 0 ||
+                viewProtectionMode >
+                WatchFaceStyle.PROTECT_STATUS_BAR + WatchFaceStyle.PROTECT_HOTWORD_INDICATOR +
+                WatchFaceStyle.PROTECT_WHOLE_SCREEN
+            ) {
+                throw IllegalArgumentException(
+                    "View protection must be combination " +
+                        "PROTECT_STATUS_BAR, PROTECT_HOTWORD_INDICATOR or PROTECT_WHOLE_SCREEN"
+                )
+            }
+        }
+    }
+
+    /**
      * Builder for a [WatchFace].
      *
      * If unreadCountIndicator or notificationIndicator are hidden then the WatchState class will
@@ -167,13 +224,14 @@ public class WatchFace private constructor(
          */
         private val watchState: WatchState
     ) {
-        private var viewProtectionMode: Int = 0
-        private var statusBarGravity: Int = 0
         private var overridePreviewReferenceTimeMillis: Long? = null
 
-        @ColorInt
-        private var accentColor: Int = WatchFaceStyle.DEFAULT_ACCENT_COLOR
-        private var acceptsTapEvents: Boolean = true
+        private var legacyWatchFaceStyle = LegacyWatchFaceOverlayStyle(
+            0,
+            0,
+            true
+        )
+
         private var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
             override fun getSystemTimeMillis() = System.currentTimeMillis()
         }
@@ -190,70 +248,12 @@ public class WatchFace private constructor(
         }
 
         /**
-         * Only has an impact on devices running Wear 2.x, on other devices this is a no-op and the
-         * functionality is replaced by... TODO(alexclarke): Design the replacement.
-         *
-         * @param viewProtectionMode The view protection mode bit field, must be a combination of
-         *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
-         *     [PROTECT_WHOLE_SCREEN].
-         * @throws IllegalArgumentException if viewProtectionMode has an unexpected value
+         * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
          */
-        public fun setWear2ViewProtectionMode(viewProtectionMode: Int): Builder = apply {
-            if (viewProtectionMode < 0 ||
-                viewProtectionMode >
-                WatchFaceStyle.PROTECT_STATUS_BAR + WatchFaceStyle.PROTECT_HOTWORD_INDICATOR +
-                WatchFaceStyle.PROTECT_WHOLE_SCREEN
-            ) {
-                throw IllegalArgumentException(
-                    "View protection must be combination " +
-                        "PROTECT_STATUS_BAR, PROTECT_HOTWORD_INDICATOR or PROTECT_WHOLE_SCREEN"
-                )
-            }
-            this.viewProtectionMode = viewProtectionMode
-        }
-
-        /**
-         * Sets position of status icons (battery state, lack of connection) on the screen.
-         *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
-         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
-         *
-         * @param statusBarGravity This must be any combination of horizontal Gravity constant
-         *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
-         *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
-         *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
-         *     only the vertical gravity is respected.
-         */
-        public fun setWear2StatusBarGravity(statusBarGravity: Int): Builder = apply {
-            this.statusBarGravity = statusBarGravity
-        }
-
-        /**
-         * Sets the accent color which can be set by developers to customise watch face. It will be
-         * used when drawing the unread notification indicator. Default color is white.
-         *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
-         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
-         */
-        public fun setWear2AccentColor(@ColorInt accentColor: Int): Builder = apply {
-            this.accentColor = accentColor
-        }
-
-        /**
-         * Sets whether this watchface accepts tap events. The default is false.
-         *
-         * <p>Only has an impact on devices running Wear 2.x, on other devices this is a no-op and
-         * the functionality is replaced by... TODO(alexclarke): Design the replacement.
-         *
-         * <p>Watchfaces that set this {@code true} are indicating they are prepared to receive
-         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH],
-         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH_CANCEL], and
-         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TAP] events.
-         *
-         * @param acceptsTapEvents whether to receive touch events.
-         */
-        public fun setWear2AcceptsTapEvents(acceptsTapEvents: Boolean): Builder = apply {
-            this.acceptsTapEvents = acceptsTapEvents
+        public fun setLegacyWatchFaceStyle(
+            legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
+        ): Builder = apply {
+            this.legacyWatchFaceStyle = legacyWatchFaceStyle
         }
 
         /** @hide */
@@ -280,12 +280,12 @@ public class WatchFace private constructor(
                 watchState,
                 WatchFaceStyle(
                     componentName,
-                    viewProtectionMode,
-                    statusBarGravity,
-                    accentColor,
+                    legacyWatchFaceStyle.viewProtectionMode,
+                    legacyWatchFaceStyle.statusBarGravity,
+                    legacyWatchFaceStyle.accentColor,
                     false,
                     false,
-                    acceptsTapEvents
+                    legacyWatchFaceStyle.tapEventsAccepted
                 ),
                 componentName,
                 systemTimeProvider
@@ -293,7 +293,12 @@ public class WatchFace private constructor(
         }
     }
 
-    internal companion object {
+    public companion object {
+        /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
+        @JvmStatic
+        public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
+            android.os.Build.VERSION.SDK_INT <= 27
+
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
@@ -401,12 +406,24 @@ public class WatchFace private constructor(
         }
     }
 
-    internal val previewReferenceTimeMillis =
+    /** The UTC reference time for editor preview images in milliseconds since the epoch. */
+    public val previewReferenceTimeMillis: Long =
         overridePreviewReferenceTimeMillis ?: when (watchFaceType) {
             WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
             WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
             else -> throw InvalidParameterException("Unrecognized watchFaceType")
         }
+
+    /**
+     * The legacy Wear 2.0 [LegacyWatchFaceOverlayStyle] for this watch face. Only affects Wear 2.0 devices.
+     */
+    public val legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
+        get() = LegacyWatchFaceOverlayStyle(
+            watchFaceStyle.viewProtectionMode,
+            watchFaceStyle.statusBarGravity,
+            watchFaceStyle.acceptsTapEvents,
+            watchFaceStyle.accentColor
+        )
 
     init {
         // If the system has a stored user style then Home/SysUI is in charge of style
