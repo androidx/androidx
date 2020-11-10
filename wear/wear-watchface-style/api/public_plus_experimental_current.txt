@@ -72,6 +72,7 @@ package androidx.wear.watchface.style {
   }
 
   public static final class UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay {
+    ctor public UserStyleSetting.ComplicationsUserStyleSetting.ComplicationOverlay(int complicationId, Boolean? enabled, android.graphics.RectF? bounds, java.util.List<? extends androidx.wear.complications.data.ComplicationType>? supportedTypes, androidx.wear.complications.DefaultComplicationProviderPolicy? defaultProviderPolicy, androidx.wear.complications.data.ComplicationType? defaultProviderType);
     method public android.graphics.RectF? getBounds();
     method public int getComplicationId();
     method public androidx.wear.complications.DefaultComplicationProviderPolicy? getDefaultProviderPolicy();

@@ -35,12 +35,12 @@ class AsynchronousProviderService : ComplicationProviderService() {
         executor.execute {
             callback.onUpdateComplication(
                 when (type) {
-                    ShortTextComplicationData.TYPE ->
+                    ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
                             ComplicationText.plain("# $complicationId")
                         ).build()
 
-                    LongTextComplicationData.TYPE ->
+                    ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
                             ComplicationText.plain("hello $complicationId")
                         ).build()
@@ -52,11 +52,11 @@ class AsynchronousProviderService : ComplicationProviderService() {
     }
 
     override fun getPreviewData(type: ComplicationType) = when (type) {
-        ShortTextComplicationData.TYPE ->
+        ComplicationType.SHORT_TEXT ->
             ShortTextComplicationData.Builder(ComplicationText.plain("# 123"))
                 .build()
 
-        LongTextComplicationData.TYPE ->
+        ComplicationType.LONG_TEXT ->
             LongTextComplicationData.Builder(ComplicationText.plain("hello 123"))
                 .build()
 

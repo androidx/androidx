@@ -186,18 +186,38 @@ package androidx.wear.watchface {
   }
 
   public final class WatchFace {
+    method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
+    method public long getPreviewReferenceTimeMillis();
     method @UiThread public void invalidate();
+    method public static boolean isLegacyWatchFaceOverlayStyleSupported();
     method public void postInvalidate();
+    property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
+    property public final long previewReferenceTimeMillis;
+    field public static final androidx.wear.watchface.WatchFace.Companion Companion;
   }
 
   public static final class WatchFace.Builder {
     ctor public WatchFace.Builder(int watchFaceType, long interactiveUpdateRateMillis, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.ComplicationsManager complicationsManager, internal androidx.wear.watchface.Renderer renderer, androidx.wear.watchface.WatchFaceHost watchFaceHost, androidx.wear.watchface.WatchState watchState);
     method public androidx.wear.watchface.WatchFace build();
+    method public androidx.wear.watchface.WatchFace.Builder setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace.Builder setPreviewReferenceTimeMillis(long previewReferenceTimeMillis);
-    method public androidx.wear.watchface.WatchFace.Builder setWear2AccentColor(@ColorInt int accentColor);
-    method public androidx.wear.watchface.WatchFace.Builder setWear2AcceptsTapEvents(boolean acceptsTapEvents);
-    method public androidx.wear.watchface.WatchFace.Builder setWear2StatusBarGravity(int statusBarGravity);
-    method public androidx.wear.watchface.WatchFace.Builder setWear2ViewProtectionMode(int viewProtectionMode);
+  }
+
+  public static final class WatchFace.Companion {
+    method public boolean isLegacyWatchFaceOverlayStyleSupported();
+  }
+
+  public static final class WatchFace.LegacyWatchFaceOverlayStyle {
+    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, @ColorInt int accentColor);
+    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted);
+    method public int getAccentColor();
+    method public int getStatusBarGravity();
+    method public int getViewProtectionMode();
+    method public boolean isTapEventsAccepted();
+    property public final int accentColor;
+    property public final int statusBarGravity;
+    property public final boolean tapEventsAccepted;
+    property public final int viewProtectionMode;
   }
 
   public final class WatchFaceHost {
