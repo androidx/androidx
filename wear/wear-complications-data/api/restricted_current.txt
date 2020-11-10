@@ -167,11 +167,11 @@ package androidx.wear.complications {
   }
 
   public final class DefaultComplicationProviderPolicy {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, int systemProviderFallback);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     ctor public DefaultComplicationProviderPolicy();
-    ctor public DefaultComplicationProviderPolicy(int systemProvider);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, int systemProviderFallback);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(@androidx.wear.complications.SystemProviders.ProviderId int systemProvider);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     method public android.content.ComponentName? getPrimaryProvider();
     method public android.content.ComponentName? getSecondaryProvider();
     method public int getSystemProviderFallback();
