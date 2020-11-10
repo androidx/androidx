@@ -39,6 +39,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,6 +68,7 @@ public final class PreviewViewFragmentTest {
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private FragmentScenario<PreviewViewFragment> mScenario;
 
     @Before
     public void setup() throws CoreAppTestUtil.ForegroundOccupiedError {
@@ -75,40 +77,46 @@ public final class PreviewViewFragmentTest {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation);
+        mScenario = createScenario();
+    }
+
+    @After
+    public void tearDown() {
+        if (mScenario != null) {
+            mScenario.moveToState(Lifecycle.State.DESTROYED);
+        }
     }
 
     @Test
     public void checkPreviewUpdatedAfterDestroyRecreate() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         // Recreate fragment
-        scenario.recreate();
-        assertPreviewUpdating(scenario);
+        mScenario.recreate();
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
     public void checkPreviewUpdatedAfterStopResume_3Times() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        assertPreviewUpdating(scenario);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(mScenario);
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        assertPreviewUpdating(scenario);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(mScenario);
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        assertPreviewUpdating(scenario);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
@@ -116,17 +124,16 @@ public final class PreviewViewFragmentTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         // Toggle camera
         onView(withId(R.id.toggle_camera)).perform(click());
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        assertPreviewUpdating(scenario);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
@@ -137,8 +144,6 @@ public final class PreviewViewFragmentTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-
         // Toggle camera. This is to toggle the camera from back to front.
         onView(withId(R.id.toggle_camera)).perform(click());
 
@@ -146,10 +151,10 @@ public final class PreviewViewFragmentTest {
         onView(withId(R.id.toggle_camera)).perform(click());
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        assertPreviewUpdating(scenario);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
@@ -157,70 +162,65 @@ public final class PreviewViewFragmentTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         for (int i = 0; i <= 10; i++) {
             onView(withId(R.id.toggle_camera)).perform(click());
         }
 
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
     public void checkPreviewNotUpdatedAfterPreviewUnbound() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         // Toggle visibility to unbind preview
         onView(withId(R.id.toggle_visibility)).perform(click());
-        assertPreviewNotUpdating(scenario);
+        assertPreviewNotUpdating(mScenario);
     }
 
     @Test
     public void checkPreviewUpdatedWhenSamePreviewViewAttachedToMultiplePreviewUseCases() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         // Toggle visibility to unbind preview
         onView(withId(R.id.toggle_visibility)).perform(click());
         // Toggle visibility to bind new preview
         onView(withId(R.id.toggle_visibility)).perform(click());
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
     }
 
     @Test
     public void checkSameScaleTypeAfterStopResume() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         mInstrumentation.runOnMainSync(
-                () -> getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END));
+                () -> getPreviewView(mScenario).setScaleType(PreviewView.ScaleType.FIT_END));
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
         mInstrumentation.runOnMainSync(
-                () -> assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
+                () -> assertThat(getPreviewView(mScenario).getScaleType()).isEqualTo(
                         PreviewView.ScaleType.FIT_END));
     }
 
     @Test
     public void checkSameImplementationModeAfterStopResume() {
-        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
-        assertPreviewUpdating(scenario);
+        assertPreviewUpdating(mScenario);
 
         mInstrumentation.runOnMainSync(
-                () -> getPreviewView(scenario).setImplementationMode(
+                () -> getPreviewView(mScenario).setImplementationMode(
                         PreviewView.ImplementationMode.COMPATIBLE));
 
         // Stop the fragment
-        scenario.moveToState(Lifecycle.State.CREATED);
+        mScenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
-        scenario.moveToState(Lifecycle.State.RESUMED);
+        mScenario.moveToState(Lifecycle.State.RESUMED);
         mInstrumentation.runOnMainSync(
-                () -> assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
+                () -> assertThat(getPreviewView(mScenario).getImplementationMode()).isEqualTo(
                         PreviewView.ImplementationMode.COMPATIBLE));
     }
 
