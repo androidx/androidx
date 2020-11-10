@@ -627,7 +627,7 @@ internal class CaptureSequence(
             listener.onRequestSequenceCreated(
                 request.request,
                 request.requestNumber,
-                captureRequests[index],
+                AndroidCaptureRequest(captureRequests[index]),
                 streamMap
             )
         }
