@@ -65,42 +65,61 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 @OptIn(ExperimentalPagingApi::class)
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
-            .scan(null) {
-                previousGeneration: PageFetcherSnapshot<Key, Value>?, triggerRemoteRefresh ->
-                var pagingSource = generateNewPagingSource(previousGeneration?.pagingSource)
+            .scan(null) { previousGeneration: GenerationInfo<Key, Value>?,
+                triggerRemoteRefresh: Boolean ->
+                var pagingSource = generateNewPagingSource(
+                    previousGeneration?.snapshot?.pagingSource
+                )
                 while (pagingSource.invalid) {
-                    pagingSource = generateNewPagingSource(previousGeneration?.pagingSource)
+                    pagingSource = generateNewPagingSource(
+                        previousGeneration?.snapshot?.pagingSource
+                    )
+                }
+
+                var previousPagingState = previousGeneration?.snapshot?.refreshKeyInfo()
+                // If previous generation was invalidated before anchorPosition was established,
+                // re-use last PagingState that successfully loaded pages and has an anchorPosition.
+                // This prevents rapid invalidation from deleting the anchorPosition if the
+                // previous generation didn't have time to load before getting invalidated. We
+                // check for anchorPosition before overriding to prevent empty PagingState from
+                // overriding a PagingState with pages loaded, but no anchorPosition.
+                if (previousPagingState?.anchorPosition == null &&
+                    previousGeneration?.state?.anchorPosition != null
+                ) {
+                    previousPagingState = previousGeneration.state
                 }
 
                 @OptIn(ExperimentalPagingApi::class)
-                val initialKey: Key? = previousGeneration?.refreshKeyInfo()
-                    ?.let { pagingSource.getRefreshKey(it) }
+                val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey
 
-                previousGeneration?.close()
+                previousGeneration?.snapshot?.close()
 
-                PageFetcherSnapshot<Key, Value>(
-                    initialKey = initialKey,
-                    pagingSource = pagingSource,
-                    config = config,
-                    retryFlow = retryChannel.asFlow(),
-                    // Only trigger remote refresh on refresh signals that do not originate from
-                    // initialization or PagingSource invalidation.
-                    triggerRemoteRefresh = triggerRemoteRefresh,
-                    remoteMediatorConnection = remoteMediatorAccessor,
-                    invalidate = this@PageFetcher::refresh
+                GenerationInfo(
+                    snapshot = PageFetcherSnapshot<Key, Value>(
+                        initialKey = initialKey,
+                        pagingSource = pagingSource,
+                        config = config,
+                        retryFlow = retryChannel.asFlow(),
+                        // Only trigger remote refresh on refresh signals that do not originate from
+                        // initialization or PagingSource invalidation.
+                        triggerRemoteRefresh = triggerRemoteRefresh,
+                        remoteMediatorConnection = remoteMediatorAccessor,
+                        invalidate = this@PageFetcher::refresh
+                    ),
+                    state = previousPagingState,
                 )
             }
             .filterNotNull()
             .mapLatest { generation ->
                 val downstreamFlow = if (remoteMediatorAccessor == null) {
-                    generation.pageEventFlow
+                    generation.snapshot.pageEventFlow
                 } else {
-                    generation.injectRemoteEvents(remoteMediatorAccessor)
+                    generation.snapshot.injectRemoteEvents(remoteMediatorAccessor)
                 }
                 PagingData(
                     flow = downstreamFlow,
-                    receiver = PagerUiReceiver(generation, retryChannel)
+                    receiver = PagerUiReceiver(generation.snapshot, retryChannel)
                 )
             }
             .collect { send(it) }
@@ -196,4 +215,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
         override fun refresh() = this@PageFetcher.refresh()
     }
+
+    private class GenerationInfo<Key : Any, Value : Any>(
+        val snapshot: PageFetcherSnapshot<Key, Value>,
+        val state: PagingState<Key, Value>?
+    )
 }
