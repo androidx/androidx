@@ -46,6 +46,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -89,19 +90,30 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private lateinit var fragment: CameraControllerFragment
+    private lateinit var fragmentScenario: FragmentScenario<CameraControllerFragment>
 
     @Before
     fun setup() {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        fragmentScenario = createFragmentScenario()
+        fragment = fragmentScenario.getFragment()
+    }
+
+    @After
+    fun tearDown() {
+        if (::fragmentScenario.isInitialized) {
+            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+        }
     }
 
     @Test
     fun fragmentLaunch_cameraInitializationCompletes() {
         val semaphore = Semaphore(0)
         Futures.addCallback(
-            createFragmentScenario().getFragment().cameraController.initializationFuture,
+            fragment.cameraController.initializationFuture,
             object : FutureCallback<Void> {
                 override fun onSuccess(result: Void?) {
                     semaphore.release()
@@ -116,12 +128,11 @@ class CameraControllerFragmentTest {
 
     @Test
     fun fragmentLaunch_receiveAnalysisFrames() {
-        createFragmentScenario().getFragment().assertAnalysisStreaming(true)
+        fragment.assertAnalysisStreaming(true)
     }
 
     @Test
     fun imageAnalysisDisabled_isNotStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         onView(withId(R.id.analysis_enabled)).perform(click())
@@ -131,7 +142,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun imageAnalysisDisabledAndEnabled_isStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         onView(withId(R.id.analysis_enabled)).perform(click())
@@ -142,7 +152,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun analyzerCleared_isNotStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         instrumentation.runOnMainSync {
@@ -154,8 +163,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun canSetAnalysisImageDepth() {
-        // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         var currentDepth = 0
 
         // Act.
@@ -174,9 +181,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun canSetAnalysisBackpressureStrategy() {
-        // Arrange.
-        val fragment = createFragmentScenario().getFragment()
-
         // Act.
         instrumentation.runOnMainSync {
             fragment.cameraController.imageAnalysisBackpressureStrategy =
@@ -200,7 +204,6 @@ class CameraControllerFragmentTest {
         )
 
         // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
         // Scaled down images to 10x10 bitmap to normalize and reduce computation.
         val width = 10
@@ -268,7 +271,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun fragmentLaunched_canTakePicture() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
         fragment.assertCanTakePicture()
     }
@@ -277,8 +279,6 @@ class CameraControllerFragmentTest {
     fun captureDisabled_cannotTakePicture() {
         // Arrange.
         thrown.expectMessage("ImageCapture disabled")
-        val fragment = createFragmentScenario().getFragment()
-        fragment.assertPreviewIsStreaming()
 
         // Act.
         onView(withId(R.id.capture_enabled)).perform(click())
@@ -290,7 +290,6 @@ class CameraControllerFragmentTest {
     @Test
     fun captureDisabledAndEnabled_canTakePicture() {
         // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
 
         // Act.
@@ -304,14 +303,12 @@ class CameraControllerFragmentTest {
 
     @Test
     fun previewViewRemoved_previewIsIdle() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.remove_or_add)).perform(click())
         fragment.assertPreviewIsIdle()
     }
 
     @Test
     fun previewViewRemovedAndAdded_previewIsStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.remove_or_add)).perform(click())
         onView(withId(R.id.remove_or_add)).perform(click())
         fragment.assertPreviewIsStreaming()
@@ -319,14 +316,12 @@ class CameraControllerFragmentTest {
 
     @Test
     fun cameraToggled_previewIsStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.camera_toggle)).perform(click())
         fragment.assertPreviewIsStreaming()
     }
 
     @Test
     fun cameraToggled_canTakePicture() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.camera_toggle)).perform(click())
         fragment.assertPreviewIsStreaming()
         fragment.assertCanTakePicture()
