@@ -645,11 +645,11 @@ internal class WatchFaceImpl(
         val updateRateMillis =
             if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
                 max(
-                    renderer.interactiveUpdateRateMillis,
+                    renderer.interactiveDrawModeUpdateDelayMillis,
                     MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
                 )
             } else {
-                renderer.interactiveUpdateRateMillis
+                renderer.interactiveDrawModeUpdateDelayMillis
             }
         // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
         // to compute min(beginFrameTimeMillis, currentTimeMillis).
