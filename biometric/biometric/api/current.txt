@@ -94,3 +94,107 @@ package androidx.biometric {
 
 }
 
+package androidx.biometric.auth {
+
+  public interface AuthPrompt {
+    method public void cancelAuthentication();
+  }
+
+  public abstract class AuthPromptCallback {
+    ctor public AuthPromptCallback();
+    method public void onAuthenticationError(androidx.fragment.app.FragmentActivity?, int, CharSequence);
+    method public void onAuthenticationFailed(androidx.fragment.app.FragmentActivity?);
+    method public void onAuthenticationSucceeded(androidx.fragment.app.FragmentActivity?, androidx.biometric.BiometricPrompt.AuthenticationResult);
+  }
+
+  public class AuthPromptHost {
+    ctor public AuthPromptHost(androidx.fragment.app.Fragment);
+    ctor public AuthPromptHost(androidx.fragment.app.FragmentActivity);
+    method public androidx.fragment.app.FragmentActivity? getActivity();
+    method public androidx.fragment.app.Fragment? getFragment();
+  }
+
+  public class Class2BiometricAuthPrompt {
+    method public CharSequence? getDescription();
+    method public CharSequence? getSubtitle();
+    method public boolean isConfirmationRequired();
+    method public androidx.biometric.auth.AuthPrompt startAuthentication();
+  }
+
+  public static final class Class2BiometricAuthPrompt.Builder {
+    ctor public Class2BiometricAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, CharSequence, java.util.concurrent.Executor, androidx.biometric.auth.AuthPromptCallback);
+    ctor public Class2BiometricAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, CharSequence, androidx.biometric.auth.AuthPromptCallback);
+    method public androidx.biometric.auth.Class2BiometricAuthPrompt build();
+    method public androidx.biometric.auth.Class2BiometricAuthPrompt.Builder setConfirmationRequired(boolean);
+    method public androidx.biometric.auth.Class2BiometricAuthPrompt.Builder setDescription(CharSequence);
+    method public androidx.biometric.auth.Class2BiometricAuthPrompt.Builder setSubtitle(CharSequence);
+  }
+
+  public class Class2BiometricOrCredentialAuthPrompt {
+    method public CharSequence? getDescription();
+    method public CharSequence? getSubtitle();
+    method public boolean isConfirmationRequired();
+    method public androidx.biometric.auth.AuthPrompt startAuthentication();
+  }
+
+  public static final class Class2BiometricOrCredentialAuthPrompt.Builder {
+    ctor public Class2BiometricOrCredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, java.util.concurrent.Executor, androidx.biometric.auth.AuthPromptCallback);
+    ctor public Class2BiometricOrCredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, androidx.biometric.auth.AuthPromptCallback);
+    method public androidx.biometric.auth.Class2BiometricOrCredentialAuthPrompt build();
+    method public androidx.biometric.auth.Class2BiometricOrCredentialAuthPrompt.Builder setConfirmationRequired(boolean);
+    method public androidx.biometric.auth.Class2BiometricOrCredentialAuthPrompt.Builder setDescription(CharSequence);
+    method public androidx.biometric.auth.Class2BiometricOrCredentialAuthPrompt.Builder setSubtitle(CharSequence);
+  }
+
+  public class Class3BiometricAuthPrompt {
+    method public androidx.biometric.BiometricPrompt.CryptoObject? getCrypto();
+    method public CharSequence? getDescription();
+    method public CharSequence? getSubtitle();
+    method public boolean isConfirmationRequired();
+    method public androidx.biometric.auth.AuthPrompt startAuthentication();
+  }
+
+  public static final class Class3BiometricAuthPrompt.Builder {
+    ctor public Class3BiometricAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, CharSequence, java.util.concurrent.Executor, androidx.biometric.auth.AuthPromptCallback);
+    ctor public Class3BiometricAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, CharSequence, androidx.biometric.auth.AuthPromptCallback);
+    method public androidx.biometric.auth.Class3BiometricAuthPrompt build();
+    method public androidx.biometric.auth.Class3BiometricAuthPrompt.Builder setConfirmationRequired(boolean);
+    method public androidx.biometric.auth.Class3BiometricAuthPrompt.Builder setCrypto(androidx.biometric.BiometricPrompt.CryptoObject);
+    method public androidx.biometric.auth.Class3BiometricAuthPrompt.Builder setDescription(CharSequence);
+    method public androidx.biometric.auth.Class3BiometricAuthPrompt.Builder setSubtitle(CharSequence);
+  }
+
+  public class Class3BiometricOrCredentialAuthPrompt {
+    method public androidx.biometric.BiometricPrompt.CryptoObject? getCrypto();
+    method public CharSequence? getDescription();
+    method public CharSequence? getSubtitle();
+    method public boolean isConfirmationRequired();
+    method public androidx.biometric.auth.AuthPrompt startAuthentication();
+  }
+
+  public static final class Class3BiometricOrCredentialAuthPrompt.Builder {
+    ctor public Class3BiometricOrCredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, java.util.concurrent.Executor, androidx.biometric.auth.AuthPromptCallback);
+    ctor public Class3BiometricOrCredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, androidx.biometric.auth.AuthPromptCallback);
+    method public androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt build();
+    method public androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt.Builder setConfirmationRequired(boolean);
+    method public androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt.Builder setCrypto(androidx.biometric.BiometricPrompt.CryptoObject);
+    method public androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt.Builder setDescription(CharSequence);
+    method public androidx.biometric.auth.Class3BiometricOrCredentialAuthPrompt.Builder setSubtitle(CharSequence);
+  }
+
+  public class CredentialAuthPrompt {
+    method public androidx.biometric.BiometricPrompt.CryptoObject? getCrypto();
+    method public CharSequence? getDescription();
+    method public androidx.biometric.auth.AuthPrompt startAuthentication();
+  }
+
+  public static final class CredentialAuthPrompt.Builder {
+    ctor public CredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, java.util.concurrent.Executor, androidx.biometric.auth.AuthPromptCallback);
+    ctor public CredentialAuthPrompt.Builder(androidx.biometric.auth.AuthPromptHost, CharSequence, androidx.biometric.auth.AuthPromptCallback);
+    method public androidx.biometric.auth.CredentialAuthPrompt build();
+    method public androidx.biometric.auth.CredentialAuthPrompt.Builder setCrypto(androidx.biometric.BiometricPrompt.CryptoObject);
+    method public androidx.biometric.auth.CredentialAuthPrompt.Builder setDescription(CharSequence);
+  }
+
+}
+
