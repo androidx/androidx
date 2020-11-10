@@ -5,10 +5,10 @@ import androidx.navigation.NavDirections
 import foo.LoginDirections
 import foo.R
 
-class LoginFragmentDirections private constructor() {
-  companion object {
-    fun register(): NavDirections = ActionOnlyNavDirections(R.id.register)
+public class LoginFragmentDirections private constructor() {
+  public companion object {
+    public fun register(): NavDirections = ActionOnlyNavDirections(R.id.register)
 
-    fun actionDone(): NavDirections = LoginDirections.actionDone()
+    public fun actionDone(): NavDirections = LoginDirections.actionDone()
   }
 }
