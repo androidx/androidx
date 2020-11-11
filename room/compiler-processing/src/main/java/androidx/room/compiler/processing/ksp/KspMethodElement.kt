@@ -65,7 +65,6 @@ internal sealed class KspMethodElement(
     }
 
     override fun hasKotlinDefaultImpl(): Boolean {
-        // see https://github.com/google/ksp/issues/32
         val parentDeclaration = declaration.parentDeclaration
         // if parent declaration is an interface and we are not marked as an abstract method,
         // we should have a default implementation
@@ -114,7 +113,10 @@ internal sealed class KspMethodElement(
         override fun isSuspendFunction() = true
 
         override val returnType: XType by lazy {
-            env.wrapDeclared(env.resolver.builtIns.anyType.makeNullable())
+            env.wrap(
+                ksType = env.resolver.builtIns.anyType.makeNullable(),
+                allowPrimitives = false
+            )
         }
 
         override val parameters: List<XExecutableParameterElement>

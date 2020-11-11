@@ -51,8 +51,9 @@ internal sealed class KspArrayType(
             val arg = ksType.arguments.single()
             // https://kotlinlang.org/docs/reference/basic-types.html#primitive-type-arrays
             // these are always boxed
-            env.wrapDeclared(
-                checkNotNull(arg.type?.resolve())
+            env.wrap(
+                ksType = checkNotNull(arg.type?.resolve()),
+                allowPrimitives = false
             )
         }
     }

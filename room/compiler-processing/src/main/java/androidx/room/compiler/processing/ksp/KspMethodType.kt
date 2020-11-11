@@ -70,12 +70,13 @@ internal sealed class KspMethodType(
             get() = origin.returnType
 
         override fun getSuspendFunctionReturnType(): XType {
-            // suspend functions work w/ continuation so it is always declared
-            return env.wrapDeclared(
+            // suspend functions work w/ continuation so it is always boxed
+            return env.wrap(
                 ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
-                )
+                ),
+                allowPrimitives = false
             )
         }
     }
