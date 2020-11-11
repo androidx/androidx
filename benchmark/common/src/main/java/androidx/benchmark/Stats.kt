@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import kotlin.Double.Companion.NaN
 import kotlin.math.pow
 import kotlin.math.roundToLong
@@ -25,12 +26,13 @@ import kotlin.math.roundToLong
  * Provides statistics such as mean, median, min, max, and percentiles, given a list of input
  * values.
  */
-internal class Stats(data: LongArray, val name: String) {
-    val median: Long
-    val min: Long
-    val max: Long
-    val mean: Double = data.average()
-    val standardDeviation: Double
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Stats(data: LongArray, public val name: String) {
+    public val median: Long
+    public val min: Long
+    public val max: Long
+    public val mean: Double = data.average()
+    public val standardDeviation: Double
 
     init {
         val values = data.sorted()
@@ -55,7 +57,7 @@ internal class Stats(data: LongArray, val name: String) {
             "standardDeviation: $standardDeviation"
     }
 
-    internal fun putInBundle(status: Bundle, prefix: String) {
+    public fun putInBundle(status: Bundle, prefix: String) {
         if (name == "timeNs") {
             // compatibility naming scheme.
             // should be removed, once we timeNs_min has been in dashboard for several weeks
@@ -81,7 +83,7 @@ internal class Stats(data: LongArray, val name: String) {
             mean.hashCode()
     }
 
-    companion object {
+    internal companion object {
         internal fun lerp(a: Long, b: Long, ratio: Double): Long {
             return (a * (1 - ratio) + b * (ratio)).roundToLong()
         }
