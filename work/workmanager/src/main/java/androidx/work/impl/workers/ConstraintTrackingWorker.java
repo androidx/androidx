@@ -176,7 +176,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     @Override
     public void onStopped() {
         super.onStopped();
-        if (mDelegate != null) {
+        if (mDelegate != null && !mDelegate.isStopped()) {
             // Stop is the method that sets the stopped and cancelled bits and invokes onStopped.
             mDelegate.stop();
         }
