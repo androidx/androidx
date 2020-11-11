@@ -16,13 +16,11 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CaptureRequestWrapper
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
@@ -133,14 +131,4 @@ class AndroidFrameInfo(
         get() = result.frameNumber
 
     override fun unwrap(): TotalCaptureResult? = totalCaptureResult
-}
-
-/**
- * Implementation of [CaptureRequestWrapper] that returns the underlying [CaptureRequest].
- */
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
-class AndroidCaptureRequest(private val captureRequest: CaptureRequest) : CaptureRequestWrapper {
-    override fun unwrap(): CaptureRequest {
-        return captureRequest
-    }
 }
