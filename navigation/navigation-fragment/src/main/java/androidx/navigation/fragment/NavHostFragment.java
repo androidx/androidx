@@ -16,6 +16,7 @@
 
 package androidx.navigation.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
@@ -119,6 +121,15 @@ public class NavHostFragment extends Fragment implements NavHost {
         if (view != null) {
             return Navigation.findNavController(view);
         }
+
+        // For DialogFragments, look at the dialog's decor view
+        Dialog dialog = fragment instanceof DialogFragment
+                ? ((DialogFragment) fragment).getDialog()
+                : null;
+        if (dialog != null && dialog.getWindow() != null) {
+            return Navigation.findNavController(dialog.getWindow().getDecorView());
+        }
+
         throw new IllegalStateException("Fragment " + fragment
                 + " does not have a NavController set");
     }
