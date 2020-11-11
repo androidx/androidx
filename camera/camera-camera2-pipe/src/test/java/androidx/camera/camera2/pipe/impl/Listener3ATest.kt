@@ -19,10 +19,8 @@ package androidx.camera.camera2.pipe.impl
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
-import androidx.camera.camera2.pipe.testing.FakeCaptureRequestWrapper
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.UpdateCounting3AStateListener
@@ -49,10 +47,7 @@ class Listener3ATest {
         // The deferred result of 3a state listener shouldn't be complete right now.
         assertThat(result3AStateListener.getDeferredResult().isCompleted).isFalse()
         listener3A.onRequestSequenceCreated(
-            Request(listOf()),
-            RequestNumber(1),
-            FakeCaptureRequestWrapper(),
-            mapOf()
+            FakeRequestMetadata(requestNumber = RequestNumber(1))
         )
 
         val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
@@ -81,10 +76,7 @@ class Listener3ATest {
         listener3A.addListener(result3AStateListener)
 
         listener3A.onRequestSequenceCreated(
-            Request(listOf()),
-            RequestNumber(1),
-            FakeCaptureRequestWrapper(),
-            mapOf()
+            FakeRequestMetadata(requestNumber = RequestNumber(1))
         )
 
         val requestMetadata = FakeRequestMetadata(requestNumber = RequestNumber(1))
@@ -141,10 +133,7 @@ class Listener3ATest {
         assertThat(result3AStateListener2.updateCount).isEqualTo(0)
 
         listener3A.onRequestSequenceCreated(
-            Request(listOf()),
-            RequestNumber(1),
-            FakeCaptureRequestWrapper(),
-            mapOf()
+            FakeRequestMetadata(requestNumber = RequestNumber(1))
         )
 
         // Once the metadata for correct AF mode is updated, the listener3A should broadcast it to

@@ -26,7 +26,6 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.CaptureRequestWrapper
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
@@ -35,7 +34,6 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.SequenceNumber
 import androidx.camera.camera2.pipe.StreamId
 
 /**
@@ -97,9 +95,9 @@ class FakeRequestMetadata(
     extraRequestParameters: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
     override val streams: Map<StreamId, Surface> = mapOf(),
+    override val repeating: Boolean = false,
     override val request: Request = Request(listOf()),
-    override val requestNumber: RequestNumber = RequestNumber(4321),
-    override val sequenceNumber: SequenceNumber = SequenceNumber(1234)
+    override val requestNumber: RequestNumber = RequestNumber(4321)
 ) : FakeMetadata(request.extraRequestParameters.plus(extraRequestParameters)), RequestMetadata {
 
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
@@ -154,17 +152,6 @@ class FakeFrameInfo(
     override fun unwrap(): TotalCaptureResult? {
         throw UnsupportedOperationException(
             "FakeFrameInfo does not wrap a real TotalCaptureResult object"
-        )
-    }
-}
-
-/**
- * A fake [CaptureRequestWrapper].
- */
-class FakeCaptureRequestWrapper : CaptureRequestWrapper {
-    override fun unwrap(): CaptureRequest? {
-        throw UnsupportedOperationException(
-            "FakeCaptureRequestWrapper does not wrap a real CaptureRequest object"
         )
     }
 }

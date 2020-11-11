@@ -16,15 +16,12 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.view.Surface
-import androidx.camera.camera2.pipe.CaptureRequestWrapper
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
-import androidx.camera.camera2.pipe.StreamId
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 
@@ -38,18 +35,13 @@ import javax.inject.Inject
 class Listener3A @Inject constructor() : Request.Listener {
     private val listeners: CopyOnWriteArrayList<Result3AStateListener> = CopyOnWriteArrayList()
 
-    override fun onRequestSequenceCreated(
-        request: Request,
-        requestNumber: RequestNumber,
-        captureRequest: CaptureRequestWrapper,
-        streams: Map<StreamId, Surface>
-    ) {
+    override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
         var listenersCopy: List<Result3AStateListener>
         synchronized(this) {
             listenersCopy = listeners.toList()
         }
         for (listener in listenersCopy) {
-            listener.onRequestSequenceCreated(requestNumber)
+            listener.onRequestSequenceCreated(requestMetadata.requestNumber)
         }
     }
 
