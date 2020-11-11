@@ -25,9 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.ExperimentalRestorableStateHolder
 import androidx.compose.runtime.savedinstancestate.RestorableStateHolder
 import androidx.compose.runtime.savedinstancestate.rememberRestorableStateHolder
-import androidx.compose.ui.platform.ContextAmbient
-import androidx.compose.ui.platform.LifecycleOwnerAmbient
-import androidx.compose.ui.platform.ViewModelStoreOwnerAmbient
+import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.platform.AmbientLifecycleOwner
+import androidx.compose.ui.platform.AmbientViewModelStoreOwner
 import androidx.compose.ui.viewinterop.viewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -82,9 +82,9 @@ public fun NavHost(
 @OptIn(ExperimentalRestorableStateHolder::class)
 @Composable
 public fun NavHost(navController: NavHostController, graph: NavGraph) {
-    var context = ContextAmbient.current
-    val lifecycleOwner = LifecycleOwnerAmbient.current
-    val viewModelStore = ViewModelStoreOwnerAmbient.current.viewModelStore
+    var context = AmbientContext.current
+    val lifecycleOwner = AmbientLifecycleOwner.current
+    val viewModelStore = AmbientViewModelStoreOwner.current.viewModelStore
     val rememberedGraph = remember { graph }
 
     // on successful recompose we setup the navController with proper inputs
@@ -124,8 +124,8 @@ public fun NavHost(navController: NavHostController, graph: NavGraph) {
             // while in the scope of the composable, we provide the navBackStackEntry as the
             // ViewModelStoreOwner and LifecycleOwner
             Providers(
-                ViewModelStoreOwnerAmbient provides currentNavBackStackEntry,
-                LifecycleOwnerAmbient provides currentNavBackStackEntry
+                AmbientViewModelStoreOwner provides currentNavBackStackEntry,
+                AmbientLifecycleOwner provides currentNavBackStackEntry
             ) {
                 restorableStateHolder.RestorableStateProvider {
                     destination.content(currentNavBackStackEntry)
