@@ -21,6 +21,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -63,6 +66,7 @@ import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
 
 import org.hamcrest.CoreMatchers;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +85,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     private Context mContext;
     private Handler mHandler;
+    private WorkerFactory mWorkerFactory;
 
     private OneTimeWorkRequest mWork;
     private WorkerWrapper mWorkerWrapper;
@@ -102,8 +107,10 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mHandler = new Handler(Looper.getMainLooper());
+        mWorkerFactory = new SpyingWorkerFactory();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
+                .setWorkerFactory(mWorkerFactory)
                 .build();
         mWorkTaskExecutor = new InstantWorkTaskExecutor();
 
@@ -236,10 +243,29 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         Thread.sleep(TEST_TIMEOUT_IN_MS);
 
         mWorkerWrapper.interrupt();
-
         assertThat(mWorker.isStopped(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    public void testConstraintTrackingWorker_delegatesInterruption_once()
+            throws InterruptedException {
+        setupDelegateForExecution(StopAwareWorker.class.getName(),
+                Executors.newSingleThreadExecutor());
+
+        WorkerWrapper.Builder builder = createWorkerWrapperBuilder();
+        builder.withWorker(mWorker).withSchedulers(Collections.singletonList(mScheduler));
+
+        mWorkerWrapper = builder.build();
+        mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
+
+        Thread.sleep(TEST_TIMEOUT_IN_MS);
+
+        mWorkerWrapper.interrupt();
+        mWorkerWrapper.interrupt();
+        verify(mWorker.getDelegate(), times(1)).onStopped();
     }
 
     @Test
@@ -281,7 +307,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         insertWork(mWork);
 
-        WorkerFactory workerFactory = WorkerFactory.getDefaultWorkerFactory();
+        WorkerFactory workerFactory = mConfiguration.getWorkerFactory();
         ListenableWorker worker = workerFactory.createWorkerWithDefaultFallback(
                 mContext.getApplicationContext(),
                 ConstraintTrackingWorker.class.getName(),
@@ -300,7 +326,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
                 is(CoreMatchers.<ListenableWorker>instanceOf(ConstraintTrackingWorker.class)));
-        mWorker = spy((ConstraintTrackingWorker) worker);
+        // mWorker is already a spy
+        mWorker = (ConstraintTrackingWorker) worker;
         when(mWorker.getWorkDatabase()).thenReturn(mDatabase);
     }
 
@@ -312,5 +339,32 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 mForegroundProcessor,
                 mDatabase,
                 mWork.getStringId());
+    }
+
+    static class SpyingWorkerFactory extends WorkerFactory {
+        private final WorkerFactory mDefaultFactory;
+
+        SpyingWorkerFactory() {
+            mDefaultFactory = WorkerFactory.getDefaultWorkerFactory();
+        }
+
+        @Nullable
+        @Override
+        public ListenableWorker createWorker(
+                @NonNull @NotNull Context appContext,
+                @NonNull @NotNull String workerClassName,
+                @NonNull @NotNull WorkerParameters workerParameters) {
+
+            ListenableWorker worker = mDefaultFactory.createWorkerWithDefaultFallback(
+                    appContext,
+                    workerClassName,
+                    workerParameters);
+
+            if (worker != null) {
+                worker = spy(worker);
+            }
+
+            return worker;
+        }
     }
 }
