@@ -96,7 +96,6 @@ public class ComplicationProviderServiceTest {
         mComplicationProvider =
                 (IComplicationProvider.Stub) mTestService.onBind(
                         new Intent(ComplicationProviderService.ACTION_COMPLICATION_UPDATE_REQUEST));
-        mTestService.setRetailModeProvider(() -> false);
     }
 
     @Test
