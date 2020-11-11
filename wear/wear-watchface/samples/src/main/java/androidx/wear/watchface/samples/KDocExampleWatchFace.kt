@@ -103,7 +103,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             )
             val complicationSlots = ComplicationsManager(
                 listOf(
-                    Complication.Builder(
+                    Complication.createRoundRectComplicationBuilder(
                         /*id */ 0,
                         CanvasComplicationDrawable(
                             ComplicationDrawable(this),
@@ -116,11 +116,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-                    ).setUnitSquareBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+                        RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)
+                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
-                    Complication.Builder(
+                    Complication.createRoundRectComplicationBuilder(
                         /*id */ 1,
                         CanvasComplicationDrawable(
                             ComplicationDrawable(this),
@@ -133,9 +133,9 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
-                    ).setUnitSquareBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
+                        RectF(0.1f, 0.5625f, 0.35f, 0.8125f)
+                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
                 userStyleRepository

@@ -111,7 +111,7 @@ fun createExampleOpenGLWatchFaceBuilder(
     val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
     val complicationsManager = ComplicationsManager(
         listOf(
-            Complication.Builder(
+            Complication.createRoundRectComplicationBuilder(
                 EXAMPLE_OPENGL_COMPLICATION_ID,
                 watchFaceStyle.getComplicationDrawableRenderer(context, watchState),
                 listOf(
@@ -121,9 +121,9 @@ fun createExampleOpenGLWatchFaceBuilder(
                     ComplicationType.MONOCHROMATIC_IMAGE,
                     ComplicationType.SMALL_IMAGE
                 ),
-                DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-            ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+                RectF(0.2f, 0.7f, 0.4f, 0.9f)
+            ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                 .build()
         ),
         userStyleRepository
