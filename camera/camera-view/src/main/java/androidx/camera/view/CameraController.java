@@ -33,6 +33,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalUseCaseGroup;
@@ -111,8 +112,9 @@ public abstract class CameraController {
      */
     @UseExperimental(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true, value = { IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE })
-    public @interface UseCases { }
+    @IntDef(flag = true, value = {IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE})
+    public @interface UseCases {
+    }
 
     /**
      * Bitmask option to enable {@link ImageCapture}. In {@link #setEnabledUseCases}, if
@@ -775,6 +777,36 @@ public abstract class CameraController {
         CameraSelector oldCameraSelector = mCameraSelector;
         mCameraSelector = cameraSelector;
         startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
+    }
+
+    /**
+     * Checks if the given {@link CameraSelector} can be resolved to a camera.
+     *
+     * <p> Use this method to check if the device has the given camera.
+     *
+     * <p> Only call this method after camera is initialized. e.g. after the
+     * {@link ListenableFuture} from {@link #getInitializationFuture()} is finished. Calling it
+     * prematurely throws {@link IllegalStateException}.
+     *
+     * @return true if the {@link CameraSelector} can be resolved to a camera.
+     * @throws IllegalStateException if the camera is not initialized.
+     */
+    @MainThread
+    public boolean hasCamera(@NonNull CameraSelector cameraSelector) {
+        Threads.checkMainThread();
+        Preconditions.checkNotNull(cameraSelector);
+
+        if (mCameraProvider == null) {
+            throw new IllegalStateException("Camera not initialized. Please wait for "
+                    + "the initialization future to finish. See #getInitializationFuture().");
+        }
+
+        try {
+            return mCameraProvider.hasCamera(cameraSelector);
+        } catch (CameraInfoUnavailableException e) {
+            Logger.w(TAG, "Failed to check camera availability", e);
+            return false;
+        }
     }
 
     /**
