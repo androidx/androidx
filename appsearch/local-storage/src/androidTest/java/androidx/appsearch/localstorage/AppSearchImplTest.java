@@ -29,12 +29,12 @@ import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
-import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.PropertyProto;
 import com.google.android.icing.proto.SchemaProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchSpecProto;
+import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableSet;
 
@@ -96,12 +96,11 @@ public class AppSearchImplTest {
                                 .setPropertyName("subject")
                                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
                                 .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setIndexingConfig(
-                                        IndexingConfig.newBuilder()
-                                                .setTokenizerType(
-                                                        IndexingConfig.TokenizerType.Code.PLAIN)
-                                                .setTermMatchType(TermMatchType.Code.PREFIX)
-                                                .build()
+                                .setStringIndexingConfig(StringIndexingConfig.newBuilder()
+                                        .setTokenizerType(
+                                                StringIndexingConfig.TokenizerType.Code.PLAIN)
+                                        .setTermMatchType(TermMatchType.Code.PREFIX)
+                                        .build()
                                 ).build()
                         ).addProperties(PropertyConfigProto.newBuilder()
                                 .setPropertyName("link")
@@ -130,12 +129,11 @@ public class AppSearchImplTest {
                                 .setPropertyName("subject")
                                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
                                 .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setIndexingConfig(
-                                        IndexingConfig.newBuilder()
-                                                .setTokenizerType(
-                                                        IndexingConfig.TokenizerType.Code.PLAIN)
-                                                .setTermMatchType(TermMatchType.Code.PREFIX)
-                                                .build()
+                                .setStringIndexingConfig(StringIndexingConfig.newBuilder()
+                                        .setTokenizerType(
+                                                StringIndexingConfig.TokenizerType.Code.PLAIN)
+                                        .setTermMatchType(TermMatchType.Code.PREFIX)
+                                        .build()
                                 ).build()
                         ).addProperties(PropertyConfigProto.newBuilder()
                                 .setPropertyName("link")

@@ -21,9 +21,9 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.core.util.Preconditions;
 
-import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
+import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 
 import java.util.List;
@@ -59,7 +59,7 @@ public final class SchemaToProtoConverter {
         Preconditions.checkNotNull(property);
         PropertyConfigProto.Builder propertyConfigProto = PropertyConfigProto.newBuilder()
                 .setPropertyName(property.getName());
-        IndexingConfig.Builder indexingConfig = IndexingConfig.newBuilder();
+        StringIndexingConfig.Builder indexingConfig = StringIndexingConfig.newBuilder();
 
         // Set dataType
         @AppSearchSchema.PropertyConfig.DataType int dataType = property.getDataType();
@@ -106,15 +106,15 @@ public final class SchemaToProtoConverter {
         // Set tokenizerType
         @AppSearchSchema.PropertyConfig.TokenizerType int tokenizerType =
                 property.getTokenizerType();
-        IndexingConfig.TokenizerType.Code tokenizerTypeProto =
-                IndexingConfig.TokenizerType.Code.forNumber(tokenizerType);
+        StringIndexingConfig.TokenizerType.Code tokenizerTypeProto =
+                StringIndexingConfig.TokenizerType.Code.forNumber(tokenizerType);
         if (tokenizerTypeProto == null) {
             throw new IllegalArgumentException("Invalid tokenizerType: " + tokenizerType);
         }
         indexingConfig.setTokenizerType(tokenizerTypeProto);
 
         // Build!
-        propertyConfigProto.setIndexingConfig(indexingConfig);
+        propertyConfigProto.setStringIndexingConfig(indexingConfig);
         return propertyConfigProto.build();
     }
 }
