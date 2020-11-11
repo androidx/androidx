@@ -16,6 +16,9 @@
 
 package androidx.window;
 
+import static androidx.window.SidecarAdapter.setSidecarDevicePosture;
+import static androidx.window.SidecarAdapter.setSidecarDisplayFeatures;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -62,14 +65,13 @@ public class SidecarAdapterTest implements TranslatorTestInterface {
     private static SidecarWindowLayoutInfo sidecarWindowLayoutInfo(
             List<SidecarDisplayFeature> features) {
         SidecarWindowLayoutInfo layoutInfo = new SidecarWindowLayoutInfo();
-        layoutInfo.displayFeatures = new ArrayList<>();
-        layoutInfo.displayFeatures.addAll(features);
+        setSidecarDisplayFeatures(layoutInfo, features);
         return layoutInfo;
     }
 
     private static SidecarDeviceState sidecarDeviceState(int posture) {
         SidecarDeviceState deviceState = new SidecarDeviceState();
-        deviceState.posture = posture;
+        setSidecarDevicePosture(deviceState, posture);
         return deviceState;
     }
 

@@ -16,6 +16,9 @@
 
 package androidx.window;
 
+import static androidx.window.SidecarAdapter.getSidecarDisplayFeatures;
+import static androidx.window.SidecarAdapter.setSidecarDevicePosture;
+import static androidx.window.SidecarAdapter.setSidecarDisplayFeatures;
 import static androidx.window.TestBoundUtil.invalidFoldBounds;
 import static androidx.window.TestBoundUtil.invalidHingeBounds;
 import static androidx.window.TestBoundUtil.validFoldBound;
@@ -89,14 +92,15 @@ public final class SidecarCompatTest extends WindowTestBase
 
         // Setup mocked sidecar responses
         SidecarDeviceState defaultDeviceState = new SidecarDeviceState();
-        defaultDeviceState.posture = SidecarDeviceState.POSTURE_HALF_OPENED;
+        setSidecarDevicePosture(defaultDeviceState, SidecarDeviceState.POSTURE_HALF_OPENED);
         when(mSidecarCompat.mSidecar.getDeviceState()).thenReturn(defaultDeviceState);
 
         SidecarDisplayFeature sidecarDisplayFeature = newDisplayFeature(
                 new Rect(0, 1, WINDOW_BOUNDS.width(), 1), SidecarDisplayFeature.TYPE_HINGE);
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo = new SidecarWindowLayoutInfo();
-        sidecarWindowLayoutInfo.displayFeatures = new ArrayList<>();
-        sidecarWindowLayoutInfo.displayFeatures.add(sidecarDisplayFeature);
+        List<SidecarDisplayFeature> displayFeatures = new ArrayList<>();
+        displayFeatures.add(sidecarDisplayFeature);
+        setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures);
         when(mSidecarCompat.mSidecar.getWindowLayoutInfo(any()))
                 .thenReturn(sidecarWindowLayoutInfo);
     }
@@ -143,7 +147,7 @@ public final class SidecarCompatTest extends WindowTestBase
         SidecarWindowLayoutInfo originalWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(getActivityWindowToken(mActivity));
         List<SidecarDisplayFeature> sidecarDisplayFeatures =
-                originalWindowLayoutInfo.displayFeatures;
+                getSidecarDisplayFeatures(originalWindowLayoutInfo);
         SidecarDisplayFeature newFeature = new SidecarDisplayFeature();
         newFeature.setRect(new Rect());
         sidecarDisplayFeatures.add(newFeature);
@@ -160,7 +164,7 @@ public final class SidecarCompatTest extends WindowTestBase
         SidecarWindowLayoutInfo originalWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
         List<SidecarDisplayFeature> sidecarDisplayFeatures =
-                originalWindowLayoutInfo.displayFeatures;
+                getSidecarDisplayFeatures(originalWindowLayoutInfo);
         // Horizontal fold.
         sidecarDisplayFeatures.add(
                 newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width(), 2),
@@ -183,7 +187,7 @@ public final class SidecarCompatTest extends WindowTestBase
         SidecarWindowLayoutInfo originalWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
         List<SidecarDisplayFeature> sidecarDisplayFeatures =
-                originalWindowLayoutInfo.displayFeatures;
+                getSidecarDisplayFeatures(originalWindowLayoutInfo);
         // Horizontal hinge.
         sidecarDisplayFeatures.add(
                 newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
@@ -206,7 +210,7 @@ public final class SidecarCompatTest extends WindowTestBase
         SidecarWindowLayoutInfo originalWindowLayoutInfo =
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
         List<SidecarDisplayFeature> sidecarDisplayFeatures =
-                originalWindowLayoutInfo.displayFeatures;
+                getSidecarDisplayFeatures(originalWindowLayoutInfo);
         // Horizontal fold.
         sidecarDisplayFeatures.add(
                 newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
@@ -254,7 +258,7 @@ public final class SidecarCompatTest extends WindowTestBase
 
         // Verify that the callback set for sidecar propagates the device state callback
         SidecarDeviceState sidecarDeviceState = new SidecarDeviceState();
-        sidecarDeviceState.posture = SidecarDeviceState.POSTURE_HALF_OPENED;
+        setSidecarDevicePosture(sidecarDeviceState, SidecarDeviceState.POSTURE_HALF_OPENED);
 
         sidecarCallbackCaptor.getValue().onDeviceStateChanged(sidecarDeviceState);
         ArgumentCaptor<DeviceState> deviceStateCaptor = ArgumentCaptor.forClass(DeviceState.class);
@@ -268,8 +272,9 @@ public final class SidecarCompatTest extends WindowTestBase
         SidecarDisplayFeature sidecarDisplayFeature = newDisplayFeature(bounds,
                 SidecarDisplayFeature.TYPE_HINGE);
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo = new SidecarWindowLayoutInfo();
-        sidecarWindowLayoutInfo.displayFeatures = new ArrayList<>();
-        sidecarWindowLayoutInfo.displayFeatures.add(sidecarDisplayFeature);
+        List<SidecarDisplayFeature> displayFeatures = new ArrayList<>();
+        displayFeatures.add(sidecarDisplayFeature);
+        setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures);
 
         sidecarCallbackCaptor.getValue().onWindowLayoutChanged(getActivityWindowToken(mActivity),
                 sidecarWindowLayoutInfo);
@@ -304,8 +309,9 @@ public final class SidecarCompatTest extends WindowTestBase
         Rect bounds = new Rect(1, 2, 3, 4);
         sidecarDisplayFeature.setRect(bounds);
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo = new SidecarWindowLayoutInfo();
-        sidecarWindowLayoutInfo.displayFeatures = new ArrayList<>();
-        sidecarWindowLayoutInfo.displayFeatures.add(sidecarDisplayFeature);
+        List<SidecarDisplayFeature> displayFeatures = new ArrayList<>();
+        displayFeatures.add(sidecarDisplayFeature);
+        setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures);
 
         IBinder windowToken = mock(IBinder.class);
         sidecarCallbackCaptor.getValue().onWindowLayoutChanged(windowToken,
@@ -397,14 +403,13 @@ public final class SidecarCompatTest extends WindowTestBase
     private static SidecarWindowLayoutInfo newWindowLayoutInfo(
             List<SidecarDisplayFeature> features) {
         SidecarWindowLayoutInfo info = new SidecarWindowLayoutInfo();
-        info.displayFeatures = new ArrayList<>();
-        info.displayFeatures.addAll(features);
+        setSidecarDisplayFeatures(info, features);
         return info;
     }
 
     private static SidecarDeviceState newDeviceState(int posture) {
         SidecarDeviceState state = new SidecarDeviceState();
-        state.posture = posture;
+        setSidecarDevicePosture(state, posture);
         return state;
     }
 

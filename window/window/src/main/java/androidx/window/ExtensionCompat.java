@@ -163,10 +163,10 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
             List<ExtensionDisplayFeature> tmpDisplayFeatures =
                     windowLayoutInfo.getDisplayFeatures();
             return true;
-        } catch (Exception e) {
+        } catch (Throwable t) {
             if (DEBUG) {
                 Log.e(TAG, "Extension implementation doesn't conform to interface version "
-                        + getExtensionVersion() + ", error: " + e);
+                        + getExtensionVersion() + ", error: " + t);
             }
             return false;
         }
