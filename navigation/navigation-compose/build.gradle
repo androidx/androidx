@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation project(path: ':internal-testutils-navigation'), {
         exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
     }
-    androidTestImplementation project(':ui:ui-test')
+    androidTestImplementation project(":compose:ui:ui-test-junit4")
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
