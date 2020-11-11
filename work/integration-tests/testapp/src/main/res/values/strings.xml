@@ -25,6 +25,7 @@
     <string name="replace_completed_work">Test Replacing Completed Work</string>
     <string name="run_retry_worker">Run Retry Worker</string>
     <string name="run_recursive_worker">Run Recursive Worker</string>
+    <string name="run_constraint_tracking_worker">Run Constraint Tracking Worker</string>
     <string name="run_foreground_worker">Run Foreground Worker</string>
     <string name="cancel_foreground_worker">Cancel Foreground Worker</string>
     <string name="cancel_foreground_worker_intent">Cancel Foreground Worker (Intent)</string>
@@ -43,4 +44,5 @@
     <string name="channel_description">Foreground Work</string>
     <integer name="notification_id">1</integer>
     <string name="notification_title">Working</string>
+    <string name="cancel_constraint_tracking_worker">Cancel Constraint Tracking Worker</string>
 </resources>
