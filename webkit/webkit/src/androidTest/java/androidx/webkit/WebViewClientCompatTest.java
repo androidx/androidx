@@ -140,8 +140,17 @@ public class WebViewClientCompatTest {
         WebkitUtils.checkFeature(WebViewFeature.SHOULD_OVERRIDE_WITH_REDIRECTS);
         WebkitUtils.checkFeature(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT);
 
+        // We need to pull up a web server (rather than pick a URL and let the navigation fail)
+        // because the network may attempt to rewrite URLs to send us to a captive portal
+        // (http://b/172937423).
+        mWebServer = new MockWebServer();
+        mWebServer.start();
+        String testUrl = mWebServer.url("/some_test_url").toString();
+        String body = "<html>This is a test page</html>";
+        mWebServer.enqueue(new MockResponse().setBody(body));
+
         String data = "<html><body>"
-                + "<a href=\"" + TEST_URL + "\" id=\"link\">new page</a>"
+                + "<a href=\"" + testUrl + "\" id=\"link\">new page</a>"
                 + "</body></html>";
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
         final ResolvableFuture<Void> pageFinishedFuture = ResolvableFuture.create();
@@ -155,7 +164,7 @@ public class WebViewClientCompatTest {
         mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
         clickOnLinkUsingJs("link", mWebViewOnUiThread);
         WebkitUtils.waitForFuture(pageFinishedFuture);
-        Assert.assertEquals(TEST_URL,
+        Assert.assertEquals(testUrl,
                 webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());
 
         WebResourceRequest request = webViewClient.getLastShouldOverrideResourceRequest();
