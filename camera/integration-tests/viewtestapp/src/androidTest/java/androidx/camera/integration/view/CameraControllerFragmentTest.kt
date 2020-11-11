@@ -23,6 +23,7 @@ import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -106,6 +107,17 @@ class CameraControllerFragmentTest {
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun controllerHasCameraResult_sameAsUtilResult() {
+        fragment.assertPreviewIsStreaming()
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA))
+                .isEqualTo(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+            assertThat(fragment.cameraController.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA))
+                .isEqualTo(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
         }
     }
 
