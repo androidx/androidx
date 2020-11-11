@@ -16,9 +16,9 @@
 
 package androidx.room.compiler.processing.ksp
 
-import com.squareup.javapoet.TypeName
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.squareup.javapoet.TypeName
 
 /**
  * The typeName for type arguments requires the type parameter, hence we have a special type
