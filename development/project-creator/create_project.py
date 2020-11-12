@@ -204,7 +204,7 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     """
 
     build_type = "MAIN"
-    if group_id.contains("compose") or group_id.contains("androidx.ui"):
+    if "compose" in group_id or "androidx.ui" in group_id:
         build_type = "COMPOSE"
 
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
