@@ -62,6 +62,7 @@ public class ComplicationProviderServiceTest {
     };
 
     private IComplicationProvider.Stub mComplicationProvider;
+    private IComplicationProvider.Stub mNoUpdateComplicationProvider;
 
     private ComplicationProviderService mTestService = new ComplicationProviderService() {
 
@@ -90,11 +91,39 @@ public class ComplicationProviderServiceTest {
         }
     };
 
+    private ComplicationProviderService mNoUpdateTestService = new ComplicationProviderService() {
+
+        @Override
+        public void onComplicationUpdate(
+                int complicationId,
+                @NonNull ComplicationType type,
+                @NonNull ComplicationUpdateCallback callback) {
+            try {
+                // Null means no update required.
+                callback.onUpdateComplication(null);
+            } catch (RemoteException e) {
+                Log.e(TAG, "onComplicationUpdate failed with error: ", e);
+            }
+        }
+
+        @Nullable
+        @Override
+        public ComplicationData getPreviewData(@NonNull ComplicationType type) {
+            return new LongTextComplicationData.Builder(
+                    ComplicationText.plain("hello preview")
+            ).build();
+        }
+    };
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mComplicationProvider =
                 (IComplicationProvider.Stub) mTestService.onBind(
+                        new Intent(ComplicationProviderService.ACTION_COMPLICATION_UPDATE_REQUEST));
+
+        mNoUpdateComplicationProvider =
+                (IComplicationProvider.Stub) mNoUpdateTestService.onBind(
                         new Intent(ComplicationProviderService.ACTION_COMPLICATION_UPDATE_REQUEST));
     }
 
@@ -112,6 +141,20 @@ public class ComplicationProviderServiceTest {
         assertThat(data.getValue().getLongText().getTextAt(null, 0)).isEqualTo(
                 "hello " + id
         );
+    }
+
+    @Test
+    public void testOnComplicationUpdateNoUpdateRequired() throws Exception {
+        int id = 123;
+        mNoUpdateComplicationProvider.onUpdate(
+                id, ComplicationType.LONG_TEXT.asWireComplicationType(), mLocalManager);
+        ShadowLooper.runUiThreadTasks();
+
+        ArgumentCaptor<android.support.wearable.complications.ComplicationData> data =
+                ArgumentCaptor.forClass(
+                        android.support.wearable.complications.ComplicationData.class);
+        verify(mRemoteManager).updateComplicationData(eq(id), data.capture());
+        assertThat(data.getValue()).isNull();
     }
 
     @Test

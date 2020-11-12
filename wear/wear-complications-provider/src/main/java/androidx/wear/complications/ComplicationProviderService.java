@@ -372,9 +372,13 @@ public abstract class ComplicationProviderService extends Service {
                                                     + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
                                 }
 
+                                // When no update is needed, the complicationData is going to be
+                                // null.
                                 iComplicationManager.updateComplicationData(
                                         complicationId,
-                                        complicationData.asWireComplicationData());
+                                        (complicationData != null)
+                                                ? complicationData.asWireComplicationData()
+                                                : null);
                             }));
         }
 
