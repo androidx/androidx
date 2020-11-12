@@ -97,7 +97,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     private static final String DEFAULT_CLASS_NAME = "android.view.View";
 
     /** Default bounds used to determine if the client didn't set any. */
-    private static final Rect INVALID_PARENT_BOUNDS = new Rect(
+    private static final Rect INVALID_BOUNDS = new Rect(
             Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
 
     // Temporary, reusable data structures.
@@ -324,9 +324,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * @param virtualViewId the identifier of the virtual view
      * @param outBounds the rect to populate with virtual view bounds
      */
-    private void getBoundsInParent(int virtualViewId, Rect outBounds) {
+    private void getBoundsInScreen(int virtualViewId, Rect outBounds) {
         final AccessibilityNodeInfoCompat node = obtainAccessibilityNodeInfo(virtualViewId);
-        node.getBoundsInParent(outBounds);
+        node.getBoundsInScreen(outBounds);
     }
 
     /**
@@ -336,7 +336,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             new FocusStrategy.BoundsAdapter<AccessibilityNodeInfoCompat>() {
                 @Override
                 public void obtainBounds(AccessibilityNodeInfoCompat node, Rect outBounds) {
-                    node.getBoundsInParent(outBounds);
+                    node.getBoundsInScreen(outBounds);
                 }
             };
 
@@ -392,7 +392,7 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
                 final Rect selectedRect = new Rect();
                 if (mKeyboardFocusedVirtualViewId != INVALID_ID) {
                     // Focus is moving from a virtual view within the host.
-                    getBoundsInParent(mKeyboardFocusedVirtualViewId, selectedRect);
+                    getBoundsInScreen(mKeyboardFocusedVirtualViewId, selectedRect);
                 } else if (previouslyFocusedRect != null) {
                     // Focus is moving from a real view outside the host.
                     selectedRect.set(previouslyFocusedRect);
@@ -772,16 +772,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * <li>{@link AccessibilityNodeInfoCompat#setParent(View)}
      * <li>{@link AccessibilityNodeInfoCompat#setSource(View, int)}
      * <li>{@link AccessibilityNodeInfoCompat#setVisibleToUser}
-     * <li>{@link AccessibilityNodeInfoCompat#setBoundsInScreen(Rect)}
-     * </ul>
-     * <p>
-     * Uses the bounds of the parent view and the parent-relative bounding
-     * rectangle specified by
-     * {@link AccessibilityNodeInfoCompat#getBoundsInParent} to automatically
-     * update the following properties:
-     * <ul>
-     * <li>{@link AccessibilityNodeInfoCompat#setVisibleToUser}
-     * <li>{@link AccessibilityNodeInfoCompat#setBoundsInParent}
      * </ul>
      *
      * @param virtualViewId the virtual view id for item for which to construct
@@ -797,8 +787,8 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         node.setFocusable(true);
         node.setClassName(DEFAULT_CLASS_NAME);
 
-        node.setBoundsInParent(INVALID_PARENT_BOUNDS);
-        node.setBoundsInScreen(INVALID_PARENT_BOUNDS);
+        node.setBoundsInParent(INVALID_BOUNDS);
+        node.setBoundsInScreen(INVALID_BOUNDS);
         node.setParent(mHost);
 
         // Allow the client to populate the node.
@@ -811,8 +801,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         }
 
         node.getBoundsInParent(mTempParentRect);
-        if (mTempParentRect.equals(INVALID_PARENT_BOUNDS)) {
-            throw new RuntimeException("Callbacks must set parent bounds in "
+        node.getBoundsInScreen(mTempScreenRect);
+        if (mTempParentRect.equals(INVALID_BOUNDS) && mTempScreenRect.equals(
+                INVALID_BOUNDS)) {
+            throw new RuntimeException("Callbacks must set parent bounds or screen bounds in "
                     + "populateNodeForVirtualViewId()");
         }
 
@@ -850,32 +842,9 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
         mHost.getLocationOnScreen(mTempGlobalRect);
 
-        // If not explicitly specified, calculate screen-relative bounds and
-        // offset for scroll position based on bounds in parent.
-        node.getBoundsInScreen(mTempScreenRect);
-        if (mTempScreenRect.equals(INVALID_PARENT_BOUNDS)) {
-            node.getBoundsInParent(mTempScreenRect);
-
-            // If there is a parent node, adjust bounds based on the parent node.
-            if (node.mParentVirtualDescendantId != HOST_ID) {
-                AccessibilityNodeInfoCompat parentNode = AccessibilityNodeInfoCompat.obtain();
-                // Walk up the node tree to adjust the screen rect.
-                for (int virtualDescendantId = node.mParentVirtualDescendantId;
-                        virtualDescendantId != HOST_ID;
-                        virtualDescendantId = parentNode.mParentVirtualDescendantId) {
-                    // Reset the values in the parent node we'll be using.
-                    parentNode.setParent(mHost, HOST_ID);
-                    parentNode.setBoundsInParent(INVALID_PARENT_BOUNDS);
-                    // Adjust the bounds for the parent node.
-                    onPopulateNodeForVirtualView(virtualDescendantId, parentNode);
-                    parentNode.getBoundsInParent(mTempParentRect);
-                    mTempScreenRect.offset(mTempParentRect.left, mTempParentRect.top);
-                }
-                parentNode.recycle();
-            }
-            // Adjust the rect for the host view's location.
-            mTempScreenRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
-                    mTempGlobalRect[1] - mHost.getScrollY());
+        if (mTempScreenRect.equals(INVALID_BOUNDS)) {
+            setBoundsInScreenFromBoundsInParent(node, mTempParentRect);
+            node.getBoundsInScreen(mTempScreenRect);
         }
 
         if (mHost.getLocalVisibleRect(mTempVisibleRect)) {
@@ -884,7 +853,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
             final boolean intersects = mTempScreenRect.intersect(mTempVisibleRect);
             if (intersects) {
                 node.setBoundsInScreen(mTempScreenRect);
-
                 if (isVisibleToUser(mTempScreenRect)) {
                     node.setVisibleToUser(true);
                 }
@@ -924,15 +892,15 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
     /**
      * Computes whether the specified {@link Rect} intersects with the visible
-     * portion of its parent {@link View}. Modifies {@code localRect} to contain
+     * portion of its parent {@link View}. Modifies {@code screenRect} to contain
      * only the visible portion.
      *
-     * @param localRect a rectangle in local (parent) coordinates
+     * @param screenRect a rectangle in screen coordinates
      * @return whether the specified {@link Rect} is visible on the screen
      */
-    private boolean isVisibleToUser(Rect localRect) {
+    private boolean isVisibleToUser(Rect screenRect) {
         // Missing or empty bounds mean this view is not visible.
-        if ((localRect == null) || localRect.isEmpty()) {
+        if ((screenRect == null) || screenRect.isEmpty()) {
             return false;
         }
 
@@ -1064,6 +1032,46 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
     }
 
     /**
+     * Calculates and assigns screen-relative bounds based on bounds in parent. Instead
+     * of calling the deprecated {@link AccessibilityNodeInfoCompat#setBoundsInParent(Rect)}, it
+     * provides a convenient method to calculate and assign
+     * {@link AccessibilityNodeInfoCompat#setBoundsInScreen(Rect)} based on {@code boundsInParent}.
+     *
+     * @param node The node to populate
+     * @param boundsInParent The node bounds in the viewParent's coordinates.
+     */
+    public final void setBoundsInScreenFromBoundsInParent(@NonNull AccessibilityNodeInfoCompat node,
+            @NonNull Rect boundsInParent) {
+        node.setBoundsInParent(boundsInParent);
+        Rect screenRect = new Rect();
+        screenRect.set(boundsInParent);
+
+        // If there is a parent node, adjust bounds based on the parent node.
+        if (node.mParentVirtualDescendantId != HOST_ID) {
+            AccessibilityNodeInfoCompat parentNode = AccessibilityNodeInfoCompat.obtain();
+            Rect tempParentRect = new Rect();
+            // Walk up the node tree to adjust the screen rect.
+            for (int virtualDescendantId = node.mParentVirtualDescendantId;
+                    virtualDescendantId != HOST_ID;
+                    virtualDescendantId = parentNode.mParentVirtualDescendantId) {
+                // Reset the values in the parent node we'll be using.
+                parentNode.setParent(mHost, HOST_ID);
+                parentNode.setBoundsInParent(INVALID_BOUNDS);
+                // Adjust the bounds for the parent node.
+                onPopulateNodeForVirtualView(virtualDescendantId, parentNode);
+                parentNode.getBoundsInParent(tempParentRect);
+                screenRect.offset(tempParentRect.left, tempParentRect.top);
+            }
+            parentNode.recycle();
+        }
+        // Adjust the rect for the host view's location.
+        mHost.getLocationOnScreen(mTempGlobalRect);
+        screenRect.offset(mTempGlobalRect[0] - mHost.getScrollX(),
+                mTempGlobalRect[1] - mHost.getScrollY());
+        node.setBoundsInScreen(screenRect);
+    }
+
+    /**
      * Provides a mapping between view-relative coordinates and logical
      * items.
      *
@@ -1144,8 +1152,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * <li>event text, see
      * {@link AccessibilityNodeInfoCompat#setText(CharSequence)} or
      * {@link AccessibilityNodeInfoCompat#setContentDescription(CharSequence)}
-     * <li>bounds in parent coordinates, see
-     * {@link AccessibilityNodeInfoCompat#setBoundsInParent(Rect)}
+     * <li>bounds in screen coordinates, see
+     * {@link AccessibilityNodeInfoCompat#setBoundsInScreen(Rect)} and
+     * {@link ExploreByTouchHelper#setBoundsInScreenFromBoundsInParent
+     * (AccessibilityNodeInfoCompat, Rect)}
      * </ul>
      * <p>
      * The helper class automatically populates the following fields with
@@ -1176,8 +1186,6 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
      * {@link AccessibilityNodeInfoCompat#setAccessibilityFocused(boolean)}
      * <li>keyboard focus, computed based on internal helper state, see
      * {@link AccessibilityNodeInfoCompat#setFocused(boolean)}
-     * <li>bounds in screen coordinates, computed based on host view bounds,
-     * see {@link AccessibilityNodeInfoCompat#setBoundsInScreen(Rect)}
      * </ul>
      * <p>
      * Additionally, the helper class automatically handles keyboard focus and
