@@ -107,6 +107,15 @@ public class SliceHints {
     public static final String SUBTYPE_SELECTION = "selection";
 
     /**
+     * Subtype indicating that this slice represents a Date Picker.
+     */
+    public static final String SUBTYPE_DATE_PICKER = "date_picker";
+    /**
+     * Subtype indicating that this slice represents a Time Picker.
+     */
+    public static final String SUBTYPE_TIME_PICKER = "time_picker";
+
+    /**
      * Hint indicating that this slice represents an option selectable in a selection slice.
      * The parent of this slice must be of subtype {@link #SUBTYPE_SELECTION}.
      */
