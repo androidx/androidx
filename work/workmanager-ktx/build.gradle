@@ -29,13 +29,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-}
-
 dependencies {
     api project(':work:work-runtime')
     api(KOTLIN_STDLIB)
