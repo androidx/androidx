@@ -50,6 +50,10 @@ public class MacrobenchmarkScope(
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)!!
         block(intent)
+        launchIntentAndWait(intent)
+    }
+
+    fun launchIntentAndWait(intent: Intent) {
         context.startActivity(intent)
         device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
@@ -98,6 +102,9 @@ fun macrobenchmark(
     // output, and give it different (test-wide) lifecycle
     val perfettoCollector = PerfettoCaptureWrapper()
     try {
+        config.metrics.forEach {
+            it.configure(config)
+        }
         perfettoCollector.start()
         config.metrics.forEach {
             it.start()
