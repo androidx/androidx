@@ -77,13 +77,13 @@ class PlaceholderSpan(
 
         const val UNIT_SP = 0
         const val UNIT_EM = 1
-        const val UNIT_INHERIT = 2
+        const val UNIT_UNSPECIFIED = 2
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             UNIT_SP,
             UNIT_EM,
-            UNIT_INHERIT
+            UNIT_UNSPECIFIED
         )
         internal annotation class Unit
     }
