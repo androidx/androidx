@@ -213,6 +213,7 @@ includeProject(":compose:integration-tests", "compose/integration-tests", [Build
 includeProject(":compose:integration-tests:benchmark", "compose/integration-tests/benchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos", "compose/integration-tests/demos", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:demos:common", "compose/integration-tests/demos/common", [BuildType.COMPOSE])
+includeProject(":compose:integration-tests:docs-snippets", "compose/integration-tests/docs-snippets", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:macrobenchmark", "compose/integration-tests/macrobenchmark", [BuildType.COMPOSE])
 includeProject(":compose:internal-lint-checks", "compose/internal-lint-checks", [BuildType.COMPOSE])
 includeProject(":compose:material", "compose/material", [BuildType.COMPOSE])
