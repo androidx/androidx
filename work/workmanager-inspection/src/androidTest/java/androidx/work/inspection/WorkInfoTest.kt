@@ -30,6 +30,7 @@ import androidx.work.inspection.worker.EmptyWorker
 import androidx.work.inspection.worker.IdleWorker
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +56,7 @@ class WorkInfoTest {
             }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun addAndRemoveWork() = runBlocking {
         inspectWorkManager()
@@ -73,6 +75,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun sendWorkAddedEvent() = runBlocking {
         inspectWorkManager()
@@ -86,6 +89,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun updateWorkInfoState() = runBlocking {
         inspectWorkManager()
@@ -98,6 +102,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun updateWorkInfoRetryCount() = runBlocking {
         inspectWorkManager()
@@ -110,6 +115,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun updateWorkInfoOutputData() = runBlocking {
         inspectWorkManager()
@@ -129,6 +135,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun updateWorkInfoScheduleRequestedAt() = runBlocking {
         inspectWorkManager()
@@ -142,6 +149,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun runEntryHook_getCallStackWithWorkAddedEvent() = runBlocking {
         inspectWorkManager()
@@ -166,6 +174,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun addChainingWorkWithUniqueName() = runBlocking {
         inspectWorkManager()
@@ -194,6 +203,7 @@ class WorkInfoTest {
         }
     }
 
+    @Ignore("b/172833278")
     @Test
     fun cancelWork() = runBlocking {
         inspectWorkManager()
