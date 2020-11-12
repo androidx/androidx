@@ -307,6 +307,9 @@ public final class ImageCapture extends UseCase {
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final Executor mSequentialIoExecutor;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -327,6 +330,7 @@ public final class ImageCapture extends UseCase {
 
         mIoExecutor = Preconditions.checkNotNull(
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
+        mSequentialIoExecutor = CameraXExecutors.newSequentialExecutor(mIoExecutor);
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -766,7 +770,8 @@ public final class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(ImageSaver.SaveError error, String message,
+                    public void onError(@NonNull ImageSaver.SaveError error,
+                            @NonNull String message,
                             @Nullable Throwable cause) {
                         @ImageCaptureError int imageCaptureError = ERROR_UNKNOWN;
                         switch (error) {
@@ -795,6 +800,7 @@ public final class ImageCapture extends UseCase {
                                         outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
                                         executor,
+                                        mSequentialIoExecutor,
                                         imageSavedCallbackWrapper));
                     }
 
