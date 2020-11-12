@@ -728,20 +728,30 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            CameraXExecutors.mainThreadExecutor().execute(
-                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
-            return;
-        }
+        mSequentialIoExecutor.execute(() -> {
+            if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
+                // Check whether the captured image can be saved. If it cannot, fail fast and
+                // notify user.
+                executor.execute(() -> imageSavedCallback.onError(
+                        new ImageCaptureException(ERROR_FILE_IO,
+                                "Cannot save capture result to specified location", null)));
+            } else {
+                CameraXExecutors.mainThreadExecutor().execute(
+                        () -> takePictureAfterValidation(outputFileOptions, executor,
+                                imageSavedCallback));
+            }
+        });
+    }
 
-        // Check whether the captured image can be saved. If it cannot, fail fast and notify user
-        if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
-            executor.execute(() -> imageSavedCallback.onError(
-                    new ImageCaptureException(ERROR_FILE_IO,
-                            "Cannot save capture result to specified location", null)));
-            return;
-        }
-
+    /**
+     * Takes picture after the output file options is validated.
+     */
+    @UiThread
+    private void takePictureAfterValidation(
+            final @NonNull OutputFileOptions outputFileOptions,
+            final @NonNull Executor executor,
+            final @NonNull OnImageSavedCallback imageSavedCallback) {
+        Threads.checkMainThread();
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
