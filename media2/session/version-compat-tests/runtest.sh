@@ -17,8 +17,8 @@
 
 # Usage './runtest.sh <version_combination_number> [option]'
 
-CLIENT_MODULE_NAME_BASE="support-media2-test-client"
-SERVICE_MODULE_NAME_BASE="support-media2-test-service"
+CLIENT_MODULE_NAME_BASE="media2:media2-session:version-compat-tests:client"
+SERVICE_MODULE_NAME_BASE="media2:media2-session:version-compat-tests:service"
 CLIENT_VERSION=""
 SERVICE_VERSION=""
 CLIENT_TEST_TARGET=""
