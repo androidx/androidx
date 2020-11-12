@@ -28,7 +28,11 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 
-/** Controls a stateful remote interactive watch face with an interface tailored for WCS. */
+/**
+ * Controls a stateful remote interactive watch face with an interface tailored for WCS the
+ * WearOS 3.0 system server responsible for watch face management. Typically this will be used for
+ * the current active watch face.
+ */
 public interface InteractiveWatchFaceWcsClient : AutoCloseable {
 
     public companion object {

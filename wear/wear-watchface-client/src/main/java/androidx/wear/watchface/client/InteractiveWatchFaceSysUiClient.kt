@@ -46,7 +46,10 @@ import androidx.wear.watchface.style.UserStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class TapType
 
-/** Controls a stateful remote interactive watch face with an interface tailored for SysUI. */
+/**
+ * Controls a stateful remote interactive watch face with an interface tailored for SysUI the
+ * WearOS 3.0 launcher app. Typically this will be used for the current active watch face.
+ */
 public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
 
     public companion object {
