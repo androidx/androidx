@@ -75,7 +75,7 @@ internal data class TransformablePage<T : Any>(
         presentedItemsAfter: Int,
         originalPageOffsetFirst: Int,
         originalPageOffsetLast: Int
-    ) = ViewportHint(
+    ) = ViewportHint.Access(
         pageOffset = hintOriginalPageOffset,
         indexInPage = when {
             hintOriginalIndices?.indices?.contains(index) == true -> hintOriginalIndices[index]
@@ -111,5 +111,11 @@ internal data class TransformablePage<T : Any>(
         result = 31 * result + hintOriginalPageOffset
         result = 31 * result + (hintOriginalIndices?.hashCode() ?: 0)
         return result
+    }
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        fun <T : Any> empty() = EMPTY_INITIAL_PAGE as TransformablePage<T>
+        val EMPTY_INITIAL_PAGE: TransformablePage<Any> = TransformablePage(0, emptyList())
     }
 }

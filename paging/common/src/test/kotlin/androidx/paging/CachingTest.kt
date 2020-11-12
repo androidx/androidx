@@ -175,44 +175,43 @@ class CachingTest {
     }
 
     @Test
-    fun cached_afterMapping_withMoreMappingAfterwards() = testScope
-        .runBlockingTest {
-            var mappingCnt = 0
-            val pageFlow = buildPageFlow().map { pagingData ->
-                val mappingIndex = mappingCnt++
-                pagingData.map {
-                    it.copy(metadata = mappingIndex.toString())
-                }
-            }.cachedIn(testScope, tracker).map { pagingData ->
-                val mappingIndex = mappingCnt++
-                pagingData.map {
-                    it.copy(metadata = "${it.metadata}_$mappingIndex")
-                }
+    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.runBlockingTest {
+        var mappingCnt = 0
+        val pageFlow = buildPageFlow().map { pagingData ->
+            val mappingIndex = mappingCnt++
+            pagingData.map {
+                it.copy(metadata = mappingIndex.toString())
             }
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect).isEqualTo(
-                buildItems(
-                    version = 0,
-                    generation = 0,
-                    start = 0,
-                    size = 6
-                ) {
-                    it.copy(metadata = "0_1")
-                }
-            )
-
-            assertThat(secondCollect).isEqualTo(
-                buildItems(
-                    version = 0,
-                    generation = 0,
-                    start = 0,
-                    size = 9
-                ) {
-                    it.copy(metadata = "0_2")
-                }
-            )
+        }.cachedIn(testScope, tracker).map { pagingData ->
+            val mappingIndex = mappingCnt++
+            pagingData.map {
+                it.copy(metadata = "${it.metadata}_$mappingIndex")
+            }
         }
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect).isEqualTo(
+            buildItems(
+                version = 0,
+                generation = 0,
+                start = 0,
+                size = 6
+            ) {
+                it.copy(metadata = "0_1")
+            }
+        )
+
+        assertThat(secondCollect).isEqualTo(
+            buildItems(
+                version = 0,
+                generation = 0,
+                start = 0,
+                size = 9
+            ) {
+                it.copy(metadata = "0_2")
+            }
+        )
+    }
 
     @Test
     fun pagesAreClosedProperty() {
@@ -322,10 +321,10 @@ class CachingTest {
                 loadedPageCount += it.pages.size
                 if (items.size < expectedSize) {
                     receiver.accessHint(
-                        ViewportHint(
+                        ViewportHint.Access(
                             pageOffset = loadedPageCount - 1,
                             indexInPage = it.pages.last().data.size - 1,
-                            presentedItemsBefore = 0,
+                            presentedItemsBefore = it.pages.sumBy { it.data.size } - 1,
                             presentedItemsAfter = 0,
                             originalPageOffsetFirst =
                                 it.pages.first().originalPageOffsets.minOrNull()!!,
