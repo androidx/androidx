@@ -162,7 +162,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantRead_NoGetter() {
+    public void testCantRead_noGetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -175,7 +175,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantRead_PrivateGetter() {
+    public void testCantRead_privateGetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -191,7 +191,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantRead_WrongParamGetter() {
+    public void testCantRead_wrongParamGetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -222,7 +222,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantWrite_NoSetter() {
+    public void testCantWrite_noSetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -240,7 +240,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantWrite_PrivateSetter() {
+    public void testCantWrite_privateSetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -261,7 +261,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testCantWrite_WrongParamSetter() {
+    public void testCantWrite_wrongParamSetter() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -282,7 +282,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testWrite_MultipleSetters() throws Exception {
+    public void testWrite_multipleSetters() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -297,7 +297,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testWrite_PrivateConstructor() {
+    public void testWrite_privateConstructor() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -312,7 +312,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testWrite_ConstructorMissingParams() {
+    public void testWrite_constructorMissingParams() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -327,7 +327,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testWrite_ConstructorExtraParams() {
+    public void testWrite_constructorExtraParams() {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -506,7 +506,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testToGenericDocument_AllSupportedTypes() throws Exception {
+    public void testToGenericDocument_allSupportedTypes() throws Exception {
         // TODO(b/156296904): Uncomment Gift and GenericDocument when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
@@ -561,7 +561,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testToGenericDocument_InvalidTypes() {
+    public void testToGenericDocument_invalidTypes() {
         Compilation compilation = compile(
                 "import java.util.*;\n"
                         + "@AppSearchDocument\n"
@@ -624,7 +624,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testAllSpecialFields_Field() throws Exception {
+    public void testAllSpecialFields_field() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"
@@ -640,7 +640,7 @@ public class AppSearchCompilerTest {
     }
 
     @Test
-    public void testAllSpecialFields_Getter() throws Exception {
+    public void testAllSpecialFields_getter() throws Exception {
         Compilation compilation = compile(
                 "@AppSearchDocument\n"
                         + "public class Gift {\n"

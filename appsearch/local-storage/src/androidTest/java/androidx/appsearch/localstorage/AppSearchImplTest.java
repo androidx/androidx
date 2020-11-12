@@ -78,7 +78,7 @@ public class AppSearchImplTest {
      * schema.
      */
     @Test
-    public void testRewriteSchema_AddType() throws Exception {
+    public void testRewriteSchema_addType() throws Exception {
         SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("existingDatabase/Foo").build());
@@ -153,7 +153,7 @@ public class AppSearchImplTest {
      * not technically "added" to the existing schema.
      */
     @Test
-    public void testRewriteSchema_RewriteType() throws Exception {
+    public void testRewriteSchema_rewriteType() throws Exception {
         SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("existingDatabase/Foo").build());
@@ -182,7 +182,7 @@ public class AppSearchImplTest {
      * set.
      */
     @Test
-    public void testRewriteSchema_DeleteType() throws Exception {
+    public void testRewriteSchema_deleteType() throws Exception {
         SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("existingDatabase/Foo").build());
@@ -320,7 +320,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRewriteSearchSpec_OneInstance() throws Exception {
+    public void testRewriteSearchSpec_oneInstance() throws Exception {
         SearchSpecProto.Builder searchSpecProto =
                 SearchSpecProto.newBuilder().setQuery("");
 
@@ -342,7 +342,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRewriteSearchSpec_TwoInstances() throws Exception {
+    public void testRewriteSearchSpec_twoInstances() throws Exception {
         SearchSpecProto.Builder searchSpecProto =
                 SearchSpecProto.newBuilder().setQuery("");
 
@@ -392,7 +392,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRemoveEmptyDatabase_NoExceptionThrown() throws Exception {
+    public void testRemoveEmptyDatabase_noExceptionThrown() throws Exception {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().addSchemaType("FakeType").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
@@ -429,7 +429,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testSetSchema_ExistingSchemaRetainsVisibilitySetting() throws Exception {
+    public void testSetSchema_existingSchemaRetainsVisibilitySetting() throws Exception {
         mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
                 "schema1").build()), /*forceOverride=*/false);
         mAppSearchImpl.setVisibility("database", Set.of("schema1"));
@@ -494,7 +494,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testRemoveSchema_DifferentDataBase() throws Exception {
+    public void testRemoveSchema_differentDataBase() throws Exception {
         // Create schemas
         Set<AppSearchSchema> schemas = new HashSet<>();
         schemas.add(new AppSearchSchema.Builder("Email").build());
@@ -541,7 +541,7 @@ public class AppSearchImplTest {
 
 
     @Test
-    public void testRemoveSchema_RemovedFromVisibilityStore() throws Exception {
+    public void testRemoveSchema_removedFromVisibilityStore() throws Exception {
         mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
                 "schema1").build()), /*forceOverride=*/false);
         mAppSearchImpl.setVisibility("database", Set.of("schema1"));
@@ -566,7 +566,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testSetVisibility_DefaultPlatformVisible() throws Exception {
+    public void testSetVisibility_defaultPlatformVisible() throws Exception {
         mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
                 "Schema").build()), /*forceOverride=*/false);
         assertThat(
@@ -574,7 +574,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testSetVisibility_PlatformHidden() throws Exception {
+    public void testSetVisibility_platformHidden() throws Exception {
         mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
                 "Schema").build()), /*forceOverride=*/false);
         mAppSearchImpl.setVisibility("database", Set.of("Schema"));
@@ -583,7 +583,7 @@ public class AppSearchImplTest {
     }
 
     @Test
-    public void testSetVisibility_UnknownSchema() throws Exception {
+    public void testSetVisibility_unknownSchema() throws Exception {
         mAppSearchImpl.setSchema("database", Collections.singleton(new AppSearchSchema.Builder(
                 "Schema").build()), /*forceOverride=*/false);
 

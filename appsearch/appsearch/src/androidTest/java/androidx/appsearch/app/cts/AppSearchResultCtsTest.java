@@ -25,7 +25,7 @@ import org.junit.Test;
 public class AppSearchResultCtsTest {
 
     @Test
-    public void testResultEquals_Identical() {
+    public void testResultEquals_identical() {
         AppSearchResult<String> result1 = AppSearchResult.newSuccessfulResult("String");
         AppSearchResult<String> result2 = AppSearchResult.newSuccessfulResult("String");
 
@@ -44,7 +44,7 @@ public class AppSearchResultCtsTest {
     }
 
     @Test
-    public void testResultEquals_Failure() {
+    public void testResultEquals_failure() {
         AppSearchResult<String> result1 = AppSearchResult.newSuccessfulResult("String");
         AppSearchResult<String> result2 = AppSearchResult.newSuccessfulResult("Wrong");
         AppSearchResult<String> resultNull = AppSearchResult.newSuccessfulResult(/*value=*/null);
