@@ -245,9 +245,13 @@ class SeparatorsTest {
         prepend: LoadState = NotLoading.Incomplete,
         append: LoadState = NotLoading.Incomplete
     ) = Refresh(
-        pages = pages.map {
-            if (it != null) listOf(it) else emptyList()
-        }.toTransformablePages(),
+        pages = when {
+            pages.isEmpty() -> listOf(TransformablePage.empty())
+            else -> pages.map {
+                if (it != null) listOf(it)
+                else emptyList()
+            }.toTransformablePages()
+        },
         placeholdersBefore = 0,
         placeholdersAfter = 1,
         combinedLoadStates = localLoadStatesOf(prependLocal = prepend, appendLocal = append)

@@ -75,7 +75,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
-    private var lastHint: ViewportHint? = null
+    private var lastHint: ViewportHint.Access? = null
 
     private val pageEventChCollected = AtomicBoolean(false)
     private val pageEventCh = Channel<PageEvent<Value>>(BUFFERED)
@@ -191,7 +191,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     }
 
     fun accessHint(viewportHint: ViewportHint) {
-        lastHint = viewportHint
+        if (viewportHint is ViewportHint.Access) {
+            lastHint = viewportHint
+        }
+
         @OptIn(ExperimentalCoroutinesApi::class)
         hintChannel.offer(viewportHint)
     }
@@ -507,9 +510,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(
-        loadType: LoadType
-    ) {
+    private suspend fun PageFetcherSnapshotState<Key, Value>.setLoading(loadType: LoadType) {
         if (setSourceLoadState(loadType, Loading)) {
             pageEventCh.send(
                 LoadStateUpdate(loadType, fromMediator = false, Loading)
@@ -578,6 +579,9 @@ internal fun GenerationalViewportHint.shouldPrioritizeOver(
     return when {
         // Prioritize hints from new generations, which increments after dropping.
         generationId > previous.generationId -> true
+        // Prioritize Access hints over Initialize hints
+        previous.hint is ViewportHint.Initial && hint is ViewportHint.Access -> true
+        hint is ViewportHint.Initial && previous.hint is ViewportHint.Access -> false
         // Prioritize hints from most recent presenter state
         hint.originalPageOffsetFirst != previous.hint.originalPageOffsetFirst -> true
         hint.originalPageOffsetLast != previous.hint.originalPageOffsetLast -> true
