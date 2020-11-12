@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 public class EnumColumnTypeAdapterTest {
 
     private EnumColumnTypeAdapterDatabase mDb;
+    private EnumColumnTypeAdapterDatabase mDbComplex;
 
     @Entity
     public static class EntityWithEnum {
@@ -49,11 +50,30 @@ public class EnumColumnTypeAdapterTest {
         public Long id;
         public Fruit fruit;
     }
+    @Entity
+    public static class ComplexEntityWithEnum {
+        @PrimaryKey
+        public Long id;
+        public Season mSeason;
+    }
 
     public enum Fruit {
         BANANA,
         STRAWBERRY,
         WILDBERRY
+    }
+
+    public enum Season {
+        SUMMER("Sunny"),
+        SPRING("Warm"),
+        WINTER("Cold"),
+        AUTUMN("Rainy");
+
+        private final String mSeason;
+
+        Season(String mSeason) {
+            this.mSeason = mSeason;
+        }
     }
 
     @Dao
@@ -65,15 +85,30 @@ public class EnumColumnTypeAdapterTest {
         EntityWithEnum getValueWithId(long id);
     }
 
-    @Database(entities = {EntityWithEnum.class}, version = 1, exportSchema = false)
+    @Dao
+    public interface SampleDaoWithComplexEnum {
+        @Query("INSERT INTO ComplexEntityWithEnum (id, mSeason) VALUES (:id, :season)")
+        long insertComplex(long id, Season season);
+
+        @Query("SELECT * FROM ComplexEntityWithEnum WHERE id = :id")
+        ComplexEntityWithEnum getComplexValueWithId(long id);
+    }
+
+    @Database(entities = {EntityWithEnum.class, ComplexEntityWithEnum.class}, version = 1,
+            exportSchema = false)
     public abstract static class EnumColumnTypeAdapterDatabase extends RoomDatabase {
         public abstract EnumColumnTypeAdapterTest.SampleDao dao();
+        public abstract EnumColumnTypeAdapterTest.SampleDaoWithComplexEnum complexDao();
     }
 
     @Before
     public void initDb() {
         Context context = ApplicationProvider.getApplicationContext();
         mDb = Room.inMemoryDatabaseBuilder(
+                context,
+                EnumColumnTypeAdapterDatabase.class)
+                .build();
+        mDbComplex = Room.inMemoryDatabaseBuilder(
                 context,
                 EnumColumnTypeAdapterDatabase.class)
                 .build();
@@ -86,5 +121,12 @@ public class EnumColumnTypeAdapterTest {
 
         assertThat(mDb.dao().getValueWithId(1).fruit, is(equalTo(Fruit.BANANA)));
         assertThat(mDb.dao().getValueWithId(2).fruit, is(equalTo(Fruit.STRAWBERRY)));
+    }
+
+    @Test
+    public void filterOutComplexEnumTest() {
+        final long id1 = mDbComplex.complexDao().insertComplex(1, Season.AUTUMN);
+        assertThat(mDbComplex.complexDao().getComplexValueWithId(1).mSeason,
+                is(equalTo(Season.AUTUMN)));
     }
 }
