@@ -16,7 +16,11 @@
 
 package androidx.benchmark.macro
 
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.android.helpers.CpuUsageHelper
+import com.android.helpers.JankCollectionHelper
+import com.android.helpers.TotalPssHelper
 
 /**
  * Metric interface.
@@ -25,6 +29,8 @@ sealed class Metric {
     abstract fun start()
 
     abstract fun stop()
+
+    abstract fun configure(config: MacrobenchmarkConfig)
 
     /**
      * After stopping, collect metrics
@@ -46,6 +52,10 @@ class StartupTimingMetric : Metric() {
         helper.stopCollecting()
     }
 
+    override fun configure(config: MacrobenchmarkConfig) {
+        // does nothing
+    }
+
     override fun getMetrics(packageName: String): Map<String, List<Long>> {
         return helper.getMetrics(packageName)
     }
@@ -64,7 +74,76 @@ class CpuUsageMetric : Metric() {
         helper.stopCollecting()
     }
 
+    override fun configure(config: MacrobenchmarkConfig) {
+        // does nothing
+    }
+
     override fun getMetrics(packageName: String): Map<String, List<Long>> {
         return helper.metrics.mapValues { listOf(it.value) }
+    }
+}
+
+class JankMetric : Metric() {
+    private lateinit var packageName: String
+    private val helper = JankCollectionHelper()
+
+    override fun start() {
+        try {
+            helper.startCollecting()
+        } catch (exception: RuntimeException) {
+            // Ignore the exception that might result from trying to clear GfxInfo
+            // The current implementation of JankCollectionHelper throws a RuntimeException
+            // when that happens. This is safe to ignore because the app being benchmarked
+            // is not showing any UI when this happens typically.
+
+            // Once the MacroBenchmarkRule has the ability to setup the app in the right state via
+            // a designated setup block, we can get rid of this.
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            if (instrumentation != null) {
+                val device = UiDevice.getInstance(instrumentation)
+                val result = device.executeShellCommand("ps -A | grep $packageName")
+                if (!result.isNullOrEmpty()) {
+                    error(exception.message ?: "Assertion error (Found $packageName)")
+                }
+            }
+        }
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+    }
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        packageName = config.packageName
+        helper.addTrackedPackages(packageName)
+    }
+
+    override fun getMetrics(packageName: String): Map<String, List<Long>> {
+        return helper.metrics.map { (key, value) ->
+            key to listOf(value.toLong())
+        }.toMap()
+    }
+}
+
+class TotalPssMetric : Metric() {
+    private val helper = TotalPssHelper()
+
+    override fun start() {
+        helper.startCollecting()
+    }
+
+    override fun stop() {
+        helper.stopCollecting()
+    }
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        helper.setUp(config.packageName)
+        helper.setMinIterations(config.iterations)
+    }
+
+    override fun getMetrics(packageName: String): Map<String, List<Long>> {
+        return helper.metrics.map { (key, value) ->
+            key to listOf(value)
+        }.toMap()
     }
 }

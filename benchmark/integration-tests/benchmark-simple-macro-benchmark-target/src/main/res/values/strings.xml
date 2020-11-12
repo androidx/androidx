@@ -16,4 +16,5 @@
 
 <resources>
     <string name="app_notice">Macro Benchmark Integration Test App.</string>
+    <string name="recyclerDescription">A list of items</string>
 </resources>
