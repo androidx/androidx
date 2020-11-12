@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteAccessPermException;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteTableLockedException;
@@ -104,6 +105,7 @@ public class ForceStopRunnable implements Runnable {
                     | SQLiteDatabaseCorruptException
                     | SQLiteDatabaseLockedException
                     | SQLiteTableLockedException
+                    | SQLiteConstraintException
                     | SQLiteAccessPermException exception) {
                 mRetryCount++;
                 if (mRetryCount >= MAX_ATTEMPTS) {
