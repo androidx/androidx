@@ -37,7 +37,7 @@ dependencies {
     api project(":compose:foundation:foundation")
     api("androidx.paging:paging-common-ktx:3.0.0-alpha06")
 
-    androidTestImplementation project(':ui:ui-test')
+    androidTestImplementation project(":compose:ui:ui-test-junit4")
     androidTestImplementation project(':internal-testutils-paging')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)

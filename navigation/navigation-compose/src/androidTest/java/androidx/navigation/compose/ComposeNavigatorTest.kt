@@ -16,10 +16,10 @@
 
 package androidx.navigation.compose
 
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.navOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
