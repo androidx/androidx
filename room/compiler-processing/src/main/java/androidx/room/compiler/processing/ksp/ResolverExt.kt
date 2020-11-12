@@ -31,6 +31,8 @@ internal fun Resolver.requireClass(qName: String) = checkNotNull(findClass(qName
     "cannot find class $qName"
 }
 
+internal fun Resolver.requireType(qName: String) = requireClass(qName).asStarProjectedType()
+
 internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutines.Continuation")
 
 private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration = when (this) {

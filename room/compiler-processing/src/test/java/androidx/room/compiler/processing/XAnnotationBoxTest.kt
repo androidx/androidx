@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -90,13 +91,13 @@ class XAnnotationBoxTest {
                 assertThat(
                     annotation.getAsTypeList("typeList")
                 ).containsExactly(
-                    it.processingEnv.requireType(java.lang.String::class.java.canonicalName),
-                    it.processingEnv.requireType(java.lang.Integer::class.java.canonicalName)
+                    it.processingEnv.requireType(java.lang.String::class),
+                    it.processingEnv.requireType(java.lang.Integer::class)
                 )
                 assertThat(
                     annotation.getAsType("singleType")
                 ).isEqualTo(
-                    it.processingEnv.requireType(java.lang.Long::class.java.canonicalName)
+                    it.processingEnv.requireType(java.lang.Long::class)
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
@@ -172,13 +173,13 @@ class XAnnotationBoxTest {
                 assertThat(
                     annotation.getAsTypeList("typeList")
                 ).containsExactly(
-                    invocation.processingEnv.requireType(invocation.types.string),
-                    invocation.processingEnv.requireType(invocation.types.int)
+                    invocation.processingEnv.requireType(String::class.typeName()),
+                    invocation.processingEnv.requireType(Int::class.typeName())
                 )
                 assertThat(
                     annotation.getAsType("singleType")
                 ).isEqualTo(
-                    invocation.processingEnv.requireType(invocation.types.long)
+                    invocation.processingEnv.requireType(Long::class.typeName())
                 )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)

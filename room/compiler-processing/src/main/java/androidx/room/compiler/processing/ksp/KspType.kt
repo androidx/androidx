@@ -21,6 +21,8 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import com.google.devtools.ksp.symbol.ClassKind
+import androidx.room.compiler.processing.tryBox
+import androidx.room.compiler.processing.tryUnbox
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
@@ -36,7 +38,7 @@ import kotlin.reflect.KClass
  * Similarly, we may not be able to get a [KSType] (e.g. if it resolves to error).
  */
 internal abstract class KspType(
-    private val env: KspProcessingEnv,
+    val env: KspProcessingEnv,
     val ksType: KSType
 ) : XType, XEquality {
     override val rawType by lazy {
@@ -91,10 +93,6 @@ internal abstract class KspType(
         }
     }
 
-    override fun boxed(): XType {
-        return this
-    }
-
     override fun isInt(): Boolean {
         return env.commonTypes.nullableInt.isAssignableFrom(ksType)
     }
@@ -119,17 +117,10 @@ internal abstract class KspType(
 
     override fun isTypeOf(other: KClass<*>): Boolean {
         // closest to what MoreTypes#isTypeOf does.
-        // TODO once we move TypeNames to java realm, we will be able to check just using that
-        //  (+ boxing). Fow now, this code stays flexible and checks for all variations as
-        //  only primitives use java types now.
-        val rawTypeName = rawType.typeName
-        // other might be something like Kotlin.Int which would map to primitive int (when
-        // invoked with .java) hence we need to check the qualified name for both.
-        // similar case for lists.
-        val javaQName = other.java.canonicalName
-        val kotlinQName = other.qualifiedName
-        val myQName = rawTypeName.toString()
-        return myQName == javaQName || myQName == kotlinQName
+        // accept both boxed and unboxed because KClass.java for primitives wrappers will always
+        // give the primitive (e.g. kotlin.Int::class.java is int)
+        return rawType.typeName.tryBox().toString() == other.java.canonicalName ||
+            rawType.typeName.tryUnbox().toString() == other.java.canonicalName
     }
 
     override fun isSameType(other: XType): Boolean {

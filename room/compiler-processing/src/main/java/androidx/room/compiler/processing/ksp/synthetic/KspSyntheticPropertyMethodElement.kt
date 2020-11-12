@@ -179,9 +179,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         }
 
         override val returnType: XType by lazy {
-            env.wrapDeclared(
-                env.resolver.builtIns.unitType
-            )
+            env.voidType
         }
 
         override val parameters: List<XExecutableParameterElement> by lazy {

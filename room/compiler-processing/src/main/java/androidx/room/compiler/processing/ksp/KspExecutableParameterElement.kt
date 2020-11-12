@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Origin
 
 internal class KspExecutableParameterElement(
     val env: KspProcessingEnv,
@@ -39,7 +40,7 @@ internal class KspExecutableParameterElement(
         get() = parameter.name?.asString() ?: "_no_param_name"
 
     override val type: XType by lazy {
-        parameter.typeAsMemberOf(
+        val paramType = parameter.typeAsMemberOf(
             resolver = env.resolver,
             functionDeclaration = method.declaration,
             ksType = method.containing.declaration.asStarProjectedType()
@@ -48,6 +49,12 @@ internal class KspExecutableParameterElement(
                 originatingReference = parameter.type!!, // as member of doesn't allow nulls
                 ksType = it
             )
+        }
+        // if vararg and kotlin source, wrap in an array because thats how it is represented in java
+        if (parameter.isVararg && parameter.origin == Origin.KOTLIN) {
+            env.getArrayType(paramType)
+        } else {
+            paramType
         }
     }
 

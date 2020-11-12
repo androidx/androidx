@@ -18,9 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.util.KotlinTypeNames.INT_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.LIST_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.MUTABLELIST_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
@@ -31,6 +28,8 @@ import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -69,9 +68,10 @@ class KspTypeElementTest {
                 assertThat(it.className).isEqualTo(ClassName.get("foo.bar", "InFooBar"))
             }
             invocation.processingEnv.requireTypeElement("java.lang.Integer").let {
-                assertThat(it.packageName).isEqualTo("java.lang")
-                assertThat(it.name).isEqualTo("Integer")
-                assertThat(it.qualifiedName).isEqualTo("java.lang.Integer")
+                // always return kotlin types, this is what compiler does
+                assertThat(it.packageName).isEqualTo("kotlin")
+                assertThat(it.name).isEqualTo("Int")
+                assertThat(it.qualifiedName).isEqualTo("kotlin.Int")
             }
             invocation.processingEnv.requireTypeElement("kotlin.Int").let {
                 assertThat(it.packageName).isEqualTo("kotlin")
@@ -220,22 +220,32 @@ class KspTypeElementTest {
         val src = Source.kotlin(
             "Foo.kt",
             """
-            open class BaseClass<T>(val genericProp : T)
+            open class BaseClass<T>(val genericProp : T) {
+                fun baseMethod(input: T) {}
+            }
             class SubClass(x : Int) : BaseClass<Int>(x) {
                 val subClassProp : String = "abc"
             }
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
             assertThat(baseClass.getAllFieldNames()).containsExactly("genericProp")
             val subClass = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(subClass.getAllFieldNames()).containsExactly("genericProp", "subClassProp")
+
+            val baseMethod = baseClass.getMethod("baseMethod")
+            baseMethod.asMemberOf(subClass.type).let { methodType ->
+                val genericArg = methodType.parameterTypes.first()
+                assertThat(genericArg.typeName).isEqualTo(TypeName.INT.box())
+            }
+
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.typeName).isEqualTo(ClassName.get("", "BaseClass", "T"))
+                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
             }
             subClass.getField("genericProp").let { field ->
-                assertThat(field.type.typeName).isEqualTo(ClassName.get("kotlin", "Int"))
+                // this is tricky because even though it is non-null it, it should still be boxed
+                assertThat(field.type.typeName).isEqualTo(TypeName.INT.box())
             }
         }
     }
@@ -261,12 +271,12 @@ class KspTypeElementTest {
             assertThat(
                 baseClass.getField("value").type.typeName
             ).isEqualTo(
-                ParameterizedTypeName.get(LIST_CLASS_NAME, INT_CLASS_NAME)
+                ParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
             assertThat(
                 subClass.getField("value").type.typeName
             ).isEqualTo(
-                ParameterizedTypeName.get(MUTABLELIST_CLASS_NAME, INT_CLASS_NAME)
+                ParameterizedTypeName.get(List::class.java, Integer::class.java)
             )
         }
     }

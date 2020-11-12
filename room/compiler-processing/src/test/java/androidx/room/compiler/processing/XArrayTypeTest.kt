@@ -16,11 +16,16 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import androidx.room.compiler.processing.ksp.createTypeReference
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.TypeName
 import org.junit.Test
@@ -46,10 +51,10 @@ class XArrayTypeTest {
                 .type
             assertThat(type.isArray()).isTrue()
             assertThat(type.typeName).isEqualTo(
-                ArrayTypeName.of(invocation.types.string)
+                ArrayTypeName.of(String::class.java)
             )
             type.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.UNKNOWN)
             }
         }
@@ -90,19 +95,101 @@ class XArrayTypeTest {
             val nonNull = element.getField("nonNull").type
             val nullable = element.getField("nullable").type
             listOf(nonNull, nullable).forEach {
-                assertThat(nonNull.isArray()).isTrue()
-                assertThat(nonNull.typeName).isEqualTo(
-                    ArrayTypeName.of(invocation.types.string)
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.typeName).isEqualTo(
+                    ArrayTypeName.of(String::class.java)
                 )
             }
 
             nonNull.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(
+                    String::class.typeName()
+                )
                 assertThat(component.nullability).isEqualTo(XNullability.NONNULL)
             }
             nullable.asArray().componentType.let { component ->
-                assertThat(component.typeName).isEqualTo(invocation.types.string)
+                assertThat(component.typeName).isEqualTo(String::class.typeName())
                 assertThat(component.nullability).isEqualTo(XNullability.NULLABLE)
+            }
+        }
+    }
+
+    @Test
+    fun kotlinPrimitiveArray() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            class Subject {
+                val primitiveBooleanArray : BooleanArray = TODO()
+                val primitiveByteArray : ByteArray = TODO()
+                val primitiveShortArray : ShortArray = TODO()
+                val primitiveIntArray : IntArray = TODO()
+                val primitiveLongArray : LongArray = TODO()
+                val primitiveCharArray : CharArray = TODO()
+                val primitiveFloatArray : FloatArray = TODO()
+                val primitiveDoubleArray : DoubleArray = TODO()
+                val boxedBooleanArray : Array<Boolean> = TODO()
+                val boxedByteArray : Array<Byte> = TODO()
+                val boxedShortArray : Array<Short> = TODO()
+                val boxedIntArray : Array<Int> = TODO()
+                val boxedLongArray : Array<Long> = TODO()
+                val boxedCharArray : Array<Char> = TODO()
+                val boxedFloatArray : Array<Float> = TODO()
+                val boxedDoubleArray : Array<Double> = TODO()
+            }
+            """.trimIndent()
+        )
+        runProcessorTestIncludingKsp(listOf(src)) {
+            val subject = it.processingEnv.requireTypeElement("Subject")
+            val types = subject.getAllFieldsIncludingPrivateSupers().map {
+                assertWithMessage(it.name).that(it.type.isArray()).isTrue()
+                it.name to it.type.typeName
+            }
+            assertThat(types).containsExactly(
+                "primitiveBooleanArray" to ArrayTypeName.of(TypeName.BOOLEAN),
+                "primitiveByteArray" to ArrayTypeName.of(TypeName.BYTE),
+                "primitiveShortArray" to ArrayTypeName.of(TypeName.SHORT),
+                "primitiveIntArray" to ArrayTypeName.of(TypeName.INT),
+                "primitiveLongArray" to ArrayTypeName.of(TypeName.LONG),
+                "primitiveCharArray" to ArrayTypeName.of(TypeName.CHAR),
+                "primitiveFloatArray" to ArrayTypeName.of(TypeName.FLOAT),
+                "primitiveDoubleArray" to ArrayTypeName.of(TypeName.DOUBLE),
+                "boxedBooleanArray" to ArrayTypeName.of(TypeName.BOOLEAN.box()),
+                "boxedByteArray" to ArrayTypeName.of(TypeName.BYTE.box()),
+                "boxedShortArray" to ArrayTypeName.of(TypeName.SHORT.box()),
+                "boxedIntArray" to ArrayTypeName.of(TypeName.INT.box()),
+                "boxedLongArray" to ArrayTypeName.of(TypeName.LONG.box()),
+                "boxedCharArray" to ArrayTypeName.of(TypeName.CHAR.box()),
+                "boxedFloatArray" to ArrayTypeName.of(TypeName.FLOAT.box()),
+                "boxedDoubleArray" to ArrayTypeName.of(TypeName.DOUBLE.box())
+            )
+        }
+    }
+
+    @Test
+    fun createArray() {
+        runKspTest(
+            sources = emptyList(),
+            succeed = true
+        ) { invocation ->
+            val intType = invocation.processingEnv.requireType("kotlin.Int")
+            invocation.processingEnv.getArrayType(intType).let {
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.componentType).isEqualTo(intType)
+                assertThat(it.typeName).isEqualTo(
+                    ArrayTypeName.of(TypeName.INT)
+                )
+            }
+            val nullableInt = (invocation.processingEnv as KspProcessingEnv).wrap(
+                invocation.kspResolver.builtIns.intType.makeNullable().createTypeReference()
+            )
+
+            invocation.processingEnv.getArrayType(nullableInt).let {
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.componentType).isEqualTo(nullableInt)
+                assertThat(it.typeName).isEqualTo(
+                    ArrayTypeName.of(TypeName.INT.box())
+                )
             }
         }
     }

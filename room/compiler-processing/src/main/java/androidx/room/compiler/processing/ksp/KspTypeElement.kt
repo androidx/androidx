@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -80,12 +81,17 @@ internal class KspTypeElement(
             val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
             type.classKind == ClassKind.CLASS
         }?.let {
-            env.wrap(it)
+            env.wrapDeclared(it.resolve())
         }
     }
 
     override val className: ClassName by lazy {
-        declaration.typeName()
+        declaration.typeName(env.resolver).tryBox().also { typeName ->
+            check(typeName is ClassName) {
+                "Internal error. The type name for $declaration should be a class name but " +
+                    "received ${typeName::class}"
+            }
+        } as ClassName
     }
 
     private val _declaredPropertyFields by lazy {
@@ -270,11 +276,10 @@ internal class KspTypeElement(
     }
 
     private fun KSClassDeclaration.getNonSyntheticPrimaryConstructor(): KSFunctionDeclaration? {
-        val primary = declaration.primaryConstructor
         // workaround for https://github.com/android/kotlin/issues/136
         // TODO remove once that bug is fixed
-        return if (primary?.simpleName?.asString() != "<init>") {
-            primary
+        return if (primaryConstructor?.simpleName?.asString() != "<init>") {
+            primaryConstructor
         } else {
             null
         }
