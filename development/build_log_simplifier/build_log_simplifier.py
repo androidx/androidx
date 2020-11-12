@@ -561,10 +561,15 @@ def main():
     elif validate:
         if len(interesting_lines) != 0:
             print("")
-            print("build_log_simplifier.py: Error: Found new messages!")
+            print("=" * 80)
+            print("build_log_simplifier.py: Error: Found " + str(len(interesting_lines)) + " lines of new warning output:")
             print("")
             print("".join(interesting_lines))
-            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new messages found in " + ",".join(log_paths) + ".")
+            print("=" * 80)
+            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new lines of output")
+            print("")
+            print("  Log     : " + ",".join(log_paths))
+            print("  Baseline: " + get_deterministic_exemptions_path())
             new_exemptions_path = log_paths[0] + ".ignore"
             # filter out any inconsistently observed messages so we don't try to exempt them twice
             all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
@@ -580,6 +585,7 @@ def main():
             print("")
             print("Note that if you exempt these messages by updating the exemption file, this will suppress these messages in the output of CI builds but not in Android Studio.")
             print("Additionally, adding more exemptions to this exemption file will cause the build to run more slowly than fixing or suppressing the message where it is generated.")
+            print("=" * 80)
             exit(1)
     else:
         print("".join(interesting_lines))
