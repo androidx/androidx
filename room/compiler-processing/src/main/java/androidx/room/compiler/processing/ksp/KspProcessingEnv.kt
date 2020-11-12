@@ -16,9 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XArrayType
-import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
@@ -57,9 +56,19 @@ internal class KspProcessingEnv(
 
     override val messager: XMessager = KspMessager(logger)
 
+    private val arrayTypeFactory = KspArrayType.Factory(this)
+
     override val filer: XFiler = KspFiler(codeGenerator)
 
     val commonTypes = CommonTypes(resolver)
+
+    val voidType by lazy {
+        KspVoidType(
+            env = this,
+            ksType = resolver.builtIns.unitType,
+            boxed = false
+        )
+    }
 
     override fun findTypeElement(qName: String): XTypeElement? {
         return typeElementStore[qName]
@@ -101,21 +110,9 @@ internal class KspProcessingEnv(
         )
     }
 
-    override fun getArrayType(type: XType): XArrayType {
+    override fun getArrayType(type: XType): KspArrayType {
         check(type is KspType)
-        val arrayType = resolver.requireClass(KOTLIN_ARRAY_Q_NAME)
-        val ksType = arrayType.asType(
-            listOf(
-                resolver.getTypeArgument(
-                    type.ksType.createTypeReference(),
-                    Variance.INVARIANT
-                )
-            )
-        )
-        return KspArrayType(
-            env = this,
-            ksType = ksType
-        )
+        return arrayTypeFactory.createWithComponentType(type)
     }
 
     /**
@@ -180,15 +177,12 @@ internal class KspProcessingEnv(
             if (javaPrimitive != null) {
                 return KspPrimitiveType(this, ksType)
             }
+            // special case for void
+            if (qName == "kotlin.Unit") {
+                return voidType
+            }
         }
-        return if (qName == KOTLIN_ARRAY_Q_NAME) {
-            KspArrayType(
-                env = this,
-                ksType = ksType
-            )
-        } else {
-            KspDeclaredType(this, ksType)
-        }
+        return arrayTypeFactory.createIfArray(ksType) ?: KspDeclaredType(this, ksType)
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
@@ -208,9 +202,5 @@ internal class KspProcessingEnv(
         val nullableByte by lazy {
             resolver.builtIns.byteType.makeNullable()
         }
-    }
-
-    companion object {
-        private const val KOTLIN_ARRAY_Q_NAME = "kotlin.Array"
     }
 }

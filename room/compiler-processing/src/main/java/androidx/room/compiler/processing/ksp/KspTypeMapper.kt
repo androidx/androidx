@@ -52,7 +52,32 @@ object KspTypeMapper {
         kotlinTypeToJavaPrimitiveMapping.forEach {
             mapping[it.value.toString()] = it.key
         }
-        // TODO Add non primitives after TypeNames move to the java type realm.
+        mapping["java.lang.Object"] = "kotlin.Any"
+        mapping["java.lang.Cloneable"] = "kotlin.Cloneable"
+        mapping["java.lang.Comparable"] = "kotlin.Comparable"
+        mapping["java.lang.Enum"] = "kotlin.Enum"
+        mapping["java.lang.Annotation"] = "kotlin.Annotation"
+        mapping["java.lang.CharSequence"] = "kotlin.CharSequence"
+        mapping["java.lang.String"] = "kotlin.String"
+        mapping["java.lang.Number"] = "kotlin.Number"
+        mapping["java.lang.Throwable"] = "kotlin.Throwable"
+        mapping["java.lang.Byte"] = "kotlin.Byte"
+        mapping["java.lang.Short"] = "kotlin.Short"
+        mapping["java.lang.Integer"] = "kotlin.Int"
+        mapping["java.lang.Long"] = "kotlin.Long"
+        mapping["java.lang.Character"] = "kotlin.Char"
+        mapping["java.lang.Float"] = "kotlin.Float"
+        mapping["java.lang.Double"] = "kotlin.Double"
+        mapping["java.lang.Boolean"] = "kotlin.Boolean"
+        // collections. default to mutable ones since java types are always mutable
+        mapping["java.util.Iterator"] = "kotlin.collections.MutableIterator"
+        mapping["java.util.Iterable"] = "kotlin.collections.Iterable"
+        mapping["java.util.Collection"] = "kotlin.collections.MutableCollection"
+        mapping["java.util.Set"] = "kotlin.collections.MutableSet"
+        mapping["java.util.List"] = "kotlin.collections.MutableList"
+        mapping["java.util.ListIterator"] = "kotlin.collections.ListIterator"
+        mapping["java.util.Map"] = "kotlin.collections.MutableMap"
+        mapping["java.util.Map.Entry"] = "Map.kotlin.collections.MutableEntry"
     }
 
     fun swapWithKotlinType(javaType: String): String = mapping[javaType] ?: javaType

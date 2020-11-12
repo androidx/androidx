@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
@@ -176,7 +177,7 @@ class XElementTest {
             )
             validateElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = ClassName.get(String::class.java),
+                tTypeName = String::class.className(),
                 rTypeName = TypeVariableName.get("R")
             )
         }

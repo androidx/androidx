@@ -53,8 +53,9 @@ class XProcessingEnvTest {
             val klass = List::class
             val element = it.processingEnv.requireTypeElement(qName)
             assertThat(element).isNotNull()
-            assertThat(element.packageName).isEqualTo("java.util")
-            assertThat(element.name).isEqualTo("List")
+            assertThat(element.className).isEqualTo(
+                className
+            )
 
             val type = element.type
 
@@ -125,7 +126,7 @@ class XProcessingEnvTest {
             assertThat(element.getDeclaredMethods()).hasSize(2)
             assertThat(element.kindName()).isEqualTo("class")
             assertThat(element.isInterface()).isFalse()
-            assertThat(element.superType?.typeName).isEqualTo(it.types.objectOrAny)
+            assertThat(element.superType?.typeName).isEqualTo(TypeName.OBJECT)
         }
     }
 

@@ -16,20 +16,12 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.javac.JavacProcessingEnv
-import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import com.google.devtools.ksp.processing.Resolver
-import javax.lang.model.util.Elements
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
+import kotlin.reflect.KClass
 
-class TestInvocation(
-    val processingEnv: XProcessingEnv
-) {
-    val isKsp = processingEnv is KspProcessingEnv
+val UNIT_CLASS_NAME = ClassName.get("kotlin", "Unit")
+val CONTINUATION_CLASS_NAME = ClassName.get("kotlin.coroutines", "Continuation")
 
-    val kspResolver: Resolver
-        get() = (processingEnv as KspProcessingEnv).resolver
-
-    val javaElementUtils: Elements
-        get() = (processingEnv as JavacProcessingEnv).elementUtils
-}
+fun KClass<*>.typeName() = TypeName.get(this.java)
+fun KClass<*>.className() = ClassName.get(this.java)

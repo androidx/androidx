@@ -17,27 +17,37 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XType
-import com.google.devtools.ksp.symbol.KSTypeArgument
-import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
 
 /**
- * The typeName for type arguments requires the type parameter, hence we have a special type
- * for them when we produce them.
+ * Representation of `void` in KSP.
+ *
+ * By default, kotlin.Unit is a valid type in jvm and does not get auto-converted to void (unlike
+ * kotlin.Int etc). For those cases, KspProcessingEnv uses this type to properly represent java
+ * void in Kotlin so that Room can generate the correct java code.
  */
-internal class KspTypeArgumentType(
+internal class KspVoidType(
     env: KspProcessingEnv,
-    val typeParam: KSTypeParameter,
-    val typeArg: KSTypeArgument
-) : KspType(
-    env = env,
-    ksType = typeArg.requireType()
-) {
-    override val typeName: TypeName by lazy {
-        typeArg.typeName(typeParam, env.resolver)
-    }
+    ksType: KSType,
+    private val boxed: Boolean
+) : KspType(env, ksType) {
+    override val typeName: TypeName
+        get() = if (boxed) {
+            TypeName.VOID.box()
+        } else {
+            TypeName.VOID
+        }
 
     override fun boxed(): XType {
-        return this
+        return if (boxed) {
+            this
+        } else {
+            KspVoidType(
+                env = env,
+                ksType = ksType,
+                boxed = true
+            )
+        }
     }
 }

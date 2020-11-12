@@ -21,8 +21,8 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.TypeName
 import org.junit.Test
 
 class KotlinMetadataTest {
@@ -41,7 +41,7 @@ class KotlinMetadataTest {
             element.getMethod("mySuspendMethod").apply {
                 assertThat(parameters).hasSize(2)
                 assertThat(getParameter("param1").type.typeName)
-                    .isEqualTo(TypeName.get(String::class.java))
+                    .isEqualTo(String::class.typeName())
                 assertThat(isSuspendFunction()).isTrue()
             }
         }

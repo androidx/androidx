@@ -16,15 +16,16 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.util.KotlinTypeNames.INT_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.LIST_CLASS_NAME
-import androidx.room.compiler.processing.util.KotlinTypeNames.STRING_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
 import org.junit.Test
 
 class KspFieldElementTest {
@@ -94,21 +95,29 @@ class KspFieldElementTest {
             class Sub1 : Base<Int, String>()
             """.trimIndent()
         )
-        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+        runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
             val sub = invocation.processingEnv.requireTypeElement("Sub1")
             val base = invocation.processingEnv.requireTypeElement("Base")
             val t = base.getField("t")
             val listOfR = base.getField("listOfR")
-            assertThat(t.type.typeName).isEqualTo(ClassName.get("Base", "T"))
+            assertThat(t.type.typeName).isEqualTo(TypeVariableName.get("T"))
             assertThat(listOfR.type.typeName)
                 .isEqualTo(
-                    ParameterizedTypeName.get(LIST_CLASS_NAME, ClassName.get("Base", "R"))
+                    ParameterizedTypeName.get(
+                        List::class.className(),
+                        TypeVariableName.get("R")
+                    )
                 )
             assertThat(t.enclosingTypeElement).isEqualTo(base)
             assertThat(listOfR.enclosingTypeElement).isEqualTo(base)
-            assertThat(t.asMemberOf(sub.type).typeName).isEqualTo(INT_CLASS_NAME)
+            assertThat(t.asMemberOf(sub.type).typeName).isEqualTo(TypeName.INT.box())
             assertThat(listOfR.asMemberOf(sub.type).typeName)
-                .isEqualTo(ParameterizedTypeName.get(LIST_CLASS_NAME, STRING_CLASS_NAME))
+                .isEqualTo(
+                    ParameterizedTypeName.get(
+                        List::class.className(),
+                        String::class.typeName()
+                    )
+                )
         }
     }
 }
