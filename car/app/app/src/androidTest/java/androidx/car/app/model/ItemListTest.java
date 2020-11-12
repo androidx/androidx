@@ -22,7 +22,9 @@ import static androidx.car.app.model.CarIcon.BACK;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 import android.text.SpannableString;
@@ -31,6 +33,7 @@ import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.car.app.utils.Logger;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -38,6 +41,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
@@ -128,6 +132,7 @@ public class ItemListTest {
     }
 
     @Test
+    @UiThreadTest
     public void setSelectable() throws RemoteException {
         OnSelectedListener mockListener = mock(OnSelectedListener.class);
         ItemList itemList =
@@ -136,10 +141,8 @@ public class ItemListTest {
                         .setSelectable(mockListener)
                         .build();
 
-        // TODO(shiufai): revisit the following as the test is not running on the main looper
-        //  thread, and thus the verify is failing.
-//        itemList.getOnSelectedListener().onSelected(0, mockOnDoneCallback);
-//        verify(mockListener).onSelected(eq(0));
+        itemList.getOnSelectedListener().onSelected(0, mMockOnDoneCallback);
+        verify(mockListener).onSelected(eq(0));
     }
 
     @Test
@@ -176,6 +179,7 @@ public class ItemListTest {
     }
 
     @Test
+    @UiThreadTest
     public void setOnItemVisibilityChangeListener_triggerListener() throws RemoteException {
         OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
@@ -184,16 +188,14 @@ public class ItemListTest {
                         .setOnItemsVisibilityChangeListener(listener)
                         .build();
 
-        // TODO(shiufai): revisit the following as the test is not running on the main looper
-        //  thread, and thus the verify is failing.
-//        list.getOnItemsVisibilityChangeListener().onItemVisibilityChanged(0, 1,
-//        mockOnDoneCallback);
-//        ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-//        ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-//        verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
-//                endIndexCaptor.capture());
-//        assertThat(startIndexCaptor.getValue()).isEqualTo(0);
-//        assertThat(endIndexCaptor.getValue()).isEqualTo(1);
+        list.getOnItemsVisibilityChangeListener().onItemVisibilityChanged(0, 1,
+                mMockOnDoneCallback);
+        ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
+                endIndexCaptor.capture());
+        assertThat(startIndexCaptor.getValue()).isEqualTo(0);
+        assertThat(endIndexCaptor.getValue()).isEqualTo(1);
     }
 
     @Test

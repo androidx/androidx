@@ -17,11 +17,15 @@
 package androidx.car.app.model;
 
 /** Tests for {@link OnClickListenerWrapper}. */
-
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
+import androidx.car.app.IOnDoneCallback;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -42,15 +46,14 @@ public class ParkedOnlyOnClickListenerTest {
     OnClickListener mMockOnClickListener;
 
     @Test
+    @UiThreadTest
     public void create() throws RemoteException {
         ParkedOnlyOnClickListener parkedOnlyOnClickListener =
                 ParkedOnlyOnClickListener.create(mMockOnClickListener);
         OnClickListenerWrapper wrapper = OnClickListenerWrapper.create(parkedOnlyOnClickListener);
 
         assertThat(wrapper.isParkedOnly()).isTrue();
-        // TODO(shiufai): revisit the following as the test is not running on the main looper
-        //  thread, and thus the verify is failing.
-//        wrapper.getListener().onClick(mock(IOnDoneCallback.class));
-//        verify(mockOnClickListener).onClick();
+        wrapper.getListener().onClick(mock(IOnDoneCallback.class));
+        verify(mMockOnClickListener).onClick();
     }
 }
