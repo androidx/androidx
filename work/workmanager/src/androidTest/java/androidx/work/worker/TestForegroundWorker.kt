@@ -22,7 +22,10 @@ import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-class TestForegroundWorker(val context: Context, val parameters: WorkerParameters) :
+public open class TestForegroundWorker(
+    private val context: Context,
+    private val parameters: WorkerParameters
+) :
     Worker(context, parameters) {
 
     override fun doWork(): Result {
@@ -30,7 +33,7 @@ class TestForegroundWorker(val context: Context, val parameters: WorkerParameter
         return Result.success()
     }
 
-    fun getNotification(): ForegroundInfo {
+    private fun getNotification(): ForegroundInfo {
         val notification = NotificationCompat.Builder(context, ChannelId)
             .setOngoing(true)
             .setTicker(Ticker)
@@ -40,13 +43,16 @@ class TestForegroundWorker(val context: Context, val parameters: WorkerParameter
         return ForegroundInfo(NotificationId, notification)
     }
 
-    companion object {
+    internal companion object {
         // Notification Id
         private const val NotificationId = 42
+
         // Channel id
         private const val ChannelId = "Channel"
+
         // Ticker
         private const val Ticker = "StopAwareForegroundWorker"
+
         // Content
         private const val Content = "Test Notification"
     }
