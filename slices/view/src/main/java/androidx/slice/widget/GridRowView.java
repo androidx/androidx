@@ -16,9 +16,11 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_MILLIS;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_LONG;
@@ -28,10 +30,19 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
+import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
+import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_DATE_PICK;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TIME_PICK;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_DATE_PICK;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TIME_PICK;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -45,11 +56,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.DatePicker;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
@@ -60,6 +73,8 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -86,18 +101,18 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private int mRowIndex;
     private int mRowCount;
 
-    private int mLargeImageHeight;
-    private int mSmallImageSize;
-    private int mSmallImageMinWidth;
-    private int mIconSize;
-    private int mGutter;
-    private int mTextPadding;
+    private final int mLargeImageHeight;
+    private final int mSmallImageSize;
+    private final int mSmallImageMinWidth;
+    private final int mIconSize;
+    private final int mGutter;
+    private final int mTextPadding;
 
     private GridContent mGridContent;
-    private LinearLayout mViewContainer;
-    private View mForeground;
+    private final LinearLayout mViewContainer;
+    private final View mForeground;
     int mMaxCells = -1;
-    private int[] mLoc = new int[2];
+    private final int[] mLoc = new int[2];
 
     boolean mMaxCellUpdateScheduled;
 
@@ -327,6 +342,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
         ArrayList<SliceItem> cellItems = cell.getCellItems();
         SliceItem contentIntentItem = cell.getContentIntent();
+        SliceItem pickerItem = cell.getPicker();
 
         int textCount = 0;
         int imageCount = 0;
@@ -373,6 +389,15 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                     imageCount++;
                     added = true;
                 }
+            }
+        }
+        if (pickerItem != null) {
+            if (SUBTYPE_DATE_PICKER.equals(pickerItem.getSubType())) {
+                added = addPickerItem(pickerItem, cellContainer, determinePadding(prevItem),
+                        /*isDatePicker=*/ true);
+            } else if (SUBTYPE_TIME_PICKER.equals(pickerItem.getSubType())) {
+                added = addPickerItem(pickerItem, cellContainer, determinePadding(prevItem),
+                        /*isDatePicker=*/ false);
             }
         }
         if (added) {
@@ -488,6 +513,145 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         return true;
     }
 
+    /**
+     * Adds date or time picker to a container.
+     *
+     * @param pickerItem item to add to the container.
+     * @param container      the container to add to.
+     * @param padding        the padding to apply to the item.
+     * @param isDatePicker   if true, it is a date picker, otherwise is a time picker.
+     * @return Whether an item was added.
+     */
+    private boolean addPickerItem(SliceItem pickerItem, ViewGroup container, int padding,
+            boolean isDatePicker) {
+        SliceItem dateTimeItem = SliceQuery.findSubtype(pickerItem, FORMAT_LONG,
+                SUBTYPE_MILLIS);
+        if (dateTimeItem == null) {
+            return false;
+        }
+        long dateTimeMillis = dateTimeItem.getLong();
+
+        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(TITLE_TEXT_LAYOUT, null);
+        if (mSliceStyle != null) {
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
+            tv.setTextColor(mSliceStyle.getTitleColor());
+        }
+
+        Date date = new Date(dateTimeMillis);
+        SliceItem titleItem = SliceQuery.find(pickerItem, FORMAT_TEXT, HINT_TITLE,
+                /*nonHints=*/null);
+        if (titleItem != null) {
+            tv.setText(titleItem.getText());
+        }
+
+        int rowIndex = mRowIndex;
+
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (isDatePicker) {
+                    DatePickerDialog dialog = new DatePickerDialog(
+                            getContext(),
+                            R.style.DialogTheme,
+                            new DateSetListener(pickerItem, rowIndex),
+                            cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH),
+                            cal.get(Calendar.DAY_OF_MONTH));
+                    dialog.show();
+                } else {
+                    TimePickerDialog dialog = new TimePickerDialog(
+                            getContext(),
+                            R.style.DialogTheme,
+                            new TimeSetListener(pickerItem, rowIndex),
+                            cal.get(Calendar.HOUR_OF_DAY),
+                            cal.get(Calendar.MINUTE),
+                            false);
+                    dialog.show();
+                }
+            }
+        });
+        container.setClickable(true);
+
+        int backgroundAttr = android.R.attr.selectableItemBackground;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            backgroundAttr = android.R.attr.selectableItemBackgroundBorderless;
+        }
+        container.setBackground(SliceViewUtil.getDrawable(getContext(), backgroundAttr));
+        container.addView(tv);
+        tv.setPadding(0, padding, 0, 0);
+        return true;
+    }
+
+    private class DateSetListener implements DatePickerDialog.OnDateSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        DateSetListener(SliceItem datePickerItem, int mRowIndex) {
+            this.mActionItem = datePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+            Calendar c = Calendar.getInstance();
+            c.set(year, month, day);
+            Date date = c.getTime();
+
+
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, date.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_DATE_PICK,
+                                ROW_TYPE_DATE_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        }
+    }
+
+    private class TimeSetListener implements TimePickerDialog.OnTimeSetListener {
+        private final SliceItem mActionItem;
+        private final int mRowIndex;
+
+        TimeSetListener(SliceItem timePickerItem, int mRowIndex) {
+            this.mActionItem = timePickerItem;
+            this.mRowIndex = mRowIndex;
+        }
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+            Calendar c = Calendar.getInstance();
+            Date time = c.getTime();
+            time.setHours(hour);
+            time.setMinutes(minute);
+
+            if (mActionItem != null) {
+                try {
+                    mActionItem.fireAction(getContext(),
+                            new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                                    .putExtra(EXTRA_RANGE_VALUE, time.getTime()));
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), ACTION_TYPE_TIME_PICK,
+                                ROW_TYPE_TIME_PICK,
+                                mRowIndex);
+                        mObserver.onSliceAction(info, mActionItem);
+                    }
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+                }
+            }
+        }
+    }
+
     private int determinePadding(SliceItem prevItem) {
         if (prevItem == null) {
             // No need for top padding
@@ -584,7 +748,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         return mHiddenItemCount;
     }
 
-    private ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
+    private final ViewTreeObserver.OnPreDrawListener mMaxCellsUpdater =
             new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
