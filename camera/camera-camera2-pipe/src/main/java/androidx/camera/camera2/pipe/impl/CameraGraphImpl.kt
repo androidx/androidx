@@ -33,12 +33,16 @@ class CameraGraphImpl @Inject constructor(
     metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
     private val streamMap: StreamMap,
-    private val graphState: GraphState
+    private val graphState: GraphState,
+    private val graphState3A: GraphState3A,
+    private val listener3A: Listener3A
 ) : CameraGraph {
     private val debugId = cameraGraphIds.incrementAndGet()
 
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
+
+    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
 
     init {
         // Log out the configuration of the camera graph when it is created.
@@ -65,7 +69,7 @@ class CameraGraphImpl @Inject constructor(
     override suspend fun acquireSession(): CameraGraph.Session {
         Debug.traceStart { "$this#acquireSession" }
         val token = sessionLock.acquire(1)
-        val session = CameraGraphSessionImpl(token, graphProcessor)
+        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A)
         Debug.traceStop()
         return session
     }
@@ -73,7 +77,7 @@ class CameraGraphImpl @Inject constructor(
     override fun acquireSessionOrNull(): CameraGraph.Session? {
         Debug.traceStart { "$this#acquireSessionOrNull" }
         val token = sessionLock.acquireOrNull(1) ?: return null
-        val session = CameraGraphSessionImpl(token, graphProcessor)
+        val session = CameraGraphSessionImpl(token, graphProcessor, controller3A)
         Debug.traceStop()
         return session
     }

@@ -32,7 +32,8 @@ import kotlinx.coroutines.Deferred
 internal val cameraGraphSessionIds = atomic(0)
 class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
-    private val graphProcessor: GraphProcessor
+    private val graphProcessor: GraphProcessor,
+    private val controller3A: Controller3A
 ) : CameraGraph.Session {
     private val debugId = cameraGraphSessionIds.incrementAndGet()
 
@@ -64,8 +65,8 @@ class CameraGraphSessionImpl(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
-    ): Deferred<FrameNumber> {
-        TODO("Implement update3A")
+    ): Deferred<Result3A> {
+        return controller3A.update3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
     }
 
     override fun submit3A(

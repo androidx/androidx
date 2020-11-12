@@ -307,7 +307,7 @@ class VirtualSessionState(
             }
 
             if (tryResubmit && retryAllowed) {
-                graphProcessor.retry()
+                graphProcessor.invalidate()
             }
             Debug.traceStop()
         }

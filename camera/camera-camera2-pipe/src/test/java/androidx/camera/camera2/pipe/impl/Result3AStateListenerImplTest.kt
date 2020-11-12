@@ -34,6 +34,26 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 class Result3AStateListenerImplTest {
     @Test
+    fun testWithEmptyExitConditionForKeys() {
+        val listenerForKeys = Result3AStateListenerImpl(mapOf())
+        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+
+        val frameMetadata = FakeFrameMetadata()
+
+        listenerForKeys.onRequestSequenceCreated(RequestNumber(2))
+
+        // Even though we received an update, the request number is not correct, so the listener
+        // will not be completed.
+        listenerForKeys.update(RequestNumber(1), frameMetadata)
+        assertThat(listenerForKeys.getDeferredResult().isCompleted).isFalse()
+
+        // Since the key set in listener is empty, any valid update will mark the listener as
+        // completed.
+        listenerForKeys.update(RequestNumber(2), frameMetadata)
+        assertThat(listenerForKeys.getDeferredResult().isCompleted).isTrue()
+    }
+
+    @Test
     fun testWithNoUpdate() {
         val listenerForKeys = Result3AStateListenerImpl(
             mapOf(

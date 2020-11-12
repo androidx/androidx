@@ -63,7 +63,9 @@ class CameraGraphImplTest {
                 fakeMetadata,
                 config
             ),
-            fakeGraphState
+            fakeGraphState,
+            GraphState3A(),
+            Listener3A()
         )
     }
 
