@@ -227,7 +227,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
+     * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter
@@ -244,7 +244,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
+     * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter

@@ -263,7 +263,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
+     * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
      */
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
@@ -278,7 +278,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
+     * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
      */
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
