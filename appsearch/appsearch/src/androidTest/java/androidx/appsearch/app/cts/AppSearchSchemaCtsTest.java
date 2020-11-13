@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.app.cts;
 
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 
 import org.junit.Test;
 
-public class AppSearchSchemaTest {
+public class AppSearchSchemaCtsTest {
     @Test
     public void testInvalidEnums() {
         PropertyConfig.Builder builder = new PropertyConfig.Builder("test");

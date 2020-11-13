@@ -18,9 +18,9 @@ package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.app.cts;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.AppSearchResult;
+
 import org.junit.Test;
 
-public class AppSearchResultTest {
+public class AppSearchResultCtsTest {
 
     @Test
     public void testResultEquals_Identical() {

@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.app.cts;
 
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
+import androidx.appsearch.app.AppSearchEmail;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GlobalSearchSession;
+import androidx.appsearch.app.PutDocumentsRequest;
+import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -36,7 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GlobalSearchSessionTest {
+public class GlobalSearchSessionCtsTest {
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 

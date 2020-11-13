@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.customer;
+package androidx.appsearch.app.cts.customer;
 
 import androidx.appsearch.annotation.AppSearchDocument;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
