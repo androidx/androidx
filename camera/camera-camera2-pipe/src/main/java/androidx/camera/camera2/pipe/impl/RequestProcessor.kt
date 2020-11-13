@@ -147,13 +147,21 @@ interface RequestProcessor {
 class StandardRequestProcessorFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>
+    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>,
+    private val graphState3A: GraphState3A
 ) : RequestProcessor.Factory {
     override fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): RequestProcessor =
-        StandardRequestProcessor(session, threads, graphConfig, surfaceMap, graphListeners)
+        StandardRequestProcessor(
+            session,
+            threads,
+            graphConfig,
+            surfaceMap,
+            graphListeners,
+            graphState3A
+        )
 }
 
 internal val requestProcessorDebugIds = atomic(0)
@@ -169,7 +177,8 @@ class StandardRequestProcessor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     private val surfaceMap: Map<StreamId, Surface>,
-    private val graphListeners: List<Request.Listener>
+    private val graphListeners: List<Request.Listener>,
+    private val graphState3A: GraphState3A
 ) : RequestProcessor {
 
     @GuardedBy("inFlightRequests")
@@ -318,6 +327,17 @@ class StandardRequestProcessor(
 
             // Apply the parameters to the requestBuilder
             requestBuilder.writeParameters(request.requestParameters)
+
+            // Apply the 3A parameters first. This gives the users of camerapipe the ability to
+            // still override the 3A parameters for complicated use cases.
+            //
+            // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
+            // from internal 3A state machine at last and provide a flag in the Request object to
+            // specify when the clients want to explicitly override some of the 3A parameters
+            // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
+            // freely and when that happens intercept those parameters from the request and keep the
+            // internal 3A state machine in sync.
+            graphState3A.writeTo(requestBuilder)
 
             // Write extra parameters to the request. These parameters will overwite parameters
             // defined in the Request (if they overlap)

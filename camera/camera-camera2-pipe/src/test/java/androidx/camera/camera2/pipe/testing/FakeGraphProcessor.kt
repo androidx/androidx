@@ -75,6 +75,6 @@ class FakeGraphProcessor : GraphProcessor {
         }
     }
 
-    override fun retry() {
+    override fun invalidate() {
     }
 }

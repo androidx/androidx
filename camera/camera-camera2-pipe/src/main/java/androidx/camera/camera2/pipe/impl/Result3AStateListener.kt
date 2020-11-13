@@ -29,7 +29,12 @@ import kotlinx.coroutines.Deferred
 /**
  * Given a map of keys and a list of acceptable values for each key, this checks if the given
  * [CaptureResult] has all of those keys and for every key the value for that key is one of the
- * acceptable values.
+ * acceptable values. If the key set is empty then the [update] method returns true. This is helpful
+ * for use cases where the value in the [CaptureResult] might not be exactly equal to the value
+ * requested via a capture request. In those cases, just knowing that the correct request was
+ * submitted and that at least one capture result for that request was received via the [update]
+ * method should suffice to confirm that the desired key value pairs were applied by the camera
+ * device.
  *
  * This update method can be called multiple times as we get newer [CaptureResult]s from the camera
  * device. This class also exposes a [Deferred] to query the status of desired state.
@@ -44,10 +49,6 @@ class Result3AStateListenerImpl (
     private val frameLimit: Int? = null,
     private val timeLimitNs: Long? = null
 ) : Result3AStateListener {
-
-    init {
-        require(exitConditionForKeys.isNotEmpty()) { "Exit condition map for keys is empty." }
-    }
 
     private val deferred = CompletableDeferred<Result3A>()
 
