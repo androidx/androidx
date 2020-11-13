@@ -42,11 +42,18 @@ dependencies {
     api(KOTLIN_STDLIB)
     api(project(":datastore:datastore-core"))
 
-    implementation(files(jarjarConf))
+    compileOnly(files(jarjarConf))
 
     testImplementation(JUNIT)
     testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(KOTLIN_TEST)
+    testImplementation(files(jarjarConf))
+}
+
+jar {
+    from {
+        configurations.jarjarpreferences.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 androidx {
