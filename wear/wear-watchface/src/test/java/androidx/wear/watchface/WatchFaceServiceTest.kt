@@ -267,7 +267,7 @@ class WatchFaceServiceTest {
     private lateinit var renderer: TestRenderer
     private lateinit var complicationsManager: ComplicationsManager
     private lateinit var userStyleRepository: UserStyleRepository
-    private lateinit var watchFace: WatchFace
+    private lateinit var watchFaceImpl: WatchFaceImpl
     private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
     private lateinit var interactiveWatchFaceInstanceWCS: IInteractiveWatchFaceWCS
@@ -298,7 +298,12 @@ class WatchFaceServiceTest {
     ) {
         userStyleRepository = UserStyleRepository(userStyleSchema)
         this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
-        renderer = TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
+        renderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             this.complicationsManager,
@@ -306,7 +311,6 @@ class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
-            INTERACTIVE_UPDATE_RATE_MS
         )
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -317,7 +321,7 @@ class WatchFaceServiceTest {
         sendBinder(engineWrapper, apiVersion)
         sendImmutableProperties(engineWrapper, hasLowBitAmbient, hasBurnInProtection)
 
-        watchFace = testWatchFaceService.watchFace
+        watchFaceImpl = engineWrapper.watchFaceImpl
     }
 
     private fun initWallpaperInteractiveWatchFaceInstance(
@@ -328,7 +332,12 @@ class WatchFaceServiceTest {
     ) {
         userStyleRepository = UserStyleRepository(userStyleSchema)
         this.complicationsManager = ComplicationsManager(complications, userStyleRepository)
-        renderer = TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
+        renderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             this.complicationsManager,
@@ -336,7 +345,6 @@ class WatchFaceServiceTest {
             userStyleRepository,
             watchState,
             handler,
-            INTERACTIVE_UPDATE_RATE_MS
         )
 
         InteractiveInstanceManager
@@ -351,7 +359,6 @@ class WatchFaceServiceTest {
                             iInteractiveWatchFaceWcs: IInteractiveWatchFaceWCS
                         ) {
                             interactiveWatchFaceInstanceWCS = iInteractiveWatchFaceWcs
-                            watchFace = testWatchFaceService.watchFace
                         }
                     }
                 )
@@ -362,6 +369,7 @@ class WatchFaceServiceTest {
 
         // The [SurfaceHolder] must be sent before binding.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        watchFaceImpl = engineWrapper.watchFaceImpl
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -451,30 +459,30 @@ class WatchFaceServiceTest {
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = true
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
 
         watchState.isBatteryLowAndNotCharging.value = false
         watchState.isAmbient.value = true
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_NONE
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.MUTE)
 
         // Ambient takes precidence over interruption filter.
         watchState.isAmbient.value = true
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
 
         watchState.isAmbient.value = false
         watchState.interruptionFilter.value = 0
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(renderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
     }
 
@@ -488,8 +496,8 @@ class WatchFaceServiceTest {
 
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
     }
 
     @Test
@@ -502,22 +510,22 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFace.mockTimeReceiver.onReceive(
+        watchFaceImpl.mockTimeReceiver.onReceive(
             context,
-            Intent(WatchFace.MOCK_TIME_INTENT).apply {
-                putExtra(WatchFace.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
-                putExtra(WatchFace.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
+            Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
+                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
+                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, -1L)
             }
         )
 
         // Time should not diverge initially.
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
 
         // However 1000ms of real time should result in 2000ms observed by onDraw.
         testWatchFaceService.mockSystemTimeMillis = 2000L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(3000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(3000L)
     }
 
     @Test
@@ -530,48 +538,48 @@ class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFace.mockTimeReceiver.onReceive(
+        watchFaceImpl.mockTimeReceiver.onReceive(
             context,
-            Intent(WatchFace.MOCK_TIME_INTENT).apply {
-                putExtra(WatchFace.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
-                putExtra(WatchFace.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
-                putExtra(WatchFace.EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, 2000L)
+            Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
+                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
+                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MIN_TIME, 1000L)
+                putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_WRAPPING_MAX_TIME, 2000L)
             }
         )
 
         // Time in millis observed by onDraw should wrap betwween 1000 and 2000.
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
 
         testWatchFaceService.mockSystemTimeMillis = 1250L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1500L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1500L)
 
         testWatchFaceService.mockSystemTimeMillis = 1499L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1998L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1998L)
 
         testWatchFaceService.mockSystemTimeMillis = 1500L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
 
         testWatchFaceService.mockSystemTimeMillis = 1750L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1500L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1500L)
 
         testWatchFaceService.mockSystemTimeMillis = 1999L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1998L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1998L)
 
         testWatchFaceService.mockSystemTimeMillis = 2000L
-        watchFace.onDraw()
-        assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
+        watchFaceImpl.onDraw()
+        assertThat(watchFaceImpl.calendar.timeInMillis).isEqualTo(1000L)
     }
 
     private fun tapAt(x: Int, y: Int) {
         // The eventTime is ignored.
-        watchFace.onTapCommand(TapType.TOUCH, x, y)
-        watchFace.onTapCommand(TapType.TAP, x, y)
+        watchFaceImpl.onTapCommand(TapType.TOUCH, x, y)
+        watchFaceImpl.onTapCommand(TapType.TAP, x, y)
     }
 
     private fun doubleTapAt(x: Int, y: Int, delayMillis: Long) {
@@ -589,8 +597,8 @@ class WatchFaceServiceTest {
     }
 
     private fun tapCancelAt(x: Int, y: Int) {
-        watchFace.onTapCommand(TapType.TOUCH, x, y)
-        watchFace.onTapCommand(TapType.TOUCH_CANCEL, x, y)
+        watchFaceImpl.onTapCommand(TapType.TOUCH, x, y)
+        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, x, y)
     }
 
     @Test
@@ -610,7 +618,7 @@ class WatchFaceServiceTest {
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap right complication.
@@ -620,7 +628,7 @@ class WatchFaceServiceTest {
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap on blank space.
@@ -629,7 +637,7 @@ class WatchFaceServiceTest {
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
     }
 
@@ -649,7 +657,7 @@ class WatchFaceServiceTest {
         assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDrawableLeft.isHighlighted).isTrue()
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
 
         // Tap right complication.
@@ -658,7 +666,7 @@ class WatchFaceServiceTest {
         assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDrawableRight.isHighlighted).isTrue()
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
         // Tap on blank space.
@@ -666,7 +674,7 @@ class WatchFaceServiceTest {
         doubleTapAt(1, 1, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
         assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
     }
 
@@ -693,7 +701,7 @@ class WatchFaceServiceTest {
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
         assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
         assertThat(complicationDrawableRight.isHighlighted).isFalse()
     }
@@ -759,13 +767,13 @@ class WatchFaceServiceTest {
 
         testWatchFaceService.reset()
         // Tap down left Complication
-        watchFace.onTapCommand(TapType.TOUCH, 30, 50)
+        watchFaceImpl.onTapCommand(TapType.TOUCH, 30, 50)
 
         // Tap down at right complication
-        watchFace.onTapCommand(TapType.TOUCH, 70, 50)
+        watchFaceImpl.onTapCommand(TapType.TOUCH, 70, 50)
 
         // Now Tap cancel at the second position
-        watchFace.onTapCommand(TapType.TOUCH_CANCEL, 70, 50)
+        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, 70, 50)
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
     }
@@ -780,9 +788,9 @@ class WatchFaceServiceTest {
 
         testWatchFaceService.reset()
         // Tap down at a position in left Complication
-        watchFace.onTapCommand(TapType.TOUCH, 30, 50)
+        watchFaceImpl.onTapCommand(TapType.TOUCH, 30, 50)
         // Tap cancel at different position stillin left Complication
-        watchFace.onTapCommand(TapType.TOUCH_CANCEL, 32, 50)
+        watchFaceImpl.onTapCommand(TapType.TOUCH_CANCEL, 32, 50)
 
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
         assertThat(testWatchFaceService.complicationSingleTapped).isNull()
@@ -802,7 +810,7 @@ class WatchFaceServiceTest {
 
         // Wait a bit for the condition to reset and clear our detection state.
         testWatchFaceService.clearTappedState()
-        runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
+        runPostedTasksFor(WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.isHighlighted).isFalse()
         assertThat(complicationDrawableRight.isHighlighted).isFalse()
 
@@ -822,23 +830,27 @@ class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
 
-        assertThat(watchFace.computeDelayTillNextFrame(0, 0)).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
 
         // The delay should change when battery is low.
-        watchFace.batteryLevelReceiver.onReceive(
+        watchFaceImpl.batteryLevelReceiver.onReceive(
             context,
             Intent(Intent.ACTION_BATTERY_LOW)
         )
-        assertThat(watchFace.computeDelayTillNextFrame(0, 0)).isEqualTo(
-            WatchFace.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            WatchFaceImpl.MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
         )
 
         // And go back to normal when battery is OK.
-        watchFace.batteryLevelReceiver.onReceive(
+        watchFaceImpl.batteryLevelReceiver.onReceive(
             context,
             Intent(Intent.ACTION_BATTERY_OKAY)
         )
-        assertThat(watchFace.computeDelayTillNextFrame(0, 0)).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
+        assertThat(watchFaceImpl.computeDelayTillNextFrame(0, 0)).isEqualTo(
+            INTERACTIVE_UPDATE_RATE_MS
+        )
     }
 
     @Test
@@ -850,7 +862,7 @@ class WatchFaceServiceTest {
         )
 
         assertThat(
-            watchFace.computeDelayTillNextFrame(
+            watchFaceImpl.computeDelayTillNextFrame(
                 beginFrameTimeMillis = 0,
                 currentTimeMillis = 2
             )
@@ -867,7 +879,7 @@ class WatchFaceServiceTest {
         )
 
         assertThat(
-            watchFace.computeDelayTillNextFrame(
+            watchFaceImpl.computeDelayTillNextFrame(
                 beginFrameTimeMillis = 0,
                 currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS
             )
@@ -886,7 +898,7 @@ class WatchFaceServiceTest {
         // currentTimeMillis % INTERACTIVE_UPDATE_RATE_MS is 3, so we expect to delay
         // INTERACTIVE_UPDATE_RATE_MS - 1 to preserve the phase while dropping a frame.
         assertThat(
-            watchFace.computeDelayTillNextFrame(
+            watchFaceImpl.computeDelayTillNextFrame(
                 beginFrameTimeMillis = 2,
                 currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3
             )
@@ -902,7 +914,7 @@ class WatchFaceServiceTest {
         )
 
         assertThat(
-            watchFace.computeDelayTillNextFrame(
+            watchFaceImpl.computeDelayTillNextFrame(
                 beginFrameTimeMillis = 100,
                 currentTimeMillis = 10
             )
@@ -976,8 +988,12 @@ class WatchFaceServiceTest {
             UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
         )
 
-        val testRenderer2 =
-            TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
+        val testRenderer2 = TestRenderer(
+            surfaceHolder,
+            userStyleRepository2,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(emptyList(), userStyleRepository2),
@@ -985,7 +1001,6 @@ class WatchFaceServiceTest {
             userStyleRepository2,
             watchState,
             handler,
-            INTERACTIVE_UPDATE_RATE_MS
         )
 
         // Trigger watch face creation.
@@ -1232,7 +1247,8 @@ class WatchFaceServiceTest {
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
-        val contentDescriptionLabels = watchFace.complicationsManager.getContentDescriptionLabels()
+        val contentDescriptionLabels =
+            watchFaceImpl.complicationsManager.getContentDescriptionLabels()
         assertThat(contentDescriptionLabels.size).isEqualTo(3)
         assertThat(contentDescriptionLabels[0].bounds).isEqualTo(
             Rect(
@@ -1303,8 +1319,12 @@ class WatchFaceServiceTest {
     fun requestStyleBeforeSetBinder() {
         var userStyleRepository =
             UserStyleRepository(UserStyleSchema(emptyList()))
-        var testRenderer =
-            TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
+        var testRenderer = TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(
@@ -1315,7 +1335,6 @@ class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
-            INTERACTIVE_UPDATE_RATE_MS
         )
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
@@ -1327,7 +1346,7 @@ class WatchFaceServiceTest {
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
-        watchFace = service.watchFace
+        watchFaceImpl = engineWrapper.watchFaceImpl
 
         val argument = ArgumentCaptor.forClass(WatchFaceStyle::class.java)
         verify(iWatchFaceService).setStyle(argument.capture())
@@ -1426,7 +1445,7 @@ class WatchFaceServiceTest {
             instanceParams
         )
 
-        assertThat(watchFace.previewReferenceTimeMillis).isEqualTo(1000)
+        assertThat(watchFaceImpl.previewReferenceTimeMillis).isEqualTo(1000)
     }
 
     @Test
@@ -1457,7 +1476,7 @@ class WatchFaceServiceTest {
             instanceParams
         )
 
-        assertThat(watchFace.previewReferenceTimeMillis).isEqualTo(2000)
+        assertThat(watchFaceImpl.previewReferenceTimeMillis).isEqualTo(2000)
     }
 
     @Test
@@ -1519,8 +1538,12 @@ class WatchFaceServiceTest {
     @Test
     fun shouldAnimateOverrideControlsEnteringAmbientMode() {
         var userStyleRepository = UserStyleRepository(UserStyleSchema(emptyList()))
-        var testRenderer = object :
-            TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
+        var testRenderer = object : TestRenderer(
+            surfaceHolder,
+            userStyleRepository,
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        ) {
             var animate = true
             override fun shouldAnimate() = animate
         }
@@ -1531,7 +1554,6 @@ class WatchFaceServiceTest {
             UserStyleRepository(UserStyleSchema(emptyList())),
             watchState,
             handler,
-            INTERACTIVE_UPDATE_RATE_MS
         )
 
         engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
@@ -1542,16 +1564,16 @@ class WatchFaceServiceTest {
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion = 2)
         sendImmutableProperties(engineWrapper, false, false)
-        watchFace = service.watchFace
+        watchFaceImpl = engineWrapper.watchFaceImpl
 
         // Enter ambient mode.
         watchState.isAmbient.value = true
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         // Simulate enter ambient animation finishing.
         testRenderer.animate = false
-        watchFace.maybeUpdateDrawMode()
+        watchFaceImpl.maybeUpdateDrawMode()
         assertThat(testRenderer.renderParameters.drawMode).isEqualTo(DrawMode.AMBIENT)
     }
 

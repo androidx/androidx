@@ -37,6 +37,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationData
+import androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle
 import androidx.wear.watchface.control.IInteractiveWatchFaceSysUI
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.UserStyle
@@ -105,21 +106,29 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
  * A WatchFace is constructed by a user's [WatchFaceService] and brings together rendering,
  * styling, complications and state observers.
  */
-@SuppressLint("SyntheticAccessor")
-public class WatchFace private constructor(
-    @WatchFaceType watchFaceType: Int,
-    overridePreviewReferenceTimeMillis: Long?,
-    private var interactiveUpdateRateMillis: Long,
+public class WatchFace(
+    /**
+     * The type of watch face, whether it's digital or analog. Used to determine the
+     * default time for editor preview screenshots.
+     */
+    @WatchFaceType internal var watchFaceType: Int,
+
+    /** The {@UserStyleRepository} for this WatchFaceImpl. */
     internal val userStyleRepository: UserStyleRepository,
+
+    /** The [ComplicationsManager] for this WatchFaceImpl. */
     internal var complicationsManager: ComplicationsManager,
-    internal val renderer: Renderer,
-    private val watchFaceHostApi: WatchFaceHostApi,
-    private val watchState: WatchState,
-    // Not to be confused with a user style.
-    internal val watchFaceStyle: WatchFaceStyle,
-    private val componentName: ComponentName,
-    private val systemTimeProvider: SystemTimeProvider
+
+    /** The [Renderer] for this WatchFaceImpl. */
+    internal val renderer: Renderer
 ) {
+    public companion object {
+        /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
+        @JvmStatic
+        public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
+            android.os.Build.VERSION.SDK_INT <= 27
+    }
+
     /**
      * Interface for getting the current system time.
      * @hide
@@ -186,119 +195,57 @@ public class WatchFace private constructor(
         }
     }
 
-    /**
-     * Builder for a [WatchFace].
-     *
-     * If unreadCountIndicator or notificationIndicator are hidden then the WatchState class will
-     * receive updates necessary for the watch to draw its own indicators.
-     */
-    public class Builder(
-        /**
-         * The type of watch face, whether it's digital or analog. Used to determine the
-         * default time for editor preview screenshots.
-         */
-        @WatchFaceType private var watchFaceType: Int,
+    /** The preview time in milliseconds since the epoch, or null if not set. */
+    @get:SuppressWarnings("AutoBoxing")
+    public var overridePreviewReferenceTimeMillis: Long? = null
+        private set
 
-        /**
-         * The interval in milliseconds between frames in interactive mode. To render at 60hz pass in
-         * 16. Note when battery is low, the framerate will be clamped to 10fps. Watch faces are
-         * recommended to use lower frame rates if possible for better battery life.
-         */
-        private var interactiveUpdateRateMillis: Long,
+    /** The legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices. */
+    public var legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle = LegacyWatchFaceOverlayStyle(
+        0,
+        0,
+        true
+    )
+        private set
 
-        /** The {@UserStyleRepository} for this WatchFace. */
-        internal val userStyleRepository: UserStyleRepository,
-
-        /** The [ComplicationsManager] for this WatchFace. */
-        internal var complicationsManager: ComplicationsManager,
-
-        /** The [Renderer] for this WatchFace. */
-        internal val renderer: Renderer,
-
-        /** Holder for the internal API the WatchFace uses to communicate with the host service.  */
-        private val watchFaceHost: WatchFaceHost,
-
-        /**
-         * The [WatchState] of the device we're running on. Contains data needed to draw
-         * surface indicators if we've opted to draw them ourselves (see [onCreateWatchFaceStyle]).
-         */
-        private val watchState: WatchState
-    ) {
-        private var overridePreviewReferenceTimeMillis: Long? = null
-
-        private var legacyWatchFaceStyle = LegacyWatchFaceOverlayStyle(
-            0,
-            0,
-            true
-        )
-
-        private var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
-            override fun getSystemTimeMillis() = System.currentTimeMillis()
-        }
-
-        /**
-         * Overrides the reference time for editor preview images.
-         *
-         * @param previewReferenceTimeMillis The preview time in milliseconds since the epoch
-         */
-        public fun setPreviewReferenceTimeMillis(
-            previewReferenceTimeMillis: Long
-        ): Builder = apply {
-            overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
-        }
-
-        /**
-         * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
-         */
-        public fun setLegacyWatchFaceStyle(
-            legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
-        ): Builder = apply {
-            this.legacyWatchFaceStyle = legacyWatchFaceStyle
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
-        public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): Builder = apply {
-            this.systemTimeProvider = systemTimeProvider
-        }
-
-        /** Constructs the [WatchFace]. */
-        public fun build(): WatchFace {
-            val componentName =
-                ComponentName(
-                    watchFaceHost.api!!.getContext().packageName,
-                    watchFaceHost.api!!.getContext().javaClass.typeName
-                )
-            return WatchFace(
-                watchFaceType,
-                overridePreviewReferenceTimeMillis,
-                interactiveUpdateRateMillis,
-                userStyleRepository,
-                complicationsManager,
-                renderer,
-                watchFaceHost.api!!,
-                watchState,
-                WatchFaceStyle(
-                    componentName,
-                    legacyWatchFaceStyle.viewProtectionMode,
-                    legacyWatchFaceStyle.statusBarGravity,
-                    legacyWatchFaceStyle.accentColor,
-                    false,
-                    false,
-                    legacyWatchFaceStyle.tapEventsAccepted
-                ),
-                componentName,
-                systemTimeProvider
-            )
-        }
+    internal var systemTimeProvider: SystemTimeProvider = object : SystemTimeProvider {
+        override fun getSystemTimeMillis() = System.currentTimeMillis()
     }
 
-    public companion object {
-        /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
-        @JvmStatic
-        public fun isLegacyWatchFaceOverlayStyleSupported(): Boolean =
-            android.os.Build.VERSION.SDK_INT <= 27
+    /**
+     * Overrides the reference time for editor preview images.
+     *
+     * @param previewReferenceTimeMillis The preview time in milliseconds since the epoch
+     */
+    public fun setPreviewReferenceTimeMillis(
+        previewReferenceTimeMillis: Long
+    ): WatchFace = apply {
+        overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
+    }
 
+    /**
+     * Sets the legacy [LegacyWatchFaceOverlayStyle] which only affects Wear 2.0 devices.
+     */
+    public fun setLegacyWatchFaceStyle(
+        legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
+    ): WatchFace = apply {
+        this.legacyWatchFaceStyle = legacyWatchFaceStyle
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
+        this.systemTimeProvider = systemTimeProvider
+    }
+}
+
+@SuppressLint("SyntheticAccessor")
+internal class WatchFaceImpl(
+    watchface: WatchFace,
+    private val watchFaceHostApi: WatchFaceHostApi,
+    private val watchState: WatchState
+) {
+    companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
 
         internal const val MOCK_TIME_INTENT = "androidx.wear.watchface.MockTime"
@@ -328,6 +275,12 @@ public class WatchFace private constructor(
         internal const val CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS = 300L
     }
 
+    private val systemTimeProvider = watchface.systemTimeProvider
+    private val legacyWatchFaceStyle = watchface.legacyWatchFaceStyle
+    internal val userStyleRepository = watchface.userStyleRepository
+    internal val renderer = watchface.renderer
+    internal val complicationsManager = watchface.complicationsManager
+
     private data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
@@ -355,7 +308,7 @@ public class WatchFace private constructor(
     private val timeZoneReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             calendar.timeZone = TimeZone.getDefault()
-            invalidate()
+            watchFaceHostApi.invalidate()
         }
     }
 
@@ -363,7 +316,7 @@ public class WatchFace private constructor(
         override fun onReceive(context: Context?, intent: Intent?) {
             // System time has changed hence next scheduled draw is invalid.
             nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
-            invalidate()
+            watchFaceHostApi.invalidate()
         }
     }
 
@@ -377,9 +330,25 @@ public class WatchFace private constructor(
                 Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
                 Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
             }
-            invalidate()
+            watchFaceHostApi.invalidate()
         }
     }
+
+    private val componentName =
+        ComponentName(
+            watchFaceHostApi.getContext().packageName,
+            watchFaceHostApi.getContext().javaClass.typeName
+        )
+
+    internal fun getWatchFaceStyle() = WatchFaceStyle(
+        componentName,
+        legacyWatchFaceStyle.viewProtectionMode,
+        legacyWatchFaceStyle.statusBarGravity,
+        legacyWatchFaceStyle.accentColor,
+        false,
+        false,
+        legacyWatchFaceStyle.tapEventsAccepted
+    )
 
     /**
      * We listen for MOCK_TIME_INTENTs which we interpret as a request to modify time. E.g. speeding
@@ -408,22 +377,11 @@ public class WatchFace private constructor(
 
     /** The UTC reference time for editor preview images in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long =
-        overridePreviewReferenceTimeMillis ?: when (watchFaceType) {
+        watchface.overridePreviewReferenceTimeMillis ?: when (watchface.watchFaceType) {
             WatchFaceType.ANALOG -> watchState.analogPreviewReferenceTimeMillis
             WatchFaceType.DIGITAL -> watchState.digitalPreviewReferenceTimeMillis
             else -> throw InvalidParameterException("Unrecognized watchFaceType")
         }
-
-    /**
-     * The legacy Wear 2.0 [LegacyWatchFaceOverlayStyle] for this watch face. Only affects Wear 2.0 devices.
-     */
-    public val legacyWatchFaceStyle: LegacyWatchFaceOverlayStyle
-        get() = LegacyWatchFaceOverlayStyle(
-            watchFaceStyle.viewProtectionMode,
-            watchFaceStyle.statusBarGravity,
-            watchFaceStyle.acceptsTapEvents,
-            watchFaceStyle.accentColor
-        )
 
     init {
         // If the system has a stored user style then Home/SysUI is in charge of style
@@ -450,20 +408,22 @@ public class WatchFace private constructor(
                     }
                 })
         }
+
+        renderer.watchFaceHostApi = watchFaceHostApi
     }
 
     private var inOnSetStyle = false
 
     private val ambientObserver = Observer<Boolean> {
         scheduleDraw()
-        invalidate()
+        watchFaceHostApi.invalidate()
     }
 
     private val interruptionFilterObserver = Observer<Int> {
         val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE
         if (muteMode != inMuteMode) {
             muteMode = inMuteMode
-            invalidate()
+            watchFaceHostApi.invalidate()
         }
     }
 
@@ -472,7 +432,7 @@ public class WatchFace private constructor(
             registerReceivers()
             // Update time zone in case it changed while we weren't visible.
             calendar.timeZone = TimeZone.getDefault()
-            invalidate()
+            watchFaceHostApi.invalidate()
         } else {
             unregisterReceivers()
         }
@@ -501,7 +461,7 @@ public class WatchFace private constructor(
                         return
                     }
                     if (initFinished) {
-                        this@WatchFace.invalidate()
+                        watchFaceHostApi.invalidate()
                     }
                 }
             }
@@ -613,7 +573,7 @@ public class WatchFace private constructor(
         setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         if (renderer.shouldAnimate()) {
             pendingUpdateTime.postUnique {
-                invalidate()
+                watchFaceHostApi.invalidate()
             }
         }
     }
@@ -665,7 +625,7 @@ public class WatchFace private constructor(
         if (renderer.shouldAnimate()) {
             val delayMillis = computeDelayTillNextFrame(nextDrawTimeMillis, currentTimeMillis)
             nextDrawTimeMillis = currentTimeMillis + delayMillis
-            pendingUpdateTime.postDelayedUnique(delayMillis) { invalidate() }
+            pendingUpdateTime.postDelayedUnique(delayMillis) { watchFaceHostApi.invalidate() }
         }
     }
 
@@ -684,9 +644,12 @@ public class WatchFace private constructor(
         // Limit update rate to conserve power when the battery is low and not charging.
         val updateRateMillis =
             if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
-                max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
+                max(
+                    renderer.interactiveUpdateRateMillis,
+                    MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
+                )
             } else {
-                interactiveUpdateRateMillis
+                renderer.interactiveUpdateRateMillis
             }
         // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
         // to compute min(beginFrameTimeMillis, currentTimeMillis).
@@ -714,7 +677,7 @@ public class WatchFace private constructor(
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         complicationsManager.onComplicationDataUpdate(watchFaceComplicationId, data)
-        invalidate()
+        watchFaceHostApi.invalidate()
     }
 
     /**
@@ -791,7 +754,7 @@ public class WatchFace private constructor(
                         ViewConfiguration.getDoubleTapTimeout().toLong()
                     ) {
                         complicationsManager.onComplicationSingleTapped(tappedComplication.id)
-                        invalidate()
+                        watchFaceHostApi.invalidate()
                         clearGesture()
                     }
                 }
@@ -812,19 +775,5 @@ public class WatchFace private constructor(
     private fun clearGesture() {
         lastTappedComplicationId = null
         pendingSingleTap.cancel()
-    }
-
-    /** Schedules a call to [onDraw] to draw the next frame. */
-    @UiThread
-    public fun invalidate() {
-        watchFaceHostApi.invalidate()
-    }
-
-    /**
-     * Posts a message to schedule a call to [onDraw] to draw the next frame. Unlike
-     * [invalidate], this method is thread-safe and may be called on any thread.
-     */
-    public fun postInvalidate() {
-        watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }
     }
 }
