@@ -26,6 +26,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -77,6 +78,7 @@ public class ComplicationStyle {
     private static final int BORDER_COLOR_DEFAULT = Color.WHITE;
 
     /** Default text size. */
+    @Px
     private static final int TEXT_SIZE_DEFAULT = Integer.MAX_VALUE;
 
     /** Default typeface. */
@@ -84,18 +86,23 @@ public class ComplicationStyle {
             Typeface.create("sans-serif-condensed", Typeface.NORMAL);
 
     /** Default dash width. */
+    @Px
     private static final int DASH_WIDTH_DEFAULT = 3;
 
     /** Default dash gap. */
+    @Px
     private static final int DASH_GAP_DEFAULT = 3;
 
     /** Default border width. */
+    @Px
     private static final int BORDER_WIDTH_DEFAULT = 1;
 
     /** Default ring width. */
+    @Px
     private static final int RING_WIDTH_DEFAULT = 2;
 
     /** Default border radius. */
+    @Px
     public static final int BORDER_RADIUS_DEFAULT = Integer.MAX_VALUE;
 
     @ColorInt
@@ -107,18 +114,26 @@ public class ComplicationStyle {
     private int mTitleColor = SECONDARY_COLOR_DEFAULT;
     private Typeface mTextTypeface = TYPEFACE_DEFAULT;
     private Typeface mTitleTypeface = TYPEFACE_DEFAULT;
+    @Px
     private int mTextSize = TEXT_SIZE_DEFAULT;
+    @Px
     private int mTitleSize = TEXT_SIZE_DEFAULT;
     private ColorFilter mImageColorFilter = null;
     @ColorInt
     private int mIconColor = PRIMARY_COLOR_DEFAULT;
     @ColorInt
     private int mBorderColor = BORDER_COLOR_DEFAULT;
+    @BorderStyle
     private int mBorderStyle = BORDER_STYLE_SOLID;
+    @Px
     private int mBorderDashWidth = DASH_WIDTH_DEFAULT;
+    @Px
     private int mBorderDashGap = DASH_GAP_DEFAULT;
+    @Px
     private int mBorderRadius = BORDER_RADIUS_DEFAULT;
+    @Px
     private int mBorderWidth = BORDER_WIDTH_DEFAULT;
+    @Px
     private int mRangedValueRingWidth = RING_WIDTH_DEFAULT;
     @ColorInt
     private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
@@ -214,11 +229,13 @@ public class ComplicationStyle {
     }
 
     /** Returns the text size to be used for short and long text. */
+    @Px
     public int getTextSize() {
         return mTextSize;
     }
 
     /** Returns the text size to be used for short and long title. */
+    @Px
     public int getTitleSize() {
         return mTitleSize;
     }
@@ -237,6 +254,7 @@ public class ComplicationStyle {
     /**
      * Returns the dash width to be used when drawing borders of type {@link #BORDER_STYLE_DASHED}.
      */
+    @Px
     public int getBorderDashWidth() {
         return mBorderDashWidth;
     }
@@ -244,6 +262,7 @@ public class ComplicationStyle {
     /**
      * Returns the dash gap to be used when drawing borders of type {@link #BORDER_STYLE_DASHED}.
      */
+    @Px
     public int getBorderDashGap() {
         return mBorderDashGap;
     }
@@ -253,16 +272,19 @@ public class ComplicationStyle {
      * border radius should be reduced to half of the minimum of width or height during the
      * rendering.
      */
+    @Px
     public int getBorderRadius() {
         return mBorderRadius;
     }
 
     /** Returns the border width. */
+    @Px
     public int getBorderWidth() {
         return mBorderWidth;
     }
 
     /** Returns the ring width to be used when rendering ranged value indicator. */
+    @Px
     public int getRangedValueRingWidth() {
         return mRangedValueRingWidth;
     }
@@ -369,7 +391,7 @@ public class ComplicationStyle {
      *
      * @param textSize The size of the text=
      */
-    public void setTextSize(int textSize) {
+    public void setTextSize(@Px int textSize) {
         mTextSize = textSize;
         mDirty = true;
     }
@@ -379,7 +401,7 @@ public class ComplicationStyle {
      *
      * @param titleSize The size of the title text=
      */
-    public void setTitleSize(int titleSize) {
+    public void setTitleSize(@Px int titleSize) {
         mTitleSize = titleSize;
         mDirty = true;
     }
@@ -419,7 +441,7 @@ public class ComplicationStyle {
      *
      * @param borderDashWidth The dash widths to render the complication border with
      */
-    public void setBorderDashWidth(int borderDashWidth) {
+    public void setBorderDashWidth(@Px int borderDashWidth) {
         mBorderDashWidth = borderDashWidth;
         mDirty = true;
     }
@@ -430,7 +452,7 @@ public class ComplicationStyle {
      *
      * @param borderDashGap The dash gap render the complication border with
      */
-    public void setBorderDashGap(int borderDashGap) {
+    public void setBorderDashGap(@Px int borderDashGap) {
         mBorderDashGap = borderDashGap;
         mDirty = true;
     }
@@ -442,7 +464,7 @@ public class ComplicationStyle {
      *
      * @param borderRadius The radius to render the complication border with
      */
-    public void setBorderRadius(int borderRadius) {
+    public void setBorderRadius(@Px int borderRadius) {
         mBorderRadius = borderRadius;
         mDirty = true;
     }
@@ -452,7 +474,7 @@ public class ComplicationStyle {
      *
      * @param borderWidth The width to render the complication border with
      */
-    public void setBorderWidth(int borderWidth) {
+    public void setBorderWidth(@Px int borderWidth) {
         mBorderWidth = borderWidth;
         mDirty = true;
     }
@@ -462,7 +484,7 @@ public class ComplicationStyle {
      *
      * @param rangedValueRingWidth The width to render the ranged value ring with
      */
-    public void setRangedValueRingWidth(int rangedValueRingWidth) {
+    public void setRangedValueRingWidth(@Px int rangedValueRingWidth) {
         mRangedValueRingWidth = rangedValueRingWidth;
         mDirty = true;
     }
