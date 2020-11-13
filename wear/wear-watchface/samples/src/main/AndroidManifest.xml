@@ -34,9 +34,9 @@
         android:theme="@android:style/Theme.DeviceDefault">
 
         <service
-            android:name=".ExampleCanvasWatchFaceService"
+            android:name=".ExampleCanvasAnalogWatchFaceService"
             android:exported="true"
-            android:label="@string/canvas_watch_face_name"
+            android:label="@string/canvas_analog_watch_face_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />

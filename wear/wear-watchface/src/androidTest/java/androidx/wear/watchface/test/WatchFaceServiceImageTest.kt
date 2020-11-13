@@ -98,7 +98,7 @@ class WatchFaceServiceImageTest {
 
     private val surfaceTexture = SurfaceTexture(false)
 
-    private lateinit var canvasWatchFaceService: TestCanvasWatchFaceService
+    private lateinit var canvasAnalogWatchFaceService: TestCanvasAnalogWatchFaceService
     private lateinit var glesWatchFaceService: TestGlesWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
     private lateinit var interactiveWatchFaceInstanceWCS: IInteractiveWatchFaceWCS
@@ -114,7 +114,7 @@ class WatchFaceServiceImageTest {
     }
 
     private fun initCanvasWatchFace() {
-        canvasWatchFaceService = TestCanvasWatchFaceService(
+        canvasAnalogWatchFaceService = TestCanvasAnalogWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
@@ -130,7 +130,8 @@ class WatchFaceServiceImageTest {
 
         setPendingWallpaperInteractiveWatchFaceInstance()
 
-        engineWrapper = canvasWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper =
+            canvasAnalogWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
 
     private fun initGles2WatchFace() {

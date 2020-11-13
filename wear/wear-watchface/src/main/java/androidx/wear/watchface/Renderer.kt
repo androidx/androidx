@@ -44,7 +44,7 @@ public abstract class Renderer(
      * per second it can adjust the frame rate inorder to sleep when not animating.
      */
     @IntRange(from = 0, to = 10000)
-    public val interactiveUpdateRateMillis: Long,
+    public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
     internal lateinit var watchFaceHostApi: WatchFaceHostApi
 

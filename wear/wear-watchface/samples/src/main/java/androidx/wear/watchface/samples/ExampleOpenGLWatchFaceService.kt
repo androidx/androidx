@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples
 
+import android.content.Context
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.icu.util.Calendar
@@ -75,67 +76,77 @@ class ExampleOpenGLWatchFaceService() : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
-    ): WatchFace {
-        val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleSetting = ListUserStyleSetting(
-            "color_style_setting",
-            "Colors",
-            "Watchface colorization",
-            icon = null,
-            options = listOf(
-                ListUserStyleSetting.ListOption(
-                    "red_style",
-                    "Red",
-                    Icon.createWithResource(this, R.drawable.red_style)
-                ),
-                ListUserStyleSetting.ListOption(
-                    "green_style",
-                    "Green",
-                    Icon.createWithResource(this, R.drawable.green_style)
-                )
+    ) = createExampleOpenGLWatchFaceBuilder(
+        this,
+        surfaceHolder,
+        watchState
+    )
+}
+
+fun createExampleOpenGLWatchFaceBuilder(
+    context: Context,
+    surfaceHolder: SurfaceHolder,
+    watchState: WatchState
+): WatchFace {
+    val watchFaceStyle = WatchFaceColorStyle.create(context, "white_style")
+    val colorStyleSetting = ListUserStyleSetting(
+        "color_style_setting",
+        "Colors",
+        "Watchface colorization",
+        icon = null,
+        options = listOf(
+            ListUserStyleSetting.ListOption(
+                "red_style",
+                "Red",
+                Icon.createWithResource(context, R.drawable.red_style)
             ),
-            listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
-        )
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
-        val complicationSlots = ComplicationsManager(
-            listOf(
-                Complication.Builder(
-                    EXAMPLE_OPENGL_COMPLICATION_ID,
-                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    listOf(
-                        ComplicationType.RANGED_VALUE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT,
-                        ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
-                    ),
-                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-                ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
-                    .build()
-            ),
-            userStyleRepository
-        )
-        val renderer = ExampleOpenGLRenderer(
-            surfaceHolder,
-            userStyleRepository,
-            watchState,
-            colorStyleSetting,
-            complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
-        )
-        return WatchFace(
-            WatchFaceType.ANALOG,
-            userStyleRepository,
-            complicationSlots,
-            renderer
-        ).setLegacyWatchFaceStyle(
-            WatchFace.LegacyWatchFaceOverlayStyle(
-                0,
-                Gravity.RIGHT or Gravity.TOP,
-                true
+            ListUserStyleSetting.ListOption(
+                "green_style",
+                "Green",
+                Icon.createWithResource(context, R.drawable.green_style)
             )
+        ),
+        listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
+    )
+    val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
+    val complicationsManager = ComplicationsManager(
+        listOf(
+            Complication.Builder(
+                EXAMPLE_OPENGL_COMPLICATION_ID,
+                watchFaceStyle.getComplicationDrawableRenderer(context, watchState),
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+            ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                .build()
+        ),
+        userStyleRepository
+    )
+    val renderer = ExampleOpenGLRenderer(
+        surfaceHolder,
+        userStyleRepository,
+        watchState,
+        colorStyleSetting,
+        complicationsManager[EXAMPLE_OPENGL_COMPLICATION_ID]!!
+    )
+    return WatchFace(
+        WatchFaceType.ANALOG,
+        userStyleRepository,
+        complicationsManager,
+        renderer
+    ).setLegacyWatchFaceStyle(
+        WatchFace.LegacyWatchFaceOverlayStyle(
+            0,
+            Gravity.RIGHT or Gravity.TOP,
+            true
         )
-    }
+    )
 }
 
 class ExampleOpenGLRenderer(

@@ -198,10 +198,10 @@ package androidx.wear.watchface {
   }
 
   public abstract class Renderer {
-    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveUpdateRateMillis);
+    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
     method public final float getCenterX();
     method public final float getCenterY();
-    method public final long getInteractiveUpdateRateMillis();
+    method public final long getInteractiveDrawModeUpdateDelayMillis();
     method @UiThread public android.graphics.Rect getMainClockElementBounds();
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
@@ -210,10 +210,11 @@ package androidx.wear.watchface {
     method @UiThread public void onDestroy();
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
     method public final void postInvalidate();
+    method public final void setInteractiveDrawModeUpdateDelayMillis(long p);
     method @UiThread public boolean shouldAnimate();
     property public final float centerX;
     property public final float centerY;
-    property public final long interactiveUpdateRateMillis;
+    property public final long interactiveDrawModeUpdateDelayMillis;
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
@@ -227,6 +228,7 @@ package androidx.wear.watchface {
     method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
     method public androidx.wear.watchface.WatchFace setPreviewReferenceTimeMillis(long previewReferenceTimeMillis);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.watchface.WatchFace setSystemTimeProvider(androidx.wear.watchface.WatchFace.SystemTimeProvider systemTimeProvider);
+    method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
     property public final Long? overridePreviewReferenceTimeMillis;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;
@@ -251,6 +253,10 @@ package androidx.wear.watchface {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface WatchFace.SystemTimeProvider {
     method public long getSystemTimeMillis();
+  }
+
+  public static interface WatchFace.TapListener {
+    method @UiThread public void onTap(int originalTapType, @Px int xPos, @Px int yPos);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WatchFaceHostApi {
