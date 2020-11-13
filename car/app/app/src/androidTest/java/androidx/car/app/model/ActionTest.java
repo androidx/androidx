@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -28,6 +29,7 @@ import android.os.RemoteException;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -116,6 +118,7 @@ public class ActionTest {
     }
 
     @Test
+    @UiThreadTest
     public void createInstance() throws RemoteException {
         OnClickListener onClickListener = mock(OnClickListener.class);
         IconCompat icon =
@@ -132,10 +135,8 @@ public class ActionTest {
         assertThat(icon).isEqualTo(action.getIcon().getIcon());
         assertThat(CarText.create(title)).isEqualTo(action.getTitle());
         assertThat(CarColor.BLUE).isEqualTo(action.getBackgroundColor());
-        // TODO(shiufai): revisit the following as the test is not running on the main looper
-        //  thread, and thus the verify is failing.
-//        action.getOnClickListener().getListener().onClick(mockOnDoneCallback);
-//        verify(onClickListener).onClick();
+        action.getOnClickListener().getListener().onClick(mMockOnDoneCallback);
+        verify(onClickListener).onClick();
     }
 
     @Test

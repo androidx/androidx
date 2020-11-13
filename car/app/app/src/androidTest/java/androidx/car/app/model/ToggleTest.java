@@ -18,7 +18,14 @@ package androidx.car.app.model;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import android.os.RemoteException;
+
+import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -45,15 +52,14 @@ public class ToggleTest {
         assertThat(toggle.isChecked()).isFalse();
     }
 
-// TODO(shiufai): revisit the following as the test is not running on the main looper
-//  thread, and thus the verify is failing.
-//    @Test
-//    public void build_checkedChange_sendsCheckedChangeCall() throws RemoteException {
-//        Toggle toggle = Toggle.builder(mockOnCheckedChangeListener).setChecked(true).build();
-//
-//        toggle.getOnCheckedChangeListener().onCheckedChange(false, mock(IOnDoneCallback.class));
-//        verify(mockOnCheckedChangeListener).onCheckedChange(false);
-//    }
+    @Test
+    @UiThreadTest
+    public void build_checkedChange_sendsCheckedChangeCall() throws RemoteException {
+        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+
+        toggle.getOnCheckedChangeListener().onCheckedChange(false, mock(IOnDoneCallback.class));
+        verify(mMockOnCheckedChangeListener).onCheckedChange(false);
+    }
 
     @Test
     public void equals() {
