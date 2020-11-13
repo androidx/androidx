@@ -51,7 +51,7 @@ interface GraphProcessor {
 
     fun attach(requestProcessor: RequestProcessor)
     fun detach(requestProcessor: RequestProcessor)
-    fun retry()
+    fun invalidate()
 }
 
 /**
@@ -136,7 +136,7 @@ class GraphProcessorImpl @Inject constructor(
         }
     }
 
-    override fun retry() {
+    override fun invalidate() {
         resubmit()
     }
 

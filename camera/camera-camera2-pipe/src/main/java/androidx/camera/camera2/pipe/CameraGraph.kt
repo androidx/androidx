@@ -135,7 +135,7 @@ interface CameraGraph : Closeable {
             aeRegions: List<MeteringRectangle>? = null,
             afRegions: List<MeteringRectangle>? = null,
             awbRegions: List<MeteringRectangle>? = null
-        ): Deferred<FrameNumber>
+        ): Deferred<Result3A>
 
         /**
          * Applies the given 3A parameters to the camera device but for only one frame.
