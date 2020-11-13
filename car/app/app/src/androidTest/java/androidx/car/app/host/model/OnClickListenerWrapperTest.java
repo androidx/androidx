@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.model;
+package androidx.car.app.host.model;
 
 /** Tests for {@link OnClickListenerWrapper}. */
 
@@ -23,9 +23,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.os.RemoteException;
-
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.model.OnClickListener;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -48,11 +47,13 @@ public class OnClickListenerWrapperTest {
 
     @Test
     @UiThreadTest
-    public void create() throws RemoteException {
-        OnClickListenerWrapper wrapper = OnClickListenerWrapper.create(mMockOnClickListener);
+    public void create() {
+        OnClickListenerWrapper wrapper = OnClickListenerWrapperImpl.create(mMockOnClickListener);
         assertThat(wrapper.isParkedOnly()).isFalse();
 
-        wrapper.getListener().onClick(mock(IOnDoneCallback.class));
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        wrapper.onClick(onDoneCallback);
         verify(mMockOnClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 }

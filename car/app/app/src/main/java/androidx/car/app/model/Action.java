@@ -33,6 +33,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.host.model.OnClickListenerWrapper;
+import androidx.car.app.host.model.OnClickListenerWrapperImpl;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -340,7 +342,7 @@ public final class Action {
         @NonNull
         @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
         public Builder setOnClickListener(@Nullable OnClickListener listener) {
-            this.mListener = listener == null ? null : OnClickListenerWrapper.create(listener);
+            this.mListener = listener == null ? null : OnClickListenerWrapperImpl.create(listener);
             return this;
         }
 

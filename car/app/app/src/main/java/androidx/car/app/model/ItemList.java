@@ -16,19 +16,22 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.IOnItemVisibilityChangedListener;
 import androidx.car.app.IOnSelectedListener;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.host.OnItemVisibilityChangedListenerWrapper;
+import androidx.car.app.host.OnSelectedListenerWrapper;
+import androidx.car.app.host.model.OnClickListenerWrapper;
 import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ValidationUtils;
@@ -68,8 +71,7 @@ public final class ItemList {
          *
          * <p>The start index is inclusive, and the end index is exclusive. For example, if only the
          * first item in a list is visible, the start and end indices would be 0 and 1,
-         * respectively. If
-         * no items are visible, the indices will be set to -1.
+         * respectively. If no items are visible, the indices will be set to -1.
          *
          * @param startIndex the index of the first item that is visible.
          * @param endIndex   the index of the first item that is not visible after the visible
@@ -84,10 +86,10 @@ public final class ItemList {
     private final List<Object> mItems;
     @Keep
     @Nullable
-    private final IOnSelectedListener mOnSelectedListener;
+    private final OnSelectedListenerWrapper mOnSelectedListener;
     @Keep
     @Nullable
-    private final IOnItemVisibilityChangedListener mItemVisibilityChangedListener;
+    private final OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
     @Keep
     @Nullable
     private final CarText mNoItemsMessage;
@@ -104,15 +106,11 @@ public final class ItemList {
     }
 
     /**
-     * Returns the {@link OnSelectedListener} to be called when when an item is selected by the
-     * user, or {@code null} is the list is non-selectable.
-     *
-     * @hide
+     * Returns the {@link OnSelectedListenerWrapper} to be called when when an item is selected
+     * by the user, or {@code null} is the list is non-selectable.
      */
-    // TODO(shiufai): re-surface this API with a wrapper around the AIDL class.
-    @RestrictTo(LIBRARY)
     @Nullable
-    public IOnSelectedListener getOnSelectedListener() {
+    public OnSelectedListenerWrapper getOnSelectedListener() {
         return mOnSelectedListener;
     }
 
@@ -123,16 +121,12 @@ public final class ItemList {
     }
 
     /**
-     * Returns the {@link OnItemVisibilityChangedListener} to be called when the visible items in
-     * the list changes.
-     *
-     * @hide
+     * Returns the {@link OnItemVisibilityChangedListenerWrapper} to be called when the visible
+     * items in the list changes.
      */
-    // TODO(shiufai): re-surface this API with a wrapper around the AIDL class.
-    @RestrictTo(LIBRARY)
     @Nullable
-    public IOnItemVisibilityChangedListener getOnItemsVisibilityChangeListener() {
-        return mItemVisibilityChangedListener;
+    public OnItemVisibilityChangedListenerWrapper getOnItemsVisibilityChangeListener() {
+        return mOnItemVisibilityChangedListener;
     }
 
     /** Returns the list of items in this {@link ItemList}. */
@@ -181,7 +175,7 @@ public final class ItemList {
                 mSelectedIndex,
                 mItems,
                 mOnSelectedListener == null,
-                mItemVisibilityChangedListener == null,
+                mOnItemVisibilityChangedListener == null,
                 mNoItemsMessage);
     }
 
@@ -201,8 +195,8 @@ public final class ItemList {
                 && Objects.equals(mOnSelectedListener == null,
                 otherList.mOnSelectedListener == null)
                 && Objects.equals(
-                mItemVisibilityChangedListener == null,
-                otherList.mItemVisibilityChangedListener == null)
+                mOnItemVisibilityChangedListener == null,
+                otherList.mOnItemVisibilityChangedListener == null)
                 && Objects.equals(mNoItemsMessage, otherList.mNoItemsMessage);
     }
 
@@ -211,7 +205,7 @@ public final class ItemList {
         mItems = new ArrayList<>(builder.mItems);
         mNoItemsMessage = builder.mNoItemsMessage;
         mOnSelectedListener = builder.mOnSelectedListener;
-        mItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
+        mOnItemVisibilityChangedListener = builder.mOnItemVisibilityChangedListener;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -220,7 +214,7 @@ public final class ItemList {
         mItems = Collections.emptyList();
         mNoItemsMessage = null;
         mOnSelectedListener = null;
-        mItemVisibilityChangedListener = null;
+        mOnItemVisibilityChangedListener = null;
     }
 
     /** A builder of {@link ItemList}. */
@@ -228,9 +222,9 @@ public final class ItemList {
         private final List<Object> mItems = new ArrayList<>();
         private int mSelectedIndex;
         @Nullable
-        private IOnSelectedListener mOnSelectedListener;
+        private OnSelectedListenerWrapper mOnSelectedListener;
         @Nullable
-        private IOnItemVisibilityChangedListener mOnItemVisibilityChangedListener;
+        private OnItemVisibilityChangedListenerWrapper mOnItemVisibilityChangedListener;
         @Nullable
         private CarText mNoItemsMessage;
 
@@ -239,15 +233,13 @@ public final class ItemList {
          * list changes.
          */
         @NonNull
-        // TODO(shiufai): remove MissingGetterMatchingBuilder once listener is properly exposed.
-        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
+        @SuppressLint("ExecutorRegistration")
         public Builder setOnItemsVisibilityChangeListener(
                 @Nullable OnItemVisibilityChangedListener itemVisibilityChangedListener) {
             this.mOnItemVisibilityChangedListener =
                     itemVisibilityChangedListener == null
                             ? null
-                            : new OnItemVisibilityChangedListenerStub(
-                                    itemVisibilityChangedListener);
+                            : createOnItemVisibilityChangedListener(itemVisibilityChangedListener);
             return this;
         }
 
@@ -271,11 +263,11 @@ public final class ItemList {
          * @see #setSelectedIndex(int)
          */
         @NonNull
-        // TODO(shiufai): remove MissingGetterMatchingBuilder once listener is properly exposed.
+        // TODO(rampara): Review if API should be updated to match getter.
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setSelectable(@Nullable OnSelectedListener onSelectedListener) {
             this.mOnSelectedListener =
-                    onSelectedListener == null ? null : new OnSelectedListenerStub(
+                    onSelectedListener == null ? null : createOnSelectedListener(
                             onSelectedListener);
             return this;
         }
@@ -396,6 +388,23 @@ public final class ItemList {
         return null;
     }
 
+    private static OnSelectedListenerWrapper createOnSelectedListener(
+            @NonNull OnSelectedListener listener) {
+        return new OnSelectedListenerWrapper() {
+            private final IOnSelectedListener mStubListener = new OnSelectedListenerStub(listener);
+
+            @Override
+            public void onSelected(int selectedIndex, @NonNull OnDoneCallback callback) {
+                try {
+                    mStubListener.onSelected(selectedIndex,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new WrappedRuntimeException(e);
+                }
+            }
+        };
+    }
+
     @Keep // We need to keep these stub for Bundler serialization logic.
     private static class OnSelectedListenerStub extends IOnSelectedListener.Stub {
         private final OnSelectedListener mOnSelectedListener;
@@ -409,6 +418,25 @@ public final class ItemList {
             RemoteUtils.dispatchHostCall(
                     () -> mOnSelectedListener.onSelected(index), callback, "onSelectedListener");
         }
+    }
+
+    private static OnItemVisibilityChangedListenerWrapper createOnItemVisibilityChangedListener(
+            @NonNull OnItemVisibilityChangedListener listener) {
+        return new OnItemVisibilityChangedListenerWrapper() {
+            private final IOnItemVisibilityChangedListener mStubListener =
+                    new OnItemVisibilityChangedListenerStub(listener);
+
+            @Override
+            public void onItemVisibilityChanged(int startIndex, int rightIndex,
+                    @NonNull OnDoneCallback callback) {
+                try {
+                    mStubListener.onItemVisibilityChanged(startIndex, rightIndex,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new WrappedRuntimeException(e);
+                }
+            }
+        };
     }
 
     /** Stub class for the {@link IOnItemVisibilityChangedListener} interface. */
@@ -426,9 +454,8 @@ public final class ItemList {
         public void onItemVisibilityChanged(
                 int startIndexInclusive, int endIndexExclusive, IOnDoneCallback callback) {
             RemoteUtils.dispatchHostCall(
-                    () ->
-                            mOnItemVisibilityChangedListener.onItemVisibilityChanged(
-                                    startIndexInclusive, endIndexExclusive),
+                    () -> mOnItemVisibilityChangedListener.onItemVisibilityChanged(
+                            startIndexInclusive, endIndexExclusive),
                     callback,
                     "onItemVisibilityChanged");
         }

@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.os.RemoteException;
 
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
@@ -78,8 +78,7 @@ public class ActionTest {
         OnClickListener onClickListener = mock(OnClickListener.class);
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        Action.builder()
+                () -> Action.builder()
                                 .setTitle("foo")
                                 .setOnClickListener(onClickListener)
                                 .setBackgroundColor(CarColor.createCustom(0xdead, 0xbeef))
@@ -89,8 +88,7 @@ public class ActionTest {
     @Test
     public void create_noTitleDefault() {
         OnClickListener onClickListener = mock(OnClickListener.class);
-        Action action =
-                Action.builder()
+        Action action = Action.builder()
                         .setIcon(
                                 CarIcon.of(
                                         IconCompat.createWithResource(
@@ -119,14 +117,13 @@ public class ActionTest {
 
     @Test
     @UiThreadTest
-    public void createInstance() throws RemoteException {
+    public void createInstance() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         IconCompat icon =
                 IconCompat.createWithResource(
                         ApplicationProvider.getApplicationContext(), R.drawable.ic_test_1);
         String title = "foo";
-        Action action =
-                Action.builder()
+        Action action = Action.builder()
                         .setTitle(title)
                         .setIcon(CarIcon.of(icon))
                         .setBackgroundColor(CarColor.BLUE)
@@ -135,8 +132,10 @@ public class ActionTest {
         assertThat(icon).isEqualTo(action.getIcon().getIcon());
         assertThat(CarText.create(title)).isEqualTo(action.getTitle());
         assertThat(CarColor.BLUE).isEqualTo(action.getBackgroundColor());
-        action.getOnClickListener().getListener().onClick(mMockOnDoneCallback);
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        action.getOnClickListener().onClick(onDoneCallback);
         verify(onClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test
@@ -199,11 +198,9 @@ public class ActionTest {
         CarIcon icon1 = CarIcon.ALERT;
         CarIcon icon2 = CarIcon.APP_ICON;
 
-        Action action1 =
-                Action.builder().setOnClickListener(() -> {
+        Action action1 = Action.builder().setOnClickListener(() -> {
                 }).setTitle(title).setIcon(icon1).build();
-        Action action2 =
-                Action.builder().setOnClickListener(() -> {
+        Action action2 = Action.builder().setOnClickListener(() -> {
                 }).setTitle(title).setIcon(icon2).build();
 
         assertThat(action2).isNotEqualTo(action1);
