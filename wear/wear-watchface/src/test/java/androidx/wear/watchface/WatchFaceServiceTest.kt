@@ -150,7 +150,7 @@ class WatchFaceServiceTest {
         ListUserStyleSetting.ListOption("bad_option", "Bad", icon = null)
 
     private val leftComplication =
-        Complication.Builder(
+        Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableLeft,
@@ -165,13 +165,13 @@ class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
+            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+            RectF(0.2f, 0.4f, 0.4f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
 
     private val rightComplication =
-        Complication.Builder(
+        Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableRight,
@@ -186,13 +186,13 @@ class WatchFaceServiceTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            RectF(0.6f, 0.4f, 0.8f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
 
     private val backgroundComplication =
-        Complication.Builder(
+        Complication.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableRight,
@@ -205,7 +205,6 @@ class WatchFaceServiceTest {
             ),
             DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationType.BACKGROUND_IMAGE)
-            .setAsBackgroundComplication()
             .build()
 
     private val leftAndRightComplicationsOption = ComplicationsOption(
@@ -1396,7 +1395,7 @@ class WatchFaceServiceTest {
     fun defaultProvidersWithFallbacks_newApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication.Builder(
+        val complication = Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
             emptyList(),
@@ -1404,9 +1403,9 @@ class WatchFaceServiceTest {
                 provider1,
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
-            )
+            ),
+            RectF(0.2f, 0.4f, 0.4f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), UserStyleSchema(emptyList()))
 
@@ -1424,7 +1423,7 @@ class WatchFaceServiceTest {
     fun defaultProvidersWithFallbacks_oldApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication.Builder(
+        val complication = Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(complicationDrawableLeft, watchState.asWatchState()),
             emptyList(),
@@ -1432,9 +1431,9 @@ class WatchFaceServiceTest {
                 provider1,
                 provider2,
                 SystemProviders.SUNRISE_SUNSET
-            )
+            ),
+            RectF(0.2f, 0.4f, 0.4f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
         initEngine(
             WatchFaceType.ANALOG,

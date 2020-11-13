@@ -71,7 +71,12 @@ public abstract class Renderer(
         )
     }
 
-    /** The bounds of the [SurfaceHolder] this Renderer renders into. */
+    /**
+     * The bounds of the [SurfaceHolder] this Renderer renders into. Depending on the shape of the
+     * device's screen not all of these pixels may be visible to the user (see
+     * [WatchState.screenShape]).  Note also that Wear 3 devices draw indicators in the top and
+     * bottom 24dp of the screen, avoid rendering anything important there.
+     */
     public var screenBounds: Rect = surfaceHolder.surfaceFrame
         private set
 
