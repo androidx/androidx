@@ -45,8 +45,6 @@ dependencies {
     docs(project(":compose:foundation:foundation"))
     docs(project(":compose:foundation:foundation-layout"))
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
-    docs(project(":compose:foundation:foundation-text"))
-    samples(project(":compose:foundation:foundation-text:foundation-text-samples"))
     samples(project(":compose:foundation:foundation:foundation-samples"))
     docs(project(":compose:material:material"))
     docs(project(":compose:material:material-icons-core"))
