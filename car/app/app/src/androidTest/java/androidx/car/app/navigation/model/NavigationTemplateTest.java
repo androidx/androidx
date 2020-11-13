@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -30,7 +31,7 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.utils.Logger;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +39,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link NavigationTemplate}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class NavigationTemplateTest {
     private final ActionStrip mActionStrip =
@@ -417,23 +418,15 @@ public class NavigationTemplateTest {
 
     @Test
     public void checkPermissions_hasPermissions() {
-        //TODO(rampara): Investigate failure to create ShadowPackageManager
-//        NavigationTemplate template =
-//                NavigationTemplate.builder()
-//                        .setActionStrip(mActionStrip)
-//                        .setBackgroundColor(CarColor.BLUE)
-//                        .build();
-//
-//        Context context = ApplicationProvider.getApplicationContext();
-//        PackageManager packageManager = context.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = context.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{CarAppPermission.NAVIGATION_TEMPLATES};
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(context);
+        NavigationTemplate template =
+                NavigationTemplate.builder()
+                        .setActionStrip(mActionStrip)
+                        .setBackgroundColor(CarColor.BLUE)
+                        .build();
+
+        // Expect that it does not throw
+        template.checkPermissions(
+                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
     }
 
     @Test

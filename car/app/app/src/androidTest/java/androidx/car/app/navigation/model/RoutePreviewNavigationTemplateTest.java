@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.RemoteException;
 import android.text.SpannableString;
 
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
@@ -42,13 +43,13 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link RoutePreviewNavigationTemplate}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class RoutePreviewNavigationTemplateTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -583,25 +584,18 @@ public class RoutePreviewNavigationTemplateTest {
 
     @Test
     public void checkPermissions_hasPermissions() {
-        //TODO(rampara): Investigate failure to create ShadowPackageManager
-//        RoutePreviewNavigationTemplate template =
-//                RoutePreviewNavigationTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-//                        .setNavigateAction(
-//                                Action.builder().setTitle("drive").setOnClickListener(() -> {
-//                                }).build())
-//                        .build();
-//
-//        PackageManager packageManager = mContext.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = mContext.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{CarAppPermission.NAVIGATION_TEMPLATES};
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(mContext);
+        RoutePreviewNavigationTemplate template =
+                RoutePreviewNavigationTemplate.builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setNavigateAction(
+                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                }).build())
+                        .build();
+
+        // Expect that it does not throw
+        template.checkPermissions(
+                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
     }
 
     @Test
