@@ -47,6 +47,7 @@ public abstract class Metadata {
     }
 
     /** The builder for {@link Metadata}. */
+    @SuppressWarnings("StaticFinalBuilder")
     @AutoValue.Builder
     public abstract static class Builder {
         /**
