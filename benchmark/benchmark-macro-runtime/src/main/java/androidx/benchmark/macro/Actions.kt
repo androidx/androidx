@@ -20,6 +20,7 @@ import android.app.Instrumentation
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import java.lang.IllegalStateException
 
 private const val TAG = "MacroBenchmarks"
 
@@ -127,10 +128,9 @@ fun withPermissiveSeLinuxPolicy(block: () -> Unit) {
  * Gets the SE Linux policy.
  */
 private fun getSeLinuxPolicyEnforced(instrumentation: Instrumentation): Int {
-    return when (instrumentation.device().executeShellCommand("getenforce")) {
-        PERMISSIVE -> 0
-        else -> 1
-    }
+    // command returns "Permissive\n" or "Enforcing\n" (note the newline!)
+    val enforcingStatus = instrumentation.device().executeShellCommand("getenforce")
+    return if (enforcingStatus.contains(PERMISSIVE)) 0 else 1
 }
 
 /**
@@ -140,7 +140,13 @@ private fun setSeLinuxPolicyEnforced(instrumentation: Instrumentation, policy: I
     check(policy == 0 || policy == 1) {
         "Policy can only be one of `0` or `1`"
     }
+
+    // TODO: unable to see failure here, due to executeShellCommand output always being empty.
+    //  for now, we just verify the `setenforce` worked with an extra `getenforce`
     instrumentation.device().executeShellCommand("setenforce $policy")
+    if (getSeLinuxPolicyEnforced(instrumentation) != policy) {
+        throw IllegalStateException("\"setenforce $policy\" didn't succeed, is ADB session rooted?")
+    }
 }
 
 internal fun Instrumentation.device(): UiDevice {

@@ -27,4 +27,14 @@
     <queries>
         <package android:name="androidx.benchmark.integration.macro.target" />
     </queries>
+    <application>
+        <activity
+            android:name="androidx.benchmark.macro.test.TrivialStartupActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>
