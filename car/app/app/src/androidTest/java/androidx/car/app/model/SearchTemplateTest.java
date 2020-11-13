@@ -19,11 +19,15 @@ package androidx.car.app.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
+import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.SearchListener;
 import androidx.car.app.TestUtils;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -121,6 +125,7 @@ public class SearchTemplateTest {
     }
 
     @Test
+    @UiThreadTest
     public void buildWithValues() throws RemoteException {
         String initialSearchText = "searchTemplate for this!!";
         String searchHint = "This is not a hint";
@@ -143,12 +148,10 @@ public class SearchTemplateTest {
         assertThat(searchTemplate.getActionStrip()).isEqualTo(actionStrip);
         assertThat(searchTemplate.getHeaderAction()).isEqualTo(Action.BACK);
 
-        // TODO(shiufai): revisit the following as the test is not running on the main looper
-        //  thread, and thus the verify is failing.
-//        String searchText = "foo";
-//        searchTemplate.getSearchListener().onSearchSubmitted(searchText,
-//                mock(IOnDoneCallback.class));
-//        verify(mockSearchListener).onSearchSubmitted(searchText);
+        String searchText = "foo";
+        searchTemplate.getSearchListener().onSearchSubmitted(searchText,
+                mock(IOnDoneCallback.class));
+        verify(mMockSearchListener).onSearchSubmitted(searchText);
     }
 
     @Test

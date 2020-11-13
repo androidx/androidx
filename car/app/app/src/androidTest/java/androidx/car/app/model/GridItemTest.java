@@ -22,7 +22,13 @@ import static androidx.car.app.model.CarIcon.BACK;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import android.os.RemoteException;
+
+import androidx.car.app.IOnDoneCallback;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -121,16 +127,15 @@ public class GridItemTest {
                 gridItem);
     }
 
-// TODO(shiufai): revisit the following as the test is not running on the main looper thread, and
-//  thus the verify is failing.
-//    @Test
-//    public void clickListener() throws RemoteException {
-//        OnClickListener onClickListener = mock(OnClickListener.class);
-//        GridItem gridItem =
-//                GridItem.builder().setImage(BACK).setOnClickListener(onClickListener).build();
-//        gridItem.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
-//        verify(onClickListener).onClick();
-//    }
+    @Test
+    @UiThreadTest
+    public void clickListener() throws RemoteException {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        GridItem gridItem =
+                GridItem.builder().setImage(BACK).setOnClickListener(onClickListener).build();
+        gridItem.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
+        verify(onClickListener).onClick();
+    }
 
     @Test
     public void setToggle() {

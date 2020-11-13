@@ -19,11 +19,14 @@ package androidx.car.app.navigation.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.os.RemoteException;
 import android.text.SpannableString;
 
+import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -31,10 +34,12 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.test.R;
 import androidx.car.app.utils.Logger;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -181,23 +186,23 @@ public class RoutePreviewNavigationTemplateTest {
     }
 
     @Test
+    @UiThreadTest
     public void setOnNavigateAction() throws RemoteException {
-        // TODO(rampara): Confirm that UiThreadTest annotation is required for test.
-//        OnClickListener mockListener = mock(OnClickListener.class);
-//        RoutePreviewNavigationTemplate template =
-//                RoutePreviewNavigationTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-//                        .setNavigateAction(
-//                                Action.builder().setTitle("Navigate").setOnClickListener(
-//                                        mockListener).build())
-//                        .build();
-//
-//        template.getNavigateAction()
-//                .getOnClickListener()
-//                .getListener()
-//                .onClick(mock(IOnDoneCallback.class));
-//        verify(mockListener).onClick();
+        OnClickListener mockListener = mock(OnClickListener.class);
+        RoutePreviewNavigationTemplate template =
+                RoutePreviewNavigationTemplate.builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setNavigateAction(
+                                Action.builder().setTitle("Navigate").setOnClickListener(
+                                        mockListener).build())
+                        .build();
+
+        template.getNavigateAction()
+                .getOnClickListener()
+                .getListener()
+                .onClick(mock(IOnDoneCallback.class));
+        verify(mockListener).onClick();
     }
 
     @Test

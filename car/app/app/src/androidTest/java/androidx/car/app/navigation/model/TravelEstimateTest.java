@@ -16,6 +16,7 @@
 
 package androidx.car.app.navigation.model;
 
+import static androidx.car.app.TestUtils.assertDateTimeWithZoneEquals;
 import static androidx.car.app.TestUtils.createDateTimeWithZone;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -26,11 +27,14 @@ import androidx.car.app.model.CarColor;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -45,21 +49,19 @@ public class TravelEstimateTest {
             Distance.create(/* displayDistance= */ 100, Distance.UNIT_METERS);
     private final long mRemainingTime = TimeUnit.HOURS.toMillis(10);
 
-    // TODO(rampara): Investigate how to exercise minSDK requiring API
-//    @Test
-//    @Config(minSdk = VERSION_CODES.O)
-//    public void create_duration() {
-//        ZonedDateTime arrivalTime = ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]");
-//        Duration remainingTime = Duration.ofHours(10);
-//
-//        TravelEstimate travelEstimate =
-//                TravelEstimate.create(mRemainingDistance, remainingTime, arrivalTime);
-//
-//        assertThat(travelEstimate.getRemainingDistance()).isEqualTo(mRemainingDistance);
-//        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds
-//        ());
-//        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());
-//    }
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void create_duration() {
+        ZonedDateTime arrivalTime = ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]");
+        Duration remainingTime = Duration.ofHours(10);
+
+        TravelEstimate travelEstimate =
+                TravelEstimate.create(mRemainingDistance, remainingTime, arrivalTime);
+
+        assertThat(travelEstimate.getRemainingDistance()).isEqualTo(mRemainingDistance);
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());
+        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());
+    }
 
     @Test
     public void create() {
