@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.app.util;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import androidx.appsearch.app.AppSearchBatchResult;
+import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByUriRequest;
+import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResults;
 
 import junit.framework.AssertionFailedError;
 
