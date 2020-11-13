@@ -31,7 +31,7 @@ package androidx.wear.watchface {
   }
 
   public abstract class CanvasRenderer extends androidx.wear.watchface.Renderer {
-    ctor public CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType);
+    ctor public CanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public abstract void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
   }
 
@@ -104,9 +104,9 @@ package androidx.wear.watchface {
   }
 
   public abstract class GlesRenderer extends androidx.wear.watchface.Renderer {
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, int[] eglConfigAttribList);
-    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState);
+    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList, int[] eglSurfaceAttribList);
+    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis, int[] eglConfigAttribList);
+    ctor public GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
     method @UiThread public void onGlContextCreated();
     method @UiThread public void onGlSurfaceCreated(int width, int height);
     method @UiThread public abstract void render(android.icu.util.Calendar calendar);
@@ -168,39 +168,37 @@ package androidx.wear.watchface {
   }
 
   public abstract class Renderer {
-    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState);
+    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveUpdateRateMillis);
     method public final float getCenterX();
     method public final float getCenterY();
+    method public final long getInteractiveUpdateRateMillis();
     method @UiThread public android.graphics.Rect getMainClockElementBounds();
     method public final androidx.wear.watchface.RenderParameters getRenderParameters();
     method public final android.graphics.Rect getScreenBounds();
     method public final android.view.SurfaceHolder getSurfaceHolder();
+    method @UiThread public final void invalidate();
     method @UiThread public void onDestroy();
     method @UiThread protected void onRenderParametersChanged(androidx.wear.watchface.RenderParameters renderParameters);
+    method public final void postInvalidate();
     method @UiThread public boolean shouldAnimate();
     property public final float centerX;
     property public final float centerY;
+    property public final long interactiveUpdateRateMillis;
     property public final androidx.wear.watchface.RenderParameters renderParameters;
     property public final android.graphics.Rect screenBounds;
     property public final android.view.SurfaceHolder surfaceHolder;
   }
 
   public final class WatchFace {
+    ctor public WatchFace(internal int watchFaceType, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.ComplicationsManager complicationsManager, internal androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
-    method public long getPreviewReferenceTimeMillis();
-    method @UiThread public void invalidate();
+    method public Long? getOverridePreviewReferenceTimeMillis();
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
-    method public void postInvalidate();
+    method public androidx.wear.watchface.WatchFace setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
+    method public androidx.wear.watchface.WatchFace setPreviewReferenceTimeMillis(long previewReferenceTimeMillis);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
-    property public final long previewReferenceTimeMillis;
+    property public final Long? overridePreviewReferenceTimeMillis;
     field public static final androidx.wear.watchface.WatchFace.Companion Companion;
-  }
-
-  public static final class WatchFace.Builder {
-    ctor public WatchFace.Builder(int watchFaceType, long interactiveUpdateRateMillis, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.ComplicationsManager complicationsManager, internal androidx.wear.watchface.Renderer renderer, androidx.wear.watchface.WatchFaceHost watchFaceHost, androidx.wear.watchface.WatchState watchState);
-    method public androidx.wear.watchface.WatchFace build();
-    method public androidx.wear.watchface.WatchFace.Builder setLegacyWatchFaceStyle(androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle);
-    method public androidx.wear.watchface.WatchFace.Builder setPreviewReferenceTimeMillis(long previewReferenceTimeMillis);
   }
 
   public static final class WatchFace.Companion {
@@ -220,16 +218,12 @@ package androidx.wear.watchface {
     property public final int viewProtectionMode;
   }
 
-  public final class WatchFaceHost {
-    ctor public WatchFaceHost();
-  }
-
   public final class WatchFaceKt {
   }
 
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
-    method protected abstract androidx.wear.watchface.WatchFace createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchFaceHost watchFaceHost, androidx.wear.watchface.WatchState watchState);
+    method protected abstract androidx.wear.watchface.WatchFace createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState);
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
   }
 

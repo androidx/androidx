@@ -317,7 +317,7 @@ public class ComplicationsManager(
                     complication.setIsHighlighted(false)
                 }
             },
-            WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
+            WatchFaceImpl.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
         )
     }
 

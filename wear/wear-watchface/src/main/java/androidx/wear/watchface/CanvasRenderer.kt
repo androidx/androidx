@@ -23,6 +23,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
@@ -61,8 +62,18 @@ public abstract class CanvasRenderer(
     watchState: WatchState,
 
     /** The type of canvas to use. */
-    @CanvasType private val canvasType: Int
-) : Renderer(surfaceHolder, userStyleRepository, watchState) {
+    @CanvasType private val canvasType: Int,
+
+    /**
+     * The interval in milliseconds between frames in interactive [DrawMode]s. To render at 60hz
+     * set to 16. Note when battery is low, the frame rate will be clamped to 10fps. Watch faces are
+     * recommended to use lower frame rates if possible for better battery life. Variable frame
+     * rates can also help preserve battery life, e.g. if a watch face has a short animation once
+     * per second it can adjust the frame rate inorder to sleep when not animating.
+     */
+    @IntRange(from = 0, to = 10000)
+    interactiveDrawModeUpdateDelayMillis: Long
+) : Renderer(surfaceHolder, userStyleRepository, watchState, interactiveDrawModeUpdateDelayMillis) {
 
     internal override fun renderInternal(
         calendar: Calendar

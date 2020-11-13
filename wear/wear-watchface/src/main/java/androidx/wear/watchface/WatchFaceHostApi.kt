@@ -29,7 +29,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The API [WatchFace] uses to communicate with the system.
+ * The API [WatchFaceImpl] uses to communicate with the system.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -129,11 +129,4 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
-}
-
-/**
- * An opaque holder for the internal API [WatchFace] for it's host service.
- */
-public class WatchFaceHost {
-    internal var api: WatchFaceHostApi? = null
 }
