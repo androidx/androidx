@@ -39,7 +39,7 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
-import androidx.wear.watchface.samples.ExampleCanvasWatchFaceService
+import androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,7 +65,7 @@ class WatchFaceControlServiceTest {
             HeadlessWatchFaceInstanceParams(
                 ComponentName(
                     ApplicationProvider.getApplicationContext<Context>(),
-                    ExampleCanvasWatchFaceService::class.java
+                    ExampleCanvasAnalogWatchFaceService::class.java
                 ),
                 DeviceConfig(
                     false,

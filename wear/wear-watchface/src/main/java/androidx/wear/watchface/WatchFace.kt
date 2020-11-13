@@ -31,6 +31,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
+import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
@@ -122,6 +123,8 @@ public class WatchFace(
     /** The [Renderer] for this WatchFaceImpl. */
     internal val renderer: Renderer
 ) {
+    internal var tapListener: TapListener? = null
+
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
         @JvmStatic
@@ -137,6 +140,17 @@ public class WatchFace(
     public interface SystemTimeProvider {
         /** Returns the current system time in milliseconds. */
         public fun getSystemTimeMillis(): Long
+    }
+
+    /** Listens for taps on the watchface which didn't land on [Complication]s. */
+    public interface TapListener {
+        /** Called whenever the user taps on the watchface but doesn't hit a [Complication]. */
+        @UiThread
+        public fun onTap(
+            @TapType originalTapType: Int,
+            @Px xPos: Int,
+            @Px yPos: Int
+        )
     }
 
     /**
@@ -232,6 +246,15 @@ public class WatchFace(
         this.legacyWatchFaceStyle = legacyWatchFaceStyle
     }
 
+    /**
+     * Sets an optional [TapListener] which if not `null` gets called on the ui thread whenever
+     * the user taps on the watchface but doesn't hit a [Complication].
+     */
+    @SuppressWarnings("ExecutorRegistration")
+    public fun setTapListener(tapListener: TapListener?): WatchFace = apply {
+        this.tapListener = tapListener
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     public fun setSystemTimeProvider(systemTimeProvider: SystemTimeProvider): WatchFace = apply {
@@ -280,6 +303,7 @@ internal class WatchFaceImpl(
     internal val userStyleRepository = watchface.userStyleRepository
     internal val renderer = watchface.renderer
     internal val complicationsManager = watchface.complicationsManager
+    private val tapListener = watchface.tapListener
 
     private data class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
 
@@ -645,11 +669,11 @@ internal class WatchFaceImpl(
         val updateRateMillis =
             if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
                 max(
-                    renderer.interactiveUpdateRateMillis,
+                    renderer.interactiveDrawModeUpdateDelayMillis,
                     MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS
                 )
             } else {
-                renderer.interactiveUpdateRateMillis
+                renderer.interactiveDrawModeUpdateDelayMillis
             }
         // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
         // to compute min(beginFrameTimeMillis, currentTimeMillis).
@@ -694,10 +718,16 @@ internal class WatchFaceImpl(
         x: Int,
         y: Int
     ) {
+        val tappedComplication = complicationsManager.getComplicationAt(x, y)
+        if (tappedComplication == null) {
+            clearGesture()
+            tapListener?.onTap(originalTapType, x, y)
+            return
+        }
+
         // Unfortunately we don't get MotionEvents so we can't directly use the GestureDetector
         // to distinguish between single and double taps. Currently we do that ourselves.
         // TODO(alexclarke): Revisit this
-
         var tapType = originalTapType
         when (tapType) {
             TapType.TOUCH -> {
@@ -711,11 +741,6 @@ internal class WatchFaceImpl(
                 }
                 lastTappedPosition = null
             }
-        }
-        val tappedComplication = complicationsManager.getComplicationAt(x, y)
-        if (tappedComplication == null) {
-            clearGesture()
-            return
         }
 
         when (tapType) {

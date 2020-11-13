@@ -23,14 +23,14 @@ import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.samples.createExampleOpenGLWatchFaceBuilder
+import androidx.wear.watchface.samples.createExampleCanvasAnalogWatchFaceBuilder
 
-/** A simple OpenGL test watch face for integration tests. */
-internal class TestGlesWatchFaceService(
+/** A simple canvas test analog watch face for integration tests. */
+internal class TestCanvasAnalogWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long,
-    var surfacHolderOverride: SurfaceHolder?
+    var surfaceHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState().apply {
@@ -47,7 +47,7 @@ internal class TestGlesWatchFaceService(
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-        return createExampleOpenGLWatchFaceBuilder(
+        return createExampleCanvasAnalogWatchFaceBuilder(
             this,
             surfaceHolder,
             watchState
@@ -65,5 +65,5 @@ internal class TestGlesWatchFaceService(
     // We want full control over when frames are produced.
     override fun allowWatchFaceToAnimate() = false
 
-    override fun getWallpaperSurfaceHolderOverride() = surfacHolderOverride
+    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }
