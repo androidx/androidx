@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.widget;
+package androidx.core.view;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -43,11 +43,11 @@ import java.util.Set;
  *
  * <p>This callback can be attached to different types of UI components. For editable
  * {@link android.widget.TextView} components, implementations should typically extend from
- * {@link TextViewRichContentReceiverCompat}.
+ * {@link androidx.core.widget.TextViewOnReceiveContentListener}.
  *
  * <p>Example implementation:<br>
  * <pre class="prettyprint">
- *   public class MyRichContentReceiver extends TextViewRichContentReceiverCompat {
+ *   public class MyRichContentReceiver extends TextViewOnReceiveContentListenerCompat {
  *
  *       private static final Set&lt;String&gt; SUPPORTED_MIME_TYPES = Collections.unmodifiableSet(
  *           Set.of("text/*", "image/gif", "image/png", "image/jpg"));
@@ -75,15 +75,19 @@ import java.util.Set;
  *
  * @param <T> The type of {@link View} with which this receiver can be associated.
  */
-public abstract class RichContentReceiverCompat<T extends View> {
-    private static final String TAG = "RichContentReceiver";
+@SuppressWarnings("ListenerInterface")
+public abstract class OnReceiveContentListener<T extends View> {
+    private static final String TAG = "ReceiveContent";
 
     /**
      * Specifies the UI through which content is being inserted.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(value = {SOURCE_CLIPBOARD, SOURCE_INPUT_METHOD})
     @Retention(RetentionPolicy.SOURCE)
-    @interface Source {}
+    public @interface Source {}
 
     /**
      * Specifies that the operation was triggered by a paste from the clipboard (e.g. "Paste" or
@@ -100,10 +104,13 @@ public abstract class RichContentReceiverCompat<T extends View> {
 
     /**
      * Flags to configure the insertion behavior.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = {FLAG_CONVERT_TO_PLAIN_TEXT})
     @Retention(RetentionPolicy.SOURCE)
-    @interface Flags {}
+    public @interface Flags {}
 
     /**
      * Flag for {@link #onReceive} requesting that the content should be converted to plain text
@@ -149,12 +156,13 @@ public abstract class RichContentReceiverCompat<T extends View> {
      * <p>Different platform features (e.g. pasting from the clipboard, inserting stickers from the
      * keyboard, etc) may use this function to conditionally alter their behavior. For example, the
      * keyboard may choose to hide its UI for inserting GIFs if the input field that has focus has
-     * a {@link RichContentReceiverCompat} set and the MIME types returned from this function
+     * a {@link OnReceiveContentListener} set and the MIME types returned from this function
      * don't include "image/gif".
      *
      * @return An immutable set with the MIME types supported by this callback. The returned
      * MIME types may contain wildcards such as "text/*", "image/*", etc.
      */
+    @SuppressWarnings("CallbackMethodName")
     @NonNull
     public abstract Set<String> getSupportedMimeTypes();
 

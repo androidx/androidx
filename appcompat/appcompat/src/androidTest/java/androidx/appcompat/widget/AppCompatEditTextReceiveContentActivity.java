@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.appcompat.widget;
 
-package androidx.core.widget;
+import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.BaseTestActivity;
 
-import android.support.v4.BaseTestActivity;
-
-import androidx.core.test.R;
-
-public class RichContentReceiverTestActivity extends BaseTestActivity {
+public class AppCompatEditTextReceiveContentActivity extends BaseTestActivity {
     @Override
     protected int getContentViewLayoutResId() {
-        return R.layout.rich_content_receiver_activity;
+        return R.layout.appcompat_edittext_receive_content_activity;
     }
 }

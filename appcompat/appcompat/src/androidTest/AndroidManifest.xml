@@ -100,8 +100,8 @@
             android:theme="@style/Theme.TextColors"/>
 
         <activity
-            android:name="androidx.appcompat.widget.AppCompatEditTextRichContentReceiverActivity"
-            android:label="@string/app_compat_edit_text_rich_content_receiver_activity"
+            android:name="androidx.appcompat.widget.AppCompatEditTextReceiveContentActivity"
+            android:label="@string/app_compat_edit_text_receive_content_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity

@@ -2602,6 +2602,23 @@ package androidx.core.view {
     method public androidx.core.view.WindowInsetsCompat! onApplyWindowInsets(android.view.View!, androidx.core.view.WindowInsetsCompat!);
   }
 
+  public abstract class OnReceiveContentListener<T extends android.view.View> {
+    ctor public OnReceiveContentListener();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener buildOnCommitContentListener(T);
+    method public abstract java.util.Set<java.lang.String!> getSupportedMimeTypes();
+    method public abstract boolean onReceive(T, android.content.ClipData, @androidx.core.view.OnReceiveContentListener.Source int, @androidx.core.view.OnReceiveContentListener.Flags int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void populateEditorInfoContentMimeTypes(android.view.inputmethod.InputConnection?, android.view.inputmethod.EditorInfo?);
+    field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
+    field public static final int SOURCE_CLIPBOARD = 0; // 0x0
+    field public static final int SOURCE_INPUT_METHOD = 1; // 0x1
+  }
+
+  @IntDef(flag=true, value={androidx.core.view.OnReceiveContentListener.FLAG_CONVERT_TO_PLAIN_TEXT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface OnReceiveContentListener.Flags {
+  }
+
+  @IntDef({androidx.core.view.OnReceiveContentListener.SOURCE_CLIPBOARD, androidx.core.view.OnReceiveContentListener.SOURCE_INPUT_METHOD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface OnReceiveContentListener.Source {
+  }
+
   public final class OneShotPreDrawListener implements android.view.View.OnAttachStateChangeListener android.view.ViewTreeObserver.OnPreDrawListener {
     method public static androidx.core.view.OneShotPreDrawListener add(android.view.View, Runnable);
     method public boolean onPreDraw();
@@ -3776,17 +3793,6 @@ package androidx.core.widget {
     method public static void showAsDropDown(android.widget.PopupWindow, android.view.View, int, int, int);
   }
 
-  public abstract class RichContentReceiverCompat<T extends android.view.View> {
-    ctor public RichContentReceiverCompat();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener buildOnCommitContentListener(T);
-    method public abstract java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public abstract boolean onReceive(T, android.content.ClipData, int, int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void populateEditorInfoContentMimeTypes(android.view.inputmethod.InputConnection?, android.view.inputmethod.EditorInfo?);
-    field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
-    field public static final int SOURCE_CLIPBOARD = 0; // 0x0
-    field public static final int SOURCE_INPUT_METHOD = 1; // 0x1
-  }
-
   @Deprecated public final class ScrollerCompat {
     method @Deprecated public void abortAnimation();
     method @Deprecated public boolean computeScrollOffset();
@@ -3845,10 +3851,10 @@ package androidx.core.widget {
   @IntDef({androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE, androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TextViewCompat.AutoSizeTextType {
   }
 
-  public abstract class TextViewRichContentReceiverCompat extends androidx.core.widget.RichContentReceiverCompat<android.widget.TextView> {
-    ctor public TextViewRichContentReceiverCompat();
+  public abstract class TextViewOnReceiveContentListener extends androidx.core.view.OnReceiveContentListener<android.widget.TextView> {
+    ctor public TextViewOnReceiveContentListener();
     method public java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public boolean onReceive(android.widget.TextView, android.content.ClipData, int, int);
+    method public boolean onReceive(android.widget.TextView, android.content.ClipData, @androidx.core.view.OnReceiveContentListener.Source int, @androidx.core.view.OnReceiveContentListener.Flags int);
   }
 
   public interface TintableCompoundButton {
