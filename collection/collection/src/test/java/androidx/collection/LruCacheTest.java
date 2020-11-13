@@ -452,6 +452,77 @@ public class LruCacheTest {
         assertEquals(Arrays.asList("a=1>2"), log);
     }
 
+    /** Makes sure that LruCache operations are correctly synchronized to guarantee consistency. */
+    @Test
+    public void consistentMultithreadedAccess() {
+        class Tally {
+            int mNonNullValues;
+            int mNullValues;
+            int mValuesPut;
+            int mConflicts;
+            int mRemoved;
+        }
+
+        final Tally tally = new Tally();
+        final int rounds = 10000;
+        final String key = "key";
+        final int value = 42;
+        final LruCache<String, Integer> cache  = new LruCache<String, Integer>(1) {
+            @Override
+            protected Integer create(String key) {
+                return value;
+            }
+        };
+
+        Runnable r0 = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < rounds; i++) {
+                    if (cache.get(key) != null) {
+                        tally.mNonNullValues++;
+                    } else {
+                        tally.mNullValues++;
+                    }
+                }
+            }
+        };
+
+        Runnable r1 = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < rounds; i++) {
+                    if (i % 2 == 0) {
+                        if (cache.put(key, value) != null) {
+                            tally.mConflicts++;
+                        } else {
+                            tally.mValuesPut++;
+                        }
+                    } else {
+                        cache.remove(key);
+                        tally.mRemoved++;
+                    }
+                }
+            }
+        };
+
+
+        Thread t0 = new Thread(r0);
+        Thread t1 = new Thread(r1);
+
+        t0.start();
+        t1.start();
+        try {
+            t0.join();
+            t1.join();
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        assertEquals(rounds, tally.mNonNullValues);
+        assertEquals(0, tally.mNullValues);
+        assertEquals(rounds, tally.mValuesPut + tally.mConflicts + tally.mRemoved);
+    }
+
     private LruCache<String, String> newCreatingCache() {
         return new LruCache<String, String>(3) {
             @Override protected String create(String key) {
