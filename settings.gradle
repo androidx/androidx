@@ -385,7 +385,7 @@ includeProject(":navigation:navigation-ui-ktx", "navigation/navigation-ui-ktx", 
 includeProject(":paging:integration-tests:testapp", "paging/integration-tests/testapp", [BuildType.MAIN])
 includeProject(":paging:paging-common", "paging/common", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":paging:paging-common-ktx", "paging/common/ktx", [BuildType.MAIN])
-includeProject(":paging:paging-compose", "paging/compose", [BuildType.COMPOSE])
+includeProject(":paging:paging-compose", "paging/paging-compose", [BuildType.COMPOSE])
 includeProject(":paging:paging-compose:paging-compose-samples", "paging/compose/samples", [BuildType.COMPOSE])
 includeProject(":paging:paging-compose:integration-tests:paging-demos", "paging/compose/integration-tests/paging-demos", [BuildType.COMPOSE])
 includeProject(":paging:paging-guava", "paging/guava", [BuildType.MAIN])
