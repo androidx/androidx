@@ -26,7 +26,7 @@ fi
 TOOLS_DIR=$STUDIO_DIR/tools
 gw=$TOOLS_DIR/gradlew
 
-JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/linux" $gw -p $TOOLS_DIR publishLocal --stacktrace
+JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/linux" $gw -p $TOOLS_DIR publishLocal --stacktrace
 
 export GRADLE_PLUGIN_VERSION=`grep -oP "(?<=buildVersion = ).*" $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
