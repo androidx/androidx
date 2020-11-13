@@ -200,7 +200,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             )
         )
     )
-    val leftComplication = Complication.Builder(
+    val leftComplication = Complication.createRoundRectComplicationBuilder(
         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
         watchFaceStyle.getComplicationDrawableRenderer(context, watchState),
         listOf(
@@ -210,11 +210,11 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-    ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+        RectF(0.2f, 0.4f, 0.4f, 0.6f)
+    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
-    val rightComplication = Complication.Builder(
+    val rightComplication = Complication.createRoundRectComplicationBuilder(
         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
         watchFaceStyle.getComplicationDrawableRenderer(context, watchState),
         listOf(
@@ -224,9 +224,9 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.MONOCHROMATIC_IMAGE,
             ComplicationType.SMALL_IMAGE
         ),
-        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
-    ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
-        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
+        RectF(0.6f, 0.4f, 0.8f, 0.6f)
+    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
     val complicationsManager = ComplicationsManager(
         listOf(leftComplication, rightComplication),
