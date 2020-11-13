@@ -31,6 +31,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.view.ViewConfiguration
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
@@ -211,6 +212,7 @@ public class WatchFace(
 
     /** The preview time in milliseconds since the epoch, or null if not set. */
     @get:SuppressWarnings("AutoBoxing")
+    @IntRange(from = 0)
     public var overridePreviewReferenceTimeMillis: Long? = null
         private set
 
@@ -229,10 +231,10 @@ public class WatchFace(
     /**
      * Overrides the reference time for editor preview images.
      *
-     * @param previewReferenceTimeMillis The preview time in milliseconds since the epoch
+     * @param previewReferenceTimeMillis The UTC preview time in milliseconds since the epoch
      */
-    public fun setPreviewReferenceTimeMillis(
-        previewReferenceTimeMillis: Long
+    public fun setOverridePreviewReferenceTimeMillis(
+        @IntRange(from = 0) previewReferenceTimeMillis: Long
     ): WatchFace = apply {
         overridePreviewReferenceTimeMillis = previewReferenceTimeMillis
     }
