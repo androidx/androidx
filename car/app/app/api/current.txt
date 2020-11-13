@@ -153,6 +153,19 @@ package androidx.car.app {
 
 }
 
+package androidx.car.app.host {
+
+  public interface OnCheckedChangeListenerWrapper {
+    method public void onCheckedChange(boolean, androidx.car.app.host.OnDoneCallback);
+  }
+
+  public interface OnDoneCallback {
+    method public void onFailure(androidx.car.app.serialization.Bundleable);
+    method public void onSuccess(androidx.car.app.serialization.Bundleable?);
+  }
+
+}
+
 package androidx.car.app.model {
 
   public final class Action {
@@ -646,13 +659,14 @@ package androidx.car.app.model {
 
   public class Toggle {
     method public static androidx.car.app.model.Toggle.Builder builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
+    method public androidx.car.app.host.OnCheckedChangeListenerWrapper getOnCheckedChangeListener();
     method public boolean isChecked();
   }
 
   public static final class Toggle.Builder {
     method public androidx.car.app.model.Toggle build();
     method public androidx.car.app.model.Toggle.Builder setChecked(boolean);
-    method public androidx.car.app.model.Toggle.Builder setCheckedChangeListener(androidx.car.app.model.Toggle.OnCheckedChangeListener);
+    method public androidx.car.app.model.Toggle.Builder setOnCheckedChangeListener(androidx.car.app.model.Toggle.OnCheckedChangeListener);
   }
 
   public static interface Toggle.OnCheckedChangeListener {
