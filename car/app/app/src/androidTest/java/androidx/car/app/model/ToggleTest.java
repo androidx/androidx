@@ -18,12 +18,13 @@ package androidx.car.app.model;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.os.RemoteException;
-
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.Toggle.OnCheckedChangeListener;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -54,11 +55,32 @@ public class ToggleTest {
 
     @Test
     @UiThreadTest
-    public void build_checkedChange_sendsCheckedChangeCall() throws RemoteException {
+    public void build_checkedChange_sendsCheckedChangeCall() {
         Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
-        toggle.getOnCheckedChangeListener().onCheckedChange(false, mock(IOnDoneCallback.class));
+        toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
         verify(mMockOnCheckedChangeListener).onCheckedChange(false);
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    @UiThreadTest
+    public void build_checkedChange_sendsCheckedChangeCallWithFailure() {
+        String testExceptionMessage = "Test exception";
+        doThrow(new RuntimeException(testExceptionMessage)).when(
+                mMockOnCheckedChangeListener).onCheckedChange(false);
+
+        Toggle toggle = Toggle.builder(mMockOnCheckedChangeListener).setChecked(true).build();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+
+        try {
+            toggle.getOnCheckedChangeListener().onCheckedChange(false, onDoneCallback);
+        } catch (WrappedRuntimeException e) {
+            assertThat(e.getMessage()).contains(testExceptionMessage);
+        }
+        verify(mMockOnCheckedChangeListener).onCheckedChange(false);
+        verify(onDoneCallback).onFailure(any());
     }
 
     @Test
