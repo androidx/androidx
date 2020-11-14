@@ -26,9 +26,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -283,7 +282,7 @@ abstract class PagingDataDiffer<T : Any>(
         get() = presenter.size
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _loadStateCh = ConflatedBroadcastChannel(combinedLoadStates.snapshot())
+    private val _combinedLoadState = MutableStateFlow(combinedLoadStates.snapshot())
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -295,10 +294,11 @@ abstract class PagingDataDiffer<T : Any>(
      * @sample androidx.paging.samples.loadStateFlowSample
      */
     @OptIn(FlowPreview::class)
-    val loadStateFlow: Flow<CombinedLoadStates> = _loadStateCh.asFlow()
+    val loadStateFlow: Flow<CombinedLoadStates>
+        get() = _combinedLoadState
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _dataRefreshCh = ConflatedBroadcastChannel<Boolean>()
+    private val _dataRefreshBus = ConflatedEventBus<Boolean>()
 
     /**
      * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
@@ -320,14 +320,16 @@ abstract class PagingDataDiffer<T : Any>(
     )
     @ExperimentalPagingApi
     @OptIn(FlowPreview::class)
-    val dataRefreshFlow: Flow<Boolean> = _dataRefreshCh.asFlow()
+    val dataRefreshFlow: Flow<Boolean> = _dataRefreshBus.flow
 
     init {
         @OptIn(ExperimentalCoroutinesApi::class)
-        addLoadStateListener { _loadStateCh.offer(it) }
+        addLoadStateListener {
+            _combinedLoadState.value = it
+        }
         @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
         @Suppress("DEPRECATION")
-        addDataRefreshListener { _dataRefreshCh.offer(it) }
+        addDataRefreshListener { _dataRefreshBus.send(it) }
     }
 
     /**
