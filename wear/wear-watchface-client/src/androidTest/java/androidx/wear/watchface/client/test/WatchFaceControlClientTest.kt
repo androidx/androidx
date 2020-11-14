@@ -235,6 +235,77 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun wallpaperServiceBackedInteractiveWatchFaceWcsClient_ComplicationDetails() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        val handler = Handler(Looper.getMainLooper())
+        lateinit var engine: WallpaperService.Engine
+        handler.post { engine = wallpaperService.onCreateEngine() }
+
+        val interactiveInstance =
+            interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        assertThat(interactiveInstance.complicationState.size).isEqualTo(2)
+
+        val leftComplicationDetails = interactiveInstance.complicationState[
+            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+        ]!!
+        assertThat(leftComplicationDetails.bounds).isEqualTo(Rect(80, 160, 160, 240))
+        assertThat(leftComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(leftComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
+            SystemProviders.DAY_OF_WEEK
+        )
+        assertThat(leftComplicationDetails.defaultProviderType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
+        assertThat(leftComplicationDetails.supportedTypes).containsExactly(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        assertTrue(leftComplicationDetails.isEnabled)
+
+        val rightComplicationDetails = interactiveInstance.complicationState[
+            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+        ]!!
+        assertThat(rightComplicationDetails.bounds).isEqualTo(Rect(240, 160, 320, 240))
+        assertThat(rightComplicationDetails.boundsType).isEqualTo(ComplicationBoundsType.ROUND_RECT)
+        assertThat(rightComplicationDetails.defaultProviderPolicy.systemProviderFallback).isEqualTo(
+            SystemProviders.STEP_COUNT
+        )
+        assertThat(rightComplicationDetails.defaultProviderType).isEqualTo(
+            ComplicationType.SHORT_TEXT
+        )
+        assertThat(rightComplicationDetails.supportedTypes).containsExactly(
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.LONG_TEXT,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        assertTrue(rightComplicationDetails.isEnabled)
+
+        engine.onDestroy()
+        interactiveInstance.close()
+        service.close()
+    }
+
+    @Test
     fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient_existingOpenInstance() {
         val interactiveInstanceFuture =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
