@@ -40,12 +40,6 @@ dependencies {
     androidTestImplementation("junit:junit:4.13")
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_ANDROID)
-    androidTestImplementation ROBOLECTRIC, {
-        // The following are excluded as they are resulting in duplicated class conflicts with
-        // the junit dependency above.
-        exclude group: "org.apache.maven.wagon"
-        exclude group: "org.apache.maven"
-    }
 }
 
 android {
