@@ -96,7 +96,9 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
             val sections = path.split(":")
 
             if (sections[0].isNotEmpty()) {
-                throw GradleException("Expected projectOrArtifact path to start with empty section but got $path")
+                throw GradleException(
+                    "Expected projectOrArtifact path to start with empty section but got $path"
+                )
             }
 
             // Typically androidx projects have 3 sections, compose has 4.
