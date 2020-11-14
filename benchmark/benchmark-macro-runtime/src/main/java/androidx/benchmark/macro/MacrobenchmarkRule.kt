@@ -28,9 +28,10 @@ class MacrobenchmarkRule : TestRule {
 
     fun measureRepeated(
         config: MacrobenchmarkConfig,
-        block: MacrobenchmarkScope.() -> Unit
+        setupBlock: MacrobenchmarkScope.() -> Unit = {},
+        measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        macrobenchmark(benchmarkName, config, block)
+        macrobenchmark(benchmarkName, config, setupBlock, measureBlock)
     }
 
     override fun apply(base: Statement, description: Description) = object : Statement() {
