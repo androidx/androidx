@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -52,12 +51,12 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -194,7 +193,7 @@ public class BundlerTest {
 
         Bundle bundle = Bundler.toBundle(value);
         @SuppressWarnings("unchecked") // Casting of deserialized Object from Bundler.
-                Map<String, LatLng> readIn = (Map<String, LatLng>) Bundler.fromBundle(bundle);
+        Map<String, LatLng> readIn = (Map<String, LatLng>) Bundler.fromBundle(bundle);
 
         assertThat(readIn.keySet()).isEqualTo(value.keySet());
 
@@ -223,7 +222,7 @@ public class BundlerTest {
 
         Bundle bundle = Bundler.toBundle(value);
         @SuppressWarnings("unchecked") // Casting of deserialized Object from Bundler.
-                List<LatLng> readIn = (List<LatLng>) Bundler.fromBundle(bundle);
+        List<LatLng> readIn = (List<LatLng>) Bundler.fromBundle(bundle);
         assertThat(readIn).isEqualTo(value);
     }
 
@@ -306,7 +305,7 @@ public class BundlerTest {
     }
 
     @Test
-    @Config(sdk = Build.VERSION_CODES.M)
+    @SdkSuppress(minSdkVersion = 23)
     public void imageSerialization_Icon() throws BundlerException {
         Bitmap bitmap = Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888);
         try {
