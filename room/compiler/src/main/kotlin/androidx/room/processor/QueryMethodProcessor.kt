@@ -186,7 +186,7 @@ private class InternalQueryProcessor(
             ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.toString(), query.type)
         )
 
-        val parameters = delegate.extractQueryParams()
+        val parameters = delegate.extractQueryParams(query)
         return WriteQueryMethod(
             element = executableElement,
             query = query,
@@ -221,7 +221,7 @@ private class InternalQueryProcessor(
             }
         }
 
-        val parameters = delegate.extractQueryParams()
+        val parameters = delegate.extractQueryParams(query)
 
         return ReadQueryMethod(
             element = executableElement,

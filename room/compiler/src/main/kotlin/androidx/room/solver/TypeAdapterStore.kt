@@ -557,21 +557,32 @@ class TypeAdapterStore private constructor(
         }
     }
 
-    fun findQueryParameterAdapter(typeMirror: XType): QueryParameterAdapter? {
+    fun findQueryParameterAdapter(
+        typeMirror: XType,
+        isMultipleParameter: Boolean
+    ): QueryParameterAdapter? {
         if (typeMirror.isType() &&
             context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)
         ) {
-            val collectionBinder = findStatementValueBinder(typeMirror, null)
-            if (collectionBinder != null) {
-                // user has a converter for the collection itself
-                return BasicQueryParameterAdapter(collectionBinder)
-            }
-
             val declared = typeMirror.asDeclaredType()
-            val binder = findStatementValueBinder(
-                declared.typeArguments.first().extendsBoundOrSelf(), null
-            ) ?: return null
-            return CollectionQueryParameterAdapter(binder)
+            val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
+            // An adapter for the collection type arg wrapped in the built-in collection adapter.
+            val wrappedCollectionAdapter = findStatementValueBinder(typeArg, null)?.let {
+                CollectionQueryParameterAdapter(it)
+            }
+            // An adapter for the collection itself, likely a user provided type converter for the
+            // collection.
+            val directCollectionAdapter = findStatementValueBinder(typeMirror, null)?.let {
+                BasicQueryParameterAdapter(it)
+            }
+            // Prioritize built-in collection adapters when finding an adapter for a multi-value
+            // binding param since it is likely wrong to use a collection to single value converter
+            // for an expression that takes in multiple values.
+            return if (isMultipleParameter) {
+                wrappedCollectionAdapter ?: directCollectionAdapter
+            } else {
+                directCollectionAdapter ?: wrappedCollectionAdapter
+            }
         } else if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val component = typeMirror.componentType
             val binder = findStatementValueBinder(component, null) ?: return null
