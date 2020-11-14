@@ -87,7 +87,8 @@ data class MacrobenchmarkConfig(
 fun macrobenchmark(
     benchmarkName: String,
     config: MacrobenchmarkConfig,
-    block: MacrobenchmarkScope.() -> Unit
+    setupBlock: MacrobenchmarkScope.() -> Unit = {},
+    measureBlock: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
     val scope = MacrobenchmarkScope(config.packageName)
 
@@ -95,7 +96,8 @@ fun macrobenchmark(
     scope.killProcess()
 
     config.compilationMode.compile(config.packageName) {
-        block(scope)
+        setupBlock(scope)
+        measureBlock(scope)
     }
 
     // Perfetto collector is separate from metrics, so we can control file
@@ -105,41 +107,49 @@ fun macrobenchmark(
         config.metrics.forEach {
             it.configure(config)
         }
-        perfettoCollector.start()
-        config.metrics.forEach {
-            it.start()
-        }
-        repeat(config.iterations) {
+        val results = List(config.iterations) { iteration ->
             if (config.killProcessEachIteration) {
+                // TODO: remove this flag, make this part of setupBlock
                 scope.killProcess()
             }
-            block(scope)
-        }
-        config.metrics.forEach {
-            it.stop()
+            setupBlock(scope)
+            try {
+                perfettoCollector.start()
+                config.metrics.forEach {
+                    it.start()
+                }
+                measureBlock(scope)
+                config.metrics.forEach {
+                    it.stop()
+                }
+            } finally {
+                val iterString = iteration.toString().padStart(3, '0')
+                perfettoCollector.stop("${benchmarkName}_iter$iterString.trace")
+            }
+
+            config.metrics
+                // capture list of Map<String,Long> per metric
+                .map { it.getMetrics(config.packageName) }
+                // merge into one map
+                .reduce { sum, element -> sum + element }
         }
 
-        val statsList = config.metrics.getStatsList(config.packageName)
+        // merge each independent Map<String,Long> to one Map<String,List<Long>>
+        val setOfAllKeys = results.flatMap { it.keys }.toSet()
+        val listResults = setOfAllKeys.map { key ->
+            key to results.map { it[key] ?: error("Value $key missing from one iteration") }
+        }.toMap()
+
+        val statsList = listResults.map { (metricName, values) ->
+            Stats(values.toLongArray(), metricName)
+        }
+
         InstrumentationResults.instrumentationReport {
             ideSummaryRecord(ideSummaryString(benchmarkName, statsList))
             statsList.forEach { it.putInBundle(bundle, "") }
         }
     } finally {
-        perfettoCollector.stop("$benchmarkName.trace")
         scope.killProcess()
-    }
-}
-
-/**
- * Capture results from each metric, and create Stats container for each
- */
-fun List<Metric>.getStatsList(packageName: String): List<Stats> {
-    val metricMap: Map<String, List<Long>> = this.flatMap {
-        it.getMetrics(packageName).toList()
-    }.toMap()
-
-    return metricMap.map { (metricName, values) ->
-        Stats(values.toLongArray(), metricName)
     }
 }
 

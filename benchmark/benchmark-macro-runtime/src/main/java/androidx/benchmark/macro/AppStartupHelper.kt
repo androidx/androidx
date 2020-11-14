@@ -18,7 +18,6 @@ package androidx.benchmark.macro
 import android.util.Log
 import com.android.helpers.StatsdHelper
 import com.android.os.nano.AtomsProto
-import com.android.os.nano.StatsLog
 import java.util.ArrayList
 
 /**
@@ -34,7 +33,7 @@ class AppStartupHelper {
     /**
      * Set up the app startup statsd config to track the metrics during the app start occurred.
      */
-    fun startCollecting(): Boolean {
+    fun startCollecting() {
         Log.i("AppStartupHelper", "Adding app startup configs to statsd.")
         val atomIdList: MutableList<Int> = ArrayList()
         atomIdList.add(AtomsProto.Atom.APP_START_OCCURRED_FIELD_NUMBER)
@@ -42,13 +41,21 @@ class AppStartupHelper {
         if (!isProcStartDetailsDisabled) {
             atomIdList.add(AtomsProto.Atom.PROCESS_START_TIME_FIELD_NUMBER)
         }
-        return statsdHelper.addEventConfig(atomIdList)
+        if (!statsdHelper.addEventConfig(atomIdList)) {
+            throw IllegalStateException("Unable to add event config to statsd")
+        }
     }
 
-    private fun toMetricStructure(
-        list: List<StatsLog.EventMetricData>,
+    /**
+     * Captures all startup events as a List<AppStartupMetrics>.
+     *
+     * Note - this function supports capturing multiple startups for a given package, but
+     * [getMetrics] does not, to support only one value per metric, per iteration.
+     */
+    internal fun getMetricStructure(
         packageName: String
     ): List<AppStartupMetrics> {
+        val list = statsdHelper.eventMetrics
         val appStartOccurredList = list
             .filter { it.atom.hasAppStartOccurred() }
             .map { it.atom.appStartOccurred }
@@ -92,17 +99,31 @@ class AppStartupHelper {
         }
     }
 
-    fun getMetrics(packageName: String): Map<String, List<Long>> {
-        val results = toMetricStructure(statsdHelper.eventMetrics, packageName)
-        // TODO: potentially filter these for app vs system usage
+    fun getMetrics(packageName: String): Map<String, Long> {
+        val results = getMetricStructure(packageName)
+
+        if (results.isEmpty()) {
+            throw IllegalStateException(
+                "Saw no launches of package $packageName, did you launch an activity?"
+            )
+        }
+        if (results.size > 1) {
+            throw IllegalStateException(
+                "Saw more than one startup for package $packageName, this is not supported"
+            )
+        }
+        val result = results.first()
+        // TODO: potentially filter these further for app vs platform usage
         return mapOf(
             // AppStartupHelper originally reports this as simply startup time, so we do the same
-            "startupMs" to results.mapNotNull { it.windowDrawnDelayMs },
-            "transitionDelayMs" to results.mapNotNull { it.transitionDelayMs },
+            "startupMs" to result.windowDrawnDelayMs,
+            "transitionDelayMs" to result.transitionDelayMs,
             // Though the proto calls this appStartupTime, we clarify this is "fully drawn" startup
-            "startupFullyDrawnMs" to results.mapNotNull { it.appStartupTimeMs },
-            "processStartDelayMs" to results.mapNotNull { it.processStartDelayMs },
-        ).filterValues { it.isNotEmpty() }
+            "startupFullyDrawnMs" to result.appStartupTimeMs,
+            "processStartDelayMs" to result.processStartDelayMs,
+        )
+            .filterValues { it != null } // doesn't drop nullability for values...
+            .mapValues { it.value!! } // ...so we do that explicitly here
     }
 
     /**
@@ -119,7 +140,7 @@ class AppStartupHelper {
         isProcStartDetailsDisabled = true
     }
 
-    class AppStartupMetrics(
+    data class AppStartupMetrics(
         val transitionType: String?,
         val windowDrawnDelayMs: Long?,
         val transitionDelayMs: Long?,

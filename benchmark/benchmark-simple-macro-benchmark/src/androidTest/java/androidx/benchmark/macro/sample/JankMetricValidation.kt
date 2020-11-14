@@ -62,11 +62,15 @@ class JankMetricValidation(
             iterations = 10
         )
 
-        benchmarkRule.measureRepeated(config) {
-            val intent = Intent()
-            intent.action = ACTION
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            launchIntentAndWait(intent)
+        benchmarkRule.measureRepeated(
+            config,
+            setupBlock = {
+                val intent = Intent()
+                intent.action = ACTION
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                launchIntentAndWait(intent)
+            }
+        ) {
             val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             recycler.setGestureMargin(device.displayWidth / 5)

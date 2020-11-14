@@ -26,11 +26,11 @@ import com.android.helpers.TotalPssHelper
  * Metric interface.
  */
 sealed class Metric {
+    abstract fun configure(config: MacrobenchmarkConfig)
+
     abstract fun start()
 
     abstract fun stop()
-
-    abstract fun configure(config: MacrobenchmarkConfig)
 
     /**
      * After stopping, collect metrics
@@ -38,11 +38,15 @@ sealed class Metric {
      * TODO: takes package for package level filtering, but probably want a
      *  general config object coming into [start].
      */
-    abstract fun getMetrics(packageName: String): Map<String, List<Long>>
+    abstract fun getMetrics(packageName: String): Map<String, Long>
 }
 
 class StartupTimingMetric : Metric() {
     private val helper = AppStartupHelper()
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        // does nothing
+    }
 
     override fun start() {
         helper.startCollecting()
@@ -52,11 +56,7 @@ class StartupTimingMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun getMetrics(packageName: String): Map<String, List<Long>> {
+    override fun getMetrics(packageName: String): Map<String, Long> {
         return helper.getMetrics(packageName)
     }
 }
@@ -66,6 +66,10 @@ class CpuUsageMetric : Metric() {
         it.setEnableCpuUtilization()
     }
 
+    override fun configure(config: MacrobenchmarkConfig) {
+        // does nothing
+    }
+
     override fun start() {
         helper.startCollecting()
     }
@@ -74,18 +78,19 @@ class CpuUsageMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        // does nothing
-    }
-
-    override fun getMetrics(packageName: String): Map<String, List<Long>> {
-        return helper.metrics.mapValues { listOf(it.value) }
+    override fun getMetrics(packageName: String): Map<String, Long> {
+        return helper.metrics
     }
 }
 
 class JankMetric : Metric() {
     private lateinit var packageName: String
     private val helper = JankCollectionHelper()
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        packageName = config.packageName
+        helper.addTrackedPackages(packageName)
+    }
 
     override fun start() {
         try {
@@ -113,20 +118,19 @@ class JankMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        packageName = config.packageName
-        helper.addTrackedPackages(packageName)
-    }
-
-    override fun getMetrics(packageName: String): Map<String, List<Long>> {
-        return helper.metrics.map { (key, value) ->
-            key to listOf(value.toLong())
-        }.toMap()
+    override fun getMetrics(packageName: String): Map<String, Long> {
+        return helper.metrics.mapValues {
+            it.value.toLong()
+        }
     }
 }
 
 class TotalPssMetric : Metric() {
     private val helper = TotalPssHelper()
+
+    override fun configure(config: MacrobenchmarkConfig) {
+        helper.setUp(config.packageName)
+    }
 
     override fun start() {
         helper.startCollecting()
@@ -136,14 +140,7 @@ class TotalPssMetric : Metric() {
         helper.stopCollecting()
     }
 
-    override fun configure(config: MacrobenchmarkConfig) {
-        helper.setUp(config.packageName)
-        helper.setMinIterations(config.iterations)
-    }
-
-    override fun getMetrics(packageName: String): Map<String, List<Long>> {
-        return helper.metrics.map { (key, value) ->
-            key to listOf(value)
-        }.toMap()
+    override fun getMetrics(packageName: String): Map<String, Long> {
+        return helper.metrics
     }
 }
