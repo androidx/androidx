@@ -59,9 +59,10 @@ internal class InteractiveInstanceManager {
         @SuppressLint("SyntheticAccessor")
         fun releaseInstance(instanceId: String) {
             synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                val instance = instances[instanceId]!!
-                if (--instance.refcount == 0) {
-                    instances.remove(instanceId)
+                instances[instanceId]?.let {
+                    if (--it.refcount == 0) {
+                        instances.remove(instanceId)
+                    }
                 }
             }
         }

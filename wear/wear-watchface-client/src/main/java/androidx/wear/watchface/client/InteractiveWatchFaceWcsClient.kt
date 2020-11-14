@@ -24,7 +24,6 @@ import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.control.IInteractiveWatchFaceWCS
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
-import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
@@ -72,7 +71,7 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
     public val previewReferenceTimeMillis: Long
 
     /**
-     * Sets the watch face's current [UserStyle]. Note this may alter [complicationStateWireFormat].
+     * Sets the watch face's current [UserStyle]. Note this may alter [complicationState].
      */
     public fun setUserStyle(userStyle: UserStyle)
 
@@ -83,10 +82,10 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
     public val userStyleSchema: UserStyleSchema
 
     /**
-     * Map of complication ids to [ComplicationStateWireFormat] for each complication slot. Note
+     * Map of complication ids to [ComplicationState] for each complication slot. Note
      * this can change, typically in response to styling.
      */
-    public val complicationStateWireFormat: Map<Int, ComplicationStateWireFormat>
+    public val complicationState: Map<Int, ComplicationState>
 
     /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
     public fun asBinder(): IBinder
@@ -142,10 +141,10 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iInteractiveWatchFaceWcs.userStyleSchema)
 
-    override val complicationStateWireFormat: Map<Int, ComplicationStateWireFormat>
+    override val complicationState: Map<Int, ComplicationState>
         get() = iInteractiveWatchFaceWcs.complicationDetails.associateBy(
             { it.id },
-            { it.complicationState }
+            { ComplicationState(it.complicationState) }
         )
 
     override fun close() {
