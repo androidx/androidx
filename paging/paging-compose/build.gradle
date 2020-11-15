@@ -31,14 +31,14 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compiler:compiler")
+    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
     implementation(KOTLIN_STDLIB)
-    api project(":compose:foundation:foundation")
+    api projectOrArtifact(":compose:foundation:foundation")
     api("androidx.paging:paging-common-ktx:3.0.0-alpha06")
 
-    androidTestImplementation project(":compose:ui:ui-test-junit4")
-    androidTestImplementation project(':internal-testutils-paging')
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
+    androidTestImplementation projectOrArtifact(':internal-testutils-paging')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
