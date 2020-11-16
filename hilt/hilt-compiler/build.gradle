@@ -49,27 +49,13 @@ dependencies {
             dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
             include : "*.jar")
     testImplementation fileTree(
-            dir: "${new File(project.buildDir, "extractedJar")}",
-            include : "*.jar")
-    testImplementation fileTree(
             dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar")
-}
-
-// Extract Hilt classes.jar to be used for compile-testing.
-tasks.register("extractHiltJar", Copy).configure {
-    def aarPath = project.configurations.testRuntimeClasspath.find {
-        it.path.contains("com/google/dagger/hilt-android/") && it.name.endsWith(".aar")
-    }
-    from project.zipTree(aarPath)
-    into new File(project.buildDir, "extractedJar")
-    include "classes.jar"
 }
 
 tasks.named("compileKotlin").configure {
     dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
     dependsOn(":hilt:hilt-work:jarDebug")
-    dependsOn(":hilt:hilt-compiler:extractHiltJar")
 }
 
 androidx {
