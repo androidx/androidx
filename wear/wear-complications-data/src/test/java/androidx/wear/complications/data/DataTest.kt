@@ -16,7 +16,10 @@
 
 package androidx.wear.complications.data
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.drawable.Icon
+import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.ParcelableSubject
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -263,6 +266,67 @@ public class FromWireComplicationDataTest {
         val data = wireData.asApiComplicationData()
         assertThat(data.type).isEqualTo(type)
         ParcelableSubject.assertThat(data.asWireComplicationData()).hasSameSerializationAs(wireData)
+    }
+}
+
+@RunWith(SharedRobolectricTestRunner::class)
+public class TapActionTest {
+    private val mPendingIntent = PendingIntent.getBroadcast(
+        ApplicationProvider.getApplicationContext(),
+        0,
+        Intent(),
+        0
+    )
+
+    @Test
+    public fun shortTextComplicationData() {
+        assertThat(
+            ShortTextComplicationData.Builder("text".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun longTextComplicationData() {
+        assertThat(
+            LongTextComplicationData.Builder("text".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun rangedValueComplicationData() {
+        assertThat(
+            RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun monochromaticImageComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = MonochromaticImage.Builder(icon).build()
+        assertThat(
+            MonochromaticImageComplicationData.Builder(image)
+                .setTapAction(mPendingIntent)
+                .build()
+                .asWireComplicationData()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun smallImageComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
+        assertThat(
+            SmallImageComplicationData.Builder(image).setTapAction(mPendingIntent).build()
+                .asWireComplicationData()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
     }
 }
 
