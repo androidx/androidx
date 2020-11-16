@@ -65,7 +65,10 @@ internal class KspSyntheticContinuationParameterElement(
                 )
             )
         )
-        env.wrapDeclared(contType)
+        env.wrap(
+            ksType = contType,
+            allowPrimitives = false
+        )
     }
 
     override fun asMemberOf(other: XDeclaredType): XType {
@@ -83,7 +86,10 @@ internal class KspSyntheticContinuationParameterElement(
             Variance.CONTRAVARIANT
         )
         val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
-        return env.wrapDeclared(contType)
+        return env.wrap(
+            ksType = contType,
+            allowPrimitives = false
+        )
     }
 
     override fun kindName(): String {

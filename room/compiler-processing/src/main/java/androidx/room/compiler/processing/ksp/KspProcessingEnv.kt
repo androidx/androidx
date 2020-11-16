@@ -16,7 +16,6 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
@@ -92,7 +91,7 @@ internal class KspProcessingEnv(
             ?: findTypeElement("javax.annotation.Generated")
     }
 
-    override fun getDeclaredType(type: XTypeElement, vararg types: XType): XDeclaredType {
+    override fun getDeclaredType(type: XTypeElement, vararg types: XType): KspDeclaredType {
         check(type is KspTypeElement) {
             "Unexpected type element type: $type"
         }
@@ -105,26 +104,19 @@ internal class KspProcessingEnv(
                 variance = Variance.INVARIANT
             )
         }
-        return wrapDeclared(
-            type.declaration.asType(typeArguments)
+        val result = wrap(
+            ksType = type.declaration.asType(typeArguments),
+            allowPrimitives = false
         )
+        check(result is KspDeclaredType) {
+            "Expected $type to be a declared type but a non-declared type ($result) is received"
+        }
+        return result
     }
 
     override fun getArrayType(type: XType): KspArrayType {
         check(type is KspType)
         return arrayTypeFactory.createWithComponentType(type)
-    }
-
-    /**
-     * Wraps the given `ksType` as a [KspDeclaredType].
-     * For the edge cases where `ksType` potentially represents a java primitive, it is always
-     * boxed.
-     */
-    fun wrapDeclared(ksType: KSType): KspDeclaredType {
-        return wrap(
-            ksType = ksType,
-            allowPrimitives = false
-        ) as KspDeclaredType
     }
 
     /**
@@ -169,7 +161,7 @@ internal class KspProcessingEnv(
      * Instead, it is passed in an argument to this function and public wrap functions make that
      * decision.
      */
-    private fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
+    fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
         val qName = ksType.declaration.qualifiedName?.asString()
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives

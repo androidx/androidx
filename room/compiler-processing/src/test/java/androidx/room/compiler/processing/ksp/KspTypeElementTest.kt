@@ -241,8 +241,14 @@ class KspTypeElementTest {
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
+                if (invocation.isKsp) {
+                    // ksp replaces these with Any?
+                    assertThat(field.type.typeName).isEqualTo(TypeName.OBJECT)
+                } else {
+                    assertThat(field.type.typeName).isEqualTo(TypeVariableName.get("T"))
+                }
             }
+
             subClass.getField("genericProp").let { field ->
                 // this is tricky because even though it is non-null it, it should still be boxed
                 assertThat(field.type.typeName).isEqualTo(TypeName.INT.box())

@@ -36,6 +36,9 @@ internal class KspPrimitiveType(
         get() = ksType.typeName(env.resolver).tryUnbox()
 
     override fun boxed(): XType {
-        return env.wrapDeclared(ksType)
+        return env.wrap(
+            ksType = ksType,
+            allowPrimitives = false
+        )
     }
 }

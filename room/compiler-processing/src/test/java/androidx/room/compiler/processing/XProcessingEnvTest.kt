@@ -17,8 +17,6 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.TestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestForFailedCompilation
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
@@ -203,17 +201,7 @@ class XProcessingEnvTest {
             """.trimIndent()
         )
         listOf(javaSrc, kotlinSrc).forEach { src ->
-            fun runTest(block: (TestInvocation) -> Unit) {
-                // KSP does not support generated code access in java sources yet
-                // TODO remove this check once the bug is fixed.
-                //  https://github.com/google/ksp/issues/119
-                if (src === javaSrc) {
-                    runProcessorTest(sources = listOf(src), block)
-                } else {
-                    runProcessorTestIncludingKsp(sources = listOf(src), block)
-                }
-            }
-            runTest { invocation ->
+            runProcessorTestIncludingKsp(sources = listOf(src)) { invocation ->
                 val className = ClassName.get("foo.bar", "ToBeGenerated")
                 if (invocation.processingEnv.findTypeElement(className) == null) {
                     // generate only if it doesn't exist to handle multi-round

@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
+import androidx.room.compiler.processing.isDeclared
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.className
@@ -459,8 +460,11 @@ class KspTypeTest {
                     .arguments
                     .single()
                     .type
-                    .let {
-                        invocation.processingEnv.wrapDeclared(it!!.resolve())
+                    .let { typeRef ->
+                        invocation.processingEnv.wrap(
+                            ksType = typeRef!!.resolve(),
+                            allowPrimitives = false
+                        )
                     }
             }
             assertThat(typeArgs["Bar"]!!.typeName)
@@ -496,9 +500,11 @@ class KspTypeTest {
                 ?.first {
                     it.simpleName.asString() == "wildcardMethod"
                 } ?: throw AssertionError("cannot find test method")
-            val paramType = invocation.processingEnv.wrapDeclared(
-                method.parameters.first().type!!.resolve()
+            val paramType = invocation.processingEnv.wrap(
+                ksType = method.parameters.first().type.resolve(),
+                allowPrimitives = false
             )
+            check(paramType.isDeclared())
             val arg1 = paramType.typeArguments.single()
             assertThat(arg1.typeName)
                 .isEqualTo(
@@ -517,7 +523,13 @@ class KspTypeTest {
 
     private fun TestInvocation.requireDeclaredPropertyType(name: String): KspDeclaredType {
         val prop = requireProperty(name)
-        return (processingEnv as KspProcessingEnv).wrapDeclared(prop.type.resolve())
+        val result =
+            (processingEnv as KspProcessingEnv).wrap(
+                ksType = prop.type.resolve(),
+                allowPrimitives = false
+            )
+        check(result is KspDeclaredType)
+        return result
     }
 
     private fun TestInvocation.requireProperty(name: String): KSPropertyDeclaration {
