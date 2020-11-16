@@ -20,7 +20,6 @@ apply from: "../playground-common/playground-include-settings.gradle"
 setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     // Compose projects are not supported in playground yet
-    if (name.startsWith(":navigation:navigation-compose")) return false
     if (name.startsWith(":navigation")) return true
     if (name.startsWith(":internal-testutils-navigation")) return true
     if (name.startsWith(":internal-testutils-runtime")) return true
