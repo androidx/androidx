@@ -257,7 +257,6 @@ package androidx.wear.complications.data {
     ctor public BackgroundImageComplicationData.Builder(androidx.wear.complications.data.BackgroundImage icon);
     method public androidx.wear.complications.data.BackgroundImageComplicationData build();
     method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
-    method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
 
@@ -402,7 +401,6 @@ package androidx.wear.complications.data {
     ctor public NoPermissionComplicationData.Builder();
     method public androidx.wear.complications.data.NoPermissionComplicationData build();
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
-    method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
   }
