@@ -30,12 +30,22 @@ internal class KspAnnotationBox<T : Annotation>(
 ) : XAnnotationBox<T> {
     override fun getAsType(methodName: String): XType? {
         val value = getFieldValue<KSType>(methodName)
-        return value?.let(env::wrapDeclared)
+        return value?.let {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = true
+            )
+        }
     }
 
     override fun getAsTypeList(methodName: String): List<XType> {
         val values = getFieldValue<List<KSType>>(methodName) ?: return emptyList()
-        return values.map(env::wrapDeclared)
+        return values.map {
+            env.wrap(
+                ksType = it,
+                allowPrimitives = true
+            )
+        }
     }
 
     override fun <R : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<R> {

@@ -23,7 +23,18 @@ import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.kspSourcesDir
 import com.tschuchort.compiletesting.symbolProcessors
+import java.io.File
+
+// TODO get rid of these once kotlin compile testing supports two step compilation for KSP.
+//  https://github.com/tschuchortdev/kotlin-compile-testing/issues/72
+private val KotlinCompilation.kspJavaSourceDir: File
+    get() = kspSourcesDir.resolve("java")
+
+private val KotlinCompilation.kspKotlinSourceDir: File
+    get() = kspSourcesDir.resolve("kotlin")
 
 private fun compileSources(
     sources: List<Source>,
@@ -66,7 +77,7 @@ private fun compileWithKapt(
 private fun compileWithKsp(
     sources: List<Source>,
     handler: (TestInvocation) -> Unit
-): Pair<SyntheticKspProcessor, KotlinCompilation> {
+): Pair<SyntheticKspProcessor, KotlinCompilation.Result> {
     @Suppress("NAME_SHADOWING")
     val sources = if (sources.none { it is Source.KotlinSource }) {
         // looks like this requires a kotlin source file
@@ -76,23 +87,44 @@ private fun compileWithKsp(
         sources
     }
     val syntheticKspProcessor = SyntheticKspProcessor(handler)
-    val compilation = KotlinCompilation()
-    sources.forEach {
-        compilation.workingDir.resolve("sources")
-            .resolve(it.relativePath())
-            .parentFile
-            .mkdirs()
+    fun prepareCompilation(): KotlinCompilation {
+        val compilation = KotlinCompilation()
+        sources.forEach {
+            compilation.workingDir.resolve("sources")
+                .resolve(it.relativePath())
+                .parentFile
+                .mkdirs()
+        }
+        compilation.sources = sources.map {
+            it.toKotlinSourceFile()
+        }
+        compilation.jvmDefault = "enable"
+        compilation.jvmTarget = "1.8"
+        compilation.inheritClassPath = true
+        compilation.verbose = false
+        return compilation
     }
-    compilation.sources = sources.map {
-        it.toKotlinSourceFile()
-    }
-    compilation.symbolProcessors = listOf(syntheticKspProcessor)
-    compilation.jvmDefault = "enable"
-    compilation.jvmTarget = "1.8"
-    compilation.inheritClassPath = true
-    compilation.verbose = false
+    val kspCompilation = prepareCompilation()
+    kspCompilation.symbolProcessors = listOf(syntheticKspProcessor)
+    kspCompilation.compile()
+    // ignore KSP result for now because KSP stops compilation, which might create false negatives
+    // when java code accesses kotlin code.
+    // TODO:  fix once https://github.com/tschuchortdev/kotlin-compile-testing/issues/72 is fixed
 
-    return syntheticKspProcessor to compilation
+    // after ksp, compile without ksp with KSP's output as input
+    val finalCompilation = prepareCompilation()
+    // build source files from generated code
+    finalCompilation.sources += kspCompilation.kspJavaSourceDir.collectSourceFiles() +
+        kspCompilation.kspKotlinSourceDir.collectSourceFiles()
+    return syntheticKspProcessor to finalCompilation.compile()
+}
+
+private fun File.collectSourceFiles(): List<SourceFile> {
+    return walkTopDown().filter {
+        it.isFile
+    }.map { file ->
+        SourceFile.fromPath(file)
+    }.toList()
 }
 
 fun runProcessorTest(
@@ -191,8 +223,7 @@ fun runKspTest(
     succeed: Boolean,
     handler: (TestInvocation) -> Unit
 ) {
-    val (kspProcessor, kotlinCompilation) = compileWithKsp(sources, handler)
-    val compilationResult = kotlinCompilation.compile()
+    val (kspProcessor, compilationResult) = compileWithKsp(sources, handler)
     if (succeed) {
         assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
     } else {

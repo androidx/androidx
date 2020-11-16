@@ -73,7 +73,15 @@ internal class KspTypeElement(
     }
 
     override val type: KspDeclaredType by lazy {
-        env.wrapDeclared(declaration.asStarProjectedType())
+        val result = env.wrap(
+            ksType = declaration.asStarProjectedType(),
+            allowPrimitives = false
+        )
+        check(result is KspDeclaredType) {
+            "Internal error, expected type of $this to resolve to a declared type but it resolved" +
+                " to $result (${result::class})"
+        }
+        result
     }
 
     override val superType: XType? by lazy {
@@ -81,7 +89,10 @@ internal class KspTypeElement(
             val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
             type.classKind == ClassKind.CLASS
         }?.let {
-            env.wrapDeclared(it.resolve())
+            env.wrap(
+                ksType = it.resolve(),
+                allowPrimitives = false
+            )
         }
     }
 
@@ -190,12 +201,7 @@ internal class KspTypeElement(
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {
-        val primary = if (declaration.declaredConstructors().isEmpty() && !isInterface()) {
-            declaration.primaryConstructor
-        } else {
-            declaration.getNonSyntheticPrimaryConstructor()
-        }
-        return primary?.let {
+        return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
                 containing = this,
@@ -288,5 +294,5 @@ internal class KspTypeElement(
     private fun KSClassDeclaration.declaredConstructors() = this.getDeclaredFunctions()
         .filter {
             it.simpleName == this.simpleName
-        }.distinct() // workaround for: https://github.com/google/ksp/issues/99
+        }
 }
