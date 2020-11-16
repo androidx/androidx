@@ -49,7 +49,7 @@ tasks.withType(KotlinCompile).configureEach {
 androidx {
     name = "AndroidX Leanback Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LEANBACK
+    mavenVersion = LibraryVersions.LEANBACK_PAGING
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2020"
     description = "AndroidX Leanback Paging"
