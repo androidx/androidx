@@ -43,6 +43,6 @@ androidx {
 
 android {
     defaultConfig {
-        minSdkVersion 27
+        minSdkVersion 26
     }
 }

@@ -19,7 +19,7 @@ package androidx.wear.watchface.test
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -83,34 +83,36 @@ class WatchFaceControlServiceTest {
     @Test
     fun createHeadlessWatchFaceInstance() {
         val instance = createInstance(100, 100)
-        val bitmap = instance.takeWatchFaceScreenshot(
-            WatchfaceScreenshotParams(
-                RenderParameters(
-                    DrawMode.INTERACTIVE,
-                    RenderParameters.DRAW_ALL_LAYERS,
-                    null
-                ).toWireFormat(),
-                100,
-                1234567890,
-                null,
-                listOf(
-                    IdAndComplicationDataWireFormat(
-                        EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                        ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                            .setTitle(ComplicationText.plain("23rd"))
-                            .build()
-                            .asWireComplicationData()
-                    ),
-                    IdAndComplicationDataWireFormat(
-                        EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                        ShortTextComplicationData.Builder(ComplicationText.plain("100"))
-                            .setTitle(ComplicationText.plain("Steps"))
-                            .build()
-                            .asWireComplicationData()
+        val bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            instance.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    RenderParameters(
+                        DrawMode.INTERACTIVE,
+                        RenderParameters.DRAW_ALL_LAYERS,
+                        null
+                    ).toWireFormat(),
+                    100,
+                    1234567890,
+                    null,
+                    listOf(
+                        IdAndComplicationDataWireFormat(
+                            EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                            ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                                .setTitle(ComplicationText.plain("23rd"))
+                                .build()
+                                .asWireComplicationData()
+                        ),
+                        IdAndComplicationDataWireFormat(
+                            EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
+                            ShortTextComplicationData.Builder(ComplicationText.plain("100"))
+                                .setTitle(ComplicationText.plain("Steps"))
+                                .build()
+                                .asWireComplicationData()
+                        )
                     )
                 )
             )
-        ).ashmemCompressedImageBundleToBitmap()
+        )
 
         bitmap.assertAgainstGolden(screenshotRule, "service_interactive")
 
@@ -120,23 +122,25 @@ class WatchFaceControlServiceTest {
     @Test
     fun testCommandTakeComplicationScreenShot() {
         val instance = createInstance(400, 400)
-        val bitmap = instance.takeComplicationScreenshot(
-            ComplicationScreenshotParams(
-                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                RenderParameters(
-                    DrawMode.AMBIENT,
-                    RenderParameters.DRAW_ALL_LAYERS,
+        val bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            instance.takeComplicationScreenshot(
+                ComplicationScreenshotParams(
+                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                    RenderParameters(
+                        DrawMode.AMBIENT,
+                        RenderParameters.DRAW_ALL_LAYERS,
+                        null
+                    ).toWireFormat(),
+                    100,
+                    123456789,
+                    ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
+                        .setTitle(ComplicationText.plain("23rd"))
+                        .build()
+                        .asWireComplicationData(),
                     null
-                ).toWireFormat(),
-                100,
-                123456789,
-                ShortTextComplicationData.Builder(ComplicationText.plain("Mon"))
-                    .setTitle(ComplicationText.plain("23rd"))
-                    .build()
-                    .asWireComplicationData(),
-                null
+                )
             )
-        ).ashmemCompressedImageBundleToBitmap()
+        )
 
         bitmap.assertAgainstGolden(
             screenshotRule,

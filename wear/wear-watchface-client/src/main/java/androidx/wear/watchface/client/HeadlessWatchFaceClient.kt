@@ -18,7 +18,7 @@ package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
 import android.os.IBinder
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntRange
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
@@ -124,20 +124,22 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idToComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = iHeadlessWatchFace.takeWatchFaceScreenshot(
-        WatchfaceScreenshotParams(
-            renderParameters.toWireFormat(),
-            compressionQuality,
-            calendarTimeMillis,
-            userStyle?.toWireFormat(),
-            idToComplicationData?.map {
-                IdAndComplicationDataWireFormat(
-                    it.key,
-                    it.value.asWireComplicationData()
-                )
-            }
+    ): Bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        iHeadlessWatchFace.takeWatchFaceScreenshot(
+            WatchfaceScreenshotParams(
+                renderParameters.toWireFormat(),
+                compressionQuality,
+                calendarTimeMillis,
+                userStyle?.toWireFormat(),
+                idToComplicationData?.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                }
+            )
         )
-    ).ashmemCompressedImageBundleToBitmap()
+    )
 
     override fun takeComplicationScreenshot(
         complicationId: Int,
@@ -147,16 +149,18 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
         calendarTimeMillis: Long,
         complicationData: ComplicationData,
         userStyle: UserStyle?,
-    ): Bitmap? = iHeadlessWatchFace.takeComplicationScreenshot(
-        ComplicationScreenshotParams(
-            complicationId,
-            renderParameters.toWireFormat(),
-            compressionQuality,
-            calendarTimeMillis,
-            complicationData.asWireComplicationData(),
-            userStyle?.toWireFormat(),
+    ): Bitmap? = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        iHeadlessWatchFace.takeComplicationScreenshot(
+            ComplicationScreenshotParams(
+                complicationId,
+                renderParameters.toWireFormat(),
+                compressionQuality,
+                calendarTimeMillis,
+                complicationData.asWireComplicationData(),
+                userStyle?.toWireFormat(),
+            )
         )
-    ).ashmemCompressedImageBundleToBitmap()
+    )
 
     override fun close() {
         iHeadlessWatchFace.release()
