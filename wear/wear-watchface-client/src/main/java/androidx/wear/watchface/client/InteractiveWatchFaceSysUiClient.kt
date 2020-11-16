@@ -33,6 +33,7 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
+import java.util.Objects
 
 /**
  * The type of tap event passed to the watch face.
@@ -100,6 +101,20 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
          */
         public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
             text.getTextAt(resources, dateTimeMillis)
+
+        override fun equals(other: Any?): Boolean =
+            other is ContentDescriptionLabel &&
+                text == other.text &&
+                bounds == other.bounds &&
+                tapAction == other.tapAction
+
+        override fun hashCode(): Int {
+            return Objects.hash(
+                text,
+                bounds,
+                tapAction
+            )
+        }
     }
 
     /**
