@@ -30,20 +30,20 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compiler:compiler")
+    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
 
     implementation(KOTLIN_STDLIB)
-    api project(":compose:runtime:runtime")
-    api project(":compose:runtime:runtime-saved-instance-state")
-    api project(":compose:ui:ui")
+    api projectOrArtifact(":compose:runtime:runtime")
+    api projectOrArtifact(":compose:runtime:runtime-saved-instance-state")
+    api projectOrArtifact(":compose:ui:ui")
     api "androidx.navigation:navigation-runtime-ktx:2.3.1"
 
-    androidTestImplementation project(":compose:material:material")
+    androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation 'androidx.navigation:navigation-testing:2.3.1'
-    androidTestImplementation project(path: ':internal-testutils-navigation'), {
+    androidTestImplementation projectOrArtifact(":internal-testutils-navigation"), {
         exclude group: 'androidx.navigation', module: 'navigation-common-ktx'
     }
-    androidTestImplementation project(":compose:ui:ui-test-junit4")
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
