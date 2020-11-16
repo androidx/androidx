@@ -53,7 +53,7 @@ import androidx.wear.R;
 public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutWidget {
     private static final float UNSET_ANCHOR_DEGREE = -1f;
     private static final int UNSET_ANCHOR_TYPE = -1;
-    private static final float UNSET_SWEEP_DEGREE = -1f;
+    private static final float MIN_SWEEP_DEGREE = 0f;
     private static final float MAX_SWEEP_DEGREE = 359.9f;
     private static final float DEFAULT_TEXT_SIZE = 24f;
     @ColorInt
@@ -83,7 +83,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     private int mAnchorType = UNSET_ANCHOR_TYPE;
     private float mAnchorAngleDegrees = UNSET_ANCHOR_DEGREE;
-    private float mSweepDegrees = UNSET_SWEEP_DEGREE;
+    private float mMinSweepDegrees = MIN_SWEEP_DEGREE;
+    private float mMaxSweepDegrees = MAX_SWEEP_DEGREE;
     private String mText = "";
     private float mTextSize = DEFAULT_TEXT_SIZE;
     @Nullable
@@ -168,7 +169,16 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
 
         // read the custom WearCurvedTextView attributes
-        mSweepDegrees = a.getFloat(R.styleable.WearCurvedTextView_sweepDegrees, UNSET_SWEEP_DEGREE);
+        mMaxSweepDegrees =
+                a.getFloat(R.styleable.WearCurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
+        mMaxSweepDegrees = min(mMaxSweepDegrees, MAX_SWEEP_DEGREE);
+        mMinSweepDegrees =
+                a.getFloat(R.styleable.WearCurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
+        if (mMinSweepDegrees > mMaxSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
+            );
+        }
         mAnchorType = a.getInt(R.styleable.WearCurvedTextView_anchorPosition, UNSET_ANCHOR_TYPE);
         mAnchorAngleDegrees = a.getFloat(
                 R.styleable.WearCurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE
@@ -239,9 +249,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         mTextSweepDegrees = min(
                 getWidthSelf() / mPathRadius / (float) Math.PI * 180f,
                 MAX_SWEEP_DEGREE);
-        mBackgroundSweepDegrees =
-                (mSweepDegrees == UNSET_SWEEP_DEGREE) ? mTextSweepDegrees
-                        : min(mSweepDegrees, MAX_SWEEP_DEGREE);
+        mBackgroundSweepDegrees = max(min(mMaxSweepDegrees, mTextSweepDegrees), mMinSweepDegrees);
     }
 
     private float getWidthSelf() {
@@ -286,16 +294,14 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         mLastUsedTextAlignment = (int) getTextAlignment();
         mPaint.setTextSize(mTextSize);
 
-        float maxSweepDegrees =
-                mSweepDegrees == UNSET_SWEEP_DEGREE ? MAX_SWEEP_DEGREE : mSweepDegrees;
-        if (mTextSweepDegrees <= maxSweepDegrees) {
+        if (mTextSweepDegrees <= mMaxSweepDegrees) {
             mTextToDraw = mText;
         } else {
             mTextToDraw = ellipsize(
-                    (int) (maxSweepDegrees / 180f * Math.PI * mPathRadius) - getPaddingLeft()
+                    (int) (mMaxSweepDegrees / 180f * Math.PI * mPathRadius) - getPaddingLeft()
                             - getPaddingRight()
             );
-            mTextSweepDegrees = maxSweepDegrees;
+            mTextSweepDegrees = mMaxSweepDegrees;
         }
 
         float clockwiseFactor = mClockwise ? 1f : -1f;
@@ -678,14 +684,34 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doRedraw();
     }
 
+    /** returns the maximum sweep angle in degrees for rendering the text */
+    public float getMaxSweepDegrees() {
+        return mMaxSweepDegrees;
+    }
+
+    /** sets the maximum sweep angle in degrees for rendering the text */
+    public void setMaxSweepDegrees(float value) {
+        if (value < mMinSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MaxSweepDegrees cannot be smaller than MinSweepDegrees"
+            );
+        }
+        mMaxSweepDegrees = min(value, MAX_SWEEP_DEGREE);
+        doUpdate();
+    }
     /** returns the sweep angle in degrees for rendering the text */
-    public float getSweepDegrees() {
-        return mSweepDegrees;
+    public float getMinSweepDegrees() {
+        return mMinSweepDegrees;
     }
 
     /** sets the sweep angle in degrees for rendering the text */
-    public void setSweepDegrees(float value) {
-        mSweepDegrees = value;
+    public void setMinSweepDegrees(float value) {
+        if (value > mMaxSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
+            );
+        }
+        mMinSweepDegrees = value;
         doUpdate();
     }
 

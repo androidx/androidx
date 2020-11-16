@@ -62,29 +62,32 @@ class WearCurvedTextViewTest {
         bitmap.assertAgainstGolden(screenshotRule, key)
     }
 
-    private fun createThree() = listOf(
+    private fun createThree(centerStr: String, leftStr: String, rightStr: String) = listOf(
         WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = "Center"
+            text = centerStr
             textColor = Color.BLUE
             setBackgroundColor(Color.rgb(100, 100, 0))
             anchorType = WearArcLayout.ANCHOR_CENTER
             anchorAngleDegrees = 0f
         },
         WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = "Left"
+            text = leftStr
             textColor = Color.RED
             setBackgroundColor(Color.rgb(0, 100, 100))
             anchorAngleDegrees = 240f
             anchorType = WearArcLayout.ANCHOR_START
         },
         WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
-            text = "Right"
+            text = rightStr
             textColor = Color.GREEN
             setBackgroundColor(Color.rgb(100, 0, 100))
             anchorType = WearArcLayout.ANCHOR_END
             anchorAngleDegrees = 120f
         }
     )
+
+    private fun createThree(): List<WearCurvedTextView> =
+        createThree("Center", "Left", "Right")
 
     @Test
     @Throws(Exception::class)
@@ -102,12 +105,54 @@ class WearCurvedTextViewTest {
 
     @Test
     @Throws(Exception::class)
-    fun testSweepDegree() {
+    fun testMaxSweepDegree() {
+        doOneTest(
+            "max_sweep_degree_screenshot",
+            createThree(
+                "center long string",
+                "left string",
+                "right"
+            ).apply {
+                forEach {
+                    it.maxSweepDegrees = 55f
+                    it.ellipsize = TextUtils.TruncateAt.END
+                }
+            }
+        )
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMinSweepDegree() {
+        doOneTest(
+            "min_sweep_degree_screenshot",
+            createThree(
+                "center long string",
+                "left string",
+                "right"
+            ).apply {
+                forEach {
+                    it.minSweepDegrees = 55f
+                    it.ellipsize = TextUtils.TruncateAt.END
+                }
+            }
+        )
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun tesSweepDegree() {
         doOneTest(
             "sweep_degree_screenshot",
-            createThree().apply {
+            createThree(
+                "center long string",
+                "left string",
+                "right"
+            ).apply {
                 forEachIndexed { ix, v ->
-                    v.sweepDegrees = 50f
+                    v.minSweepDegrees = 50f
+                    v.maxSweepDegrees = 60f
+                    v.ellipsize = TextUtils.TruncateAt.END
                     v.textAlignment = listOf(
                         View.TEXT_ALIGNMENT_CENTER,
                         View.TEXT_ALIGNMENT_TEXT_START,
@@ -152,7 +197,7 @@ class WearCurvedTextViewTest {
                     )
                 )
                 .map
-                { (v, e) -> v.ellipsize = e ; v.sweepDegrees = 50f; v.text += " but Longer" ; v }
+                { (v, e) -> v.ellipsize = e ; v.maxSweepDegrees = 50f; v.text += " but Longer" ; v }
         )
     }
 
