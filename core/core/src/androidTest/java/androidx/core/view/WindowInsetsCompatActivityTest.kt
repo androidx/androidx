@@ -34,7 +34,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
@@ -45,6 +44,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeThat
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -57,14 +57,14 @@ import java.util.concurrent.atomic.AtomicReference
 @RequiresApi(16) // View.setSystemUiVisibility
 @LargeTest
 @RunWith(Parameterized::class)
-class WindowInsetsCompatActivityTest(
+public class WindowInsetsCompatActivityTest(
     private val softInputMode: Int,
     private val orientation: Int
 ) {
     private lateinit var scenario: ActivityScenario<WindowInsetsCompatActivity>
 
     @Before
-    fun setup() {
+    public fun setup() {
         scenario = ActivityScenario.launch(WindowInsetsCompatActivity::class.java)
 
         scenario.withActivity {
@@ -84,13 +84,18 @@ class WindowInsetsCompatActivityTest(
         onView(withId(R.id.edittext)).perform(closeSoftKeyboard())
     }
 
+    @After
+    public fun cleanup() {
+        scenario.close()
+    }
+
     /**
      * IME visibility is only reliable on API 23+, where we have access to the root WindowInsets
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
-    fun ime_viewInsets() {
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
+    public fun ime_viewInsets() {
         // Insets are only dispatched to views with adjustResize
         assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
         // Test do not currently work on Cuttlefish
@@ -134,8 +139,8 @@ class WindowInsetsCompatActivityTest(
      */
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
-    fun ime_rootInsets() {
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
+    public fun ime_rootInsets() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
 
@@ -178,7 +183,8 @@ class WindowInsetsCompatActivityTest(
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun systemBars_viewInsets() {
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
+    public fun systemBars_viewInsets() {
         // Insets are only dispatched to views with adjustResize
         assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
         // Test do not currently work on Cuttlefish
@@ -204,9 +210,9 @@ class WindowInsetsCompatActivityTest(
     }
 
     @SdkSuppress(minSdkVersion = 23)
-    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
+    @Ignore("IME tests are inherently flaky, but still useful for local testing.")
     @Test
-    fun systemBars_rootInsets() {
+    public fun systemBars_rootInsets() {
         // Test do not currently work on Cuttlefish
         assumeNotCuttlefish()
 
@@ -247,25 +253,9 @@ class WindowInsetsCompatActivityTest(
         }
     }
 
-    @After
-    fun cleanup() {
-        scenario.close()
-    }
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters
-        fun data() = listOf(
-            arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
-            arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT),
-            arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
-            arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-        )
-    }
-
     @Test
     @SdkSuppress(minSdkVersion = 20)
-    fun equality_when_converted() {
+    public fun equality_when_converted() {
         // Insets are only dispatched to views with adjustResize
         assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
         val container: View = scenario.withActivity { findViewById(R.id.container) }
@@ -279,6 +269,17 @@ class WindowInsetsCompatActivityTest(
         val convertedInsets = WindowInsetsCompat.toWindowInsetsCompat(platformInsets, container)
         assertEquals(originalInsets.getInsets(Type.ime()), convertedInsets.getInsets(Type.ime()))
         assertEquals(originalInsets, convertedInsets)
+    }
+
+    public companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        public fun data(): List<Array<Int>> = listOf(
+            arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
+            arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT),
+            arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
+            arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        )
     }
 }
 
