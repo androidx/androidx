@@ -39,9 +39,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -50,75 +50,74 @@ import java.util.Map;
 public final class Camera2CameraFilterTest {
     private static final String BACK_ID = "0";
     private static final String FRONT_ID = "1";
-    private static final String EXTRA_ID = "2";
 
     private LinkedHashSet<CameraInternal> mCameras = new LinkedHashSet<>();
     private CameraInternal mBackCamera;
     private CameraInternal mFrontCamera;
-    private LinkedHashMap<String, CameraCharacteristics> mIdCharMap = new LinkedHashMap<>();
+    private List<Camera2CameraInfo> mCameraInfos = new ArrayList<>();
+    private Camera2CameraInfo mCameraInfoBack;
+    private Camera2CameraInfo mCameraInfoFront;
 
     @Before
     public void setUp() {
-        Camera2CameraInfoImpl mockCameraInfoBack = mock(Camera2CameraInfoImpl.class);
-        when(mockCameraInfoBack.getCameraId()).thenReturn(BACK_ID);
-        mBackCamera = new FakeCamera(null, mockCameraInfoBack);
-        mCameras.add(mBackCamera);
-        CameraCharacteristics mockCharacteristicsBack = mock(CameraCharacteristics.class);
-        when(mockCharacteristicsBack.get(
+        CameraCharacteristicsCompat mockCharacteristicsCompatBack =
+                mock(CameraCharacteristicsCompat.class);
+        when(mockCharacteristicsCompatBack.get(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
-        mIdCharMap.put(BACK_ID, mockCharacteristicsBack);
-        CameraCharacteristicsCompat characteristicsCompatBack =
-                mock(CameraCharacteristicsCompat.class);
-        when(characteristicsCompatBack.toCameraCharacteristics())
-                .thenReturn(mockCharacteristicsBack);
-        when(mockCameraInfoBack.getCameraCharacteristicsCompat())
-                .thenReturn(characteristicsCompatBack);
+        Camera2CameraInfoImpl mockCameraInfoImplBack = mock(Camera2CameraInfoImpl.class);
+        when(mockCameraInfoImplBack.getCameraId()).thenReturn(BACK_ID);
+        when(mockCameraInfoImplBack.getCameraCharacteristicsCompat())
+                .thenReturn(mockCharacteristicsCompatBack);
+        mCameraInfoBack = new Camera2CameraInfo(mockCameraInfoImplBack);
+        when(mockCameraInfoImplBack.getCamera2CameraInfo()).thenReturn(mCameraInfoBack);
+        mCameraInfos.add(mCameraInfoBack);
+        mBackCamera = new FakeCamera(null, mockCameraInfoImplBack);
+        mCameras.add(mBackCamera);
 
-        Camera2CameraInfoImpl mockCameraInfoFront = mock(Camera2CameraInfoImpl.class);
-        when(mockCameraInfoFront.getCameraId()).thenReturn(FRONT_ID);
-        mFrontCamera = new FakeCamera(null, mockCameraInfoFront);
-        mCameras.add(mFrontCamera);
-        CameraCharacteristics mockCharacteristicsFront = mock(CameraCharacteristics.class);
-        when(mockCharacteristicsFront.get(
+        CameraCharacteristicsCompat mCharacteristicsCompatFront =
+                mock(CameraCharacteristicsCompat.class);
+        when(mCharacteristicsCompatFront.get(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
-        mIdCharMap.put(FRONT_ID, mockCharacteristicsFront);
-        CameraCharacteristicsCompat characteristicsCompatFront =
-                mock(CameraCharacteristicsCompat.class);
-        when(characteristicsCompatFront.toCameraCharacteristics())
-                .thenReturn(mockCharacteristicsFront);
-        when(mockCameraInfoFront.getCameraCharacteristicsCompat())
-                .thenReturn(characteristicsCompatFront);
-
+        Camera2CameraInfoImpl mockCameraInfoImplFront = mock(Camera2CameraInfoImpl.class);
+        when(mockCameraInfoImplFront.getCameraId()).thenReturn(FRONT_ID);
+        when(mockCameraInfoImplFront.getCameraCharacteristicsCompat())
+                .thenReturn(mCharacteristicsCompatFront);
+        mCameraInfoFront = new Camera2CameraInfo(mockCameraInfoImplFront);
+        when(mockCameraInfoImplFront.getCamera2CameraInfo()).thenReturn(mCameraInfoFront);
+        mCameraInfos.add(mCameraInfoFront);
+        mFrontCamera = new FakeCamera(null, mockCameraInfoImplFront);
+        mCameras.add(mFrontCamera);
     }
 
     @Test
     public void canFilterWithCamera2Filter() {
-        Camera2CameraFilter.Camera2Filter camera2Filter = (idCharMap) -> {
-            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
-            for (Map.Entry<String, CameraCharacteristics> entry : idCharMap.entrySet()) {
-                if (entry.getValue().get(
+        Camera2CameraFilter.Camera2Filter camera2Filter = cameraInfos -> {
+            List<Camera2CameraInfo> output = new ArrayList<>();
+            for (Camera2CameraInfo cameraInfo : cameraInfos) {
+                if (cameraInfo.getCameraCharacteristic(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL).equals(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)) {
-                    resultMap.put(entry.getKey(), entry.getValue());
+                    output.add(cameraInfo);
                 }
             }
-            return resultMap;
+            return output;
         };
 
-        assertThat(camera2Filter.filter(mIdCharMap).keySet()).containsExactly(FRONT_ID);
+        assertThat(camera2Filter.filter(mCameraInfos)).containsExactly(mCameraInfoFront);
     }
 
     @Test
     public void canSelectWithCameraSelector() {
-        CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
-            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
-            if (idCharMap.containsKey(FRONT_ID)) {
-                CameraCharacteristics characteristics = idCharMap.get(FRONT_ID);
-                resultMap.put(FRONT_ID, characteristics);
+        CameraFilter filter = Camera2CameraFilter.createCameraFilter(cameraInfos -> {
+            List<Camera2CameraInfo> output = new ArrayList<>();
+            for (Camera2CameraInfo cameraInfo : cameraInfos) {
+                if (cameraInfo.getCameraId().equals(FRONT_ID)) {
+                    output.add(cameraInfo);
+                }
             }
-            return resultMap;
+            return output;
         });
 
         CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
@@ -127,31 +126,30 @@ public final class Camera2CameraFilterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void exception_extraOutputCameraId() {
-        CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
-            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
+    public void exception_extraOutputCameraInfo() {
+        CameraFilter filter = Camera2CameraFilter.createCameraFilter(cameraInfos -> {
+            List<Camera2CameraInfo> output = new ArrayList<>();
             // Add an extra camera id to output.
-            resultMap.put(EXTRA_ID, null);
-            return resultMap;
+            output.add(mock(Camera2CameraInfo.class));
+            return output;
         });
+
         CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
                 filter).build();
         cameraSelector.select(mCameras);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void exception_extraInputAndOutputCameraId() {
-        CameraFilter filter = Camera2CameraFilter.createCameraFilter((idCharMap) -> {
+    @Test(expected = UnsupportedOperationException.class)
+    public void exception_extraInputCameraInfo() {
+        CameraFilter filter = Camera2CameraFilter.createCameraFilter(cameraInfos -> {
             // Add an extra camera id to input.
-            idCharMap.put(EXTRA_ID, null);
-            LinkedHashMap<String, CameraCharacteristics> resultMap = new LinkedHashMap<>();
-            // Add an extra camera id to output.
-            resultMap.put(EXTRA_ID, null);
-            return resultMap;
+            cameraInfos.add(mock(Camera2CameraInfo.class));
+            return cameraInfos;
         });
+
         CameraSelector cameraSelector = new CameraSelector.Builder().addCameraFilter(
                 filter).build();
-        // Should throw an exception even the extra camera id is also added to the input.
+        // Should throw an exception if the input is modified.
         cameraSelector.select(mCameras);
     }
 }

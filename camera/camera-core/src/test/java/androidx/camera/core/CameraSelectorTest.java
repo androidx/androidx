@@ -35,7 +35,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(RobolectricTestRunner.class)
@@ -126,29 +128,26 @@ public class CameraSelectorTest {
     @Test(expected = IllegalArgumentException.class)
     public void exception_extraOutputCamera() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.addCameraFilter((cameras) -> {
-            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
+        cameraSelectorBuilder.addCameraFilter(cameraInfos -> {
+            List<CameraInfo> result = new ArrayList<>();
             // Add an extra camera to output.
-            resultCameras.add(new FakeCamera());
-            return resultCameras;
+            result.add(new FakeCameraInfoInternal());
+            return result;
         });
         cameraSelectorBuilder.build().select(mCameras);
     }
 
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
-    @Test(expected = IllegalArgumentException.class)
-    public void exception_extraInputAndOutputCamera() {
+    @Test(expected = UnsupportedOperationException.class)
+    public void exception_extraInputCamera() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
-        cameraSelectorBuilder.addCameraFilter((cameras) -> {
-            Camera camera = new FakeCamera();
+        cameraSelectorBuilder.addCameraFilter(cameraInfos -> {
+            CameraInfo cameraInfo = new FakeCameraInfoInternal();
             // Add an extra camera to input.
-            cameras.add(camera);
-            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
-            // Add an extra camera to output.
-            resultCameras.add(camera);
-            return resultCameras;
+            cameraInfos.add(cameraInfo);
+            return cameraInfos;
         });
-        // Should throw an exception even the extra camera is also added to the input.
+        // Should throw an exception if the input is modified.
         cameraSelectorBuilder.build().select(mCameras);
     }
 }
