@@ -63,7 +63,6 @@ import com.google.android.icing.proto.StatusProto;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -430,8 +429,9 @@ public final class AppSearchImpl {
         SearchResultProto searchResultProto;
         mReadWriteLock.readLock().lock();
         try {
-            // rewriteSearchSpecForDatabases will return false if none of the databases have
-            // documents, so we can return an empty SearchResult and skip sending request to Icing.
+            // rewriteSearchSpecForDatabases will return false if none of the databases that the
+            // client is trying to search on exist, so we can return an empty SearchResult and skip
+            // sending request to Icing.
             // We use the mNamespaceMap.keySet here because it's the smaller set of valid databases
             // that could exist.
             if (!rewriteSearchSpecForDatabases(searchSpecBuilder, databases)) {
@@ -732,7 +732,7 @@ public final class AppSearchImpl {
             @NonNull SearchSpecProto.Builder searchSpecBuilder,
             @NonNull Set<String> databaseNames) {
         // Create a copy since retainAll() modifies the original set.
-        Set<String> existingDatabases = new HashSet<>(mNamespaceMap.keySet());
+        Set<String> existingDatabases = new ArraySet<>(mNamespaceMap.keySet());
         existingDatabases.retainAll(databaseNames);
 
         if (existingDatabases.isEmpty()) {
@@ -750,17 +750,17 @@ public final class AppSearchImpl {
         // Rewrite filters to include a database prefix.
         for (String databaseName : existingDatabases) {
             Set<String> existingSchemaTypes = mSchemaMap.get(databaseName);
+            String databaseNamePrefix = getDatabasePrefix(databaseName);
             if (schemaTypeFilters.isEmpty()) {
                 // Include all schema types
                 searchSpecBuilder.addAllSchemaTypeFilters(existingSchemaTypes);
             } else {
                 // Qualify the given schema types
-                for (String schemaType : schemaTypeFilters) {
-                    String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
+                for (int i = 0; i < schemaTypeFilters.size(); i++) {
+                    String qualifiedType = databaseNamePrefix + schemaTypeFilters.get(i);
                     if (existingSchemaTypes.contains(qualifiedType)) {
                         searchSpecBuilder.addSchemaTypeFilters(qualifiedType);
                     }
-
                 }
             }
 
@@ -770,8 +770,8 @@ public final class AppSearchImpl {
                 searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
             } else {
                 // Qualify the given namespaces.
-                for (String namespace : namespaceFilters) {
-                    String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
+                for (int i = 0; i < namespaceFilters.size(); i++) {
+                    String qualifiedNamespace = databaseNamePrefix + namespaceFilters.get(i);
                     if (existingNamespaces.contains(qualifiedNamespace)) {
                         searchSpecBuilder.addNamespaceFilters(qualifiedNamespace);
                     }
@@ -843,7 +843,7 @@ public final class AppSearchImpl {
     private void addToMap(Map<String, Set<String>> map, String databaseName, String prefixedValue) {
         Set<String> values = map.get(databaseName);
         if (values == null) {
-            values = new HashSet<>();
+            values = new ArraySet<>();
             map.put(databaseName, values);
         }
         values.add(prefixedValue);
