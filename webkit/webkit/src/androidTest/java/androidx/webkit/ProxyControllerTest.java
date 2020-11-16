@@ -16,6 +16,9 @@
 
 package androidx.webkit;
 
+import static androidx.webkit.ProxyConfig.MATCH_ALL_SCHEMES;
+import static androidx.webkit.ProxyConfig.MATCH_HTTP;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -23,8 +26,10 @@ import static org.junit.Assert.fail;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.webkit.internal.ProxyControllerImpl;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockWebServer;
+
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -220,6 +226,35 @@ public class ProxyControllerTest {
                 // Expected
             }
         }
+    }
+
+    @Test
+    public void testProxyRulesToArray() throws Exception {
+        String[][] actual;
+        String[][] expected;
+
+        actual = ProxyControllerImpl.proxyRulesToStringArray(
+                new ProxyConfig.Builder().build().getProxyRules());
+        expected = new String[][]{};
+        Assert.assertArrayEquals(expected, actual);
+
+        actual = ProxyControllerImpl.proxyRulesToStringArray(
+                new ProxyConfig.Builder().addProxyRule("proxy1.com").build().getProxyRules());
+        expected = new String[][]{{MATCH_ALL_SCHEMES, "proxy1.com"}};
+        Assert.assertArrayEquals(expected, actual);
+
+        actual = ProxyControllerImpl.proxyRulesToStringArray(
+                new ProxyConfig.Builder().addProxyRule("proxy1.com").addProxyRule(
+                        "proxy2.com").build().getProxyRules());
+        expected = new String[][]{{MATCH_ALL_SCHEMES, "proxy1.com"},
+                {MATCH_ALL_SCHEMES, "proxy2.com"}};
+        Assert.assertArrayEquals(expected, actual);
+
+        actual = ProxyControllerImpl.proxyRulesToStringArray(
+                new ProxyConfig.Builder().addProxyRule("proxy1.com").addProxyRule("proxy2.com",
+                        MATCH_HTTP).build().getProxyRules());
+        expected = new String[][]{{MATCH_ALL_SCHEMES, "proxy1.com"}, {MATCH_HTTP, "proxy2.com"}};
+        Assert.assertArrayEquals(expected, actual);
     }
 
     private void setProxyOverrideSync(final ProxyConfig proxyRules) {
