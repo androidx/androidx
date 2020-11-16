@@ -193,6 +193,33 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun headlessUserStyleSchema() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            exampleWatchFaceComponentName,
+            deviceConfig,
+            400,
+            400
+        ).get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings.size).isEqualTo(4)
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[0].id).isEqualTo(
+            "color_style_setting"
+        )
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[1].id).isEqualTo(
+            "draw_hour_pips_style_setting"
+        )
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[2].id).isEqualTo(
+            "watch_hand_length_style_setting"
+        )
+        assertThat(headlessInstance.userStyleSchema.userStyleSettings[3].id).isEqualTo(
+            "complications_style_setting"
+        )
+
+        headlessInstance.close()
+        service.close()
+    }
+
+    @Test
     @Ignore("Creation of new screenshots is currently broken b/171983840")
     fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient() {
         val interactiveInstanceFuture =

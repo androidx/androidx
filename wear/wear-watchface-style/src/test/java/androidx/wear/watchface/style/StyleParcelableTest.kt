@@ -21,6 +21,7 @@ import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
@@ -327,5 +328,97 @@ class StyleParcelableTest {
             listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(10)
+    }
+
+    @Test
+    fun parcelAndUnparcelComplicationsUserStyleSetting() {
+        val leftComplicationID = 101
+        val rightComplicationID = 102
+        val src = ComplicationsUserStyleSetting(
+            "complications_style_setting",
+            "Complications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "LEFT_AND_RIGHT_COMPLICATIONS",
+                    "Both",
+                    null,
+                    listOf()
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "NO_COMPLICATIONS",
+                    "None",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            leftComplicationID,
+                            enabled = false
+                        ),
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            rightComplicationID,
+                            enabled = false
+                        )
+                    )
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "LEFT_COMPLICATION",
+                    "Left",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            rightComplicationID,
+                            enabled = false
+                        )
+                    )
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "RIGHT_COMPLICATION",
+                    "Right",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            leftComplicationID,
+                            enabled = false
+                        )
+                    )
+                )
+            ),
+            listOf(Layer.COMPLICATIONS)
+        )
+
+        val parcelable = ParcelUtils.toParcelable(src.toWireFormat())
+
+        val unparceled =
+            UserStyleSetting.createFromWireFormat(ParcelUtils.fromParcelable(parcelable))
+
+        assert(unparceled is ComplicationsUserStyleSetting)
+        assertThat(unparceled.id).isEqualTo("complications_style_setting")
+
+        val options = unparceled.options.filterIsInstance<
+            ComplicationsUserStyleSetting.ComplicationsOption>()
+        assertThat(options.size).isEqualTo(4)
+        assertThat(options[0].id).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
+        assertThat(options[0].complicationOverlays.size).isEqualTo(0)
+
+        assertThat(options[1].id).isEqualTo("NO_COMPLICATIONS")
+        assertThat(options[1].complicationOverlays.size).isEqualTo(2)
+        val options1Overlays = ArrayList(options[1].complicationOverlays)
+        assertThat(options1Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertFalse(options1Overlays[0].enabled!!)
+        assertThat(options1Overlays[1].complicationId).isEqualTo(rightComplicationID)
+        assertFalse(options1Overlays[1].enabled!!)
+
+        assertThat(options[2].id).isEqualTo("LEFT_COMPLICATION")
+        assertThat(options[2].complicationOverlays.size).isEqualTo(1)
+        val options2Overlays = ArrayList(options[2].complicationOverlays)
+        assertThat(options2Overlays[0].complicationId).isEqualTo(rightComplicationID)
+        assertFalse(options2Overlays[0].enabled!!)
+
+        assertThat(options[3].id).isEqualTo("RIGHT_COMPLICATION")
+        assertThat(options[3].complicationOverlays.size).isEqualTo(1)
+        val options3Overlays = ArrayList(options[3].complicationOverlays)
+        assertThat(options3Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertFalse(options3Overlays[0].enabled!!)
     }
 }
