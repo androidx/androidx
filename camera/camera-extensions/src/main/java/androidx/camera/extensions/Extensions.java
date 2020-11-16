@@ -25,6 +25,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraFilters;
@@ -138,10 +139,10 @@ public class Extensions {
             throw new IllegalArgumentException("Extension mode not supported on camera: " + mode);
         }
 
-        CameraFilter extensionsFilter = getFilter(mode);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().addCameraFilter(getFilter(mode)).build();
         Camera extensionCamera =
-                extensionsFilter.filter(
-                        new LinkedHashSet<>(camera.getCameraInternals())).iterator().next();
+                cameraSelector.select(new LinkedHashSet<>(camera.getCameraInternals()));
         CameraInfo extensionsCameraInfo = extensionCamera.getCameraInfo();
 
         ExtensionsUseCaseConfigFactory factory = new ExtensionsUseCaseConfigFactory(mode,
@@ -190,11 +191,17 @@ public class Extensions {
      */
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     public boolean isExtensionAvailable(@NonNull Camera camera, @ExtensionMode int mode) {
-        CameraFilter filter = getFilter(mode);
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().addCameraFilter(getFilter(mode)).build();
 
         // Extension is available for the camera if it contains a CameraInternal which supports
         // the extension
-        return !filter.filter(new LinkedHashSet<>(camera.getCameraInternals())).isEmpty();
+        try {
+            cameraSelector.select(new LinkedHashSet<>(camera.getCameraInternals()));
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)

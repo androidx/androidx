@@ -26,7 +26,10 @@ import androidx.camera.core.impl.LensFacingCameraFilter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * A set of requirements and priorities used to select a camera.
@@ -58,8 +61,7 @@ public final class CameraSelector {
      * {@link CameraSelector}.
      *
      * <p>When filtering with {@link CameraFilter}, the output set must be contained in the input
-     * set, otherwise an IllegalArgumentException will be thrown. The output set is compared with
-     * a copy of the original input set despite the input set isn't expected to be modified.
+     * set, otherwise an IllegalArgumentException will be thrown.
      *
      * @param cameras The camera set being filtered.
      * @return The first camera filtered.
@@ -68,48 +70,79 @@ public final class CameraSelector {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
     public CameraInternal select(@NonNull LinkedHashSet<CameraInternal> cameras) {
         return filter(cameras).iterator().next();
     }
 
     /**
-     * Filters the input cameras using the {@link CameraFilter} assigned to the selector.
+     * Filters the input {@link CameraInfo}s using the {@link CameraFilter}s assigned to the
+     * selector.
      *
-     * <p>The camera filtered must be contained in the input set. Otherwise it will throw an
+     * <p>The camera infos filtered must be contained in the input set. Otherwise it will throw an
      * exception.
      *
-     * @param cameras The camera set being filtered.
-     * @return The remain set of cameras.
-     * @throws IllegalArgumentException If there's no available camera after being filtered or
-     *                                  the filtered camera ids aren't contained in the input set.
+     * @param cameraInfos The camera infos list being filtered.
+     * @return The remain list of camera infos.
+     * @throws IllegalArgumentException      If there's no available camera infos after being
+     * filtered or
+     *                                       the filtered camera infos aren't contained in the input
+     *                                       list.
+     * @throws UnsupportedOperationException If the {@link CameraFilter}s assigned to the selector
+     *                                       try to modify the input camera infos.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     @NonNull
-    public LinkedHashSet<CameraInternal> filter(@NonNull LinkedHashSet<CameraInternal> cameras) {
-        LinkedHashSet<Camera> camerasCopy = new LinkedHashSet<>(cameras);
-        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>(cameras);
+    public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
+        List<CameraInfo> input = new ArrayList<>(cameraInfos);
+        List<CameraInfo> output = new ArrayList<>(cameraInfos);
         for (CameraFilter filter : mCameraFilterSet) {
-            resultCameras = filter.filter(resultCameras);
+            output = filter.filter(Collections.unmodifiableList(output));
             // If the result is empty or has extra camera that isn't contained in the input,
             // throws an exception.
-            if (resultCameras.isEmpty()) {
+            if (output.isEmpty()) {
                 throw new IllegalArgumentException("No available camera can be found.");
-            } else if (!camerasCopy.containsAll(resultCameras)) {
+            } else if (!input.containsAll(output)) {
                 throw new IllegalArgumentException("The output isn't contained in the input.");
             }
-            camerasCopy.retainAll(resultCameras);
+            input.retainAll(output);
         }
 
-        LinkedHashSet<CameraInternal> returnCameras = new LinkedHashSet<>();
-        for (Camera camera : resultCameras) {
-            returnCameras.add((CameraInternal) camera);
+        return output;
+    }
+
+    /**
+     * Filters the input cameras using the {@link CameraFilter} assigned to the selector.
+     *
+     * <p>The cameras filtered must be contained in the input set. Otherwise it will throw an
+     * exception.
+     *
+     * @param cameras The camera set being filtered.
+     * @return The remain set of cameras.
+     * @throws IllegalArgumentException If there's no available camera after being filtered or
+     *                                  the filtered cameras aren't contained in the input set.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public LinkedHashSet<CameraInternal> filter(@NonNull LinkedHashSet<CameraInternal> cameras) {
+        List<CameraInfo> input = new ArrayList<>();
+        for (CameraInternal camera : cameras) {
+            input.add(camera.getCameraInfo());
         }
 
-        return returnCameras;
+        List<CameraInfo> result = filter(input);
+
+        LinkedHashSet<CameraInternal> output = new LinkedHashSet<>();
+        for (CameraInternal camera : cameras) {
+            if (result.contains(camera.getCameraInfo())) {
+                output.add(camera);
+            }
+        }
+
+        return output;
     }
 
     /**

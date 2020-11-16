@@ -18,13 +18,14 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.core.util.Preconditions;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A filter that filters camera based on lens facing.
@@ -40,18 +41,18 @@ public class LensFacingCameraFilter implements CameraFilter {
 
     @NonNull
     @Override
-    public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
-        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
-        for (Camera camera : cameras) {
-            Preconditions.checkState(camera instanceof CameraInternal,
-                    "The camera doesn't contain internal implementation.");
-            Integer lensFacing = ((CameraInternal) camera).getCameraInfoInternal().getLensFacing();
+    public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
+        List<CameraInfo> result = new ArrayList<>();
+        for (CameraInfo cameraInfo : cameraInfos) {
+            Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal,
+                    "The camera info doesn't contain internal implementation.");
+            Integer lensFacing = ((CameraInfoInternal) cameraInfo).getLensFacing();
             if (lensFacing != null && lensFacing == mLensFacing) {
-                resultCameras.add(camera);
+                result.add(cameraInfo);
             }
         }
 
-        return resultCameras;
+        return result;
     }
 
     /** Returns the lens facing associated with this lens facing camera id filter. */
