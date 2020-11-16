@@ -621,7 +621,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 unregisterReceiver(timeTickReceiver)
             }
 
-            if (!watchFaceCreated()) {
+            if (this::watchFaceImpl.isInitialized) {
                 watchFaceImpl.onDestroy()
             }
 

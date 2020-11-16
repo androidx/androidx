@@ -553,6 +553,7 @@ internal class WatchFaceImpl(
         watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
         watchState.isVisible.removeObserver(visibilityObserver)
         WatchFaceConfigActivity.unregisterWatchFace(componentName)
+        unregisterReceivers()
     }
 
     private fun registerReceivers() {
