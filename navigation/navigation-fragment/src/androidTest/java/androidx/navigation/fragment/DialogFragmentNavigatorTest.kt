@@ -23,6 +23,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -79,6 +81,28 @@ class DialogFragmentNavigatorTest {
         assertWithMessage("Dialog should be shown")
             .that(dialogFragment.requireDialog().isShowing)
             .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testFindNavController() {
+        val dialogFragment = EmptyDialogFragment()
+        // Fake using a NavHostFragment and instead just manually show the DialogFragment
+        dialogFragment.showNow(fragmentManager, null)
+        assertWithMessage("Dialog should be shown")
+            .that(dialogFragment.requireDialog().isShowing)
+            .isTrue()
+
+        // And set a NavController on the root view
+        val navController = NavController(emptyActivity)
+        Navigation.setViewNavController(
+            dialogFragment.requireDialog().window!!.decorView,
+            navController
+        )
+
+        val returnedNavController = NavHostFragment.findNavController(dialogFragment)
+        assertThat(returnedNavController)
+            .isEqualTo(navController)
     }
 
     @UiThreadTest
