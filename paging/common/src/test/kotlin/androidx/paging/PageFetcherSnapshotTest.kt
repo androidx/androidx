@@ -39,13 +39,11 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -73,7 +71,7 @@ import kotlin.test.fail
 @RunWith(JUnit4::class)
 class PageFetcherSnapshotTest {
     private val testScope = TestCoroutineScope()
-    private val retryCh = ConflatedBroadcastChannel<Unit>()
+    private val retryBus = ConflatedEventBus<Unit>()
     private val pagingSourceFactory = {
         TestPagingSource().also {
             currentPagingSource = it
@@ -1221,7 +1219,7 @@ class PageFetcherSnapshotTest {
                 fail("Should never get here")
             }
         }
-        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
 
         collectSnapshotData(pager) { _, job ->
 
@@ -1240,7 +1238,7 @@ class PageFetcherSnapshotTest {
     fun retry() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { state, _ ->
                 advanceUntilIdle()
@@ -1282,7 +1280,7 @@ class PageFetcherSnapshotTest {
                     )
                 )
 
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1302,7 +1300,7 @@ class PageFetcherSnapshotTest {
     fun retryNothing() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { state, _ ->
 
@@ -1339,7 +1337,7 @@ class PageFetcherSnapshotTest {
                         createAppend(pageOffset = 1, range = 52..52)
                     )
                 )
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertTrue { state.newEvents().isEmpty() }
             }
@@ -1350,7 +1348,7 @@ class PageFetcherSnapshotTest {
     fun retryTwice() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { state, _ ->
 
@@ -1391,7 +1389,7 @@ class PageFetcherSnapshotTest {
                         )
                     )
                 )
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1403,7 +1401,7 @@ class PageFetcherSnapshotTest {
                         createAppend(pageOffset = 1, range = 52..52)
                     )
                 )
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertTrue { state.newEvents().isEmpty() }
             }
@@ -1421,7 +1419,7 @@ class PageFetcherSnapshotTest {
                 maxSize = 4
             )
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { state, _ ->
                 // Initial REFRESH
@@ -1494,7 +1492,7 @@ class PageFetcherSnapshotTest {
                 )
 
                 // Retry should trigger in both directions.
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1532,7 +1530,7 @@ class PageFetcherSnapshotTest {
                     return result ?: LoadResult.Error(LOAD_ERROR)
                 }
             }
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { pageEvents, _ ->
                 // Successful REFRESH
@@ -1576,7 +1574,7 @@ class PageFetcherSnapshotTest {
                 )
 
                 // Retry failed APPEND
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1620,7 +1618,7 @@ class PageFetcherSnapshotTest {
                 )
 
                 // Retry failed hints, both PREPEND and APPEND should trigger.
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(pageEvents.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1653,7 +1651,7 @@ class PageFetcherSnapshotTest {
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { state, _ ->
 
@@ -1666,7 +1664,7 @@ class PageFetcherSnapshotTest {
                     )
                 )
 
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1682,7 +1680,7 @@ class PageFetcherSnapshotTest {
     fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryBus.flow)
             collectSnapshotData(pager) { state, _ ->
                 pageSource.errorNextLoad = true
                 advanceUntilIdle()
@@ -1713,7 +1711,7 @@ class PageFetcherSnapshotTest {
                 advanceUntilIdle()
                 assertTrue { state.newEvents().isEmpty() }
 
-                retryCh.offer(Unit)
+                retryBus.send(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
                     listOf<PageEvent<Int>>(
@@ -1981,7 +1979,7 @@ class PageFetcherSnapshotTest {
     @Test
     fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
         assertNull(pager.refreshKeyInfo())
     }
 
@@ -1989,7 +1987,7 @@ class PageFetcherSnapshotTest {
     fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
             pager.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
@@ -2008,7 +2006,7 @@ class PageFetcherSnapshotTest {
     fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { _, _ ->
                 advanceUntilIdle()
@@ -2059,7 +2057,7 @@ class PageFetcherSnapshotTest {
     fun refreshKeyInfo_placeholdersBefore() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
 
             collectSnapshotData(pager) { _, _ ->
                 advanceUntilIdle()
@@ -2123,7 +2121,7 @@ class PageFetcherSnapshotTest {
             initialKey = 50,
             pagingSource = TestPagingSource(loadDelay = 100),
             config = config,
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryBus.flow
         )
 
         assertEquals(null, pager.refreshKeyInfo())
@@ -2132,7 +2130,7 @@ class PageFetcherSnapshotTest {
     @Test
     fun retry_ignoresNewSignalsWhileProcessing() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryBus.flow)
         collectSnapshotData(pager) { state, _ ->
             pagingSource.errorNextLoad = true
             advanceUntilIdle()
@@ -2144,9 +2142,9 @@ class PageFetcherSnapshotTest {
             )
 
             pagingSource.errorNextLoad = true
-            retryCh.offer(Unit)
+            retryBus.send(Unit)
             // Should be ignored by pager as it's still processing previous retry.
-            retryCh.offer(Unit)
+            retryBus.send(Unit)
             advanceUntilIdle()
             assertThat(state.newEvents()).isEqualTo(
                 listOf<PageEvent<Int>>(
@@ -2800,7 +2798,7 @@ class PageFetcherSnapshotTest {
             val pager = PageFetcherSnapshot(
                 initialKey = 50,
                 pagingSource = pagingSourceFactory(),
-                config = config, retryFlow = retryCh.asFlow()
+                config = config, retryFlow = retryBus.flow
             ) {
                 didJump = true
             }
@@ -2834,7 +2832,7 @@ class PageFetcherSnapshotTest {
                 initialKey = 50,
                 pagingSource = TestPagingSource(jumpingSupported = false),
                 config = PagingConfig(pageSize = 1, prefetchDistance = 1, jumpThreshold = 1),
-                retryFlow = retryCh.asFlow()
+                retryFlow = retryBus.flow
             )
         }
     }
@@ -2862,7 +2860,7 @@ class PageFetcherSnapshotTest {
                     }
                 },
                 config = config,
-                retryFlow = retryCh.asFlow()
+                retryFlow = retryBus.flow
             )
 
             // Trigger collection on flow.
@@ -2916,7 +2914,7 @@ class PageFetcherSnapshotTest {
                     }
                 },
                 config = config,
-                retryFlow = retryCh.asFlow()
+                retryFlow = retryBus.flow
             )
 
             // Trigger collection on flow.
@@ -2980,7 +2978,7 @@ class PageFetcherSnapshotTest {
                     }
                 },
                 config = config,
-                retryFlow = retryCh.asFlow()
+                retryFlow = retryBus.flow
             )
 
             // Trigger collection on flow.
@@ -3056,7 +3054,7 @@ class PageFetcherSnapshotTest {
             initialKey = 50,
             pagingSource = TestPagingSource(loadDelay = 100),
             config = config,
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryBus.flow
         )
 
         val deferred = GlobalScope.async {
