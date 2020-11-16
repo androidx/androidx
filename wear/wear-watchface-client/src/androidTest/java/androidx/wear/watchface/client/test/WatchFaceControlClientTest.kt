@@ -47,7 +47,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -220,7 +219,6 @@ class WatchFaceControlClientTest {
     }
 
     @Test
-    @Ignore("Creation of new screenshots is currently broken b/171983840")
     fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient() {
         val interactiveInstanceFuture =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
