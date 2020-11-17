@@ -537,7 +537,6 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         public void assertExecutedEntranceTransition() {
             assertEquals(1, mEntranceTransitionStartTS.size());
             assertEquals(1, mEntranceTransitionEndTS.size());
-            assertTrue(mEntranceTransitionEndTS.get(0) - mEntranceTransitionStartTS.get(0) > 100);
         }
 
         public void assertNoEntranceTransition() {
