@@ -616,6 +616,8 @@ UI_MODE_TYPE_VR_HEADSET,
 \~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~\~
 # > Task *:lintDebug
 \$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableNaming" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterNaming" \[UnknownIssueId\]
+\$SUPPORT/.*/build\.gradle: Warning: Unknown issue id "ComposableLambdaParameterPosition" \[UnknownIssueId\]
 Explanation for issues of type "UnknownIssueId":
 Lint will report this issue if it is configured with an issue id it does
 not recognize in for example Gradle files or lint\.xml configuration files\.
