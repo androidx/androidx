@@ -191,7 +191,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // Now run Animations
         for (final AnimationInfo animationInfo : animationsToRun) {
             // First make sure we haven't already started any Transition
-            Operation operation = animationInfo.getOperation();
+            final Operation operation = animationInfo.getOperation();
             final Fragment fragment = operation.getFragment();
             if (startedAnyTransition) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -259,6 +259,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 @Override
                 public void onCancel() {
                     viewToAnimate.clearAnimation();
+                    container.endViewTransition(viewToAnimate);
+                    animationInfo.completeSpecialEffect();
                 }
             });
         }
