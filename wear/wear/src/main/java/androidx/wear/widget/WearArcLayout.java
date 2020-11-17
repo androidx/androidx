@@ -288,6 +288,15 @@ public class WearArcLayout extends ViewGroup {
     }
 
     @Override
+    public void requestLayout() {
+        super.requestLayout();
+
+        for (int i = 0; i < getChildCount(); i++) {
+            getChildAt(i).forceLayout();
+        }
+    }
+
+    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Need to derive the thickness of the curve from the children. We're a curve, so the
         // children can only be sized up to (width or height)/2 units. This currently only
