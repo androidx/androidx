@@ -318,4 +318,66 @@ public class SimpleArrayMapTest {
             }
         }
     }
+
+    /**
+     * Even though the Javadoc of {@link SimpleArrayMap#put(Object, Object)} says that the key
+     * must not be null, the actual implementation allows it, and therefore we must ensure
+     * that any future implementations of the class will still honor that contract.
+     */
+    @Test
+    public void nullKeyCompatibility_canPutNullKeyAndNonNullValue() {
+        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
+        assertFalse(map.containsKey(null));
+        map.put(null, 42);
+        assertTrue(map.containsKey(null));
+    }
+
+    @Test
+    public void nullKeyCompatibility_replacesValuesWithNullKey() {
+        final Integer firstValue = 42;
+        final Integer secondValue = 43;
+        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
+        assertFalse(map.containsKey(null));
+        map.put(null, firstValue);
+        assertTrue(map.containsKey(null));
+
+        assertEquals(firstValue, map.get(null));
+        assertEquals(firstValue, map.put(null, secondValue));
+
+        assertEquals(secondValue, map.get(null));
+        assertEquals(secondValue, map.remove(null));
+        assertFalse(map.containsKey(null));
+    }
+
+    @Test
+    public void nullKeyCompatibility_putThenRemoveNullKeyAndValue() {
+        SimpleArrayMap<String, Integer> map = new SimpleArrayMap<>();
+        map.put(null, null);
+        assertTrue(map.containsKey(null));
+        assertNull(map.get(null));
+        map.remove(null);
+        assertFalse(map.containsKey(null));
+    }
+
+    @Test
+    public void nullKeyCompatibility_removeNonNullValueWithNullKey() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put(null, null);
+        assertNull(map.put(null, "42"));
+        assertEquals("42", map.get(null));
+        map.remove(null);
+    }
+
+    @Test
+    public void nullKeyCompatibility_testReplaceMethodsWithNullKey() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put(null, null);
+        assertNull(null, map.replace(null, "42"));
+        assertFalse(map.replace(null, null, null));
+        assertTrue(map.replace(null, "42", null));
+        assertFalse(map.replace(null, "42", null));
+        assertTrue(map.replace(null, null, null));
+        assertTrue(map.containsKey(null));
+        assertNull(map.get(null));
+    }
 }
