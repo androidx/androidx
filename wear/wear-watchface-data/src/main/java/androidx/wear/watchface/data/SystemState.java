@@ -33,7 +33,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@VersionedParcelize
+@VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class SystemState implements VersionedParcelable, Parcelable {
     @ParcelField(1)

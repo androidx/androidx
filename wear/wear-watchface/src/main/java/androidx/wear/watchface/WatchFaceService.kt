@@ -33,6 +33,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.os.RemoteException
 import android.os.Trace
+import android.os.UserManager
 import android.service.wallpaper.WallpaperService
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
@@ -46,6 +47,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
+import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.complications.data.ComplicationType
@@ -68,8 +70,10 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import java.io.FileNotFoundException
 import java.util.concurrent.CountDownLatch
 
 /** The wire format for [ComplicationData]. */
@@ -154,6 +158,7 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  * <activity
  *   android:name="androidx.wear.watchface.ui.WatchFaceConfigActivity"
  *   android:exported="true"
+ *   android:directBootAware="true"
  *   android:label="Config"
  *   android:theme="@android:style/Theme.Translucent.NoTitleBar">
  *   <intent-filter>
@@ -215,6 +220,9 @@ public abstract class WatchFaceService : WallpaperService() {
         // Reference time for editor screenshots for digital watch faces.
         // 2020/10/10 at 10:10 Note the date doesn't matter, only the hour.
         private const val DIGITAL_WATCHFACE_REFERENCE_TIME_MS = 1602321000000L
+
+        // Filename for persisted preferences to be used in a direct boot scenario.
+        private const val DIRECT_BOOT_PREFS = "directboot.prefs"
     }
 
     /** Override this factory method to create your WatchFaceImpl. */
@@ -233,6 +241,9 @@ public abstract class WatchFaceService : WallpaperService() {
 
     // This is open for use by tests.
     internal open fun allowWatchFaceToAnimate() = true
+
+    // This is open for use by tests.
+    internal open fun isUserUnlocked() = getSystemService(UserManager::class.java).isUserUnlocked
 
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
@@ -338,6 +349,15 @@ public abstract class WatchFaceService : WallpaperService() {
             val pendingWallpaperInstance =
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
+            // In a direct boot scenario attempt to load the previously serialized parameters.
+            if (pendingWallpaperInstance == null && !isUserUnlocked()) {
+                val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
+                if (params != null) {
+                    createInteractiveInstance(params).createWCSApi()
+                    keepSerializedDirectBootParamsUpdated(params)
+                }
+            }
+
             // If there's a pending WallpaperInteractiveWatchFaceInstance then create it.
             if (pendingWallpaperInstance != null) {
                 pendingWallpaperInstance.callback.onInteractiveWatchFaceWcsCreated(
@@ -345,7 +365,28 @@ public abstract class WatchFaceService : WallpaperService() {
                 )
 
                 interactiveInstanceId = pendingWallpaperInstance.params.instanceId
+                keepSerializedDirectBootParamsUpdated(pendingWallpaperInstance.params)
             }
+        }
+
+        private fun keepSerializedDirectBootParamsUpdated(
+            directBootParams: WallpaperInteractiveWatchFaceInstanceParams
+        ) {
+            // We don't want to display complications in direct boot mode so replace with an
+            // empty list. NB we can't actually serialise complications anyway so that's just as
+            // well...
+            directBootParams.idAndComplicationDataWireFormats = emptyList()
+
+            watchFaceImpl.userStyleRepository.addUserStyleListener(
+                object : UserStyleRepository.UserStyleListener {
+                    @SuppressLint("SyntheticAccessor")
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
+                        directBootParams.userStyle = userStyle.toWireFormat()
+                        writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, directBootParams)
+                    }
+                })
+
+            writeDirectBootPrefs(_context, DIRECT_BOOT_PREFS, directBootParams)
         }
 
         @UiThread
@@ -1136,3 +1177,27 @@ internal fun <R> Handler.runOnHandler(task: () -> R) =
         }
         returnVal!!
     }
+
+internal fun readDirectBootPrefs(
+    context: Context,
+    fileName: String
+): WallpaperInteractiveWatchFaceInstanceParams? =
+    try {
+        val reader = context.openFileInput(fileName)
+        val result =
+            ParcelUtils.fromInputStream<WallpaperInteractiveWatchFaceInstanceParams>(reader)
+        reader.close()
+        result
+    } catch (e: FileNotFoundException) {
+        null
+    }
+
+internal fun writeDirectBootPrefs(
+    context: Context,
+    fileName: String,
+    prefs: WallpaperInteractiveWatchFaceInstanceParams
+) {
+    val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE)
+    ParcelUtils.toOutputStream(prefs, writer)
+    writer.close()
+}
