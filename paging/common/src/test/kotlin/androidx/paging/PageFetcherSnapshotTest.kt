@@ -2735,7 +2735,7 @@ class PageFetcherSnapshotTest {
             ): MediatorResult {
                 super.load(loadType, state)
                 currentPagingSource!!.invalidate()
-                return MediatorResult.Success(endOfPaginationReached = true)
+                return MediatorResult.Success(endOfPaginationReached = false)
             }
         }
 
@@ -2777,8 +2777,88 @@ class PageFetcherSnapshotTest {
                         placeholdersBefore = 50,
                         placeholdersAfter = 49,
                         combinedLoadStates = remoteLoadStatesOf()
-                    )
+                    ),
                 )
+            )
+        )
+    }
+
+    @Test
+    fun remoteMediator_initialRefreshSuccessEndOfPagination() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun initialize(): InitializeAction {
+                super.initialize()
+                return InitializeAction.LAUNCH_INITIAL_REFRESH
+            }
+
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = PageFetcher(
+            initialKey = 50,
+            pagingSourceFactory = pagingSourceFactory,
+            config = config,
+            remoteMediator = remoteMediator
+        )
+
+        pager.assertEventByGeneration(
+            listOf(
+                listOf(
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = true,
+                        loadState = Loading,
+                    ),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = true,
+                        loadState = NotLoading.Complete,
+                    ),
+                    LoadStateUpdate(
+                        loadType = PREPEND,
+                        fromMediator = true,
+                        loadState = NotLoading.Complete,
+                    ),
+                    LoadStateUpdate(
+                        loadType = APPEND,
+                        fromMediator = true,
+                        loadState = NotLoading.Complete,
+                    ),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = false,
+                        loadState = Loading,
+                    ),
+                    Refresh(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 0,
+                                data = listOf(50)
+                            )
+                        ),
+                        placeholdersBefore = 50,
+                        placeholdersAfter = 49,
+                        combinedLoadStates = remoteLoadStatesOf(
+                            refreshRemote = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        )
+                    ),
+                ),
             )
         )
     }

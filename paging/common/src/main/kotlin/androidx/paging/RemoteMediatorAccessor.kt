@@ -204,8 +204,10 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
 ) : RemoteMediatorAccessor<Key, Value> {
     override val state: StateFlow<LoadStates>
         get() = accessorState.loadStates
+
     // all internal state is kept in accessorState to avoid concurrent access
     private val accessorState = AccessorStateHolder<Key, Value>()
+
     // an isolation runner is used to ensure no concurrent requests are made to the remote mediator.
     // it also handles cancelling lower priority calls with higher priority calls.
     private val isolationRunner = SingleRunner(cancelPreviousInEqualPriority = false)
@@ -238,9 +240,18 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
                             // clean append prepend as they are not valid anymore
                             accessorState.use {
                                 it.clearPendingRequests()
+
                                 // we can accept new append prepend requests
-                                it.setBlockState(LoadType.APPEND, UNBLOCKED)
-                                it.setBlockState(LoadType.PREPEND, UNBLOCKED)
+                                val blockState = when {
+                                    loadResult.endOfPaginationReached -> COMPLETED
+                                    else -> UNBLOCKED
+                                }
+                                if (loadResult.endOfPaginationReached) {
+                                    it.setBlockState(LoadType.REFRESH, COMPLETED)
+                                }
+                                it.setBlockState(LoadType.APPEND, blockState)
+                                it.setBlockState(LoadType.PREPEND, blockState)
+
                                 // clean their errors
                                 it.setError(LoadType.APPEND, null)
                                 it.setError(LoadType.PREPEND, null)
