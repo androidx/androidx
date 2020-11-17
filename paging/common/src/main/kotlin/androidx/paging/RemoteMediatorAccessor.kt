@@ -138,7 +138,14 @@ private class AccessorState<Key : Any, Value : Any>() {
             return false
         }
         val blockState = blockStates[loadType.ordinal]
-        return if (blockState == UNBLOCKED && errors[loadType.ordinal] == null) {
+        if (blockState != UNBLOCKED) {
+            return false
+        }
+        if (loadType == LoadType.REFRESH) {
+            // for refresh, we ignore error states. see: b/173438474
+            setError(LoadType.REFRESH, null)
+        }
+        return if (errors[loadType.ordinal] == null) {
             pendingRequests.add(PendingRequest(loadType, pagingState))
         } else {
             false
