@@ -1087,6 +1087,14 @@ public final class TvContractCompat {
         int ASPECT_RATIO_MOVIE_POSTER = 5;
 
         /**
+         * The aspect ratio for 3:4.
+         *
+         * @see #COLUMN_POSTER_ART_ASPECT_RATIO
+         * @see #COLUMN_THUMBNAIL_ASPECT_RATIO
+         */
+        int ASPECT_RATIO_3_4 = 6;
+
+        /**
          * The availability for "available to this user".
          *
          * @see #COLUMN_AVAILABILITY
@@ -1223,8 +1231,9 @@ public final class TvContractCompat {
          * {@link #ASPECT_RATIO_3_2},
          * {@link #ASPECT_RATIO_4_3},
          * {@link #ASPECT_RATIO_1_1},
-         * {@link #ASPECT_RATIO_2_3}, and
-         * {@link #ASPECT_RATIO_MOVIE_POSTER}.
+         * {@link #ASPECT_RATIO_2_3},
+         * {@link #ASPECT_RATIO_MOVIE_POSTER}, and
+         * {@link #ASPECT_RATIO_3_4}.
          *
          * <p>Type: INTEGER
          */
@@ -1238,8 +1247,9 @@ public final class TvContractCompat {
          * {@link #ASPECT_RATIO_3_2},
          * {@link #ASPECT_RATIO_4_3},
          * {@link #ASPECT_RATIO_1_1},
-         * {@link #ASPECT_RATIO_2_3}, and
-         * {@link #ASPECT_RATIO_MOVIE_POSTER}.
+         * {@link #ASPECT_RATIO_2_3},
+         * {@link #ASPECT_RATIO_MOVIE_POSTER}, and
+         * {@link #ASPECT_RATIO_3_4}.
          *
          * <p>Type: INTEGER
          */
