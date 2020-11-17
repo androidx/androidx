@@ -16,21 +16,23 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import android.annotation.SuppressLint;
+import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.ISearchListener;
 import androidx.car.app.Screen;
 import androidx.car.app.SearchListener;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.host.SearchListenerWrapper;
 import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -50,7 +52,7 @@ public final class SearchTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
     @Keep
-    private final ISearchListener mSearchListener;
+    private final SearchListenerWrapper mSearchListener;
     @Keep
     @Nullable
     private final String mInitialSearchText;
@@ -130,14 +132,10 @@ public final class SearchTemplate implements Template {
     }
 
     /**
-     * Returns the {@link SearchListener} for search callbacks.
-     *
-     * @hide
+     * Returns the {@link SearchListenerWrapper} for search callbacks.
      */
-    // TODO(shiufai): re-surface this API with a wrapper around the AIDL class.
-    @RestrictTo(LIBRARY)
     @NonNull
-    public ISearchListener getSearchListener() {
+    public SearchListenerWrapper getSearchListener() {
         return mSearchListener;
     }
 
@@ -214,7 +212,7 @@ public final class SearchTemplate implements Template {
         mItemList = null;
         mHeaderAction = null;
         mActionStrip = null;
-        mSearchListener = new SearchListenerStub(
+        mSearchListener = createSearchListener(
                 new SearchListener() {
                     @Override
                     public void onSearchTextChanged(@NonNull String searchText) {
@@ -229,7 +227,7 @@ public final class SearchTemplate implements Template {
 
     /** A builder of {@link SearchTemplate}. */
     public static final class Builder {
-        private final ISearchListener mSearchListener;
+        private final SearchListenerWrapper mSearchListener;
         @Nullable
         private String mInitialSearchText;
         @Nullable
@@ -244,7 +242,7 @@ public final class SearchTemplate implements Template {
         private ActionStrip mActionStrip;
 
         private Builder(SearchListener listener) {
-            mSearchListener = new SearchListenerStub(listener);
+            mSearchListener = createSearchListener(listener);
         }
 
         /**
@@ -389,6 +387,34 @@ public final class SearchTemplate implements Template {
 
             return new SearchTemplate(this);
         }
+    }
+
+    private static SearchListenerWrapper createSearchListener(@NonNull SearchListener listener) {
+        return new SearchListenerWrapper() {
+            private final ISearchListener mStubListener = new SearchListenerStub(listener);
+
+            @Override
+            public void onSearchTextChanged(@NonNull String searchText,
+                    @NonNull OnDoneCallback callback) {
+                try {
+                    mStubListener.onSearchTextChanged(searchText,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new WrappedRuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onSearchSubmitted(@NonNull String searchText,
+                    @NonNull OnDoneCallback callback) {
+                try {
+                    mStubListener.onSearchSubmitted(searchText,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new WrappedRuntimeException(e);
+                }
+            }
+        };
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.

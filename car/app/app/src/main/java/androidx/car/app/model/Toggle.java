@@ -64,8 +64,8 @@ public class Toggle {
     }
 
     /**
-     * Returns the {@link OnCheckedChangeListener} that is called when the checked state of the
-     * {@link Toggle}is changed.
+     * Returns the {@link OnCheckedChangeListenerWrapper} that is called when the checked state of
+     * the {@link Toggle} is changed.
      */
     @NonNull
     public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {

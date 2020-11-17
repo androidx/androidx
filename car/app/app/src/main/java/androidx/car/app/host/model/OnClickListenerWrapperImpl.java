@@ -14,48 +14,53 @@
  * limitations under the License.
  */
 
-package androidx.car.app.model;
+package androidx.car.app.host.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import static java.util.Objects.requireNonNull;
-
 import android.annotation.SuppressLint;
+import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.model.IOnClickListener;
+import androidx.car.app.model.OnClickListener;
+import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.utils.RemoteUtils;
 
 /**
- * Internal state object to pass additional state along with the wrapped {@code IOnClickListener}.
+ * Implementation class for {@link OnClickListenerWrapper} to allow IPC for click-related events.
+ *
+ * @hide
  */
-// TODO(shiufai): Replace code tag with the correct AIDL wrapper.
-public class OnClickListenerWrapper {
+@RestrictTo(LIBRARY)
+public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
 
-    @Keep
-    @Nullable
-    private final IOnClickListener mListener;
     @Keep
     private final boolean mIsParkedOnly;
-
-    /**
-     * @hide
-     */
-    // TODO(shiufai): re-surface this API with a wrapper around the AIDL class.
-    @RestrictTo(LIBRARY)
-    @NonNull
-    public IOnClickListener getListener() {
-        return requireNonNull(mListener);
-    }
+    @Keep
+    private final IOnClickListener mListener;
 
     /**
      * Whether the click listener is for parked-only scenarios.
      */
+    @Override
     public boolean isParkedOnly() {
         return mIsParkedOnly;
+    }
+
+    @Override
+    public void onClick(@NonNull OnDoneCallback callback) {
+        try {
+            mListener.onClick(RemoteUtils.createOnDoneCallbackStub(callback));
+        } catch (RemoteException e) {
+            throw new WrappedRuntimeException(e);
+        }
     }
 
     /**
@@ -65,17 +70,19 @@ public class OnClickListenerWrapper {
     @RestrictTo(LIBRARY)
     @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
     public static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
-        return new OnClickListenerWrapper(
-                new OnClickListenerStub(listener), listener instanceof ParkedOnlyOnClickListener);
+        return new OnClickListenerWrapperImpl(
+                listener,
+                listener instanceof ParkedOnlyOnClickListener);
     }
 
-    private OnClickListenerWrapper(IOnClickListener listener, boolean isParkedOnly) {
-        this.mListener = listener;
+    private OnClickListenerWrapperImpl(@Nullable OnClickListener listener,
+            boolean isParkedOnly) {
+        this.mListener = new OnClickListenerStub(listener);
         this.mIsParkedOnly = isParkedOnly;
     }
 
     /** For serialization. */
-    private OnClickListenerWrapper() {
+    private OnClickListenerWrapperImpl() {
         mListener = null;
         mIsParkedOnly = false;
     }

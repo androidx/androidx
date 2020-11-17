@@ -16,7 +16,6 @@
 
 package androidx.car.app.model;
 
-/** Tests for {@link OnClickListenerWrapper}. */
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -24,7 +23,9 @@ import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.host.model.OnClickListenerWrapper;
+import androidx.car.app.host.model.OnClickListenerWrapperImpl;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -36,6 +37,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+/** Tests for {@link OnClickListenerWrapper}. */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ParkedOnlyOnClickListenerTest {
@@ -50,10 +52,14 @@ public class ParkedOnlyOnClickListenerTest {
     public void create() throws RemoteException {
         ParkedOnlyOnClickListener parkedOnlyOnClickListener =
                 ParkedOnlyOnClickListener.create(mMockOnClickListener);
-        OnClickListenerWrapper wrapper = OnClickListenerWrapper.create(parkedOnlyOnClickListener);
+        OnClickListenerWrapper wrapper =
+                OnClickListenerWrapperImpl.create(parkedOnlyOnClickListener);
 
         assertThat(wrapper.isParkedOnly()).isTrue();
-        wrapper.getListener().onClick(mock(IOnDoneCallback.class));
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+
+        wrapper.onClick(onDoneCallback);
         verify(mMockOnClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 }

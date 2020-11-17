@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -133,8 +133,10 @@ public class GridItemTest {
         OnClickListener onClickListener = mock(OnClickListener.class);
         GridItem gridItem =
                 GridItem.builder().setImage(BACK).setOnClickListener(onClickListener).build();
-        gridItem.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        gridItem.getOnClickListener().onClick(onDoneCallback);
         verify(onClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test

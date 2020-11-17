@@ -164,6 +164,28 @@ package androidx.car.app.host {
     method public void onSuccess(androidx.car.app.serialization.Bundleable?);
   }
 
+  public interface OnItemVisibilityChangedListenerWrapper {
+    method public void onItemVisibilityChanged(int, int, androidx.car.app.host.OnDoneCallback);
+  }
+
+  public interface OnSelectedListenerWrapper {
+    method public void onSelected(int, androidx.car.app.host.OnDoneCallback);
+  }
+
+  public interface SearchListenerWrapper {
+    method public void onSearchSubmitted(String, androidx.car.app.host.OnDoneCallback);
+    method public void onSearchTextChanged(String, androidx.car.app.host.OnDoneCallback);
+  }
+
+}
+
+package androidx.car.app.host.model {
+
+  public interface OnClickListenerWrapper {
+    method public boolean isParkedOnly();
+    method public void onClick(androidx.car.app.host.OnDoneCallback);
+  }
+
 }
 
 package androidx.car.app.model {
@@ -172,7 +194,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.Action.Builder builder();
     method public androidx.car.app.model.CarColor getBackgroundColor();
     method public androidx.car.app.model.CarIcon? getIcon();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.host.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getTitle();
     method public int getType();
     method public boolean isStandard();
@@ -336,7 +358,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.GridItem.Builder builder();
     method public androidx.car.app.model.CarIcon getImage();
     method public int getImageType();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.host.model.OnClickListenerWrapper? getOnClickListener();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
     method public androidx.car.app.model.Toggle? getToggle();
@@ -382,6 +404,8 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.ItemList.Builder builder();
     method public java.util.List<java.lang.Object!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
+    method public androidx.car.app.host.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangeListener();
+    method public androidx.car.app.host.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
     method public boolean isRefresh(androidx.car.app.model.ItemList?, androidx.car.app.utils.Logger);
   }
@@ -469,10 +493,6 @@ package androidx.car.app.model {
 
   public interface OnClickListener {
     method public void onClick();
-  }
-
-  public class OnClickListenerWrapper {
-    method public boolean isParkedOnly();
   }
 
   public final class Pane {
@@ -573,7 +593,7 @@ package androidx.car.app.model {
     method public int getFlags();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata getMetadata();
-    method public androidx.car.app.model.OnClickListenerWrapper? getOnClickListener();
+    method public androidx.car.app.host.model.OnClickListenerWrapper? getOnClickListener();
     method public int getRowImageType();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
     method public androidx.car.app.model.CarText getTitle();
@@ -610,6 +630,7 @@ package androidx.car.app.model {
     method public String? getInitialSearchText();
     method public androidx.car.app.model.ItemList? getItemList();
     method public String? getSearchHint();
+    method public androidx.car.app.host.SearchListenerWrapper getSearchListener();
     method public boolean isLoading();
     method public boolean isShowKeyboardByDefault();
   }

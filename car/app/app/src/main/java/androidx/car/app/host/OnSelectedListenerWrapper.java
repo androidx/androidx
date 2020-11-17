@@ -19,15 +19,14 @@ package androidx.car.app.host;
 import androidx.annotation.NonNull;
 
 /**
- * A host-side interface for reporting to clients that the checked state has changed.
+ * A host-side interface for reporting to clients that an item was selected.
  */
-public interface OnCheckedChangeListenerWrapper {
+public interface OnSelectedListenerWrapper {
     /**
-     * Notifies that checked state has changed.
+     * Notifies that an item was selected.
      *
-     * @param isChecked the updated checked state.
-     * @param callback  the {@link OnDoneCallback} to trigger when the client finishes handling
-     *                  the event.
+     * <p>This event is called even if the selection did not change, for example, if the user
+     * selected an already selected item.
      */
-    void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback);
+    void onSelected(int selectedIndex, @NonNull OnDoneCallback callback);
 }

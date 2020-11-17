@@ -22,7 +22,9 @@ import static androidx.car.app.model.CarIcon.BACK;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -30,6 +32,8 @@ import android.os.RemoteException;
 import android.text.SpannableString;
 
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.ItemList.OnSelectedListener;
 import androidx.car.app.utils.Logger;
@@ -122,13 +126,12 @@ public class ItemListTest {
         Row row1 = Row.builder().setTitle("Row1").build();
         assertThrows(
                 IllegalStateException.class,
-                () ->
-                        ItemList.builder()
-                                .addItem(row1)
-                                .setSelectable(selectedIndex -> {
-                                })
-                                .setSelectedIndex(2)
-                                .build());
+                () -> ItemList.builder()
+                        .addItem(row1)
+                        .setSelectable(selectedIndex -> {
+                        })
+                        .setSelectedIndex(2)
+                        .build());
     }
 
     @Test
@@ -141,21 +144,24 @@ public class ItemListTest {
                         .setSelectable(mockListener)
                         .build();
 
-        itemList.getOnSelectedListener().onSelected(0, mMockOnDoneCallback);
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+
+
+        itemList.getOnSelectedListener().onSelected(0, onDoneCallback);
         verify(mockListener).onSelected(eq(0));
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test
     public void setSelectable_disallowOnClickListenerInRows() {
         assertThrows(
                 IllegalStateException.class,
-                () ->
-                        ItemList.builder()
-                                .addItem(Row.builder().setTitle("foo").setOnClickListener(() -> {
-                                }).build())
-                                .setSelectable((index) -> {
-                                })
-                                .build());
+                () -> ItemList.builder()
+                        .addItem(Row.builder().setTitle("foo").setOnClickListener(() -> {
+                        }).build())
+                        .setSelectable((index) -> {
+                        })
+                        .build());
 
         // Positive test.
         ItemList.builder()
@@ -169,18 +175,17 @@ public class ItemListTest {
     public void setSelectable_disallowToggleInRow() {
         assertThrows(
                 IllegalStateException.class,
-                () ->
-                        ItemList.builder()
-                                .addItem(Row.builder().setToggle(Toggle.builder(isChecked -> {
-                                }).build()).build())
-                                .setSelectable((index) -> {
-                                })
-                                .build());
+                () -> ItemList.builder()
+                        .addItem(Row.builder().setToggle(Toggle.builder(isChecked -> {
+                        }).build()).build())
+                        .setSelectable((index) -> {
+                        })
+                        .build());
     }
 
     @Test
     @UiThreadTest
-    public void setOnItemVisibilityChangeListener_triggerListener() throws RemoteException {
+    public void setOnItemVisibilityChangeListener_triggerListener() {
         OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
                 ItemList.builder()
@@ -188,12 +193,45 @@ public class ItemListTest {
                         .setOnItemsVisibilityChangeListener(listener)
                         .build();
 
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         list.getOnItemsVisibilityChangeListener().onItemVisibilityChanged(0, 1,
-                mMockOnDoneCallback);
+                onDoneCallback);
         ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
                 endIndexCaptor.capture());
+        verify(onDoneCallback).onSuccess(null);
+        assertThat(startIndexCaptor.getValue()).isEqualTo(0);
+        assertThat(endIndexCaptor.getValue()).isEqualTo(1);
+    }
+
+    @Test
+    @UiThreadTest
+    public void setOnItemVisibilityChangeListener_triggerListenerWithFailure() {
+        OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
+        ItemList list =
+                ItemList.builder()
+                        .addItem(Row.builder().setTitle("1").build())
+                        .setOnItemsVisibilityChangeListener(listener)
+                        .build();
+
+        String testExceptionMessage = "Test exception";
+        doThrow(new RuntimeException(testExceptionMessage)).when(listener).onItemVisibilityChanged(
+                0, 1);
+
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        try {
+            list.getOnItemsVisibilityChangeListener().onItemVisibilityChanged(0, 1,
+                    onDoneCallback);
+        } catch (WrappedRuntimeException e) {
+            assertThat(e.getMessage()).contains(testExceptionMessage);
+        }
+
+        ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
+                endIndexCaptor.capture());
+        verify(onDoneCallback).onFailure(any());
         assertThat(startIndexCaptor.getValue()).isEqualTo(0);
         assertThat(endIndexCaptor.getValue()).isEqualTo(1);
     }
@@ -260,15 +298,13 @@ public class ItemListTest {
 
         ItemList list1 =
                 ItemList.builder()
-                        .addItem(
-                                Row.builder().setTitle(textWithDistanceSpan).addText(
-                                        textWithDurationSpan).build())
+                        .addItem(Row.builder().setTitle(textWithDistanceSpan).addText(
+                                textWithDurationSpan).build())
                         .build();
         ItemList list2 =
                 ItemList.builder()
-                        .addItem(
-                                Row.builder().setTitle(textWithDurationSpan).addText(
-                                        textWithDistanceSpan).build())
+                        .addItem(Row.builder().setTitle(textWithDurationSpan).addText(
+                                textWithDistanceSpan).build())
                         .build();
         ItemList list3 =
                 ItemList.builder()

@@ -23,12 +23,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.os.RemoteException;
 import android.text.SpannableString;
 
 import androidx.car.app.CarAppPermission;
-import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.TestUtils;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
@@ -188,7 +187,7 @@ public class RoutePreviewNavigationTemplateTest {
 
     @Test
     @UiThreadTest
-    public void setOnNavigateAction() throws RemoteException {
+    public void setOnNavigateAction() {
         OnClickListener mockListener = mock(OnClickListener.class);
         RoutePreviewNavigationTemplate template =
                 RoutePreviewNavigationTemplate.builder()
@@ -199,11 +198,12 @@ public class RoutePreviewNavigationTemplateTest {
                                         mockListener).build())
                         .build();
 
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         template.getNavigateAction()
                 .getOnClickListener()
-                .getListener()
-                .onClick(mock(IOnDoneCallback.class));
+                .onClick(onDoneCallback);
         verify(mockListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test

@@ -19,14 +19,17 @@ package androidx.car.app.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.os.RemoteException;
 
-import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.SearchListener;
 import androidx.car.app.TestUtils;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -52,21 +55,19 @@ public class SearchTemplateTest {
     public void createInstance_isLoading_hasList_Throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        SearchTemplate.builder(mMockSearchListener)
-                                .setLoading(true)
-                                .setItemList(ItemList.builder().build())
-                                .build());
+                () -> SearchTemplate.builder(mMockSearchListener)
+                        .setLoading(true)
+                        .setItemList(ItemList.builder().build())
+                        .build());
     }
 
     @Test
     public void addList_selectable_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        SearchTemplate.builder(mMockSearchListener)
-                                .setItemList(TestUtils.createItemList(6, true))
-                                .build());
+                () -> SearchTemplate.builder(mMockSearchListener)
+                        .setItemList(TestUtils.createItemList(6, true))
+                        .build());
 
         // Positive cases.
         SearchTemplate.builder(mMockSearchListener)
@@ -83,10 +84,9 @@ public class SearchTemplateTest {
                 Row.builder().setTitle("Title").addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        SearchTemplate.builder(mMockSearchListener)
-                                .setItemList(ItemList.builder().addItem(rowExceedsMaxTexts).build())
-                                .build());
+                () -> SearchTemplate.builder(mMockSearchListener)
+                        .setItemList(ItemList.builder().addItem(rowExceedsMaxTexts).build())
+                        .build());
 
         // Positive cases.
         SearchTemplate.builder(mMockSearchListener)
@@ -103,10 +103,9 @@ public class SearchTemplateTest {
                 Row.builder().setTitle("Title").addText("text1").addText("text2").build();
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        SearchTemplate.builder(mMockSearchListener)
-                                .setItemList(ItemList.builder().addItem(rowWithToggle).build())
-                                .build());
+                () -> SearchTemplate.builder(mMockSearchListener)
+                        .setItemList(ItemList.builder().addItem(rowWithToggle).build())
+                        .build());
 
         // Positive cases.
         SearchTemplate.builder(mMockSearchListener)
@@ -141,6 +140,7 @@ public class SearchTemplateTest {
                         .setSearchHint(searchHint)
                         .setItemList(itemList)
                         .build();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
         assertThat(searchTemplate.getInitialSearchText()).isEqualTo(initialSearchText);
         assertThat(searchTemplate.getSearchHint()).isEqualTo(searchHint);
@@ -149,21 +149,61 @@ public class SearchTemplateTest {
         assertThat(searchTemplate.getHeaderAction()).isEqualTo(Action.BACK);
 
         String searchText = "foo";
-        searchTemplate.getSearchListener().onSearchSubmitted(searchText,
-                mock(IOnDoneCallback.class));
+        searchTemplate.getSearchListener().onSearchSubmitted(searchText, onDoneCallback);
         verify(mMockSearchListener).onSearchSubmitted(searchText);
+        verify(onDoneCallback).onSuccess(null);
+    }
+
+    @Test
+    @UiThreadTest
+    public void buildWithValues_failureOnSearchSubmitted() throws RemoteException {
+        String initialSearchText = "searchTemplate for this!!";
+        String searchHint = "This is not a hint";
+        ItemList itemList = ItemList.builder().addItem(
+                Row.builder().setTitle("foo").build()).build();
+        ActionStrip actionStrip = ActionStrip.builder().addAction(Action.BACK).build();
+
+        SearchTemplate searchTemplate =
+                SearchTemplate.builder(mMockSearchListener)
+                        .setHeaderAction(Action.BACK)
+                        .setActionStrip(actionStrip)
+                        .setInitialSearchText(initialSearchText)
+                        .setSearchHint(searchHint)
+                        .setItemList(itemList)
+                        .build();
+
+
+        assertThat(searchTemplate.getInitialSearchText()).isEqualTo(initialSearchText);
+        assertThat(searchTemplate.getSearchHint()).isEqualTo(searchHint);
+        assertThat(searchTemplate.getItemList()).isEqualTo(itemList);
+        assertThat(searchTemplate.getActionStrip()).isEqualTo(actionStrip);
+        assertThat(searchTemplate.getHeaderAction()).isEqualTo(Action.BACK);
+
+        String searchText = "foo";
+        String testExceptionMessage = "Test exception";
+        doThrow(new RuntimeException(testExceptionMessage)).when(
+                mMockSearchListener).onSearchSubmitted(searchText);
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+
+        try {
+            searchTemplate.getSearchListener().onSearchSubmitted(searchText, onDoneCallback);
+        } catch (WrappedRuntimeException e) {
+            assertThat(e.getMessage()).contains(testExceptionMessage);
+        }
+
+        verify(mMockSearchListener).onSearchSubmitted(searchText);
+        verify(onDoneCallback).onFailure(any());
     }
 
     @Test
     public void createInstance_setHeaderAction_invalidActionThrows() {
         assertThrows(
                 IllegalArgumentException.class,
-                () ->
-                        SearchTemplate.builder(mMockSearchListener)
-                                .setHeaderAction(
-                                        Action.builder().setTitle("Action").setOnClickListener(
-                                                () -> {
-                                                }).build()));
+                () -> SearchTemplate.builder(mMockSearchListener)
+                        .setHeaderAction(
+                                Action.builder().setTitle("Action").setOnClickListener(
+                                        () -> {
+                                        }).build()));
     }
 
     @Test
