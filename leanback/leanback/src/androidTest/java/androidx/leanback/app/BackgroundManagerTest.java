@@ -80,8 +80,21 @@ public class BackgroundManagerTest {
             public boolean canProceed() {
                 // two step: first ChangeRunnable gets run.
                 // then Animator is finished.
-                return manager.mLayerDrawable != null && manager.mChangeRunnable == null
-                        && !manager.mAnimator.isRunning();
+                boolean[] finished = new boolean[1];
+                try {
+                    mRule.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finished[0] = manager.mLayerDrawable != null
+                                    && manager.mChangeRunnable == null
+                                    && !manager.mAnimator.isRunning()
+                                    && manager.mLayerDrawable.mWrapper[0] == null;
+                        }
+                    });
+                } catch (Throwable ex) {
+                    return false;
+                }
+                return finished[0];
             }
         });
     }
