@@ -42,8 +42,7 @@ public interface Serializer<T> {
     public fun readFrom(input: InputStream): T
 
     /**
-     *  Marshal object to a stream. writeTo should not close [output], doing so will result in an
-     *  exception.
+     *  Marshal object to a stream. Closing the provided OutputStream is a no-op.
      *
      *  @param t the data to write to output
      *  @output the OutputStream to serialize data to

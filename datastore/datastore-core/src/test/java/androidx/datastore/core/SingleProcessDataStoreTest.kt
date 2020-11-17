@@ -382,11 +382,10 @@ class SingleProcessDataStoreTest {
         val continueInit = CompletableDeferred<Unit>()
 
         store = newDataStore(
-            initTasksList =
-                listOf { api ->
-                    continueInit.await()
-                    api.updateData { 1 }
-                }
+            initTasksList = listOf { api ->
+                continueInit.await()
+                api.updateData { 1 }
+            }
         )
 
         val update = async {
@@ -663,12 +662,12 @@ class SingleProcessDataStoreTest {
     }
 
     @Test
-    fun testCantCloseWhenWritingToSerializer() = runBlockingTest {
+    fun testClosingOutputStreamDoesntCloseUnderlyingStream() = runBlockingTest {
         val delegate = TestingSerializer()
         val serializer = object : Serializer<Byte> by delegate {
             override fun writeTo(t: Byte, output: OutputStream) {
                 delegate.writeTo(t, output)
-                output.close() // This should throw IllegalStateException
+                output.close() // This will be a no-op so the fd.sync() call will succeed.
             }
         }
 
@@ -677,7 +676,8 @@ class SingleProcessDataStoreTest {
         // Shouldn't throw:
         dataStore.data.first()
 
-        assertThrows<IllegalStateException> { dataStore.updateData { it.inc() } }
+        // Shouldn't throw:
+        dataStore.updateData { it.inc() }
     }
 
     // Mutable wrapper around a byte
