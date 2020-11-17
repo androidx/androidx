@@ -37,6 +37,7 @@ FRAMEWORK_IMPL_ROOT = 'service/java/com/android/server/appsearch/external'
 FRAMEWORK_IMPL_TEST_ROOT = (
         '../../services/tests/servicestests/src/'
         'com/android/server/appsearch/external')
+CHANGEID_FILE_NAME = 'synced_jetpack_changeid.txt'
 
 
 def _PruneDir(dest_dir, allow_list=None):
@@ -69,6 +70,9 @@ def _TransformAndCopyFile(source_path, dest_path, transform_func=None):
 def _TransformCommonCode(contents):
     return (contents
         .replace('androidx.appsearch.app', 'android.app.appsearch')
+        .replace(
+                'androidx.appsearch.localstorage.',
+                'com.android.server.appsearch.external.localstorage.')
         .replace('androidx.appsearch', 'android.app.appsearch')
         .replace(
                 'androidx.annotation.GuardedBy',
@@ -76,6 +80,7 @@ def _TransformCommonCode(contents):
         .replace(
                 'androidx.annotation.VisibleForTesting',
                 'com.android.internal.annotations.VisibleForTesting')
+        .replace('androidx.collection.ArrayMap', 'android.util.ArrayMap')
         .replace('androidx.collection.ArraySet', 'android.util.ArraySet')
         .replace(
                 'androidx.core.util.ObjectsCompat',
@@ -213,14 +218,30 @@ def _CopyAllImpl(source_dir, dest_dir):
             ])
 
 
-def _CopyMain(source_dir, dest_dir):
+def _CopyChangeIdFile(changeid, dest_dir):
+    """Copies the changeid of the most recent public CL into a file on the framework side.
+
+    This file is used for tracking, to determine what framework is synced to.
+
+    You must always provide a changeid of an exported, preferably even submitted CL. If you abandon
+    the CL pointed to by this changeid, the next person syncing framework will be unable to find
+    what CL it is synced to.
+    """
+    file_path = os.path.join(dest_dir, CHANGEID_FILE_NAME)
+    with open(file_path, 'w') as fh:
+        print(changeid, file=fh)
+    print('Wrote "%s"' % file_path)
+
+
+def _CopyMain(source_dir, dest_dir, changeid):
     _CopyAllApi(source_dir, dest_dir)
     _CopyAllImpl(source_dir, dest_dir)
+    _CopyChangeIdFile(changeid, dest_dir)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Usage: %s <path/to/frameworks/base>' % sys.argv[0],
+    if len(sys.argv) != 3:
+        print('Usage: %s <path/to/frameworks/base> <changeId of head jetpack commit>' % sys.argv[0],
               file=sys.stderr)
         sys.exit(1)
     source_dir = os.path.normpath(os.path.dirname(sys.argv[0]))
@@ -236,4 +257,4 @@ if __name__ == '__main__':
                 dest_dir),
               file=sys.stderr)
         sys.exit(1)
-    _CopyMain(source_dir, dest_dir)
+    _CopyMain(source_dir, dest_dir, sys.argv[2])
