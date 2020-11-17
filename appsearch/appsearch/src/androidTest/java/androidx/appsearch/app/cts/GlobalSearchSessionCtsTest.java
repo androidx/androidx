@@ -73,7 +73,7 @@ public class GlobalSearchSessionCtsTest {
     }
 
     @Test
-    public void testGlobalQuery_OneInstance() throws Exception {
+    public void testGlobalQuery_oneInstance() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -107,7 +107,7 @@ public class GlobalSearchSessionCtsTest {
     }
 
     @Test
-    public void testGlobalQuery_TwoInstances() throws Exception {
+    public void testGlobalQuery_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -146,7 +146,7 @@ public class GlobalSearchSessionCtsTest {
     }
 
     @Test
-    public void testGlobalQuery_GetNextPage() throws Exception {
+    public void testGlobalQuery_getNextPage() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -193,7 +193,7 @@ public class GlobalSearchSessionCtsTest {
     }
 
     @Test
-    public void testGlobalQuery_AcrossTypes() throws Exception {
+    public void testGlobalQuery_acrossTypes() throws Exception {
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
                 .addProperty(new PropertyConfig.Builder("foo")
@@ -252,7 +252,7 @@ public class GlobalSearchSessionCtsTest {
     }
 
     @Test
-    public void testGlobalQuery_NamespaceFilter() throws Exception {
+    public void testGlobalQuery_namespaceFilter() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));

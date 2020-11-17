@@ -37,7 +37,7 @@ public class GenericDocumentCtsTest {
             .build();
 
     @Test
-    public void testDocumentEquals_Identical() {
+    public void testDocumentEquals_identical() {
         GenericDocument document1 = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setTtlMillis(1L)
@@ -63,7 +63,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    public void testDocumentEquals_DifferentOrder() {
+    public void testDocumentEquals_differentOrder() {
         GenericDocument document1 = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -89,7 +89,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    public void testDocumentEquals_Failure() {
+    public void testDocumentEquals_failure() {
         GenericDocument document1 = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -105,7 +105,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    public void testDocumentEquals_Failure_RepeatedFieldOrder() {
+    public void testDocumentEquals_repeatedFieldOrder_failure() {
         GenericDocument document1 = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyBoolean("booleanKey1", true, false, true)
@@ -175,7 +175,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    public void testDocument_ToString() {
+    public void testDocument_toString() {
         GenericDocument document = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
@@ -218,7 +218,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    public void testDocumentGetValues_DifferentTypes() {
+    public void testDocumentGetValues_differentTypes() {
         GenericDocument document = new GenericDocument.Builder<>("uri1", "schemaType1")
                 .setScore(1)
                 .setPropertyLong("longKey1", 1L)

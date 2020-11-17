@@ -251,7 +251,7 @@ public class AnnotationProcessorTest {
     }
 
     @Test
-    public void testAnnotationProcessor_QueryByType() throws Exception {
+    public void testAnnotationProcessor_queryByType() throws Exception {
         checkIsResultSuccess(mSession.setSchema(
                 new SetSchemaRequest.Builder()
                         .addDataClass(Card.class, Gift.class)
