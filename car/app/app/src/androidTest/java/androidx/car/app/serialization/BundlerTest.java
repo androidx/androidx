@@ -31,7 +31,7 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
@@ -181,8 +181,10 @@ public class BundlerTest {
 
         Row row = (Row) readIn.getItemList().getItems().get(0);
         assertThat(row.getTitle().toString()).isEqualTo("foo");
-        row.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        row.getOnClickListener().onClick(onDoneCallback);
         verify(clickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test

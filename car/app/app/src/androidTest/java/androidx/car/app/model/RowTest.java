@@ -25,9 +25,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.os.RemoteException;
-
-import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
@@ -124,11 +122,13 @@ public class RowTest {
 
     @Test
     @UiThreadTest
-    public void clickListener() throws RemoteException {
+    public void clickListener() {
         OnClickListener onClickListener = mock(OnClickListener.class);
         Row row = Row.builder().setTitle("Title").setOnClickListener(onClickListener).build();
-        row.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        row.getOnClickListener().onClick(onDoneCallback);
         verify(onClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test
