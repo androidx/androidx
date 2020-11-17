@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+if [ -n "$1" ]; then
+  export ANDROIDX_PROJECTS=${1^^}
+else
+  export ANDROIDX_PROJECTS=MAIN
+  echo "Supported projects sets include:"
+  echo "- MAIN for non-Compose Jetpack libraries"
+  echo "- COMPOSE for Compose and dependencies"
+  echo "- FLAN for Fragment, Lifecycle, Activity, and Navigation"
+  echo "- ALL for all libraries"
+  echo
+  echo "No project set specified, using MAIN..."
+fi
+shift
+source gradlew studio "$@"
+
