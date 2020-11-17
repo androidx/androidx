@@ -321,9 +321,8 @@ internal class SingleProcessDataStore<T>(
         }
     }
 
-    // Wrapper on FileOutputStream to prevent users from closing it in their serializer.
-    private class UncloseableOutputStream(internal val fileOutputStream: FileOutputStream) :
-        OutputStream() {
+    // Wrapper on FileOutputStream to prevent closing the underlying OutputStream.
+    private class UncloseableOutputStream(val fileOutputStream: FileOutputStream) : OutputStream() {
 
         override fun write(b: Int) {
             fileOutputStream.write(b)
@@ -338,7 +337,8 @@ internal class SingleProcessDataStore<T>(
         }
 
         override fun close() {
-            throw IllegalStateException("Do not close the OutputStream provided by DataStore")
+            // We will not close the underlying FileOutputStream until after we're done syncing
+            // the fd. This is useful for things like b/173037611.
         }
 
         override fun flush() {
