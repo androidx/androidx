@@ -93,7 +93,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testSetSchema_DataClass() throws Exception {
+    public void testSetSchema_dataClass() throws Exception {
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
     }
@@ -119,7 +119,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testPutDocuments_DataClass() throws Exception {
+    public void testPutDocuments_dataClass() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
@@ -268,7 +268,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemoveSchema_TwoDatabases() throws Exception {
+    public void testRemoveSchema_twoDatabases() throws Exception {
         // Schema registration in mDb1 and mDb2
         AppSearchSchema emailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
                 .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
@@ -387,7 +387,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testGetDocuments_DataClass() throws Exception {
+    public void testGetDocuments_dataClass() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addDataClass(EmailDataClass.class).build()));
@@ -444,7 +444,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testQuery_GetNextPage() throws Exception {
+    public void testQuery_getNextPage() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
@@ -490,7 +490,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testQuery_TypeFilter() throws Exception {
+    public void testQuery_typeFilter() throws Exception {
         // Schema registration
         AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
                 .addProperty(new PropertyConfig.Builder("foo")
@@ -538,7 +538,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testQuery_NamespaceFilter() throws Exception {
+    public void testQuery_namespaceFilter() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
                 new SetSchemaRequest.Builder()
@@ -586,7 +586,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testQuery_TwoInstances() throws Exception {
+    public void testQuery_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -783,7 +783,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemove_TwoInstances() throws Exception {
+    public void testRemove_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -880,7 +880,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemoveByTypes_TwoInstances() throws Exception {
+    public void testRemoveByTypes_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -1000,7 +1000,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemoveByNamespaces_TwoInstances() throws Exception {
+    public void testRemoveByNamespaces_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -1057,7 +1057,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemoveAll_TwoInstances() throws Exception {
+    public void testRemoveAll_twoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -1109,7 +1109,7 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
-    public void testRemoveAll_TermMatchType() throws Exception {
+    public void testRemoveAll_termMatchType() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
