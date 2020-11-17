@@ -31,10 +31,10 @@ import androidx.car.app.FailureResponse;
 import androidx.car.app.HostException;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.ISurfaceListener;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.SurfaceContainer;
 import androidx.car.app.SurfaceListener;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
