@@ -190,6 +190,14 @@ internal sealed class PageEvent<T : Any> {
         val loadState: LoadState // TODO: consider using full state object here
     ) : PageEvent<T>() {
         init {
+            // endOfPaginationReached for local refresh is driven by null values in next/prev keys.
+            require(
+                loadType != REFRESH || fromMediator || loadState !is LoadState.NotLoading ||
+                    !loadState.endOfPaginationReached
+            ) {
+                "LoadStateUpdate for local REFRESH may not set endOfPaginationReached = true"
+            }
+
             require(canDispatchWithoutInsert(loadState, fromMediator)) {
                 "LoadStateUpdates cannot be used to dispatch NotLoading unless it is from remote" +
                     " mediator and remote mediator reached end of pagination."
