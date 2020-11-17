@@ -279,6 +279,7 @@ public final class MediaRouter {
      * @return The media router instance for the context.  The application must hold
      * a strong reference to this object as long as it is in use.
      */
+    @NonNull
     public static MediaRouter getInstance(@NonNull Context context) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
@@ -296,12 +297,14 @@ public final class MediaRouter {
      * Gets information about the {@link MediaRouter.RouteInfo routes} currently known to
      * this media router.
      */
+    @NonNull
     public List<RouteInfo> getRoutes() {
         checkCallingThread();
         return sGlobal.getRoutes();
     }
 
-    @Nullable RouteInfo getRoute(String uniqueId) {
+    @Nullable
+    RouteInfo getRoute(String uniqueId) {
         checkCallingThread();
         return sGlobal.getRoute(uniqueId);
     }
@@ -310,6 +313,7 @@ public final class MediaRouter {
      * Gets information about the {@link MediaRouter.ProviderInfo route providers}
      * currently known to this media router.
      */
+    @NonNull
     public List<ProviderInfo> getProviders() {
         checkCallingThread();
         return sGlobal.getProviders();
@@ -334,6 +338,7 @@ public final class MediaRouter {
      *
      * @return A bluetooth route, if exist, otherwise null.
      */
+    @Nullable
     public RouteInfo getBluetoothRoute() {
         checkCallingThread();
         return sGlobal.getBluetoothRoute();
@@ -472,7 +477,10 @@ public final class MediaRouter {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public void addMemberToDynamicGroup(RouteInfo route) {
+    public void addMemberToDynamicGroup(@NonNull RouteInfo route) {
+        if (route == null) {
+            throw new NullPointerException("route must not be null");
+        }
         checkCallingThread();
         sGlobal.addMemberToDynamicGroup(route);
     }
@@ -482,7 +490,10 @@ public final class MediaRouter {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public void removeMemberFromDynamicGroup(RouteInfo route) {
+    public void removeMemberFromDynamicGroup(@NonNull RouteInfo route) {
+        if (route == null) {
+            throw new NullPointerException("route must not be null");
+        }
         checkCallingThread();
         sGlobal.removeMemberFromDynamicGroup(route);
     }
@@ -493,6 +504,9 @@ public final class MediaRouter {
      */
     @RestrictTo(LIBRARY)
     public void transferToRoute(@NonNull RouteInfo route) {
+        if (route == null) {
+            throw new NullPointerException("route must not be null");
+        }
         checkCallingThread();
         sGlobal.transferToRoute(route);
     }
@@ -541,7 +555,7 @@ public final class MediaRouter {
      * @param callback The callback to add.
      * @see #removeCallback
      */
-    public void addCallback(MediaRouteSelector selector, Callback callback) {
+    public void addCallback(@NonNull MediaRouteSelector selector, @NonNull Callback callback) {
         addCallback(selector, callback, 0);
     }
 
@@ -838,12 +852,11 @@ public final class MediaRouter {
      * {@link #addRemoteControlClient} when using media sessions. Set the
      * session to null to clear it.
      *
-     * @param mediaSession The {@link android.media.session.MediaSession} to
-     *            use.
+     * @param mediaSession The {@link android.media.session.MediaSession} to use.
      */
-    public void setMediaSession(Object mediaSession) {
+    public void setMediaSession(@Nullable Object mediaSession) {
         if (DEBUG) {
-            Log.d(TAG, "addMediaSession: " + mediaSession);
+            Log.d(TAG, "setMediaSession: " + mediaSession);
         }
         sGlobal.setMediaSession(mediaSession);
     }
@@ -854,15 +867,16 @@ public final class MediaRouter {
      * {@link #addRemoteControlClient} when using {@link MediaSessionCompat}.
      * Set the session to null to clear it.
      *
-     * @param mediaSession
+     * @param mediaSession The {@link MediaSessionCompat} to use.
      */
-    public void setMediaSessionCompat(MediaSessionCompat mediaSession) {
+    public void setMediaSessionCompat(@Nullable MediaSessionCompat mediaSession) {
         if (DEBUG) {
-            Log.d(TAG, "addMediaSessionCompat: " + mediaSession);
+            Log.d(TAG, "setMediaSessionCompat: " + mediaSession);
         }
         sGlobal.setMediaSessionCompat(mediaSession);
     }
 
+    @Nullable
     public MediaSessionCompat.Token getMediaSessionToken() {
         return sGlobal.getMediaSessionToken();
     }
@@ -1100,6 +1114,7 @@ public final class MediaRouter {
         /**
          * Gets information about the provider of this media route.
          */
+        @NonNull
         public ProviderInfo getProvider() {
             return mProvider;
         }
@@ -1129,6 +1144,7 @@ public final class MediaRouter {
          * @return The user-visible name of a media route.  This is the string presented
          * to users who may select this as the active route.
          */
+        @NonNull
         public String getName() {
             return mName;
         }
@@ -1155,6 +1171,7 @@ public final class MediaRouter {
          *
          * @return The URI of the icon representing this route, or null if none.
          */
+        @Nullable
         public Uri getIconUri() {
             return mIconUri;
         }
@@ -1256,6 +1273,7 @@ public final class MediaRouter {
          * @see #supportsControlCategory
          * @see #supportsControlRequest
          */
+        @NonNull
         public List<IntentFilter> getControlFilters() {
             return mControlFilters;
         }
@@ -1624,7 +1642,10 @@ public final class MediaRouter {
          */
         @RestrictTo(LIBRARY)
         @Nullable
-        public DynamicGroupState getDynamicGroupState(RouteInfo route) {
+        public DynamicGroupState getDynamicGroupState(@NonNull RouteInfo route) {
+            if (route == null) {
+                throw new NullPointerException("route must not be null");
+            }
             if (mDynamicGroupDescriptors != null
                     && mDynamicGroupDescriptors.containsKey(route.mUniqueId)) {
                 return new DynamicGroupState(mDynamicGroupDescriptors.get(route.mUniqueId));
@@ -1660,6 +1681,7 @@ public final class MediaRouter {
         }
 
         @Override
+        @NonNull
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
@@ -1855,6 +1877,7 @@ public final class MediaRouter {
 
         /** @hide */
         @RestrictTo(LIBRARY)
+        @NonNull
         public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
@@ -1964,6 +1987,7 @@ public final class MediaRouter {
         /**
          * Gets the provider's underlying {@link MediaRouteProvider} instance.
          */
+        @NonNull
         public MediaRouteProvider getProviderInstance() {
             checkCallingThread();
             return mProviderInstance;
@@ -1972,6 +1996,7 @@ public final class MediaRouter {
         /**
          * Gets the package name of the media route provider.
          */
+        @NonNull
         public String getPackageName() {
             return mMetadata.getPackageName();
         }
@@ -1979,6 +2004,7 @@ public final class MediaRouter {
         /**
          * Gets the component name of the media route provider.
          */
+        @NonNull
         public ComponentName getComponentName() {
             return mMetadata.getComponentName();
         }
@@ -1986,6 +2012,7 @@ public final class MediaRouter {
         /**
          * Gets the {@link MediaRouter.RouteInfo routes} published by this route provider.
          */
+        @NonNull
         public List<RouteInfo> getRoutes() {
             checkCallingThread();
             return Collections.unmodifiableList(mRoutes);
@@ -2066,7 +2093,7 @@ public final class MediaRouter {
          * @deprecated Use {@link #onRouteSelected(MediaRouter, RouteInfo, int)} instead.
          */
         @Deprecated
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
+        public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2119,7 +2146,7 @@ public final class MediaRouter {
          * @deprecated Use {@link #onRouteUnselected(MediaRouter, RouteInfo, int)} instead.
          */
         @Deprecated
-        public void onRouteUnselected(MediaRouter router, RouteInfo route) {
+        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2138,7 +2165,7 @@ public final class MediaRouter {
          * @param route The route that has been unselected.
          * @param reason The reason for unselecting the route.
          */
-        public void onRouteUnselected(MediaRouter router, RouteInfo route,
+        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
                 @UnselectReason int reason) {
             onRouteUnselected(router, route);
         }
@@ -2149,7 +2176,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param route The route that has become available for use.
          */
-        public void onRouteAdded(MediaRouter router, RouteInfo route) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2158,7 +2185,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param route The route that has been removed from availability.
          */
-        public void onRouteRemoved(MediaRouter router, RouteInfo route) {
+        public void onRouteRemoved(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2167,7 +2194,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param route The route that was changed.
          */
-        public void onRouteChanged(MediaRouter router, RouteInfo route) {
+        public void onRouteChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2176,7 +2203,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param route The route whose volume changed.
          */
-        public void onRouteVolumeChanged(MediaRouter router, RouteInfo route) {
+        public void onRouteVolumeChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
         }
 
         /**
@@ -2191,7 +2218,8 @@ public final class MediaRouter {
          *
          * @see RouteInfo#getPresentationDisplay()
          */
-        public void onRoutePresentationDisplayChanged(MediaRouter router, RouteInfo route) {
+        public void onRoutePresentationDisplayChanged(@NonNull MediaRouter router,
+                @NonNull RouteInfo route) {
         }
 
         /**
@@ -2200,7 +2228,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param provider The provider that has become available for use.
          */
-        public void onProviderAdded(MediaRouter router, ProviderInfo provider) {
+        public void onProviderAdded(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
         }
 
         /**
@@ -2209,7 +2237,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param provider The provider that has been removed from availability.
          */
-        public void onProviderRemoved(MediaRouter router, ProviderInfo provider) {
+        public void onProviderRemoved(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
         }
 
         /**
@@ -2218,8 +2246,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param provider The provider that was changed.
          */
-        @SuppressLint("UnknownNullness")
-        public void onProviderChanged(MediaRouter router, ProviderInfo provider) {
+        public void onProviderChanged(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
         }
     }
 
@@ -2269,8 +2296,7 @@ public final class MediaRouter {
          * @param data Result data, or null if none.
          * Contents depend on the {@link MediaControlIntent media control action}.
          */
-        @SuppressLint("UnknownNullness")
-        public void onResult(Bundle data) {
+        public void onResult(@Nullable Bundle data) {
         }
 
         /**
@@ -2281,8 +2307,7 @@ public final class MediaRouter {
          * @param data Error data, or null if none.
          * Contents depend on the {@link MediaControlIntent media control action}.
          */
-        @SuppressLint("UnknownNullness")
-        public void onError(String error, Bundle data) {
+        public void onError(@Nullable String error, @Nullable Bundle data) {
         }
     }
 
@@ -2804,7 +2829,7 @@ public final class MediaRouter {
         }
 
         @Override
-        public void addProvider(MediaRouteProvider providerInstance) {
+        public void addProvider(@NonNull MediaRouteProvider providerInstance) {
             if (findProviderInfo(providerInstance) == null) {
                 // 1. Add the provider to the list.
                 ProviderInfo provider = new ProviderInfo(providerInstance);

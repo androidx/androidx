@@ -40,6 +40,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.mediarouter.R;
@@ -91,11 +92,11 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         }
     };
 
-    public MediaRouteChooserDialog(Context context) {
+    public MediaRouteChooserDialog(@NonNull Context context) {
         this(context, 0);
     }
 
-    public MediaRouteChooserDialog(Context context, int theme) {
+    public MediaRouteChooserDialog(@NonNull Context context, int theme) {
         super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
                 MediaRouterThemeHelper.createThemedDialogStyle(context));
         context = getContext();
@@ -171,7 +172,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     }
 
     @Override
-    public void setTitle(CharSequence title) {
+    public void setTitle(@Nullable CharSequence title) {
         mTitleView.setText(title);
     }
 
@@ -181,7 +182,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_chooser_dialog);
