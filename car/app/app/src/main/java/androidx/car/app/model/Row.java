@@ -22,6 +22,7 @@ import static androidx.car.app.model.Metadata.EMPTY_METADATA;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
@@ -517,9 +518,12 @@ public class Row implements Item {
         /**
          * Sets the {@link OnClickListener} to be called back when the row is clicked, or {@code
          * null} to make the row non-clickable.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+        @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
             if (onClickListener == null) {
                 this.mOnClickListener = null;

@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
@@ -286,9 +287,12 @@ public class GridItem implements Item {
         /**
          * Sets the {@link OnClickListener} to be called back when the grid item is clicked, or
          * {@code null} to make the grid item non-clickable.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
          */
         @NonNull
-        @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+        @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener onClickListener) {
             if (onClickListener == null) {
                 this.mOnClickListener = null;
