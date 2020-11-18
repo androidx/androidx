@@ -36,19 +36,22 @@ abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     internal val pagingSources = mutableListOf<PagingSource<Key, Value>>()
 
     /**
-     * @return [PagingSource] which will also be stored into [pagingSources].
+     * @return [PagingSource] which will be invalidated when this factory's [invalidate] method
+     * is called
      */
     final override fun invoke(): PagingSource<Key, Value> {
         return pagingSourceFactory().also { pagingSources.add(it) }
     }
 
     /**
-     * Calls [PagingSource.invalidate] on each [PagingSource] stored within [pagingSources]
-     * and removes it from [pagingSources]
+     * Calls [PagingSource.invalidate] on each [PagingSource] that was produced by this
+     * [InvalidatingPagingSourceFactory]
      */
     fun invalidate() {
         while (pagingSources.isNotEmpty()) {
-            pagingSources.removeFirst().invalidate()
+            pagingSources.removeFirst().also {
+                if (!it.invalid) it.invalidate()
+            }
         }
     }
 }

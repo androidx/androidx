@@ -18,6 +18,7 @@ package androidx.paging
 
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class InvalidatingPagingSourceFactoryTest {
 
@@ -26,7 +27,7 @@ class InvalidatingPagingSourceFactoryTest {
 
         val testFactory = getFactory()
 
-        for (i in 0..3) {
+        repeat(4) {
             testFactory.invoke()
         }
 
@@ -38,7 +39,7 @@ class InvalidatingPagingSourceFactoryTest {
 
         val testFactory = getFactory()
 
-        for (i in 0..3) {
+        repeat(4) {
             testFactory.invoke()
         }
 
@@ -54,7 +55,7 @@ class InvalidatingPagingSourceFactoryTest {
 
         val testFactory = getFactory()
 
-        for (i in 0..3) {
+        repeat(4) {
             testFactory.invoke()
         }
 
@@ -65,6 +66,33 @@ class InvalidatingPagingSourceFactoryTest {
         }
 
         testFactory.invalidate()
+    }
+
+    @Test
+    fun skipInvalidatedPagingSources () {
+
+        val testFactory = getFactory()
+
+        repeat(4) {
+            testFactory.invoke()
+        }
+
+        val pagingSource = testFactory.pagingSources[0]
+        pagingSource.invalidate()
+
+        assertTrue(pagingSource.invalid)
+
+        var invalidateCount = 0
+
+        testFactory.pagingSources.forEach {
+            it.registerInvalidatedCallback {
+                invalidateCount++
+            }
+        }
+
+        testFactory.invalidate()
+
+        assertEquals(3, invalidateCount)
     }
 
     private fun getFactory(): InvalidatingPagingSourceFactory<Int, Int> {
