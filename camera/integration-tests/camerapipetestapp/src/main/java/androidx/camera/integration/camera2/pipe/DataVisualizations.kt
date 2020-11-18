@@ -21,6 +21,7 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolder
 import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolderStateImpl
 import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolderValueImpl
@@ -31,12 +32,6 @@ import androidx.camera.integration.camera2.pipe.visualizations.KeyValueView
 import androidx.camera.integration.camera2.pipe.visualizations.Paints
 import androidx.camera.integration.camera2.pipe.visualizations.StateGraphView
 import androidx.camera.integration.camera2.pipe.visualizations.ValueGraphView
-import kotlinx.android.synthetic.main.graph_layout.view.graph_layout
-import kotlinx.android.synthetic.main.graph_layout.view.graph_view_layout
-import kotlinx.android.synthetic.main.graph_layout.view.top_row_layout
-import kotlinx.android.synthetic.main.key_value_layout.view.key_name
-import kotlinx.android.synthetic.main.key_value_layout.view.key_value_layout
-import kotlinx.android.synthetic.main.key_value_layout.view.value_layout
 
 class DataVisualizations(activity: Activity) {
     private var dataManager: DataManager
@@ -110,7 +105,8 @@ class DataVisualizations(activity: Activity) {
                 )
 
             val keyValueLayout = View.inflate(context, R.layout.key_value_layout, null)
-            keyValueLayout.key_name.text = "${it.key.name}    "
+            keyValueLayout.findViewById<TextView>(R.id.key_name).text =
+                context.getString(R.string.data_key_name, it.key.name)
 
             val keyValueViewParams = RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams
@@ -119,7 +115,7 @@ class DataVisualizations(activity: Activity) {
             )
             keyValueView.layoutParams = keyValueViewParams
 
-            keyValueLayout.key_value_layout.value_layout.addView(keyValueView)
+            keyValueLayout.findViewById<RelativeLayout>(R.id.value_layout).addView(keyValueView)
 //            kotlinx.android.synthetic.main.activity_main. .addView(keyValueLayout)
         }
     }
@@ -159,11 +155,12 @@ class DataVisualizations(activity: Activity) {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 heightPixels
             )
-            graphViewParams.addRule(RelativeLayout.BELOW, graphLayout.top_row_layout.id)
+            graphViewParams.addRule(RelativeLayout.BELOW, R.id.top_row_layout)
             graphView.layoutParams = graphViewParams
 
-            graphLayout.graph_view_layout.addView(graphView)
-            graphLayout.graph_layout.setBackgroundResource(R.drawable.graph_background)
+            graphLayout.findViewById<RelativeLayout>(R.id.graph_view_layout).addView(graphView)
+            graphLayout.findViewById<RelativeLayout>(R.id.graph_layout)
+                .setBackgroundResource(R.drawable.graph_background)
 
             val graphLayoutParams = RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams
@@ -182,7 +179,8 @@ class DataVisualizations(activity: Activity) {
                         paints
                     )
                 val keyValueLayout = View.inflate(context, R.layout.key_value_layout, null)
-                keyValueLayout.key_name.text = "${it.key.name} "
+                keyValueLayout.findViewById<TextView>(R.id.key_name).text =
+                    context.getString(R.string.data_key_name, it.key.name)
 
                 val keyValueViewParams = RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams
@@ -191,8 +189,9 @@ class DataVisualizations(activity: Activity) {
                 )
                 keyValueView.layoutParams = keyValueViewParams
 
-                keyValueLayout.key_value_layout.value_layout.addView(keyValueView)
-                graphLayout.top_row_layout.addView(keyValueLayout)
+                keyValueLayout.findViewById<RelativeLayout>(R.id.value_layout).addView(keyValueView)
+                graphLayout.findViewById<RelativeLayout>(R.id.top_row_layout)
+                    .addView(keyValueLayout)
             }
 
 //            graphs.addView(graphLayout)
