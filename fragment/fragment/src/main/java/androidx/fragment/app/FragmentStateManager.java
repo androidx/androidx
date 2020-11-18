@@ -281,19 +281,6 @@ class FragmentStateManager {
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mView != null && mFragment.mContainer != null) {
-                                // If a fragment started its exit animation, but was re-added
-                                // before the exit animation completed we have to set it up for the
-                                // enter animation by:
-                                // 1. Calling endViewTransition on the view
-                                mFragment.mContainer.endViewTransition(mFragment.mView);
-                                if (mFragment.mView.getParent() == null) {
-                                    int index = mFragmentStore
-                                            .findFragmentIndexInContainer(mFragment);
-                                    // 2. Add the view back to the container in the proper position.
-                                    mFragment.mContainer.addView(mFragment.mView, index);
-                                    // 3. Set the view alpha to 0
-                                    mFragment.mView.setAlpha(0f);
-                                }
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
@@ -524,11 +511,7 @@ class FragmentStateManager {
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {
-                // Ensure that our new Fragment is placed in the right index
-                // based on its relative position to Fragments already in the
-                // same container
-                int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
-                container.addView(mFragment.mView, index);
+                addViewToContainer();
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
@@ -811,5 +794,13 @@ class FragmentStateManager {
             }
             mFragment.initState();
         }
+    }
+
+    void addViewToContainer() {
+        // Ensure that our new Fragment is placed in the right index
+        // based on its relative position to Fragments already in the
+        // same container
+        int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
+        mFragment.mContainer.addView(mFragment.mView, index);
     }
 }

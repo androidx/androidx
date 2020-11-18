@@ -588,6 +588,8 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions(fm1)
 
+        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
         fm1.popBackStack()
         activityRule.executePendingTransactions(fm1)
 
@@ -868,7 +870,7 @@ class FragmentAnimationTest {
         var exitStartCount = 0
         var exitRepeatCount = 0
         var exitEndCount = 0
-        val startAnimationLatch = CountDownLatch(1)
+        lateinit var startAnimationLatch: CountDownLatch
         val enterLatch = CountDownLatch(1)
         val exitLatch = CountDownLatch(1)
 
@@ -900,6 +902,7 @@ class FragmentAnimationTest {
                 return null
             }
             val anim = AnimationUtils.loadAnimation(activity, nextAnim)
+            startAnimationLatch = CountDownLatch(1)
             if (anim != null) {
                 if (repeat) {
                     anim.repeatCount = 1
