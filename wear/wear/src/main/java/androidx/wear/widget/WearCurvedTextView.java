@@ -189,6 +189,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         a.recycle();
 
         applyTextAppearance(attributes);
+        mPaint.setTextSize(mTextSize);
     }
 
     @Override
@@ -237,12 +238,13 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doUpdate();
     }
 
-    private void updatePaint() {
-        mPaint.setTextSize(mTextSize);
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
 
         // Note that ascent is negative.
-
         mPathRadius = min(getWidth(), getHeight()) / 2f
                 + (mClockwise ? mPaint.getFontMetrics().ascent - getPaddingTop() :
                 -mPaint.getFontMetrics().descent - getPaddingBottom());
@@ -292,7 +294,6 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         mDirty = false;
         mLastUsedTextAlignment = (int) getTextAlignment();
-        mPaint.setTextSize(mTextSize);
 
         if (mTextSweepDegrees <= mMaxSweepDegrees) {
             mTextToDraw = mText;
@@ -649,7 +650,6 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     private void doUpdate() {
         mDirty = true;
-        updatePaint();
         requestLayout();
         postInvalidate();
     }
@@ -735,6 +735,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     /** sets the text size for rendering the text */
     public void setTextSize(float value) {
         mTextSize = value;
+        mPaint.setTextSize(mTextSize);
         doUpdate();
     }
 
