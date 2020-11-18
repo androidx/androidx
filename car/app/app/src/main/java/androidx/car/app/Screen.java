@@ -50,8 +50,9 @@ import androidx.lifecycle.LifecycleRegistry;
  *
  * <p>Screen objects are not thread safe and all calls should be made from the same thread.
  */
+// This lint warning is triggered because this has a finish() API. Suppress because we are not
+// actually cleaning any held resources in that method.
 @SuppressWarnings("NotCloseable")
-// TODO(rampara): Implement AutoClosable and CloseGuard.
 public abstract class Screen implements LifecycleOwner {
     /**
      * A marker to use with {@link ScreenManager#popTo} when it should pop all the way to the root
