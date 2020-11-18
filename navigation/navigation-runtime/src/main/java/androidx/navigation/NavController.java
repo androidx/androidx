@@ -374,7 +374,11 @@ public class NavController {
                             NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(
                                     new NavDeepLinkRequest(mActivity.getIntent()));
                             if (matchingDeepLink != null) {
-                                args.putAll(matchingDeepLink.getMatchingArgs());
+                                Bundle destinationArgs =
+                                        matchingDeepLink.getDestination().addInDefaultArgs(
+                                                matchingDeepLink.getMatchingArgs()
+                                        );
+                                args.putAll(destinationArgs);
                             }
                         }
                     }
@@ -678,9 +682,12 @@ public class NavController {
             NavDestination.DeepLinkMatch matchingDeepLink =
                     mGraph.matchDeepLink(new NavDeepLinkRequest(intent));
             if (matchingDeepLink != null) {
-                deepLink = matchingDeepLink.getDestination().buildDeepLinkIds();
+                NavDestination destination = matchingDeepLink.getDestination();
+                deepLink = destination.buildDeepLinkIds();
                 deepLinkArgs = null;
-                globalArgs.putAll(matchingDeepLink.getMatchingArgs());
+                Bundle destinationArgs =
+                        destination.addInDefaultArgs(matchingDeepLink.getMatchingArgs());
+                globalArgs.putAll(destinationArgs);
             }
         }
         if (deepLink == null || deepLink.length == 0) {
@@ -1048,7 +1055,8 @@ public class NavController {
         NavDestination.DeepLinkMatch deepLinkMatch =
                 mGraph.matchDeepLink(request);
         if (deepLinkMatch != null) {
-            Bundle args = deepLinkMatch.getMatchingArgs();
+            NavDestination destination = deepLinkMatch.getDestination();
+            Bundle args = destination.addInDefaultArgs(deepLinkMatch.getMatchingArgs());
             NavDestination node = deepLinkMatch.getDestination();
             navigate(node, args, navOptions, navigatorExtras);
         } else {
