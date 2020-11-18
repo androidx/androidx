@@ -70,7 +70,7 @@ class WearArcLayoutTest {
                     text = text1
                     textColor = Color.BLUE
                     setBackgroundColor(Color.rgb(100, 100, 0))
-                    sweepDegrees = 45f
+                    minSweepDegrees = 45f
                 }
             )
             addView(
@@ -99,7 +99,7 @@ class WearArcLayoutTest {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "One"
                     setBackgroundColor(Color.rgb(100, 100, 100))
-                    sweepDegrees = 20f
+                    maxSweepDegrees = 20f
                     clockwise = true
                 }
             )
@@ -107,7 +107,7 @@ class WearArcLayoutTest {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Two"
                     setBackgroundColor(Color.rgb(150, 150, 150))
-                    sweepDegrees = 20f
+                    maxSweepDegrees = 20f
                     clockwise = false
                 }
             )
@@ -126,7 +126,7 @@ class WearArcLayoutTest {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Three"
                     setBackgroundColor(Color.rgb(100, 100, 100))
-                    sweepDegrees = 20f
+                    maxSweepDegrees = 20f
                     clockwise = true
                 }
             )
@@ -134,7 +134,7 @@ class WearArcLayoutTest {
                 WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                     text = "Four"
                     setBackgroundColor(Color.rgb(150, 150, 150))
-                    sweepDegrees = 20f
+                    maxSweepDegrees = 20f
                     clockwise = false
                 }
             )

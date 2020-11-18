@@ -332,8 +332,9 @@ package androidx.wear.widget {
     method public String? getFontFeatureSettings();
     method public String? getFontVariationSettings();
     method public float getLetterSpacing();
+    method public float getMaxSweepDegrees();
+    method public float getMinSweepDegrees();
     method public float getSweepAngleDegrees();
-    method public float getSweepDegrees();
     method public String getText();
     method @ColorInt public int getTextColor();
     method public float getTextSize();
@@ -347,7 +348,8 @@ package androidx.wear.widget {
     method public void setFontFeatureSettings(String?);
     method public void setFontVariationSettings(String?);
     method public void setLetterSpacing(float);
-    method public void setSweepDegrees(float);
+    method public void setMaxSweepDegrees(float);
+    method public void setMinSweepDegrees(float);
     method public void setText(String);
     method public void setTextColor(@ColorInt int);
     method public void setTextSize(float);
