@@ -50,7 +50,8 @@ abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     fun invalidate() {
         while (pagingSources.isNotEmpty()) {
             pagingSources.removeFirst().also {
-                if (!it.invalid) it.invalidate()
+                if (!it.invalid) {
+                    it.invalidate() }
             }
         }
     }
