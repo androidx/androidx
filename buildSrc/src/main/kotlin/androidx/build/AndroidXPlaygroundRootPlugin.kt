@@ -103,13 +103,14 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
 
             // Typically androidx projects have 3 sections, compose has 4.
             if (sections.size >= 3) {
-                // first is empty, last is artifact
-                val group = if (sections[1] == "androidx.arch") {
-                    "androidx.arch.core"
-                } else {
-                    "androidx.${sections.drop(1).dropLast(1).joinToString(".")}"
-                }
-                return "$group:${sections.last()}:$SNAPSHOT_MARKER"
+                val group = sections
+                    // Filter empty sections as many declarations start with ':'
+                    .filter { !it.isBlank() }
+                    // Last element is the artifact.
+                    .dropLast(1)
+                    .joinToString(".")
+                    .replace(Regex("^arch")) { "arch.core" }
+                return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
             }
 
             throw GradleException("projectOrArtifact cannot find/replace project $path")
