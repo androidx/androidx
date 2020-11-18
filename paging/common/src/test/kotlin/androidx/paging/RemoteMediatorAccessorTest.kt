@@ -855,8 +855,148 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requireRetry_refresh() {
-        requireRetry(REFRESH)
+    fun loadMoreRefreshShouldRetryRefresh() {
+        // see: b/173438474
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100)
+        val exception = Exception()
+        remoteMediator.loadCallback = { _, _ ->
+            delay(60)
+            RemoteMediator.MediatorResult.Error(exception)
+        }
+        val accessor = testScope.createAccessor(remoteMediator)
+        val state1 = createMockState()
+        accessor.requestLoad(REFRESH, state1)
+        assertThat(
+            accessor.state.value.refresh
+        ).isEqualTo(
+            LoadState.Loading
+        )
+        // run to get the error
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value.refresh
+        ).isEqualTo(
+            LoadState.Error(exception)
+        )
+        // now send another load type refresh, should trigger another load
+        remoteMediator.loadCallback = null // let it succeed
+        val state2 = createMockState()
+        accessor.requestLoad(REFRESH, state2)
+        assertThat(
+            accessor.state.value.refresh
+        ).isEqualTo(
+            LoadState.Loading
+        )
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value.refresh
+        ).isEqualTo(
+            LoadState.NotLoading.Incomplete
+        )
+    }
+
+    @Test
+    fun loadMoreRefreshShouldRetryRefresh_withAppendPrependErrors() {
+        // see: b/173438474
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100)
+        val exception = Exception()
+        remoteMediator.loadCallback = { _, _ ->
+            delay(60)
+            RemoteMediator.MediatorResult.Error(exception)
+        }
+        val accessor = testScope.createAccessor(remoteMediator)
+        val state1 = createMockState()
+        accessor.requestLoad(REFRESH, state1)
+        accessor.requestLoad(APPEND, state1)
+        accessor.requestLoad(PREPEND, state1)
+        // run to get the error
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.Error(exception),
+                prepend = LoadState.Error(exception),
+                append = LoadState.Error(exception),
+            )
+        )
+        // now send another load type refresh, should trigger another load
+        remoteMediator.loadCallback = null // let it succeed
+        val state2 = createMockState()
+        accessor.requestLoad(REFRESH, state2)
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.Loading,
+                prepend = LoadState.Error(exception), // keep errors for these for now
+                append = LoadState.Error(exception),
+            )
+        )
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.NotLoading.Incomplete,
+                prepend = LoadState.NotLoading.Incomplete, // clear errors
+                append = LoadState.NotLoading.Incomplete,
+            )
+        )
+    }
+
+    @Test
+    fun loadMoreRefreshShouldRetryRefresh_withAppendPrependErrors_secondRefreshFails() {
+        // see: b/173438474
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100)
+        val exception1 = Exception("1")
+        remoteMediator.loadCallback = { _, _ ->
+            delay(60)
+            RemoteMediator.MediatorResult.Error(exception1)
+        }
+        val accessor = testScope.createAccessor(remoteMediator)
+        val state1 = createMockState()
+        accessor.requestLoad(REFRESH, state1)
+        accessor.requestLoad(APPEND, state1)
+        accessor.requestLoad(PREPEND, state1)
+        // run to get the error
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.Error(exception1),
+                prepend = LoadState.Error(exception1),
+                append = LoadState.Error(exception1),
+            )
+        )
+        // now send another load type refresh, should trigger another load
+        val exception2 = Exception("2")
+        remoteMediator.loadCallback = { _, _ ->
+            delay(60)
+            RemoteMediator.MediatorResult.Error(exception2)
+        }
+        val state2 = createMockState()
+        accessor.requestLoad(REFRESH, state2)
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.Loading,
+                prepend = LoadState.Error(exception1), // keep errors for these for now
+                append = LoadState.Error(exception1),
+            )
+        )
+        testScope.advanceUntilIdle()
+        assertThat(
+            accessor.state.value
+        ).isEqualTo(
+            LoadStates(
+                refresh = LoadState.Error(exception2),
+                prepend = LoadState.Error(exception1), // these keep their original exceptions
+                append = LoadState.Error(exception1),
+            )
+        )
     }
 
     @Test
