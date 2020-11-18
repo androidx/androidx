@@ -708,6 +708,13 @@ abstract class SpecialEffectsController {
             }
             if (getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
                 View view = getFragment().requireView();
+                // We need to ensure that the fragment's view is re-added
+                // for ADDING operations to properly handle cases where the
+                // exit animation was interrupted.
+                if (view.getParent() == null) {
+                    mFragmentStateManager.addViewToContainer();
+                    view.setAlpha(0f);
+                }
                 // Change the view alphas back to their original values before we execute our
                 // transitions.
                 if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {
