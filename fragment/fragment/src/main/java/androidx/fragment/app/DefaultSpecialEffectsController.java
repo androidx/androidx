@@ -183,7 +183,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
                 public void onCancel() {
-                    animator.cancel();
+                    animator.end();
                 }
             });
         }
