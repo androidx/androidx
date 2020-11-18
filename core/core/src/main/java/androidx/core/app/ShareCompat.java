@@ -21,6 +21,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import android.widget.ShareActionProvider;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.core.content.IntentCompat;
 
@@ -342,30 +344,26 @@ public final class ShareCompat {
                 mBccAddresses = null;
             }
 
-            // Check if we need to change the action.
             boolean needsSendMultiple = mStreams != null && mStreams.size() > 1;
-            boolean isSendMultiple = Intent.ACTION_SEND_MULTIPLE.equals(mIntent.getAction());
 
-            if (!needsSendMultiple && isSendMultiple) {
-                // Change back to a single send action; place the first stream into the
-                // intent for single sharing.
+            if (!needsSendMultiple) {
                 mIntent.setAction(Intent.ACTION_SEND);
                 if (mStreams != null && !mStreams.isEmpty()) {
                     mIntent.putExtra(Intent.EXTRA_STREAM, mStreams.get(0));
+                    if (SDK_INT >= 16) {
+                        Api16Impl.migrateExtraStreamToClipData(mIntent, mStreams);
+                    }
                 } else {
                     mIntent.removeExtra(Intent.EXTRA_STREAM);
+                    if (SDK_INT >= 16) {
+                        Api16Impl.removeClipData(mIntent);
+                    }
                 }
-                mStreams = null;
-            }
-
-            if (needsSendMultiple && !isSendMultiple) {
-                // Change to a multiple send action; place the relevant ArrayList into the
-                // intent for multiple sharing.
+            } else {
                 mIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                if (mStreams != null && !mStreams.isEmpty()) {
-                    mIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mStreams);
-                } else {
-                    mIntent.removeExtra(Intent.EXTRA_STREAM);
+                mIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mStreams);
+                if (SDK_INT >= 16) {
+                    Api16Impl.migrateExtraStreamToClipData(mIntent, mStreams);
                 }
             }
 
@@ -507,11 +505,10 @@ public final class ShareCompat {
          */
         @NonNull
         public IntentBuilder setStream(@Nullable Uri streamUri) {
-            if (!Intent.ACTION_SEND.equals(mIntent.getAction())) {
-                mIntent.setAction(Intent.ACTION_SEND);
-            }
             mStreams = null;
-            mIntent.putExtra(Intent.EXTRA_STREAM, streamUri);
+            if (streamUri != null) {
+                addStream(streamUri);
+            }
             return this;
         }
 
@@ -528,16 +525,8 @@ public final class ShareCompat {
          */
         @NonNull
         public IntentBuilder addStream(@NonNull Uri streamUri) {
-            Uri currentStream = mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (mStreams == null && currentStream == null) {
-                return setStream(streamUri);
-            }
             if (mStreams == null) {
                 mStreams = new ArrayList<>();
-            }
-            if (currentStream != null) {
-                mIntent.removeExtra(Intent.EXTRA_STREAM);
-                mStreams.add(currentStream);
             }
             mStreams.add(streamUri);
             return this;
@@ -1068,6 +1057,35 @@ public final class ShareCompat {
                 Log.e(TAG, "Could not retrieve label for calling application", e);
             }
             return null;
+        }
+    }
+
+    @RequiresApi(16)
+    private static class Api16Impl {
+        // Prevent instantiation.
+        private Api16Impl() {}
+
+        static void migrateExtraStreamToClipData(@NonNull Intent intent,
+                @NonNull ArrayList<Uri> streams) {
+            CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+            String htmlText = intent.getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
+
+            ClipData clipData = new ClipData(
+                    null, new String[] { intent.getType() },
+                    new ClipData.Item(text, htmlText, null, streams.get(0)));
+
+            for (int i = 1, end = streams.size(); i < end; i++) {
+                Uri uri = streams.get(i);
+                clipData.addItem(new ClipData.Item(uri));
+            }
+
+            intent.setClipData(clipData);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        static void removeClipData(@NonNull Intent intent) {
+            intent.setClipData(null);
+            intent.setFlags(intent.getFlags() & ~Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
     }
 }
