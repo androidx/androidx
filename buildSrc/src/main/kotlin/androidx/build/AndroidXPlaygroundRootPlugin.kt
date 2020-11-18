@@ -109,7 +109,6 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
                     // Last element is the artifact.
                     .dropLast(1)
                     .joinToString(".")
-                    .replace(Regex("^arch")) { "arch.core" }
                 return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
             }
 
