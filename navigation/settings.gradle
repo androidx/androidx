@@ -21,6 +21,8 @@ setupPlayground(this, "..")
 selectProjectsFromAndroidX({ name ->
     // Compose projects are not supported in playground yet
     if (name.startsWith(":navigation")) return true
+    if (name == ":annotation:annotation-sampled") return true
+    if (name == ":compose:integration-tests:demos:common") return true
     if (name.startsWith(":internal-testutils-navigation")) return true
     if (name.startsWith(":internal-testutils-runtime")) return true
     if (name.startsWith(":internal-testutils-truth")) return true
