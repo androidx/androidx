@@ -17,13 +17,18 @@
 package androidx.core.app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import static java.util.Arrays.asList;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -61,6 +66,37 @@ public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
                 activity.getComponentName());
         assertEquals(intent.getParcelableExtra(ShareCompat.EXTRA_CALLING_ACTIVITY_INTEROP),
                 activity.getComponentName());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void testBuilderSingleStreamUri() {
+        Activity activity = mActivityTestRule.getActivity();
+        Uri uri = Uri.parse("content://fake/file");
+        ShareCompat.IntentBuilder intentBuilder = ShareCompat.IntentBuilder.from(activity);
+        intentBuilder.addStream(uri);
+        Intent intent = intentBuilder.getIntent();
+
+        assertEquals(uri, intent.getParcelableExtra(Intent.EXTRA_STREAM));
+        assertEquals(uri, intent.getClipData().getItemAt(0).getUri());
+        assertTrue((intent.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void testBuilderMultipleStreamUris() {
+        Activity activity = mActivityTestRule.getActivity();
+        Uri uri1 = Uri.parse("content://fake/file1");
+        Uri uri2 = Uri.parse("content://fake/file2");
+        ShareCompat.IntentBuilder intentBuilder = ShareCompat.IntentBuilder.from(activity);
+        intentBuilder.addStream(uri1);
+        intentBuilder.addStream(uri2);
+        Intent intent = intentBuilder.getIntent();
+
+        assertEquals(asList(uri1, uri2), intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM));
+        assertEquals(uri1, intent.getClipData().getItemAt(0).getUri());
+        assertEquals(uri2, intent.getClipData().getItemAt(1).getUri());
+        assertTrue((intent.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0);
     }
 
     @Test
