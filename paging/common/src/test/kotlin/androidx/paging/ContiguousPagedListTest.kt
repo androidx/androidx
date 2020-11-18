@@ -189,15 +189,13 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
     private fun PagingSource<Int, Item>.getInitialPage(
         initialKey: Int,
-        loadSize: Int,
-        pageSize: Int
+        loadSize: Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
             PagingSource.LoadParams.Refresh(
                 initialKey,
                 loadSize,
                 placeholdersEnabled,
-                pageSize
             )
         )
 
@@ -216,8 +214,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     ): PagedList<Item> {
         val initialPage = pagingSource.getInitialPage(
             initialPosition ?: 0,
-            initLoadSize,
-            pageSize
+            initLoadSize
         )
 
         val config = Config.Builder()

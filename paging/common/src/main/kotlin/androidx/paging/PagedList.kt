@@ -179,7 +179,6 @@ abstract class PagedList<T : Any> internal constructor(
                         key,
                         config.initialLoadSizeHint,
                         config.enablePlaceholders,
-                        config.pageSize
                     )
                     runBlocking {
                         val initialResult = withContext(DirectDispatcher) {
@@ -480,7 +479,11 @@ abstract class PagedList<T : Any> internal constructor(
         @Suppress("DEPRECATION")
         fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
-            val pagingSource = pagingSource ?: dataSource?.let { LegacyPagingSource { it } }
+            val pagingSource = pagingSource ?: dataSource?.let {
+                LegacyPagingSource { it }.also {
+                    it.setPageSize(config.pageSize)
+                }
+            }
 
             check(pagingSource != null) {
                 "PagedList cannot be built without a PagingSource or DataSource"
