@@ -19,29 +19,43 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.LocusIdCompat;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.ParcelUtils;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * This class is used internally by the library to represent the data of an OngoingActivity.
  */
-public class OngoingActivityData {
+@VersionedParcelize
+public class OngoingActivityData implements VersionedParcelable {
     @Nullable
+    @ParcelField(value = 1, defaultValue = "null")
     private Icon mAnimatedIcon = null;
+
     @Nullable
+    @ParcelField(value = 2, defaultValue = "null")
     private Icon mStaticIcon = null;
+
     @Nullable
+    @ParcelField(value = 3, defaultValue = "null")
     private OngoingActivityStatus mStatus = null;
+
     @Nullable
+    @ParcelField(value = 4, defaultValue = "null")
     private PendingIntent mTouchIntent = null;
+
     @Nullable
+    @ParcelField(value = 5, defaultValue = "null")
     private LocusIdCompat mLocusId = null;
+
+    @ParcelField(value = 6, defaultValue = "-1")
     private int mOngoingActivityId = DEFAULT_ID;
 
     OngoingActivityData() {
@@ -49,26 +63,8 @@ public class OngoingActivityData {
 
     @NonNull
     NotificationCompat.Builder extend(@NonNull NotificationCompat.Builder builder) {
-        Bundle bundle = new Bundle();
-        if (mAnimatedIcon != null) {
-            bundle.putParcelable(KEY_ANIMATED_ICON, mAnimatedIcon);
-        }
-        if (mStaticIcon != null) {
-            bundle.putParcelable(KEY_STATIC_ICON, mStaticIcon);
-        }
-        if (mStatus != null) {
-            mStatus.extend(bundle);
-        }
-        if (mTouchIntent != null) {
-            bundle.putParcelable(KEY_TOUCH_INTENT, mTouchIntent);
-        }
-        if (mLocusId != null) {
-            builder.setLocusId(mLocusId);
-        }
-        if (mOngoingActivityId != DEFAULT_ID) {
-            bundle.putInt(KEY_ID, mOngoingActivityId);
-        }
-        builder.getExtras().putBundle(EXTRA_ONGOING_ACTIVITY, bundle);
+        ParcelUtils.putVersionedParcelable(builder.getExtras(), EXTRA_ONGOING_ACTIVITY,
+                this);
         return builder;
     }
 
@@ -82,33 +78,19 @@ public class OngoingActivityData {
         return notification;
     }
 
-    @Nullable private static <T> T safeGetParcelableOrNull(@NonNull Bundle bundle,
-            @NonNull String key, @NonNull Class<T> targetClass) {
-        Parcelable obj = bundle.getParcelable(key);
-        return targetClass.isInstance(obj) ? targetClass.cast(obj) : null;
+    /**
+     * Checks if the given notification represents an ongoing activity.
+     */
+    public static boolean hasOngoingActivity(@NonNull Notification notification) {
+        return notification.extras.getBundle(EXTRA_ONGOING_ACTIVITY) != null;
     }
 
     /**
      * Deserializes the [OngoingActivityData] from a notification.
      */
     @Nullable
-    @SuppressWarnings("SyntheticAccessor")
     static OngoingActivityData createInternal(@NonNull Notification notification) {
-        Bundle bundle = notification.extras.getBundle(EXTRA_ONGOING_ACTIVITY);
-        if (bundle != null) {
-            OngoingActivityData data = new OngoingActivityData();
-            data.mAnimatedIcon = safeGetParcelableOrNull(bundle, KEY_ANIMATED_ICON, Icon.class);
-            data.mStaticIcon = safeGetParcelableOrNull(bundle, KEY_STATIC_ICON, Icon.class);
-            data.mStatus = OngoingActivityStatus.create(bundle);
-            data.mTouchIntent = safeGetParcelableOrNull(bundle, KEY_TOUCH_INTENT,
-                    PendingIntent.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                data.mLocusId = Api29Impl.getLocusId(notification);
-            }
-            data.mOngoingActivityId = bundle.getInt(KEY_ID, DEFAULT_ID);
-            return data;
-        }
-        return null;
+        return ParcelUtils.getVersionedParcelable(notification.extras, EXTRA_ONGOING_ACTIVITY);
     }
 
     /**
@@ -125,20 +107,23 @@ public class OngoingActivityData {
     public static OngoingActivityData create(@NonNull Notification notification) {
         OngoingActivityData data = createInternal(notification);
         if (data != null) {
-            if (data.getAnimatedIcon() == null) {
+            if (data.mAnimatedIcon == null) {
                 data.setAnimatedIcon(notification.getSmallIcon());
             }
-            if (data.getStaticIcon() == null) {
+            if (data.mStaticIcon == null) {
                 data.setStaticIcon(notification.getSmallIcon());
             }
-            if (data.getStatus() == null) {
+            if (data.mStatus == null) {
                 String text = notification.extras.getString(Notification.EXTRA_TEXT);
                 if (text != null) {
                     data.setStatus(new TextOngoingActivityStatus(text));
                 }
             }
-            if (data.getTouchIntent() == null) {
+            if (data.mTouchIntent == null) {
                 data.setTouchIntent(notification.contentIntent);
+            }
+            if (data.mLocusId == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                data.setLocusId(Api29Impl.getLocusId(notification));
             }
         }
         return data;
@@ -171,8 +156,11 @@ public class OngoingActivityData {
      * Get the static icon that can be used on some surfaces to represent this
      * {@link OngoingActivity}. For example in the WatchFace in ambient mode.
      */
-    @Nullable
+    @NonNull
     public Icon getStaticIcon() {
+        if (mStaticIcon == null) {
+            throw new IllegalStateException("Static icon should be specified.");
+        }
         return mStaticIcon;
     }
 
@@ -189,8 +177,11 @@ public class OngoingActivityData {
      * Get the intent to be used to go back to the activity when the user interacts with the
      * Ongoing Activity in other surfaces (for example, taps the Icon on the WatchFace)
      */
-    @Nullable
+    @NonNull
     public PendingIntent getTouchIntent() {
+        if (mTouchIntent == null) {
+            throw new IllegalStateException("Touch intent should be specified.");
+        }
         return mTouchIntent;
     }
 
@@ -239,12 +230,6 @@ public class OngoingActivityData {
     /** Notification action extra which contains ongoing activity extensions */
     private static final String EXTRA_ONGOING_ACTIVITY =
             "android.wearable.ongoingactivities.EXTENSIONS";
-
-    // Keys within EXTRA_ONGOING_ACTIVITY_EXTENDER for ongoing activities options.
-    private static final String KEY_ANIMATED_ICON = "animatedIcon";
-    private static final String KEY_STATIC_ICON = "staticIcon";
-    private static final String KEY_TOUCH_INTENT = "touchIntent";
-    private static final String KEY_ID = "id";
 
     private static final int DEFAULT_ID = -1;
 }

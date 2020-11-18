@@ -9,7 +9,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.LocusIdCompat
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -241,5 +243,23 @@ open class OngoingActivityTest {
 
         // Clean up.
         notificationManager.cancel(NotificationId)
+    }
+
+    @Test
+    fun testHasOngoingActivity() {
+        val builder = NotificationCompat.Builder(context, ChannelId)
+            .setSmallIcon(StaticIconResourceId)
+            .setContentIntent(PendingIntentValue)
+            .setContentText("Text")
+        var notification = builder.build()
+
+        assertFalse(OngoingActivityData.hasOngoingActivity(notification))
+
+        OngoingActivity.Builder(context, NotificationId, builder)
+            .build()
+            .apply(context)
+
+        notification = builder.build()
+        assertTrue(OngoingActivityData.hasOngoingActivity(notification))
     }
 }
