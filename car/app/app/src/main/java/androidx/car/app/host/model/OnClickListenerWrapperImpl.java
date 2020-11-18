@@ -68,7 +68,8 @@ public class OnClickListenerWrapperImpl implements OnClickListenerWrapper {
      */
     @NonNull
     @RestrictTo(LIBRARY)
-    @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+    // This listener relates to UI event and is expected to be triggered on the main thread.
+    @SuppressLint("ExecutorRegistration")
     public static OnClickListenerWrapper create(@NonNull OnClickListener listener) {
         return new OnClickListenerWrapperImpl(
                 listener,
