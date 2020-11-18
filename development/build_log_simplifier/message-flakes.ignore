@@ -8,7 +8,9 @@ Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/int
 # > Task :compose:animation:animation-core:testDebugUnitTest
 androidx\.compose\.animation\.core\.AnimationClockTest \> testSubscriptionDuringFrameCallback FAILED
 kotlin\.UninitializedPropertyAccessException at AnimationClockTest\.kt\:[0-9]+
-[0-9]+ tests completed\, [0-9]+ failed
 There were failing tests\. See the report at\: file\:\/\/\$OUT_DIR\/ui\/compose\/animation\/animation\-core\/build\/reports\/tests\/testDebugUnitTest\/index\.html
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
+# > Task :compose:compiler:compiler-hosted:integration-tests:testDebugUnitTest
+# If a test fails, we don't want the build to fail, we want to pass the test output to the tests server and for the tests server to report the failure
+[0-9]+ tests .*failed.*
