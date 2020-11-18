@@ -19,38 +19,36 @@ package androidx.paging
 import androidx.annotation.VisibleForTesting
 
 /**
- * A PagingSource Factory that can be kept as a reference and stores a list of paging sources
- * created with the factory. Includes invalidate() function to invalidate the list of [PagingSource]
- * when data changes.
+ * Abstract wrapper class for [PagingSource] factory intended for usage in [Pager] construction.
+ * Stores reference to the [PagingSource] factory and the [PagingSource]s it produces for
+ * invalidation when the backing dataset is updated.
+ *
+ * Calling [invalidate] on this [InvalidatingPagingSourceFactory] will automatically forward
+ * invalidate signals to all active [PagingSource]s.
+ *
+ * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
-abstract class InvalidatingPagingSourceFactory<Key: Any, Value: Any> : () ->  PagingSource<Key, Value>{
+abstract class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
+    val pagingSourceFactory: () -> PagingSource<Key, Value>
+) : () -> PagingSource<Key, Value> {
 
     @VisibleForTesting
-    internal val listOfPagingSources = mutableListOf<PagingSource<Key, Value>>();
+    internal val pagingSources = mutableListOf<PagingSource<Key, Value>>()
 
     /**
-     * Returns a PagingSource
-     *
-     * Implement the logic to create a PagingSource
-     */
-    abstract fun create() : PagingSource<Key, Value>;
-
-    /**
-     * Returns a PagingSource which will also be stored into listOfPagingSources.
+     * @return [PagingSource] which will also be stored into [pagingSources].
      */
     final override fun invoke(): PagingSource<Key, Value> {
-        return create(). also {listOfPagingSources.add(it)};
+        return pagingSourceFactory().also { pagingSources.add(it) }
     }
 
     /**
-     * Calls [PagingSource] invalidate() on each PagingSource stored within listOfPagingSources
-     * and removes it from the list
-     *
-     * Invalidated [PagingSource] will have its invalid status equal 'true'
+     * Calls [PagingSource.invalidate] on each [PagingSource] stored within [pagingSources]
+     * and removes it from [pagingSources]
      */
     fun invalidate() {
-        while (listOfPagingSources.isNotEmpty()) {
-            listOfPagingSources.removeFirst().invalidate();
+        while (pagingSources.isNotEmpty()) {
+            pagingSources.removeFirst().invalidate()
         }
     }
 }
