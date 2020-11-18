@@ -21,6 +21,7 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
@@ -72,14 +73,16 @@ public final class SearchTemplate implements Template {
     private final ActionStrip mActionStrip;
 
     /**
-     * Constructs a new builder of {@link SearchTemplate}.
+     * Constructs a new builder of {@link SearchTemplate} with the input {@link SearchListener}.
+     *
+     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * using {@link Looper#getMainLooper()}.
      *
      * @param listener the listener to be invoked for events such as when the user types new
-     *                 text, or
-     *                 submits a search.
+     *                 text, or submits a search.
      */
     @NonNull
-    @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+    @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull SearchListener listener) {
         return new Builder(listener);
     }

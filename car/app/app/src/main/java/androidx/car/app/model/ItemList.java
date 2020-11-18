@@ -19,6 +19,7 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
@@ -231,6 +232,9 @@ public final class ItemList {
         /**
          * Sets the {@link OnItemVisibilityChangedListener} to call when the visible items in the
          * list changes.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
          */
         @NonNull
         @SuppressLint("ExecutorRegistration")
