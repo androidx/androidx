@@ -53,9 +53,13 @@ package android.support.wearable.watchface {
   public static final class Constants.Companion {
   }
 
-  public final class SharedMemoryImage {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.graphics.Bitmap ashmemCompressedImageBundleToBitmap(android.os.Bundle);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static android.os.Bundle toAshmemCompressedImageBundle(android.graphics.Bitmap, int quality);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SharedMemoryImage {
+    field public static final android.support.wearable.watchface.SharedMemoryImage.Companion Companion;
+  }
+
+  @RequiresApi(27) public static final class SharedMemoryImage.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.os.Bundle ashmemCompressedImageBundle(android.graphics.Bitmap bitmap, int quality);
+    method public android.graphics.Bitmap ashmemCompressedImageBundleToBitmap(android.os.Bundle bundle);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WatchFaceStyle implements android.os.Parcelable {
