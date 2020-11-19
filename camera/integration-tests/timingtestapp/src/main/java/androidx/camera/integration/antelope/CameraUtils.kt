@@ -36,8 +36,6 @@ import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
 import androidx.camera.integration.antelope.cameracontrollers.Camera2CaptureSessionCallback
 import androidx.camera.integration.antelope.cameracontrollers.Camera2DeviceStateCallback
-import kotlinx.android.synthetic.main.activity_main.surface_preview
-import kotlinx.android.synthetic.main.activity_main.texture_preview
 import java.util.Arrays
 import java.util.Collections
 
@@ -166,8 +164,8 @@ fun initializeCameras(activity: MainActivity) {
                 camera2CaptureSessionCallback =
                     Camera2CaptureSessionCallback(activity, this, TestConfig())
 
-                previewSurfaceView = activity.surface_preview
-                cameraXPreviewTexture = activity.texture_preview
+                previewSurfaceView = activity.binding.surfacePreview
+                cameraXPreviewTexture = activity.binding.texturePreview
 
                 cameraXPreviewBuilder = Preview.Builder()
 
