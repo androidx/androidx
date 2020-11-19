@@ -552,7 +552,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
     private static void addNonNullSharedElementTransition (FragmentTransaction ft, View subView,
                                                            String transitionName)
     {
-        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             if (subView != null) {
                 ft.addSharedElement(subView, transitionName);
             }
