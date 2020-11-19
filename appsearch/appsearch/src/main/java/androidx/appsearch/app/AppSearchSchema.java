@@ -40,6 +40,8 @@ import java.util.Set;
  * <p>For example, an e-mail message or a music recording could be a schema type.
  *
  * <p>The schema consists of type information, properties, and config (like tokenization type).
+ *
+ * @see AppSearchSession#setSchema
  */
 public final class AppSearchSchema {
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
