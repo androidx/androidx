@@ -86,7 +86,6 @@ import java.util.Map;
  * @deprecated use {@link BrowseSupportFragment}
  */
 @Deprecated
-@SuppressWarnings("unchecked")
 public class BrowseFragment extends BaseFragment {
 
     // BUNDLE attribute for saving header show/hide status when backstack is used:
@@ -1281,7 +1280,7 @@ public class BrowseFragment extends BaseFragment {
                 // have been set. In either of those cases mFragmentAdapter will be null.
                 // This way we can maintain the invariant that mMainFragmentAdapter is never
                 // null and it avoids doing null checks all over the code.
-                mMainFragmentAdapter = new MainFragmentAdapter(null);
+                mMainFragmentAdapter = new MainFragmentAdapter<>(null);
                 mMainFragmentAdapter.setFragmentHost(new FragmentHostImpl());
             }
 
@@ -1471,6 +1470,10 @@ public class BrowseFragment extends BaseFragment {
         MarginLayoutParams lp;
         View containerList;
         containerList = mHeadersFragment.getView();
+        if (containerList == null) {
+            // Headers fragment has destroyed view.
+            return;
+        }
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         containerList.setLayoutParams(lp);
