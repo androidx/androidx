@@ -347,6 +347,7 @@ class TextRenderer {
         }
     }
 
+    @SuppressWarnings("InlinedApi") // Spurious complaint about setBreakStrategy, saying API 29.
     private void updateLayout(int width, int height) {
         if (mPaint == null) {
             setPaint(new TextPaint());

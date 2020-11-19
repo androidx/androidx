@@ -279,7 +279,7 @@ package androidx.wear.watchface {
   public final class WatchFaceKt {
   }
 
-  public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
+  @RequiresApi(26) public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method protected abstract androidx.wear.watchface.WatchFace createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.view.SurfaceHolder? getWallpaperSurfaceHolderOverride();
@@ -313,7 +313,7 @@ package androidx.wear.watchface {
 
 package androidx.wear.watchface.control {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class WatchFaceControlService extends android.app.Service {
+  @RequiresApi(27) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class WatchFaceControlService extends android.app.Service {
     method public android.os.IBinder? onBind(android.content.Intent? intent);
     method public void setContext(android.content.Context context);
     field public static final String ACTION_WATCHFACE_CONTROL_SERVICE = "com.google.android.wearable.action.WATCH_FACE_CONTROL";

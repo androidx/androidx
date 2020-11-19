@@ -18,6 +18,7 @@ package androidx.wear.watchface.control
 
 import android.os.Handler
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
@@ -26,6 +27,7 @@ import androidx.wear.watchface.runOnHandler
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
+@RequiresApi(27)
 internal class InteractiveWatchFaceImpl(
     internal val engine: WatchFaceService.EngineWrapper,
     internal val instanceId: String,
@@ -37,6 +39,7 @@ internal class InteractiveWatchFaceImpl(
 }
 
 /** The interface for SysUI. */
+@RequiresApi(27)
 internal class SysUiApi(
     private val engine: WatchFaceService.EngineWrapper,
     private val instanceIdentifier: String,
@@ -74,6 +77,7 @@ internal class SysUiApi(
 }
 
 /** The interface for WCS. */
+@RequiresApi(27)
 internal class WCSApi(
     private val engine: WatchFaceService.EngineWrapper,
     private val instanceIdentifier: String,

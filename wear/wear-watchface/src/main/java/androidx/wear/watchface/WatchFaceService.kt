@@ -17,7 +17,6 @@
 package androidx.wear.watchface
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -37,13 +36,14 @@ import android.os.Trace
 import android.service.wallpaper.WallpaperService
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
+import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
-import android.support.wearable.watchface.toAshmemCompressedImageBundle
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders.ProviderId
@@ -195,7 +195,7 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  *
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  */
-@TargetApi(26)
+@RequiresApi(26)
 public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */
@@ -330,6 +330,11 @@ public abstract class WatchFaceService : WallpaperService() {
         private lateinit var interactiveInstanceId: String
 
         init {
+            maybeCreateWCSApi()
+        }
+
+        @SuppressWarnings("NewApi")
+        private fun maybeCreateWCSApi() {
             val pendingWallpaperInstance =
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
@@ -466,6 +471,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
+        @RequiresApi(27)
         fun takeWatchFaceScreenshot(params: WatchfaceScreenshotParams): Bundle {
             val oldStyle = HashMap(watchFaceImpl.userStyleRepository.userStyle.selectedOptions)
             params.userStyle?.let {
@@ -504,12 +510,14 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
-            return bitmap.toAshmemCompressedImageBundle(
+            return SharedMemoryImage.ashmemCompressedImageBundle(
+                bitmap,
                 params.compressionQuality
             )
         }
 
         @UiThread
+        @RequiresApi(27)
         fun takeComplicationScreenshot(params: ComplicationScreenshotParams): Bundle? {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
                 timeInMillis = params.calendarTimeMillis
@@ -557,7 +565,8 @@ public abstract class WatchFaceService : WallpaperService() {
                     watchFaceImpl.onSetStyleInternal(UserStyle(oldStyle))
                 }
 
-                complicationBitmap.toAshmemCompressedImageBundle(
+                SharedMemoryImage.ashmemCompressedImageBundle(
+                    complicationBitmap,
                     params.compressionQuality
                 )
             }
@@ -712,6 +721,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
         override fun getInitialUserStyle(): UserStyleWireFormat? = initialUserStyle
 
+        @RequiresApi(27)
         fun createHeadlessInstance(
             params: HeadlessWatchFaceInstanceParams
         ): HeadlessWatchFaceImpl {
@@ -789,6 +799,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
+        @RequiresApi(27)
         fun createInteractiveInstance(
             params: WallpaperInteractiveWatchFaceInstanceParams
         ): InteractiveWatchFaceImpl {

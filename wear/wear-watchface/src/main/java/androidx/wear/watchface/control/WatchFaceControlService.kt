@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
@@ -35,6 +36,7 @@ import androidx.wear.watchface.runOnHandler
  *  @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(27)
 public class WatchFaceControlService : Service() {
     private val watchFaceInstanceServiceStub =
         IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper()))
@@ -58,6 +60,7 @@ public class WatchFaceControlService : Service() {
     }
 }
 
+@RequiresApi(27)
 private class IWatchFaceInstanceServiceStub(
     private val context: Context,
     private val uiThreadHandler: Handler
