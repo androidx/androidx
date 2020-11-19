@@ -21,9 +21,10 @@ import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import java.io.File
-import java.lang.IllegalStateException
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
 
-private const val TAG = "MacroBenchmarks"
+const val TAG = "MacroBenchmarks"
 
 // SELinux enforcement
 private const val PERMISSIVE = "Permissive"
@@ -37,6 +38,9 @@ const val VERIFY = "verify"
 
 // All modes
 private val COMPILE_MODES = listOf(SPEED, SPEED_PROFILE, QUICKEN, VERIFY)
+
+// SELinux Permission Lock
+private val permissiveLock = ReentrantReadWriteLock()
 
 /**
  * Drops the kernel page cache
@@ -81,6 +85,7 @@ internal fun compilationFilter(
         }
         Thread.sleep(profileSaveTimeout)
     }
+    Log.d(TAG, "Compiling $packageName ($mode)")
     val response = device.executeShellCommand("cmd package compile -f -m $mode $packageName")
     if (!response.contains("Success")) {
         Log.d(TAG, "Received compile cmd response: $response")
@@ -95,6 +100,7 @@ internal fun clearProfile(
     instrumentation: Instrumentation,
     packageName: String,
 ) {
+    Log.d(TAG, "Clearing profiles for $packageName")
     instrumentation.device().executeShellCommand("cmd package compile --reset $packageName")
 }
 
@@ -113,14 +119,16 @@ fun pressHome(instrumentation: Instrumentation, delayDurationMs: Long = 300) {
 fun withPermissiveSeLinuxPolicy(block: () -> Unit) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val previousPolicy = getSeLinuxPolicyEnforced(instrumentation)
-    try {
-        if (previousPolicy == 1) {
-            setSeLinuxPolicyEnforced(instrumentation, 0)
-        }
-        block()
-    } finally {
-        if (previousPolicy == 1) {
-            setSeLinuxPolicyEnforced(instrumentation, previousPolicy)
+    permissiveLock.read {
+        try {
+            if (previousPolicy == 1) {
+                setSeLinuxPolicyEnforced(instrumentation, 0)
+            }
+            block()
+        } finally {
+            if (previousPolicy == 1 && permissiveLock.readHoldCount == 1) {
+                setSeLinuxPolicyEnforced(instrumentation, previousPolicy)
+            }
         }
     }
 }
