@@ -39,7 +39,7 @@ import kotlin.reflect.jvm.isAccessible
 
 class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleScanner {
     companion object {
-        const val FRAGMENT_VERSION = "1.3.0-alpha08"
+        const val FRAGMENT_VERSION = "1.3.0-beta02"
 
         val ISSUE = Issue.create(
             id = "InvalidFragmentVersionForActivityResult",
