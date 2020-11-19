@@ -33,13 +33,26 @@ class XmlTestConfigVerificationTest {
     @Test
     fun testValidTestConfigXml_TEMPLATE() {
         val parser = SAXParserFactory.newInstance().newSAXParser()
-        parser.parse(InputSource(StringReader(TEMPLATE)), DefaultHandler())
+        parser.parse(
+            InputSource(StringReader(TEMPLATE.replace("TEST_BLOCK", FULL_TEST))),
+            DefaultHandler()
+        )
     }
 
     @Test
     fun testValidTestConfigXml_SELF_INSTRUMENTING_TEMPLATE() {
         val parser = SAXParserFactory.newInstance().newSAXParser()
-        parser.parse(InputSource(StringReader(SELF_INSTRUMENTING_TEMPLATE)), DefaultHandler())
+        parser.parse(
+            InputSource(
+                StringReader(
+                    SELF_INSTRUMENTING_TEMPLATE.replace(
+                        "TEST_BLOCK",
+                        DEPENDENT_TESTS
+                    )
+                )
+            ),
+            DefaultHandler()
+        )
     }
 
     @Test
