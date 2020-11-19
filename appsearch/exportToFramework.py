@@ -19,7 +19,7 @@
 # frameworks/base/apex/appsearch path.
 #
 # Example usage (from root dir of androidx workspace):
-#   $ ./frameworks/support/appsearch/export_to_framework.py "$HOME/android/master"
+# $ ./frameworks/support/appsearch/exportToFramework.py "$HOME/android/master" "<jetpack changeid>"
 import os
 import re
 import sys
@@ -57,14 +57,19 @@ def _PruneDir(dest_dir, allow_list=None):
 
 
 def _TransformAndCopyFile(source_path, dest_path, transform_func=None):
-    print('Copy: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
     with open(source_path, 'r') as fh:
-      contents = fh.read()
+        contents = fh.read()
+
+    if '@exportToFramework:skipFile()' in contents:
+        print('Skipping: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
+        return
+
+    print('Copy: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
     if transform_func:
-      contents = transform_func(contents)
+        contents = transform_func(contents)
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     with open(dest_path, 'w') as fh:
-      fh.write(contents)
+        fh.write(contents)
 
 
 def _TransformCommonCode(contents):
@@ -104,19 +109,13 @@ def _TransformTestCode(contents):
     return _TransformCommonCode(contents)
 
 
-def _TransformAndCopyFolder(
-        source_dir, dest_dir, transform_func=None, block_list=None):
+def _TransformAndCopyFolder(source_dir, dest_dir, transform_func=None):
     for currentpath, folders, files in os.walk(source_dir):
         dir_rel_to_root = os.path.relpath(currentpath, source_dir)
         for filename in files:
-            # Copy all files, except those in the block list
             source_abs_path = os.path.join(currentpath, filename)
-            rel_to_source = os.path.relpath(source_abs_path, source_dir)
-            if block_list and rel_to_source in block_list:
-                print('Skipping copy: "%s"' % rel_to_source)
-            else:
-                dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
-                _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
+            dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
+            _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
 
 
 def _CopyAllApi(source_dir, dest_dir):
@@ -146,21 +145,10 @@ def _CopyAllApi(source_dir, dest_dir):
     for currentpath, folders, files in os.walk(api_source_dir):
         dir_rel_to_root = os.path.relpath(currentpath, api_source_dir)
         for filename in files:
-            # Copy all files, except those in the following block list
-            source_abs_path = os.path.join(currentpath, filename)
-            rel_to_api = os.path.relpath(source_abs_path, api_source_dir)
-            if rel_to_api in (
-                    'app/AppSearchBatchResult.java',
-                    'app/AppSearchManager.java',
-                    'app/AppSearchResult.java',
-                    'app/SearchResults.java'):
-                print('Skipping copy: "%s"' % rel_to_api)
-                continue
-
             # Figure out what folder to place them into
+            source_abs_path = os.path.join(currentpath, filename)
             if dir_rel_to_root == 'app':
-                # Files in the 'app' folder live in the root of the platform
-                # tree
+                # Files in the 'app' folder live in the root of the platform tree
                 dest_path = os.path.join(api_dest_dir, filename)
             else:
                 dest_path = os.path.join(
@@ -191,13 +179,7 @@ def _CopyAllImpl(source_dir, dest_dir):
                 .replace('com.google.android.icing.protobuf.', 'com.google.protobuf.')
         )
         return _TransformCommonCode(contents)
-    _TransformAndCopyFolder(
-            impl_source_dir, impl_dest_dir,
-            transform_func=_TransformImplCode,
-            block_list=[
-                'localstorage/LocalStorage.java',
-                'localstorage/util/FutureUtil.java',
-            ])
+    _TransformAndCopyFolder(impl_source_dir, impl_dest_dir, transform_func=_TransformImplCode)
 
     # Copy servicestests
     def _TransformImplTestCode(contents):
@@ -211,11 +193,7 @@ def _CopyAllImpl(source_dir, dest_dir):
         )
         return _TransformTestCode(contents)
     _TransformAndCopyFolder(
-            impl_test_source_dir, impl_test_dest_dir,
-            transform_func=_TransformImplTestCode,
-            block_list=[
-                'localstorage/LocalStorageTest.java',
-            ])
+            impl_test_source_dir, impl_test_dest_dir, transform_func=_TransformImplTestCode)
 
 
 def _CopyChangeIdFile(changeid, dest_dir):

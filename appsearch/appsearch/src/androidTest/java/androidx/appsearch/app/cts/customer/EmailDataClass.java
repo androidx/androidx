@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @exportToFramework:skipFile()
 package androidx.appsearch.app.cts.customer;
 
 import androidx.appsearch.annotation.AppSearchDocument;
