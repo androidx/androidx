@@ -18,6 +18,7 @@ package androidx.mediarouter.media;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,6 +103,7 @@ public final class MediaRouteProviderDescriptor {
      *
      * @return The contents of the object represented as a bundle.
      */
+    @NonNull
     public Bundle asBundle() {
         if (mBundle != null) {
             return mBundle;
@@ -125,7 +127,8 @@ public final class MediaRouteProviderDescriptor {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    public static MediaRouteProviderDescriptor fromBundle(Bundle bundle) {
+    @Nullable
+    public static MediaRouteProviderDescriptor fromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return null;
         }
@@ -160,7 +163,7 @@ public final class MediaRouteProviderDescriptor {
          * Creates a media route provider descriptor builder whose initial contents are
          * copied from an existing descriptor.
          */
-        public Builder(MediaRouteProviderDescriptor descriptor) {
+        public Builder(@NonNull MediaRouteProviderDescriptor descriptor) {
             if (descriptor == null) {
                 throw new IllegalArgumentException("descriptor must not be null");
             }
@@ -171,7 +174,8 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Adds a route.
          */
-        public Builder addRoute(MediaRouteDescriptor route) {
+        @NonNull
+        public Builder addRoute(@NonNull MediaRouteDescriptor route) {
             if (route == null) {
                 throw new IllegalArgumentException("route must not be null");
             }
@@ -188,7 +192,8 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Adds a list of routes.
          */
-        public Builder addRoutes(Collection<MediaRouteDescriptor> routes) {
+        @NonNull
+        public Builder addRoutes(@NonNull Collection<MediaRouteDescriptor> routes) {
             if (routes == null) {
                 throw new IllegalArgumentException("routes must not be null");
             }
@@ -204,7 +209,8 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Sets the list of routes.
          */
-        Builder setRoutes(Collection<MediaRouteDescriptor> routes) {
+        @NonNull
+        Builder setRoutes(@Nullable Collection<MediaRouteDescriptor> routes) {
             if (routes == null || routes.isEmpty()) {
                 mRoutes = null;
             } else {
@@ -216,6 +222,7 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Sets if this provider supports dynamic group route.
          */
+        @NonNull
         public Builder setSupportsDynamicGroupRoute(boolean value) {
             mSupportsDynamicGroupRoute = value;
             return this;
@@ -225,6 +232,7 @@ public final class MediaRouteProviderDescriptor {
         /**
          * Builds the {@link MediaRouteProviderDescriptor}.
          */
+        @NonNull
         public MediaRouteProviderDescriptor build() {
             return new MediaRouteProviderDescriptor(mRoutes, mSupportsDynamicGroupRoute);
         }

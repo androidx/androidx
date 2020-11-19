@@ -154,7 +154,7 @@ public class MediaRouteActionProvider extends ActionProvider {
      *
      * @param context The context.
      */
-    public MediaRouteActionProvider(Context context) {
+    public MediaRouteActionProvider(@NonNull Context context) {
         super(context);
 
         mRouter = MediaRouter.getInstance(context);
@@ -293,12 +293,14 @@ public class MediaRouteActionProvider extends ActionProvider {
      * Subclasses may override this method to customize the button.
      * </p>
      */
+    @NonNull
     public MediaRouteButton onCreateMediaRouteButton() {
         return new MediaRouteButton(getContext());
     }
 
     @Override
     @SuppressWarnings("deprecation")
+    @NonNull
     public View onCreateActionView() {
         if (mButton != null) {
             Log.e(TAG, "onCreateActionView: this ActionProvider is already associated " +

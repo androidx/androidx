@@ -16,6 +16,8 @@
 
 package androidx.mediarouter.media;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(18)
@@ -30,11 +32,12 @@ final class MediaRouterJellybeanMr2 {
     }
 
     public static final class RouteInfo {
-        public static CharSequence getDescription(Object routeObj) {
+        @Nullable
+        public static CharSequence getDescription(@NonNull Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();
         }
 
-        public static boolean isConnecting(Object routeObj) {
+        public static boolean isConnecting(@NonNull Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();
         }
 
@@ -43,7 +46,8 @@ final class MediaRouterJellybeanMr2 {
     }
 
     public static final class UserRouteInfo {
-        public static void setDescription(Object routeObj, CharSequence description) {
+        public static void setDescription(@NonNull Object routeObj,
+                @Nullable CharSequence description) {
             ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);
         }
 

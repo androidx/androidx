@@ -16,12 +16,13 @@
 
 package androidx.mediarouter.media;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(24)
 final class MediaRouterApi24 {
     public static final class RouteInfo {
-        public static int getDeviceType(Object routeObj) {
+        public static int getDeviceType(@NonNull Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();
         }
 
