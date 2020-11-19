@@ -120,6 +120,7 @@ private fun includeMetaInfServices(library: LibraryExtension) {
  */
 @ExperimentalStdlibApi
 fun packageInspector(libraryProject: Project, inspectorProject: Project) {
+    generateProguardDetectionFile(libraryProject)
     inspectorProject.project.plugins.withType(InspectionPlugin::class.java) { inspectionPlugin ->
         val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
         libExtension.libraryVariants.all { variant ->
@@ -129,5 +130,13 @@ fun packageInspector(libraryProject: Project, inspectorProject: Project) {
                 zip.rename(outputFile.asFile.get().name, "inspector.jar")
             }
         }
+    }
+}
+
+@ExperimentalStdlibApi
+private fun generateProguardDetectionFile(libraryProject: Project) {
+    val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
+    libExtension.libraryVariants.all { variant ->
+        libraryProject.registerGenerateProguardDetectionFileTask(variant)
     }
 }
