@@ -27,6 +27,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin
 
 /**
  * Implementation of [XHasModifiers] for ksp declarations.
@@ -51,7 +52,8 @@ sealed class KspHasModifiers(
     }
 
     override fun isStatic(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_STATIC) || declaration.isJvmStatic()
+        return declaration.modifiers.contains(Modifier.JAVA_STATIC) ||
+            declaration.hasJvmStaticAnnotation()
     }
 
     override fun isTransient(): Boolean {
@@ -65,22 +67,36 @@ sealed class KspHasModifiers(
     private class Declaration(declaration: KSDeclaration) : KspHasModifiers(declaration)
 
     private class PropertyField(
-        declaration: KSDeclaration
+        declaration: KSPropertyDeclaration
     ) : KspHasModifiers(declaration) {
-        private val jvmField by lazy {
-            declaration.isJvmField()
+        private val acceptDeclarationModifiers by lazy {
+            // Deciding whether we should read modifiers from a KSPropertyDeclaration is not very
+            // straightforward. (jvmField == true -> read modifiers from declaration)
+            // When origin is java, always read.
+            // When origin is kotlin, read if it has @JvmField annotation
+            // When origin is .class, it depends whether the property was originally a kotlin code
+            // or java code.
+            // Unfortunately, we don't have a way of checking it as KotlinMetadata annotation is not
+            // visible via KSP. We approximate it by checking if it is delegated or not.
+            when (declaration.origin) {
+                Origin.JAVA -> true
+                Origin.KOTLIN -> declaration.hasJvmFieldAnnotation()
+                // TODO find a better way to check if class is derived from kotlin source or not.
+                Origin.CLASS -> declaration.hasJvmFieldAnnotation() || !declaration.isDelegated()
+                else -> false
+            }
         }
 
         override fun isPublic(): Boolean {
-            return jvmField && super.isPublic()
+            return acceptDeclarationModifiers && super.isPublic()
         }
 
         override fun isProtected(): Boolean {
-            return jvmField && super.isProtected()
+            return acceptDeclarationModifiers && super.isProtected()
         }
 
         override fun isPrivate(): Boolean {
-            return if (jvmField) {
+            return if (acceptDeclarationModifiers) {
                 super.isPrivate()
             } else {
                 // it is always private unless it is a jvm field
