@@ -43,7 +43,6 @@ abstract class PagingDataDiffer<T : Any>(
     private var receiver: UiReceiver? = null
     private val combinedLoadStates = MutableLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
-    private val dataRefreshedListeners = CopyOnWriteArrayList<(isEmpty: Boolean) -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 
@@ -135,11 +134,8 @@ abstract class PagingDataDiffer<T : Any>(
                     )
                     presenter = newPresenter
 
-                    // Dispatch LoadState + DataRefresh updates as soon as we are done diffing,
-                    // but after setting presenter.
-                    dataRefreshedListeners.forEach { listener ->
-                        listener(event.pages.all { page -> page.data.isEmpty() })
-                    }
+                    // Dispatch LoadState updates as soon as we are done diffing, but after setting
+                    // presenter.
                     dispatchLoadStates(event.combinedLoadStates)
 
                     if (transformedLastAccessedIndex == null) {
@@ -297,39 +293,11 @@ abstract class PagingDataDiffer<T : Any>(
     val loadStateFlow: Flow<CombinedLoadStates>
         get() = _combinedLoadState
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _dataRefreshBus = ConflatedEventBus<Boolean>()
-
-    /**
-     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
-     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
-     * `false` otherwise.
-     */
-    @Deprecated(
-        message = "dataRefreshFlow is now redundant with the information passed from " +
-            "loadStateFlow and size(), and will be removed in a future alpha version",
-        replaceWith = ReplaceWith(
-            """loadStateFlow.map { it.source.refresh }
-                .filter { it is LoadState.NotLoading }
-                .distinctUntilChanged()""",
-            "androidx.paging.LoadState",
-            "kotlinx.coroutines.flow.distinctUntilChanged",
-            "kotlinx.coroutines.flow.filter",
-            "kotlinx.coroutines.flow.map",
-        )
-    )
-    @ExperimentalPagingApi
-    @OptIn(FlowPreview::class)
-    val dataRefreshFlow: Flow<Boolean> = _dataRefreshBus.flow
-
     init {
         @OptIn(ExperimentalCoroutinesApi::class)
         addLoadStateListener {
             _combinedLoadState.value = it
         }
-        @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-        @Suppress("DEPRECATION")
-        addDataRefreshListener { _dataRefreshBus.send(it) }
     }
 
     /**
@@ -360,39 +328,6 @@ abstract class PagingDataDiffer<T : Any>(
      */
     fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         loadStateListeners.remove(listener)
-    }
-
-    /**
-     * Add a listener to observe new [PagingData] generations.
-     *
-     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
-     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
-     *
-     * @see removeDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        dataRefreshedListeners.add(listener)
-    }
-
-    /**
-     * Remove a previously registered listener for new [PagingData] generations.
-     *
-     * @param listener Previously registered listener.
-     *
-     * @see addDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        dataRefreshedListeners.remove(listener)
     }
 }
 
