@@ -18,7 +18,7 @@ package androidx.wear.watchface.client
 
 import android.graphics.Bitmap
 import android.os.IBinder
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntRange
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
@@ -117,20 +117,22 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = iInteractiveWatchFaceWcs.takeWatchFaceScreenshot(
-        WatchfaceScreenshotParams(
-            renderParameters.toWireFormat(),
-            compressionQuality,
-            calendarTimeMillis,
-            userStyle?.toWireFormat(),
-            idAndComplicationData?.map {
-                IdAndComplicationDataWireFormat(
-                    it.key,
-                    it.value.asWireComplicationData()
-                )
-            }
+    ): Bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+        iInteractiveWatchFaceWcs.takeWatchFaceScreenshot(
+            WatchfaceScreenshotParams(
+                renderParameters.toWireFormat(),
+                compressionQuality,
+                calendarTimeMillis,
+                userStyle?.toWireFormat(),
+                idAndComplicationData?.map {
+                    IdAndComplicationDataWireFormat(
+                        it.key,
+                        it.value.asWireComplicationData()
+                    )
+                }
+            )
         )
-    ).ashmemCompressedImageBundleToBitmap()
+    )
 
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceWcs.previewReferenceTimeMillis

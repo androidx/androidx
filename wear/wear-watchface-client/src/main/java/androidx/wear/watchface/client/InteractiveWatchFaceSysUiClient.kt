@@ -22,7 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
@@ -188,20 +188,23 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
-        WatchfaceScreenshotParams(
-            renderParameters.toWireFormat(),
-            compressionQuality,
-            calendarTimeMillis,
-            userStyle?.toWireFormat(),
-            idAndComplicationData?.map {
-                IdAndComplicationDataWireFormat(
-                    it.key,
-                    it.value.asWireComplicationData()
+    ): Bitmap =
+        SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    renderParameters.toWireFormat(),
+                    compressionQuality,
+                    calendarTimeMillis,
+                    userStyle?.toWireFormat(),
+                    idAndComplicationData?.map {
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    }
                 )
-            }
+            )
         )
-    ).ashmemCompressedImageBundleToBitmap()
 
     override val previewReferenceTimeMillis: Long
         get() = iInteractiveWatchFaceSysUI.previewReferenceTimeMillis

@@ -17,6 +17,7 @@
 package androidx.wear.watchface.control
 
 import android.os.Handler
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationScreenshotParams
 import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
@@ -26,6 +27,7 @@ import androidx.wear.watchface.runOnHandler
  * A headless watch face instance. This doesn't render asynchronously and the exposed API makes it
  * effectively stateless.
  */
+@RequiresApi(27)
 internal class HeadlessWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
     private val uiThreadHandler: Handler
