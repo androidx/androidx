@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.mediarouter.R;
@@ -95,11 +96,11 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
         }
     };
 
-    public MediaRouteDynamicChooserDialog(Context context) {
+    public MediaRouteDynamicChooserDialog(@NonNull Context context) {
         this(context, 0);
     }
 
-    public MediaRouteDynamicChooserDialog(Context context, int theme) {
+    public MediaRouteDynamicChooserDialog(@NonNull Context context, int theme) {
         super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
                 MediaRouterThemeHelper.createThemedDialogStyle(context));
         context = getContext();
@@ -176,7 +177,7 @@ public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_picker_dialog);

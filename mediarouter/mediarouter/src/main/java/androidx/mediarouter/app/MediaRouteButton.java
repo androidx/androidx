@@ -40,6 +40,7 @@ import android.view.SoundEffectConstants;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -144,15 +145,16 @@ public class MediaRouteButton extends View {
         android.R.attr.state_checkable
     };
 
-    public MediaRouteButton(Context context) {
+    public MediaRouteButton(@NonNull Context context) {
         this(context, null);
     }
 
-    public MediaRouteButton(Context context, AttributeSet attrs) {
+    public MediaRouteButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.mediaRouteButtonStyle);
     }
 
-    public MediaRouteButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MediaRouteButton(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         super(MediaRouterThemeHelper.createThemedButtonContext(context), attrs, defStyleAttr);
         context = getContext();
         TypedArray a = context.obtainStyledAttributes(attrs,
@@ -230,7 +232,7 @@ public class MediaRouteButton extends View {
      *
      * @param selector The selector, must not be null.
      */
-    public void setRouteSelector(MediaRouteSelector selector) {
+    public void setRouteSelector(@NonNull MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -458,6 +460,7 @@ public class MediaRouteButton extends View {
     }
 
     @Override
+    @NonNull
     protected int[] onCreateDrawableState(int extraSpace) {
         final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
 
@@ -490,7 +493,7 @@ public class MediaRouteButton extends View {
     /**
      * Sets a drawable to use as the remote route indicator.
      */
-    public void setRemoteIndicatorDrawable(Drawable d) {
+    public void setRemoteIndicatorDrawable(@Nullable Drawable d) {
         // to prevent overwriting user-set drawables
         mRemoteIndicatorResIdToLoad = 0;
         setRemoteIndicatorDrawableInternal(d);
@@ -515,7 +518,7 @@ public class MediaRouteButton extends View {
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || who == mRemoteIndicator;
     }
 
@@ -610,7 +613,7 @@ public class MediaRouteButton extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
         if (mRemoteIndicator != null) {
