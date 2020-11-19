@@ -26,10 +26,6 @@ buildscript {
     repos.addMavenRepositories(repositories)
 
     SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
-
-    dependencies {
-        classpath SHADOW_PLUGIN
-    }
 }
 
 def root = project
