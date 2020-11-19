@@ -22,7 +22,6 @@ import androidx.leanback.widget.PresenterSelector
 import androidx.lifecycle.Lifecycle
 import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.CombinedLoadStates
-import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.paging.LoadType
 import androidx.paging.Pager
@@ -265,60 +264,5 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      */
     override fun get(position: Int): T? {
         return differ.getItem(position)
-    }
-
-    /**
-     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
-     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
-     * `false` otherwise.
-     */
-    @Deprecated(
-        message = "dataRefreshFlow is now redundant with the information passed from " +
-            "loadStateFlow and size(), and will be removed in a future alpha version",
-        replaceWith = ReplaceWith(
-            """loadStateFlow.map { it.source.refresh }
-                .filter { it is LoadState.NotLoading }
-                .distinctUntilChanged()""",
-            "androidx.paging.LoadState",
-            "kotlinx.coroutines.flow.distinctUntilChanged",
-            "kotlinx.coroutines.flow.filter",
-            "kotlinx.coroutines.flow.map",
-        )
-    )
-    @ExperimentalPagingApi
-    val dataRefreshFlow: Flow<Boolean>
-        get() = differ.dataRefreshFlow
-
-    /**
-     * Add a listener to observe new [PagingData] generations.
-     *
-     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
-     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
-     *
-     * @see removeDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        differ.addDataRefreshListener(listener)
-    }
-
-    /**
-     * Remove a previously registered listener for new [PagingData] generations.
-     *
-     * @param listener Previously registered listener.
-     *
-     * @see addDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        differ.removeDataRefreshListener(listener)
     }
 }
