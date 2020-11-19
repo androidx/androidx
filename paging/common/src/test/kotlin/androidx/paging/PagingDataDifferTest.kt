@@ -27,10 +27,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -142,65 +140,6 @@ class PagingDataDifferTest {
         differ.refresh()
 
         assertEquals(1, receiver.refreshEvents.size)
-
-        job.cancel()
-    }
-
-    @Test
-    fun listUpdateFlow() = testScope.runBlockingTest {
-        val differ = SimpleDiffer(dummyDifferCallback)
-        val pageEventFlow = flowOf(
-            Refresh(listOf(TransformablePage.empty<Int>()), 0, 0, CombinedLoadStates.IDLE_SOURCE),
-            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, -1, -1, 0),
-            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
-        )
-
-        val pagingData = PagingData(pageEventFlow, dummyReceiver)
-
-        // Start collection for ListUpdates before collecting from differ to prevent conflation
-        // from affecting the expected events.
-        val listUpdates = mutableListOf<Boolean>()
-        val listUpdateJob = launch {
-            @Suppress("DEPRECATION")
-            differ.dataRefreshFlow.collect { listUpdates.add(it) }
-        }
-
-        val job = launch {
-            differ.collectFrom(pagingData)
-        }
-
-        advanceUntilIdle()
-        assertThat(listUpdates).isEqualTo(listOf(true, false))
-
-        listUpdateJob.cancel()
-        job.cancel()
-    }
-
-    @Test
-    fun listUpdateCallback() = testScope.runBlockingTest {
-        val differ = SimpleDiffer(dummyDifferCallback)
-        val pageEventFlow = flowOf(
-            Refresh(listOf(TransformablePage.empty<Int>()), 0, 0, CombinedLoadStates.IDLE_SOURCE),
-            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, -1, -1, 0),
-            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
-        )
-
-        val pagingData = PagingData(pageEventFlow, dummyReceiver)
-
-        // Start listening for ListUpdates before collecting from differ to prevent conflation
-        // from affecting the expected events.
-        val listUpdates = mutableListOf<Boolean>()
-        @Suppress("DEPRECATION")
-        differ.addDataRefreshListener { listUpdates.add(it) }
-
-        val job = launch {
-            differ.collectFrom(pagingData)
-        }
-
-        advanceUntilIdle()
-        assertThat(listUpdates).isEqualTo(listOf(true, false))
 
         job.cancel()
     }
