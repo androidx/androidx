@@ -179,10 +179,10 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/main/kotlin/com/example/test.kt:6: Error: Upgrade Fragment version to at least 1.3.0-alpha08. [InvalidFragmentVersionForActivityResult]
+                src/main/kotlin/com/example/test.kt:6: Error: Upgrade Fragment version to at least $FRAGMENT_VERSION. [InvalidFragmentVersionForActivityResult]
                 val launcher1 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                src/main/kotlin/com/example/test.kt:11: Error: Upgrade Fragment version to at least 1.3.0-alpha08. [InvalidFragmentVersionForActivityResult]
+                src/main/kotlin/com/example/test.kt:11: Error: Upgrade Fragment version to at least $FRAGMENT_VERSION. [InvalidFragmentVersionForActivityResult]
                     launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
