@@ -360,7 +360,7 @@ src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter 
 src/main/java/androidx/slice/widget/RowContent\.java:[0-9]+: warning: Parameter policy references hidden type androidx\.slice\.widget\.SliceViewPolicy\. \[HiddenTypeParameter\]
 # > Task :appcompat:appcompat-resources:generateApi
 src/main/java/androidx/appcompat/widget/ResourceManagerInternal\.java:[0-9]+: warning: Parameter hooks references hidden type androidx\.appcompat\.widget\.ResourceManagerInternal\.ResourceManagerHooks\. \[HiddenTypeParameter\]
-# > Task :arch:core-common:generateApi
+# > Task :arch:core:core-common:generateApi
 src/main/java/androidx/arch/core/internal/FastSafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.FastSafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
 src/main/java/androidx/arch/core/internal/SafeIterableMap\.java:[0-9]+: warning: Method androidx\.arch\.core\.internal\.SafeIterableMap\.get\(K\) references hidden type androidx\.arch\.core\.internal\.SafeIterableMap\.Entry<K,V>\. \[HiddenTypeParameter\]
 # > Task :appcompat:appcompat:generateApi
