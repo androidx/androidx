@@ -172,6 +172,43 @@ class FragmentTransitionTest(
         }
         verifyNoOtherTransitions(fragment)
     }
+    @Test
+    fun testTimedPostponeImmediateStartNotCanceled() {
+        val fm = activityRule.activity.supportFragmentManager
+        setupInitialFragment()
+        var cancelCount = 0
+        val endTransitionCountDownLatch = CountDownLatch(1)
+
+        val fragment = PostponedFragment3(1000, true)
+
+        fragment.enterTransition.apply {
+            setRealTransition(true)
+            addListener(object : TransitionListenerAdapter() {
+                override fun onTransitionCancel(transition: Transition) {
+                    super.onTransitionCancel(transition)
+                    cancelCount++
+                }
+
+                override fun onTransitionEnd(transition: Transition) {
+                    super.onTransitionEnd(transition)
+                    endTransitionCountDownLatch.countDown()
+                }
+            })
+        }
+        fm.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        fragment.waitForTransition()
+
+        assertThat(endTransitionCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(0)
+        assertThat(cancelCount).isEqualTo(0)
+    }
 
     @Test
     fun ensureTransitionsFinishBeforeViewDestroyed() {
@@ -1461,6 +1498,28 @@ class FragmentTransitionTest(
             fragment.startTransitionCountDownLatch.countDown()
             transition.removeListener(this)
             transition.addListener(this)
+        }
+    }
+
+    class PostponedFragment3(
+        val duration: Long,
+        val startImmediate: Boolean = false
+    ) : TransitionFragment(R.layout.fragment_scene2) {
+        var startPostponedCountDownLatch = CountDownLatch(1)
+        val onViewCreatedCountDownLatch = CountDownLatch(1)
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
+            if (startImmediate) {
+                startPostponedEnterTransition()
+            }
+            onViewCreatedCountDownLatch.countDown()
+        }
+
+        override fun startPostponedEnterTransition() {
+            super.startPostponedEnterTransition()
+            startPostponedCountDownLatch.countDown()
         }
     }
 
