@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -290,34 +291,45 @@ public final class ShareCompat {
          *
          * @param launchingActivity Activity that the share will be launched from
          * @return a new IntentBuilder instance
+         * @deprecated Use the constructor of IntentBuilder
          */
         @NonNull
+        @Deprecated
         public static IntentBuilder from(@NonNull Activity launchingActivity) {
-            return from(checkNotNull(launchingActivity), launchingActivity.getComponentName());
+            return new IntentBuilder(launchingActivity);
         }
 
         /**
          * Create a new IntentBuilder for launching a sharing action from launchingContext.
          *
+         * <p>Note that builders that are not constructed with an {@link Activity} context
+         * (or a wrapped activity context) will not set the
+         * {@link #EXTRA_CALLING_ACTIVITY calling activity} on the returned intent.</p>
+         *
          * @param launchingContext Context that the share will be launched from
-         * @param componentName Component that the share will be launched from, if any
-         * @return a new IntentBuilder instance
          */
-        @NonNull
-        private static IntentBuilder from(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
-            return new IntentBuilder(launchingContext, componentName);
-        }
-
-        private IntentBuilder(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
+        public IntentBuilder(@NonNull Context launchingContext) {
             mContext = checkNotNull(launchingContext);
             mIntent = new Intent().setAction(Intent.ACTION_SEND);
             mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingContext.getPackageName());
             mIntent.putExtra(EXTRA_CALLING_PACKAGE_INTEROP, launchingContext.getPackageName());
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY, componentName);
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, componentName);
             mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+            Activity activity = null;
+            Context context = launchingContext;
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    activity = (Activity) context;
+                    break;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+
+            if (activity != null) {
+                ComponentName componentName = activity.getComponentName();
+                mIntent.putExtra(EXTRA_CALLING_ACTIVITY, componentName);
+                mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, componentName);
+            }
         }
 
         /**
@@ -711,26 +723,32 @@ public final class ShareCompat {
          *
          * @param activity Activity that was started to share content
          * @return IntentReader for parsing sharing data
+         * @deprecated Use the constructor of IntentReader instead
          */
         @NonNull
+        @Deprecated
         public static IntentReader from(@NonNull Activity activity) {
-            return from(checkNotNull(activity), activity.getIntent());
+            return new IntentReader(activity);
         }
 
         /**
-         * Get an IntentReader for parsing and interpreting the sharing intent
+         * Create an IntentReader for parsing and interpreting the sharing intent
          * used to start the given activity.
+         *
+         * @param activity Activity that was started to share content
+         */
+        public IntentReader(@NonNull Activity activity) {
+            this(checkNotNull(activity), activity.getIntent());
+        }
+
+
+        /**
+         * Create an IntentReader for parsing and interpreting the given sharing intent.
          *
          * @param context Context that was started to share content
          * @param intent Intent that was used to start the context
-         * @return IntentReader for parsing sharing data
          */
-        @NonNull
-        private static IntentReader from(@NonNull Context context, @NonNull Intent intent) {
-            return new IntentReader(context, intent);
-        }
-
-        private IntentReader(@NonNull Context context, @NonNull Intent intent) {
+        public IntentReader(@NonNull Context context, @NonNull Intent intent) {
             mContext = checkNotNull(context);
             mIntent = checkNotNull(intent);
             mCallingPackage = ShareCompat.getCallingPackage(intent);
