@@ -20,7 +20,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 android {
@@ -44,6 +43,9 @@ android {
     }
     testOptions {
         animationsDisabled = true
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
