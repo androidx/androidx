@@ -468,35 +468,29 @@ public class AccessibilityDelegateCompatTest extends
     public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
         final Activity activity = mActivityTestRule.getActivity();
 
-        AccessibilityEvent awaitedEvent =
-                sUiAutomation.executeAndWaitForEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        ViewCompat.setAccessibilityPaneTitle(mView, "test");
-                    }
-                }, new UiAutomation.AccessibilityEventFilter() {
-                    @Override
-                    public boolean accept(AccessibilityEvent event) {
-                        boolean isWindowStateChanged = event.getEventType()
-                                == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-                        int isPaneTitle = (event.getContentChangeTypes()
-                                & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE);
-                        // onInitializeA11yEvent is not called in 28 for panes, so the package name
-                        // isn't set
-                        boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
-                                || TextUtils.equals(event.getPackageName(),
-                                activity.getPackageName());
-                        boolean isFromThisSource =
-                                event.getSource().equals(mView.createAccessibilityNodeInfo());
-                        return isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
-                                && isFromThisSource;
-                    }
-                }, TIMEOUT_ASYNC_PROCESSING);
-
-        // The event should come from a view that's important for accessibility, even though the
-        // layout we added it to isn't important. Otherwise services may not find out about the
-        // new button.
-        assertTrue(awaitedEvent.getSource().isImportantForAccessibility());
+        sUiAutomation.executeAndWaitForEvent(new Runnable() {
+            @Override
+            public void run() {
+                ViewCompat.setAccessibilityPaneTitle(mView, "test");
+            }
+        }, new UiAutomation.AccessibilityEventFilter() {
+            @Override
+            public boolean accept(AccessibilityEvent event) {
+                boolean isWindowStateChanged = event.getEventType()
+                        == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                int isPaneTitle = (event.getContentChangeTypes()
+                        & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE);
+                // onInitializeA11yEvent is not called in 28 for panes, so the package name
+                // isn't set
+                boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                        || TextUtils.equals(event.getPackageName(),
+                        activity.getPackageName());
+                boolean isFromThisSource =
+                        event.getSource().equals(mView.createAccessibilityNodeInfo());
+                return isWindowStateChanged && (isPaneTitle != 0) && isFromThisPackage
+                        && isFromThisSource;
+            }
+        }, TIMEOUT_ASYNC_PROCESSING);
     }
 
     @Test
@@ -509,29 +503,23 @@ public class AccessibilityDelegateCompatTest extends
         assertThat(ViewCompat.getStateDescription(mView), is(nullValue()));
         assertThat(getNodeCompatForView(mView).getStateDescription(), is(nullValue()));
 
-        AccessibilityEvent awaitedEvent =
-                sUiAutomation.executeAndWaitForEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        ViewCompat.setStateDescription(mView, state);
-                    }
-                }, new UiAutomation.AccessibilityEventFilter() {
-                    @Override
-                    public boolean accept(AccessibilityEvent event) {
-                        boolean isContentChanged = event.getEventType()
-                                == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
-                        int isStateDescription = (event.getContentChangeTypes()
-                                & AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION);
-                        boolean isFromThisPackage = TextUtils.equals(event.getPackageName(),
-                                activity.getPackageName());
-                        return isContentChanged && (isStateDescription != 0) && isFromThisPackage;
-                    }
-                }, TIMEOUT_ASYNC_PROCESSING);
-
-        // The event should come from a view that's important for accessibility, even though the
-        // layout we added it to isn't important. Otherwise services may not find out about the
-        // new button.
-        assertTrue(awaitedEvent.getSource().isImportantForAccessibility());
+        sUiAutomation.executeAndWaitForEvent(new Runnable() {
+            @Override
+            public void run() {
+                ViewCompat.setStateDescription(mView, state);
+            }
+        }, new UiAutomation.AccessibilityEventFilter() {
+            @Override
+            public boolean accept(AccessibilityEvent event) {
+                boolean isContentChanged = event.getEventType()
+                        == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+                int isStateDescription = (event.getContentChangeTypes()
+                        & AccessibilityEvent.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION);
+                boolean isFromThisPackage = TextUtils.equals(event.getPackageName(),
+                        activity.getPackageName());
+                return isContentChanged && (isStateDescription != 0) && isFromThisPackage;
+            }
+        }, TIMEOUT_ASYNC_PROCESSING);
 
         assertThat(ViewCompat.getStateDescription(mView), is(state));
         assertThat(getNodeCompatForView(mView).getStateDescription(), is(state));
