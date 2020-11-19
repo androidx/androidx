@@ -61,6 +61,7 @@ import android.widget.TextView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
@@ -210,11 +211,11 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mArtIconBackgroundColor;
 
-    public MediaRouteDynamicControllerDialog(Context context) {
+    public MediaRouteDynamicControllerDialog(@NonNull Context context) {
         this(context, 0);
     }
 
-    public MediaRouteDynamicControllerDialog(Context context, int theme) {
+    public MediaRouteDynamicControllerDialog(@NonNull Context context, int theme) {
         super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
                 MediaRouterThemeHelper.createThemedDialogStyle(context));
         mContext = getContext();
@@ -257,6 +258,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
      *
      * @return The token for the session to use or null if none.
      */
+    @Nullable
     public MediaSessionCompat.Token getMediaSession() {
         return mMediaController == null ? null : mMediaController.getSessionToken();
     }
@@ -326,7 +328,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.mr_cast_dialog);

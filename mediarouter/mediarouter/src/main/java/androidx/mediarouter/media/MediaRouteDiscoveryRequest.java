@@ -17,6 +17,9 @@ package androidx.mediarouter.media;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Describes the kinds of routes that the media router would like to discover
  * and whether to perform active scanning.
@@ -37,7 +40,7 @@ public final class MediaRouteDiscoveryRequest {
      * @param selector The route selector that specifies the kinds of routes to discover.
      * @param activeScan True if active scanning should be performed.
      */
-    public MediaRouteDiscoveryRequest(MediaRouteSelector selector, boolean activeScan) {
+    public MediaRouteDiscoveryRequest(@NonNull MediaRouteSelector selector, boolean activeScan) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -55,6 +58,7 @@ public final class MediaRouteDiscoveryRequest {
     /**
      * Gets the route selector that specifies the kinds of routes to discover.
      */
+    @NonNull
     public MediaRouteSelector getSelector() {
         ensureSelector();
         return mSelector;
@@ -116,6 +120,7 @@ public final class MediaRouteDiscoveryRequest {
      *
      * @return The contents of the object represented as a bundle.
      */
+    @NonNull
     public Bundle asBundle() {
         return mBundle;
     }
@@ -126,7 +131,8 @@ public final class MediaRouteDiscoveryRequest {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
-    public static MediaRouteDiscoveryRequest fromBundle(Bundle bundle) {
+    @Nullable
+    public static MediaRouteDiscoveryRequest fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaRouteDiscoveryRequest(bundle) : null;
     }
 }

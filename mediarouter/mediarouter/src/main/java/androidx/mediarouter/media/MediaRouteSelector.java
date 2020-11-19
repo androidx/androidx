@@ -65,6 +65,7 @@ public final class MediaRouteSelector {
      *
      * @return The list of categories.
      */
+    @NonNull
     public List<String> getControlCategories() {
         ensureControlCategories();
         return mControlCategories;
@@ -83,16 +84,17 @@ public final class MediaRouteSelector {
      * Returns true if the selector contains the specified category.
      *
      * @param category The category to check.
-     * @return True if the category is present.
+     * @return {@code true} if the category is present.
      */
-    public boolean hasControlCategory(String category) {
-        if (category != null) {
-            ensureControlCategories();
-            final int categoryCount = mControlCategories.size();
-            for (int i = 0; i < categoryCount; i++) {
-                if (mControlCategories.get(i).equals(category)) {
-                    return true;
-                }
+    public boolean hasControlCategory(@Nullable String category) {
+        if (category == null) {
+            return false;
+        }
+        ensureControlCategories();
+        final int categoryCount = mControlCategories.size();
+        for (int i = 0; i < categoryCount; i++) {
+            if (mControlCategories.get(i).equals(category)) {
+                return true;
             }
         }
         return false;
@@ -104,21 +106,21 @@ public final class MediaRouteSelector {
      * @param filters The list of control filters to consider.
      * @return True if a match is found.
      */
-    public boolean matchesControlFilters(List<IntentFilter> filters) {
-        if (filters != null) {
-            ensureControlCategories();
-            final int categoryCount = mControlCategories.size();
-            if (categoryCount != 0) {
-                final int filterCount = filters.size();
-                for (int i = 0; i < filterCount; i++) {
-                    final IntentFilter filter = filters.get(i);
-                    if (filter != null) {
-                        for (int j = 0; j < categoryCount; j++) {
-                            if (filter.hasCategory(mControlCategories.get(j))) {
-                                return true;
-                            }
-                        }
-                    }
+    public boolean matchesControlFilters(@Nullable List<IntentFilter> filters) {
+        if (filters == null) {
+            return false;
+        }
+        ensureControlCategories();
+        if (mControlCategories.isEmpty()) {
+            return false;
+        }
+        for (IntentFilter filter : filters) {
+            if (filter == null) {
+                continue;
+            }
+            for (String category : mControlCategories) {
+                if (filter.hasCategory(category)) {
+                    return true;
                 }
             }
         }
@@ -133,13 +135,13 @@ public final class MediaRouteSelector {
      * @return True if this selector contains all of the capabilities described
      * by the specified selector.
      */
-    public boolean contains(MediaRouteSelector selector) {
-        if (selector != null) {
-            ensureControlCategories();
-            selector.ensureControlCategories();
-            return mControlCategories.containsAll(selector.mControlCategories);
+    public boolean contains(@NonNull MediaRouteSelector selector) {
+        if (selector == null) {
+            return false;
         }
-        return false;
+        ensureControlCategories();
+        selector.ensureControlCategories();
+        return mControlCategories.containsAll(selector.mControlCategories);
     }
 
     /**
@@ -193,6 +195,7 @@ public final class MediaRouteSelector {
      *
      * @return The contents of the object represented as a bundle.
      */
+    @NonNull
     public Bundle asBundle() {
         return mBundle;
     }
@@ -203,6 +206,7 @@ public final class MediaRouteSelector {
      * @param bundle The bundle, or null if none.
      * @return The new instance, or null if the bundle was null.
      */
+    @Nullable
     public static MediaRouteSelector fromBundle(@Nullable Bundle bundle) {
         return bundle != null ? new MediaRouteSelector(bundle, null) : null;
     }

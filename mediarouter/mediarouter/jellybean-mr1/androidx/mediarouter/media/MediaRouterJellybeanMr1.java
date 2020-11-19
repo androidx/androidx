@@ -23,6 +23,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Field;
@@ -38,11 +40,12 @@ final class MediaRouterJellybeanMr1 {
     }
 
     public static final class RouteInfo {
-        public static boolean isEnabled(Object routeObj) {
+        public static boolean isEnabled(@NonNull Object routeObj) {
             return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();
         }
 
-        public static Display getPresentationDisplay(Object routeObj) {
+        @Nullable
+        public static Display getPresentationDisplay(@NonNull Object routeObj) {
             // android.media.MediaRouter.RouteInfo.getPresentationDisplay() was
             // added in API 17. However, some factory releases of JB MR1 missed it.
             try {
@@ -57,8 +60,8 @@ final class MediaRouterJellybeanMr1 {
         }
     }
 
-    public static interface Callback extends MediaRouterJellybean.Callback {
-        public void onRoutePresentationDisplayChanged(Object routeObj);
+    public interface Callback extends MediaRouterJellybean.Callback {
+        void onRoutePresentationDisplayChanged(@NonNull Object routeObj);
     }
 
     /**
@@ -77,9 +80,16 @@ final class MediaRouterJellybeanMr1 {
 
         private boolean mActivelyScanningWifiDisplays;
 
-        public ActiveScanWorkaround(Context context, Handler handler) {
+        ActiveScanWorkaround(@NonNull Context context, @NonNull Handler handler) {
             if (Build.VERSION.SDK_INT != 17) {
                 throw new UnsupportedOperationException();
+            }
+
+            if (context == null) {
+                throw new NullPointerException("context must not be null");
+            }
+            if (handler == null) {
+                throw new NullPointerException("handler must not be null");
             }
 
             mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
@@ -156,7 +166,7 @@ final class MediaRouterJellybeanMr1 {
             }
         }
 
-        public boolean isConnecting(Object routeObj) {
+        public boolean isConnecting(@NonNull Object routeObj) {
             android.media.MediaRouter.RouteInfo route =
                     (android.media.MediaRouter.RouteInfo)routeObj;
 
