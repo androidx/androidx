@@ -891,7 +891,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
                 val watchState = mutableWatchState.asWatchState()
                 watchFaceImpl = WatchFaceImpl(
-                    createWatchFace( surfaceHolder, watchState),
+                    createWatchFace(surfaceHolder, watchState),
                     this,
                     watchState
                 )

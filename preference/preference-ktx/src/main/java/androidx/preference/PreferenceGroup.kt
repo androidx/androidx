@@ -81,15 +81,15 @@ public inline fun PreferenceGroup.forEachIndexed(
 }
 
 /** Returns a [MutableIterator] over the preferences in this preference group. */
-public operator fun PreferenceGroup.iterator(
-): Iterator<Preference> = object : MutableIterator<Preference> {
-    private var index = 0
-    override fun hasNext() = index < size
-    override fun next() = getPreference(index++) ?: throw IndexOutOfBoundsException()
-    override fun remove() {
-        removePreference(getPreference(--index))
+public operator fun PreferenceGroup.iterator(): Iterator<Preference> =
+    object : MutableIterator<Preference> {
+        private var index = 0
+        override fun hasNext() = index < size
+        override fun next() = getPreference(index++) ?: throw IndexOutOfBoundsException()
+        override fun remove() {
+            removePreference(getPreference(--index))
+        }
     }
-}
 
 /** Returns a [Sequence] over the preferences in this preference group. */
 public val PreferenceGroup.children: Sequence<Preference>

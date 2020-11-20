@@ -94,13 +94,13 @@ internal class InteractiveInstanceManager {
 
         /** Can be called on any thread. */
         @SuppressLint("SyntheticAccessor")
-        fun takePendingWallpaperInteractiveWatchFaceInstance(
-        ): PendingWallpaperInteractiveWatchFaceInstance? {
-            synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
-                val returnValue = pendingWallpaperInteractiveWatchFaceInstance
-                pendingWallpaperInteractiveWatchFaceInstance = null
-                return returnValue
+        fun takePendingWallpaperInteractiveWatchFaceInstance():
+            PendingWallpaperInteractiveWatchFaceInstance? {
+                synchronized(pendingWallpaperInteractiveWatchFaceInstanceLock) {
+                    val returnValue = pendingWallpaperInteractiveWatchFaceInstance
+                    pendingWallpaperInteractiveWatchFaceInstance = null
+                    return returnValue
+                }
             }
-        }
     }
 }

@@ -499,15 +499,14 @@ public sealed class UserStyleSetting(
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat(
-
-            ): ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat =
-                ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat(
-                    id,
-                    displayName,
-                    icon,
-                    complicationOverlays.map { it.toWireFormat() }.toTypedArray()
-                )
+            override fun toWireFormat():
+                ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat =
+                    ComplicationsUserStyleSettingWireFormat.ComplicationsOptionWireFormat(
+                        id,
+                        displayName,
+                        icon,
+                        complicationOverlays.map { it.toWireFormat() }.toTypedArray()
+                    )
         }
     }
 
@@ -618,9 +617,9 @@ public sealed class UserStyleSetting(
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat(
-            ): DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat =
-                DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat(id, value)
+            override fun toWireFormat():
+                DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat =
+                    DoubleRangeUserStyleSettingWireFormat.DoubleRangeOptionWireFormat(id, value)
         }
 
         /** Returns the minimum value. */
@@ -843,9 +842,9 @@ public sealed class UserStyleSetting(
 
             /** @hide */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-            override fun toWireFormat(
-            ): LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat =
-                LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat(id, value)
+            override fun toWireFormat():
+                LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat =
+                    LongRangeUserStyleSettingWireFormat.LongRangeOptionWireFormat(id, value)
         }
 
         /**

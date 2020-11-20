@@ -66,13 +66,13 @@ public inline fun Menu.forEachIndexed(action: (index: Int, item: MenuItem) -> Un
 }
 
 /** Returns a [MutableIterator] over the items in this menu. */
-public operator fun Menu.iterator(
-): MutableIterator<MenuItem> = object : MutableIterator<MenuItem> {
-    private var index = 0
-    override fun hasNext() = index < size()
-    override fun next() = getItem(index++) ?: throw IndexOutOfBoundsException()
-    override fun remove() = removeItem(--index)
-}
+public operator fun Menu.iterator(): MutableIterator<MenuItem> =
+    object : MutableIterator<MenuItem> {
+        private var index = 0
+        override fun hasNext() = index < size()
+        override fun next() = getItem(index++) ?: throw IndexOutOfBoundsException()
+        override fun remove() = removeItem(--index)
+    }
 
 /** Returns a [Sequence] over the items in this menu. */
 public val Menu.children: Sequence<MenuItem>

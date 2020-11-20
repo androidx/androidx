@@ -21,7 +21,7 @@ import androidx.camera.integration.camera2.pipe.DataGenerator
 import androidx.camera.integration.camera2.pipe.generateNewValue
 
 /** Represents a camera data point, unprocessed */
-data class GeneratedDataPoint1D (
+data class GeneratedDataPoint1D(
     val frameNumber: Long,
     val timestampNanos: Long,
     val value: Any
@@ -31,7 +31,7 @@ data class GeneratedDataPoint1D (
  * Useful for the Runnable that needs to keep track what frame it is on (can't just increment
  * because of potential delays) and trigger listener for all the new points generated
  */
-data class GeneratedDataPackage1D (
+data class GeneratedDataPackage1D(
     val lastFrame: Long,
     val points: List<GeneratedDataPoint1D>
 )
