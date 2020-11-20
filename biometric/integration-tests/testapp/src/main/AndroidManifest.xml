@@ -26,13 +26,23 @@
 
     <application>
         <activity
-            android:name=".BiometricTestActivity"
-            android:label="Biometric Test App"
+            android:name=".MainActivity"
+            android:label="Main Activity"
             android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".BiometricTestActivity"
+            android:label="Biometric Test App"
+            android:theme="@style/Theme.AppCompat.Light">
+        </activity>
+        <activity
+            android:name=".AuthPromptTestActivity"
+            android:label="AuthPrompt Test Activity"
+            android:theme="@style/Theme.AppCompat.Light">
         </activity>
     </application>
 </manifest>
