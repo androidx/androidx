@@ -26,6 +26,7 @@ import androidx.biometric.BiometricPrompt;
 import androidx.biometric.BiometricViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 
 /**
@@ -133,9 +134,6 @@ public class CredentialAuthPrompt {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull final AuthPromptCallback mClientCallback;
 
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        @NonNull final BiometricViewModel mViewModel;
-
         /**
          * A builder used to set individual options for the {@link CredentialAuthPrompt}
          * class to construct a {@link BiometricPrompt} for device credential authentication.
@@ -157,8 +155,6 @@ public class CredentialAuthPrompt {
             mTitle = title;
             mClientExecutor = clientExecutor;
             mClientCallback = clientCallback;
-            mViewModel = new ViewModelProvider(mAuthPromptHost.getActivity())
-                    .get(BiometricViewModel.class);
         }
 
         /**
@@ -181,8 +177,6 @@ public class CredentialAuthPrompt {
             mTitle = title;
             mClientExecutor = new DefaultExecutor();
             mClientCallback = clientCallback;
-            mViewModel = new ViewModelProvider(mAuthPromptHost.getActivity())
-                    .get(BiometricViewModel.class);
         }
 
         /**
@@ -224,38 +218,18 @@ public class CredentialAuthPrompt {
                     .build();
 
             final BiometricPrompt biometricPrompt;
-            BiometricPrompt.AuthenticationCallback wrappedCallback =
-                    new BiometricPrompt.AuthenticationCallback() {
-                        @Override
-                        public void onAuthenticationError(int errorCode,
-                                @NonNull CharSequence errString) {
-                            mClientCallback.onAuthenticationError(
-                                    mViewModel.getClientActivity(),
-                                    errorCode,
-                                    errString
-                            );
-                        }
+            final BiometricPrompt.AuthenticationCallback wrappedCallback;
 
-                        @Override
-                        public void onAuthenticationSucceeded(
-                                @NonNull BiometricPrompt.AuthenticationResult result) {
-                            mClientCallback.onAuthenticationSucceeded(
-                                    mViewModel.getClientActivity(),
-                                    result
-                            );
-                        }
-
-                        @Override
-                        public void onAuthenticationFailed() {
-                            mClientCallback.onAuthenticationFailed(
-                                    mViewModel.getClientActivity()
-                            );
-                        }
-                    };
             if (mAuthPromptHost.getActivity() != null) {
+                wrappedCallback = new WrappedAuthPromptCallback(mClientCallback,
+                        new ViewModelProvider(mAuthPromptHost.getActivity())
+                                .get(BiometricViewModel.class));
                 biometricPrompt = new BiometricPrompt(mAuthPromptHost.getActivity(),
                         mClientExecutor, wrappedCallback);
             } else if (mAuthPromptHost.getFragment() != null) {
+                wrappedCallback = new WrappedAuthPromptCallback(mClientCallback,
+                        new ViewModelProvider(mAuthPromptHost.getFragment().getActivity())
+                                .get(BiometricViewModel.class));
                 biometricPrompt = new BiometricPrompt(mAuthPromptHost.getFragment(),
                         mClientExecutor, wrappedCallback);
             } else {
@@ -264,6 +238,54 @@ public class CredentialAuthPrompt {
                         + " hosting the BiometricPrompt.");
             }
             return new CredentialAuthPrompt(biometricPrompt, promptInfo, mCrypto, mDescription);
+        }
+
+        /**
+         * Wraps AuthPromptCallback in BiometricPrompt.AuthenticationCallback for BiometricPrompt
+         * construction
+         */
+        private static class WrappedAuthPromptCallback
+                extends BiometricPrompt.AuthenticationCallback {
+            @NonNull private final AuthPromptCallback mClientCallback;
+            @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
+
+            WrappedAuthPromptCallback(@NonNull AuthPromptCallback callback,
+                    @NonNull BiometricViewModel viewModel) {
+                mClientCallback = callback;
+                mViewModelRef = new WeakReference<>(viewModel);
+            }
+
+            @Override
+            public void onAuthenticationError(int errorCode,
+                    @NonNull CharSequence errString) {
+                if (mViewModelRef != null) {
+                    mClientCallback.onAuthenticationError(
+                            mViewModelRef.get().getClientActivity(),
+                            errorCode,
+                            errString
+                    );
+                }
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                if (mViewModelRef != null) {
+                    mClientCallback.onAuthenticationSucceeded(
+                            mViewModelRef.get().getClientActivity(),
+                            result
+                    );
+                }
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                if (mViewModelRef != null) {
+                    mClientCallback.onAuthenticationFailed(
+                            mViewModelRef.get().getClientActivity()
+                    );
+                }
+            }
         }
     }
 }
