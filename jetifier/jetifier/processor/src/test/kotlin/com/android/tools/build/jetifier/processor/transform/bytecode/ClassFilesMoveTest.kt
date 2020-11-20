@@ -85,7 +85,9 @@ class ClassFilesMoveTest {
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -108,8 +110,9 @@ class ClassFilesMoveTest {
         @Suppress("deprecation")
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
-
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -133,7 +136,9 @@ class ClassFilesMoveTest {
         val processor = Processor.createProcessor(TEST_CONFIG)
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -146,6 +151,7 @@ class ClassFilesMoveTest {
             rewritingSupportLib = true,
             reversedMode = true
         )
+        @Suppress("DEPRECATION")
         val expectedFile2 = File(createTempDir(), "test2.zip")
         @Suppress("deprecation")
         val resultFiles2 = processor2.transform(

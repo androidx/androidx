@@ -64,7 +64,9 @@ class PomRewriteInZipTest {
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
@@ -101,7 +103,9 @@ class PomRewriteInZipTest {
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
+        @Suppress("DEPRECATION")
         val tempDir = createTempDir()
+        @Suppress("DEPRECATION")
         val expectedFile = File(createTempDir(), "test.zip")
 
         @Suppress("deprecation")
