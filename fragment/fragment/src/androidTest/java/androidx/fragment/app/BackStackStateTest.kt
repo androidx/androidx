@@ -325,4 +325,30 @@ class BackStackStateTest {
                 )
         }
     }
+
+    @Test
+    @UiThreadTest
+    fun setMaxLifecycleDestroyed() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fragment = StrictViewFragment()
+
+        try {
+            fc.supportFragmentManager.beginTransaction()
+                .add(android.R.id.content, fragment)
+                .setMaxLifecycle(fragment, Lifecycle.State.DESTROYED)
+                .commitNow()
+            fail(
+                "setting maxLifecycle state to DESTROYED should throw IllegalArgumentException"
+            )
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "Cannot set maximum Lifecycle to DESTROYED. Use remove() to remove the " +
+                        "fragment from the FragmentManager and trigger its destruction."
+                )
+        }
+    }
 }
