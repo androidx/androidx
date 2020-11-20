@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.util.BundleUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Array;
@@ -480,140 +481,15 @@ public class GenericDocument {
             return false;
         }
         GenericDocument otherDocument = (GenericDocument) other;
-        return bundleEquals(this.mBundle, otherDocument.mBundle);
-    }
-
-    /**
-     * Deeply checks whether two bundles are equal.
-     * <p>Two bundles will be considered equal if they contain the same content.
-     */
-    @SuppressWarnings("unchecked")
-    private static boolean bundleEquals(Bundle one, Bundle two) {
-        if (one.size() != two.size()) {
-            return false;
-        }
-        Set<String> keySetOne = one.keySet();
-        Object valueOne;
-        Object valueTwo;
-        // Bundle inherit its equals() from Object.java, which only compare their memory address.
-        // We should iterate all keys and check their presents and values in both bundle.
-        for (String key : keySetOne) {
-            valueOne = one.get(key);
-            valueTwo = two.get(key);
-            if (valueOne instanceof Bundle
-                    && valueTwo instanceof Bundle
-                    && !bundleEquals((Bundle) valueOne, (Bundle) valueTwo)) {
-                return false;
-            } else if (valueOne == null && (valueTwo != null || !two.containsKey(key))) {
-                // If we call bundle.get(key) when the 'key' doesn't actually exist in the
-                // bundle, we'll get back a null. So make sure that both values are null and
-                // both keys exist in the bundle.
-                return false;
-            } else if (valueOne instanceof boolean[]) {
-                if (!(valueTwo instanceof boolean[])
-                        || !Arrays.equals((boolean[]) valueOne, (boolean[]) valueTwo)) {
-                    return false;
-                }
-            } else if (valueOne instanceof long[]) {
-                if (!(valueTwo instanceof long[])
-                        || !Arrays.equals((long[]) valueOne, (long[]) valueTwo)) {
-                    return false;
-                }
-            } else if (valueOne instanceof double[]) {
-                if (!(valueTwo instanceof double[])
-                        || !Arrays.equals((double[]) valueOne, (double[]) valueTwo)) {
-                    return false;
-                }
-            } else if (valueOne instanceof Bundle[]) {
-                if (!(valueTwo instanceof Bundle[])) {
-                    return false;
-                }
-                Bundle[] bundlesOne = (Bundle[]) valueOne;
-                Bundle[] bundlesTwo = (Bundle[]) valueTwo;
-                if (bundlesOne.length != bundlesTwo.length) {
-                    return false;
-                }
-                for (int i = 0; i < bundlesOne.length; i++) {
-                    if (!bundleEquals(bundlesOne[i], bundlesTwo[i])) {
-                        return false;
-                    }
-                }
-            } else if (valueOne instanceof ArrayList) {
-                if (!(valueTwo instanceof ArrayList)) {
-                    return false;
-                }
-                ArrayList<Bundle> bundlesOne = (ArrayList<Bundle>) valueOne;
-                ArrayList<Bundle> bundlesTwo = (ArrayList<Bundle>) valueTwo;
-                if (bundlesOne.size() != bundlesTwo.size()) {
-                    return false;
-                }
-                for (int i = 0; i < bundlesOne.size(); i++) {
-                    if (!bundleEquals(bundlesOne.get(i), bundlesTwo.get(i))) {
-                        return false;
-                    }
-                }
-            } else if (valueOne instanceof Object[]) {
-                if (!(valueTwo instanceof Object[])
-                        || !Arrays.equals((Object[]) valueOne, (Object[]) valueTwo)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return BundleUtil.deepEquals(this.mBundle, otherDocument.mBundle);
     }
 
     @Override
     public int hashCode() {
         if (mHashCode == null) {
-            mHashCode = bundleHashCode(mBundle);
+            mHashCode = BundleUtil.deepHashCode(mBundle);
         }
         return mHashCode;
-    }
-
-    /**
-     * Calculates the hash code for a bundle.
-     * <p> The hash code is only effected by the contents in the bundle. Bundles will get
-     * consistent hash code if they have same contents.
-     */
-    @SuppressWarnings("unchecked")
-    private static int bundleHashCode(Bundle bundle) {
-        int[] hashCodes = new int[bundle.size()];
-        int i = 0;
-        // Bundle inherit its hashCode() from Object.java, which only relative to their memory
-        // address. Bundle doesn't have an order, so we should iterate all keys and combine
-        // their value's hashcode into an array. And use the hashcode of the array to be
-        // the hashcode of the bundle.
-        for (String key : bundle.keySet()) {
-            Object value = bundle.get(key);
-            if (value instanceof boolean[]) {
-                hashCodes[i++] = Arrays.hashCode((boolean[]) value);
-            } else if (value instanceof long[]) {
-                hashCodes[i++] = Arrays.hashCode((long[]) value);
-            } else if (value instanceof double[]) {
-                hashCodes[i++] = Arrays.hashCode((double[]) value);
-            } else if (value instanceof String[]) {
-                hashCodes[i++] = Arrays.hashCode((Object[]) value);
-            } else if (value instanceof Bundle) {
-                hashCodes[i++] = bundleHashCode((Bundle) value);
-            } else if (value instanceof Bundle[]) {
-                Bundle[] bundles = (Bundle[]) value;
-                int[] innerHashCodes = new int[bundles.length];
-                for (int j = 0; j < innerHashCodes.length; j++) {
-                    innerHashCodes[j] = bundleHashCode(bundles[j]);
-                }
-                hashCodes[i++] = Arrays.hashCode(innerHashCodes);
-            } else if (value instanceof ArrayList) {
-                ArrayList<Bundle> bundles = (ArrayList<Bundle>) value;
-                int[] innerHashCodes = new int[bundles.size()];
-                for (int j = 0; j < innerHashCodes.length; j++) {
-                    innerHashCodes[j] = bundleHashCode(bundles.get(j));
-                }
-                hashCodes[i++] = Arrays.hashCode(innerHashCodes);
-            } else {
-                hashCodes[i++] = value.hashCode();
-            }
-        }
-        return Arrays.hashCode(hashCodes);
     }
 
     @Override
