@@ -117,7 +117,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         boolean startedAnyTransition = startedTransitions.containsValue(true);
 
         // Start animation special effects
-        startAnimations(animations, startedAnyTransition, startedTransitions);
+        startAnimations(animations, awaitingContainerChanges,
+                startedAnyTransition, startedTransitions);
 
         for (final Operation operation : awaitingContainerChanges) {
             applyContainerChanges(operation);
@@ -126,6 +127,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     }
 
     private void startAnimations(@NonNull List<AnimationInfo> animationInfos,
+            @NonNull List<Operation> awaitingContainerChanges,
             boolean startedAnyTransition, @NonNull Map<Operation, Boolean> startedTransitions) {
         final ViewGroup container = getContainer();
         final Context context = container.getContext();
@@ -153,7 +155,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
 
             // First make sure we haven't already started a Transition for this Operation
-            Operation operation = animationInfo.getOperation();
+            final Operation operation = animationInfo.getOperation();
             final Fragment fragment = operation.getFragment();
             boolean startedTransition = Boolean.TRUE.equals(startedTransitions.get(operation));
             if (startedTransition) {
@@ -167,12 +169,24 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
             // Okay, let's run the Animator!
             startedAnyAnimator = true;
+            final boolean isHideOperation = operation.getFinalState() == Operation.State.GONE;
+            if (isHideOperation) {
+                // We don't want to immediately applyState() to hide operations as that
+                // immediately stops the Animator. Instead we'll applyState() manually
+                // when the Animator ends.
+                awaitingContainerChanges.remove(operation);
+            }
             final View viewToAnimate = fragment.mView;
             container.startViewTransition(viewToAnimate);
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator anim) {
                     container.endViewTransition(viewToAnimate);
+                    if (isHideOperation) {
+                        // Specifically for hide operations with Animator, we can't
+                        // applyState until the Animator finishes
+                        operation.getFinalState().applyState(viewToAnimate);
+                    }
                     animationInfo.completeSpecialEffect();
                 }
             });
