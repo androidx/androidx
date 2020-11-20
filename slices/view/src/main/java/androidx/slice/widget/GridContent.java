@@ -261,9 +261,12 @@ public class GridContent extends SliceContent {
             if (!cellItem.hasHint(HINT_SHORTCUT)
                     && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {
                 List<SliceItem> items = cellItem.getSlice().getItems();
-                // If we've only got one item that's a slice / action use those items instead
+                // If we've only got one content intent item that's a slice / action use those
+                // items instead
                 if (items.size() == 1 && (FORMAT_ACTION.equals(items.get(0).getFormat())
-                        || FORMAT_SLICE.equals(items.get(0).getFormat()))) {
+                        || FORMAT_SLICE.equals(items.get(0).getFormat()))
+                        && !(SUBTYPE_DATE_PICKER.equals(items.get(0).getSubType())
+                                || SUBTYPE_TIME_PICKER.equals(items.get(0).getSubType()))) {
                     mContentIntent = items.get(0);
                     items = items.get(0).getSlice().getItems();
                 }
@@ -362,7 +365,7 @@ public class GridContent extends SliceContent {
          * @return whether this grid has content that is valid to display.
          */
         public boolean isValid() {
-            return mCellItems.size() > 0 && mCellItems.size() <= 3;
+            return mPicker != null || (mCellItems.size() > 0 && mCellItems.size() <= 3);
         }
 
         /**
