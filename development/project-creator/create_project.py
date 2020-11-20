@@ -35,6 +35,8 @@ LIBRARY_VERSIONS_REL = './buildSrc/src/main/kotlin/androidx/build/LibraryVersion
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
 LIBRARY_GROUPS_REL = './buildSrc/src/main/kotlin/androidx/build/LibraryGroups.kt'
 LIBRARY_GROUPS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_GROUPS_REL)
+DOCS_TOT_BUILD_GRADLE_REL = './docs-tip-of-tree/build.gradle'
+DOCS_TOT_BUILD_GRADLE_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, DOCS_TOT_BUILD_GRADLE_REL)
 
 # Set up input arguments
 parser = argparse.ArgumentParser(
@@ -108,6 +110,14 @@ def sed(before, after, file):
     # write back the file
     with open(file,"w") as f:
         f.write(new_file_contents)
+
+def ask_yes_or_no(question):
+    while(True):
+        reply = str(input(question+' (y/n): ')).lower().strip()
+        if reply:
+            if reply[0] == 'y': return True
+            if reply[0] == 'n': return False
+        print("Please respond with y/n")
 
 def get_gradle_project_coordinates(group_id, artifact_id):
     coordinates = group_id.replace("androidx", "").replace(".",":")
@@ -204,7 +214,8 @@ def get_new_settings_gradle_line(group_id, artifact_id):
     """
 
     build_type = "MAIN"
-    if "compose" in group_id or "androidx.ui" in group_id:
+    if ("compose" in group_id or "compose" in artifact_id
+        or "androidx.ui" in group_id):
         build_type = "COMPOSE"
 
     gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
@@ -241,6 +252,66 @@ def update_settings_gradle(group_id, artifact_id):
     # Open file for writing and update all lines
     with open(SETTINGS_GRADLE_FP, 'w') as f:
         f.writelines(settings_gradle_lines)
+
+def get_new_docs_tip_of_tree_build_grade_line(group_id, artifact_id):
+    """Generates the line needed for docs-tip-of-tree/build.gradle.
+
+    For a library androidx.foo.bar:bar-qux, the new line will be of the form:
+    docs(project(":foo:bar:bar-qux"))
+
+    If it is a sample project, then the new line will be of the form:
+    samples(project(":foo:bar:bar-qux-sample"))
+
+    Args:
+        group_id: group_id of the new library
+        artifact_id: group_id of the new library
+    """
+
+    gradle_cmd = get_gradle_project_coordinates(group_id, artifact_id)
+    prefix = "docs"
+    if "sample" in gradle_cmd:
+        prefix = "samples"
+    return "    %s(project(\"%s\"))\n" % (prefix, gradle_cmd)
+
+def update_docs_tip_of_tree_build_grade(group_id, artifact_id):
+    """Updates docs-tip-of-tree/build.gradle with the new library.
+
+    We ask for confirmation if the library contains either "benchmark"
+    or "test".
+
+    Args:
+        group_id: group_id of the new library
+        artifact_id: group_id of the new library
+    """
+    # Confirm with user that we want to generate docs for anything
+    # that might be a test or a benchmark.
+    if ("test" in group_id or "test" in artifact_id
+        or "benchmark" in group_id or "benchmark" in artifact_id):
+        if not ask_yes_or_no(("Should tip-of-tree documentation be generated "
+                              "for project %s:%s?" % (group_id, artifact_id))):
+            return
+
+    # Open file for reading and get all lines
+    with open(DOCS_TOT_BUILD_GRADLE_FP, 'r') as f:
+        docs_tot_bg_lines = f.readlines()
+    num_lines = len(docs_tot_bg_lines)
+
+    new_docs_tot_bq_line = get_new_docs_tip_of_tree_build_grade_line(group_id, artifact_id)
+    for i in range(num_lines):
+        cur_line = docs_tot_bg_lines[i]
+        if "project" not in cur_line:
+            continue
+        # Iterate through until you found the alphabetical place to insert the new line
+        if new_docs_tot_bq_line.split("project")[1] <= cur_line.split("project")[1]:
+            insert_line = i
+            break
+        else:
+            insert_line = i + 1
+    docs_tot_bg_lines.insert(insert_line, new_docs_tot_bq_line)
+
+    # Open file for writing and update all lines
+    with open(DOCS_TOT_BUILD_GRADLE_FP, 'w') as f:
+        f.writelines(docs_tot_bg_lines)
 
 
 def insert_new_group_id_into_library_versions_kt(group_id, artifact_id):
@@ -286,10 +357,10 @@ def insert_new_group_id_into_library_versions_kt(group_id, artifact_id):
     # Open file for writing and update all lines
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
         f.writelines(library_versions_lines)
-    insert_new_group_id_int_library_groups_kt(group_id, artifact_id)
+    insert_new_group_id_into_library_groups_kt(group_id, artifact_id)
 
 
-def insert_new_group_id_int_library_groups_kt(group_id, artifact_id):
+def insert_new_group_id_into_library_groups_kt(group_id, artifact_id):
     """Inserts a group ID into the LibraryGroups.kt file.
 
     If one already exists, then this function just returns and resuses
@@ -348,6 +419,7 @@ def main(args):
     update_settings_gradle(args.group_id, args.artifact_id)
     insert_new_group_id_into_library_versions_kt(args.group_id,
                                                  args.artifact_id)
+    update_docs_tip_of_tree_build_grade(args.group_id, args.artifact_id)
     print("Success. Running updateApi for the new library, " + \
           "this may take a minute.")
     run_update_api(args.group_id, args.artifact_id)
