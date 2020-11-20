@@ -106,7 +106,7 @@ class TestSettingsGradle(unittest.TestCase):
         self.assertEqual("includeProject(\":ui:ui-foo\", \"ui/ui-foo\", " + \
                          "[BuildType.COMPOSE])\n", line)
 
-    def test_settings_gradle_line(self):
+    def test_gradle_project_coordinates(self):
         coordinates = get_gradle_project_coordinates("androidx.foo", "foo")
         self.assertEqual(":foo:foo", coordinates)
 
@@ -118,6 +118,27 @@ class TestSettingsGradle(unittest.TestCase):
 
         coordinates = get_gradle_project_coordinates("androidx.foo.bar", "bar-qux")
         self.assertEqual(":foo:bar:bar-qux", coordinates)
+
+class TestDocsTipOfTree(unittest.TestCase):
+
+    def test_docs_tip_of_tree_build_grade_line(self):
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo", "foo")
+        self.assertEqual("    docs(project(\":foo:foo\"))\n", line)
+
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo", "foo-bar")
+        self.assertEqual("    docs(project(\":foo:foo-bar\"))\n", line)
+
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo.bar", "bar")
+        self.assertEqual("    docs(project(\":foo:bar:bar\"))\n", line)
+
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo.bar", "bar-qux")
+        self.assertEqual("    docs(project(\":foo:bar:bar-qux\"))\n", line)
+
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo", "foo-samples")
+        self.assertEqual("    samples(project(\":foo:foo-samples\"))\n", line)
+
+        line = get_new_docs_tip_of_tree_build_grade_line("androidx.foo.bar", "bar-qux-samples")
+        self.assertEqual("    samples(project(\":foo:bar:bar-qux-samples\"))\n", line)
 
 class TestReplacements(unittest.TestCase):
 
