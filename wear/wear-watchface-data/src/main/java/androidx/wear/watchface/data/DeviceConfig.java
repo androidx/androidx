@@ -34,7 +34,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@VersionedParcelize
+@VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class DeviceConfig implements VersionedParcelable, Parcelable {
     public static final int SCREEN_SHAPE_ROUND = 1;
