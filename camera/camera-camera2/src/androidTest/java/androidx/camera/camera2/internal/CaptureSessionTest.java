@@ -151,7 +151,7 @@ public final class CaptureSessionTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         // Ensure all capture sessions are fully closed
         List<ListenableFuture<Void>> releaseFutures = new ArrayList<>();
         for (CaptureSession captureSession : mCaptureSessions) {
@@ -159,7 +159,7 @@ public final class CaptureSessionTest {
         }
         mCaptureSessions.clear();
         Future<?> aggregateReleaseFuture = Futures.allAsList(releaseFutures);
-        aggregateReleaseFuture.get();
+        aggregateReleaseFuture.get(10L, TimeUnit.SECONDS);
 
         if (mCameraDeviceHolder != null) {
             CameraUtil.releaseCameraDevice(mCameraDeviceHolder);
@@ -1092,6 +1092,12 @@ public final class CaptureSessionTest {
         // Create Surface
         ImageReader imageReader =
                 ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, /*maxImages*/ 2);
+        imageReader.setOnImageAvailableListener(reader -> {
+            Image image = reader.acquireNextImage();
+            if (image != null) {
+                image.close();
+            }
+        }, mHandler);
         DeferrableSurface surface = new ImmediateSurface(imageReader.getSurface());
 
         // Prepare SessionConfig builder
