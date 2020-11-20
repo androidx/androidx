@@ -17,9 +17,15 @@
 package androidx.navigation.compose.demos
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.samples.NestedNav
+import androidx.navigation.compose.samples.NestedNavInGraph
+import androidx.navigation.compose.samples.NestedNavStartDestination
 
 @Composable
-fun NestNavDemo() {
-    NestedNav()
+fun NestNavStartDestinationDemo() {
+    NestedNavStartDestination()
+}
+
+@Composable
+fun NestNavInGraphDemo() {
+    NestedNavInGraph()
 }
