@@ -28,7 +28,7 @@ function run() {
 }
 
 # Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(cd frameworks/support && echo "top commit:" && git log -1)
+(cd frameworks/support && echo "top commit:" && git --no-pager log -1)
 
 # determine which subset of projects to include, and be sure to print it if it is specified
 PROJECTS_ARG=""
