@@ -32,7 +32,6 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -64,7 +63,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = stringResource(Screen.Profile.resourceId))
         Divider(color = Color.Black)
-        val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+        val state = savedInstanceState { "" }
         Box {
             TextField(
                 value = state.value,
@@ -74,7 +73,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
         }
         Divider(color = Color.Black)
         Button(
-            onClick = { navController.navigate(Uri.parse(uri + state.value.text)) },
+            onClick = { navController.navigate(Uri.parse(uri + state.value)) },
             colors = ButtonConstants.defaultButtonColors(backgroundColor = Color.LightGray),
             modifier = Modifier.fillMaxWidth()
         ) {
