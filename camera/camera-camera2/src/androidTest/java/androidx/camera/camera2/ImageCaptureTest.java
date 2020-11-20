@@ -270,6 +270,42 @@ public final class ImageCaptureTest {
     }
 
     @Test
+    public void canCaptureWithFlashOn() throws Exception {
+        ImageCapture imageCapture =
+                new ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_ON).build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR,
+                imageCapture);
+
+        // Take picture after preview is ready for a while. It can cause issue on some devices when
+        // flash is on.
+        Thread.sleep(2000);
+
+        OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
+        imageCapture.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+    }
+
+    @Test
+    public void canCaptureWithFlashAuto() throws Exception {
+        ImageCapture imageCapture =
+                new ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_AUTO).build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR,
+                imageCapture);
+
+        // Take picture after preview is ready for a while. It can cause issue on some devices when
+        // flash is auto.
+        Thread.sleep(2000);
+
+        OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
+        imageCapture.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+    }
+
+    @Test
     public void canCaptureMultipleImages() throws InterruptedException {
         ImageCapture useCase = mDefaultBuilder.build();
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
