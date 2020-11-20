@@ -41,7 +41,6 @@ abstract class BaseRowSupportFragment extends Fragment {
     final ItemBridgeAdapter mBridgeAdapter = new ItemBridgeAdapter();
     int mSelectedPosition = -1;
     private boolean mPendingTransitionPrepare;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
     LateSelectionObserver mLateSelectionObserver = new LateSelectionObserver();
 
     abstract int getLayoutResourceId();
@@ -91,7 +90,7 @@ abstract class BaseRowSupportFragment extends Fragment {
      * This class waits for the adapter to be updated before setting the selected
      * row.
      */
-    private class LateSelectionObserver extends RecyclerView.AdapterDataObserver {
+    final class LateSelectionObserver extends RecyclerView.AdapterDataObserver {
         boolean mIsLateSelection = false;
 
         LateSelectionObserver() {
@@ -150,7 +149,11 @@ abstract class BaseRowSupportFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mLateSelectionObserver.clear();
-        mVerticalGridView = null;
+        if (mVerticalGridView != null) {
+            // unregister VerticalGridView from the mBridgeAdapter's observer list.
+            mVerticalGridView.swapAdapter(null, true);
+            mVerticalGridView = null;
+        }
     }
 
     @Override
