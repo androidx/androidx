@@ -24,7 +24,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
@@ -61,7 +61,7 @@ import java.util.concurrent.Executor;
  * CameraCaptureCallbacks added before this link will also be added
  * to the {@link Camera2CameraControlImpl}.
  */
-@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";

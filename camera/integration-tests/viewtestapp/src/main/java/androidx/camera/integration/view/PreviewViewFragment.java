@@ -37,8 +37,8 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
@@ -166,7 +166,7 @@ public class PreviewViewFragment extends Fragment {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         Button button = rootView.findViewById(R.id.target_rotation);
@@ -328,8 +328,8 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
+    @SuppressLint("UnsafeOptInUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         if (mPreview == null) {
             return;

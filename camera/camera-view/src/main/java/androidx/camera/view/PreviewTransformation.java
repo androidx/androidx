@@ -48,8 +48,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -127,7 +127,7 @@ final class PreviewTransformation {
      *
      * <p> All the values originally come from a {@link SurfaceRequest}.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     void setTransformationInfo(@NonNull SurfaceRequest.TransformationInfo transformationInfo,
             Size resolution, boolean isFrontCamera) {
         Logger.d(TAG, "Transformation info set: " + transformationInfo + " " + resolution + " "

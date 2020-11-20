@@ -56,6 +56,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.appcompat.app.AppCompatActivity;
@@ -190,7 +191,7 @@ public class CameraXActivity extends AppCompatActivity {
     private FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
 
         @Override
-        @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+        @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
         public void onSuccess(@Nullable Integer result) {
             CameraInfo cameraInfo = getCameraInfo();
             if (cameraInfo != null) {
@@ -305,7 +306,7 @@ public class CameraXActivity extends AppCompatActivity {
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+    @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private boolean isExposureCompensationSupported() {
         CameraInfo cameraInfo = getCameraInfo();
         return cameraInfo != null
@@ -445,7 +446,7 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
-    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+    @OptIn(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
     private void setUpEVButton() {
         mPlusEV.setOnClickListener(v -> {
             Objects.requireNonNull(getCameraInfo());
@@ -824,7 +825,7 @@ public class CameraXActivity extends AppCompatActivity {
      * Workaround method for an AndroidX issue where {@link UseExperimental} doesn't support 2 or
      * more annotations.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroupLifecycle.class)
     private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         Log.e(TAG, "Binding use cases " + useCases);
         return bindToLifecycleSafelyWithExperimental(useCases);
@@ -833,7 +834,7 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Binds use cases to the current lifecycle.
      */
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     @ExperimentalUseCaseGroupLifecycle
     private Camera bindToLifecycleSafelyWithExperimental(List<UseCase> useCases) {
         ViewPort viewPort = new ViewPort.Builder(new Rational(mViewFinder.getWidth(),

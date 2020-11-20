@@ -44,10 +44,10 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -156,7 +156,7 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+        @OptIn(markerClass = ExperimentalUseCaseGroup.class)
         @Override
         @AnyThread
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
@@ -364,7 +364,7 @@ public final class PreviewView extends FrameLayout {
      */
     @UiThread
     @NonNull
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
         return mSurfaceProvider;
@@ -888,7 +888,7 @@ public final class PreviewView extends FrameLayout {
                 surfaceCropRect.height()));
     }
 
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @OptIn(markerClass = ExperimentalUseCaseGroup.class)
     private void attachToControllerIfReady(boolean shouldFailSilently) {
         Display display = getDisplay();
         ViewPort viewPort = getViewPort();

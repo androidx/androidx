@@ -25,8 +25,8 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
@@ -67,7 +67,7 @@ public abstract class PreviewExtender {
     private int mEffectMode;
     private ExtensionCameraFilter mExtensionCameraFilter;
 
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,
             @Extensions.ExtensionMode int effectMode) {
         mBuilder = builder;
@@ -91,7 +91,7 @@ public abstract class PreviewExtender {
      * Returns the camera specified with the given camera selector and this extension, null if
      * there's no available can be found.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
@@ -116,7 +116,7 @@ public abstract class PreviewExtender {
      * @param cameraSelector The selector used to determine the camera for which to enable
      *                       extensions.
      */
-    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    @OptIn(markerClass = ExperimentalCameraFilter.class)
     public void enableExtension(@NonNull CameraSelector cameraSelector) {
         String cameraId = getCameraWithExtension(cameraSelector);
         if (cameraId == null) {
@@ -280,7 +280,7 @@ public abstract class PreviewExtender {
             mCloseableProcessor = closeableProcessor;
         }
 
-        @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
+        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         @Override
         public void onAttach(@NonNull CameraInfo cameraInfo) {
             synchronized (mLock) {

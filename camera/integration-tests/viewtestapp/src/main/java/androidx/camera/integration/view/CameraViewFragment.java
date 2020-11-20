@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.experimental.UseExperimental;
+import androidx.annotation.OptIn;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
@@ -152,7 +152,7 @@ public class CameraViewFragment extends Fragment {
     }
 
     @Override
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
@@ -261,7 +261,7 @@ public class CameraViewFragment extends Fragment {
         }
     }
 
-    @UseExperimental(markerClass = ExperimentalVideo.class)
+    @OptIn(markerClass = ExperimentalVideo.class)
     void updateModeButtonIcon() {
         if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
             mModeButton.setButtonDrawable(R.drawable.ic_photo_camera);
