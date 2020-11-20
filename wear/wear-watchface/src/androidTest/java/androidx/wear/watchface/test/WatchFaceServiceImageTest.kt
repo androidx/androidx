@@ -167,7 +167,7 @@ class WatchFaceServiceImageTest {
                             0
                         ),
                         SystemState(false, 0),
-                        null,
+                        UserStyleWireFormat(emptyMap()),
                         null
                     ),
                     object : IPendingInteractiveWatchFaceWCS.Stub() {
