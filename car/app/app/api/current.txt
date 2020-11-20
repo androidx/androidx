@@ -1,6 +1,12 @@
 // Signature format: 4.0
 package androidx.car.app {
 
+  public final class AppInfo {
+    method public int getLatestCarAppApiLevel();
+    method public String getLibraryVersion();
+    method public int getMinCarAppApiLevel();
+  }
+
   public class AppManager {
     method public void invalidate();
     method public void setSurfaceListener(androidx.car.app.SurfaceListener?);
@@ -31,21 +37,9 @@ package androidx.car.app {
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 
-  public class CarAppVersion {
-    method public boolean isGreaterOrEqualTo(androidx.car.app.CarAppVersion);
-    method public static androidx.car.app.CarAppVersion? of(String) throws androidx.car.app.MalformedVersionException;
-    field public static final androidx.car.app.CarAppVersion HANDSHAKE_MIN_VERSION;
-    field public static final androidx.car.app.CarAppVersion INSTANCE;
-  }
-
-  public enum CarAppVersion.ReleaseSuffix {
-    method public static androidx.car.app.CarAppVersion.ReleaseSuffix fromString(String);
-    enum_constant public static final androidx.car.app.CarAppVersion.ReleaseSuffix RELEASE_SUFFIX_BETA;
-    enum_constant public static final androidx.car.app.CarAppVersion.ReleaseSuffix RELEASE_SUFFIX_EAP;
-  }
-
   public class CarContext extends android.content.ContextWrapper {
     method public void finishCarApp();
+    method public int getCarAppApiLevel();
     method public Object getCarService(String);
     method public <T> T getCarService(Class<T!>);
     method public String getCarServiceName(Class<?>);
@@ -90,15 +84,8 @@ package androidx.car.app {
   }
 
   public class HostInfo {
-    ctor public HostInfo(String, int);
     method public String getPackageName();
     method public int getUid();
-  }
-
-  public class MalformedVersionException extends java.lang.Exception {
-    ctor public MalformedVersionException(String?);
-    ctor public MalformedVersionException(String, Throwable);
-    ctor public MalformedVersionException(Throwable?);
   }
 
   public interface OnCheckedChangeListenerWrapper {
@@ -172,6 +159,14 @@ package androidx.car.app {
 
   public class WrappedRuntimeException extends java.lang.RuntimeException {
     ctor public WrappedRuntimeException(Throwable?);
+  }
+
+}
+
+package androidx.car.app.annotations {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public @interface RequiresCarApi {
+    method public abstract int value();
   }
 
 }
@@ -1110,6 +1105,16 @@ package androidx.car.app.utils {
   public class ThreadUtils {
     method public static void checkMainThread();
     method public static void runOnMain(Runnable);
+  }
+
+}
+
+package androidx.car.app.versioning {
+
+  public class CarAppApiLevels {
+    field public static final int LATEST = 1; // 0x1
+    field public static final int LEVEL_1 = 1; // 0x1
+    field public static final int OLDEST = 1; // 0x1
   }
 
 }

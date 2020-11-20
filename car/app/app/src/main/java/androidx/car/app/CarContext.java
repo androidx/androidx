@@ -40,9 +40,12 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.utils.RemoteUtils;
 import androidx.car.app.utils.ThreadUtils;
+import androidx.car.app.versioning.CarAppApiLevel;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -121,8 +124,11 @@ public class CarContext extends ContextWrapper {
     private final NavigationManager mNavigationManager;
     private final ScreenManager mScreenManager;
     private final OnBackPressedDispatcher mOnBackPressedDispatcher;
-
     private final HostDispatcher mHostDispatcher;
+
+    /** API level, updated once host connection handshake is completed. */
+    @CarAppApiLevel
+    private int mCarAppApiLevel = CarAppApiLevels.UNKNOWN;
 
     /** @hide */
     @NonNull
@@ -374,6 +380,22 @@ public class CarContext extends ContextWrapper {
     }
 
     /**
+     * Updates context information based on the information provided during connection handshake
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @MainThread
+    void onHandshakeComplete(HandshakeInfo handshakeInfo) {
+        int carAppApiLevel = handshakeInfo.getHostCarAppApiLevel();
+        if (!CarAppApiLevels.isValid(carAppApiLevel)) {
+            throw new IllegalArgumentException("Invalid Car App API level received: "
+                    + carAppApiLevel);
+        }
+        mCarAppApiLevel = carAppApiLevel;
+    }
+
+    /**
      * Attaches the base {@link Context} for this {@link CarContext} by creating a new display
      * context using {@link #createDisplayContext} with a {@link VirtualDisplay} created using
      * the metrics from the provided {@link Configuration}, and then also calling {@link
@@ -429,6 +451,39 @@ public class CarContext extends ContextWrapper {
     void resetHosts() {
         ThreadUtils.checkMainThread();
         mHostDispatcher.resetHosts();
+    }
+
+    /**
+     * Retrieves the API level negotiated with the host.
+     * <p>
+     * API levels are used during client and host connection handshake to negotiate a common set of
+     * elements that both processes can understand. Different devices might have different host
+     * versions. Each of these hosts will support a
+     * range of API levels, as a way to provide backwards compatibility.
+     * <p>
+     * Applications can also provide forward compatibility, by declaring support for a
+     * {@link AppInfo#getMinCarAppApiLevel()} lower than {@link AppInfo#getLatestCarAppApiLevel()}.
+     * See {@link AppInfo#getMinCarAppApiLevel()} for more details.
+     * <p>
+     * Clients must ensure no elements annotated with a {@link RequiresCarApi} value higher
+     * than {@link #getCarAppApiLevel()} is used at runtime.
+     * <p>
+     * Please refer to {@link RequiresCarApi} description for more details on how to
+     * implement forward compatibility.
+     *
+     * @return a value between {@link AppInfo#getMinCarAppApiLevel()} and
+     * {@link AppInfo#getLatestCarAppApiLevel()}. In case of incompatibility, the host will
+     * disconnect from the service before completing the handshake.
+     *
+     * @throws IllegalStateException if invoked before the connection handshake with the host has
+     * been completed (for example, before {@link CarAppService#onCreateScreen(Intent)}).
+     */
+    @CarAppApiLevel
+    public int getCarAppApiLevel() {
+        if (mCarAppApiLevel == CarAppApiLevels.UNKNOWN) {
+            throw new IllegalStateException("Car App API level hasn't been established yet");
+        }
+        return mCarAppApiLevel;
     }
 
     /** @hide */

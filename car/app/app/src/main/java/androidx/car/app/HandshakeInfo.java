@@ -33,18 +33,25 @@ import androidx.annotation.RestrictTo.Scope;
 public class HandshakeInfo {
     @Nullable
     private final String mHostPackageName;
+    private final int mHostCarAppApiLevel;
 
-    public HandshakeInfo(@NonNull String hostPackageName) {
-        this.mHostPackageName = hostPackageName;
+    public HandshakeInfo(@NonNull String hostPackageName, int hostCarAppApiLevel) {
+        mHostPackageName = hostPackageName;
+        mHostCarAppApiLevel = hostCarAppApiLevel;
     }
 
     // Used for serialization
     public HandshakeInfo() {
         mHostPackageName = null;
+        mHostCarAppApiLevel = 0;
     }
 
     @NonNull
     public String getHostPackageName() {
         return requireNonNull(mHostPackageName);
+    }
+
+    public int getHostCarAppApiLevel() {
+        return mHostCarAppApiLevel;
     }
 }

@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.car.app;
+package androidx.car.app.versioning;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 
-/**
- * An exception for malformed {@link CarAppVersion} strings.
- */
-public class MalformedVersionException extends Exception {
-    public MalformedVersionException(@Nullable String message) {
-        super(message);
-    }
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-    public MalformedVersionException(@NonNull String message, @NonNull Throwable cause) {
-        super(message, cause);
-    }
-
-    public MalformedVersionException(@Nullable Throwable cause) {
-        super(cause);
-    }
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@IntDef(value = {CarAppApiLevels.LEVEL_1})
+@Retention(RetentionPolicy.SOURCE)
+public @interface CarAppApiLevel {
 }
