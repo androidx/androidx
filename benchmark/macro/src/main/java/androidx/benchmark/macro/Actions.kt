@@ -20,6 +20,7 @@ import android.app.Instrumentation
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import java.io.File
 import java.lang.IllegalStateException
 
 private const val TAG = "MacroBenchmarks"
@@ -44,7 +45,7 @@ private val COMPILE_MODES = listOf(SPEED, SPEED_PROFILE, QUICKEN, VERIFY)
  */
 internal fun dropCaches(instrumentation: Instrumentation) {
     val outputDirectory = instrumentation.context.cacheDir
-    val script = createTempFile("drop_cache_script", ".sh", outputDirectory)
+    val script = File.createTempFile("drop_cache_script", ".sh", outputDirectory)
     script.setWritable(true)
     script.setExecutable(/* executable */true, /* owner only */false)
     val command = "echo 3 > /proc/sys/vm/drop_caches && echo Success || echo Failure"
