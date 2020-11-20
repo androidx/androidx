@@ -52,7 +52,8 @@ internal sealed class KspMethodElement(
     }
 
     override fun isJavaDefault(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) || declaration.isJvmDefault()
+        return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) ||
+            declaration.hasJvmDefaultAnnotation()
     }
 
     override fun asMemberOf(other: XDeclaredType): XMethodType {
