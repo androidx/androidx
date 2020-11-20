@@ -171,7 +171,7 @@ public class GlobalSearchSessionCtsTest {
         SearchResults searchResults = mGlobalAppSearchManager.query("body",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .setNumPerPage(7)
+                        .setResultCountPerPage(7)
                         .build());
         List<GenericDocument> documents = new ArrayList<>();
 
