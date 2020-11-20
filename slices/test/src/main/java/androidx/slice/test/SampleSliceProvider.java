@@ -361,7 +361,7 @@ public class SampleSliceProvider extends SliceProvider {
                 .setTitle("Date and Time Picker")
                 .setPrimaryAction(primaryAction))
                 .addGridRow(new GridRowBuilder()
-                        .addCell(new CellBuilder().addTitleText("Date Picker").setSliceAction(
+                        .addCell(new CellBuilder().setSliceAction(
                                 SliceAction.createDatePicker(
                                         getBroadcastIntent(ACTION_TOAST_DATE_VALUE, null),
                                         DateFormat.getDateInstance(DateFormat.FULL,
