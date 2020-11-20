@@ -291,6 +291,19 @@ class FragmentScenarioTest {
     }
 
     @Test
+    fun initialStateDestroyed() {
+        try {
+            launchFragmentInContainer<StateRecordingFragment>(initialState = State.DESTROYED)
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "Cannot set initial Lifecycle state to DESTROYED for FragmentScenario"
+                )
+        }
+    }
+
+    @Test
     fun fromCreatedToCreated() {
         with(launchFragmentInContainer<StateRecordingFragment>(initialState = State.CREATED)) {
             moveToState(State.CREATED)
