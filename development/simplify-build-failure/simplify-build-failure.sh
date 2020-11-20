@@ -228,14 +228,14 @@ if [ "$gradleCommand" != "" ]; then
       mkdir -p "$tempDir"
       cp -r "$referenceFailingDir" "$outTestDir"
       echo Doing first test build
-      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand; $grepCommand"; then
+      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Reproduced the problem
       else
         echo Failed to reproduce the problem
         exit 1
       fi
       echo Doing another test build to determine if cleaning between builds is necessary
-      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand; $grepCommand"; then
+      if bash -c "cd "$outTestDir/$commandSubdir" && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Reproduced the problem even when not starting from a clean out/ dir
       else
         echo Did not reproduce the problem when starting from previous out/ dir
@@ -253,7 +253,7 @@ if [ "$gradleCommand" != "" ]; then
       rm "$outTestDir" -rf
       mkdir -p "$tempDir"
       cp -r "$supportRoot" "$outTestDir"
-      if bash -c "cd "$outTestDir/$commandSubdir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand; $grepCommand"; then
+      if bash -c "cd "$outTestDir/$commandSubdir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand $gradleTasks; $grepCommand"; then
         echo Will reuse base out dir of "$startingOutDir"
         cp -r "$outTestDir/$commandSubdir/out-base" "$startingOutDir"
       else
