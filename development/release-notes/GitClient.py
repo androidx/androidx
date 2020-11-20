@@ -88,6 +88,19 @@ class GitClient:
 		if not keepMerges:
 			gitLogOptions += " --no-merges"
 
+		# Ignore certain directories by default because they generally do not
+		# contain changes developers need.
+		ignoreDirectories = [
+			"samples",
+			"integration-tests",
+			"src/androidTest",
+			"src/test",
+			"src/androidAndroidTest"
+		]
+		gitIgnoreDirectories = ""
+		for directory in ignoreDirectories:
+			gitIgnoreDirectories += ' ":(exclude)%s"' % directory
+
 		gitLogCmd = GIT_LOG_CMD_PREFIX + " " + gitLogOptions + " "
 		if n is not None:
 			gitLogCmd += " -n " + str(n) + " "
@@ -95,6 +108,7 @@ class GitClient:
 			gitLogCmd += " " + fromExclusiveSha + ".."
 		gitLogCmd += untilInclusiveSha
 		gitLogCmd += " -- " + fullProjectDir
+		gitLogCmd += gitIgnoreDirectories
 
 		gitLogOutputString = self.executeCommand(gitLogCmd)
 		return self.parseCommitLogString(gitLogOutputString,commitStartDelimiter,commitSHADelimiter,subjectDelimiter,authorEmailDelimiter,subProjectDir)
