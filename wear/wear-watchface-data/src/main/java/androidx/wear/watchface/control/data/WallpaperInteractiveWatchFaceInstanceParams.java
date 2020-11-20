@@ -41,7 +41,7 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@VersionedParcelize
+@VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class WallpaperInteractiveWatchFaceInstanceParams
         implements VersionedParcelable, Parcelable {
@@ -72,7 +72,8 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     List<IdAndComplicationDataWireFormat> mIdAndComplicationDataWireFormats;
 
     /** Used by VersionedParcelable. */
-    WallpaperInteractiveWatchFaceInstanceParams() {}
+    WallpaperInteractiveWatchFaceInstanceParams() {
+    }
 
     public WallpaperInteractiveWatchFaceInstanceParams(
             @NonNull String instanceId,
@@ -107,9 +108,19 @@ public class WallpaperInteractiveWatchFaceInstanceParams
         return mUserStyle;
     }
 
+    public void setUserStyle(@NonNull UserStyleWireFormat userStyle) {
+        mUserStyle = userStyle;
+    }
+
     @Nullable
     public List<IdAndComplicationDataWireFormat> getIdAndComplicationDataWireFormats() {
         return mIdAndComplicationDataWireFormats;
+    }
+
+    public void setIdAndComplicationDataWireFormats(
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats
+    ) {
+        mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
     }
 
     /**

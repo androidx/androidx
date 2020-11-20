@@ -61,10 +61,11 @@ import org.mockito.MockitoAnnotations
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-private const val API_VERSION = 3
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
 private const val TIMEOUT_MS = 800L
+
+private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -118,7 +119,8 @@ class WatchFaceServiceImageTest {
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000,
-            surfaceHolder
+            surfaceHolder,
+            true // Not direct boot.
         )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -158,7 +160,7 @@ class WatchFaceServiceImageTest {
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
-                        "InteractiveTestInstance",
+                        INTERACTIVE_INSTANCE_ID,
                         DeviceConfig(
                             false,
                             false,
@@ -432,5 +434,37 @@ class WatchFaceServiceImageTest {
             screenshotRule,
             "preview_complications"
         )
+    }
+
+    @Test
+    fun directBoot() {
+        handler.post(this::initCanvasWatchFace)
+        initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        handler.post {
+            // Change the style
+            interactiveWatchFaceInstanceWCS.setCurrentUserStyle(
+                UserStyleWireFormat(mapOf("color_style_setting" to "green_style"))
+            )
+
+            // Simulate device shutting down.
+            InteractiveInstanceManager.deleteInstance(INTERACTIVE_INSTANCE_ID)
+
+            // Simulate a direct boot scenario where a new service is created with a locked user
+            // but there's no pending PendingWallpaperInteractiveWatchFaceInstance and no
+            // wallpaper command. This should load the direct boot parameters which get saved.
+            val service2 = TestCanvasAnalogWatchFaceService(
+                ApplicationProvider.getApplicationContext<Context>(),
+                handler,
+                100000,
+                surfaceHolder,
+                false // Direct boot.
+            )
+
+            val engineWrapper2 = service2.onCreateEngine() as WatchFaceService.EngineWrapper
+            engineWrapper2.draw()
+        }
+
+        renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        bitmap.assertAgainstGolden(screenshotRule, "direct_boot")
     }
 }
