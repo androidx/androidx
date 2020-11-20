@@ -34,11 +34,10 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.integration.uiwidgets.R
+import androidx.camera.integration.uiwidgets.databinding.ActivityRotationsMainBinding
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_rotations_main.previewView
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
@@ -47,6 +46,7 @@ import java.util.concurrent.Semaphore
 
 open class CameraActivity : AppCompatActivity() {
 
+    private lateinit var mBinding: ActivityRotationsMainBinding
     private lateinit var mCamera: Camera
     protected lateinit var mImageAnalysis: ImageAnalysis
     protected lateinit var mImageCapture: ImageCapture
@@ -54,7 +54,8 @@ open class CameraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_rotations_main)
+        mBinding = ActivityRotationsMainBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         mAnalysisExecutor = Executors.newSingleThreadExecutor()
         if (shouldRequestPermissionsAtRuntime() && !hasPermissions()) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -109,7 +110,7 @@ open class CameraActivity : AppCompatActivity() {
         val preview = Preview.Builder()
             .build()
             .apply {
-                setSurfaceProvider(previewView.getSurfaceProvider())
+                setSurfaceProvider(mBinding.previewView.getSurfaceProvider())
             }
         mImageAnalysis = ImageAnalysis.Builder()
             .build()
@@ -147,7 +148,7 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     private fun ImageCapture.setCallback() {
-        previewView.setOnClickListener {
+        mBinding.previewView.setOnClickListener {
             val imageCaptureMode =
                 intent.getIntExtra(KEY_IMAGE_CAPTURE_MODE, IMAGE_CAPTURE_MODE_IN_MEMORY)
             when (imageCaptureMode) {
