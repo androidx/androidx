@@ -78,8 +78,8 @@ class BanInappropriateExperimentalUsage : Detector(), SourceCodeScanner {
         ) {
             context.report(
                 BanInappropriateExperimentalUsage.ISSUE, usage, context.getNameLocation(usage),
-                "Experimental/OptIn APIs should only be used from within the same library or " +
-                    "libraries within the same requireSameVersion group"
+                "`Experimental`/`OptIn` APIs should only be used from within the same library " +
+                    "or libraries within the same requireSameVersion group"
             )
         }
     }
@@ -119,10 +119,10 @@ class BanInappropriateExperimentalUsage : Detector(), SourceCodeScanner {
 
         val ISSUE = Issue.create(
             "IllegalExperimentalApiUsage",
-            "Experimental apis can only be used from within the same library or from libraries " +
-                "that are part of the same requireSameVersion maven group.",
-            "@RequiresOptIn and @Experimental APIs are considered alpha, and we do not allow " +
-                "non-atomic inter-library usage of alpha APIs.",
+            "Using experimental api from separately versioned library",
+            "APIs annotated with `@RequiresOptIn` or `@Experimental` are considered alpha." +
+                "A caller from another library may not use them unless that the two libraries " +
+                "are part of the same maven group and that group specifies requireSameVersion",
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(BanInappropriateExperimentalUsage::class.java, Scope.JAVA_FILE_SCOPE)
         )
