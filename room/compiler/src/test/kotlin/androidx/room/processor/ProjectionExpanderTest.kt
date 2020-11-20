@@ -513,6 +513,7 @@ class ProjectionExpanderTest {
     @Test
     fun joinAndAbandonEntity() {
         val all = ENTITIES
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(
             jfos = all,
             options = listOf("-Aroom.expandProjection=true")
@@ -614,6 +615,7 @@ class ProjectionExpanderTest {
             listOf(JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
         } ?: emptyList()
         val all = ENTITIES + extraSource
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         return simpleRun(
             jfos = all,
             options = listOf("-Aroom.expandProjection=true")

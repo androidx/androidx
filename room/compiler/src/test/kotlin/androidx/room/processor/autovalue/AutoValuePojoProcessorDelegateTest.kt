@@ -239,6 +239,7 @@ class AutoValuePojoProcessorDelegateTest {
         classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         return singleRunFullClass(
             pojoCode = """
                     $HEADER
