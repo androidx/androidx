@@ -39,7 +39,7 @@ private val KotlinCompilation.kspKotlinSourceDir: File
 private fun compileSources(
     sources: List<Source>,
     classpath: List<File>,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ): Pair<SyntheticJavacProcessor, CompileTester> {
     val syntheticJavacProcessor = SyntheticJavacProcessor(handler)
     return syntheticJavacProcessor to Truth.assertAbout(
@@ -60,7 +60,7 @@ private fun compileSources(
 private fun compileWithKapt(
     sources: List<Source>,
     classpath: List<File>,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ): Pair<SyntheticJavacProcessor, KotlinCompilation> {
     val syntheticJavacProcessor = SyntheticJavacProcessor(handler)
     val compilation = KotlinCompilation()
@@ -84,7 +84,7 @@ private fun compileWithKapt(
 private fun compileWithKsp(
     sources: List<Source>,
     classpath: List<File>,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ): Pair<SyntheticKspProcessor, KotlinCompilation.Result> {
     @Suppress("NAME_SHADOWING")
     val sources = if (sources.none { it is Source.KotlinSource }) {
@@ -140,7 +140,7 @@ private fun File.collectSourceFiles(): List<SourceFile> {
 fun runProcessorTest(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     @Suppress("NAME_SHADOWING")
     val sources = if (sources.isEmpty()) {
@@ -183,7 +183,7 @@ fun runProcessorTest(
 fun runProcessorTestIncludingKsp(
     sources: List<Source> = emptyList(),
     classpath: List<File> = emptyList(),
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     runProcessorTest(
         sources = sources,
@@ -201,7 +201,7 @@ fun runProcessorTestIncludingKsp(
 fun runProcessorTestForFailedCompilation(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     if (sources.canCompileWithJava()) {
         // run with java processor
@@ -224,7 +224,7 @@ fun runProcessorTestForFailedCompilation(
 fun runProcessorTestForFailedCompilationIncludingKsp(
     sources: List<Source>,
     classpath: List<File>,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     runProcessorTestForFailedCompilation(
         sources = sources,
@@ -244,7 +244,7 @@ fun runJavaProcessorTest(
     sources: List<Source>,
     classpath: List<File>,
     succeed: Boolean,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     val (syntheticJavacProcessor, compileTester) = compileSources(sources, classpath, handler)
     if (succeed) {
@@ -259,7 +259,7 @@ fun runKaptTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     succeed: Boolean = true,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     // now run with kapt
     val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, classpath, handler)
@@ -276,7 +276,7 @@ fun runKspTest(
     sources: List<Source>,
     classpath: List<File> = emptyList(),
     succeed: Boolean = true,
-    handler: (TestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit
 ) {
     val (kspProcessor, compilationResult) = compileWithKsp(sources, classpath, handler)
     if (succeed) {

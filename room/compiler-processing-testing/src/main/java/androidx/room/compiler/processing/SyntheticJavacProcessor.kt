@@ -16,23 +16,20 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.javac.JavacProcessingEnv
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.XTestInvocation
 import java.lang.AssertionError
 import javax.lang.model.SourceVersion
 
 class SyntheticJavacProcessor(
-    val handler: (TestInvocation) -> Unit
+    val handler: (XTestInvocation) -> Unit
 ) : JavacTestProcessor() {
     private var result: Result<Unit>? = null
 
     override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
         result = kotlin.runCatching {
             handler(
-                TestInvocation(
-                    processingEnv = JavacProcessingEnv(
-                        processingEnv
-                    )
+                XTestInvocation(
+                    processingEnv = XProcessingEnv.create(processingEnv)
                 )
             )
         }
