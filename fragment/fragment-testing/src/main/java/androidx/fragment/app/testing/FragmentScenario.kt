@@ -574,6 +574,9 @@ public class FragmentScenario<F : Fragment> private constructor(
             factory: FragmentFactory?,
             @IdRes containerViewId: Int
         ): FragmentScenario<F> {
+            require(initialState != Lifecycle.State.DESTROYED) {
+                "Cannot set initial Lifecycle state to $initialState for FragmentScenario"
+            }
             val componentName = ComponentName(
                 ApplicationProvider.getApplicationContext(),
                 EmptyFragmentActivity::class.java
