@@ -161,6 +161,8 @@ public class BrandedSupportFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mTitleHelper = null;
+        mTitleView = null;
+        mTitleViewAdapter = null;
     }
 
     /**
