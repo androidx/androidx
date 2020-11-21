@@ -58,7 +58,8 @@ public fun NavGraphBuilder.composable(
 /**
  * Construct a nested [NavGraph]
  *
- * @sample androidx.navigation.compose.samples.NestedNav
+ * @sample androidx.navigation.compose.samples.NestedNavStartDestination
+ * @sample androidx.navigation.compose.samples.NestedNavInGraph
  */
 public fun NavGraphBuilder.navigation(
     startDestination: String,
@@ -66,6 +67,8 @@ public fun NavGraphBuilder.navigation(
     builder: NavGraphBuilder.() -> Unit
 ): Unit = navigation(
     createRoute(route).hashCode(),
-    createRoute(startDestination).hashCode(),
-    builder
-)
+    createRoute(startDestination).hashCode()
+) {
+    deepLink(createRoute(route))
+    apply(builder)
+}
