@@ -36,6 +36,7 @@ interface GraphProcessor {
     fun setRepeating(request: Request)
     fun submit(request: Request)
     fun submit(requests: List<Request>)
+    suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean
 
     /**
      * Abort all submitted requests that have not yet been submitted to the [RequestProcessor] as
@@ -175,7 +176,7 @@ class GraphProcessorImpl @Inject constructor(
     /**
      * Submit a request to the camera using only the current repeating request.
      */
-    suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean =
+    override suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean =
         withContext(threads.ioDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
