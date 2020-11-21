@@ -77,16 +77,26 @@ internal abstract class JavacType(
         }
     }
 
-    override fun boxed(): XType {
-        return if (typeMirror.kind.isPrimitive) {
-            env.wrap(
-                typeMirror = env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror))
-                    .asType(),
-                kotlinType = kotlinType,
-                elementNullability = XNullability.NULLABLE
-            )
-        } else {
-            this
+    override fun boxed(): JavacType {
+        return when {
+            typeMirror.kind.isPrimitive -> {
+                env.wrap(
+                    typeMirror = env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror))
+                        .asType(),
+                    kotlinType = kotlinType,
+                    elementNullability = XNullability.NULLABLE
+                )
+            }
+            typeMirror.kind == TypeKind.VOID -> {
+                env.wrap(
+                    typeMirror = env.elementUtils.getTypeElement("java.lang.Void").asType(),
+                    kotlinType = kotlinType,
+                    elementNullability = XNullability.NULLABLE
+                )
+            }
+            else -> {
+                this
+            }
         }
     }
 
@@ -132,6 +142,32 @@ internal abstract class JavacType(
 
     override fun isType(): Boolean {
         return MoreTypes.isType(typeMirror)
+    }
+
+    /**
+     * Create a copy of this type with the given nullability.
+     * This method is not called if the nullability of the type is already equal to the given
+     * nullability.
+     */
+    protected abstract fun copyWithNullability(nullability: XNullability): JavacType
+
+    final override fun makeNullable(): JavacType {
+        if (nullability == XNullability.NULLABLE) {
+            return this
+        }
+        if (typeMirror.kind.isPrimitive || typeMirror.kind == TypeKind.VOID) {
+            return boxed().makeNullable()
+        }
+        return copyWithNullability(XNullability.NULLABLE)
+    }
+
+    final override fun makeNonNullable(): JavacType {
+        if (nullability == XNullability.NONNULL) {
+            return this
+        }
+        // unlike makeNullable, we don't try to degrade to primitives here because it is valid for
+        // a boxed primitive to be marked as non-null.
+        return copyWithNullability(XNullability.NONNULL)
     }
 
     companion object {
