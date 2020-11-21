@@ -112,7 +112,7 @@ class NavGraphBuilderTest {
     }
 
     @Test
-    fun testNavigationNested() {
+    fun testNavigationNestedStart() {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
             navController = TestNavHostController(AmbientContext.current)
@@ -131,7 +131,31 @@ class NavGraphBuilderTest {
                 .isTrue()
         }
     }
+
+    @Test
+    fun testNavigationNestedInGraph() {
+        lateinit var navController: TestNavHostController
+        composeTestRule.setContent {
+            navController = TestNavHostController(AmbientContext.current)
+            navController.navigatorProvider.addNavigator(ComposeNavigator())
+
+            NavHost(navController, startDestination = firstRoute) {
+                composable(firstRoute) { }
+                navigation(startDestination = thirdRoute, route = secondRoute) {
+                    composable(thirdRoute) { }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            navController.navigate(secondRoute)
+            assertWithMessage("Destination should be added to the graph")
+                .that(secondRoute in navController.graph)
+                .isTrue()
+        }
+    }
 }
 
 private const val firstRoute = "first"
 private const val secondRoute = "second"
+private const val thirdRoute = "third"
