@@ -18,6 +18,7 @@ package androidx.navigation.compose
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.core.os.bundleOf
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
@@ -55,6 +56,18 @@ public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
         return backstack.removeLastOrNull() != null
     }
 
+    override fun onSaveState(): Bundle? {
+        return bundleOf(KEY_BACK_STACK_IDS to backstack.toIntArray())
+    }
+
+    override fun onRestoreState(savedState: Bundle) {
+        val restoredBackStack = savedState.getIntArray(KEY_BACK_STACK_IDS)
+        if (restoredBackStack != null) {
+            backstack.clear()
+            backstack.addAll(restoredBackStack.asList())
+        }
+    }
+
     /**
      * NavDestination specific to [ComposeNavigator]
      */
@@ -63,4 +76,8 @@ public class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
         navigator: ComposeNavigator,
         internal val content: @Composable (NavBackStackEntry) -> Unit
     ) : NavDestination(navigator)
+
+    private companion object {
+        private const val KEY_BACK_STACK_IDS = "androidx-nav-compose:navigator:backStackIds"
+    }
 }
