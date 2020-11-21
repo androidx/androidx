@@ -115,6 +115,7 @@ public abstract class Renderer(
      * @param calendar The Calendar to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
+    @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun renderInternal(calendar: Calendar)
 
@@ -126,6 +127,7 @@ public abstract class Renderer(
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
+    @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun takeScreenshot(
         calendar: Calendar,

@@ -182,6 +182,7 @@ public abstract class SelectionTracker<K> {
     public abstract boolean deselect(@NonNull K key);
 
     /** @hide */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract @NonNull AdapterDataObserver getAdapterDataObserver();
 
@@ -194,6 +195,7 @@ public abstract class SelectionTracker<K> {
      *                 work with the established anchor point to define selection ranges.
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     public abstract void startRange(int position);
 
@@ -210,6 +212,7 @@ public abstract class SelectionTracker<K> {
      *                               must have been started by a call to {@link #startRange(int)}.
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     public abstract void extendRange(int position);
 
@@ -220,6 +223,7 @@ public abstract class SelectionTracker<K> {
      *
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     public abstract void endRange();
 
@@ -227,6 +231,7 @@ public abstract class SelectionTracker<K> {
      * @return Whether or not there is a current range selection active.
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     public abstract boolean isRangeActive();
 
@@ -240,6 +245,7 @@ public abstract class SelectionTracker<K> {
      * @param position the anchor position. Must already be selected.
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     public abstract void anchorRange(int position);
 
@@ -249,6 +255,7 @@ public abstract class SelectionTracker<K> {
      * @param position the end point.
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract void extendProvisionalRange(int position);
 
@@ -257,6 +264,7 @@ public abstract class SelectionTracker<K> {
      *
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract void setProvisionalSelection(@NonNull Set<K> newSelection);
 
@@ -265,6 +273,7 @@ public abstract class SelectionTracker<K> {
      *
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract void clearProvisionalSelection();
 
@@ -274,6 +283,7 @@ public abstract class SelectionTracker<K> {
      *
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(LIBRARY)
     protected abstract void mergeProvisionalSelection();
 
