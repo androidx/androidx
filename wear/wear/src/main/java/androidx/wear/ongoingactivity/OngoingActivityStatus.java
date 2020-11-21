@@ -60,6 +60,7 @@ public abstract class OngoingActivityStatus {
     /**
      * Serializes the information into the given {@link Bundle}.
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     abstract void extend(Bundle bundle);
 
     /**

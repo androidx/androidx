@@ -170,7 +170,7 @@ package androidx.wear.watchface {
   }
 
   public class ObservableWatchData<T> {
-    ctor protected ObservableWatchData(internal T? _value);
+    ctor protected ObservableWatchData(T? _value);
     method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread public T getValue();
     method public final T getValueOr(T p);
@@ -203,7 +203,7 @@ package androidx.wear.watchface {
   }
 
   public abstract class Renderer {
-    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
+    ctor public Renderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=10000) long interactiveDrawModeUpdateDelayMillis);
     method public final float getCenterX();
     method public final float getCenterY();
     method public final long getInteractiveDrawModeUpdateDelayMillis();
@@ -226,7 +226,7 @@ package androidx.wear.watchface {
   }
 
   public final class WatchFace {
-    ctor public WatchFace(internal int watchFaceType, internal androidx.wear.watchface.style.UserStyleRepository userStyleRepository, internal androidx.wear.watchface.ComplicationsManager complicationsManager, internal androidx.wear.watchface.Renderer renderer);
+    ctor public WatchFace(int watchFaceType, androidx.wear.watchface.style.UserStyleRepository userStyleRepository, androidx.wear.watchface.ComplicationsManager complicationsManager, androidx.wear.watchface.Renderer renderer);
     method public androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle getLegacyWatchFaceStyle();
     method public Long? getOverridePreviewReferenceTimeMillis();
     method public static boolean isLegacyWatchFaceOverlayStyleSupported();
