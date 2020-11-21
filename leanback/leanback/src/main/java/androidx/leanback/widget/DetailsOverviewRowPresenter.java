@@ -170,6 +170,12 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
             showMoreLeft(false);
         }
 
+        void unbindActions() {
+            mActionsRow.setAdapter(null);
+            mActionBridgeAdapter.setAdapter(null);
+            mNumItems = 0;
+        }
+
         final View.OnLayoutChangeListener mLayoutChangeListener =
                 new View.OnLayoutChangeListener() {
 
@@ -558,6 +564,7 @@ public class DetailsOverviewRowPresenter extends RowPresenter {
         if (vh.mDetailsDescriptionViewHolder != null) {
             mDetailsPresenter.onUnbindViewHolder(vh.mDetailsDescriptionViewHolder);
         }
+        vh.unbindActions();
         super.onUnbindRowViewHolder(holder);
     }
 
