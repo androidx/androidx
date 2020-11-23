@@ -44,7 +44,7 @@ interface Result3AStateListener {
     fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
 }
 
-class Result3AStateListenerImpl (
+class Result3AStateListenerImpl(
     private val exitConditionForKeys: Map<CaptureResult.Key<*>, List<Any>>,
     private val frameLimit: Int? = null,
     private val timeLimitNs: Long? = null
