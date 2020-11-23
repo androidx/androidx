@@ -95,6 +95,7 @@ dependencies {
     docs(project(":datastore:datastore-preferences-core"))
     docs(project(":datastore:datastore-preferences-core:datastore-preferences-proto"))
     docs(project(":datastore:datastore-proto"))
+    docs(project(":datastore:datastore-rxjava2"))
     docs(project(":documentfile:documentfile"))
     docs(project(":drawerlayout:drawerlayout"))
     docs(project(":dynamicanimation:dynamicanimation"))
