@@ -169,7 +169,7 @@ fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
         val displayMin = it.min.toString().padStart(maxValueLength)
         val displayMedian = it.median.toString().padStart(maxValueLength)
         val displayMax = it.max.toString().padStart(maxValueLength)
-        "$displayName   min $displayMin,   median $displayMedian,   max $displayMax"
+        "  $displayName   min $displayMin,   median $displayMedian,   max $displayMax"
     } + "\n"
 }
 
