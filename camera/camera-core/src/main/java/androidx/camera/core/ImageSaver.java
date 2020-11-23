@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.content.ContentValues;
-import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -25,6 +24,7 @@ import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.internal.utils.ImageUtil.CodecFailedException;
 import androidx.core.util.Preconditions;
@@ -117,8 +117,10 @@ final class ImageSaver implements Runnable {
             exif.attachTimestamp();
 
             // Use exif for orientation (contains rotation only) from the original image if JPEG,
-            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392
-            if (mImage.getFormat() == ImageFormat.JPEG) {
+            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392.
+            // Retrieve the orientation value from the embedded EXIF data in the captured image
+            // only if it is available.
+            if (new ExifRotationAvailability().shouldUseExifOrientation(mImage)) {
                 ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
                 // Rewind to make sure it is at the beginning of the buffer
                 buffer.rewind();

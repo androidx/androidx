@@ -108,6 +108,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -1451,8 +1452,10 @@ public final class ImageCapture extends UseCase {
             builder.addSurface(mDeferrableSurface);
 
             // Add the dynamic implementation options of ImageCapture
-            builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
-                    imageCaptureRequest.mRotationDegrees);
+            if (new ExifRotationAvailability().isRotationOptionSupported()) {
+                builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                        imageCaptureRequest.mRotationDegrees);
+            }
             builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
                     imageCaptureRequest.mJpegQuality);
 
@@ -2154,7 +2157,9 @@ public final class ImageCapture extends UseCase {
             Size dispatchResolution;
             int dispatchRotationDegrees = 0;
 
-            if (image.getFormat() == ImageFormat.JPEG) {
+            // Retrieve the dimension and rotation values from the embedded EXIF data in the
+            // captured image only if those information is available.
+            if (new ExifRotationAvailability().shouldUseExifOrientation(image)) {
                 // JPEG needs to have rotation/crop based on the EXIF
                 try {
                     ImageProxy.PlaneProxy[] planes = image.getPlanes();
