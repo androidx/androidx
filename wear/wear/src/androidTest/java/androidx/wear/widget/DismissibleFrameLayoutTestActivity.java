@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.test.R;
 
-public class SwipeDismissFrameLayoutTestActivity extends LayoutTestActivity {
+public class DismissibleFrameLayoutTestActivity extends LayoutTestActivity {
 
     public static final String EXTRA_LAYOUT_HORIZONTAL = "layout_horizontal";
 
@@ -34,9 +34,9 @@ public class SwipeDismissFrameLayoutTestActivity extends LayoutTestActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int layoutId = getIntent().getIntExtra(EXTRA_LAYOUT_RESOURCE_ID, -1);
-        boolean horizontal = getIntent().getBooleanExtra(EXTRA_LAYOUT_HORIZONTAL, false);
 
         if (layoutId == R.layout.swipe_dismiss_layout_testcase_2) {
+            boolean horizontal = getIntent().getBooleanExtra(EXTRA_LAYOUT_HORIZONTAL, false);
             createScrollableContent(horizontal);
         }
     }

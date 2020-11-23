@@ -18,10 +18,6 @@ package androidx.wear.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.UiThread;
 
@@ -41,40 +37,20 @@ import java.util.ArrayList;
  * {@link #setSwipeable(boolean)} can be used for more direct control over the feature.
  */
 @UiThread
-public class SwipeDismissFrameLayout extends SwipeDismissLayout {
+public class SwipeDismissFrameLayout extends DismissibleFrameLayout {
 
-    private static final String TAG = "SwipeDismissFrameLayout";
+    public static final float DEFAULT_DISMISS_DRAG_WIDTH_RATIO = .33f;
 
-    private static final float TRANSLATION_MIN_ALPHA = 0.5f;
-    private static final float DEFAULT_INTERPOLATION_FACTOR = 1.5f;
 
     /** Implement this callback to act on particular stages of the dismissal. */
     @UiThread
     public abstract static class Callback {
-        /**
-         * Notifies listeners that the view is now considering to start a dismiss gesture from a
-         * particular point on the screen. The default implementation returns true for all
-         * coordinates so that is is possible to start a swipe-to-dismiss gesture from any location.
-         * If any one instance of this Callback returns false for a given set of coordinates,
-         * swipe-to-dismiss will not be allowed to start in that point.
-         *
-         * @param layout The layout associated with this callback.
-         * @param xDown The x coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
-         *              event for this motion.
-         * @param yDown The y coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
-         *              event for this motion.
-         * @return true if this gesture should be recognized as a swipe to dismiss gesture, false
-         * otherwise.
-         */
-        boolean onPreSwipeStart(SwipeDismissFrameLayout layout, float xDown, float yDown) {
-            return true;
-        }
 
         /**
          * Notifies listeners that the view is now being dragged as part of a dismiss gesture.
          *
          * @param layout The layout associated with this callback.
-        */
+         */
         public void onSwipeStarted(SwipeDismissFrameLayout layout) {
         }
 
@@ -87,27 +63,14 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
         }
 
         /**
-         * Notifies listeners the dismissal is complete and the view now off screen.
-         *
+         * Notifies listeners that the dismissal is complete and the view is now off screen.
          * @param layout The layout associated with this callback.
          */
         public void onDismissed(SwipeDismissFrameLayout layout) {
         }
     }
 
-    private final OnPreSwipeListener mOnPreSwipeListener = new MyOnPreSwipeListener();
-    private final OnDismissedListener mOnDismissedListener = new MyOnDismissedListener();
-
-    private final OnSwipeProgressChangedListener mOnSwipeProgressListener =
-            new MyOnSwipeProgressChangedListener();
-
-    final ArrayList<Callback> mCallbacks = new ArrayList<>();
-    final int mAnimationTime;
-    final DecelerateInterpolator mCancelInterpolator;
-    final AccelerateInterpolator mDismissInterpolator;
-    final DecelerateInterpolator mCompleteDismissGestureInterpolator;
-
-    boolean mStarted;
+    final ArrayList<Callback> mCallbacksCompat = new ArrayList<>();
 
     /**
      * Simple constructor to use when creating a view from code.
@@ -162,22 +125,11 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
      * @param defStyle An attribute in the current theme that contains a reference to a style
      *                 resource that supplies default values for the view. Can be 0 to not look for
      *                 defaults.
-     * @param defStyleRes This corresponds to the fourth argument
-     *                    of {@link View#View(Context, AttributeSet, int, int)}. It allows a style
-     *                    resource to be specified when creating the view.
+     * @param defStyleRes It allows a style resource to be specified when creating the view.
      */
     public SwipeDismissFrameLayout(Context context, AttributeSet attrs, int defStyle,
             int defStyleRes) {
         super(context, attrs, defStyle, defStyleRes);
-        setOnPreSwipeListener(mOnPreSwipeListener);
-        setOnDismissedListener(mOnDismissedListener);
-        setOnSwipeProgressChangedListener(mOnSwipeProgressListener);
-        mAnimationTime = getContext().getResources().getInteger(
-                android.R.integer.config_shortAnimTime);
-        mCancelInterpolator = new DecelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
-        mDismissInterpolator = new AccelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
-        mCompleteDismissGestureInterpolator = new DecelerateInterpolator(
-                DEFAULT_INTERPOLATION_FACTOR);
     }
 
     /** Adds a callback for dismissal. */
@@ -185,7 +137,8 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
         if (callback == null) {
             throw new NullPointerException("addCallback called with null callback");
         }
-        mCallbacks.add(callback);
+
+        mCallbacksCompat.add(callback);
     }
 
     /** Removes a callback that was added with {@link #addCallback(Callback)}. */
@@ -193,109 +146,69 @@ public class SwipeDismissFrameLayout extends SwipeDismissLayout {
         if (callback == null) {
             throw new NullPointerException("removeCallback called with null callback");
         }
-        if (!mCallbacks.remove(callback)) {
+        if (!mCallbacksCompat.remove(callback)) {
             throw new IllegalStateException("removeCallback called with nonexistent callback");
         }
     }
 
     /**
-     * Resets this view to the original state. This method cancels any pending animations on this
-     * view and resets the alpha as well as x translation values.
+     * Set the layout to be dismissible by swipe or not.
+     * @param swipeable Whether the layout should react to the swipe gesture.
      */
-    void resetTranslationAndAlpha() {
-        animate().cancel();
-        setTranslationX(0);
-        setAlpha(1);
-        mStarted = false;
+    public void setSwipeable(boolean swipeable) {
+        super.setSwipeDismissible(swipeable);
     }
 
-    private final class MyOnPreSwipeListener implements OnPreSwipeListener {
-        MyOnPreSwipeListener() {
-        }
-
-        @Override
-        public boolean onPreSwipe(SwipeDismissLayout layout, float xDown, float yDown) {
-            for (Callback callback : mCallbacks) {
-                if (!callback.onPreSwipeStart(SwipeDismissFrameLayout.this, xDown, yDown)) {
-                    return false;
-                }
-            }
-            return true;
-        }
+    /** Returns true if the frame layout can be dismissed by swipe gestures. */
+    public boolean isSwipeable() {
+        return super.isSwipeDismissible();
     }
 
-    private final class MyOnDismissedListener implements OnDismissedListener {
-        MyOnDismissedListener() {
-        }
-
-        @Override
-        public void onDismissed(SwipeDismissLayout layout) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onDismissed()");
-            }
-            animate()
-                    .translationX(getWidth())
-                    .alpha(0)
-                    .setDuration(mAnimationTime)
-                    .setInterpolator(
-                            mStarted ? mCompleteDismissGestureInterpolator : mDismissInterpolator)
-                    .withEndAction(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                                        Callback callbacks = mCallbacks.get(i);
-                                        callbacks.onDismissed(SwipeDismissFrameLayout.this);
-                                    }
-                                    resetTranslationAndAlpha();
-                                }
-                            });
+    /**
+     * Sets the minimum ratio of the screen after which the swipe gesture is treated as
+     * swipe-to-dismiss.
+     *
+     * @param ratio the ratio of the screen at which the swipe gesture is treated as
+     *              swipe-to-dismiss. should be provided as a fraction of the screen
+     */
+    public void setDismissMinDragWidthRatio(float ratio) {
+        if (isSwipeable()) {
+            getSwipeDismissController().setDismissMinDragWidthRatio(ratio);
         }
     }
 
-    private final class MyOnSwipeProgressChangedListener implements OnSwipeProgressChangedListener {
-        MyOnSwipeProgressChangedListener() {
+    /**
+     * Gets the minimum ratio of the screen after which the swipe gesture is treated as
+     * swipe-to-dismiss.
+     */
+    public float getDismissMinDragWidthRatio() {
+        if (isSwipeable()) {
+            return getSwipeDismissController().getDismissMinDragWidthRatio();
         }
+        return DEFAULT_DISMISS_DRAG_WIDTH_RATIO;
+    }
 
-        @Override
-        public void onSwipeProgressChanged(SwipeDismissLayout layout, float progress,
-                float translate) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onSwipeProgressChanged() - " + translate);
-            }
-            setTranslationX(translate);
-            setAlpha(1 - (progress * TRANSLATION_MIN_ALPHA));
-            if (!mStarted) {
-                for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                    Callback callbacks = mCallbacks.get(i);
-                    callbacks.onSwipeStarted(SwipeDismissFrameLayout.this);
-                }
-                mStarted = true;
-            }
+    @Override
+    protected void executeDismissedCallbacks() {
+        super.executeDismissedCallbacks();
+        for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
+            mCallbacksCompat.get(i).onDismissed(this);
         }
+    }
 
-        @Override
-        public void onSwipeCanceled(SwipeDismissLayout layout) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onSwipeCanceled() run swipe cancel animation");
-            }
-            mStarted = false;
-            animate()
-                    .translationX(0)
-                    .alpha(1)
-                    .setDuration(mAnimationTime)
-                    .setInterpolator(mCancelInterpolator)
-                    .withEndAction(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    for (int i = mCallbacks.size() - 1; i >= 0; i--) {
-                                        Callback callbacks = mCallbacks.get(i);
-                                        callbacks.onSwipeCanceled(SwipeDismissFrameLayout.this);
-                                    }
-                                    resetTranslationAndAlpha();
-                                }
-                            });
+    @Override
+    protected void executeDismissStartedCallbacks() {
+        super.executeDismissStartedCallbacks();
+        for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
+            mCallbacksCompat.get(i).onSwipeStarted(this);
+        }
+    }
+
+    @Override
+    protected void executeDismissCanceledCallbacks() {
+        super.executeDismissCanceledCallbacks();
+        for (int i = mCallbacksCompat.size() - 1; i >= 0; i--) {
+            mCallbacksCompat.get(i).onSwipeCanceled(this);
         }
     }
 }
