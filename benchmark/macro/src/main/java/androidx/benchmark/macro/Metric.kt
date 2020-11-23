@@ -61,7 +61,10 @@ class StartupTimingMetric : Metric() {
     }
 }
 
-class CpuUsageMetric : Metric() {
+/**
+ * Not public, as this needs clarified metric names, and fix zeros (b/173056421)
+ */
+internal class CpuUsageMetric : Metric() {
     private val helper = CpuUsageHelper().also {
         it.setEnableCpuUtilization()
     }
@@ -118,14 +121,52 @@ class JankMetric : Metric() {
         helper.stopCollecting()
     }
 
+    /**
+     * Used to convert keys from platform to JSON format.
+     *
+     * This both converts `snake_case_format` to `camelCaseFormat`, and renames for clarity.
+     *
+     * Note that these will still output to inst results in snake_case, with `MetricNameUtils`
+     * via [androidx.benchmark.Stats.putInBundle].
+     */
+    private val keyRenameMap = mapOf(
+        "jank_percentile_50" to "frameTime50thPercentileMs",
+        "jank_percentile_90" to "frameTime90thPercentileMs",
+        "jank_percentile_95" to "frameTime95thPercentileMs",
+        "jank_percentile_99" to "frameTime99thPercentileMs",
+        "missed_vsync" to "vsyncMissedFrameCount",
+        "deadline_missed" to "deadlineMissedFrameCount",
+        "janky_frames_count" to "jankyFrameCount",
+        "high_input_latency" to "highInputLatencyFrameCount",
+        "slow_ui_thread" to "slowUiThreadFrameCount",
+        "slow_bmp_upload" to "slowBitmapUploadFrameCount",
+        "slow_issue_draw_cmds" to "slowIssueDrawCommandsFrameCount",
+        "total_frames" to "totalFrameCount",
+        "janky_frames_percent" to "jankyFramePercent",
+    )
+
     override fun getMetrics(packageName: String): Map<String, Long> {
-        return helper.metrics.mapValues {
-            it.value.toLong()
-        }
+        return helper.metrics
+            .map {
+                val prefix = "gfxinfo_${packageName}_"
+                val keyWithoutPrefix = it.key.removePrefix(prefix)
+
+                if (keyWithoutPrefix != it.key && keyRenameMap.containsKey(keyWithoutPrefix)) {
+                    // note - this conversion truncates
+                    val newValue = it.value.toLong()
+                    @Suppress("MapGetWithNotNullAssertionOperator")
+                    keyRenameMap[keyWithoutPrefix]!! to newValue
+                } else {
+                    throw IllegalStateException("Unexpected key ${it.key}")
+                }
+            }.toMap()
     }
 }
 
-class TotalPssMetric : Metric() {
+/**
+ * Not public, as this needs clarified metric names
+ */
+internal class TotalPssMetric : Metric() {
     private val helper = TotalPssHelper()
 
     override fun configure(config: MacrobenchmarkConfig) {

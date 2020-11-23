@@ -19,7 +19,7 @@ package androidx.benchmark
 import android.annotation.SuppressLint
 
 @SuppressLint("DefaultLocale")
-internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z])")) {
+internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z0-9])")) {
     it.groups[1]!!.value + "_" + it.groups[2]!!.value.toLowerCase()
 }
 
@@ -32,3 +32,4 @@ internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z])")) {
 internal fun String.toOutputMetricName() = this
     .toSnakeCase()
     .replace(Regex("_ns$"), "_nanos")
+    .replace(Regex("_ms$"), "_millis")
