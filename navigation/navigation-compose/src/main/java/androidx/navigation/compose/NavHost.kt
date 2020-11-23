@@ -61,7 +61,7 @@ public fun NavHost(
 ) {
     NavHost(
         navController,
-        remember (route, startDestination, builder) {
+        remember(route, startDestination, builder) {
             navController.createGraph(startDestination, route, builder)
         }
     )

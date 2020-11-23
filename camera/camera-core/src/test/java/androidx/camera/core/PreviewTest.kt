@@ -85,7 +85,7 @@ class PreviewTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
-        with (cameraUseCaseAdapter) {
+        with(cameraUseCaseAdapter) {
             this?.removeUseCases(useCases)
         }
         cameraUseCaseAdapter = null

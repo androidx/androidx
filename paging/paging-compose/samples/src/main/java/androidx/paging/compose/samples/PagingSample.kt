@@ -58,7 +58,7 @@ class MyBackend {
         }
 
         val from = key * DataBatchSize
-        val to = minOf( (key + 1) * DataBatchSize, backendDataList.size)
+        val to = minOf((key + 1) * DataBatchSize, backendDataList.size)
         val currentSublist = backendDataList.subList(from, to)
 
         return DesiredLoadResultPageResponse(currentSublist)
