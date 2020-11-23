@@ -26,7 +26,17 @@ fi
 TOOLS_DIR=$STUDIO_DIR/tools
 gw=$TOOLS_DIR/gradlew
 
-JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/linux" $gw -p $TOOLS_DIR publishLocal --stacktrace
+function buildStudio() {
+  STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
+  if JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk11/linux" $gw -p $TOOLS_DIR publishLocal --stacktrace > "$STUDIO_BUILD_LOG" 2>&1; then
+    echo built studio successfully
+  else
+    cat "$STUDIO_BUILD_LOG" >&2
+    echo failed to build studio
+    return 1
+  fi
+}
+buildStudio
 
 export GRADLE_PLUGIN_VERSION=`grep -oP "(?<=buildVersion = ).*" $TOOLS_DIR/buildSrc/base/version.properties`
 export GRADLE_PLUGIN_REPO="$STUDIO_DIR/out/repo:$STUDIO_DIR/prebuilts/tools/common/m2/repository"
