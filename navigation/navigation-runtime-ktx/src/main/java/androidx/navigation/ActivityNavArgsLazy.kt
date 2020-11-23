@@ -37,9 +37,10 @@ import androidx.annotation.MainThread
  * and access prior to that will result in IllegalStateException.
  */
 @MainThread
-public inline fun <reified Args : NavArgs> Activity.navArgs(
-): NavArgsLazy<Args> = NavArgsLazy(Args::class) {
-    intent?.let { intent ->
-        intent.extras ?: throw IllegalStateException("Activity $this has null extras in $intent")
-    } ?: throw IllegalStateException("Activity $this has a null Intent")
-}
+public inline fun <reified Args : NavArgs> Activity.navArgs(): NavArgsLazy<Args> =
+    NavArgsLazy(Args::class) {
+        intent?.let { intent ->
+            intent.extras
+                ?: throw IllegalStateException("Activity $this has null extras in $intent")
+        } ?: throw IllegalStateException("Activity $this has a null Intent")
+    }

@@ -34,7 +34,7 @@ abstract class GraphView(
     private val paints: Paints
 ) : View(context) {
 
-    inner class LayoutState (
+    inner class LayoutState(
         var widthFloat: Float,
 
         /** Height of the data portion of the graph view */

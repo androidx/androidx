@@ -69,7 +69,7 @@ class InvalidatingPagingSourceFactoryTest {
     }
 
     @Test
-    fun skipInvalidatedPagingSources () {
+    fun skipInvalidatedPagingSources() {
 
         val testFactory = getFactory()
 
