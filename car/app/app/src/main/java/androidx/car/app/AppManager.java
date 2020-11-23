@@ -71,7 +71,7 @@ public class AppManager {
 
     /**
      * Requests the current template to be invalidated, which eventually triggers a call to {@link
-     * Screen#getTemplate} to get the new template to display.
+     * Screen#onGetTemplate} to get the new template to display.
      *
      * @throws HostException if the remote call fails.
      */

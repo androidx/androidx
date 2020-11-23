@@ -112,8 +112,8 @@ package androidx.car.app {
     method public final androidx.lifecycle.Lifecycle getLifecycle();
     method public String? getMarker();
     method public final androidx.car.app.ScreenManager getScreenManager();
-    method public abstract androidx.car.app.model.Template getTemplate();
     method public final void invalidate();
+    method public abstract androidx.car.app.model.Template onGetTemplate();
     method public void setMarker(String?);
     method public void setResult(Object?);
     field public static final String ROOT = "ROOT";

@@ -89,7 +89,7 @@ public final class CarAppServiceTest {
                         return new Screen(getCarContext()) {
                             @Override
                             @NonNull
-                            public Template getTemplate() {
+                            public Template onGetTemplate() {
                                 return mTemplate;
                             }
                         };

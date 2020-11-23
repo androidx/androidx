@@ -42,7 +42,7 @@ import java.util.Objects;
  *
  * <h4>Template Restrictions</h4>
  *
- * In regards to template refreshes, as described in {@link Screen#getTemplate()}, this
+ * In regards to template refreshes, as described in {@link Screen#onGetTemplate()}, this
  * template is considered a refresh of a previous one if:
  *
  * <ul>
