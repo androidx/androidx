@@ -141,13 +141,12 @@ class XProcessingEnvTest {
         runProcessorTestIncludingKsp(
             listOf(source)
         ) { invocation ->
-            PRIMITIVE_TYPES.forEach {
-                val targetType = invocation.processingEnv.findType(it.key)
-                assertThat(targetType?.typeName).isEqualTo(it.value)
-                if (!invocation.isKsp) {
-                    // TODO re-enable once we move typenames to the java realm
-                    assertThat(targetType?.boxed()?.typeName).isEqualTo(it.value.box())
-                }
+            PRIMITIVE_TYPES.flatMap {
+                listOf(it, it.box())
+            }.forEach {
+                val targetType = invocation.processingEnv.findType(it.toString())
+                assertThat(targetType?.typeName).isEqualTo(it)
+                assertThat(targetType?.boxed()?.typeName).isEqualTo(it.box())
             }
         }
     }
@@ -236,15 +235,15 @@ class XProcessingEnvTest {
     }
 
     companion object {
-        val PRIMITIVE_TYPES = mapOf(
-            TypeName.BOOLEAN.toString() to TypeName.BOOLEAN,
-            TypeName.BYTE.toString() to TypeName.BYTE,
-            TypeName.SHORT.toString() to TypeName.SHORT,
-            TypeName.INT.toString() to TypeName.INT,
-            TypeName.LONG.toString() to TypeName.LONG,
-            TypeName.CHAR.toString() to TypeName.CHAR,
-            TypeName.FLOAT.toString() to TypeName.FLOAT,
-            TypeName.DOUBLE.toString() to TypeName.DOUBLE
+        val PRIMITIVE_TYPES = listOf(
+            TypeName.BOOLEAN,
+            TypeName.BYTE,
+            TypeName.SHORT,
+            TypeName.INT,
+            TypeName.LONG,
+            TypeName.CHAR,
+            TypeName.FLOAT,
+            TypeName.DOUBLE,
         )
     }
 }
