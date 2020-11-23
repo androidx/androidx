@@ -16,9 +16,11 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import org.junit.Assume
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +50,10 @@ class ProfilerTest {
         profiler: Profiler,
         file: File
     ) {
+        Assume.assumeFalse(
+            "Workaround native crash on API 21 in CI, see b/173662168",
+            profiler == MethodTracing && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP,
+        )
         val deletedSuccessfully: Boolean
         try {
             file.delete() // clean up, if previous run left this behind
