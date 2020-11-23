@@ -294,6 +294,8 @@ public class ComplicationsManager(
         complication.dataDirty =
             complication.dataDirty || (complication.renderer.idAndData?.complicationData != data)
         complication.renderer.idAndData = IdAndComplicationData(watchFaceComplicationId, data)
+        (complication.complicationData as MutableObservableWatchData<ComplicationData>).value =
+            data
     }
 
     /**
