@@ -16,20 +16,13 @@
 
 package androidx.room.compiler.processing.util
 
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.Resolver
 import javax.lang.model.util.Elements
 
-class TestInvocation(
-    val processingEnv: XProcessingEnv
-) {
-    val isKsp = processingEnv is KspProcessingEnv
+val XTestInvocation.kspResolver: Resolver
+    get() = (processingEnv as KspProcessingEnv).resolver
 
-    val kspResolver: Resolver
-        get() = (processingEnv as KspProcessingEnv).resolver
-
-    val javaElementUtils: Elements
-        get() = (processingEnv as JavacProcessingEnv).elementUtils
-}
+val XTestInvocation.javaElementUtils: Elements
+    get() = (processingEnv as JavacProcessingEnv).elementUtils

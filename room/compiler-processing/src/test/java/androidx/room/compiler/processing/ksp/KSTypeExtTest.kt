@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.safeTypeName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat

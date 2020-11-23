@@ -20,8 +20,9 @@ import androidx.room.compiler.processing.XNullability.NONNULL
 import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.isDeclared
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
+import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
@@ -461,7 +462,7 @@ class KspTypeTest {
                     .single()
                     .type
                     .let { typeRef ->
-                        invocation.processingEnv.wrap(
+                        env.wrap(
                             ksType = typeRef!!.resolve(),
                             allowPrimitives = false
                         )
@@ -500,7 +501,7 @@ class KspTypeTest {
                 ?.first {
                     it.simpleName.asString() == "wildcardMethod"
                 } ?: throw AssertionError("cannot find test method")
-            val paramType = invocation.processingEnv.wrap(
+            val paramType = env.wrap(
                 ksType = method.parameters.first().type.resolve(),
                 allowPrimitives = false
             )
@@ -516,12 +517,12 @@ class KspTypeTest {
         }
     }
 
-    private fun TestInvocation.requirePropertyType(name: String): KspType {
+    private fun XTestInvocation.requirePropertyType(name: String): KspType {
         val prop = requireProperty(name)
         return (processingEnv as KspProcessingEnv).wrap(prop.type)
     }
 
-    private fun TestInvocation.requireDeclaredPropertyType(name: String): KspDeclaredType {
+    private fun XTestInvocation.requireDeclaredPropertyType(name: String): KspDeclaredType {
         val prop = requireProperty(name)
         val result =
             (processingEnv as KspProcessingEnv).wrap(
@@ -532,7 +533,7 @@ class KspTypeTest {
         return result
     }
 
-    private fun TestInvocation.requireProperty(name: String): KSPropertyDeclaration {
+    private fun XTestInvocation.requireProperty(name: String): KSPropertyDeclaration {
         kspResolver.getAllFiles().forEach { file ->
             return file.declarations.first {
                 it.simpleName.asString() == name

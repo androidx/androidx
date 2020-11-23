@@ -479,10 +479,11 @@ class KotlinMetadataElementTest {
         handler: (ProcessingEnvironment) -> Unit
     ) {
         runProcessorTest(sources) {
-            if (it.processingEnv !is JavacProcessingEnv) {
+            val processingEnv = it.processingEnv
+            if (processingEnv !is JavacProcessingEnv) {
                 throw AssumptionViolatedException("This test only works for java/kapt compilation")
             }
-            handler(it.processingEnv.delegate)
+            handler(processingEnv.delegate)
         }
     }
 

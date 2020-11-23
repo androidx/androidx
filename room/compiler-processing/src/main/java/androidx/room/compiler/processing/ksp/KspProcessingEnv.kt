@@ -40,6 +40,7 @@ internal class KspProcessingEnv(
     logger: KSPLogger,
     val resolver: Resolver
 ) : XProcessingEnv {
+    override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
 
     private val typeElementStore =
         XTypeElementStore { qName ->
