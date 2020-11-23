@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,93 +18,38 @@ package androidx.wear.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 
 /**
- * Special layout that finishes its activity when swiped away.
- *
- * <p>This is a modified copy of the internal framework class
- * com.android.internal.widget.SwipeDismissLayout.
+ * Controller that handles the swipe-to-dismiss gesture for dismiss the frame layout
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 @UiThread
-class SwipeDismissLayout extends FrameLayout {
-    private static final String TAG = "SwipeDismissLayout";
+class SwipeDismissController extends DismissController {
+    private static final String TAG = "SwipeDismissController";
 
     public static final float DEFAULT_DISMISS_DRAG_WIDTH_RATIO = .33f;
     // A value between 0.0 and 1.0 determining the percentage of the screen on the left-hand-side
     // where edge swipe gestures are permitted to begin.
     private static final float EDGE_SWIPE_THRESHOLD = 0.1f;
+    private static final float TRANSLATION_MIN_ALPHA = 0.5f;
+    private static final float DEFAULT_INTERPOLATION_FACTOR = 1.5f;
 
-    /** Called when the layout is about to consider a swipe. */
-    @UiThread
-    interface OnPreSwipeListener {
-        /**
-         * Notifies listeners that the view is now considering to start a dismiss gesture from a
-         * particular point on the screen. The default implementation returns true for all
-         * coordinates so that is is possible to start a swipe-to-dismiss gesture from any location.
-         * If any one instance of this Callback returns false for a given set of coordinates,
-         * swipe-to-dismiss will not be allowed to start in that point.
-         *
-         * @param xDown the x coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
-         *              event for this motion
-         * @param yDown the y coordinate of the initial {@link android.view.MotionEvent#ACTION_DOWN}
-         *              event for this motion
-         * @return {@code true} if these coordinates should be considered as a start of a swipe
-         * gesture, {@code false} otherwise
-         */
-        boolean onPreSwipe(SwipeDismissLayout swipeDismissLayout, float xDown, float yDown);
-    }
-
-    /**
-     * Interface enabling listeners to react to when the swipe gesture is done and the view should
-     * probably be dismissed from the UI.
-     */
-    @UiThread
-    interface OnDismissedListener {
-        void onDismissed(SwipeDismissLayout layout);
-    }
-
-    /**
-     * Interface enabling listeners to react to changes in the progress of the swipe-to-dismiss
-     * gesture.
-     */
-    @UiThread
-    interface OnSwipeProgressChangedListener {
-        /**
-         * Called when the layout has been swiped and the position of the window should change.
-         *
-         * @param layout    the layout associated with this listener.
-         * @param progress  a number in [0, 1] representing how far to the right the window has
-         *                  been swiped
-         * @param translate a number in [0, w], where w is the width of the layout. This is
-         *                  equivalent to progress * layout.getWidth()
-         */
-        void onSwipeProgressChanged(SwipeDismissLayout layout, float progress, float translate);
-
-        /**
-         * Called when the layout started to be swiped away but then the gesture was canceled.
-         *
-         * @param layout    the layout associated with this listener
-         */
-        void onSwipeCanceled(SwipeDismissLayout layout);
-    }
-
-    // Cached ViewConfiguration and system-wide constant values
+    // Cached ViewConfiguration and system-wide constant value
     private int mSlop;
     private int mMinFlingVelocity;
     private float mGestureThresholdPx;
@@ -113,7 +58,6 @@ class SwipeDismissLayout extends FrameLayout {
     private int mActiveTouchId;
     private float mDownX;
     private float mDownY;
-    private boolean mSwipeable;
     private boolean mSwiping;
     // This variable holds information about whether the initial move of a longer swipe
     // (consisting of multiple move events) has conformed to the definition of a horizontal
@@ -124,109 +68,52 @@ class SwipeDismissLayout extends FrameLayout {
     private boolean mDiscardIntercept;
     private VelocityTracker mVelocityTracker;
     private float mTranslationX;
-    private boolean mDisallowIntercept;
-
-    @Nullable
-    private OnPreSwipeListener mOnPreSwipeListener;
-    private OnDismissedListener mDismissedListener;
-    private OnSwipeProgressChangedListener mProgressListener;
-
     private float mLastX;
     private float mDismissMinDragWidthRatio = DEFAULT_DISMISS_DRAG_WIDTH_RATIO;
+    boolean mStarted;
+    final int mAnimationTime;
 
-    SwipeDismissLayout(Context context) {
-        this(context, null);
-    }
+    final DecelerateInterpolator mCancelInterpolator;
+    final AccelerateInterpolator mDismissInterpolator;
+    final DecelerateInterpolator mCompleteDismissGestureInterpolator;
 
-    SwipeDismissLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
+    SwipeDismissController(Context context, DismissibleFrameLayout layout) {
+        super(context, layout);
 
-    SwipeDismissLayout(Context context, AttributeSet attrs, int defStyle) {
-        this(context, attrs, defStyle, 0);
-    }
-
-    SwipeDismissLayout(Context context, AttributeSet attrs, int defStyle, int defStyleRes) {
-        super(context, attrs, defStyle, defStyleRes);
         ViewConfiguration vc = ViewConfiguration.get(context);
         mSlop = vc.getScaledTouchSlop();
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
         mGestureThresholdPx =
                 Resources.getSystem().getDisplayMetrics().widthPixels * EDGE_SWIPE_THRESHOLD;
-
-        // By default, the view is swipeable.
-        setSwipeable(true);
+        mAnimationTime = context.getResources().getInteger(
+                android.R.integer.config_shortAnimTime);
+        mCancelInterpolator = new DecelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
+        mDismissInterpolator = new AccelerateInterpolator(DEFAULT_INTERPOLATION_FACTOR);
+        mCompleteDismissGestureInterpolator = new DecelerateInterpolator(
+                DEFAULT_INTERPOLATION_FACTOR);
     }
 
-    /**
-     * Sets the minimum ratio of the screen after which the swipe gesture is treated as swipe-to-
-     * dismiss.
-     *
-     * @param ratio  the ratio of the screen at which the swipe gesture is treated as
-     *               swipe-to-dismiss. should be provided as a fraction of the screen
-     */
-    public void setDismissMinDragWidthRatio(float ratio) {
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (mLayout.getParent() != null) {
+            mLayout.getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
+        }
+    }
+
+    void setDismissMinDragWidthRatio(float ratio) {
         mDismissMinDragWidthRatio = ratio;
     }
 
-    /**
-     * Returns the current ratio of te screen at which the swipe gesture is treated as
-     * swipe-to-dismiss.
-     *
-     * @return the current ratio of te screen at which the swipe gesture is treated as
-     * swipe-to-dismiss
-     */
-    public float getDismissMinDragWidthRatio() {
+    float getDismissMinDragWidthRatio() {
         return mDismissMinDragWidthRatio;
     }
 
-    /**
-     * Sets the layout to swipeable or not. This effectively turns the functionality of this layout
-     * on or off.
-     *
-     * @param swipeable whether the layout should react to the swipe gesture
-     */
-    public void setSwipeable(boolean swipeable) {
-        mSwipeable = swipeable;
-    }
-
-    /** Returns true if the layout reacts to swipe gestures. */
-    public boolean isSwipeable() {
-        return mSwipeable;
-    }
-
-    void setOnPreSwipeListener(@Nullable OnPreSwipeListener listener) {
-        mOnPreSwipeListener = listener;
-    }
-
-    void setOnDismissedListener(@Nullable OnDismissedListener listener) {
-        mDismissedListener = listener;
-    }
-
-    void setOnSwipeProgressChangedListener(@Nullable OnSwipeProgressChangedListener listener) {
-        mProgressListener = listener;
-    }
-
-    @Override
-    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        mDisallowIntercept = disallowIntercept;
-        if (getParent() != null) {
-            getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
-        }
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (!mSwipeable) {
-            return super.onInterceptTouchEvent(ev);
-        }
-
+    boolean onInterceptTouchEvent(MotionEvent ev) {
         // offset because the view is translated during swipe
         ev.offsetLocation(mTranslationX, 0);
 
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                resetMembers();
+                resetSwipeDetectMembers();
                 mDownX = ev.getRawX();
                 mDownY = ev.getRawY();
                 mActiveTouchId = ev.getPointerId(0);
@@ -250,7 +137,7 @@ class SwipeDismissLayout extends FrameLayout {
 
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                resetMembers();
+                resetSwipeDetectMembers();
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -268,7 +155,8 @@ class SwipeDismissLayout extends FrameLayout {
                 float x = ev.getX(pointerIndex);
                 float y = ev.getY(pointerIndex);
 
-                if (dx != 0 && mDownX >= mGestureThresholdPx && canScroll(this, false, dx, x, y)) {
+                if (dx != 0 && mDownX >= mGestureThresholdPx
+                        && canScroll(mLayout, false, dx, x, y)) {
                     mDiscardIntercept = true;
                     break;
                 }
@@ -276,19 +164,14 @@ class SwipeDismissLayout extends FrameLayout {
                 break;
         }
 
-        if ((mOnPreSwipeListener == null && !mDisallowIntercept)
-                || mOnPreSwipeListener.onPreSwipe(this, mDownX, mDownY)) {
-            return (!mDiscardIntercept && mSwiping);
-        }
-        return false;
+        return (!mDiscardIntercept && mSwiping);
     }
 
-    @Override
     public boolean canScrollHorizontally(int direction) {
         // This view can only be swiped horizontally from left to right - this means a negative
         // SCROLLING direction. We return false if the view is not visible to avoid capturing swipe
         // gestures when the view is hidden.
-        return direction < 0 && isSwipeable() && getVisibility() == View.VISIBLE;
+        return direction < 0 && mLayout.getVisibility() == View.VISIBLE;
     }
 
     /**
@@ -303,18 +186,9 @@ class SwipeDismissLayout extends FrameLayout {
         return (dx * dx) + (dy * dy) > mSlop * mSlop;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (!mSwipeable) {
-            return super.onTouchEvent(ev);
-        }
-
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
         if (mVelocityTracker == null) {
-            return super.onTouchEvent(ev);
-        }
-
-        if (mOnPreSwipeListener != null && !mOnPreSwipeListener.onPreSwipe(this, mDownX, mDownY)) {
-            return super.onTouchEvent(ev);
+            return false;
         }
 
         // offset because the view is translated during swipe
@@ -327,12 +201,12 @@ class SwipeDismissLayout extends FrameLayout {
                 } else if (mSwiping) {
                     cancel();
                 }
-                resetMembers();
+                resetSwipeDetectMembers();
                 break;
 
             case MotionEvent.ACTION_CANCEL:
                 cancel();
-                resetMembers();
+                resetSwipeDetectMembers();
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -349,25 +223,67 @@ class SwipeDismissLayout extends FrameLayout {
 
     private void setProgress(float deltaX) {
         mTranslationX = deltaX;
-        if (mProgressListener != null && deltaX >= 0) {
-            mProgressListener.onSwipeProgressChanged(this, deltaX / getWidth(), deltaX);
+        mLayout.setTranslationX(deltaX);
+        mLayout.setAlpha(1 - (deltaX / mLayout.getWidth() * TRANSLATION_MIN_ALPHA));
+        mStarted = true;
+
+        if (mDismissListener != null && deltaX >= 0) {
+            mDismissListener.onDismissStarted();
         }
     }
 
-    private void dismiss() {
-        if (mDismissedListener != null) {
-            mDismissedListener.onDismissed(this);
-        }
+    void dismiss() {
+        mLayout.animate()
+                .translationX(mLayout.getWidth())
+                .alpha(0)
+                .setDuration(mAnimationTime)
+                .setInterpolator(
+                        mStarted ? mCompleteDismissGestureInterpolator
+                                : mDismissInterpolator)
+                .withEndAction(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mDismissListener != null) {
+                                    mDismissListener.onDismissed();
+                                }
+                                resetTranslationAndAlpha();
+                            }
+                        });
     }
 
-    private void cancel() {
-        if (mProgressListener != null) {
-            mProgressListener.onSwipeCanceled(this);
-        }
+    void cancel() {
+        mStarted = false;
+        mLayout.animate()
+                .translationX(0)
+                .alpha(1)
+                .setDuration(mAnimationTime)
+                .setInterpolator(mCancelInterpolator)
+                .withEndAction(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mDismissListener != null) {
+                                    mDismissListener.onDismissCanceled();
+                                }
+                                resetTranslationAndAlpha();
+                            }
+                        });
+    }
+
+    /**
+     * Resets this view to the original state. This method cancels any pending animations on this
+     * view and resets the alpha as well as x translation values.
+     */
+    void resetTranslationAndAlpha() {
+        mLayout.animate().cancel();
+        mLayout.setTranslationX(0);
+        mLayout.setAlpha(1);
+        mStarted = false;
     }
 
     /** Resets internal members when canceling or finishing a given gesture. */
-    private void resetMembers() {
+    private void resetSwipeDetectMembers() {
         if (mVelocityTracker != null) {
             mVelocityTracker.recycle();
         }
@@ -379,7 +295,6 @@ class SwipeDismissLayout extends FrameLayout {
         mDismissed = false;
         mDiscardIntercept = false;
         mCanStartSwipe = true;
-        mDisallowIntercept = false;
     }
 
     private void updateSwiping(MotionEvent ev) {
@@ -397,12 +312,13 @@ class SwipeDismissLayout extends FrameLayout {
         }
     }
 
-    private void updateDismiss(MotionEvent ev) {
+    private void updateDismiss(@NonNull MotionEvent ev) {
         float deltaX = ev.getRawX() - mDownX;
         mVelocityTracker.addMovement(ev);
         mVelocityTracker.computeCurrentVelocity(1000);
         if (!mDismissed) {
-            if ((deltaX > (getWidth() * mDismissMinDragWidthRatio) && ev.getRawX() >= mLastX)
+            if ((deltaX > (mLayout.getWidth() * mDismissMinDragWidthRatio)
+                    && ev.getRawX() >= mLastX)
                     || mVelocityTracker.getXVelocity() >= mMinFlingVelocity) {
                 mDismissed = true;
             }
@@ -427,7 +343,7 @@ class SwipeDismissLayout extends FrameLayout {
      * @param y      y coordinate of the active touch point
      * @return {@code true} if child views of v can be scrolled by delta of dx
      */
-    protected boolean canScroll(View v, boolean checkV, float dx, float x, float y) {
+    protected boolean canScroll(@NonNull View v, boolean checkV, float dx, float x, float y) {
         if (v instanceof ViewGroup) {
             final ViewGroup group = (ViewGroup) v;
             final int scrollX = v.getScrollX();

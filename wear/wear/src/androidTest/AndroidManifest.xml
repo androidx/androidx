@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="androidx.wear.widget.SwipeDismissFrameLayoutTestActivity"
+        <activity android:name="androidx.wear.widget.DismissibleFrameLayoutTestActivity"
                   android:theme="@style/AppThemeNoSwipe">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
