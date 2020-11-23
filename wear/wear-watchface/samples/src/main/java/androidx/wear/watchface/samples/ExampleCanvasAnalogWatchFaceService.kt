@@ -112,6 +112,11 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
                 "green_style",
                 "Green",
                 Icon.createWithResource(context, R.drawable.green_style)
+            ),
+            ListUserStyleSetting.ListOption(
+                "blue_style",
+                "Blue",
+                Icon.createWithResource(context, R.drawable.blue_style)
             )
         ),
         listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
@@ -232,7 +237,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         listOf(leftComplication, rightComplication),
         userStyleRepository
     )
-    val renderer = ExampleCanvasRenderer(
+    val renderer = ExampleAnalogWatchCanvasRenderer(
         surfaceHolder,
         context,
         watchFaceStyle,
@@ -251,7 +256,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
     )
 }
 
-class ExampleCanvasRenderer(
+class ExampleAnalogWatchCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
@@ -376,7 +381,7 @@ class ExampleCanvasRenderer(
 
         if (renderParameters.drawMode == DrawMode.AMBIENT) {
             clockHandPaint.style = Paint.Style.STROKE
-            clockHandPaint.color = style.hourHandColor
+            clockHandPaint.color = style.primaryColor
             canvas.scale(
                 watchHandScale,
                 watchHandScale,
@@ -393,7 +398,7 @@ class ExampleCanvasRenderer(
                 bounds.exactCenterY()
             )
 
-            clockHandPaint.color = style.minuteHandColor
+            clockHandPaint.color = style.secondaryColor
             canvas.scale(
                 watchHandScale,
                 watchHandScale,
@@ -411,7 +416,7 @@ class ExampleCanvasRenderer(
             )
         } else {
             clockHandPaint.style = Paint.Style.FILL
-            clockHandPaint.color = style.hourHandColor
+            clockHandPaint.color = style.primaryColor
             canvas.scale(
                 watchHandScale,
                 watchHandScale,
@@ -428,7 +433,7 @@ class ExampleCanvasRenderer(
                 bounds.exactCenterY()
             )
 
-            clockHandPaint.color = style.minuteHandColor
+            clockHandPaint.color = style.secondaryColor
             canvas.scale(
                 watchHandScale,
                 watchHandScale,
@@ -447,7 +452,7 @@ class ExampleCanvasRenderer(
 
             val secondsRot = seconds / 60.0f * 360.0f
 
-            clockHandPaint.color = style.secondsHandColor
+            clockHandPaint.color = style.secondaryColor
             canvas.scale(
                 watchHandScale,
                 watchHandScale,

@@ -482,6 +482,29 @@ public class Complication internal constructor(
     internal var dataDirty = true
 
     /**
+     * The [androidx.wear.complications.data.ComplicationData] associated with the [Complication].
+     */
+    public val complicationData:
+        ObservableWatchData<androidx.wear.complications.data.ComplicationData> =
+            MutableObservableWatchData()
+
+    /**
+     * Whether or not the complication should be considered active and should be rendered at the
+     * specified time.
+     */
+    public fun isActiveAt(dateTimeMillis: Long): Boolean {
+        if (!complicationData.hasValue()) {
+            return false
+        }
+        return when (complicationData.value.type) {
+            ComplicationType.NO_DATA -> false
+            ComplicationType.NO_PERMISSION -> false
+            ComplicationType.EMPTY -> false
+            else -> complicationData.value.isActiveAt(dateTimeMillis)
+        }
+    }
+
+    /**
      * Watch faces should use this method to render a complication. Note the system may call this.
      *
      * @param canvas The [Canvas] to render into
