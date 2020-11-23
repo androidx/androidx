@@ -46,7 +46,7 @@ internal class KspFieldElement(
         declaration.simpleName.asString()
     }
 
-    override val type: XType by lazy {
+    override val type: KspType by lazy {
         env.wrap(
             originatingReference = declaration.type,
             ksType = declaration.typeAsMemberOf(env.resolver, containing.type.ksType)
