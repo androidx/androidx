@@ -32,7 +32,7 @@ sealed class CompilationMode(
     }
 
     class SpeedProfile(val warmupIterations: Int = 3) : CompilationMode("speed-profile") {
-        override fun toString() = "CompilationMode.SpeedProfile (iterations =$warmupIterations)"
+        override fun toString() = "CompilationMode.SpeedProfile(iterations=$warmupIterations)"
     }
 
     object Speed : CompilationMode("speed") {
