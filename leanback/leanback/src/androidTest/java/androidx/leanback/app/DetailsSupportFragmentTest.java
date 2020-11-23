@@ -54,7 +54,6 @@ import androidx.leanback.widget.ParallaxTarget;
 import androidx.leanback.widget.RecyclerViewParallax;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -479,7 +478,6 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         fragmentOnStartWithVideoInternal(DetailsSupportFragmentWithVideo2.class);
     }
 
-    @FlakyTest
     @Test
     public void navigateBetweenRowsAndTitle() throws Throwable {
         SingleSupportFragmentTestActivity activity =
@@ -508,6 +506,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
             }
         });
         final View firstRow = detailsFragment.getRowsSupportFragment().getVerticalGridView().getChildAt(0);
+        PollingCheck.waitFor(new PollingCheck.ViewStableOnScreen(firstRow));
         final int originalFirstRowTop = firstRow.getTop();
         final int screenHeight = detailsFragment.getRowsSupportFragment().getVerticalGridView()
                 .getHeight();
