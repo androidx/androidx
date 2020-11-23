@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,13 +33,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
-import androidx.leanback.R;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
 import androidx.leanback.media.PlaybackGlueHost;
+import androidx.leanback.test.R;
+import androidx.leanback.testutils.LeakDetector;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.transition.TransitionHelper;
 import androidx.leanback.util.StateMachine;
@@ -1215,5 +1221,72 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
                 detailsFragment.startEntranceTransition();
             }
         });
+    }
+
+    public static final class EmptyFragment extends Fragment {
+        EditText mEditText;
+
+        @Override
+        public View onCreateView(
+                final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return mEditText = new EditText(container.getContext());
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+            // focus IME on the new fragment because there is a memory leak that IME remembers
+            // last editable view, which will cause a false reporting of leaking View.
+            InputMethodManager imm =
+                    (InputMethodManager) getActivity()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+            mEditText.requestFocus();
+            imm.showSoftInput(mEditText, 0);
+        }
+
+        @Override
+        public void onDestroyView() {
+            mEditText = null;
+            super.onDestroyView();
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // API 17 retains local Variable
+    @Test
+    public void viewLeakTest() throws Throwable {
+        SingleSupportFragmentTestActivity activity = launchAndWaitActivity(
+                DetailsSupportFragmentEntranceTransition.class, new Options().uiVisibility(
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN),
+                1000);
+
+        View fragmentView = activity.getTestFragment().getView();
+        RowsSupportFragment rowsSupportFragment =
+                ((DetailsSupportFragmentEntranceTransition) activity.getTestFragment())
+                        .getRowsSupportFragment();
+        VerticalGridView gridView = rowsSupportFragment.getVerticalGridView();
+        LeakDetector leakDetector = new LeakDetector();
+        leakDetector.observeObject(fragmentView);
+        // Note: RowsSupportFragment is referred by childFragmentManager of details fragment.
+        leakDetector.observeObject(gridView);
+        leakDetector.observeObject(gridView.getRecycledViewPool());
+        for (int i = 0; i < gridView.getChildCount(); i++) {
+            leakDetector.observeObject(gridView.getChildAt(i));
+        }
+        fragmentView = null;
+        rowsSupportFragment = null;
+        gridView = null;
+        EmptyFragment emptyFragment = new EmptyFragment();
+        activity.getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_frame, emptyFragment)
+                .addToBackStack("BK")
+                .commit();
+
+        PollingCheck.waitFor(1000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return emptyFragment.isResumed();
+            }
+        });
+        leakDetector.assertNoLeak();
     }
 }
