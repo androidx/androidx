@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.datastore.rxjava2 {
+
+  public final class RxDataStore {
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Flowable<T> data(androidx.datastore.core.DataStore<T>);
+    method @kotlinx.coroutines.ExperimentalCoroutinesApi public static <T> io.reactivex.Single<T> updateDataAsync(androidx.datastore.core.DataStore<T>, io.reactivex.functions.Function<T,io.reactivex.Single<T>> transform);
+  }
+
+}
+
