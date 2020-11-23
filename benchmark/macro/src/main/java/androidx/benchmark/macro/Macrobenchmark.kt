@@ -144,7 +144,7 @@ fun macrobenchmark(
 
         val statsList = listResults.map { (metricName, values) ->
             Stats(values.toLongArray(), metricName)
-        }
+        }.sortedBy { it.name }
 
         InstrumentationResults.instrumentationReport {
             ideSummaryRecord(ideSummaryString(benchmarkName, statsList))
@@ -169,7 +169,7 @@ fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
         val displayMin = it.min.toString().padStart(maxValueLength)
         val displayMedian = it.median.toString().padStart(maxValueLength)
         val displayMax = it.max.toString().padStart(maxValueLength)
-        "$displayName   min: $displayMin,   median $displayMedian,   max $displayMax"
+        "$displayName   min $displayMin,   median $displayMedian,   max $displayMax"
     } + "\n"
 }
 

@@ -17,7 +17,6 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.CpuUsageMetric
 import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.benchmark.macro.StartupTimingMetric
@@ -39,7 +38,7 @@ class MacrobenchmarkRuleTest {
     fun basicTest() = benchmarkRule.measureRepeated(
         MacrobenchmarkConfig(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
-            listOf(StartupTimingMetric(), CpuUsageMetric()),
+            listOf(StartupTimingMetric()),
             CompilationMode.Speed,
             killProcessEachIteration = true,
             iterations = 4
