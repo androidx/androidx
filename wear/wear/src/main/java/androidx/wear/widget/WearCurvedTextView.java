@@ -716,14 +716,14 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     }
 
     /**  returns the text to be rendered */
-    @NonNull
+    @Nullable
     public String getText() {
         return mText;
     }
 
     /** sets the text to be rendered */
-    public void setText(@NonNull String value) {
-        mText = value;
+    public void setText(@Nullable String value) {
+        mText = value == null ? "" : value;
         doUpdate();
     }
 
