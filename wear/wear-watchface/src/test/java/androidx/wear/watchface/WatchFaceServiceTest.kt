@@ -204,10 +204,10 @@ class WatchFaceServiceTest {
                 idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
             },
             listOf(
-                ComplicationType.BACKGROUND_IMAGE
+                ComplicationType.PHOTO_IMAGE
             ),
             DefaultComplicationProviderPolicy()
-        ).setDefaultProviderType(ComplicationType.BACKGROUND_IMAGE)
+        ).setDefaultProviderType(ComplicationType.PHOTO_IMAGE)
             .build()
 
     private val leftAndRightComplicationsOption = ComplicationsOption(
