@@ -17,6 +17,10 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
@@ -26,6 +30,7 @@ import kotlin.reflect.KClass
  */
 interface XProcessingEnv {
 
+    val backend: XProcessingEnv.Backend
     /**
      * The logger interface to log messages
      */
@@ -105,10 +110,30 @@ interface XProcessingEnv {
 
     fun getArrayType(typeName: TypeName) = getArrayType(requireType(typeName))
 
+    enum class Backend {
+        JAVAC,
+        KSP
+    }
+
     companion object {
         /**
          * Creates a new [XProcessingEnv] implementation derived from the given Java [env].
          */
         fun create(env: ProcessingEnvironment): XProcessingEnv = JavacProcessingEnv(env)
+
+        /**
+         * Creates a new [XProcessingEnv] implementation derived from the given KSP environment.
+         */
+        fun create(
+            options: Map<String, String>,
+            resolver: Resolver,
+            codeGenerator: CodeGenerator,
+            logger: KSPLogger
+        ): XProcessingEnv = KspProcessingEnv(
+            options = options,
+            codeGenerator = codeGenerator,
+            logger = logger,
+            resolver = resolver
+        )
     }
 }

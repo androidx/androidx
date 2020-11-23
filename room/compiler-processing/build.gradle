@@ -53,6 +53,7 @@ dependencies {
             strictly KSP_VERSION
         }
     }
+    testImplementation(project(":room:room-compiler-processing-testing"))
 }
 
 compileKotlin {

@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PR
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PROTECTED
 import androidx.room.compiler.processing.ksp.KspFieldElementTest.TestModifier.PUBLIC
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
@@ -227,7 +227,7 @@ class KspFieldElementTest {
         }
     }
 
-    private fun assertModifiers(invocation: TestInvocation, inputs: Array<out ModifierTestInput>) {
+    private fun assertModifiers(invocation: XTestInvocation, inputs: Array<out ModifierTestInput>) {
         inputs.forEach { input ->
             val element = invocation.processingEnv.requireTypeElement(input.qName)
             input.expected.forEach { (name, modifier) ->
