@@ -145,6 +145,17 @@ class JankMetric : Metric() {
         "janky_frames_percent" to "jankyFramePercent",
     )
 
+    /**
+     * Filters output to only frameTimeXXthPercentileMs and totalFrameCount
+     */
+    private val keyAllowList = setOf(
+        "frameTime50thPercentileMs",
+        "frameTime90thPercentileMs",
+        "frameTime95thPercentileMs",
+        "frameTime99thPercentileMs",
+        "totalFrameCount",
+    )
+
     override fun getMetrics(packageName: String): Map<String, Long> {
         return helper.metrics
             .map {
@@ -159,7 +170,9 @@ class JankMetric : Metric() {
                 } else {
                     throw IllegalStateException("Unexpected key ${it.key}")
                 }
-            }.toMap()
+            }
+            .toMap()
+            .filterKeys { keyAllowList.contains(it) }
     }
 }
 
