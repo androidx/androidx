@@ -16,15 +16,14 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 
 class SyntheticKspProcessor(
-    private val handler: (TestInvocation) -> Unit
+    private val handler: (XTestInvocation) -> Unit
 ) : SymbolProcessor {
     private var result: Result<Unit>? = null
     private lateinit var options: Map<String, String>
@@ -47,12 +46,12 @@ class SyntheticKspProcessor(
     override fun process(resolver: Resolver) {
         result = kotlin.runCatching {
             handler(
-                TestInvocation(
-                    processingEnv = KspProcessingEnv(
+                XTestInvocation(
+                    processingEnv = XProcessingEnv.create(
                         options,
+                        resolver,
                         codeGenerator,
-                        logger,
-                        resolver
+                        logger
                     )
                 )
             )

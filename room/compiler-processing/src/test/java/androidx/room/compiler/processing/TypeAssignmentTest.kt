@@ -17,7 +17,7 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.TestInvocation
+import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
@@ -99,7 +99,7 @@ class TypeAssignmentTest {
         }
     }
 
-    private fun runTest(handler: TestInvocation.() -> Unit) {
+    private fun runTest(handler: XTestInvocation.() -> Unit) {
         runProcessorTest(
             sources = listOf(TEST_OBJECT),
             handler = handler
