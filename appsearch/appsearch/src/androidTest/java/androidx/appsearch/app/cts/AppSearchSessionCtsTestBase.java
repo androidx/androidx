@@ -649,6 +649,43 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testQuery_getPackageName() throws Exception {
+        // Schema registration
+        mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(inEmail).build()));
+
+        // Query for the document
+        SearchResults searchResults = mDb1.query("body", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .build());
+
+        List<SearchResult> results;
+        List<GenericDocument> documents = new ArrayList<>();
+        // keep loading next page until it's empty.
+        do {
+            results = searchResults.getNextPage().get();
+            for (SearchResult result : results) {
+                assertThat(result.getDocument()).isEqualTo(inEmail);
+                assertThat(result.getPackageName()).isEqualTo(
+                        ApplicationProvider.getApplicationContext().getPackageName());
+                documents.add(result.getDocument());
+            }
+        } while (results.size() > 0);
+        assertThat(documents).hasSize(1);
+    }
+
+    @Test
     public void testQuery_twoInstances() throws Exception {
         // Schema registration
         mDb1.setSchema(new SetSchemaRequest.Builder()
