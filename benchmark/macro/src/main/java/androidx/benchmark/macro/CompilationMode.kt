@@ -16,6 +16,8 @@
 
 package androidx.benchmark.macro
 
+import androidx.test.platform.app.InstrumentationRegistry
+
 sealed class CompilationMode(
     // for modes other than [None], is argument passed `cmd package compile`
     private val compileArgument: String?
@@ -38,4 +40,24 @@ sealed class CompilationMode(
     object Speed : CompilationMode("speed") {
         override fun toString() = "CompilationMode.Speed"
     }
+}
+
+internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    // Clear profile between runs.
+    clearProfile(instrumentation, packageName)
+    if (this == CompilationMode.None) {
+        return // nothing to do
+    }
+    if (this is CompilationMode.SpeedProfile) {
+        repeat(this.warmupIterations) {
+            block()
+        }
+    }
+    // TODO: merge in below method
+    compilationFilter(
+        InstrumentationRegistry.getInstrumentation(),
+        packageName,
+        compileArgument()
+    )
 }

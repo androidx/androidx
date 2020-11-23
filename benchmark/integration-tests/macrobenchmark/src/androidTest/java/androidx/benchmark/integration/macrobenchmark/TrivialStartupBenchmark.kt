@@ -19,32 +19,40 @@ package androidx.benchmark.integration.macrobenchmark
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
+import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 29)
-@RunWith(AndroidJUnit4::class)
-class MacrobenchmarkRuleTest {
+@RunWith(Parameterized::class)
+class TrivialStartupBenchmark(private val startupMode: StartupMode) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun basicTest() = benchmarkRule.measureRepeated(
+    fun startup() = benchmarkRule.measureStartupRepeated(
         MacrobenchmarkConfig(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             listOf(StartupTimingMetric()),
             CompilationMode.Speed,
-            killProcessEachIteration = true,
-            iterations = 4
-        )
+            iterations = 3
+        ),
+        startupMode
     ) {
         pressHome()
         launchPackageAndWait()
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "mode={0}")
+        @JvmStatic
+        fun parameters(): List<Array<Any>> {
+            return listOf(StartupMode.COLD, StartupMode.WARM, StartupMode.HOT)
+                .map { arrayOf(it) }
+        }
     }
 }
