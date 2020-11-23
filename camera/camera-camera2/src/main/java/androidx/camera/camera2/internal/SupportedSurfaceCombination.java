@@ -431,7 +431,13 @@ final class SupportedSurfaceCombination {
 
             // Put available sizes into final result list by aspect ratio distance to target ratio.
             for (Rational rational : aspectRatios) {
-                supportedResolutions.addAll(aspectRatioSizeListMap.get(rational));
+                for (Size size : aspectRatioSizeListMap.get(rational)) {
+                    // A size may exist in multiple groups in mod16 condition. Keep only one in
+                    // the final list.
+                    if (!supportedResolutions.contains(size)) {
+                        supportedResolutions.add(size);
+                    }
+                }
             }
         }
 
@@ -561,19 +567,22 @@ final class SupportedSurfaceCombination {
 
         for (Size outputSize : sizes) {
             Rational matchedKey = null;
+
             for (Rational key : aspectRatioSizeListMap.keySet()) {
+                // Put the size into all groups that is matched in mod16 condition since a size
+                // may match multiple aspect ratio in mod16 algorithm.
                 if (hasMatchingAspectRatio(outputSize, key)) {
                     matchedKey = key;
-                    break;
+
+                    List<Size> sizeList = aspectRatioSizeListMap.get(matchedKey);
+                    if (!sizeList.contains(outputSize)) {
+                        sizeList.add(outputSize);
+                    }
                 }
             }
 
-            if (matchedKey != null) {
-                List<Size> sizeList = aspectRatioSizeListMap.get(matchedKey);
-                if (!sizeList.contains(outputSize)) {
-                    sizeList.add(outputSize);
-                }
-            } else {
+            // Create new item if no matching group is found.
+            if (matchedKey == null) {
                 aspectRatioSizeListMap.put(
                         new Rational(outputSize.getWidth(), outputSize.getHeight()),
                         new ArrayList<>(Collections.singleton(outputSize)));
