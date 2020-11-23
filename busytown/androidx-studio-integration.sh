@@ -55,7 +55,7 @@ function exportTransformsDir() {
   echo exporting transforms directory
   destDir="$DIST_DIR/transforms-2/files-2.1"
   mkdir -p "$destDir"
-  cp -rT "$OUT_DIR/.gradle/caches/transforms-2/files-2.1" "$DIST_DIR/transforms-2/files-2.1"
+  zip -r "$DIST_DIR/transforms.zip" "$OUT_DIR/.gradle/caches/transforms-2/files-2.1"
 }
 
 if buildAndroidx; then
