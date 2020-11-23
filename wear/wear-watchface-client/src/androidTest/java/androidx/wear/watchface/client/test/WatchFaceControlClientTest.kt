@@ -274,6 +274,46 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient_initialStyle() {
+        val interactiveInstanceFuture =
+            service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                // An incomplete map which is OK.
+                mapOf(
+                    "color_style_setting" to "green_style",
+                    "draw_hour_pips_style_setting" to "false",
+                    "watch_hand_length_style_setting" to "0.8"
+                ),
+                complications
+            )
+
+        Mockito.`when`(surfaceHolder.surfaceFrame)
+            .thenReturn(Rect(0, 0, 400, 400))
+
+        // Create the engine which triggers creation of InteractiveWatchFaceWcsClient.
+        createEngine()
+
+        val interactiveInstance =
+            interactiveInstanceFuture.get(CONNECT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)!!
+
+        val bitmap = interactiveInstance.takeWatchFaceScreenshot(
+            RenderParameters(DrawMode.INTERACTIVE, RenderParameters.DRAW_ALL_LAYERS, null),
+            100,
+            1234567,
+            null,
+            complications
+        )
+
+        try {
+            bitmap.assertAgainstGolden(screenshotRule, "initialStyle")
+        } finally {
+            interactiveInstance.close()
+        }
+    }
+
+    @Test
     fun wallpaperServiceBackedInteractiveWatchFaceWcsClient_ComplicationDetails() {
         val interactiveInstanceFuture =
             service.getOrCreateWallpaperServiceBackedInteractiveWatchFaceWcsClient(

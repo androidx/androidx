@@ -29,24 +29,42 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 public class UserStyle(
     public val selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>
 ) {
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    /**
+     * Constructs a [UserStyle] from a Map<String, String> and the [UserStyleSchema]. Unrecognized
+     * style settings will be ignored. Unlisted style settings will be initialized with that
+     * settings default option.
+     */
     public constructor(
-        userStyle: UserStyleWireFormat,
+        userStyle: Map<String, String>,
         styleSchema: UserStyleSchema
     ) : this(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (styleSetting in styleSchema.userStyleSettings) {
-                val option = userStyle.mUserStyle[styleSetting.id] ?: continue
-                this[styleSetting] = styleSetting.getSettingOptionForId(option)
+                val option = userStyle[styleSetting.id]
+                if (option != null) {
+                    this[styleSetting] = styleSetting.getSettingOptionForId(option)
+                } else {
+                    this[styleSetting] = styleSetting.getDefaultOption()
+                }
             }
         }
     )
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public constructor(
+        userStyle: UserStyleWireFormat,
+        styleSchema: UserStyleSchema
+    ) : this(userStyle.mUserStyle, styleSchema)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun toWireFormat(): UserStyleWireFormat =
-        UserStyleWireFormat(selectedOptions.entries.associate { it.key.id to it.value.id })
+        UserStyleWireFormat(toMap())
+
+    /** Returns the style as a Map<String, String>. */
+    public fun toMap(): Map<String, String> =
+        selectedOptions.entries.associate { it.key.id to it.value.id }
 }
 
 /** Describes the list of [UserStyleSetting]s the user can configure. */
