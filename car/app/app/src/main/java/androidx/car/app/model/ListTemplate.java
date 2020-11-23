@@ -291,7 +291,7 @@ public final class ListTemplate implements Template {
                 throw new IllegalArgumentException("List cannot be empty");
             }
 
-            if (list.getOnItemsVisibilityChangeListener() != null) {
+            if (list.getOnItemsVisibilityChangedListener() != null) {
                 throw new IllegalArgumentException(
                         "OnItemVisibilityChangedListener in the list is disallowed");
             }
