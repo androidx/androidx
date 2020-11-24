@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
+import javax.lang.model.element.ElementKind
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
@@ -138,4 +139,7 @@ internal abstract class JavacType(
         private val BOXED_LONG = TypeName.LONG.box()
         private val BOXED_BYTE = TypeName.BYTE.box()
     }
+
+    override fun isEnum() = typeMirror.kind == TypeKind.DECLARED &&
+        MoreTypes.asElement(typeMirror).kind == ElementKind.ENUM
 }
