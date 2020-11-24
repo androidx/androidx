@@ -513,14 +513,13 @@ public class WearArcLayout extends ViewGroup {
 
         Matrix m = new Matrix();
         m.postRotate(-angle, cx, cy);
-        if (child instanceof ArcLayoutWidget) {
-            m.postTranslate(-(getMeasuredWidth() - child.getMeasuredWidth()) / 2,
-                    -(getMeasuredHeight() - child.getMeasuredHeight()) / 2);
-        } else {
-            m.postTranslate(-(getMeasuredWidth() - child.getMeasuredWidth()) / 2,
-                    -getChildTopInset(child));
+        m.postTranslate(-child.getX(), -child.getY());
+        if (!(child instanceof  ArcLayoutWidget)) {
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            if (!childLayoutParams.getRotate()) {
+                m.postRotate(angle, child.getWidth() / 2, child.getHeight() / 2);
+            }
         }
-
         m.mapPoints(point);
     }
 
@@ -588,24 +587,29 @@ public class WearArcLayout extends ViewGroup {
 
             // Do we need to do some counter rotation?
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+
             // For counterclockwise layout, especially when mixing standard Android widget with
             // ArcLayoutWidget as children, we might need to rotate the standard widget to make
-            // them with the same upwards direction. Note that the strange rotation center is
-            // because the child view is not x-centered but at the top of this container.
-            canvas.rotate(
-                    (mClockwise || !layoutParams.getRotate()) ? 0f : 180f,
-                    getMeasuredWidth() / 2f,
-                    child.getMeasuredHeight() / 2f
-            );
-
-            if (!layoutParams.getRotate()) {
-                // Re-rotate about the top of the canvas, around the center of the actual child.
-                int childInset = getChildTopInset(child);
-                canvas.rotate(
-                        -multiplier * (mCurrentCumulativeAngle + preRotation),
-                        getMeasuredWidth() / 2f,
-                        (child.getMeasuredHeight() / 2f) + childInset);
+            // them with the same upwards direction.
+            float angleToRotate = 0f;
+            if (layoutParams.getRotate() && !mClockwise) {
+                angleToRotate = 180f;
             }
+
+            // Un-rotate about the top of the canvas, around the center of the actual child.
+            // This compounds with the initial rotation into a translation.
+            if (!layoutParams.getRotate()) {
+                angleToRotate = -multiplier * (mCurrentCumulativeAngle + preRotation);
+            }
+
+            // Do the actual rotation. Note that the strange rotation center is because the child
+            // view is x-centered but at the top of this container.
+            int childInset = getChildTopInset(child);
+            canvas.rotate(
+                    angleToRotate,
+                    getMeasuredWidth() / 2f,
+                    child.getMeasuredHeight() / 2f + childInset
+            );
         }
 
         mCurrentCumulativeAngle += arcAngle;

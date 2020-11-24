@@ -196,6 +196,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         a.recycle();
 
         applyTextAppearance(attributes);
+
         mPaint.setTextSize(mTextSize);
     }
 
@@ -247,9 +248,10 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     @Override
     public boolean insideClickArea(float x, float y) {
-        // ascent is negative, and descent is positive so radius1 < radius2
-        float radius1 = mPathRadius - mPaint.getFontMetrics().descent;
-        float radius2 = mPathRadius - mPaint.getFontMetrics().ascent;
+        float radius2 = min(getWidth(), getHeight()) / 2f
+                - (mClockwise ? getPaddingTop() : getPaddingBottom());
+        float radius1 =
+                radius2 - mPaint.getFontMetrics().descent + mPaint.getFontMetrics().ascent;
 
         float dx = x - getWidth() / 2;
         float dy = y - getHeight() / 2;
@@ -460,13 +462,15 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
             return false;
         }
 
-        float x0 = event.getX() - getWidth() / 2;
-        float y0 = event.getY() - getHeight() / 2;
+        float x0 = event.getX();
+        float y0 = event.getY();
         if (!mParentRotateAngleSet) {
             // If we are a stand-alone widget, we have to handle our rotation / anchor placement,
             // if we are part of an arc container, it's handled by it.
             double rotAngle = -Math.toRadians(mLocalRotateAngle);
 
+            x0 -= getWidth() / 2;
+            y0 -= getHeight() / 2;
             float tempX = (float)
                     ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
             y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);

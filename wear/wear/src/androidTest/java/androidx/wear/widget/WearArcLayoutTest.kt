@@ -16,19 +16,42 @@
 
 package androidx.wear.widget
 
+import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.os.Bundle
+import android.util.AttributeSet
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.wear.test.R
+import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
+import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.any
+import org.hamcrest.Matcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -200,9 +223,141 @@ class WearArcLayoutTest {
         )
     }
 
+    // Generates a click in the x,y coordinates in the view's coordinate system.
+    fun customClick(x: Float, y: Float) = ViewActions.actionWithAssertions(
+        GeneralClickAction(
+            Tap.SINGLE,
+            { view ->
+                val xy = IntArray(2)
+                view.getLocationOnScreen(xy)
+                floatArrayOf(x + xy[0], y + xy[1])
+            },
+            Press.PINPOINT,
+            InputDevice.SOURCE_UNKNOWN,
+            MotionEvent.BUTTON_PRIMARY
+        )
+    )
+
+    // Sending clicks is slow, around a quarter of a second each, on a desktop emulator.
+    @Test(timeout = 100000)
+    fun testTouchEvents() {
+        val scenario = ActivityScenario.launch(TouchTestActivity::class.java)
+
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val widgetWidth = context.resources.getDimension(R.dimen.touch_test_widget_width)
+        val widgetHeight = context.resources.getDimension(R.dimen.touch_test_widget_height)
+
+        val STEP = 30
+
+        // Find the main FrameLayout that contains all widgets under test.
+        val theView = Espresso.onView(withId(R.id.curved_frame))
+            .perform(
+                waitForMatchingView(
+                    allOf(
+                        withId(R.id.curved_frame),
+                        isDisplayed()
+                    ),
+                    2000
+                )
+            )
+
+        // Setup on-click handlers for each view so we can get the index of the clicked view.
+        var clicked: Int
+        scenario.onActivity {
+            listOf(
+                R.id.curved_text1, R.id.curved_text2, R.id.curved_text3,
+                R.id.curved_text4, R.id.text5, R.id.curved_text6
+            ).mapIndexed { ix, viewId ->
+                it.findViewById<View>(viewId)?.setOnClickListener {
+                    clicked = ix
+                }
+            }
+        }
+
+        // Simulate clicks in a grid all over the screen and draw a circle centered in the
+        // position of the click and which color indicates the view that got clicked.
+        // Black means no view got the click event, white means a out of range value.
+        for (y in STEP / 2 until widgetHeight.toInt() step STEP) {
+            val points = mutableListOf<ColoredPoint>()
+            for (x in STEP / 2 until widgetWidth.toInt() step STEP) {
+                // Perform a click, and record a point colored according to which view was clicked.
+                clicked = -1
+                theView.perform(customClick(x.toFloat(), y.toFloat()))
+                points.add(
+                    ColoredPoint(
+                        x.toFloat(), y.toFloat(),
+                        // Color the circle.
+                        listOf(
+                            Color.BLACK, // no view got the event.
+                            Color.RED, Color.GREEN, Color.BLUE,
+                            Color.YELLOW, Color.MAGENTA, Color.CYAN
+                        ).elementAtOrNull(clicked + 1) ?: Color.WHITE
+                    )
+                )
+            }
+
+            // Add all circles on the current line to the DrawableSurface.
+            // Points are batched to improve performance a bit.
+            Espresso.onView(withId(R.id.drawable_surface)).perform(object : ViewAction {
+                override fun getConstraints(): Matcher<View> = any(View::class.java)
+                override fun getDescription(): String = "Add Points"
+                override fun perform(uiController: UiController?, view: View?) {
+                    (view as? DrawableSurface)?.addPoints(points)
+                }
+            })
+        }
+
+        // At the end, get a screenshot to compare against the golden
+        scenario.onActivity {
+            it.findViewById<View>(R.id.curved_frame).draw(canvas)
+        }
+        bitmap.assertAgainstGolden(screenshotRule, "touch_screenshot")
+    }
+
     companion object {
         private const val SCREEN_WIDTH = 390
         private const val SCREEN_HEIGHT = 390
         private const val TIMEOUT_MS = 1000L
+    }
+}
+
+// Helper activity for testing touch.
+class TouchTestActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.wear_arc_layout_touch_test)
+    }
+}
+
+data class ColoredPoint(val x: Float, val y: Float, val c: Int)
+
+// Helper class to draw some point/circles of different colors. Used by the touch test.
+open class DrawableSurface @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
+    private var points = mutableListOf<ColoredPoint>()
+
+    override fun onDraw(canvas: Canvas) {
+        val paint = Paint().apply {
+            strokeWidth = radius / 2f
+            style = Paint.Style.STROKE
+            alpha = 0
+        }
+        points.forEach { p ->
+            paint.color = p.c
+            canvas.drawCircle(p.x, p.y, radius, paint)
+        }
+    }
+
+    fun addPoints(newPoints: Collection<ColoredPoint>) {
+        points.addAll(newPoints)
+        invalidate()
+    }
+
+    companion object {
+        var radius = 6f
     }
 }
