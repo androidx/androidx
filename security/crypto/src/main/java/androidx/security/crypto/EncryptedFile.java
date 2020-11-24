@@ -28,9 +28,9 @@ import androidx.annotation.NonNull;
 import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
-import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.streamingaead.AesGcmHkdfStreamingKeyManager;
+import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -191,7 +191,7 @@ public final class EncryptedFile {
          */
         @NonNull
         public EncryptedFile build() throws GeneralSecurityException, IOException {
-            TinkConfig.register();
+            StreamingAeadConfig.register();
 
             KeysetHandle streadmingAeadKeysetHandle = new AndroidKeysetManager.Builder()
                     .withKeyTemplate(mFileEncryptionScheme.getKeyTemplate())
