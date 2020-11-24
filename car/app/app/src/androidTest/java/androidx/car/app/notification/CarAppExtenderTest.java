@@ -32,6 +32,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -178,6 +179,7 @@ public final class CarAppExtenderTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
     public void notification_extended_addActions() {
         int icon1 = R.drawable.ic_test_1;
         CharSequence title1 = "FirstAction";
