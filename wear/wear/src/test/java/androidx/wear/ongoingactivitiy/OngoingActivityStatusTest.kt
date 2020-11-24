@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
+import androidx.versionedparcelable.ParcelUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -42,16 +43,6 @@ open class OngoingActivityStatusTest {
             TextOngoingActivityStatus("Other").hashCode(),
             TextOngoingActivityStatus("Other").hashCode()
         )
-    }
-
-    @Test
-    fun testTextOngoingActivityStatusSerialization() {
-        val text = "Text"
-        val textStatus = TextOngoingActivityStatus(text)
-
-        val bundle = Bundle()
-        textStatus.extend(bundle)
-        assertEquals(textStatus, OngoingActivityStatus.create(bundle))
     }
 
     @Test
@@ -122,19 +113,24 @@ open class OngoingActivityStatusTest {
     }
 
     @Test
-    fun testTimerOngoingActivityStatusSerialization() {
+    fun testOngoingActivityStatusSerialization() {
+        val key = "KEY"
         listOf(
             TimerOngoingActivityStatus(1234L),
+            TextOngoingActivityStatus("Text1"),
             TimerOngoingActivityStatus(1234L, false),
             TimerOngoingActivityStatus(1234L, true),
             TimerOngoingActivityStatus(1234L, true, 5678L),
+            TextOngoingActivityStatus("Text2"),
             TimerOngoingActivityStatus(1234L, false, 5678L, 100L)
         ).forEach { original ->
             val bundle = Bundle()
-            original.extend(bundle)
+            ParcelUtils.putVersionedParcelable(bundle, key, original)
 
-            assertEquals(original, OngoingActivityStatus.create(bundle))
-            assertEquals(original.hashCode(), OngoingActivityStatus.create(bundle).hashCode())
+            val received = ParcelUtils.getVersionedParcelable<OngoingActivityStatus>(bundle, key)!!
+            assertEquals(original::class, received::class)
+            assertEquals(original, received)
+            assertEquals(original.hashCode(), received.hashCode())
         }
     }
 

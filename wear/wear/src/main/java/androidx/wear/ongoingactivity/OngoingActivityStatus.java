@@ -16,10 +16,10 @@
 package androidx.wear.ongoingactivity;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Base class to serialize / deserialize {@link OngoingActivityStatus} into / from a Notification
@@ -28,7 +28,8 @@ import androidx.annotation.Nullable;
  * cases when this is needed (chronometers), as returned by
  * {@link android.os.SystemClock#elapsedRealtime()}
  */
-public abstract class OngoingActivityStatus {
+@VersionedParcelize
+public abstract class OngoingActivityStatus implements VersionedParcelable {
     /**
      * Returns a textual representation of the ongoing activity status at the given time
      * represented as milliseconds timestamp
@@ -56,38 +57,6 @@ public abstract class OngoingActivityStatus {
      * this status will change. returns Long.MAX_VALUE if the display will never change.
      */
     public abstract long getNextChangeTimeMillis(long fromTimeMillis);
-
-    /**
-     * Serializes the information into the given {@link Bundle}.
-     */
-    @SuppressWarnings("HiddenAbstractMethod")
-    abstract void extend(Bundle bundle);
-
-    /**
-     * Deserializes the information from the given {@link Bundle}.
-     */
-    @Nullable
-    static OngoingActivityStatus create(Bundle bundle) {
-        if (bundle.getBoolean(KEY_USE_CHRONOMETER, false)) {
-            return new TimerOngoingActivityStatus(
-                    bundle.getLong(KEY_TIME_ZERO),
-                    bundle.getBoolean(KEY_COUNT_DOWN, false),
-                    bundle.getLong(KEY_PAUSED_AT, LONG_DEFAULT),
-                    bundle.getLong(KEY_TOTAL_DURATION, LONG_DEFAULT)
-            );
-        } else {
-            String text = bundle.getString(KEY_STATUS);
-            return text == null ? null : new TextOngoingActivityStatus(text);
-        }
-    }
-
-    // keys to use inside the bundle when serializing/deserializing.
-    static final String KEY_COUNT_DOWN = "countdown";
-    static final String KEY_TIME_ZERO = "timeZero";
-    static final String KEY_USE_CHRONOMETER = "useChronometer";
-    static final String KEY_STATUS = "status";
-    static final String KEY_TOTAL_DURATION = "totalDuration";
-    static final String KEY_PAUSED_AT = "pausedAt";
 
     // Invalid value to use for paused_at and duration, as suggested by api guidelines 5.15
     static final long LONG_DEFAULT = -1L;
