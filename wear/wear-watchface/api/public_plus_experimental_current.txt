@@ -145,7 +145,6 @@ package androidx.wear.watchface {
   }
 
   public class ObservableWatchData<T> {
-    ctor protected ObservableWatchData(T? _value);
     method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread public T getValue();
     method public final T getValueOr(T p);
