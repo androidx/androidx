@@ -1216,6 +1216,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mMainFragmentAdapter = null;
         mMainFragment = null;
         mHeadersSupportFragment = null;
+        mBrowseFrame = null;
+        mScaleFrameLayout = null;
+        mSceneAfterEntranceTransition = null;
+        mSceneWithHeaders = null;
+        mSceneWithoutHeaders = null;
         super.onDestroyView();
     }
 

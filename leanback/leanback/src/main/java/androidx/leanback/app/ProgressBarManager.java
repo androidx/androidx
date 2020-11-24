@@ -91,13 +91,15 @@ public final class ProgressBarManager {
      * @param progressBarView custom view that will be shown to indicate progress.
      */
     public void setProgressBarView(View progressBarView) {
-        if (progressBarView.getParent() == null) {
+        if (progressBarView != null && progressBarView.getParent() == null) {
             throw new IllegalArgumentException("Must have a parent");
         }
 
         this.mProgressBarView = progressBarView;
-        this.mProgressBarView.setVisibility(View.INVISIBLE);
-        mUserProvidedProgressBar = true;
+        if (this.mProgressBarView != null) {
+            this.mProgressBarView.setVisibility(View.INVISIBLE);
+            mUserProvidedProgressBar = true;
+        }
     }
 
     /**
