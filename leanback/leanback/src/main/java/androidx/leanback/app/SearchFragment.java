@@ -424,6 +424,13 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        mSearchBar = null;
+        mRowsFragment = null;
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
         releaseAdapter();
         super.onDestroy();
