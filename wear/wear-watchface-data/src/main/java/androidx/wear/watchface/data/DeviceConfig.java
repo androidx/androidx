@@ -37,20 +37,12 @@ import androidx.versionedparcelable.VersionedParcelize;
 @VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public final class DeviceConfig implements VersionedParcelable, Parcelable {
-    public static final int SCREEN_SHAPE_ROUND = 1;
-
-    /** This includes square screens. */
-    public static final int SCREEN_SHAPE_RECTANGULAR = 2;
 
     @ParcelField(1)
     boolean mHasLowBitAmbient;
 
     @ParcelField(2)
     boolean mHasBurnInProtection;
-
-    /** Should be one of {@link #SCREEN_SHAPE_ROUND} or {@link #SCREEN_SHAPE_RECTANGULAR}. */
-    @ParcelField(3)
-    int mScreenShape;
 
     @ParcelField(4)
     long mAnalogPreviewReferenceTimeMillis;
@@ -64,12 +56,10 @@ public final class DeviceConfig implements VersionedParcelable, Parcelable {
     public DeviceConfig(
             boolean hasLowBitAmbient,
             boolean hasBurnInProtection,
-            int screenShape,
             long analogPreviewReferenceTimeMillis,
             long digitalPreviewReferenceTimeMillis) {
         mHasLowBitAmbient = hasLowBitAmbient;
         mHasBurnInProtection = hasBurnInProtection;
-        mScreenShape = screenShape;
         mAnalogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis;
         mDigitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis;
     }
@@ -80,10 +70,6 @@ public final class DeviceConfig implements VersionedParcelable, Parcelable {
 
     public boolean getHasBurnInProtection() {
         return mHasBurnInProtection;
-    }
-
-    public int getScreenShape() {
-        return mScreenShape;
     }
 
     public long getAnalogPreviewReferenceTimeMillis() {
