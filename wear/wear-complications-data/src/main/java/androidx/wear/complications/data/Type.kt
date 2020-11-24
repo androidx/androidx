@@ -28,7 +28,7 @@ public enum class ComplicationType(private val wireType: Int) {
     RANGED_VALUE(WireComplicationData.TYPE_RANGED_VALUE),
     MONOCHROMATIC_IMAGE(WireComplicationData.TYPE_ICON),
     SMALL_IMAGE(WireComplicationData.TYPE_SMALL_IMAGE),
-    BACKGROUND_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
+    PHOTO_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
     NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION);
 
     /**
@@ -63,7 +63,7 @@ public enum class ComplicationType(private val wireType: Int) {
                 RANGED_VALUE.wireType -> RANGED_VALUE
                 MONOCHROMATIC_IMAGE.wireType -> MONOCHROMATIC_IMAGE
                 SMALL_IMAGE.wireType -> SMALL_IMAGE
-                BACKGROUND_IMAGE.wireType -> BACKGROUND_IMAGE
+                PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
                 else -> EMPTY
             }
