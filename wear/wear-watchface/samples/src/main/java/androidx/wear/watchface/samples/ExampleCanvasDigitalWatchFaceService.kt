@@ -547,7 +547,7 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         val backgroundComplication = Complication.createBackgroundComplicationBuilder(
             ComplicationID.BACKGROUND.ordinal,
             watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(ComplicationType.BACKGROUND_IMAGE),
+            listOf(ComplicationType.PHOTO_IMAGE),
             DefaultComplicationProviderPolicy()
         ).build()
         val complicationsManager = ComplicationsManager(
