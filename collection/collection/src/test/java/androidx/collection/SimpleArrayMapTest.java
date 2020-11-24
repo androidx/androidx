@@ -380,4 +380,25 @@ public class SimpleArrayMapTest {
         assertTrue(map.containsKey(null));
         assertNull(map.get(null));
     }
+
+    /**
+     * Regression test against NPE in changes in the backing array growth implementation. Various
+     * initial capacities are used, and for each capacity we always put in more elements than the
+     * initial capacity can hold to exercise the code paths where the capacity is increased and the
+     * backing arrays are expanded.
+     */
+    @Test
+    public void backingArrayGrowth() {
+        for (int initCapacity = 0; initCapacity <= 16; initCapacity++) {
+            for (int entries = 1; entries < 32; entries++) {
+                SimpleArrayMap<String, String> map = new SimpleArrayMap<>(initCapacity);
+                for (int index = 0; index < entries; index++) {
+                    map.put("key " + index, "value " + index);
+                }
+                for (int index = 0; index < entries; index++) {
+                    assertEquals((Object) ("value " + index), map.get("key " + index));
+                }
+            }
+        }
+    }
 }
