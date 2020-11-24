@@ -139,8 +139,8 @@ public class AsWireComplicationDataTest {
     @Test
     public fun backgroundImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
-        val image = BackgroundImage.Builder(icon).build()
-        val data = BackgroundImageComplicationData.Builder(image)
+        val image = PhotoImage.Builder(icon).build()
+        val data = PhotoImageComplicationData.Builder(image)
             .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -263,7 +263,7 @@ public class FromWireComplicationDataTest {
                 .setLargeImage(icon)
                 .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
-            ComplicationType.BACKGROUND_IMAGE
+            ComplicationType.PHOTO_IMAGE
         )
     }
 
