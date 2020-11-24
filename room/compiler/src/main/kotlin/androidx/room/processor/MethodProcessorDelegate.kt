@@ -16,12 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.T
-import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
@@ -29,6 +23,12 @@ import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
+import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.T
+import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
@@ -58,13 +58,16 @@ abstract class MethodProcessorDelegate(
 
     abstract fun extractParams(): List<XVariableElement>
 
-    fun extractQueryParams(): List<QueryParameter> {
+    fun extractQueryParams(query: ParsedQuery): List<QueryParameter> {
         return extractParams().map { variableElement ->
             QueryParameterProcessor(
                 baseContext = context,
                 containing = containing,
                 element = variableElement,
-                sqlName = variableElement.name
+                sqlName = variableElement.name,
+                bindVarSection = query.bindSections.firstOrNull {
+                    it.varName == variableElement.name
+                }
             ).process()
         }
     }

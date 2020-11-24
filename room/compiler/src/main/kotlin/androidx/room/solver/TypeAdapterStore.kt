@@ -16,16 +16,16 @@
 
 package androidx.room.solver
 
-import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.GuavaBaseTypeNames
-import androidx.room.ext.isEntityElement
-import androidx.room.parser.ParsedQuery
-import androidx.room.parser.SQLTypeAffinity
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isDeclared
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
+import androidx.room.parser.ParsedQuery
+import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
@@ -86,6 +86,7 @@ import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CursorValueReader
+import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.NoOpConverter
 import androidx.room.solver.types.PrimitiveBooleanToIntConverter
 import androidx.room.solver.types.PrimitiveColumnTypeAdapter
@@ -218,13 +219,26 @@ class TypeAdapterStore private constructor(
         if (adapter != null) {
             return adapter
         }
-        val targetTypes = targetTypeMirrorsFor(affinity)
-        val binder = findTypeConverter(input, targetTypes) ?: return null
-        // columnAdapter should not be null but we are receiving errors on crash in `first()` so
-        // this safeguard allows us to dispatch the real problem to the user (e.g. why we couldn't
-        // find the right adapter)
-        val columnAdapter = getAllColumnAdapters(binder.to).firstOrNull() ?: return null
-        return CompositeAdapter(input, columnAdapter, binder, null)
+
+        fun findTypeConverterAdapter(): ColumnTypeAdapter? {
+            val targetTypes = targetTypeMirrorsFor(affinity)
+            val binder = findTypeConverter(input, targetTypes) ?: return null
+            // columnAdapter should not be null but we are receiving errors on crash in `first()` so
+            // this safeguard allows us to dispatch the real problem to the user (e.g. why we couldn't
+            // find the right adapter)
+            val columnAdapter = getAllColumnAdapters(binder.to).firstOrNull() ?: return null
+            return CompositeAdapter(input, columnAdapter, binder, null)
+        }
+
+        val adapterByTypeConverter = findTypeConverterAdapter()
+        if (adapterByTypeConverter != null) {
+            return adapterByTypeConverter
+        }
+        val enumAdapter = createEnumTypeAdapter(input)
+        if (enumAdapter != null) {
+            return enumAdapter
+        }
+        return null
     }
 
     /**
@@ -251,13 +265,28 @@ class TypeAdapterStore private constructor(
             // two way is better
             return adapter
         }
+
+        fun findTypeConverterAdapter(): ColumnTypeAdapter? {
+            val targetTypes = targetTypeMirrorsFor(affinity)
+            val converter = findTypeConverter(targetTypes, output) ?: return null
+            return CompositeAdapter(
+                output,
+                getAllColumnAdapters(converter.from).first(), null, converter
+            )
+        }
+
         // we could not find a two way version, search for anything
-        val targetTypes = targetTypeMirrorsFor(affinity)
-        val converter = findTypeConverter(targetTypes, output) ?: return null
-        return CompositeAdapter(
-            output,
-            getAllColumnAdapters(converter.from).first(), null, converter
-        )
+        val typeConverterAdapter = findTypeConverterAdapter()
+        if (typeConverterAdapter != null) {
+            return typeConverterAdapter
+        }
+
+        val enumAdapter = createEnumTypeAdapter(output)
+        if (enumAdapter != null) {
+            return enumAdapter
+        }
+
+        return null
     }
 
     /**
@@ -293,15 +322,34 @@ class TypeAdapterStore private constructor(
         if (adapter != null) {
             return adapter
         }
-        val targetTypes = targetTypeMirrorsFor(affinity)
-        val intoStatement = findTypeConverter(out, targetTypes) ?: return null
-        // ok found a converter, try the reverse now
-        val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
-            ?: return null
-        return CompositeAdapter(
-            out, getAllColumnAdapters(intoStatement.to).first(), intoStatement,
-            fromCursor
-        )
+
+        fun findTypeConverterAdapter(): ColumnTypeAdapter? {
+            val targetTypes = targetTypeMirrorsFor(affinity)
+            val intoStatement = findTypeConverter(out, targetTypes) ?: return null
+            // ok found a converter, try the reverse now
+            val fromCursor = reverse(intoStatement) ?: findTypeConverter(intoStatement.to, out)
+                ?: return null
+            return CompositeAdapter(
+                out, getAllColumnAdapters(intoStatement.to).first(), intoStatement, fromCursor
+            )
+        }
+
+        val adapterByTypeConverter = findTypeConverterAdapter()
+        if (adapterByTypeConverter != null) {
+            return adapterByTypeConverter
+        }
+        val enumAdapter = createEnumTypeAdapter(out)
+        if (enumAdapter != null) {
+            return enumAdapter
+        }
+        return null
+    }
+
+    private fun createEnumTypeAdapter(type: XType): ColumnTypeAdapter? {
+        if (type.isEnum()) {
+            return EnumColumnTypeAdapter(type)
+        }
+        return null
     }
 
     private fun findDirectAdapterFor(
@@ -509,20 +557,31 @@ class TypeAdapterStore private constructor(
         }
     }
 
-    fun findQueryParameterAdapter(typeMirror: XType): QueryParameterAdapter? {
+    fun findQueryParameterAdapter(
+        typeMirror: XType,
+        isMultipleParameter: Boolean
+    ): QueryParameterAdapter? {
         if (typeMirror.isType() &&
             context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)
         ) {
             val declared = typeMirror.asDeclaredType()
-            val binder = findStatementValueBinder(
-                declared.typeArguments.first().extendsBoundOrSelf(), null
-            )
-            if (binder != null) {
-                return CollectionQueryParameterAdapter(binder)
+            val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
+            // An adapter for the collection type arg wrapped in the built-in collection adapter.
+            val wrappedCollectionAdapter = findStatementValueBinder(typeArg, null)?.let {
+                CollectionQueryParameterAdapter(it)
+            }
+            // An adapter for the collection itself, likely a user provided type converter for the
+            // collection.
+            val directCollectionAdapter = findStatementValueBinder(typeMirror, null)?.let {
+                BasicQueryParameterAdapter(it)
+            }
+            // Prioritize built-in collection adapters when finding an adapter for a multi-value
+            // binding param since it is likely wrong to use a collection to single value converter
+            // for an expression that takes in multiple values.
+            return if (isMultipleParameter) {
+                wrappedCollectionAdapter ?: directCollectionAdapter
             } else {
-                // maybe user wants to convert this collection themselves. look for a match
-                val collectionBinder = findStatementValueBinder(typeMirror, null) ?: return null
-                return BasicQueryParameterAdapter(collectionBinder)
+                directCollectionAdapter ?: wrappedCollectionAdapter
             }
         } else if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
             val component = typeMirror.componentType
