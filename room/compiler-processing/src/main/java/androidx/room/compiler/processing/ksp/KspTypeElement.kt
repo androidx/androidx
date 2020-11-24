@@ -147,6 +147,11 @@ internal class KspTypeElement(
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
         val setters = _declaredPropertyFields.mapNotNull {
+            if (it.type.ksType.isInline()) {
+                // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                // until room generates kotlin code
+                return@mapNotNull null
+            }
             val setter = it.declaration.setter
             val needsSetter = if (setter != null) {
                 // kapt does not generate synthetics for private fields/setters so we won't either
@@ -164,6 +169,11 @@ internal class KspTypeElement(
             }
         }
         val getters = _declaredPropertyFields.mapNotNull {
+            if (it.type.ksType.isInline()) {
+                // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                // until room generates kotlin code
+                return@mapNotNull null
+            }
             val getter = it.declaration.getter
             val needsGetter = if (getter != null) {
                 // kapt does not generate synthetics for private fields/getters so we won't either]
@@ -211,17 +221,23 @@ internal class KspTypeElement(
     }
 
     private val _declaredMethods by lazy {
-        val myMethods = declaration.getDeclaredFunctions()
-            .filter {
+        val myMethods = declaration.getDeclaredFunctions().asSequence()
+            .filterNot {
                 // filter out constructors
-                it.simpleName.asString() != name
+                it.simpleName.asString() == name
+            }.filterNot {
+                // if it receives or returns inline, drop it.
+                // we can re-enable these once room generates kotlin code
+                it.parameters.any {
+                    it.type.resolve().isInline()
+                } || it.returnType?.resolve()?.isInline() == true
             }.map {
                 KspMethodElement.create(
                     env = env,
                     containing = this,
                     declaration = it
                 )
-            }
+            }.toList()
         val companionMethods = declaration.findCompanionObject()
             ?.let {
                 env.wrapClassDeclaration(it)
