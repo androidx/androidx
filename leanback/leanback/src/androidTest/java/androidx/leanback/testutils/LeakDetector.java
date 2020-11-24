@@ -29,10 +29,17 @@ public final class LeakDetector {
         mWeakReferences.add(new WeakReference<>(object));
     }
 
-    public void assertNoLeak() {
+    public void assertNoLeak() throws Exception {
         System.gc();
         System.runFinalization();
         for (WeakReference<?> weakReference : mWeakReferences) {
+            int count = 0;
+            while (weakReference.get() != null && count < 5) {
+                System.gc();
+                System.runFinalization();
+                Thread.sleep(1000);
+                count++;
+            }
             /**
              * Debugging leak: Sleep and run adb command:
              * adb shell am dumpheap PID_OF_TEST /data/local/tmp/test_leak.hprof
