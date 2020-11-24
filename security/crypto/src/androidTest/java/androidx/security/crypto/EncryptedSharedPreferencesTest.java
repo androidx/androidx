@@ -33,9 +33,10 @@ import androidx.test.filters.MediumTest;
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.aead.AesGcmKeyManager;
-import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.daead.AesSivKeyManager;
+import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.daead.DeterministicAeadFactory;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
@@ -365,7 +366,8 @@ public class EncryptedSharedPreferencesTest {
         encryptedEditor.commit();
 
         // Set up Tink
-        TinkConfig.register();
+        DeterministicAeadConfig.register();
+        AeadConfig.register();
 
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(AesSivKeyManager.aes256SivTemplate())

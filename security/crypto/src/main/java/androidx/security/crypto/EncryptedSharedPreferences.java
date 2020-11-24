@@ -32,9 +32,10 @@ import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
 import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.aead.AeadConfig;
 import com.google.crypto.tink.aead.AesGcmKeyManager;
-import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.daead.AesSivKeyManager;
+import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.integration.android.AndroidKeysetManager;
 import com.google.crypto.tink.subtle.Base64;
 
@@ -143,7 +144,8 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
             @NonNull PrefKeyEncryptionScheme prefKeyEncryptionScheme,
             @NonNull PrefValueEncryptionScheme prefValueEncryptionScheme)
             throws GeneralSecurityException, IOException {
-        TinkConfig.register();
+        DeterministicAeadConfig.register();
+        AeadConfig.register();
 
         final Context applicationContext = context.getApplicationContext();
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
