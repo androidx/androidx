@@ -18,11 +18,9 @@ package androidx.wear.ongoingactivity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.versionedparcelable.ParcelField;
@@ -37,28 +35,41 @@ import androidx.versionedparcelable.VersionedParcelize;
 public class OngoingActivityData implements VersionedParcelable {
     @Nullable
     @ParcelField(value = 1, defaultValue = "null")
-    private Icon mAnimatedIcon = null;
+    private final Icon mAnimatedIcon;
 
-    @Nullable
-    @ParcelField(value = 2, defaultValue = "null")
-    private Icon mStaticIcon = null;
+    @NonNull
+    @ParcelField(value = 2)
+    private final Icon mStaticIcon;
 
     @Nullable
     @ParcelField(value = 3, defaultValue = "null")
-    private OngoingActivityStatus mStatus = null;
+    private OngoingActivityStatus mStatus;
 
-    @Nullable
-    @ParcelField(value = 4, defaultValue = "null")
-    private PendingIntent mTouchIntent = null;
+    @NonNull
+    @ParcelField(value = 4)
+    private final PendingIntent mTouchIntent;
 
     @Nullable
     @ParcelField(value = 5, defaultValue = "null")
-    private LocusIdCompat mLocusId = null;
+    private final LocusIdCompat mLocusId;
 
     @ParcelField(value = 6, defaultValue = "-1")
-    private int mOngoingActivityId = DEFAULT_ID;
+    private final int mOngoingActivityId;
 
-    OngoingActivityData() {
+    OngoingActivityData(
+            @Nullable Icon animatedIcon,
+            @NonNull Icon staticIcon,
+            @Nullable OngoingActivityStatus status,
+            @NonNull PendingIntent touchIntent,
+            @Nullable LocusIdCompat locusId,
+            int ongoingActivityId
+    ) {
+        mAnimatedIcon = animatedIcon;
+        mStaticIcon = staticIcon;
+        mStatus = status;
+        mTouchIntent = touchIntent;
+        mLocusId = locusId;
+        mOngoingActivityId = ongoingActivityId;
     }
 
     @NonNull
@@ -86,14 +97,6 @@ public class OngoingActivityData implements VersionedParcelable {
     }
 
     /**
-     * Deserializes the [OngoingActivityData] from a notification.
-     */
-    @Nullable
-    static OngoingActivityData createInternal(@NonNull Notification notification) {
-        return ParcelUtils.getVersionedParcelable(notification.extras, EXTRA_ONGOING_ACTIVITY);
-    }
-
-    /**
      * Deserializes the {@link OngoingActivityData} from a notification.
      *
      * Applies defaults from the notification for information not provided as part of the
@@ -105,42 +108,7 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     @Nullable
     public static OngoingActivityData create(@NonNull Notification notification) {
-        OngoingActivityData data = createInternal(notification);
-        if (data != null) {
-            if (data.mAnimatedIcon == null) {
-                data.setAnimatedIcon(notification.getSmallIcon());
-            }
-            if (data.mStaticIcon == null) {
-                data.setStaticIcon(notification.getSmallIcon());
-            }
-            if (data.mStatus == null) {
-                String text = notification.extras.getString(Notification.EXTRA_TEXT);
-                if (text != null) {
-                    data.setStatus(new TextOngoingActivityStatus(text));
-                }
-            }
-            if (data.mTouchIntent == null) {
-                data.setTouchIntent(notification.contentIntent);
-            }
-            if (data.mLocusId == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                data.setLocusId(Api29Impl.getLocusId(notification));
-            }
-        }
-        return data;
-    }
-
-    // Inner class required to avoid VFY errors during class init.
-    @RequiresApi(29)
-    private static class Api29Impl {
-        // Avoid instantiation.
-        private Api29Impl() {
-        }
-
-        @Nullable
-        private static LocusIdCompat getLocusId(@NonNull Notification notification) {
-            return notification.getLocusId() != null
-                    ? LocusIdCompat.toLocusIdCompat(notification.getLocusId()) : null;
-        }
+        return ParcelUtils.getVersionedParcelable(notification.extras, EXTRA_ONGOING_ACTIVITY);
     }
 
     /**
@@ -158,9 +126,6 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     @NonNull
     public Icon getStaticIcon() {
-        if (mStaticIcon == null) {
-            throw new IllegalStateException("Static icon should be specified.");
-        }
         return mStaticIcon;
     }
 
@@ -179,9 +144,6 @@ public class OngoingActivityData implements VersionedParcelable {
      */
     @NonNull
     public PendingIntent getTouchIntent() {
-        if (mTouchIntent == null) {
-            throw new IllegalStateException("Touch intent should be specified.");
-        }
         return mTouchIntent;
     }
 
@@ -202,35 +164,15 @@ public class OngoingActivityData implements VersionedParcelable {
         return mOngoingActivityId;
     }
 
-    /* Package private setters */
-    void setAnimatedIcon(@Nullable Icon animatedIcon) {
-        this.mAnimatedIcon = animatedIcon;
-    }
-
-    void setStaticIcon(@Nullable Icon staticIcon) {
-        this.mStaticIcon = staticIcon;
-    }
-
-    void setStatus(@Nullable OngoingActivityStatus status) {
-        this.mStatus = status;
-    }
-
-    void setTouchIntent(@Nullable PendingIntent touchIntent) {
-        this.mTouchIntent = touchIntent;
-    }
-
-    void setLocusId(@Nullable LocusIdCompat locusId) {
-        this.mLocusId = locusId;
-    }
-
-    void setOngoingActivityId(int ongoingActivityId) {
-        this.mOngoingActivityId = ongoingActivityId;
+    // Status is mutable, by the library.
+    void setStatus(@NonNull OngoingActivityStatus status) {
+        mStatus = status;
     }
 
     /** Notification action extra which contains ongoing activity extensions */
     private static final String EXTRA_ONGOING_ACTIVITY =
             "android.wearable.ongoingactivities.EXTENSIONS";
 
-    private static final int DEFAULT_ID = -1;
+    static final int DEFAULT_ID = -1;
 }
 

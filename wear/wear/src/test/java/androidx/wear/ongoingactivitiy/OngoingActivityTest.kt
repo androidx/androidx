@@ -60,7 +60,7 @@ open class OngoingActivityTest {
         // check that the Notification contains the information needed.
         val received = OngoingActivityData.create(notification)!!
         assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)
-        assertEquals(StaticIconResourceId, received.staticIcon!!.resId)
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
         assertEquals(LocusIdValue, received.locusId)
         assertEquals(OaId, received.ongoingActivityId)
         assertEquals(Status, received.status)
@@ -92,7 +92,7 @@ open class OngoingActivityTest {
 
         val received = OngoingActivityData.create(notifications[0].notification)!!
         assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)
-        assertEquals(StaticIconResourceId, received.staticIcon!!.resId)
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
         assertEquals(LocusIdValue, received.locusId)
         assertEquals(OaId, received.ongoingActivityId)
         assertEquals(newStatus, received.status)
@@ -124,6 +124,8 @@ open class OngoingActivityTest {
             OngoingActivity.Builder(context, NotificationId + i, builder)
                 .setStatus(TextOngoingActivityStatus("Ongoing Activity"))
                 .setOngoingActivityId(i)
+                .setStaticIcon(StaticIconResourceId)
+                .setTouchIntent(PendingIntentValue)
                 .build()
                 .apply(context)
 
@@ -176,7 +178,7 @@ open class OngoingActivityTest {
 
         val received = OngoingActivityData.create(notifications[0].notification)!!
         assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)
-        assertEquals(StaticIconResourceId, received.staticIcon!!.resId)
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
         assertEquals(LocusIdValue, received.locusId)
         assertEquals(OaId, received.ongoingActivityId)
         assertEquals(newStatus, received.status)
@@ -202,8 +204,8 @@ open class OngoingActivityTest {
         val notifications = notificationManager.activeNotifications
         assertEquals(1, notifications.size)
         val received = OngoingActivityData.create(notifications[0].notification)!!
-        assertEquals(StaticIconResourceId, received.animatedIcon!!.resId)
-        assertEquals(StaticIconResourceId, received.staticIcon!!.resId)
+        assertNull(received.animatedIcon)
+        assertEquals(StaticIconResourceId, received.staticIcon.resId)
         assertEquals(contentText, received.status!!.getText(context, 0))
         assertEquals(PendingIntentValue, received.touchIntent)
 
@@ -237,7 +239,7 @@ open class OngoingActivityTest {
         assertEquals(1, notifications.size)
         val received = OngoingActivityData.create(notifications[0].notification)!!
         assertEquals(newAnimatedIconResourceId, received.animatedIcon!!.resId)
-        assertEquals(newStaticIconResourceId, received.staticIcon!!.resId)
+        assertEquals(newStaticIconResourceId, received.staticIcon.resId)
         assertEquals(Status, received.status)
         assertEquals(newPendingIntentValue, received.touchIntent)
 
