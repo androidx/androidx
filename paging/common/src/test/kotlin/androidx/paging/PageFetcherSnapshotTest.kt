@@ -2183,7 +2183,13 @@ class PageFetcherSnapshotTest {
                 LoadStateUpdate(REFRESH, true, Loading),
                 LoadStateUpdate(REFRESH, true, Error(EXCEPTION)),
                 LoadStateUpdate(REFRESH, false, Loading),
-                createRefresh(0..2, remoteLoadStatesOf(refreshRemote = Error(EXCEPTION))),
+                createRefresh(
+                    0..2,
+                    remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete,
+                        refreshRemote = Error(EXCEPTION)
+                    )
+                ),
                 // since remote refresh failed and launch initial refresh is requested,
                 // we won't receive any append/prepend events
             )
@@ -2305,7 +2311,9 @@ class PageFetcherSnapshotTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 99,
-                    combinedLoadStates = remoteLoadStatesOf()
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete
+                    )
                 ),
                 LoadStateUpdate(
                     loadType = PREPEND,
@@ -2328,7 +2336,9 @@ class PageFetcherSnapshotTest {
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 99,
-                    combinedLoadStates = remoteLoadStatesOf()
+                    combinedLoadStates = remoteLoadStatesOf(
+                        prependLocal = NotLoading.Complete
+                    )
                 )
             )
 
@@ -2380,7 +2390,9 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 0,
                         placeholdersAfter = 99,
-                        combinedLoadStates = remoteLoadStatesOf()
+                        combinedLoadStates = remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                        )
                     ),
                     LoadStateUpdate(
                         loadType = PREPEND,
@@ -2539,7 +2551,9 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 99,
                         placeholdersAfter = 0,
-                        combinedLoadStates = remoteLoadStatesOf()
+                        combinedLoadStates = remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                        )
                     ),
                     LoadStateUpdate(
                         loadType = APPEND,
@@ -2562,7 +2576,9 @@ class PageFetcherSnapshotTest {
                         ),
                         placeholdersBefore = 99,
                         placeholdersAfter = 0,
-                        combinedLoadStates = remoteLoadStatesOf()
+                        combinedLoadStates = remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                        )
                     ),
                 )
             )
@@ -2597,7 +2613,7 @@ class PageFetcherSnapshotTest {
         )
 
         val expected = listOf(
-            listOf<PageEvent<Int>>(
+            listOf(
                 LoadStateUpdate(
                     loadType = REFRESH,
                     fromMediator = false,
@@ -2612,7 +2628,9 @@ class PageFetcherSnapshotTest {
                     ),
                     placeholdersBefore = 99,
                     placeholdersAfter = 0,
-                    combinedLoadStates = remoteLoadStatesOf()
+                    combinedLoadStates = remoteLoadStatesOf(
+                        appendLocal = NotLoading.Complete,
+                    )
                 ),
                 LoadStateUpdate(
                     loadType = APPEND,
