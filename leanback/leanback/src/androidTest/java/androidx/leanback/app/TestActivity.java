@@ -20,16 +20,16 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
-import androidx.leanback.testutils.PollingCheck;
 import androidx.testutils.AnimationActivityTestRule;
-
-import java.util.HashMap;
 
 /**
  * A general Activity that allows test set a Provider to custom activity's behavior in life
  * cycle events.
  */
 public class TestActivity extends Activity {
+
+    public static class TestActivity2 extends  TestActivity {
+    }
 
     public static class Provider {
 
@@ -70,14 +70,14 @@ public class TestActivity extends Activity {
 
         final String mProviderName;
 
-        public TestActivityTestRule(TestActivity.Provider provider, String providerName) {
-            this(providerName);
-            TestActivity.setProvider(mProviderName, provider);
+        public TestActivityTestRule(Class<? extends TestActivity.Provider> providerClass) {
+            super(TestActivity.class, false, false);
+            mProviderName = providerClass.getName();
         }
 
-        public TestActivityTestRule(String providerName) {
+        public TestActivityTestRule() {
             super(TestActivity.class, false, false);
-            mProviderName = providerName;
+            mProviderName = null;
         }
 
         public String getProviderName() {
@@ -90,41 +90,27 @@ public class TestActivity extends Activity {
             return launchActivity(intent);
         }
 
-        /**
-         * Launch secondary TestActivity without using TestActivityRule.
-         */
-        TestActivity launchSecondActivity(String providerName2, TestActivity.Provider provider2)
-                throws Throwable {
-            TestActivity.setProvider(providerName2, provider2);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = new Intent(getActivity(), TestActivity.class);
-                    intent.putExtra(TestActivity.EXTRA_PROVIDER, providerName2);
-                    getActivity().startActivity(intent);
-                }
-            });
+        public TestActivity launchActivity(Class<? extends TestActivity.Provider> providerClass) {
+            Intent intent = new Intent();
+            intent.putExtra(TestActivity.EXTRA_PROVIDER, providerClass.getName());
+            return launchActivity(intent);
+        }
+    }
 
-            PollingCheck.waitFor(5000/*timeout*/, new PollingCheck.PollingCheckCondition() {
-                @Override
-                public boolean canPreProceed() {
-                    return false;
-                }
+    public static class TestActivityTestRule2 extends AnimationActivityTestRule<TestActivity2> {
 
-                @Override
-                public boolean canProceed() {
-                    return provider2.getActivity() != null && provider2.getActivity().isStarted();
-                }
-            });
-            afterActivityLaunched();
-            return provider2.getActivity();
+        public TestActivityTestRule2() {
+            super(TestActivity2.class, false, false);
         }
 
+        public TestActivity launchActivity(Class<? extends TestActivity.Provider> providerClass) {
+            Intent intent = new Intent();
+            intent.putExtra(TestActivity.EXTRA_PROVIDER, providerClass.getName());
+            return launchActivity(intent);
+        }
     }
 
     public static final String EXTRA_PROVIDER = "testActivityProvider";
-
-    static HashMap<String, Provider> sProviders = new HashMap<>();
 
     String mProviderName;
     Provider mProvider;
@@ -133,15 +119,19 @@ public class TestActivity extends Activity {
     public TestActivity() {
     }
 
-    public static void setProvider(String name, Provider provider) {
-        sProviders.put(name, provider);
+    public Provider getProvider() {
+        return mProvider;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mProviderName = getIntent().getStringExtra(EXTRA_PROVIDER);
-        mProvider = sProviders.get(mProviderName);
+        try {
+            mProvider = (Provider) Class.forName(mProviderName).newInstance();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         if (mProvider != null) {
             mProvider.onCreate(this, savedInstanceState);
         }
@@ -197,7 +187,6 @@ public class TestActivity extends Activity {
     protected void onDestroy() {
         if (mProvider != null) {
             mProvider.onDestroy(this);
-            setProvider(mProviderName, null);
         }
         super.onDestroy();
     }

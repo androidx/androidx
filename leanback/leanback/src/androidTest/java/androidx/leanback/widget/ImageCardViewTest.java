@@ -63,7 +63,16 @@ public class ImageCardViewTest {
 
     // The following provider will create an Activity which can inflate the ImageCardView
     // And the ImageCardView can be fetched through ID for future testing.
-    private final TestActivity.Provider mImageCardViewProvider = new TestActivity.Provider() {
+    public static final class ImageCardViewProvider extends TestActivity.Provider {
+        // Sample Drawable which will be used as the parameter for some methods.
+        private Drawable mSampleDrawable;
+
+        // Another Sample Drawable.
+        private Drawable mSampleDrawable2;
+
+        // Generated Image View Id.
+        private int mImageCardViewId;
+
         @Override
         public void onCreate(TestActivity activity, Bundle savedInstanceState) {
             super.onCreate(activity, savedInstanceState);
@@ -90,8 +99,7 @@ public class ImageCardViewTest {
     // Enable lifecycle based testing
     @Rule
     public final TestActivity.TestActivityTestRule mRule =
-            new TestActivity.TestActivityTestRule(
-                    mImageCardViewProvider, generateProviderName(IMAGE_CARD_VIEW_ACTIVITY));
+            new TestActivity.TestActivityTestRule(ImageCardViewProvider.class);
 
     // Only support alpha animation
     private static final String ALPHA = "alpha";
@@ -166,6 +174,11 @@ public class ImageCardViewTest {
 
         // Initialize testing rule and testing activity
         final TestActivity imageCardViewTestActivity = mRule.launchActivity();
+        ImageCardViewProvider provider = (ImageCardViewProvider)
+                imageCardViewTestActivity.getProvider();
+        mImageCardViewId = provider.mImageCardViewId;
+        mSampleDrawable = provider.mSampleDrawable;
+        mSampleDrawable2 = provider.mSampleDrawable2;
 
         // Create card view and image view
         mImageCardView = (ImageCardView) imageCardViewTestActivity.findViewById(mImageCardViewId);
