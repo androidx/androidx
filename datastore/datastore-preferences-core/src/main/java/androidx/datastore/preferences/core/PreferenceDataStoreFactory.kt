@@ -31,8 +31,9 @@ import java.io.File
  */
 public object PreferenceDataStoreFactory {
     /**
-     * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
-     * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
+     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * DataStore for a given file; doing so can break all DataStore functionality. You should
+     * consider managing your DataStore instance as a singleton.
      *
      * @param produceFile Function which returns the file that the new DataStore will act on.
      * The function must return the same path every time. No two instances of PreferenceDataStore
@@ -49,6 +50,8 @@ public object PreferenceDataStoreFactory {
      * The function must return the same path every time. No two instances of PreferenceDataStore
      * should act on the same file at the same time. The file must have the extension
      * preferences_pb.
+     *
+     * @return a new DataStore instance with the provided configuration
      */
     @JvmOverloads
     public fun create(
