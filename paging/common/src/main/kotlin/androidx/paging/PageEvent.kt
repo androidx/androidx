@@ -212,8 +212,7 @@ internal sealed class PageEvent<T : Any> {
              * This prevents multiple related RV animations from happening simultaneously
              */
             internal fun canDispatchWithoutInsert(loadState: LoadState, fromMediator: Boolean) =
-                loadState is LoadState.Loading || loadState is LoadState.Error ||
-                    (loadState.endOfPaginationReached && fromMediator)
+                loadState is LoadState.Loading || loadState is LoadState.Error || fromMediator
         }
     }
 

@@ -2778,8 +2778,13 @@ class PageFetcherSnapshotTest {
                         fromMediator = true,
                         loadState = Loading
                     ),
+                    LoadStateUpdate(
+                        loadType = REFRESH,
+                        fromMediator = true,
+                        loadState = NotLoading.Incomplete
+                    ),
                 ),
-                listOf<PageEvent<Int>>(
+                listOf(
                     LoadStateUpdate(
                         loadType = REFRESH,
                         fromMediator = false,
