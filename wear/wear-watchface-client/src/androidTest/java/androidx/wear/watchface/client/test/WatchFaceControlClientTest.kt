@@ -102,7 +102,6 @@ class WatchFaceControlClientTest {
     private val deviceConfig = DeviceConfig(
         false,
         false,
-        1,
         0,
         0
     )
@@ -138,7 +137,6 @@ class WatchFaceControlClientTest {
             DeviceConfig(
                 false,
                 false,
-                1,
                 0,
                 0
             ),

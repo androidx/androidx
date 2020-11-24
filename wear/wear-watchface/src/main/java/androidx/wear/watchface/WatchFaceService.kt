@@ -65,7 +65,6 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.data.ComplicationStateWireFormat
 import androidx.wear.watchface.data.DeviceConfig
-import androidx.wear.watchface.data.DeviceConfig.SCREEN_SHAPE_ROUND
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
 import androidx.wear.watchface.data.SystemState
@@ -430,7 +429,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 mutableWatchState.hasLowBitAmbient = deviceConfig.hasLowBitAmbient
                 mutableWatchState.hasBurnInProtection =
                     deviceConfig.hasBurnInProtection
-                mutableWatchState.screenShape = deviceConfig.screenShape
                 mutableWatchState.analogPreviewReferenceTimeMillis =
                     deviceConfig.analogPreviewReferenceTimeMillis
                 mutableWatchState.digitalPreviewReferenceTimeMillis =
@@ -1047,7 +1045,6 @@ public abstract class WatchFaceService : WallpaperService() {
                 DeviceConfig(
                     properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
                     properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION),
-                    SCREEN_SHAPE_ROUND, // TODO(alexclarke): Fix this?
                     ANALOG_WATCHFACE_REFERENCE_TIME_MS,
                     DIGITAL_WATCHFACE_REFERENCE_TIME_MS
                 )
