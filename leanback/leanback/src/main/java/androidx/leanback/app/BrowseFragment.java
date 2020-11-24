@@ -1239,6 +1239,11 @@ public class BrowseFragment extends BaseFragment {
         mMainFragmentAdapter = null;
         mMainFragment = null;
         mHeadersFragment = null;
+        mBrowseFrame = null;
+        mScaleFrameLayout = null;
+        mSceneAfterEntranceTransition = null;
+        mSceneWithHeaders = null;
+        mSceneWithoutHeaders = null;
         super.onDestroyView();
     }
 
