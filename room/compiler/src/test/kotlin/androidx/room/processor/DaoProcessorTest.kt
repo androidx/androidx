@@ -50,6 +50,24 @@ class DaoProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun testUnusedEnumCompilesWithoutError() {
+        singleDao(
+            """
+                @Dao abstract class MyDao {
+                    @Query("SELECT uid FROM User")
+                    abstract int[] getIds();
+                    enum Fruit {
+                        APPLE,
+                        BANANA,
+                        STRAWBERRY
+                    }
+                }
+                """
+        ) { _, _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun testNonAbstract() {
         singleDao("@Dao public class MyDao {}") { _, _ -> }
             .failsToCompile()

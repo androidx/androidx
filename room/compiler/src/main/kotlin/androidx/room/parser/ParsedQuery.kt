@@ -16,23 +16,36 @@
 
 package androidx.room.parser
 
-import androidx.room.parser.SectionType.BIND_VAR
-import androidx.room.parser.SectionType.NEWLINE
-import androidx.room.parser.SectionType.TEXT
 import androidx.room.verifier.QueryResultInfo
-import org.antlr.v4.runtime.tree.TerminalNode
 
-enum class SectionType {
-    BIND_VAR,
-    TEXT,
-    NEWLINE
-}
+sealed class Section {
 
-data class Section(val text: String, val type: SectionType) {
+    abstract val text: String
+
+    data class Text(override val text: String) : Section()
+
+    object NewLine : Section() {
+        override val text: String
+            get() = ""
+    }
+
+    data class BindVar(
+        override val text: String,
+        val isMultiple: Boolean
+    ) : Section() {
+        val varName by lazy {
+            if (text.startsWith(":")) {
+                text.substring(1)
+            } else {
+                null
+            }
+        }
+    }
+
     companion object {
-        fun text(text: String) = Section(text, TEXT)
-        fun newline() = Section("", NEWLINE)
-        fun bindVar(text: String) = Section(text, BIND_VAR)
+        fun text(text: String) = Text(text)
+        fun newline() = NewLine
+        fun bindVar(text: String, isMultiple: Boolean) = BindVar(text, isMultiple)
     }
 }
 
@@ -40,7 +53,7 @@ data class Table(val name: String, val alias: String)
 data class ParsedQuery(
     val original: String,
     val type: QueryType,
-    val inputs: List<TerminalNode>,
+    val inputs: List<BindParameterNode>,
     val tables: Set<Table>, // pairs of table name and alias
     val syntaxErrors: List<String>,
     val runtimeQueryPlaceholder: Boolean
@@ -80,7 +93,12 @@ data class ParsedQuery(
                         )
                     )
                 }
-                sections.add(Section.bindVar(bindVar.text))
+                sections.add(
+                    Section.bindVar(
+                        bindVar.text,
+                        bindVar.isMultiple
+                    )
+                )
                 charInLine = bindVar.symbol.charPositionInLine + bindVar.symbol.text.length
             }
             if (charInLine < line.length) {
@@ -92,7 +110,7 @@ data class ParsedQuery(
         }
         sections
     }
-    val bindSections by lazy { sections.filter { it.type == BIND_VAR } }
+    val bindSections by lazy { sections.filterIsInstance<Section.BindVar>() }
     private fun unnamedVariableErrors(): List<String> {
         val anonymousBindError = if (inputs.any { it.text == "?" }) {
             arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
@@ -124,10 +142,10 @@ data class ParsedQuery(
     }
     val queryWithReplacedBindParams by lazy {
         sections.joinToString("") {
-            when (it.type) {
-                TEXT -> it.text
-                BIND_VAR -> "?"
-                NEWLINE -> "\n"
+            when (it) {
+                is Section.Text -> it.text
+                is Section.BindVar -> "?"
+                is Section.NewLine -> "\n"
             }
         }
     }
