@@ -59,4 +59,9 @@ class MutableLoadStateCollection {
             op(type, true, state)
         }
     }
+
+    internal fun terminates(loadType: LoadType): Boolean {
+        return get(loadType, false)!!.endOfPaginationReached &&
+            get(loadType, true)?.endOfPaginationReached != false
+    }
 }

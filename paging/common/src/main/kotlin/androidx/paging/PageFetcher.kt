@@ -110,11 +110,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .filterNotNull()
             .mapLatest { generation ->
-                val downstreamFlow = if (remoteMediatorAccessor == null) {
-                    generation.snapshot.pageEventFlow
-                } else {
-                    generation.snapshot.injectRemoteEvents(remoteMediatorAccessor)
-                }
+                val downstreamFlow = generation.snapshot
+                    .injectRemoteEvents(remoteMediatorAccessor)
+                // .mapRemoteCompleteAsTrailingInsertForSeparators()
+
                 PagingData(
                     flow = downstreamFlow,
                     receiver = PagerUiReceiver(generation.snapshot, retryEvents)
@@ -124,47 +123,55 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     private fun PageFetcherSnapshot<Key, Value>.injectRemoteEvents(
-        accessor: RemoteMediatorAccessor<Key, Value>
-    ): Flow<PageEvent<Value>> = channelFlow {
-        suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
-            // not loading events are sent w/ insert-drop events.
-            if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(state, fromMediator = true)) {
-                send(
-                    PageEvent.LoadStateUpdate<Value>(type, true, state)
-                )
-            } else {
-                // ignore. Some invalidation will happened and we'll send the event there instead
-            }
-        }
-        launch {
-            var prev = LoadStates.IDLE
-            accessor.state.collect {
-                if (prev.refresh != it.refresh) {
-                    dispatchIfValid(REFRESH, it.refresh)
-                }
-                if (prev.prepend != it.prepend) {
-                    dispatchIfValid(PREPEND, it.prepend)
-                }
-                if (prev.append != it.append) {
-                    dispatchIfValid(APPEND, it.append)
-                }
-                prev = it
-            }
-        }
+        accessor: RemoteMediatorAccessor<Key, Value>?
+    ): Flow<PageEvent<Value>> {
+        if (accessor == null) return pageEventFlow
 
-        this@injectRemoteEvents.pageEventFlow.collect {
-            // only insert events have combinedLoadStates.
-            if (it is PageEvent.Insert<Value>) {
-                send(
-                    it.copy(
-                        combinedLoadStates = CombinedLoadStates(
-                            it.combinedLoadStates.source,
-                            accessor.state.value
+        return channelFlow {
+            suspend fun dispatchIfValid(type: LoadType, state: LoadState) {
+                // not loading events are sent w/ insert-drop events.
+                if (PageEvent.LoadStateUpdate.canDispatchWithoutInsert(
+                        state,
+                        fromMediator = true
+                    )
+                ) {
+                    send(
+                        PageEvent.LoadStateUpdate<Value>(type, true, state)
+                    )
+                } else {
+                    // ignore. Some invalidation will happened and we'll send the event there instead
+                }
+            }
+            launch {
+                var prev = LoadStates.IDLE
+                accessor.state.collect {
+                    if (prev.refresh != it.refresh) {
+                        dispatchIfValid(REFRESH, it.refresh)
+                    }
+                    if (prev.prepend != it.prepend) {
+                        dispatchIfValid(PREPEND, it.prepend)
+                    }
+                    if (prev.append != it.append) {
+                        dispatchIfValid(APPEND, it.append)
+                    }
+                    prev = it
+                }
+            }
+
+            this@injectRemoteEvents.pageEventFlow.collect {
+                // only insert events have combinedLoadStates.
+                if (it is PageEvent.Insert<Value>) {
+                    send(
+                        it.copy(
+                            combinedLoadStates = CombinedLoadStates(
+                                it.combinedLoadStates.source,
+                                accessor.state.value
+                            )
                         )
                     )
-                )
-            } else {
-                send(it)
+                } else {
+                    send(it)
+                }
             }
         }
     }

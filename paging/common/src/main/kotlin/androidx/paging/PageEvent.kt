@@ -39,11 +39,11 @@ internal sealed class PageEvent<T : Any> {
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
-                "Append state defining placeholdersBefore must be > 0, but was" +
+                "Prepend insert defining placeholdersBefore must be > 0, but was" +
                     " $placeholdersBefore"
             }
             require(loadType == PREPEND || placeholdersAfter >= 0) {
-                "Prepend state defining placeholdersAfter must be > 0, but was" +
+                "Append insert defining placeholdersAfter must be > 0, but was" +
                     " $placeholdersAfter"
             }
             require(loadType != REFRESH || pages.isNotEmpty()) {
