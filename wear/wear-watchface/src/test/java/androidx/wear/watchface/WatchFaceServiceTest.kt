@@ -1070,7 +1070,6 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
                     0,
                     0
                 ),
@@ -1107,7 +1106,6 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
                     0,
                     0
                 ),
@@ -1162,7 +1160,6 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     true,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_RECTANGULAR,
                     0,
                     0
                 ),
@@ -1174,7 +1171,6 @@ class WatchFaceServiceTest {
 
         assertTrue(watchState.hasLowBitAmbient)
         assertFalse(watchState.hasBurnInProtection)
-        assertThat(watchState.screenShape).isEqualTo(DeviceConfig.SCREEN_SHAPE_RECTANGULAR)
     }
 
     @Test
@@ -1465,7 +1461,6 @@ class WatchFaceServiceTest {
             DeviceConfig(
                 false,
                 false,
-                DeviceConfig.SCREEN_SHAPE_ROUND,
                 1000,
                 2000,
             ),
@@ -1496,7 +1491,6 @@ class WatchFaceServiceTest {
             DeviceConfig(
                 false,
                 false,
-                DeviceConfig.SCREEN_SHAPE_ROUND,
                 1000,
                 2000,
             ),
@@ -1750,7 +1744,6 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
                     0,
                     0
                 ),
@@ -1805,7 +1798,6 @@ class WatchFaceServiceTest {
                 DeviceConfig(
                     false,
                     false,
-                    DeviceConfig.SCREEN_SHAPE_ROUND,
                     0,
                     0
                 ),
