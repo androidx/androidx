@@ -40,14 +40,14 @@
 
     <string name="authprompt_test_app_title">AuthPrompt Test App</string>
 
-    <string name="authclass_label">Authentication class:</string>
-    <string name="class2_button_label">Class 2 Authentication</string>
-    <string name="class3_button_label">Class 3 Authentication</string>
-
-    <string name="authtype_label">Authentication type:</string>
-    <string name="biometric_only_label">Biometric Only Authentication</string>
-    <string name="biometric_or_credential_label">Biometric or Credential Authentication</string>
-    <string name="credential_only_label">Credential Only Authentication</string>
+    <string name="authclass_label">Authentication type:</string>
+    <string name="class2_biometric_text">Class 2 Biometric Only Authentication</string>
+    <string name="class3_biometric_text">Class 3 Biometric Only Authentication</string>
+    <string name="class2_biometric_or_credential_text">Class 2 Biometric Or Credential
+        Authentication</string>
+    <string name="class3_biometric_or_credential_text">Class 3 Biometric or Credential
+        Authentication</string>
+    <string name="credential_text">Credential Only Authentication</string>
 
     <string name="crypto_auth_label">Use crypto-based authentication</string>
     <string name="other_options_label">Other options:</string>
