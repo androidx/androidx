@@ -17,20 +17,29 @@
 package androidx.wear.ongoingactivity;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.Objects;
 
 /**
  * {@link OngoingActivityStatus} representing a timer or stopwatch.
  */
+@VersionedParcelize
 public class TimerOngoingActivityStatus extends OngoingActivityStatus {
+    @ParcelField(value = 1, defaultValue = "0")
     private long mTimeZeroMillis;
+
+    @ParcelField(value = 2, defaultValue = "false")
     private boolean mCountDown = false;
+
+    @ParcelField(value = 3, defaultValue = "-1")
     private long mPausedAtMillis = LONG_DEFAULT;
+
+    @ParcelField(value = 4, defaultValue = "-1")
     private long mTotalDurationMillis = LONG_DEFAULT;
 
     private final StringBuilder mStringBuilder = new StringBuilder(8);
@@ -132,19 +141,6 @@ public class TimerOngoingActivityStatus extends OngoingActivityStatus {
                 //    * Has the same millis as timeZero.
                 //    * It's as small as possible.
                 fromTimeMillis + ((mTimeZeroMillis - fromTimeMillis) % 1000 + 1999) % 1000 + 1;
-    }
-
-    @Override
-    void extend(Bundle bundle) {
-        bundle.putBoolean(KEY_USE_CHRONOMETER, true);
-        bundle.putLong(KEY_TIME_ZERO, mTimeZeroMillis);
-        bundle.putBoolean(KEY_COUNT_DOWN, mCountDown);
-        if (mTotalDurationMillis != LONG_DEFAULT) {
-            bundle.putLong(KEY_TOTAL_DURATION, mTotalDurationMillis);
-        }
-        if (mPausedAtMillis != LONG_DEFAULT) {
-            bundle.putLong(KEY_PAUSED_AT, mPausedAtMillis);
-        }
     }
 
     /**
