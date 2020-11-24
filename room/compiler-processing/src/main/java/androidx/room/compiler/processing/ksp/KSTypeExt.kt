@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -29,6 +30,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.ArrayTypeName
 
@@ -51,6 +53,7 @@ internal fun KSTypeReference?.typeName(resolver: Resolver): TypeName {
 /**
  * Turns a KSDeclaration into a TypeName in java's type system.
  */
+@OptIn(KspExperimental::class)
 internal fun KSDeclaration.typeName(resolver: Resolver): TypeName {
     // if there is no qualified name, it is a resolution error so just return shared instance
     // KSP may improve that later and if not, we can improve it in Room
@@ -148,3 +151,5 @@ internal fun KSTypeArgument.requireType(): KSType {
 internal fun KSTypeReference.isTypeParameterReference(): Boolean {
     return this.resolve().declaration is KSTypeParameter
 }
+
+fun KSType.isInline() = declaration.modifiers.contains(Modifier.INLINE)
