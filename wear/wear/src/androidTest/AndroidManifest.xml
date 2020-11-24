@@ -97,6 +97,13 @@
         <activity android:name="androidx.wear.activity.ConfirmationActivity">
         </activity>
 
+        <activity android:name="androidx.wear.widget.TouchTestActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <!-- Test app is iOS compatible. -->
         <meta-data
             android:name="com.google.android.wearable.standalone"

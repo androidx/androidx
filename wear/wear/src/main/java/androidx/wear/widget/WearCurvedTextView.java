@@ -22,6 +22,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.lang.Math.sin;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -37,6 +38,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -80,6 +82,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
     private float mParentRotateAngle = 0f;
+    private boolean mParentRotateAngleSet = false;
 
     private int mAnchorType = UNSET_ANCHOR_TYPE;
     private float mAnchorAngleDegrees = UNSET_ANCHOR_DEGREE;
@@ -99,6 +102,10 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private String mFontFeatureSettings = null;
     @Nullable
     private String mFontVariationSettings = null;
+
+    // If true, it means we got the touch_down event and are receiving the touch events that follow.
+    private boolean mHandlingTouch = false;
+
 
     public WearCurvedTextView(@NonNull Context context) {
         this(context, null);
@@ -189,6 +196,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         a.recycle();
 
         applyTextAppearance(attributes);
+
         mPaint.setTextSize(mTextSize);
     }
 
@@ -228,8 +236,34 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     @Override
     public boolean handleLayoutRotate(float angle) {
+        mParentRotateAngleSet = true;
+
+        // Ensure we are redrawn when the parent rotates.
+        if (mParentRotateAngle != angle) {
+            doRedraw();
+        }
         mParentRotateAngle = angle;
         return true;
+    }
+
+    @Override
+    public boolean insideClickArea(float x, float y) {
+        float radius2 = min(getWidth(), getHeight()) / 2f
+                - (mClockwise ? getPaddingTop() : getPaddingBottom());
+        float radius1 =
+                radius2 - mPaint.getFontMetrics().descent + mPaint.getFontMetrics().ascent;
+
+        float dx = x - getWidth() / 2;
+        float dy = y - getHeight() / 2;
+
+        float r2 = dx * dx + dy * dy;
+        if (r2 < radius1 * radius1 || r2 > radius2 * radius2) {
+            return false;
+        }
+
+        // Since we are symmetrical on the Y-axis, we can constrain the angle to the x>=0 quadrants.
+        float angle = (float) Math.toDegrees(Math.atan2(Math.abs(dx), -dy));
+        return angle < mBackgroundSweepDegrees / 2;
     }
 
     @Override
@@ -368,6 +402,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         if (withBackground) {
             mBgPath.reset();
+            // NOTE: Ensure that if the code to compute these radius* change, containsPoint() is
+            // also updated.
             float radius1 = mPathRadius - clockwiseFactor * mPaint.getFontMetrics().descent;
             float radius2 = mPathRadius - clockwiseFactor * mPaint.getFontMetrics().ascent;
             mBgPath.arcTo(
@@ -416,6 +452,48 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
                             ? (int) (centerX + outerRadius)
                             : (int) max(x0, max(x1, max(x2, x3)));
         }
+    }
+
+    @Override
+    // We only filter events and defer to super.onTouchEvent()
+    @SuppressLint("ClickableViewAccessibility")
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (!mHandlingTouch && event.getAction() != MotionEvent.ACTION_DOWN) {
+            return false;
+        }
+
+        float x0 = event.getX();
+        float y0 = event.getY();
+        if (!mParentRotateAngleSet) {
+            // If we are a stand-alone widget, we have to handle our rotation / anchor placement,
+            // if we are part of an arc container, it's handled by it.
+            double rotAngle = -Math.toRadians(mLocalRotateAngle);
+
+            x0 -= getWidth() / 2;
+            y0 -= getHeight() / 2;
+            float tempX = (float)
+                    ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
+            y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);
+            x0 = tempX;
+        }
+
+        // Should we start handling the touch events?
+        if (!mHandlingTouch && insideClickArea(x0, y0)) {
+            mHandlingTouch = true;
+        }
+
+        // We just started or are in the middle of handling events, forward to View to handle.
+        if (mHandlingTouch) {
+            if (event.getAction() == MotionEvent.ACTION_UP
+                    || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                // We should end handling events now
+                mHandlingTouch = false;
+            }
+            event.offsetLocation(x0 - event.getX(), y0 - event.getY());
+            return super.onTouchEvent(event);
+        }
+
+        return false;
     }
 
     @Override
