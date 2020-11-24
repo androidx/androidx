@@ -18,17 +18,15 @@ package androidx.wear.watchface.client {
   }
 
   public final class DeviceConfig {
-    ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, @androidx.wear.watchface.ScreenShape int screenShape, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
+    ctor public DeviceConfig(boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
-    method public int getScreenShape();
     method public boolean hasBurnInProtection();
     method public boolean hasLowBitAmbient();
     property public final long analogPreviewReferenceTimeMillis;
     property public final long digitalPreviewReferenceTimeMillis;
     property public final boolean hasBurnInProtection;
     property public final boolean hasLowBitAmbient;
-    property public final int screenShape;
   }
 
   public interface HeadlessWatchFaceClient extends java.lang.AutoCloseable {

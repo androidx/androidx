@@ -18,7 +18,6 @@ package androidx.wear.watchface
 
 import android.app.NotificationManager
 import androidx.annotation.RestrictTo
-import androidx.wear.watchface.data.DeviceConfig
 
 import androidx.annotation.IntDef
 
@@ -32,10 +31,10 @@ import androidx.annotation.IntDef
 public annotation class ScreenShape {
     public companion object {
         /** The watch screen has a circular shape. */
-        public const val ROUND: Int = DeviceConfig.SCREEN_SHAPE_ROUND
+        public const val ROUND: Int = 1
 
         /** The watch screen has a rectangular or square shape. */
-        public const val RECTANGULAR: Int = DeviceConfig.SCREEN_SHAPE_RECTANGULAR
+        public const val RECTANGULAR: Int = 2
     }
 }
 

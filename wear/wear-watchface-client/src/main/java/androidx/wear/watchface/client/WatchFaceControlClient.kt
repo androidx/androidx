@@ -190,7 +190,6 @@ internal class WatchFaceControlClientImpl internal constructor(
                                     androidx.wear.watchface.data.DeviceConfig(
                                         deviceConfig.hasLowBitAmbient,
                                         deviceConfig.hasBurnInProtection,
-                                        deviceConfig.screenShape,
                                         deviceConfig.analogPreviewReferenceTimeMillis,
                                         deviceConfig.digitalPreviewReferenceTimeMillis
                                     ),
@@ -227,7 +226,6 @@ internal class WatchFaceControlClientImpl internal constructor(
                             androidx.wear.watchface.data.DeviceConfig(
                                 deviceConfig.hasLowBitAmbient,
                                 deviceConfig.hasBurnInProtection,
-                                deviceConfig.screenShape,
                                 deviceConfig.analogPreviewReferenceTimeMillis,
                                 deviceConfig.digitalPreviewReferenceTimeMillis
                             ),
