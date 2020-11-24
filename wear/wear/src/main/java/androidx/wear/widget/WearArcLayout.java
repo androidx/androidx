@@ -92,17 +92,8 @@ public class WearArcLayout extends ViewGroup {
 
         /**
          * Check whether the widget contains invalid attributes as a child of WearArcLayout
-         *
-         * @param clockwise the layout direction of the container
          */
-        void checkInvalidAttributeAsChild(boolean clockwise);
-
-        /**
-         * Return whether the widget will handle the layout rotation requested by the container
-         * If return true, make sure that the layout rotation is done inside the widget since the
-         * container will skip this process.
-         */
-        boolean handleLayoutRotate(float angle);
+        void checkInvalidAttributeAsChild();
 
         /**
          * Return true when the given point is in the clickable area of the child widget.
@@ -563,42 +554,30 @@ public class WearArcLayout extends ViewGroup {
             mTouchedViewAngle = middleAngle;
         }
 
+        // Rotate the child widget.
+        canvas.rotate(
+                multiplier * (mCurrentCumulativeAngle + preRotation),
+                getMeasuredWidth() / 2f,
+                getMeasuredHeight() / 2f);
+
         if (child instanceof ArcLayoutWidget) {
-            ArcLayoutWidget childWidget = (ArcLayoutWidget) child;
-            childWidget.checkInvalidAttributeAsChild(mClockwise);
-
-            // Special case for ArcLayoutWidget. This doesn't need pre-rotating to get the center
-            // of canvas lines up, as it should already know how to draw itself correctly from
-            // the "current" rotation. The layout rotation is always passed to the child widget,
-            // if the child has not handled this rotation by itself, the parent will have to
-            // rotate the canvas to apply this layout.
-            if (!childWidget.handleLayoutRotate(multiplier * mCurrentCumulativeAngle)) {
-                canvas.rotate(
-                        multiplier * mCurrentCumulativeAngle,
-                        getMeasuredWidth() / 2f,
-                        getMeasuredHeight() / 2f
-                );
-            }
+            ((ArcLayoutWidget) child).checkInvalidAttributeAsChild();
         } else {
-            canvas.rotate(
-                    multiplier * (mCurrentCumulativeAngle + preRotation),
-                    getMeasuredWidth() / 2f,
-                    getMeasuredHeight() / 2f);
-
             // Do we need to do some counter rotation?
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
-            // For counterclockwise layout, especially when mixing standard Android widget with
-            // ArcLayoutWidget as children, we might need to rotate the standard widget to make
-            // them with the same upwards direction.
             float angleToRotate = 0f;
-            if (layoutParams.getRotate() && !mClockwise) {
-                angleToRotate = 180f;
-            }
 
-            // Un-rotate about the top of the canvas, around the center of the actual child.
-            // This compounds with the initial rotation into a translation.
-            if (!layoutParams.getRotate()) {
+            if (layoutParams.getRotate()) {
+                // For counterclockwise layout, especially when mixing standard Android widget with
+                // ArcLayoutWidget as children, we might need to rotate the standard widget to make
+                // them have the same upwards direction.
+                if (!mClockwise) {
+                    angleToRotate = 180f;
+                }
+            } else {
+                // Un-rotate about the top of the canvas, around the center of the actual child.
+                // This compounds with the initial rotation into a translation.
                 angleToRotate = -multiplier * (mCurrentCumulativeAngle + preRotation);
             }
 
