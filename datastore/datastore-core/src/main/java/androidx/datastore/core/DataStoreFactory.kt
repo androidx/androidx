@@ -28,8 +28,9 @@ import java.io.File
  */
 public object DataStoreFactory {
     /**
-     * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
-     * there is never more than one DataStore acting on a file at a time.
+     * Create an instance of SingleProcessDataStore. Never create more than one instance of
+     * DataStore for a given file; doing so can break all DataStore functionality. You should
+     * consider managing your DataStore instance as a singleton.
      *
      * T is the type DataStore acts on. The type T must be immutable. Mutating a type used in
      * DataStore invalidates any guarantees that DataStore provides and will result in
@@ -47,6 +48,8 @@ public object DataStoreFactory {
      * @param produceFile Function which returns the file that the new DataStore will act on. The
      * function must return the same path every time. No two instances of DataStore should act on
      * the same file at the same time.
+     *
+     * @return a new DataStore instance with the provided configuration
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public fun <T> create(

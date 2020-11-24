@@ -31,8 +31,11 @@ import kotlinx.coroutines.SupervisorJob
 import java.io.File
 
 /**
- * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
- * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
+ * Create an instance of SingleProcessDataStore. Never create more than one instance of
+ * DataStore for a given file; doing so can break all DataStore functionality. You should
+ * consider managing your DataStore instance as a singleton. Note: this function is *not*
+ * comparable to [Context.getSharedPreferences]; this function creates and returns a
+ * new instance of DataStore each time it is called.
  *
  * @param name The name of the preferences. The preferences will be stored in a file obtained
  * by calling: File(context.filesDir, "datastore/" + name + ".preferences_pb")
@@ -43,6 +46,8 @@ import java.io.File
  * may be run more than once whether or not it already succeeded (potentially because another
  * migration failed or a write to disk failed.)
  * @param scope The scope in which IO operations and transform functions will execute.
+ *
+ * @return a new DataStore instance with the provided configuration
  */
 public fun Context.createDataStore(
     name: String,
