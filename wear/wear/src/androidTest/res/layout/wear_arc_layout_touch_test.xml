@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:circular="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/touch_test_widget_width"
+    android:layout_height="@dimen/touch_test_widget_height"
+    android:layout_gravity="center"
+    android:background="#FFFFC0"
+    android:id="@+id/curved_frame">
+
+    <androidx.wear.widget.DrawableSurface
+        android:id="@+id/drawable_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <androidx.wear.widget.WearArcLayout
+        android:id="@+id/arc_layout1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        circular:anchorAngleDegrees="0"
+        circular:anchorPosition="center"
+        circular:clockwise="true">
+
+        <androidx.wear.widget.WearCurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Left"
+            android:id="@+id/curved_text1"
+            android:background="#66FF0000"
+
+            circular:clockwise="true"
+            circular:minSweepDegrees="60"
+            android:textAlignment="textStart"
+            android:textSize="24sp"
+            tools:ignore="HardcodedText"
+            />
+
+        <androidx.wear.widget.WearCurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Center"
+            android:id="@+id/curved_text2"
+            android:background="#6600FF00"
+
+            circular:clockwise="true"
+            circular:minSweepDegrees="60"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            tools:ignore="HardcodedText"
+            />
+
+        <androidx.wear.widget.WearCurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Right"
+            android:id="@+id/curved_text3"
+            android:background="#660000FF"
+
+            circular:clockwise="true"
+            circular:minSweepDegrees="60"
+            android:textAlignment="textEnd"
+            android:textSize="24sp"
+            tools:ignore="HardcodedText"
+            />
+    </androidx.wear.widget.WearArcLayout>
+
+    <androidx.wear.widget.WearArcLayout
+        android:id="@+id/arc_layout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        circular:anchorAngleDegrees="180"
+        circular:anchorPosition="center"
+        circular:clockwise="true"
+        >
+
+        <androidx.wear.widget.WearCurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ACL"
+            android:id="@+id/curved_text4"
+            android:background="#66FFFF00"
+
+            circular:clockwise="true"
+            circular:minSweepDegrees="40"
+            android:textAlignment="textStart"
+            android:textSize="24sp"
+            tools:ignore="HardcodedText"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/text5"
+            android:background="#66FF00FF"
+            android:textSize="20sp"
+            android:text="N-TXT"
+            circular:clockwise="false"
+            tools:ignore="HardcodedText"
+            />
+
+        <androidx.wear.widget.WearCurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ACR"
+            android:id="@+id/curved_text6"
+            android:background="#6600FFFF"
+
+            circular:clockwise="false"
+            circular:minSweepDegrees="50"
+            android:textAlignment="textEnd"
+            android:textSize="30sp"
+            tools:ignore="HardcodedText"
+            />
+    </androidx.wear.widget.WearArcLayout>
+</FrameLayout>

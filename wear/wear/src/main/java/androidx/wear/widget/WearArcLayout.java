@@ -20,11 +20,14 @@ import static java.lang.Math.asin;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -100,6 +103,13 @@ public class WearArcLayout extends ViewGroup {
          * container will skip this process.
          */
         boolean handleLayoutRotate(float angle);
+
+        /**
+         * Return true when the given point is in the clickable area of the child widget.
+         * In particular, the coordinates should be considered as if the child was drawn
+         * centered at the default angle (12 o clock).
+         */
+        boolean insideClickArea(float x, float y);
     }
 
     /**
@@ -249,7 +259,12 @@ public class WearArcLayout extends ViewGroup {
     private float mAnchorAngleDegrees;
     private boolean mClockwise;
 
+    // Stores the center angles of the children, used to handle touch events.
+    private float[] mAngles = new float[0];
+
+    // Temporary variables using during a draw cycle.
     private float mCurrentCumulativeAngle = 0;
+    private int mAnglesIndex = 0;
 
     public WearArcLayout(@NonNull Context context) {
         this(context, null);
@@ -443,7 +458,92 @@ public class WearArcLayout extends ViewGroup {
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
         mCurrentCumulativeAngle = calculateInitialRotation();
+        mAnglesIndex = 0;
+        if (mAngles.length < getChildCount()) {
+            mAngles = new float[getChildCount()];
+        }
         super.dispatchDraw(canvas);
+    }
+
+    // When a view (that can handle it) receives a TOUCH_DOWN event, it will get all subsequent
+    // events until the touch is released, even if the pointer goes outside of it's bounds.
+    // We store the view that it's being touched and it's position (angle). This is easier to keep
+    // updated when child views are added/removed.
+    private View mTouchedView = null;
+    private float mTouchedViewAngle = 0;
+
+    @Override
+    public boolean onInterceptTouchEvent(@NonNull MotionEvent event) {
+        if (mTouchedView == null && event.getActionMasked() == MotionEvent.ACTION_DOWN
+                && mAngles.length >= getChildCount()) {
+            for (int i = 0; i < getChildCount(); i++) {
+                // First we map the event to the child's coordinate system
+                View child = getChildAt(i);
+                float angle = mAngles[i];
+
+                float[] point = new float[]{event.getX(), event.getY()};
+                mapPoint(child, angle, point);
+
+                float x = point[0];
+                float y = point[1];
+
+                if (insideChildClickArea(child, x, y)) {
+                    mTouchedView = child;
+                    mTouchedViewAngle = angle;
+                    break;
+                }
+            }
+        }
+        // We can't do normal dispatching because it will capture touch in the original position
+        // of children.
+        return true;
+    }
+
+    private static boolean insideChildClickArea(View child, float x, float y) {
+        if (child instanceof ArcLayoutWidget) {
+            return ((ArcLayoutWidget) child).insideClickArea(x, y);
+        }
+        return x >= 0 && x < child.getMeasuredWidth() && y >= 0 && y < child.getMeasuredHeight();
+    }
+
+    // Map a point to local child coordinates.
+    private void mapPoint(View child, float angle, float[] point) {
+        float cx = getMeasuredWidth() / 2;
+        float cy = getMeasuredHeight() / 2;
+
+        Matrix m = new Matrix();
+        m.postRotate(-angle, cx, cy);
+        m.postTranslate(-child.getX(), -child.getY());
+        if (!(child instanceof  ArcLayoutWidget)) {
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            if (!childLayoutParams.getRotate()) {
+                m.postRotate(angle, child.getWidth() / 2, child.getHeight() / 2);
+            }
+        }
+        m.mapPoints(point);
+    }
+
+    @Override
+    @SuppressLint("ClickableViewAccessibility")
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (mTouchedView != null) {
+            float[] point = new float[]{event.getX(), event.getY()};
+            mapPoint(mTouchedView, mTouchedViewAngle, point);
+
+            float dx = point[0] - event.getX();
+            float dy = point[1] - event.getY();
+
+            event.offsetLocation(dx, dy);
+            mTouchedView.onTouchEvent(event);
+
+            if (event.getActionMasked() == MotionEvent.ACTION_UP
+                    || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                // We have finished handling these series of events.
+                mTouchedView = null;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -454,6 +554,14 @@ public class WearArcLayout extends ViewGroup {
         float arcAngle = calculateArcAngle(child);
         float preRotation = arcAngle / 2f;
         float multiplier = mClockwise ? 1f : -1f;
+
+        // Store the center angle of each child to handle touch events.
+        float middleAngle = multiplier * (mCurrentCumulativeAngle + arcAngle / 2);
+        mAngles[mAnglesIndex++] = middleAngle;
+        if (child == mTouchedView) {
+            // We keep this updated, in case the view has changed angle.
+            mTouchedViewAngle = middleAngle;
+        }
 
         if (child instanceof ArcLayoutWidget) {
             ArcLayoutWidget childWidget = (ArcLayoutWidget) child;
@@ -479,24 +587,29 @@ public class WearArcLayout extends ViewGroup {
 
             // Do we need to do some counter rotation?
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+
             // For counterclockwise layout, especially when mixing standard Android widget with
             // ArcLayoutWidget as children, we might need to rotate the standard widget to make
-            // them with the same upwards direction. Note that the strange rotation center is
-            // because the child view is not x-centered but at the top of this container.
-            canvas.rotate(
-                    (mClockwise || !layoutParams.getRotate()) ? 0f : 180f,
-                    getMeasuredWidth() / 2f,
-                    child.getMeasuredHeight() / 2f
-            );
-
-            if (!layoutParams.getRotate()) {
-                // Re-rotate about the top of the canvas, around the center of the actual child.
-                int childInset = getChildTopInset(child);
-                canvas.rotate(
-                        -multiplier * (mCurrentCumulativeAngle + preRotation),
-                        getMeasuredWidth() / 2f,
-                        (child.getMeasuredHeight() / 2f) + childInset);
+            // them with the same upwards direction.
+            float angleToRotate = 0f;
+            if (layoutParams.getRotate() && !mClockwise) {
+                angleToRotate = 180f;
             }
+
+            // Un-rotate about the top of the canvas, around the center of the actual child.
+            // This compounds with the initial rotation into a translation.
+            if (!layoutParams.getRotate()) {
+                angleToRotate = -multiplier * (mCurrentCumulativeAngle + preRotation);
+            }
+
+            // Do the actual rotation. Note that the strange rotation center is because the child
+            // view is x-centered but at the top of this container.
+            int childInset = getChildTopInset(child);
+            canvas.rotate(
+                    angleToRotate,
+                    getMeasuredWidth() / 2f,
+                    child.getMeasuredHeight() / 2f + childInset
+            );
         }
 
         mCurrentCumulativeAngle += arcAngle;

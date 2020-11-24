@@ -324,6 +324,7 @@ package androidx.wear.widget {
     method public float getSweepAngleDegrees();
     method public int getThicknessPx();
     method public boolean handleLayoutRotate(float);
+    method public boolean insideClickArea(float, float);
   }
 
   public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
@@ -364,6 +365,7 @@ package androidx.wear.widget {
     method public int getThicknessPx();
     method public android.graphics.Typeface? getTypeface();
     method public boolean handleLayoutRotate(float);
+    method public boolean insideClickArea(float, float);
     method public void setAnchorAngleDegrees(float);
     method public void setAnchorType(@androidx.wear.widget.WearArcLayout.AnchorType int);
     method public void setClockwise(boolean);

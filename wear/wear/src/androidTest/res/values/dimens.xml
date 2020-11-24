@@ -17,4 +17,6 @@
 
 <resources>
     <dimen name="rounded_drawable_radius">10dp</dimen>
+    <dimen name="touch_test_widget_width">390px</dimen>
+    <dimen name="touch_test_widget_height">390px</dimen>
 </resources>
