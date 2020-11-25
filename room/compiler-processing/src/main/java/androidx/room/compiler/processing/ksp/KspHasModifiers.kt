@@ -52,8 +52,7 @@ sealed class KspHasModifiers(
     }
 
     override fun isStatic(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_STATIC) ||
-            declaration.hasJvmStaticAnnotation()
+        return declaration.isStatic()
     }
 
     override fun isTransient(): Boolean {
