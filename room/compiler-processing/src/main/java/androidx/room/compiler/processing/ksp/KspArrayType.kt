@@ -56,6 +56,13 @@ internal sealed class KspArrayType(
                 allowPrimitives = false
             )
         }
+
+        override fun copyWithNullability(nullability: XNullability): BoxedArray {
+            return BoxedArray(
+                env = env,
+                ksType = ksType.withNullability(nullability)
+            )
+        }
     }
 
     /**
@@ -67,7 +74,15 @@ internal sealed class KspArrayType(
         override val componentType: KspType
     ) : KspArrayType(
         env, ksType
-    )
+    ) {
+        override fun copyWithNullability(nullability: XNullability): PrimitiveArray {
+            return PrimitiveArray(
+                env = env,
+                ksType = ksType.withNullability(nullability),
+                componentType = componentType
+            )
+        }
+    }
 
     /**
      * Factory class to create instances of [KspArrayType].

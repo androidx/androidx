@@ -16,15 +16,11 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.Resolver
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeVariableName
-import com.squareup.javapoet.WildcardTypeName
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -33,6 +29,11 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeVariableName
+import com.squareup.javapoet.WildcardTypeName
 
 internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
@@ -99,7 +100,7 @@ internal fun KSTypeArgument.typeName(
                 TypeVariableName.get(param.name.asString(), type.typeName(resolver).tryBox())
             }
         }
-        else -> type.typeName(resolver)
+        else -> type.typeName(resolver).tryBox()
     }
 }
 
@@ -153,3 +154,9 @@ internal fun KSTypeReference.isTypeParameterReference(): Boolean {
 }
 
 fun KSType.isInline() = declaration.modifiers.contains(Modifier.INLINE)
+
+internal fun KSType.withNullability(nullability: XNullability) = when (nullability) {
+    XNullability.NULLABLE -> makeNullable()
+    XNullability.NONNULL -> makeNotNullable()
+    else -> throw IllegalArgumentException("Cannot set KSType nullability to platform")
+}
