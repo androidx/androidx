@@ -99,6 +99,52 @@ public class AppSearchSessionCtsTest {
     }
 
     @Test
+    public void testGetSchema() throws Exception {
+        AppSearchSchema emailSchema1 = new AppSearchSchema.Builder("Email1")
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+        AppSearchSchema emailSchema2 = new AppSearchSchema.Builder("Email2")
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)  // Different
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new AppSearchSchema.PropertyConfig.Builder("body")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_EXACT_TERMS)  // Different
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).build();
+
+        SetSchemaRequest request1 = new SetSchemaRequest.Builder()
+                .addSchema(emailSchema1).addDataClass(EmailDataClass.class).build();
+        SetSchemaRequest request2 = new SetSchemaRequest.Builder()
+                .addSchema(emailSchema2).addDataClass(EmailDataClass.class).build();
+
+        checkIsResultSuccess(mDb1.setSchema(request1));
+        checkIsResultSuccess(mDb2.setSchema(request2));
+
+        Set<AppSearchSchema> actual1 = checkIsResultSuccess(mDb1.getSchema());
+        Set<AppSearchSchema> actual2 = checkIsResultSuccess(mDb2.getSchema());
+
+        assertThat(actual1).isEqualTo(request1.getSchemas());
+        assertThat(actual2).isEqualTo(request2.getSchemas());
+    }
+
+    @Test
     public void testPutDocuments() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(

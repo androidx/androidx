@@ -241,7 +241,8 @@ public final class AppSearchImpl {
 
             SchemaProto.Builder newSchemaBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : schemas) {
-                SchemaTypeConfigProto schemaTypeProto = SchemaToProtoConverter.convert(schema);
+                SchemaTypeConfigProto schemaTypeProto =
+                        SchemaToProtoConverter.toSchemaTypeConfigProto(schema);
                 newSchemaBuilder.addTypes(schemaTypeProto);
             }
 
@@ -301,6 +302,56 @@ public final class AppSearchImpl {
     }
 
     /**
+     * Retrieves the AppSearch schema for this database.
+     *
+     * <p>This method belongs to query group.
+     *
+     * @param databaseName  The name of the database where this schema lives.
+     * @throws AppSearchException on IcingSearchEngine error.
+     */
+    @NonNull
+    public Set<AppSearchSchema> getSchema(@NonNull String databaseName) throws AppSearchException {
+        SchemaProto fullSchema;
+        mReadWriteLock.readLock().lock();
+        try {
+            fullSchema = getSchemaProtoLocked();
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
+
+        Set<AppSearchSchema> result = new ArraySet<>();
+        for (int i = 0; i < fullSchema.getTypesCount(); i++) {
+            String typeDatabase = getDatabaseName(fullSchema.getTypes(i).getSchemaType());
+            if (!databaseName.equals(typeDatabase)) {
+                continue;
+            }
+            // Rewrite SchemaProto.types.schema_type
+            SchemaTypeConfigProto.Builder typeConfigBuilder = fullSchema.getTypes(i).toBuilder();
+            String newSchemaType =
+                    typeConfigBuilder.getSchemaType().substring(databaseName.length() + 1);
+            typeConfigBuilder.setSchemaType(newSchemaType);
+
+            // Rewrite SchemaProto.types.properties.schema_type
+            for (int propertyIdx = 0;
+                    propertyIdx < typeConfigBuilder.getPropertiesCount();
+                    propertyIdx++) {
+                PropertyConfigProto.Builder propertyConfigBuilder =
+                        typeConfigBuilder.getProperties(propertyIdx).toBuilder();
+                if (!propertyConfigBuilder.getSchemaType().isEmpty()) {
+                    String newPropertySchemaType = propertyConfigBuilder.getSchemaType()
+                            .substring(databaseName.length() + 1);
+                    propertyConfigBuilder.setSchemaType(newPropertySchemaType);
+                    typeConfigBuilder.setProperties(propertyIdx, propertyConfigBuilder);
+                }
+            }
+
+            AppSearchSchema schema = SchemaToProtoConverter.toAppSearchSchema(typeConfigBuilder);
+            result.add(schema);
+        }
+        return result;
+    }
+
+    /**
      * Adds a document to the AppSearch index.
      *
      * <p>This method belongs to mutate group.
@@ -311,7 +362,7 @@ public final class AppSearchImpl {
      */
     public void putDocument(@NonNull String databaseName, @NonNull GenericDocument document)
             throws AppSearchException {
-        DocumentProto.Builder documentBuilder = GenericDocumentToProtoConverter.convert(
+        DocumentProto.Builder documentBuilder = GenericDocumentToProtoConverter.toDocumentProto(
                 document).toBuilder();
         addPrefixToDocument(documentBuilder, getDatabasePrefix(databaseName));
 
@@ -355,7 +406,7 @@ public final class AppSearchImpl {
 
         DocumentProto.Builder documentBuilder = getResultProto.getDocument().toBuilder();
         removeDatabasesFromDocument(documentBuilder);
-        return GenericDocumentToProtoConverter.convert(documentBuilder.build());
+        return GenericDocumentToProtoConverter.toGenericDocument(documentBuilder.build());
     }
 
     /**
@@ -937,7 +988,7 @@ public final class AppSearchImpl {
                 resultsBuilder.setResults(i, resultBuilder);
             }
         }
-        return SearchResultToProtoConverter.convertToSearchResultPage(resultsBuilder);
+        return SearchResultToProtoConverter.toSearchResultPage(resultsBuilder);
     }
 
     @GuardedBy("mReadWriteLock")

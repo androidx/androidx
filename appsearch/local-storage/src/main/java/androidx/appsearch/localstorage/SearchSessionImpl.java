@@ -21,6 +21,7 @@ import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByUriRequest;
@@ -34,6 +35,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -68,6 +70,18 @@ class SearchSessionImpl implements AppSearchSession {
                         mDatabaseName, request.getSchemas(),
                         request.getSchemasNotPlatformSurfaceable(), request.isForceOverride());
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+        });
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema() {
+        return execute(() -> {
+            try {
+                return AppSearchResult.newSuccessfulResult(mAppSearchImpl.getSchema(mDatabaseName));
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
             }
