@@ -24,18 +24,18 @@ import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
 
 import static org.hamcrest.Matchers.allOf;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 
@@ -53,131 +53,136 @@ public class DismissibleFrameLayoutTest {
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
 
-    @Rule
-    public final ActivityTestRule<DismissibleFrameLayoutTestActivity> activityRule =
-            new ActivityTestRule<>(
-                    DismissibleFrameLayoutTestActivity.class,
-                    true, /** initial touch mode */
-                    false /** launchActivity */
-            );
-
     @Test
     public void testBackDismiss() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayout(true, false, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN back button pressed
-        sendBackKey();
-        // AND hidden
-        assertHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutIntent())) {
+            configureDismissibleLayout(scenario, true, false, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN back button pressed
+            sendBackKey();
+            // AND hidden
+            assertHidden(R.id.dismissible_root);
+        }
     }
 
     @Test
     public void testBackNotDismissIfDisabled() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayout(false, false, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN back button pressed
-        sendBackKey();
-        // AND the layout is still nor hidden
-        assertNotHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutIntent())) {
+            configureDismissibleLayout(scenario, false, false, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN back button pressed
+            sendBackKey();
+            // AND the layout is still nor hidden
+            assertNotHidden(R.id.dismissible_root);
+        }
     }
 
     @Test
     public void testSwipeDismiss() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayout(false, true, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN perform a swipe dismiss
-        onView(withId(R.id.dismissible_root)).perform(swipeRight());
-        // AND hidden
-        assertHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutIntent())) {
+            configureDismissibleLayout(scenario, false, true, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN perform a swipe dismiss
+            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            // AND hidden
+            assertHidden(R.id.dismissible_root);
+        }
     }
 
     @Test
     public void testSwipeNotDismissIfDisabled() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayout(false, false, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN perform a swipe dismiss
-        onView(withId(R.id.dismissible_root)).perform(swipeRight());
-        // AND the layout is still nor hidden
-        assertNotHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutIntent())) {
+            configureDismissibleLayout(scenario, false, false, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN perform a swipe dismiss
+            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            // AND the layout is still nor hidden
+            assertNotHidden(R.id.dismissible_root);
+        }
     }
 
 
     @Test
     public void testBackDismissWithRecyclerView() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayoutWithRecyclerView(
-                true, false, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN back button pressed
-        sendBackKey();
-        // AND hidden
-        assertHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutWithRecyclerViewIntent())) {
+            configureDismissibleLayout(scenario, true, false, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN back button pressed
+            sendBackKey();
+            // AND hidden
+            assertHidden(R.id.dismissible_root);
+        }
     }
 
     @Test
     public void testSwipeDismissWithRecyclerView() {
         // GIVEN a freshly setup DismissibleFrameLayout
-        setUpDismissibleLayoutWithRecyclerView(
-                false, true, mDismissCallback);
-        // CHECK the layout is not hidden
-        assertNotHidden(R.id.dismissible_root);
-        // WHEN perform a swipe dismiss
-        onView(withId(R.id.dismissible_root)).perform(swipeRight());
-        // AND hidden
-        assertHidden(R.id.dismissible_root);
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutWithRecyclerViewIntent())) {
+            configureDismissibleLayout(scenario, false, true, mDismissCallback);
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // WHEN perform a swipe dismiss
+            onView(withId(R.id.dismissible_root)).perform(swipeRight());
+            // AND hidden
+            assertHidden(R.id.dismissible_root);
+        }
     }
 
     /**
-     * Set ups the simplest possible layout for test cases - a {@link SwipeDismissFrameLayout} with
-     * a single static child.
+     * Creates intent for launching an activity for test cases - a {@link SwipeDismissFrameLayout}
+     * with a single static child.
      */
-    private void setUpDismissibleLayout(
-            boolean backDismissible,
-            boolean swipeable,
-            @Nullable DismissibleFrameLayout.Callback callback) {
-        activityRule.launchActivity(
-                new Intent()
-                        .putExtra(
-                                LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                                androidx.wear.test.R.layout.dismissible_frame_layout_testcase));
-
-        configureDismissibleLayout(backDismissible, swipeable, callback);
+    private Intent createDismissibleLayoutIntent() {
+        return new Intent()
+                .setClass(ApplicationProvider.getApplicationContext(),
+                        DismissibleFrameLayoutTestActivity.class)
+                .putExtra(
+                        LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                        R.layout.dismissible_frame_layout_testcase);
     }
 
-    private void setUpDismissibleLayoutWithRecyclerView(
-            boolean backDismissible,
-            boolean swipeable,
-            @Nullable DismissibleFrameLayout.Callback callback) {
-        Intent launchIntent = new Intent();
-        launchIntent.putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                R.layout.dismissible_frame_layout_recyclerview_testcase);
-        launchIntent.putExtra(DismissibleFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, true);
-        activityRule.launchActivity(launchIntent);
-
-        configureDismissibleLayout(backDismissible, swipeable, callback);
+    /**
+     * Creates intent for launching an activity for test cases - a {@link SwipeDismissFrameLayout}
+     * with a child of scrollable container.
+     */
+    private Intent createDismissibleLayoutWithRecyclerViewIntent() {
+        return new Intent()
+                .setClass(ApplicationProvider.getApplicationContext(),
+                        DismissibleFrameLayoutTestActivity.class)
+                .putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                        R.layout.dismissible_frame_layout_recyclerview_testcase)
+                .putExtra(DismissibleFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, true);
     }
 
     private void configureDismissibleLayout(
+            ActivityScenario<DismissibleFrameLayoutTestActivity> scenario,
             boolean backDismissible,
             boolean swipeable,
             @Nullable DismissibleFrameLayout.Callback callback) {
-        Activity activity = activityRule.getActivity();
-        DismissibleFrameLayout testLayout = activity.findViewById(R.id.dismissible_root);
-        testLayout.setBackButtonDismissible(backDismissible);
-        testLayout.setSwipeDismissible(swipeable);
-
-        if (callback != null) {
-            testLayout.registerCallback(callback);
-        }
+        scenario.onActivity(activity -> {
+            DismissibleFrameLayout testLayout = activity.findViewById(R.id.dismissible_root);
+            testLayout.setBackButtonDismissible(backDismissible);
+            testLayout.setSwipeDismissible(swipeable);
+            if (callback != null) {
+                testLayout.registerCallback(callback);
+            }
+        });
     }
 
     private static void assertHidden(@IdRes int layoutId) {
