@@ -182,7 +182,8 @@ public class ComplicationsUserStyleSettingWireFormat extends UserStyleSettingWir
          */
         @ParcelField(100)
         @NonNull
-        public ComplicationOverlayWireFormat[] mComplicationOverlays;
+        public ComplicationOverlayWireFormat[] mComplicationOverlays =
+                new ComplicationOverlayWireFormat[0];
 
         ComplicationsOptionWireFormat() {
         }

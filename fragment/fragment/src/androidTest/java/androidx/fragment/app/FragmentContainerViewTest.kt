@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Insets
 import android.os.Bundle
+import android.view.InflateException
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +55,24 @@ class FragmentContainerViewTest {
     fun setupContainer() {
         activityRule.setContentView(R.layout.fragment_container_view)
         context = activityRule.activity.applicationContext
+    }
+
+    @Test
+    fun inflateFragmentContainerNoActivity() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.fragment_container_view, null)
+    }
+
+    @Test(expected = InflateException::class)
+    fun inflatedFragmentContainerNoActivityWithName() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.inflated_fragment_container_view, null)
+    }
+
+    @Test(expected = InflateException::class)
+    fun inflatedFragmentContainerNoActivityWithClass() {
+        val layoutInflater = LayoutInflater.from(context)
+        layoutInflater.inflate(R.layout.inflated_fragment_container_view_with_class, null)
     }
 
     @SdkSuppress(minSdkVersion = 18) // androidx.transition needs setLayoutTransition for API < 18

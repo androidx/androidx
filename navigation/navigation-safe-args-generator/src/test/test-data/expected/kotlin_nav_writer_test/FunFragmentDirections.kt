@@ -4,8 +4,8 @@ import `fun`.`is`.`in`.R
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
 
-class FunFragmentDirections private constructor() {
-  companion object {
-    fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
+public class FunFragmentDirections private constructor() {
+  public companion object {
+    public fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
   }
 }

@@ -65,6 +65,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.view.accessibility.AccessibilityEventCompat;
@@ -195,11 +197,11 @@ public class MediaRouteControllerDialog extends AlertDialog {
         }
     };
 
-    public MediaRouteControllerDialog(Context context) {
+    public MediaRouteControllerDialog(@NonNull Context context) {
         this(context, 0);
     }
 
-    public MediaRouteControllerDialog(Context context, int theme) {
+    public MediaRouteControllerDialog(@NonNull Context context, int theme) {
         super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, true),
                 MediaRouterThemeHelper.createThemedDialogStyle(context));
         mContext = getContext();
@@ -225,6 +227,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     /**
      * Gets the route that this dialog is controlling.
      */
+    @NonNull
     public MediaRouter.RouteInfo getRoute() {
         return mRoute;
     }
@@ -236,7 +239,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
      * @param savedInstanceState The dialog's saved instance state.
      * @return The media control view, or null if none.
      */
-    public View onCreateMediaControlView(Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateMediaControlView(@Nullable Bundle savedInstanceState) {
         return null;
     }
 
@@ -245,6 +249,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
      *
      * @return The media control view, or null if none.
      */
+    @Nullable
     public View getMediaControlView() {
         return mCustomControlView;
     }
@@ -305,12 +310,13 @@ public class MediaRouteControllerDialog extends AlertDialog {
      *
      * @return The token for the session to use or null if none.
      */
+    @Nullable
     public MediaSessionCompat.Token getMediaSession() {
         return mMediaController == null ? null : mMediaController.getSessionToken();
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -477,7 +483,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                 || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             mRoute.requestUpdateVolume(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ? -1 : 1);
@@ -487,7 +493,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                 || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
             return true;

@@ -17,20 +17,23 @@
 package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.javaElementUtils
+import androidx.room.compiler.processing.util.kspResolver
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestForFailedCompilation
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import com.google.devtools.ksp.getClassDeclarationByName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -87,7 +90,7 @@ class XTypeTest {
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
                 assertThat(extendsBoundOrSelf.rawType)
                     .isEqualTo(
-                        it.processingEnv.requireType(it.types.mutableSet).rawType
+                        it.processingEnv.requireType(Set::class).rawType
                     )
             }
         }
@@ -244,10 +247,10 @@ class XTypeTest {
         runProcessorTest {
             assertThat(
                 it.processingEnv.requireType("int").boxed().typeName
-            ).isEqualTo(TypeName.get(java.lang.Integer::class.java))
+            ).isEqualTo(java.lang.Integer::class.className())
             assertThat(
                 it.processingEnv.requireType("java.lang.String").boxed().typeName
-            ).isEqualTo(TypeName.get(String::class.java))
+            ).isEqualTo(String::class.className())
         }
     }
 
@@ -258,9 +261,9 @@ class XTypeTest {
                 it.processingEnv.requireTypeElement(List::class),
                 it.processingEnv.requireType(String::class)
             )
-            val listClassName = ClassName.get(List::class.java)
+            val listClassName = List::class.className()
             assertThat(subject.typeName).isEqualTo(
-                ParameterizedTypeName.get(listClassName, TypeName.get(String::class.java))
+                ParameterizedTypeName.get(listClassName, String::class.typeName())
             )
             assertThat(subject.rawType.typeName).isEqualTo(listClassName)
 

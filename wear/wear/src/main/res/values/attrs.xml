@@ -235,10 +235,11 @@
         <attr name="android:textAppearance" />
         <attr name="android:ellipsize" />
         <!-- custom WearCurvedTextView Attributes -->
-        <attr name="anchorAngleDegrees"/>
-        <attr name="anchorPosition"/>
-        <attr name="sweepDegrees" format="float"/>
-        <attr name="clockwise"/>
+        <attr name="anchorAngleDegrees" />
+        <attr name="anchorPosition" />
+        <attr name="minSweepDegrees" format="float" />
+        <attr name="maxSweepDegrees" format="float" />
+        <attr name="clockwise" />
     </declare-styleable>
 
     <declare-styleable name="TextAppearance">

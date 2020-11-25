@@ -23,6 +23,7 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -149,6 +150,11 @@ public class BiometricViewModel extends ViewModel {
      * The callback object that will receive authentication events.
      */
     @Nullable private BiometricPrompt.AuthenticationCallback mClientCallback;
+
+    /**
+     * Reference to latest {@link androidx.fragment.app.FragmentActivity} hosting BiometricPrompt
+     */
+    @NonNull private WeakReference<FragmentActivity> mClientActivity;
 
     /**
      * Info about the appearance and behavior of the prompt provided by the client application.
@@ -284,6 +290,24 @@ public class BiometricViewModel extends ViewModel {
 
     void setClientCallback(@NonNull BiometricPrompt.AuthenticationCallback clientCallback) {
         mClientCallback = clientCallback;
+    }
+
+    /**
+     * Returns reference to latest activity hosting BiometricPrompt or null if activity has
+     * already been destroyed
+     * @return Reference to latest activity hosting BiometricPrompt
+     */
+    @Nullable
+    public FragmentActivity getClientActivity() {
+        return mClientActivity.get();
+    }
+
+    /**
+     * Updates reference to latest activity hosting BiometricPrompt
+     * @param clientActivity Reference to latest activity hosting BiometricPrompt
+     */
+    void setClientActivity(@NonNull FragmentActivity clientActivity) {
+        mClientActivity = new WeakReference<>(clientActivity);
     }
 
     void setPromptInfo(@Nullable BiometricPrompt.PromptInfo promptInfo) {

@@ -60,7 +60,7 @@ public class ExtensionTranslatingCallbackTest {
 
     @Test
     public void testOnWindowLayoutChange_validFeature() {
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
         Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
         ExtensionDisplayFeature foldFeature = new ExtensionDisplayFeature(bounds,
                 ExtensionDisplayFeature.TYPE_FOLD);
@@ -78,10 +78,10 @@ public class ExtensionTranslatingCallbackTest {
         ExtensionTranslatingCallback extensionTranslatingCallback =
                 new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
 
-        extensionTranslatingCallback.onWindowLayoutChanged(mockContext, windowLayoutInfo);
+        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
 
         ArgumentCaptor<WindowLayoutInfo> captor = ArgumentCaptor.forClass(WindowLayoutInfo.class);
-        verify(mockCallback).onWindowLayoutChanged(eq(mockContext), captor.capture());
+        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity), captor.capture());
         assertEquals(expected, captor.getValue());
     }
 
@@ -96,11 +96,11 @@ public class ExtensionTranslatingCallbackTest {
                 new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        extensionTranslatingCallback.onWindowLayoutChanged(mockContext, windowLayoutInfo);
+        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
 
-        verify(mockCallback).onWindowLayoutChanged(eq(mockContext),
+        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
                 argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
     }
 
@@ -120,11 +120,11 @@ public class ExtensionTranslatingCallbackTest {
                 new ExtensionTranslatingCallback(mockCallback, new ExtensionAdapter());
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        extensionTranslatingCallback.onWindowLayoutChanged(mockContext, windowLayoutInfo);
+        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
 
-        verify(mockCallback).onWindowLayoutChanged(eq(mockContext),
+        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
                 argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
     }
 
@@ -146,11 +146,11 @@ public class ExtensionTranslatingCallbackTest {
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        extensionTranslatingCallback.onWindowLayoutChanged(mockContext, windowLayoutInfo);
+        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
 
-        verify(mockCallback).onWindowLayoutChanged(eq(mockContext),
+        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
                 argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
     }
 
@@ -172,11 +172,11 @@ public class ExtensionTranslatingCallbackTest {
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        extensionTranslatingCallback.onWindowLayoutChanged(mockContext, windowLayoutInfo);
+        extensionTranslatingCallback.onWindowLayoutChanged(mockActivity, windowLayoutInfo);
 
-        verify(mockCallback).onWindowLayoutChanged(eq(mockContext),
+        verify(mockCallback).onWindowLayoutChanged(eq(mockActivity),
                 argThat((layoutInfo) -> layoutInfo.getDisplayFeatures().isEmpty()));
     }
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
 import static androidx.appsearch.app.AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN;
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
-import static androidx.appsearch.app.AppSearchTestUtils.convertSearchResultsToDocuments;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.checkIsResultSuccess;
+import static androidx.appsearch.app.util.AppSearchTestUtils.convertSearchResultsToDocuments;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -251,7 +251,7 @@ public class AnnotationProcessorTest {
     }
 
     @Test
-    public void testAnnotationProcessor_QueryByType() throws Exception {
+    public void testAnnotationProcessor_queryByType() throws Exception {
         checkIsResultSuccess(mSession.setSchema(
                 new SetSchemaRequest.Builder()
                         .addDataClass(Card.class, Gift.class)
@@ -279,7 +279,7 @@ public class AnnotationProcessorTest {
         SearchResults searchResults = mSession.query("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchema("Gift", AppSearchEmail.SCHEMA_TYPE)
+                        .addSchemaType("Gift", AppSearchEmail.SCHEMA_TYPE)
                         .build());
         List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
         assertThat(documents).hasSize(3);
@@ -297,7 +297,7 @@ public class AnnotationProcessorTest {
         searchResults = mSession.query("",
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                        .addSchema(AppSearchEmail.SCHEMA_TYPE)
+                        .addSchemaType(AppSearchEmail.SCHEMA_TYPE)
                         .addSchemaByDataClass(Gift.class)
                         .build());
         documents = convertSearchResultsToDocuments(searchResults);

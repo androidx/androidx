@@ -193,8 +193,8 @@ final class RegisteredMediaRouteProviderWatcher {
     };
 
     public interface Callback {
-        void addProvider(MediaRouteProvider provider);
-        void removeProvider(MediaRouteProvider provider);
+        void addProvider(@NonNull MediaRouteProvider provider);
+        void removeProvider(@NonNull MediaRouteProvider provider);
         void releaseProviderController(@NonNull RegisteredMediaRouteProvider provider,
                 @NonNull MediaRouteProvider.RouteController controller);
     }

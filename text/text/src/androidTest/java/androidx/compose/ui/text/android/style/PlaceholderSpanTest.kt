@@ -66,10 +66,10 @@ class PlaceholderSpanTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun width_isInherit() {
+    fun width_isUnspecified() {
         val placeholderSpan = PlaceholderSpan(
             width = 0f,
-            widthUnit = PlaceholderSpan.UNIT_INHERIT,
+            widthUnit = PlaceholderSpan.UNIT_UNSPECIFIED,
             height = 0f,
             heightUnit = PlaceholderSpan.UNIT_SP,
             pxPerSp = 1f,
@@ -499,12 +499,12 @@ class PlaceholderSpanTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun height_isInherit() {
+    fun height_isUnspecified() {
         val placeholderSpan = PlaceholderSpan(
             width = 0f,
             widthUnit = PlaceholderSpan.UNIT_EM,
             height = 0f,
-            heightUnit = PlaceholderSpan.UNIT_INHERIT,
+            heightUnit = PlaceholderSpan.UNIT_UNSPECIFIED,
             pxPerSp = 1f,
             verticalAlign = PlaceholderSpan.ALIGN_ABOVE_BASELINE
         )

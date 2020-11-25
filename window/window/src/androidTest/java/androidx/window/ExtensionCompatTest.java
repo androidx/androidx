@@ -30,7 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
@@ -167,7 +166,7 @@ public final class ExtensionCompatTest extends WindowTestBase
         ExtensionCompat compat = new ExtensionCompat(fakeExtensionImp, new ExtensionAdapter());
         ExtensionCallbackInterface mockCallback = mock(ExtensionCallbackInterface.class);
         compat.setExtensionCallback(mockCallback);
-        compat.onWindowLayoutChangeListenerAdded(mock(Context.class));
+        compat.onWindowLayoutChangeListenerAdded(mock(Activity.class));
 
         fakeExtensionImp.triggerMalformedSignal();
 
@@ -205,7 +204,7 @@ public final class ExtensionCompatTest extends WindowTestBase
     private static final class FakeExtensionImp implements ExtensionInterface {
 
         private ExtensionCallback mCallback;
-        private final List<Context> mContexts = new ArrayList<>();
+        private final List<Activity> mActivities = new ArrayList<>();
 
         FakeExtensionImp() {
             mCallback = new ExtensionCallback() {
@@ -215,7 +214,7 @@ public final class ExtensionCompatTest extends WindowTestBase
                 }
 
                 @Override
-                public void onWindowLayoutChanged(@NonNull Context context,
+                public void onWindowLayoutChanged(@NonNull Activity activity,
                         @NonNull ExtensionWindowLayoutInfo newLayout) {
 
                 }
@@ -228,13 +227,13 @@ public final class ExtensionCompatTest extends WindowTestBase
         }
 
         @Override
-        public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
-            mContexts.add(context);
+        public void onWindowLayoutChangeListenerAdded(@NonNull Activity activity) {
+            mActivities.add(activity);
         }
 
         @Override
-        public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
-            mContexts.remove(context);
+        public void onWindowLayoutChangeListenerRemoved(@NonNull Activity activity) {
+            mActivities.remove(activity);
         }
 
         @Override
@@ -251,8 +250,8 @@ public final class ExtensionCompatTest extends WindowTestBase
         }
 
         void triggerSignal(ExtensionWindowLayoutInfo info) {
-            for (Context context: mContexts) {
-                mCallback.onWindowLayoutChanged(context, info);
+            for (Activity activity: mActivities) {
+                mCallback.onWindowLayoutChanged(activity, info);
             }
         }
 

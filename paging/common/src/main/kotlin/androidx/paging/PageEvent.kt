@@ -46,6 +46,12 @@ internal sealed class PageEvent<T : Any> {
                 "Prepend state defining placeholdersAfter must be > 0, but was" +
                     " $placeholdersAfter"
             }
+            require(loadType != REFRESH || pages.isNotEmpty()) {
+                "Cannot create a REFRESH Insert event with no TransformablePages as this could " +
+                    "permanently stall pagination. Note that this check does not prevent empty " +
+                    "LoadResults and is instead usually an indication of an internal error in " +
+                    "Paging itself."
+            }
         }
 
         private inline fun <R : Any> mapPages(
@@ -114,7 +120,13 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersBefore: Int,
                 placeholdersAfter: Int,
                 combinedLoadStates: CombinedLoadStates
-            ) = Insert(REFRESH, pages, placeholdersBefore, placeholdersAfter, combinedLoadStates)
+            ) = Insert(
+                REFRESH,
+                pages,
+                placeholdersBefore,
+                placeholdersAfter,
+                combinedLoadStates,
+            )
 
             fun <T : Any> Prepend(
                 pages: List<TransformablePage<T>>,
@@ -133,8 +145,8 @@ internal sealed class PageEvent<T : Any> {
              *
              * Note - has no remote state, so remote state may be added over time
              */
-            val EMPTY_REFRESH_LOCAL = Refresh<Any>(
-                pages = listOf(),
+            val EMPTY_REFRESH_LOCAL: Insert<Any> = Refresh(
+                pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
                 combinedLoadStates = CombinedLoadStates(
@@ -178,6 +190,14 @@ internal sealed class PageEvent<T : Any> {
         val loadState: LoadState // TODO: consider using full state object here
     ) : PageEvent<T>() {
         init {
+            // endOfPaginationReached for local refresh is driven by null values in next/prev keys.
+            require(
+                loadType != REFRESH || fromMediator || loadState !is LoadState.NotLoading ||
+                    !loadState.endOfPaginationReached
+            ) {
+                "LoadStateUpdate for local REFRESH may not set endOfPaginationReached = true"
+            }
+
             require(canDispatchWithoutInsert(loadState, fromMediator)) {
                 "LoadStateUpdates cannot be used to dispatch NotLoading unless it is from remote" +
                     " mediator and remote mediator reached end of pagination."

@@ -125,9 +125,19 @@ public final class FragmentContainerView extends FrameLayout {
             @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (!isInEditMode()) {
-            throw new UnsupportedOperationException("FragmentContainerView must be within a "
-                    + "FragmentActivity to be instantiated from XML.");
+        if (attrs != null) {
+            String name = attrs.getClassAttribute();
+            String attribute = "class";
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FragmentContainerView);
+            if (name == null) {
+                name = a.getString(R.styleable.FragmentContainerView_android_name);
+                attribute = "android:name";
+            }
+            a.recycle();
+            if (name != null && !isInEditMode()) {
+                throw new UnsupportedOperationException("FragmentContainerView must be within "
+                        + "a FragmentActivity to use " + attribute + "=\"" + name + "\"");
+            }
         }
     }
 

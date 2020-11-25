@@ -16,7 +16,7 @@
 
 package androidx.window.sample.backend
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Point
 import android.graphics.Rect
 import androidx.core.util.Consumer
@@ -57,11 +57,7 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
         return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
     }
 
-    private fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
-        val activity = context.getActivityExt() ?: throw IllegalArgumentException(
-            "Used non-visual Context used with WindowManager. Please use an Activity or a " +
-                "ContextWrapper around an Activity instead."
-        )
+    private fun getWindowLayoutInfo(activity: Activity): WindowLayoutInfo {
         val windowSize = activity.calculateWindowSizeExt()
         val featureRect = foldRect(windowSize)
 
@@ -108,11 +104,11 @@ class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
     }
 
     override fun registerLayoutChangeCallback(
-        context: Context,
+        activity: Activity,
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
     ) {
-        executor.execute { callback.accept(getWindowLayoutInfo(context)) }
+        executor.execute { callback.accept(getWindowLayoutInfo(activity)) }
     }
 
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {

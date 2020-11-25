@@ -258,24 +258,25 @@ abstract class SpecialEffectsController {
             return;
         }
         synchronized (mPendingOperations) {
-            ArrayList<Operation> currentlyRunningOperations = new ArrayList<>(mRunningOperations);
-            mRunningOperations.clear();
-            for (Operation operation : currentlyRunningOperations) {
-                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                    Log.v(FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling operation " + operation);
-                }
-                operation.cancel();
-                if (!operation.isComplete()) {
-                    // Re-add any animations that didn't synchronously call complete()
-                    // to continue to track them as running operations
-                    mRunningOperations.add(operation);
-                }
-            }
-
-            updateFinalState();
-
             if (!mPendingOperations.isEmpty()) {
+                ArrayList<Operation> currentlyRunningOperations =
+                        new ArrayList<>(mRunningOperations);
+                mRunningOperations.clear();
+                for (Operation operation : currentlyRunningOperations) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG,
+                                "SpecialEffectsController: Cancelling operation " + operation);
+                    }
+                    operation.cancel();
+                    if (!operation.isComplete()) {
+                        // Re-add any animations that didn't synchronously call complete()
+                        // to continue to track them as running operations
+                        mRunningOperations.add(operation);
+                    }
+                }
+
+                updateFinalState();
+
                 ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
                 mRunningOperations.addAll(newPendingOperations);
@@ -708,6 +709,13 @@ abstract class SpecialEffectsController {
             }
             if (getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
                 View view = getFragment().requireView();
+                // We need to ensure that the fragment's view is re-added
+                // for ADDING operations to properly handle cases where the
+                // exit animation was interrupted.
+                if (view.getParent() == null) {
+                    mFragmentStateManager.addViewToContainer();
+                    view.setAlpha(0f);
+                }
                 // Change the view alphas back to their original values before we execute our
                 // transitions.
                 if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {

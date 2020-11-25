@@ -17,29 +17,13 @@
 package androidx.wear.watchface.test
 
 import android.content.Context
-import android.graphics.RectF
-import android.graphics.drawable.Icon
 import android.os.Handler
 import android.view.SurfaceHolder
-import androidx.wear.complications.DefaultComplicationProviderPolicy
-import androidx.wear.complications.SystemProviders
-import androidx.wear.complications.data.ComplicationType
-import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
-import androidx.wear.watchface.samples.EXAMPLE_OPENGL_COMPLICATION_ID
-import androidx.wear.watchface.samples.ExampleOpenGLRenderer
-import androidx.wear.watchface.samples.R
-import androidx.wear.watchface.samples.WatchFaceColorStyle
-import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
-import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.samples.createExampleOpenGLWatchFaceBuilder
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGlesWatchFaceService(
@@ -59,73 +43,19 @@ internal class TestGlesWatchFaceService(
 
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchFaceHost: WatchFaceHost,
         watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
-
-        val watchFaceStyle = WatchFaceColorStyle.create(this, "white_style")
-        val colorStyleSetting = ListUserStyleSetting(
-            "color_style_setting",
-            "Colors",
-            "Watchface colorization",
-            icon = null,
-            options = listOf(
-                ListUserStyleSetting.ListOption(
-                    "red_style",
-                    "Red",
-                    Icon.createWithResource(this, R.drawable.red_style)
-                ),
-                ListUserStyleSetting.ListOption(
-                    "green_style",
-                    "Green",
-                    Icon.createWithResource(this, R.drawable.green_style)
-                )
-            ),
-            listOf(Layer.BASE_LAYER, Layer.TOP_LAYER)
-        )
-        val userStyleRepository = UserStyleRepository(UserStyleSchema(listOf(colorStyleSetting)))
-        val complicationSlots = ComplicationsManager(
-            listOf(
-                Complication.Builder(
-                    EXAMPLE_OPENGL_COMPLICATION_ID,
-                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-                    listOf(
-                        ComplicationType.RANGED_VALUE,
-                        ComplicationType.LONG_TEXT,
-                        ComplicationType.SHORT_TEXT,
-                        ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
-                    ),
-                    DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-                ).setUnitSquareBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
-                    .setDefaultProviderType(ComplicationType.SHORT_TEXT)
-                    .build()
-            ),
-            userStyleRepository
-        )
-        val renderer = ExampleOpenGLRenderer(
+        return createExampleOpenGLWatchFaceBuilder(
+            this,
             surfaceHolder,
-            userStyleRepository,
-            watchState,
-            colorStyleSetting,
-            complicationSlots[EXAMPLE_OPENGL_COMPLICATION_ID]!!
-        )
-
-        return WatchFace.Builder(
-            WatchFaceType.ANALOG,
-            16,
-            userStyleRepository,
-            complicationSlots,
-            renderer,
-            watchFaceHost,
             watchState
         ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
             override fun getSystemTimeMillis(): Long {
                 return mockSystemTimeMillis
             }
-        }).build()
+        })
     }
 
     override fun getMutableWatchState() = mutableWatchState

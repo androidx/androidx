@@ -16,6 +16,7 @@
 
 package androidx.sqlite.db;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -26,6 +27,8 @@ import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.io.Closeable;
@@ -208,6 +211,46 @@ public interface SupportSQLiteDatabase extends Closeable {
      * @return true if the transaction was yielded
      */
     boolean yieldIfContendedSafely(long sleepAfterYieldDelay);
+
+    /**
+     * Returns true if {@link #execPerConnectionSQL(String, Object[])} is supported by the
+     * implementation.
+     *
+     * @return true if {@link #execPerConnectionSQL(String, Object[])} can be invoked safely,
+     * false otherwise.
+     */
+    @SuppressWarnings("AcronymName") // To keep consistency with framework method name.
+    default boolean isExecPerConnectionSQLSupported() {
+        return false;
+    }
+
+    /**
+     * Execute the given SQL statement on all connections to this database.
+     * <p>
+     * This statement will be immediately executed on all existing connections,
+     * and will be automatically executed on all future connections.
+     * <p>
+     * Some example usages are changes like {@code PRAGMA trusted_schema=OFF} or
+     * functions like {@code SELECT icu_load_collation()}. If you execute these
+     * statements using {@link #execSQL} then they will only apply to a single
+     * database connection; using this method will ensure that they are
+     * uniformly applied to all current and future connections.
+     * <p>
+     * An implementation of {@link SupportSQLiteDatabase} might not support this operation. Use
+     * {@link #isExecPerConnectionSQLSupported()} to check if this operation is supported before
+     * calling this method.
+     *
+     * @param sql The SQL statement to be executed. Multiple statements
+     *            separated by semicolons are not supported.
+     * @param bindArgs The arguments that should be bound to the SQL statement.
+     * @throws UnsupportedOperationException if this operation is not supported. To check if it
+     * supported use {@link #isExecPerConnectionSQLSupported()}
+     */
+    @SuppressWarnings("AcronymName") // To keep consistency with framework method name.
+    default void execPerConnectionSQL(@NonNull String sql,
+            @SuppressLint("ArrayReturn") @Nullable Object[] bindArgs) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Gets the database version.

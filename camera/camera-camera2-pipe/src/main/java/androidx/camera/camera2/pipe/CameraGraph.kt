@@ -105,6 +105,11 @@ interface CameraGraph : Closeable {
          * for us.
          */
         val METERING_REGIONS_DEFAULT = arrayOf(MeteringRectangle(0, 0, 0, 0, 0))
+
+        /**
+         * Placeholder frame number for [Result3A] when a 3A method encounters an error.
+         */
+        val FRAME_NUMBER_INVALID = FrameNumber(-1L)
     }
 
     /**
@@ -135,21 +140,21 @@ interface CameraGraph : Closeable {
             aeRegions: List<MeteringRectangle>? = null,
             afRegions: List<MeteringRectangle>? = null,
             awbRegions: List<MeteringRectangle>? = null
-        ): Deferred<FrameNumber>
+        ): Deferred<Result3A>
 
         /**
          * Applies the given 3A parameters to the camera device but for only one frame.
          *
          * @return the FrameNumber for which these parameters were applied.
          */
-        fun submit3A(
+        suspend fun submit3A(
             aeMode: AeMode? = null,
             afMode: AfMode? = null,
             awbMode: AwbMode? = null,
             aeRegions: List<MeteringRectangle>? = null,
             afRegions: List<MeteringRectangle>? = null,
             awbRegions: List<MeteringRectangle>? = null
-        ): Deferred<FrameNumber>
+        ): Deferred<Result3A>
 
         /**
          * Turns the torch to ON or OFF.

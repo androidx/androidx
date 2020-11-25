@@ -19,31 +19,36 @@ package androidx.car.app.navigation.model;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.content.Context;
-import android.os.RemoteException;
 import android.text.SpannableString;
 
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.test.R;
 import androidx.car.app.utils.Logger;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link RoutePreviewNavigationTemplate}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class RoutePreviewNavigationTemplateTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -181,23 +186,24 @@ public class RoutePreviewNavigationTemplateTest {
     }
 
     @Test
-    public void setOnNavigateAction() throws RemoteException {
-        // TODO(rampara): Confirm that UiThreadTest annotation is required for test.
-//        OnClickListener mockListener = mock(OnClickListener.class);
-//        RoutePreviewNavigationTemplate template =
-//                RoutePreviewNavigationTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-//                        .setNavigateAction(
-//                                Action.builder().setTitle("Navigate").setOnClickListener(
-//                                        mockListener).build())
-//                        .build();
-//
-//        template.getNavigateAction()
-//                .getOnClickListener()
-//                .getListener()
-//                .onClick(mock(IOnDoneCallback.class));
-//        verify(mockListener).onClick();
+    @UiThreadTest
+    public void setOnNavigateAction() {
+        OnClickListener mockListener = mock(OnClickListener.class);
+        RoutePreviewNavigationTemplate template =
+                RoutePreviewNavigationTemplate.builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setNavigateAction(
+                                Action.builder().setTitle("Navigate").setOnClickListener(
+                                        mockListener).build())
+                        .build();
+
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        template.getNavigateAction()
+                .getOnClickListener()
+                .onClick(onDoneCallback);
+        verify(mockListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test
@@ -578,25 +584,18 @@ public class RoutePreviewNavigationTemplateTest {
 
     @Test
     public void checkPermissions_hasPermissions() {
-        //TODO(rampara): Investigate failure to create ShadowPackageManager
-//        RoutePreviewNavigationTemplate template =
-//                RoutePreviewNavigationTemplate.builder()
-//                        .setTitle("Title")
-//                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
-//                        .setNavigateAction(
-//                                Action.builder().setTitle("drive").setOnClickListener(() -> {
-//                                }).build())
-//                        .build();
-//
-//        PackageManager packageManager = mContext.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = mContext.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{CarAppPermission.NAVIGATION_TEMPLATES};
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(mContext);
+        RoutePreviewNavigationTemplate template =
+                RoutePreviewNavigationTemplate.builder()
+                        .setTitle("Title")
+                        .setItemList(TestUtils.createItemListWithDistanceSpan(2, true, DISTANCE))
+                        .setNavigateAction(
+                                Action.builder().setTitle("drive").setOnClickListener(() -> {
+                                }).build())
+                        .build();
+
+        // Expect that it does not throw
+        template.checkPermissions(
+                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
     }
 
     @Test

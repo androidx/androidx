@@ -23,6 +23,7 @@ import static androidx.car.app.model.constraints.CarColorConstraints.STANDARD_ON
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import androidx.activity.OnBackPressedCallback;
@@ -33,6 +34,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.host.model.OnClickListenerWrapper;
+import androidx.car.app.host.model.OnClickListenerWrapperImpl;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -336,11 +339,16 @@ public final class Action {
             return this;
         }
 
-        /** Sets the {@link OnClickListener} to call when the action is clicked. */
+        /**
+         * Sets the {@link OnClickListener} to call when the action is clicked.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         */
         @NonNull
-        @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+        @SuppressLint("ExecutorRegistration")
         public Builder setOnClickListener(@Nullable OnClickListener listener) {
-            this.mListener = listener == null ? null : OnClickListenerWrapper.create(listener);
+            this.mListener = listener == null ? null : OnClickListenerWrapperImpl.create(listener);
             return this;
         }
 

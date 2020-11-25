@@ -33,6 +33,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalUseCaseGroup;
@@ -108,11 +109,14 @@ public abstract class CameraController {
 
     /**
      * Bitmask options to enable/disable use cases.
+     *
+     * @hide
      */
     @UseExperimental(markerClass = ExperimentalVideo.class)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true, value = { IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE })
-    public @interface UseCases { }
+    @IntDef(flag = true, value = {IMAGE_CAPTURE, IMAGE_ANALYSIS, VIDEO_CAPTURE})
+    public @interface UseCases {
+    }
 
     /**
      * Bitmask option to enable {@link ImageCapture}. In {@link #setEnabledUseCases}, if
@@ -243,8 +247,7 @@ public abstract class CameraController {
     }
 
     /**
-     * Gets a {@link ListenableFuture} that completes when camera initialization completes and
-     * use cases are attached.
+     * Gets a {@link ListenableFuture} that completes when camera initialization completes.
      *
      * <p> This future may fail with an {@link InitializationException} and associated cause that
      * can be retrieved by {@link Throwable#getCause()). The cause will be a
@@ -254,6 +257,13 @@ public abstract class CameraController {
      * camera will become unusable. This could happen for various reasons, for example hardware
      * failure or the camera being held by another process. If the failure is temporary, killing
      * and restarting the app might fix the issue.
+     *
+     * <p> The initialization also try to bind use cases before completing the
+     * {@link ListenableFuture}. The {@link ListenableFuture} will complete successfully
+     * regardless of whether the use cases are ready to be bound, e.g. it will complete
+     * successfully even if the controller is not set on a {@link PreviewView}. However the
+     * {@link ListenableFuture} will fail if the enabled use cases are not supported by the
+     * current camera.
      *
      * @see ProcessCameraProvider#getInstance
      */
@@ -754,7 +764,7 @@ public abstract class CameraController {
      * <p> Calling this method with a {@link CameraSelector} that resolves to a different camera
      * will change the camera being used by the controller.
      *
-     * <p>The default value is{@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     * <p>The default value is {@link CameraSelector#DEFAULT_BACK_CAMERA}.
      *
      * @throws IllegalStateException If the provided camera selector is unable to resolve a
      *                               camera to be used for the enabled use cases.
@@ -775,6 +785,48 @@ public abstract class CameraController {
         CameraSelector oldCameraSelector = mCameraSelector;
         mCameraSelector = cameraSelector;
         startCameraAndTrackStates(() -> mCameraSelector = oldCameraSelector);
+    }
+
+    /**
+     * Checks if the given {@link CameraSelector} can be resolved to a camera.
+     *
+     * <p> Use this method to check if the device has the given camera.
+     *
+     * <p> Only call this method after camera is initialized. e.g. after the
+     * {@link ListenableFuture} from {@link #getInitializationFuture()} is finished. Calling it
+     * prematurely throws {@link IllegalStateException}. Example:
+     *
+     * <pre><code>
+     * controller.getInitializationFuture().addListener(() -> {
+     *     if (controller.hasCamera(cameraSelector)) {
+     *         controller.setCameraSelector(cameraSelector);
+     *     } else {
+     *         // Update UI if the camera is not available.
+     *     }
+     *     // Attach PreviewView after we know the camera is available.
+     *     previewView.setController(controller);
+     * }, ContextCompat.getMainExecutor(requireContext()));
+     * </code></pre>
+     *
+     * @return true if the {@link CameraSelector} can be resolved to a camera.
+     * @throws IllegalStateException if the camera is not initialized.
+     */
+    @MainThread
+    public boolean hasCamera(@NonNull CameraSelector cameraSelector) {
+        Threads.checkMainThread();
+        Preconditions.checkNotNull(cameraSelector);
+
+        if (mCameraProvider == null) {
+            throw new IllegalStateException("Camera not initialized. Please wait for "
+                    + "the initialization future to finish. See #getInitializationFuture().");
+        }
+
+        try {
+            return mCameraProvider.hasCamera(cameraSelector);
+        } catch (CameraInfoUnavailableException e) {
+            Logger.w(TAG, "Failed to check camera availability", e);
+            return false;
+        }
     }
 
     /**

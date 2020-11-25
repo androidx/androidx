@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 import androidx.mediarouter.media.MediaRouteSelector;
@@ -55,6 +57,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
      *
      * @return The selector, never null.
      */
+    @NonNull
     public MediaRouteSelector getRouteSelector() {
         ensureRouteSelector();
         return mSelector;
@@ -92,7 +95,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
      *
      * @param selector The selector to set.
      */
-    public void setRouteSelector(MediaRouteSelector selector) {
+    public void setRouteSelector(@NonNull MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -123,7 +126,8 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public MediaRouteDynamicChooserDialog onCreateDynamicChooserDialog(Context context) {
+    @NonNull
+    public MediaRouteDynamicChooserDialog onCreateDynamicChooserDialog(@NonNull Context context) {
         return new MediaRouteDynamicChooserDialog(context);
     }
 
@@ -133,13 +137,15 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
      * Subclasses may override this method to customize the dialog.
      * </p>
      */
+    @NonNull
     public MediaRouteChooserDialog onCreateChooserDialog(
-            Context context, Bundle savedInstanceState) {
+            @NonNull Context context, @Nullable Bundle savedInstanceState) {
         return new MediaRouteChooserDialog(context);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @NonNull
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (mUseDynamicGroup) {
             mDialog = onCreateDynamicChooserDialog(getContext());
             ((MediaRouteDynamicChooserDialog) mDialog).setRouteSelector(getRouteSelector());
@@ -151,7 +157,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog == null) {
             return;

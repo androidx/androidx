@@ -87,8 +87,8 @@ class WorkerGeneratorTest {
 
             @Override
             @NonNull
-            public MyWorker create(Context arg0, WorkerParameters arg1) {
-                return new MyWorker(arg0, arg1, s.get(), f.get(), l.get());
+            public MyWorker create(Context context, WorkerParameters parameters) {
+                return new MyWorker(context, parameters, s.get(), f.get(), l.get());
             }
         }
         """.toJFO("androidx.hilt.work.test.MyWorker_AssistedFactory")

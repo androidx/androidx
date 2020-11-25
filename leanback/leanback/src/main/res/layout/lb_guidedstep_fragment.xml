@@ -17,6 +17,7 @@
 <!-- Layout for the frame of a 2 pane actions fragment. -->
 <androidx.leanback.app.GuidedStepRootLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/guidedstep_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -47,6 +48,7 @@
                 android:id="@+id/action_fragment_root"
                 android:transitionName="action_fragment_root"
                 android:transitionGroup="false"
+                tools:ignore="UnusedAttribute"
                 android:orientation="horizontal"
                 android:clipToPadding="false"
                 android:clipChildren="false"
@@ -58,6 +60,7 @@
                 <androidx.leanback.widget.NonOverlappingView
                     android:id="@+id/action_fragment_background"
                     android:transitionName="action_fragment_background"
+                    tools:ignore="UnusedAttribute"
                     android:orientation="horizontal"
                     android:outlineProvider="paddedBounds"
                     android:layout_width="match_parent"
@@ -71,6 +74,7 @@
                     android:descendantFocusability="afterDescendants"
                     android:transitionName="action_fragment"
                     android:transitionGroup="false"
+                    tools:ignore="UnusedAttribute"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

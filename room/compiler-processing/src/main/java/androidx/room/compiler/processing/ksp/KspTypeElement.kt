@@ -26,7 +26,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticConstructorForJava
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
-import com.squareup.javapoet.ClassName
+import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.getDeclaredProperties
@@ -37,13 +37,14 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
+import com.squareup.javapoet.ClassName
 
 internal class KspTypeElement(
     env: KspProcessingEnv,
     override val declaration: KSClassDeclaration
 ) : KspElement(env, declaration),
     XTypeElement,
-    XHasModifiers by KspHasModifiers(declaration),
+    XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE) {
 
     override val name: String by lazy {
@@ -72,7 +73,15 @@ internal class KspTypeElement(
     }
 
     override val type: KspDeclaredType by lazy {
-        env.wrap(declaration.asStarProjectedType())
+        val result = env.wrap(
+            ksType = declaration.asStarProjectedType(),
+            allowPrimitives = false
+        )
+        check(result is KspDeclaredType) {
+            "Internal error, expected type of $this to resolve to a declared type but it resolved" +
+                " to $result (${result::class})"
+        }
+        result
     }
 
     override val superType: XType? by lazy {
@@ -80,12 +89,20 @@ internal class KspTypeElement(
             val type = it.resolve().declaration as? KSClassDeclaration ?: return@firstOrNull false
             type.classKind == ClassKind.CLASS
         }?.let {
-            env.wrap(it)
+            env.wrap(
+                ksType = it.resolve(),
+                allowPrimitives = false
+            )
         }
     }
 
     override val className: ClassName by lazy {
-        declaration.typeName()
+        declaration.typeName(env.resolver).tryBox().also { typeName ->
+            check(typeName is ClassName) {
+                "Internal error. The type name for $declaration should be a class name but " +
+                    "received ${typeName::class}"
+            }
+        } as ClassName
     }
 
     private val _declaredPropertyFields by lazy {
@@ -130,6 +147,11 @@ internal class KspTypeElement(
 
     private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
         val setters = _declaredPropertyFields.mapNotNull {
+            if (it.type.ksType.isInline()) {
+                // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                // until room generates kotlin code
+                return@mapNotNull null
+            }
             val setter = it.declaration.setter
             val needsSetter = if (setter != null) {
                 // kapt does not generate synthetics for private fields/setters so we won't either
@@ -147,6 +169,11 @@ internal class KspTypeElement(
             }
         }
         val getters = _declaredPropertyFields.mapNotNull {
+            if (it.type.ksType.isInline()) {
+                // KAPT does not generate getters/setters for inlines, we'll hide them as well
+                // until room generates kotlin code
+                return@mapNotNull null
+            }
             val getter = it.declaration.getter
             val needsGetter = if (getter != null) {
                 // kapt does not generate synthetics for private fields/getters so we won't either]
@@ -184,12 +211,7 @@ internal class KspTypeElement(
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {
-        val primary = if (declaration.declaredConstructors().isEmpty() && !isInterface()) {
-            declaration.primaryConstructor
-        } else {
-            declaration.getNonSyntheticPrimaryConstructor()
-        }
-        return primary?.let {
+        return declaration.primaryConstructor?.let {
             KspConstructorElement(
                 env = env,
                 containing = this,
@@ -199,17 +221,23 @@ internal class KspTypeElement(
     }
 
     private val _declaredMethods by lazy {
-        val myMethods = declaration.getDeclaredFunctions()
-            .filter {
+        val myMethods = declaration.getDeclaredFunctions().asSequence()
+            .filterNot {
                 // filter out constructors
-                it.simpleName.asString() != name
+                it.simpleName.asString() == name
+            }.filterNot {
+                // if it receives or returns inline, drop it.
+                // we can re-enable these once room generates kotlin code
+                it.parameters.any {
+                    it.type.resolve().isInline()
+                } || it.returnType?.resolve()?.isInline() == true
             }.map {
                 KspMethodElement.create(
                     env = env,
                     containing = this,
                     declaration = it
                 )
-            }
+            }.toList()
         val companionMethods = declaration.findCompanionObject()
             ?.let {
                 env.wrapClassDeclaration(it)
@@ -270,11 +298,10 @@ internal class KspTypeElement(
     }
 
     private fun KSClassDeclaration.getNonSyntheticPrimaryConstructor(): KSFunctionDeclaration? {
-        val primary = declaration.primaryConstructor
         // workaround for https://github.com/android/kotlin/issues/136
         // TODO remove once that bug is fixed
-        return if (primary?.simpleName?.asString() != "<init>") {
-            primary
+        return if (primaryConstructor?.simpleName?.asString() != "<init>") {
+            primaryConstructor
         } else {
             null
         }
@@ -283,5 +310,5 @@ internal class KspTypeElement(
     private fun KSClassDeclaration.declaredConstructors() = this.getDeclaredFunctions()
         .filter {
             it.simpleName == this.simpleName
-        }.distinct() // workaround for: https://github.com/google/ksp/issues/99
+        }
 }

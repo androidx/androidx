@@ -209,6 +209,7 @@ public abstract class OutputFileOptions {
      * Builder class for {@link OutputFileOptions}.
      */
     @AutoValue.Builder
+    @SuppressWarnings("StaticFinalBuilder")
     public abstract static class Builder {
 
         // Restrict construction to same package

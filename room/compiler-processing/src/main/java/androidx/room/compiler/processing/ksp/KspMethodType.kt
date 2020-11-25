@@ -34,13 +34,12 @@ internal sealed class KspMethodType(
 
     override val typeVariableNames: List<TypeVariableName> by lazy {
         origin.declaration.typeParameters.map {
+            val typeParameterBounds = it.bounds.map {
+                it.typeName(env.resolver)
+            }.toTypedArray()
             TypeVariableName.get(
                 it.name.asString(),
-                *(
-                    it.bounds.map {
-                        it.typeName()
-                    }.toTypedArray()
-                    )
+                *typeParameterBounds
             )
         }
     }
@@ -52,7 +51,8 @@ internal sealed class KspMethodType(
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
             env.wrap(
-                origin.declaration.returnTypeAsMemberOf(
+                originatingReference = origin.declaration.returnType!!,
+                ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
                 )
@@ -70,11 +70,13 @@ internal sealed class KspMethodType(
             get() = origin.returnType
 
         override fun getSuspendFunctionReturnType(): XType {
+            // suspend functions work w/ continuation so it is always boxed
             return env.wrap(
-                origin.declaration.returnTypeAsMemberOf(
+                ksType = origin.declaration.returnTypeAsMemberOf(
                     resolver = env.resolver,
                     ksType = containing.ksType
-                )
+                ),
+                allowPrimitives = false
             )
         }
     }

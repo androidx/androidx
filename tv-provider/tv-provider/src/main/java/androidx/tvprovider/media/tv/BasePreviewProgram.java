@@ -89,7 +89,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.ASPECT_RATIO_4_3,
             PreviewProgramColumns.ASPECT_RATIO_1_1,
             PreviewProgramColumns.ASPECT_RATIO_2_3,
-            PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER
+            PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER,
+            PreviewProgramColumns.ASPECT_RATIO_3_4
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
@@ -770,9 +771,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_4_3},
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_1_1},
-         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3},
          * {@link androidx.tvprovider.media.tv.TvContractCompat
-         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
+         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}, and
+         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_4},
          *
          * @param ratio The poster art aspect ratio for the program.
          * @return This Builder object to allow for chaining of calls to builder methods.
@@ -793,9 +795,10 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_2},
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_4_3},
          * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_1_1},
-         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3}, and
+         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_2_3},
          * {@link androidx.tvprovider.media.tv.TvContractCompat
-         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}.
+         * .PreviewPrograms#ASPECT_RATIO_MOVIE_POSTER}, and
+         * {@link androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#ASPECT_RATIO_3_2}.
          *
          * @param ratio The thumbnail aspect ratio of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.

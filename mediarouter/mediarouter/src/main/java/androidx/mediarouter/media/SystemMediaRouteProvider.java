@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.view.Display;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.R;
 
@@ -98,7 +99,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      * Callbacks into the media router to synchronize state with the framework media router.
      */
     public interface SyncCallback {
-        void onSystemRouteSelectedByDescriptorId(String id);
+        void onSystemRouteSelectedByDescriptorId(@NonNull String id);
     }
 
     protected Object getDefaultRoute() {

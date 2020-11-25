@@ -22,9 +22,13 @@ import static androidx.car.app.model.CarIcon.BACK;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -116,15 +120,16 @@ public class RowTest {
                                 .build());
     }
 
-// TODO(shiufai): revisit the following as the test is not running on the main looper thread, and
-//  thus the verify is failing.
-//    @Test
-//    public void clickListener() throws RemoteException {
-//        OnClickListener onClickListener = mock(OnClickListener.class);
-//        Row row = Row.builder().setTitle("Title").setOnClickListener(onClickListener).build();
-//        row.getOnClickListener().getListener().onClick(mock(IOnDoneCallback.class));
-//        verify(onClickListener).onClick();
-//    }
+    @Test
+    @UiThreadTest
+    public void clickListener() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Row row = Row.builder().setTitle("Title").setOnClickListener(onClickListener).build();
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
+        row.getOnClickListener().onClick(onDoneCallback);
+        verify(onClickListener).onClick();
+        verify(onDoneCallback).onSuccess(null);
+    }
 
     @Test
     public void setMetadata() {

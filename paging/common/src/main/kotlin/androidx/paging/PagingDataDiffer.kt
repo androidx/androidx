@@ -26,9 +26,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -44,7 +43,6 @@ abstract class PagingDataDiffer<T : Any>(
     private var receiver: UiReceiver? = null
     private val combinedLoadStates = MutableLoadStateCollection()
     private val loadStateListeners = CopyOnWriteArrayList<(CombinedLoadStates) -> Unit>()
-    private val dataRefreshedListeners = CopyOnWriteArrayList<(isEmpty: Boolean) -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 
@@ -121,8 +119,7 @@ abstract class PagingDataDiffer<T : Any>(
     suspend fun collectFrom(pagingData: PagingData<T>) = collectFromRunner.runInIsolation {
         receiver = pagingData.receiver
 
-        // TODO: Validate only empty pages between separator pages and its dependent
-        //  pages.
+        // TODO: Validate only empty pages between separator pages and its dependent pages.
         pagingData.flow.collect { event ->
             withContext<Unit>(mainDispatcher) {
                 if (event is PageEvent.Insert && event.loadType == REFRESH) {
@@ -137,24 +134,26 @@ abstract class PagingDataDiffer<T : Any>(
                     )
                     presenter = newPresenter
 
-                    // Dispatch LoadState + DataRefresh updates as soon as we are done diffing,
-                    // but after setting presenter.
-                    dataRefreshedListeners.forEach { listener ->
-                        listener(event.pages.all { page -> page.data.isEmpty() })
-                    }
+                    // Dispatch LoadState updates as soon as we are done diffing, but after setting
+                    // presenter.
                     dispatchLoadStates(event.combinedLoadStates)
 
-                    // Transform the last loadAround index from the old list to the new list
-                    // by passing it through the DiffResult, and pass it forward as a
-                    // ViewportHint within the new list to the next generation of Pager.
-                    // This ensures prefetch distance for the last ViewportHint from the old
-                    // list is respected in the new list, even if invalidation interrupts
-                    // the prepend / append load that would have fulfilled it in the old
-                    // list.
-                    transformedLastAccessedIndex?.let { newIndex ->
-                        lastAccessedIndex = newIndex
+                    if (transformedLastAccessedIndex == null) {
+                        // Send an initialize hint in case the new list is empty, which would
+                        // prevent a ViewportHint.Access from ever getting sent since there are
+                        // no items to bind from initial load.
+                        receiver?.accessHint(newPresenter.initializeHint())
+                    } else {
+                        // Transform the last loadAround index from the old list to the new list
+                        // by passing it through the DiffResult, and pass it forward as a
+                        // ViewportHint within the new list to the next generation of Pager.
+                        // This ensures prefetch distance for the last ViewportHint from the old
+                        // list is respected in the new list, even if invalidation interrupts
+                        // the prepend / append load that would have fulfilled it in the old
+                        // list.
+                        lastAccessedIndex = transformedLastAccessedIndex
                         receiver?.accessHint(
-                            newPresenter.viewportHintForPresenterIndex(newIndex)
+                            newPresenter.accessHintForPresenterIndex(transformedLastAccessedIndex)
                         )
                     }
                 } else {
@@ -192,7 +191,7 @@ abstract class PagingDataDiffer<T : Any>(
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
-                                    presenter.viewportHintForPresenterIndex(lastAccessedIndex)
+                                    presenter.accessHintForPresenterIndex(lastAccessedIndex)
                                 )
                             } else {
                                 // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
@@ -216,7 +215,7 @@ abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
-        receiver?.accessHint(presenter.viewportHintForPresenterIndex(index))
+        receiver?.accessHint(presenter.accessHintForPresenterIndex(index))
         return presenter.get(index)
     }
 
@@ -279,7 +278,7 @@ abstract class PagingDataDiffer<T : Any>(
         get() = presenter.size
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _loadStateCh = ConflatedBroadcastChannel(combinedLoadStates.snapshot())
+    private val _combinedLoadState = MutableStateFlow(combinedLoadStates.snapshot())
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -291,39 +290,14 @@ abstract class PagingDataDiffer<T : Any>(
      * @sample androidx.paging.samples.loadStateFlowSample
      */
     @OptIn(FlowPreview::class)
-    val loadStateFlow: Flow<CombinedLoadStates> = _loadStateCh.asFlow()
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _dataRefreshCh = ConflatedBroadcastChannel<Boolean>()
-
-    /**
-     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
-     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
-     * `false` otherwise.
-     */
-    @Deprecated(
-        message = "dataRefreshFlow is now redundant with the information passed from " +
-            "loadStateFlow and size(), and will be removed in a future alpha version",
-        replaceWith = ReplaceWith(
-            """loadStateFlow.map { it.source.refresh }
-                .filter { it is LoadState.NotLoading }
-                .distinctUntilChanged()""",
-            "androidx.paging.LoadState",
-            "kotlinx.coroutines.flow.distinctUntilChanged",
-            "kotlinx.coroutines.flow.filter",
-            "kotlinx.coroutines.flow.map",
-        )
-    )
-    @ExperimentalPagingApi
-    @OptIn(FlowPreview::class)
-    val dataRefreshFlow: Flow<Boolean> = _dataRefreshCh.asFlow()
+    val loadStateFlow: Flow<CombinedLoadStates>
+        get() = _combinedLoadState
 
     init {
         @OptIn(ExperimentalCoroutinesApi::class)
-        addLoadStateListener { _loadStateCh.offer(it) }
-        @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-        @Suppress("DEPRECATION")
-        addDataRefreshListener { _dataRefreshCh.offer(it) }
+        addLoadStateListener {
+            _combinedLoadState.value = it
+        }
     }
 
     /**
@@ -354,39 +328,6 @@ abstract class PagingDataDiffer<T : Any>(
      */
     fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         loadStateListeners.remove(listener)
-    }
-
-    /**
-     * Add a listener to observe new [PagingData] generations.
-     *
-     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
-     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
-     *
-     * @see removeDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        dataRefreshedListeners.add(listener)
-    }
-
-    /**
-     * Remove a previously registered listener for new [PagingData] generations.
-     *
-     * @param listener Previously registered listener.
-     *
-     * @see addDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and size(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        dataRefreshedListeners.remove(listener)
     }
 }
 

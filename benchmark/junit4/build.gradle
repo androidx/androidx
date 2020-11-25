@@ -33,13 +33,13 @@ android {
 
 dependencies {
     api(project(":benchmark:benchmark-common"))
-    implementation(project(':tracing:tracing-ktx'))
 
     api(JUNIT)
     api(KOTLIN_STDLIB)
 
     implementation("androidx.test:rules:1.2.0")
     implementation("androidx.test:runner:1.2.0")
+    implementation("androidx.tracing:tracing-ktx:1.0.0")
     api("androidx.annotation:annotation:1.1.0")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

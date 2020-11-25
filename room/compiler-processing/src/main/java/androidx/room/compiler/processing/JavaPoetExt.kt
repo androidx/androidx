@@ -63,6 +63,28 @@ internal fun TypeName.rawTypeName(): TypeName {
 }
 
 /**
+ * Returns the unboxed TypeName for this if it can be unboxed, otherwise, returns this.
+ */
+internal fun TypeName.tryUnbox(): TypeName {
+    return if (isBoxedPrimitive) {
+        unbox()
+    } else {
+        this
+    }
+}
+
+/**
+ * Returns the boxed TypeName for this if it can be unboxed, otherwise, returns this.
+ */
+internal fun TypeName.tryBox(): TypeName {
+    return try {
+        box()
+    } catch (err: AssertionError) {
+        this
+    }
+}
+
+/**
  * Helper class to create overrides for XExecutableElements with final parameters and correct
  * parameter names read from Kotlin Metadata.
  */

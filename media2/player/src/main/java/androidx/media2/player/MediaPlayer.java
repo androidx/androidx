@@ -1375,7 +1375,16 @@ public final class MediaPlayer extends SessionPlayer {
                 });
 
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
-                if (updatedCurNextItem != null) {
+                if (curItem == null) {
+                    resetInternal();
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onPlayerStateChanged(MediaPlayer.this, PLAYER_STATE_IDLE);
+                        }
+                    });
+                    futures.add(createFutureForResultCode(RESULT_SUCCESS));
+                } else if (updatedCurNextItem != null) {
                     if (updatedCurNextItem.first != null) {
                         futures.addAll(setMediaItemsInternal(curItem, nextItem));
                     } else if (updatedCurNextItem.second != null) {
@@ -2006,20 +2015,7 @@ public final class MediaPlayer extends SessionPlayer {
             }
             mPendingFutures.clear();
         }
-        synchronized (mStateLock) {
-            mState = PLAYER_STATE_IDLE;
-            mMediaItemToBuffState.clear();
-        }
-        synchronized (mPlaylistLock) {
-            mPlaylist.clear();
-            mShuffledList.clear();
-            mCurPlaylistItem = null;
-            mNextPlaylistItem = null;
-            mCurrentShuffleIdx = END_OF_PLAYLIST;
-            mSetMediaItemCalled = false;
-        }
-        mAudioFocusHandler.onReset();
-        mPlayer.reset();
+        resetInternal();
     }
 
     /**
@@ -2157,9 +2153,6 @@ public final class MediaPlayer extends SessionPlayer {
         }
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
-
-
-
 
     /**
      * @return a {@link PersistableBundle} containing the set of attributes and values
@@ -3026,6 +3019,24 @@ public final class MediaPlayer extends SessionPlayer {
         return futures;
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void resetInternal() {
+        synchronized (mStateLock) {
+            mState = PLAYER_STATE_IDLE;
+            mMediaItemToBuffState.clear();
+        }
+        synchronized (mPlaylistLock) {
+            mPlaylist.clear();
+            mShuffledList.clear();
+            mCurPlaylistItem = null;
+            mNextPlaylistItem = null;
+            mCurrentShuffleIdx = END_OF_PLAYLIST;
+            mSetMediaItemCalled = false;
+        }
+        mAudioFocusHandler.onReset();
+        mPlayer.reset();
+    }
+
     private ResolvableFuture<PlayerResult> setMediaItemInternal(MediaItem item) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -3126,7 +3137,7 @@ public final class MediaPlayer extends SessionPlayer {
     Pair<MediaItem, MediaItem> updateAndGetCurrentNextItemIfNeededLocked() {
         MediaItem changedCurItem = null;
         MediaItem changedNextItem = null;
-        if (mCurrentShuffleIdx < 0) {
+        if (mCurrentShuffleIdx < 0 || mPlaylist.isEmpty()) {
             if (mCurPlaylistItem == null && mNextPlaylistItem == null) {
                 return null;
             }

@@ -18,23 +18,37 @@ package androidx.car.app.navigation;
 
 import static androidx.car.app.TestUtils.createDateTimeWithZone;
 
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.os.RemoteException;
 
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
+import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.model.Distance;
 import androidx.car.app.navigation.model.Destination;
 import androidx.car.app.navigation.model.Step;
 import androidx.car.app.navigation.model.TravelEstimate;
 import androidx.car.app.navigation.model.Trip;
+import androidx.car.app.serialization.Bundleable;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link NavigationManager}. */
 @SmallTest
@@ -56,12 +70,12 @@ public class NavigationManagerTest {
     private final TravelEstimate mStepTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 10, Distance.UNIT_KILOMETERS),
-                    Duration.ofHours(1).getSeconds(),
+                    TimeUnit.HOURS.toSeconds(1),
                     createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific"));
     private final TravelEstimate mDestinationTravelEstimate =
             TravelEstimate.create(
                     Distance.create(/* displayDistance= */ 100, Distance.UNIT_KILOMETERS),
-                    Duration.ofHours(1).getSeconds(),
+                    TimeUnit.HOURS.toSeconds(1),
                     createDateTimeWithZone("2020-04-14T16:57:00", "US/Pacific"));
     private static final String CURRENT_ROAD = "State St.";
     private final Trip mTrip =
@@ -73,114 +87,121 @@ public class NavigationManagerTest {
                     .setCurrentRoad(CURRENT_ROAD)
                     .build();
 
-    // TODO(rampara): Confirm that UiThreadTest annotation is required for test.
-//    @Before
-//    public void setUp() throws RemoteException {
-//        MockitoAnnotations.initMocks(this);
-//
-//        INavigationHost navHostStub =
-//                new INavigationHost.Stub() {
-//                    @Override
-//                    public void updateTrip(Bundleable trip) throws RemoteException {
-//                        mMockNavHost.updateTrip(trip);
-//                    }
-//
-//                    @Override
-//                    public void navigationStarted() throws RemoteException {
-//                        mMockNavHost.navigationStarted();
-//                    }
-//
-//                    @Override
-//                    public void navigationEnded() throws RemoteException {
-//                        mMockNavHost.navigationEnded();
-//                    }
-//                };
-//        when(mMockCarHost.getHost(any())).thenReturn(navHostStub.asBinder());
-//
-//        mHostDispatcher.setCarHost(mMockCarHost);
-//
-//        mNavigationManager = NavigationManager.create(mHostDispatcher);
-//    }
+    @Before
+    @UiThreadTest
+    public void setUp() throws RemoteException {
+        MockitoAnnotations.initMocks(this);
 
-//    @Test
-//    public void navigationStarted_sendState_navigationEnded() throws RemoteException {
-//        InOrder inOrder = inOrder(mMockNavHost);
-//
-//        mNavigationManager.setListener(mNavigationListener);
-//        mNavigationManager.navigationStarted();
-//        inOrder.verify(mMockNavHost).navigationStarted();
-//
-//        mNavigationManager.updateTrip(mTrip);
-//        inOrder.verify(mMockNavHost).updateTrip(any(Bundleable.class));
-//
-//        mNavigationManager.navigationEnded();
-//        inOrder.verify(mMockNavHost).navigationEnded();
-//    }
+        INavigationHost navHostStub =
+                new INavigationHost.Stub() {
+                    @Override
+                    public void updateTrip(Bundleable trip) throws RemoteException {
+                        mMockNavHost.updateTrip(trip);
+                    }
 
-    @Test
-    public void navigationStarted_noListenerSet() throws RemoteException {
-//        assertThrows(IllegalStateException.class, () -> mNavigationManager.navigationStarted());
+                    @Override
+                    public void navigationStarted() throws RemoteException {
+                        mMockNavHost.navigationStarted();
+                    }
+
+                    @Override
+                    public void navigationEnded() throws RemoteException {
+                        mMockNavHost.navigationEnded();
+                    }
+                };
+        when(mMockCarHost.getHost(any())).thenReturn(navHostStub.asBinder());
+
+        mHostDispatcher.setCarHost(mMockCarHost);
+
+        mNavigationManager = NavigationManager.create(mHostDispatcher);
     }
 
-    // TODO(rampara): Confirm that UiThreadTest annotation is required for test.
-//    @Test
-//    public void navigationStarted_multiple() throws RemoteException {
-//
-//        mNavigationManager.setListener(mNavigationListener);
-//        mNavigationManager.navigationStarted();
-//
-//        mNavigationManager.navigationStarted();
-//        verify(mMockNavHost).navigationStarted();
-//    }
-//
-//    @Test
-//    public void navgiationEnded_multiple_not_started() throws RemoteException {
-//        mNavigationManager.navigationEnded();
-//        mNavigationManager.navigationEnded();
-//        mNavigationManager.navigationEnded();
-//        verify(mMockNavHost, never()).navigationEnded();
-//    }
-//
-//    @Test
-//    public void sendNavigationState_notStarted() throws RemoteException {
-//        assertThrows(IllegalStateException.class, () -> mNavigationManager.updateTrip(mTrip));
-//    }
-//
-//    @Test
-//    public void stopNavigation_notNavigating() throws RemoteException {
-//        mNavigationManager.setListener(mNavigationListener);
-//        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
-//        verify(mNavigationListener, never()).stopNavigation();
-//    }
-//
-//    @Test
-//    public void stopNavigation_navigating_restart() throws RemoteException {
-//        InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
-//
-//        mNavigationManager.setListener(mNavigationListener);
-//        mNavigationManager.navigationStarted();
-//        inOrder.verify(mMockNavHost).navigationStarted();
-//
-//        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
-//        inOrder.verify(mNavigationListener).stopNavigation();
-//
-//        mNavigationManager.navigationStarted();
-//        inOrder.verify(mMockNavHost).navigationStarted();
-//    }
-//
-//    @Test
-//    public void onAutoDriveEnabled_callsListener() {
-//        mNavigationManager.setListener(mNavigationListener);
-//        mNavigationManager.onAutoDriveEnabled();
-//
-//        verify(mNavigationListener).onAutoDriveEnabled();
-//    }
-//
-//    @Test
-//    public void onAutoDriveEnabledBeforeRegisteringListener_callsListener() {
-//        mNavigationManager.onAutoDriveEnabled();
-//        mNavigationManager.setListener(mNavigationListener);
-//
-//        verify(mNavigationListener).onAutoDriveEnabled();
-//    }
+    @Test
+    @UiThreadTest
+    public void navigationStarted_sendState_navigationEnded() throws RemoteException {
+        InOrder inOrder = inOrder(mMockNavHost);
+
+        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.updateTrip(mTrip);
+        inOrder.verify(mMockNavHost).updateTrip(any(Bundleable.class));
+
+        mNavigationManager.navigationEnded();
+        inOrder.verify(mMockNavHost).navigationEnded();
+    }
+
+    @Test
+    @UiThreadTest
+    public void navigationStarted_noListenerSet() throws RemoteException {
+        assertThrows(IllegalStateException.class, () -> mNavigationManager.navigationStarted());
+    }
+
+    @Test
+    @UiThreadTest
+    public void navigationStarted_multiple() throws RemoteException {
+
+        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.navigationStarted();
+
+        mNavigationManager.navigationStarted();
+        verify(mMockNavHost).navigationStarted();
+    }
+
+    @Test
+    @UiThreadTest
+    public void navigationEnded_multiple_not_started() throws RemoteException {
+        mNavigationManager.navigationEnded();
+        mNavigationManager.navigationEnded();
+        mNavigationManager.navigationEnded();
+        verify(mMockNavHost, never()).navigationEnded();
+    }
+
+    @Test
+    public void sendNavigationState_notStarted() throws RemoteException {
+        assertThrows(IllegalStateException.class, () -> mNavigationManager.updateTrip(mTrip));
+    }
+
+    @Test
+    @UiThreadTest
+    public void stopNavigation_notNavigating() throws RemoteException {
+        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
+        verify(mNavigationListener, never()).stopNavigation();
+    }
+
+    @Test
+    @UiThreadTest
+    public void stopNavigation_navigating_restart() throws RemoteException {
+        InOrder inOrder = inOrder(mMockNavHost, mNavigationListener);
+
+        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+
+        mNavigationManager.getIInterface().stopNavigation(mock(IOnDoneCallback.class));
+        inOrder.verify(mNavigationListener).stopNavigation();
+
+        mNavigationManager.navigationStarted();
+        inOrder.verify(mMockNavHost).navigationStarted();
+    }
+
+    @Test
+    @UiThreadTest
+    public void onAutoDriveEnabled_callsListener() {
+        mNavigationManager.setListener(mNavigationListener);
+        mNavigationManager.onAutoDriveEnabled();
+
+        verify(mNavigationListener).onAutoDriveEnabled();
+    }
+
+    @Test
+    @UiThreadTest
+    public void onAutoDriveEnabledBeforeRegisteringListener_callsListener() {
+        mNavigationManager.onAutoDriveEnabled();
+        mNavigationManager.setListener(mNavigationListener);
+
+        verify(mNavigationListener).onAutoDriveEnabled();
+    }
 }

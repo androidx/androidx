@@ -21,8 +21,8 @@ ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
-HiddenSuperclass: androidx.wear.widget.SwipeDismissFrameLayout:
-    Public class androidx.wear.widget.SwipeDismissFrameLayout stripped of unavailable superclass androidx.wear.widget.SwipeDismissLayout
+HiddenSuperclass: androidx.wear.widget.SwipeDismissController:
+    Public class androidx.wear.widget.SwipeDismissController stripped of unavailable superclass androidx.wear.widget.DismissController
 
 
 MissingGetterMatchingBuilder: androidx.wear.ongoingactivity.OngoingActivity.Builder#setAnimatedIcon(android.graphics.drawable.Icon):

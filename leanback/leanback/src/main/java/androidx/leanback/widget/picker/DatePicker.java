@@ -14,6 +14,7 @@
 
 package androidx.leanback.widget.picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
@@ -57,7 +58,7 @@ public class DatePicker extends Picker {
     private int mColYearIndex;
 
     private static final String DATE_FORMAT = "MM/dd/yyyy";
-    private final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    private final DateFormat mDateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
     private PickerUtility.DateConstant mConstant;
 
     private Calendar mMinDate;
@@ -69,6 +70,7 @@ public class DatePicker extends Picker {
         this(context, attrs, R.attr.datePickerStyle);
     }
 
+    @SuppressLint("CustomViewStyleable")
     public DatePicker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
@@ -241,7 +243,7 @@ public class DatePicker extends Picker {
         setSeparators(separators);
         mYearColumn = mMonthColumn = mDayColumn = null;
         mColYearIndex = mColDayIndex = mColMonthIndex = -1;
-        String dateFieldsPattern = datePickerFormat.toUpperCase();
+        String dateFieldsPattern = datePickerFormat.toUpperCase(mConstant.locale);
         ArrayList<PickerColumn> columns = new ArrayList<>(3);
         for (int i = 0; i < dateFieldsPattern.length(); i++) {
             switch (dateFieldsPattern.charAt(i)) {

@@ -19,15 +19,12 @@ package androidx.camera.camera2.interop;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
-import androidx.core.util.Preconditions;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides ability to filter cameras with camera IDs and characteristics and create the
@@ -41,38 +38,22 @@ public final class Camera2CameraFilter {
      */
     @NonNull
     public static CameraFilter createCameraFilter(@NonNull Camera2Filter filter) {
-        return (cameras) -> {
-            LinkedHashMap<String, Camera> cameraMap = new LinkedHashMap<>();
-            LinkedHashMap<String, CameraCharacteristics> characteristicsMap =
-                    new LinkedHashMap<>();
-            for (Camera camera : cameras) {
-                CameraInfo cameraInfo = camera.getCameraInfo();
-                Preconditions.checkState(cameraInfo instanceof Camera2CameraInfoImpl,
-                        "CameraInfo does not contain any Camera2 information.");
-                Camera2CameraInfoImpl camera2CameraInfoImpl =
-                        (Camera2CameraInfoImpl) cameraInfo;
-                cameraMap.put(camera2CameraInfoImpl.getCameraId(), camera);
-                characteristicsMap.put(camera2CameraInfoImpl.getCameraId(),
-                        camera2CameraInfoImpl
-                                .getCameraCharacteristicsCompat().toCameraCharacteristics());
+        return cameraInfos -> {
+            List<Camera2CameraInfo> input = new ArrayList<>();
+            for (CameraInfo cameraInfo : cameraInfos) {
+                input.add(Camera2CameraInfo.from(cameraInfo));
             }
 
-            LinkedHashMap<String, CameraCharacteristics> resultMap = filter.filter(
-                    characteristicsMap);
+            List<Camera2CameraInfo> result = filter.filter(Collections.unmodifiableList(input));
 
-            LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
-            for (Map.Entry<String, CameraCharacteristics> entry : resultMap.entrySet()) {
-                String cameraId = entry.getKey();
-                // The extra camera IDs not contained in the camera map will be ignored.
-                if (cameraMap.containsKey(cameraId)) {
-                    resultCameras.add(cameraMap.get(cameraId));
-                } else {
-                    throw new IllegalArgumentException(
-                            "There are camera IDs not contained in the original camera map.");
+            List<CameraInfo> output = new ArrayList<>();
+            for (CameraInfo cameraInfo : cameraInfos) {
+                if (result.contains(Camera2CameraInfo.from(cameraInfo))) {
+                    output.add(cameraInfo);
                 }
             }
 
-            return resultCameras;
+            return output;
         };
     }
 
@@ -82,28 +63,25 @@ public final class Camera2CameraFilter {
      */
     public interface Camera2Filter {
         /**
-         * Filters a map of camera IDs and their {@link CameraCharacteristics} then returns those
-         * matching the requirements.
+         * Filters a list of {@link Camera2CameraInfo} then returns those matching the requirements.
          *
-         * <p>If the key set of the output map contains camera IDs not in the key set of the
-         * input map, when used by a {@link androidx.camera.core.CameraSelector} then it will
-         * result in an IllegalArgumentException thrown when calling bindToLifecycle.
+         * <p>If the output list contains Camera2CameraInfo not in the input list, when used by a
+         * {@link androidx.camera.core.CameraSelector} then it will result in an
+         * IllegalArgumentException thrown when calling bindToLifecycle.
          *
-         * <p>The camera ID that has lower index in the map has higher priority. When used by
+         * <p>The Camera2CameraInfo that has lower index in the map has higher priority. When
+         * used by
          * {@link androidx.camera.core.CameraSelector.Builder#addCameraFilter(CameraFilter)}, the
-         * available cameras will be filtered by the {@link Camera2CameraFilter} and all other
+         * available cameras will be filtered by the {@link Camera2Filter} and all other
          * {@link CameraFilter}s by the order they were added. The first camera in the result
          * will be selected if there are multiple cameras left.
          *
-         * @param idCharacteristicsMap The input map of camera IDs and their
-         *                             {@link CameraCharacteristics} of the cameras being
-         *                             filtered. It's not expected to be modified.
+         * @param cameraInfos An unmodifiable list of {@link Camera2CameraInfo}s being filtered.
          * @return The output map of camera IDs and their {@link CameraCharacteristics} that
          * match the requirements. Users are expected to create a new map to return with.
          */
         @NonNull
-        LinkedHashMap<String, CameraCharacteristics> filter(
-                @NonNull LinkedHashMap<String, CameraCharacteristics> idCharacteristicsMap);
+        List<Camera2CameraInfo> filter(@NonNull List<Camera2CameraInfo> cameraInfos);
     }
 
     // Should not be instantiated.

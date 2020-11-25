@@ -1,5 +1,324 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="                .append(Integer.toHexString(mFlags).toUpperCase());"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplBase.java"
+            line="179"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#CONTENT_TYPE_UNKNOWN`"
+        errorLine1="    public static final int CONTENT_TYPE_UNKNOWN = AudioAttributes.CONTENT_TYPE_UNKNOWN;"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="74"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#CONTENT_TYPE_SPEECH`"
+        errorLine1="    public static final int CONTENT_TYPE_SPEECH = AudioAttributes.CONTENT_TYPE_SPEECH;"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="76"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#CONTENT_TYPE_MUSIC`"
+        errorLine1="    public static final int CONTENT_TYPE_MUSIC = AudioAttributes.CONTENT_TYPE_MUSIC;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="78"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#CONTENT_TYPE_MOVIE`"
+        errorLine1="    public static final int CONTENT_TYPE_MOVIE = AudioAttributes.CONTENT_TYPE_MOVIE;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="83"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#CONTENT_TYPE_SONIFICATION`"
+        errorLine1="    public static final int CONTENT_TYPE_SONIFICATION = AudioAttributes.CONTENT_TYPE_SONIFICATION;"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="90"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_UNKNOWN`"
+        errorLine1="    public static final int USAGE_UNKNOWN = AudioAttributes.USAGE_UNKNOWN;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="93"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_MEDIA`"
+        errorLine1="    public static final int USAGE_MEDIA = AudioAttributes.USAGE_MEDIA;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="95"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION`"
+        errorLine1="    public static final int USAGE_VOICE_COMMUNICATION = AudioAttributes.USAGE_VOICE_COMMUNICATION;"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="97"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING`"
+        errorLine1="             AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="103"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_ALARM`"
+        errorLine1="    public static final int USAGE_ALARM = AudioAttributes.USAGE_ALARM;"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="105"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION`"
+        errorLine1="    public static final int USAGE_NOTIFICATION = AudioAttributes.USAGE_NOTIFICATION;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="110"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE`"
+        errorLine1="             AudioAttributes.USAGE_NOTIFICATION_RINGTONE;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="113"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST`"
+        errorLine1="             AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="119"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT`"
+        errorLine1="             AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="125"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED`"
+        errorLine1="             AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="131"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT`"
+        errorLine1="    public static final int USAGE_NOTIFICATION_EVENT = AudioAttributes.USAGE_NOTIFICATION_EVENT;"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="136"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY`"
+        errorLine1="             AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="139"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE`"
+        errorLine1="             AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="142"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION`"
+        errorLine1="             AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="145"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.media.AudioAttributes#USAGE_GAME`"
+        errorLine1="    public static final int USAGE_GAME = AudioAttributes.USAGE_GAME;"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="147"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.media.AudioAttributes#USAGE_ASSISTANT`"
+        errorLine1="    public static final int USAGE_ASSISTANT = AudioAttributes.USAGE_ASSISTANT;"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"
+            line="155"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.media.AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE`"
+        errorLine1="            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioManagerCompat.java"
+            line="68"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media.xml"
+            line="50"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_custom.xml"
+            line="97"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow.xml"
+            line="56"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow_custom.xml"
+            line="103"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media.xml"
+            line="38"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `layoutDirection` is only used in API level 17 and higher (current min is 14)"
+        errorLine1="        android:layoutDirection=&quot;ltr&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="87"
+            column="9"/>
+    </issue>
 
     <issue
         id="UnsafeNewApiCall"
@@ -1121,6 +1440,336 @@
             file="src/main/java/androidx/media/VolumeProviderCompat.java"
             line="146"
             column="31"/>
+    </issue>
+
+    <issue
+        id="ParcelClassLoader"
+        message="Passing null here (to use the default class loader) will not work if you are restoring your own classes. Consider using for example `getClass().getClassLoader()` instead."
+        errorLine1="                            inner = in.readParcelable(null);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="2120"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `AudioAttributesCompat.USAGE_ALARM`, `AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY`, `AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE`, `AudioAttributesCompat.USAGE_ASSISTANCE_SONIFICATION`, `AudioAttributesCompat.USAGE_ASSISTANT`, `AudioAttributesCompat.USAGE_GAME`, `AudioAttributesCompat.USAGE_MEDIA`, `AudioAttributesCompat.USAGE_NOTIFICATION`, `AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_DELAYED`, `AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_INSTANT`, `AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_REQUEST`, `AudioAttributesCompat.USAGE_NOTIFICATION_EVENT`, `AudioAttributesCompat.USAGE_NOTIFICATION_RINGTONE`, `AudioAttributesCompat.USAGE_UNKNOWN`, `AudioAttributesCompat.USAGE_VOICE_COMMUNICATION`, `AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING`"
+        errorLine1="                case USAGE_VIRTUAL_SOURCE:"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplBase.java"
+            line="224"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `RATING_NONE`"
+        errorLine1="        switch(ratingStyle) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="159"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                switch (ratingStyle) {"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="337"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_HEART:"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="338"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_THUMB_UP_DOWN:"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="341"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_3_STARS:"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="344"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_4_STARS:"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="345"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_5_STARS:"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="346"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Unexpected constant; expected one of: `Rating.RATING_3_STARS`, `Rating.RATING_4_STARS`, `Rating.RATING_5_STARS`, `Rating.RATING_HEART`, `Rating.RATING_NONE`, `Rating.RATING_PERCENTAGE`, `Rating.RATING_THUMB_UP_DOWN`"
+        errorLine1="                    case RATING_PERCENTAGE:"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="350"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `LinearLayout`: `layout_toLeftOf`"
+        errorLine1="        android:layout_toLeftOf=&quot;@id/cancel_action&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ObsoleteLayoutParam"
+        message="Invalid layout param in a `LinearLayout`: `layout_toStartOf`"
+        errorLine1="        android:layout_toStartOf=&quot;@id/cancel_action&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (androidx.media.MediaBrowserServiceCompat.ServiceHandler)"
+        errorLine1="    private final class ServiceHandler extends Handler {"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
+            line="661"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_custom.xml"
+            line="34"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow_custom.xml"
+            line="38"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="28"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="            android:layout_width=&quot;match_parent&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_custom.xml"
+            line="47"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="            android:layout_width=&quot;match_parent&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow_custom.xml"
+            line="51"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="            android:layout_width=&quot;match_parent&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="40"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NestedWeights"
+        message="Nested weights are bad for performance"
+        errorLine1="            android:layout_weight=&quot;1&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="42"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageButton xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_media_action.xml"
+            line="17"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageButton xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_media_cancel_action.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media.xml"
+            line="54"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_custom.xml"
+            line="101"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow.xml"
+            line="60"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow_custom.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_big_media_narrow_custom.xml"
+            line="107"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/end_padder&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media.xml"
+            line="47"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/end_padder&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_media_custom.xml"
+            line="96"
+            column="6"/>
     </issue>
 
     <issue

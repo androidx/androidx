@@ -61,7 +61,7 @@ public final class Logger {
     /** On API levels strictly below 24, the log tag's length must not exceed 23 characters. */
     private static final int MAX_TAG_LENGTH = 23;
 
-    private static final int DEFAULT_MIN_LOG_LEVEL = Log.DEBUG;
+    static final int DEFAULT_MIN_LOG_LEVEL = Log.DEBUG;
     private static int sMinLogLevel = DEFAULT_MIN_LOG_LEVEL;
 
     private Logger() {
@@ -73,6 +73,14 @@ public final class Logger {
      */
     static void setMinLogLevel(@IntRange(from = Log.DEBUG, to = Log.ERROR) int logLevel) {
         sMinLogLevel = logLevel;
+    }
+
+    /**
+     * Resets the minimum logging level to use in {@link Logger} to the default minimum logging
+     * level. After calling this method, only logs at the default level and above are output.
+     */
+    static void resetMinLogLevel() {
+        sMinLogLevel = DEFAULT_MIN_LOG_LEVEL;
     }
 
     /**

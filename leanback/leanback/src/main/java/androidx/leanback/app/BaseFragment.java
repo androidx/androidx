@@ -190,6 +190,13 @@ public class BaseFragment extends BrandedFragment {
         mStateMachine.fireEvent(EVT_ON_CREATEVIEW);
     }
 
+    @Override
+    public void onDestroyView() {
+        mProgressBarManager.setRootView(null);
+        mProgressBarManager.setProgressBarView(null);
+        super.onDestroyView();
+    }
+
     /**
      * Enables entrance transition.<p>
      * Entrance transition is the standard slide-in transition that shows rows of data in

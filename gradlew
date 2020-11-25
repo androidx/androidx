@@ -39,6 +39,8 @@ if [ -n "$DIST_DIR" ]; then
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
 
+# unset ANDROID_BUILD_TOP so that Lint doesn't think we're building the platform itself
+unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
@@ -266,5 +268,9 @@ runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
-  runGradle "$@" -PdisallowExecution --continue
+  if ! runGradle "$@" -PdisallowExecution --continue; then
+    echo >&2
+    echo "TaskUpToDateValidator's second build failed, -PdisallowExecution specified" >&2
+    exit 1
+  fi
 fi

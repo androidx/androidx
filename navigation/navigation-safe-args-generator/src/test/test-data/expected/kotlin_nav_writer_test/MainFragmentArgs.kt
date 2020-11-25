@@ -7,7 +7,7 @@ import androidx.navigation.NavArgs
 import java.io.Serializable
 import java.lang.IllegalArgumentException
 import java.lang.UnsupportedOperationException
-import java.nio.file.AccessMode
+import java.nio.`file`.AccessMode
 import kotlin.Array
 import kotlin.Boolean
 import kotlin.Float
@@ -17,20 +17,20 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.jvm.JvmStatic
 
-data class MainFragmentArgs(
-  val main: String,
-  val optional: Int = -1,
-  val reference: Int = R.drawable.background,
-  val referenceZeroDefaultValue: Int = 0,
-  val floatArg: Float = 1F,
-  val floatArrayArg: FloatArray,
-  val objectArrayArg: Array<ActivityInfo>,
-  val boolArg: Boolean = true,
-  val optionalParcelable: ActivityInfo? = null,
-  val enumArg: AccessMode = AccessMode.READ
+public data class MainFragmentArgs(
+  public val main: String,
+  public val optional: Int = -1,
+  public val reference: Int = R.drawable.background,
+  public val referenceZeroDefaultValue: Int = 0,
+  public val floatArg: Float = 1F,
+  public val floatArrayArg: FloatArray,
+  public val objectArrayArg: Array<ActivityInfo>,
+  public val boolArg: Boolean = true,
+  public val optionalParcelable: ActivityInfo? = null,
+  public val enumArg: AccessMode = AccessMode.READ
 ) : NavArgs {
   @Suppress("CAST_NEVER_SUCCEEDS")
-  fun toBundle(): Bundle {
+  public fun toBundle(): Bundle {
     val result = Bundle()
     result.putString("main", this.main)
     result.putInt("optional", this.optional)
@@ -53,10 +53,10 @@ data class MainFragmentArgs(
     return result
   }
 
-  companion object {
+  public companion object {
     @JvmStatic
     @Suppress("UNCHECKED_CAST")
-    fun fromBundle(bundle: Bundle): MainFragmentArgs {
+    public fun fromBundle(bundle: Bundle): MainFragmentArgs {
       bundle.setClassLoader(MainFragmentArgs::class.java.classLoader)
       val __main : String?
       if (bundle.containsKey("main")) {

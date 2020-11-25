@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -281,19 +282,6 @@ class FragmentStateManager {
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             if (mFragment.mView != null && mFragment.mContainer != null) {
-                                // If a fragment started its exit animation, but was re-added
-                                // before the exit animation completed we have to set it up for the
-                                // enter animation by:
-                                // 1. Calling endViewTransition on the view
-                                mFragment.mContainer.endViewTransition(mFragment.mView);
-                                if (mFragment.mView.getParent() == null) {
-                                    int index = mFragmentStore
-                                            .findFragmentIndexInContainer(mFragment);
-                                    // 2. Add the view back to the container in the proper position.
-                                    mFragment.mContainer.addView(mFragment.mView, index);
-                                    // 3. Set the view alpha to 0
-                                    mFragment.mView.setAlpha(0f);
-                                }
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
@@ -524,11 +512,7 @@ class FragmentStateManager {
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {
-                // Ensure that our new Fragment is placed in the right index
-                // based on its relative position to Fragments already in the
-                // same container
-                int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
-                container.addView(mFragment.mView, index);
+                addViewToContainer();
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
@@ -603,20 +587,31 @@ class FragmentStateManager {
             Log.d(TAG, "moveto RESUMED: " + mFragment);
         }
         View focusedView = mFragment.getFocusedView();
-        if (focusedView != null) {
+        if (focusedView != null && isFragmentViewChild(focusedView)) {
             boolean success = focusedView.requestFocus();
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "requestFocus: Restoring focused view "
                         + focusedView + " " + (success ? "succeeded" : "failed") + " on Fragment "
                         + mFragment + " resulting in focused view " + mFragment.mView.findFocus());
             }
-            mFragment.setFocusedView(null);
         }
+        mFragment.setFocusedView(null);
         mFragment.performResume();
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
         mFragment.mSavedViewRegistryState = null;
+    }
+
+    private boolean isFragmentViewChild(@NonNull View view) {
+        ViewParent parent = view.getParent();
+        while (parent != null) {
+            if (parent == mFragment.mView) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     void pause() {
@@ -811,5 +806,13 @@ class FragmentStateManager {
             }
             mFragment.initState();
         }
+    }
+
+    void addViewToContainer() {
+        // Ensure that our new Fragment is placed in the right index
+        // based on its relative position to Fragments already in the
+        // same container
+        int index = mFragmentStore.findFragmentIndexInContainer(mFragment);
+        mFragment.mContainer.addView(mFragment.mView, index);
     }
 }

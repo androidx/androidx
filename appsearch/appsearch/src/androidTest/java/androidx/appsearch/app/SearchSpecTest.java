@@ -18,58 +18,21 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.os.Bundle;
 
 import org.junit.Test;
 
 public class SearchSpecTest {
     @Test
-    public void buildSearchSpecWithoutTermMatchType() {
-        assertThrows(RuntimeException.class, () -> new SearchSpec.Builder()
-                .addSchema("testSchemaType")
-                .build());
-    }
-
-    @Test
-    public void testBuildSearchSpec() {
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addNamespace("namespace1", "namespace2")
-                .addSchema("schemaTypes1", "schemaTypes2")
-                .setSnippetCount(5)
-                .setSnippetCountPerProperty(10)
-                .setMaxSnippetSize(15)
-                .setNumPerPage(42)
-                .setOrder(SearchSpec.ORDER_ASCENDING)
-                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
-                .build();
-
-        assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
-        assertThat(searchSpec.getNamespaces())
-                .containsExactly("namespace1", "namespace2").inOrder();
-        assertThat(searchSpec.getSchemas())
-                .containsExactly("schemaTypes1", "schemaTypes2").inOrder();
-        assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
-        assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
-        assertThat(searchSpec.getMaxSnippetSize()).isEqualTo(15);
-        assertThat(searchSpec.getNumPerPage()).isEqualTo(42);
-        assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
-        assertThat(searchSpec.getRankingStrategy())
-                .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
-    }
-
-    @Test
     public void testGetBundle() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addNamespace("namespace1", "namespace2")
-                .addSchema("schemaTypes1", "schemaTypes2")
+                .addSchemaType("schemaTypes1", "schemaTypes2")
                 .setSnippetCount(5)
                 .setSnippetCountPerProperty(10)
                 .setMaxSnippetSize(15)
-                .setNumPerPage(42)
+                .setResultCountPerPage(42)
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
                 .build();

@@ -22,6 +22,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.lang.Math.sin;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -37,6 +38,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -53,7 +55,7 @@ import androidx.wear.R;
 public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutWidget {
     private static final float UNSET_ANCHOR_DEGREE = -1f;
     private static final int UNSET_ANCHOR_TYPE = -1;
-    private static final float UNSET_SWEEP_DEGREE = -1f;
+    private static final float MIN_SWEEP_DEGREE = 0f;
     private static final float MAX_SWEEP_DEGREE = 359.9f;
     private static final float DEFAULT_TEXT_SIZE = 24f;
     @ColorInt
@@ -80,10 +82,12 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private int mLastUsedTextAlignment = -1;
     private float mLocalRotateAngle = 0f;
     private float mParentRotateAngle = 0f;
+    private boolean mParentRotateAngleSet = false;
 
     private int mAnchorType = UNSET_ANCHOR_TYPE;
     private float mAnchorAngleDegrees = UNSET_ANCHOR_DEGREE;
-    private float mSweepDegrees = UNSET_SWEEP_DEGREE;
+    private float mMinSweepDegrees = MIN_SWEEP_DEGREE;
+    private float mMaxSweepDegrees = MAX_SWEEP_DEGREE;
     private String mText = "";
     private float mTextSize = DEFAULT_TEXT_SIZE;
     @Nullable
@@ -98,6 +102,10 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     private String mFontFeatureSettings = null;
     @Nullable
     private String mFontVariationSettings = null;
+
+    // If true, it means we got the touch_down event and are receiving the touch events that follow.
+    private boolean mHandlingTouch = false;
+
 
     public WearCurvedTextView(@NonNull Context context) {
         this(context, null);
@@ -168,7 +176,16 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         }
 
         // read the custom WearCurvedTextView attributes
-        mSweepDegrees = a.getFloat(R.styleable.WearCurvedTextView_sweepDegrees, UNSET_SWEEP_DEGREE);
+        mMaxSweepDegrees =
+                a.getFloat(R.styleable.WearCurvedTextView_maxSweepDegrees, MAX_SWEEP_DEGREE);
+        mMaxSweepDegrees = min(mMaxSweepDegrees, MAX_SWEEP_DEGREE);
+        mMinSweepDegrees =
+                a.getFloat(R.styleable.WearCurvedTextView_minSweepDegrees, MIN_SWEEP_DEGREE);
+        if (mMinSweepDegrees > mMaxSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
+            );
+        }
         mAnchorType = a.getInt(R.styleable.WearCurvedTextView_anchorPosition, UNSET_ANCHOR_TYPE);
         mAnchorAngleDegrees = a.getFloat(
                 R.styleable.WearCurvedTextView_anchorAngleDegrees, UNSET_ANCHOR_DEGREE
@@ -179,6 +196,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         a.recycle();
 
         applyTextAppearance(attributes);
+
+        mPaint.setTextSize(mTextSize);
     }
 
     @Override
@@ -217,8 +236,34 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     @Override
     public boolean handleLayoutRotate(float angle) {
+        mParentRotateAngleSet = true;
+
+        // Ensure we are redrawn when the parent rotates.
+        if (mParentRotateAngle != angle) {
+            doRedraw();
+        }
         mParentRotateAngle = angle;
         return true;
+    }
+
+    @Override
+    public boolean insideClickArea(float x, float y) {
+        float radius2 = min(getWidth(), getHeight()) / 2f
+                - (mClockwise ? getPaddingTop() : getPaddingBottom());
+        float radius1 =
+                radius2 - mPaint.getFontMetrics().descent + mPaint.getFontMetrics().ascent;
+
+        float dx = x - getWidth() / 2;
+        float dy = y - getHeight() / 2;
+
+        float r2 = dx * dx + dy * dy;
+        if (r2 < radius1 * radius1 || r2 > radius2 * radius2) {
+            return false;
+        }
+
+        // Since we are symmetrical on the Y-axis, we can constrain the angle to the x>=0 quadrants.
+        float angle = (float) Math.toDegrees(Math.atan2(Math.abs(dx), -dy));
+        return angle < mBackgroundSweepDegrees / 2;
     }
 
     @Override
@@ -227,21 +272,20 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doUpdate();
     }
 
-    private void updatePaint() {
-        mPaint.setTextSize(mTextSize);
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
 
         // Note that ascent is negative.
-
         mPathRadius = min(getWidth(), getHeight()) / 2f
                 + (mClockwise ? mPaint.getFontMetrics().ascent - getPaddingTop() :
                 -mPaint.getFontMetrics().descent - getPaddingBottom());
         mTextSweepDegrees = min(
                 getWidthSelf() / mPathRadius / (float) Math.PI * 180f,
                 MAX_SWEEP_DEGREE);
-        mBackgroundSweepDegrees =
-                (mSweepDegrees == UNSET_SWEEP_DEGREE) ? mTextSweepDegrees
-                        : min(mSweepDegrees, MAX_SWEEP_DEGREE);
+        mBackgroundSweepDegrees = max(min(mMaxSweepDegrees, mTextSweepDegrees), mMinSweepDegrees);
     }
 
     private float getWidthSelf() {
@@ -284,18 +328,15 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         mDirty = false;
         mLastUsedTextAlignment = (int) getTextAlignment();
-        mPaint.setTextSize(mTextSize);
 
-        float maxSweepDegrees =
-                mSweepDegrees == UNSET_SWEEP_DEGREE ? MAX_SWEEP_DEGREE : mSweepDegrees;
-        if (mTextSweepDegrees <= maxSweepDegrees) {
+        if (mTextSweepDegrees <= mMaxSweepDegrees) {
             mTextToDraw = mText;
         } else {
             mTextToDraw = ellipsize(
-                    (int) (maxSweepDegrees / 180f * Math.PI * mPathRadius) - getPaddingLeft()
+                    (int) (mMaxSweepDegrees / 180f * Math.PI * mPathRadius) - getPaddingLeft()
                             - getPaddingRight()
             );
-            mTextSweepDegrees = maxSweepDegrees;
+            mTextSweepDegrees = mMaxSweepDegrees;
         }
 
         float clockwiseFactor = mClockwise ? 1f : -1f;
@@ -361,6 +402,8 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
         if (withBackground) {
             mBgPath.reset();
+            // NOTE: Ensure that if the code to compute these radius* change, containsPoint() is
+            // also updated.
             float radius1 = mPathRadius - clockwiseFactor * mPaint.getFontMetrics().descent;
             float radius2 = mPathRadius - clockwiseFactor * mPaint.getFontMetrics().ascent;
             mBgPath.arcTo(
@@ -409,6 +452,48 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
                             ? (int) (centerX + outerRadius)
                             : (int) max(x0, max(x1, max(x2, x3)));
         }
+    }
+
+    @Override
+    // We only filter events and defer to super.onTouchEvent()
+    @SuppressLint("ClickableViewAccessibility")
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (!mHandlingTouch && event.getAction() != MotionEvent.ACTION_DOWN) {
+            return false;
+        }
+
+        float x0 = event.getX();
+        float y0 = event.getY();
+        if (!mParentRotateAngleSet) {
+            // If we are a stand-alone widget, we have to handle our rotation / anchor placement,
+            // if we are part of an arc container, it's handled by it.
+            double rotAngle = -Math.toRadians(mLocalRotateAngle);
+
+            x0 -= getWidth() / 2;
+            y0 -= getHeight() / 2;
+            float tempX = (float)
+                    ((x0 * cos(rotAngle) - y0 * sin(rotAngle)) + getWidth() / 2);
+            y0 = (float) ((x0 * sin(rotAngle) + y0 * cos(rotAngle)) + getHeight() / 2);
+            x0 = tempX;
+        }
+
+        // Should we start handling the touch events?
+        if (!mHandlingTouch && insideClickArea(x0, y0)) {
+            mHandlingTouch = true;
+        }
+
+        // We just started or are in the middle of handling events, forward to View to handle.
+        if (mHandlingTouch) {
+            if (event.getAction() == MotionEvent.ACTION_UP
+                    || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                // We should end handling events now
+                mHandlingTouch = false;
+            }
+            event.offsetLocation(x0 - event.getX(), y0 - event.getY());
+            return super.onTouchEvent(event);
+        }
+
+        return false;
     }
 
     @Override
@@ -643,7 +728,6 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
 
     private void doUpdate() {
         mDirty = true;
-        updatePaint();
         requestLayout();
         postInvalidate();
     }
@@ -678,26 +762,46 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
         doRedraw();
     }
 
+    /** returns the maximum sweep angle in degrees for rendering the text */
+    public float getMaxSweepDegrees() {
+        return mMaxSweepDegrees;
+    }
+
+    /** sets the maximum sweep angle in degrees for rendering the text */
+    public void setMaxSweepDegrees(float value) {
+        if (value < mMinSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MaxSweepDegrees cannot be smaller than MinSweepDegrees"
+            );
+        }
+        mMaxSweepDegrees = min(value, MAX_SWEEP_DEGREE);
+        doUpdate();
+    }
     /** returns the sweep angle in degrees for rendering the text */
-    public float getSweepDegrees() {
-        return mSweepDegrees;
+    public float getMinSweepDegrees() {
+        return mMinSweepDegrees;
     }
 
     /** sets the sweep angle in degrees for rendering the text */
-    public void setSweepDegrees(float value) {
-        mSweepDegrees = value;
+    public void setMinSweepDegrees(float value) {
+        if (value > mMaxSweepDegrees) {
+            throw new IllegalArgumentException(
+                    "MinSweepDegrees cannot be bigger than MaxSweepDegrees"
+            );
+        }
+        mMinSweepDegrees = value;
         doUpdate();
     }
 
     /**  returns the text to be rendered */
-    @NonNull
+    @Nullable
     public String getText() {
         return mText;
     }
 
     /** sets the text to be rendered */
-    public void setText(@NonNull String value) {
-        mText = value;
+    public void setText(@Nullable String value) {
+        mText = value == null ? "" : value;
         doUpdate();
     }
 
@@ -709,6 +813,7 @@ public class WearCurvedTextView extends View implements WearArcLayout.ArcLayoutW
     /** sets the text size for rendering the text */
     public void setTextSize(float value) {
         mTextSize = value;
+        mPaint.setTextSize(mTextSize);
         doUpdate();
     }
 

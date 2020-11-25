@@ -16,27 +16,23 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runKaptTest
+import androidx.room.compiler.processing.util.runKspTest
 import com.google.auto.common.MoreTypes
-import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.MethodSpec
 import org.junit.Test
-import javax.annotation.processing.AbstractProcessor
-import javax.annotation.processing.RoundEnvironment
-import javax.lang.model.SourceVersion
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.Types
 
 class MethodSpecHelperTest {
     @Test
-    fun overrides() {
+    fun javaOverrides() {
         // check our override impl matches javapoet
         val source = Source.java(
             "foo.bar.Baz",
@@ -56,7 +52,7 @@ class MethodSpecHelperTest {
                 }
 
                 @OtherAnnotation("x")
-                public int methodAnntation(int y) {
+                public int methodAnnotation(int y) {
                     return 3;
                 }
 
@@ -73,13 +69,63 @@ class MethodSpecHelperTest {
             }
             """.trimIndent()
         )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun kotlinOverrides() {
+        // check our override impl matches javapoet
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            import androidx.room.compiler.processing.testcode.OtherAnnotation;
+
+            open class Baz {
+                open fun method1() {
+                }
+
+                open fun method2(x:Int) {
+                }
+
+                open fun parameterAnnotation(@OtherAnnotation("x") y:Int): Int {
+                    return 3;
+                }
+
+                @OtherAnnotation("x")
+                open fun methodAnnotation(y: Int): Int {
+                    return 3;
+                }
+
+                open fun varargMethod(vararg y:Int): Int {
+                    return 3;
+                }
+
+                protected open fun <R> typeArgs(r:R): R {
+                    return r;
+                }
+
+                @Throws(Exception::class)
+                protected open fun throwsException() {
+                }
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    private fun overridesCheck(source: Source) {
         // first build golden image with Java processor so we can use JavaPoet's API
         val golden = buildMethodsViaJavaPoet(source)
-        runProcessorTest(
-            sources = listOf(source)
-        ) {
-            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            element.getDeclaredMethods().forEachIndexed { index, method ->
+        runKspTest(
+            sources = listOf(source),
+            succeed = true
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
+            element.getDeclaredMethods().filter {
+                // TODO b/171572318
+                !invocation.isKsp || it.name != "throwsException"
+            }.forEachIndexed { index, method ->
                 val subject = MethodSpecHelper.overridingWithFinalParams(
                     method,
                     element.type
@@ -91,37 +137,21 @@ class MethodSpecHelperTest {
 
     private fun buildMethodsViaJavaPoet(source: Source): List<String> {
         lateinit var result: List<String>
-        assertAbout(
-            JavaSourcesSubjectFactory.javaSources()
-        ).that(
-            listOf(source.toJFO())
-        ).processedWith(
-            object : AbstractProcessor() {
-                override fun process(
-                    annotations: MutableSet<out TypeElement>,
-                    roundEnv: RoundEnvironment
-                ): Boolean {
-                    val element = processingEnv.elementUtils.getTypeElement("foo.bar.Baz")
-                    result = ElementFilter.methodsIn(element.enclosedElements)
-                        .map {
-                            generateFromJavapoet(
-                                it,
-                                MoreTypes.asDeclared(element.asType()),
-                                processingEnv.typeUtils
-                            ).build().toString()
-                        }
-                    return true
+        runKaptTest(
+            sources = listOf(source),
+            succeed = true
+        ) {
+            val processingEnv = (it.processingEnv as JavacProcessingEnv)
+            val element = processingEnv.elementUtils.getTypeElement("foo.bar.Baz")
+            result = ElementFilter.methodsIn(element.enclosedElements)
+                .map {
+                    generateFromJavapoet(
+                        it,
+                        MoreTypes.asDeclared(element.asType()),
+                        processingEnv.typeUtils
+                    ).build().toString()
                 }
-
-                override fun getSupportedSourceVersion(): SourceVersion {
-                    return SourceVersion.latestSupported()
-                }
-
-                override fun getSupportedAnnotationTypes(): Set<String> {
-                    return setOf("*")
-                }
-            }
-        ).compilesWithoutError()
+        }
         return result
     }
 

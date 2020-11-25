@@ -38,10 +38,10 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.createIdAndComplicationData
 import androidx.wear.watchface.data.RenderParametersWireFormat
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -58,6 +58,7 @@ import org.robolectric.annotation.Config
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
 private const val BACKGROUND_COMPLICATION_ID = 1111
+private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 
 @Config(manifest = Config.NONE)
 @RunWith(WatchFaceTestRunner::class)
@@ -118,7 +119,7 @@ class WatchFaceConfigUiTest {
     )
 
     private val leftComplication =
-        Complication.Builder(
+        Complication.createRoundRectComplicationBuilder(
             LEFT_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableLeft,
@@ -133,13 +134,13 @@ class WatchFaceConfigUiTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
+            DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
+            RectF(0.2f, 0.4f, 0.4f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
 
     private val rightComplication =
-        Complication.Builder(
+        Complication.createRoundRectComplicationBuilder(
             RIGHT_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableRight,
@@ -154,13 +155,13 @@ class WatchFaceConfigUiTest {
                 ComplicationType.MONOCHROMATIC_IMAGE,
                 ComplicationType.SMALL_IMAGE
             ),
-            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
+            DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+            RectF(0.6f, 0.4f, 0.8f, 0.6f)
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
-            .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
 
     private val backgroundComplication =
-        Complication.Builder(
+        Complication.createBackgroundComplicationBuilder(
             BACKGROUND_COMPLICATION_ID,
             CanvasComplicationDrawable(
                 complicationDrawableRight,
@@ -169,11 +170,10 @@ class WatchFaceConfigUiTest {
                 idAndData = createIdAndComplicationData(BACKGROUND_COMPLICATION_ID)
             },
             listOf(
-                ComplicationType.BACKGROUND_IMAGE
+                ComplicationType.PHOTO_IMAGE
             ),
             DefaultComplicationProviderPolicy()
-        ).setDefaultProviderType(ComplicationType.BACKGROUND_IMAGE)
-            .setAsBackgroundComplication()
+        ).setDefaultProviderType(ComplicationType.PHOTO_IMAGE)
             .build()
 
     private val calendar = Calendar.getInstance().apply {
@@ -196,7 +196,12 @@ class WatchFaceConfigUiTest {
         val complicationSet = ComplicationsManager(
             complications,
             userStyleRepository,
-            object : Renderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
+            object : Renderer(
+                surfaceHolder,
+                userStyleRepository,
+                watchState.asWatchState(),
+                INTERACTIVE_UPDATE_RATE_MS
+            ) {
                 override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(

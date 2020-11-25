@@ -108,6 +108,7 @@ import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -307,6 +308,9 @@ public final class ImageCapture extends UseCase {
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final Executor mSequentialIoExecutor;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -327,6 +331,7 @@ public final class ImageCapture extends UseCase {
 
         mIoExecutor = Preconditions.checkNotNull(
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
+        mSequentialIoExecutor = CameraXExecutors.newSequentialExecutor(mIoExecutor);
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -724,20 +729,30 @@ public final class ImageCapture extends UseCase {
             final @NonNull OutputFileOptions outputFileOptions,
             final @NonNull Executor executor,
             final @NonNull OnImageSavedCallback imageSavedCallback) {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            CameraXExecutors.mainThreadExecutor().execute(
-                    () -> takePicture(outputFileOptions, executor, imageSavedCallback));
-            return;
-        }
+        mSequentialIoExecutor.execute(() -> {
+            if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
+                // Check whether the captured image can be saved. If it cannot, fail fast and
+                // notify user.
+                executor.execute(() -> imageSavedCallback.onError(
+                        new ImageCaptureException(ERROR_FILE_IO,
+                                "Cannot save capture result to specified location", null)));
+            } else {
+                CameraXExecutors.mainThreadExecutor().execute(
+                        () -> takePictureAfterValidation(outputFileOptions, executor,
+                                imageSavedCallback));
+            }
+        });
+    }
 
-        // Check whether the captured image can be saved. If it cannot, fail fast and notify user
-        if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
-            executor.execute(() -> imageSavedCallback.onError(
-                    new ImageCaptureException(ERROR_FILE_IO,
-                            "Cannot save capture result to specified location", null)));
-            return;
-        }
-
+    /**
+     * Takes picture after the output file options is validated.
+     */
+    @UiThread
+    private void takePictureAfterValidation(
+            final @NonNull OutputFileOptions outputFileOptions,
+            final @NonNull Executor executor,
+            final @NonNull OnImageSavedCallback imageSavedCallback) {
+        Threads.checkMainThread();
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
@@ -766,7 +781,8 @@ public final class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onError(ImageSaver.SaveError error, String message,
+                    public void onError(@NonNull ImageSaver.SaveError error,
+                            @NonNull String message,
                             @Nullable Throwable cause) {
                         @ImageCaptureError int imageCaptureError = ERROR_UNKNOWN;
                         switch (error) {
@@ -795,6 +811,7 @@ public final class ImageCapture extends UseCase {
                                         outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
                                         executor,
+                                        mSequentialIoExecutor,
                                         imageSavedCallbackWrapper));
                     }
 
@@ -1435,8 +1452,10 @@ public final class ImageCapture extends UseCase {
             builder.addSurface(mDeferrableSurface);
 
             // Add the dynamic implementation options of ImageCapture
-            builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
-                    imageCaptureRequest.mRotationDegrees);
+            if (new ExifRotationAvailability().isRotationOptionSupported()) {
+                builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                        imageCaptureRequest.mRotationDegrees);
+            }
             builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
                     imageCaptureRequest.mJpegQuality);
 
@@ -1662,10 +1681,6 @@ public final class ImageCapture extends UseCase {
      */
     public static final class OutputFileOptions {
 
-        // Empty metadata object used as a placeholder for no user-supplied metadata.
-        // Should be initialized to all default values.
-        private static final Metadata EMPTY_METADATA = new Metadata();
-
         @Nullable
         private final File mFile;
         @Nullable
@@ -1690,7 +1705,7 @@ public final class ImageCapture extends UseCase {
             mSaveCollection = saveCollection;
             mContentValues = contentValues;
             mOutputStream = outputStream;
-            mMetadata = metadata == null ? EMPTY_METADATA : metadata;
+            mMetadata = metadata == null ? new Metadata() : metadata;
         }
 
         @Nullable
@@ -2142,7 +2157,9 @@ public final class ImageCapture extends UseCase {
             Size dispatchResolution;
             int dispatchRotationDegrees = 0;
 
-            if (image.getFormat() == ImageFormat.JPEG) {
+            // Retrieve the dimension and rotation values from the embedded EXIF data in the
+            // captured image only if those information is available.
+            if (new ExifRotationAvailability().shouldUseExifOrientation(image)) {
                 // JPEG needs to have rotation/crop based on the EXIF
                 try {
                     ImageProxy.PlaneProxy[] planes = image.getPlanes();

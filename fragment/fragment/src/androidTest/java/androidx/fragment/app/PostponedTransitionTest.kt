@@ -167,7 +167,9 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
 
         activityRule.waitForExecution()
 
-        fragment.requireView().visibility = View.INVISIBLE
+        activityRule.runOnUiThread {
+            fragment.requireView().visibility = View.INVISIBLE
+        }
 
         activityRule.waitForExecution(1)
 

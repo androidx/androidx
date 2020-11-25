@@ -5,22 +5,23 @@ import androidx.navigation.NavDirections
 import kotlin.Int
 import kotlin.String
 
-class InnerSettingsDirections private constructor() {
+public class InnerSettingsDirections private constructor() {
   private data class Exit(
-    val exitReason: Int
+    public val exitReason: Int
   ) : NavDirections {
-    override fun getActionId(): Int = R.id.exit
+    public override fun getActionId(): Int = R.id.exit
 
-    override fun getArguments(): Bundle {
+    public override fun getArguments(): Bundle {
       val result = Bundle()
       result.putInt("exitReason", this.exitReason)
       return result
     }
   }
 
-  companion object {
-    fun exit(exitReason: Int): NavDirections = Exit(exitReason)
+  public companion object {
+    public fun exit(exitReason: Int): NavDirections = Exit(exitReason)
 
-    fun main(enterReason: String = "DEFAULT"): NavDirections = SettingsDirections.main(enterReason)
+    public fun main(enterReason: String = "DEFAULT"): NavDirections =
+        SettingsDirections.main(enterReason)
   }
 }

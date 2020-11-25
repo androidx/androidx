@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ContextAmbient
+import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -55,7 +55,7 @@ class NavHostTest {
     fun testSingleDestinationSet() {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(ContextAmbient.current)
+            navController = TestNavHostController(AmbientContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -71,7 +71,7 @@ class NavHostTest {
     fun testNavigate() {
         lateinit var navController: NavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(ContextAmbient.current)
+            navController = TestNavHostController(AmbientContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -149,7 +149,7 @@ class NavHostTest {
     fun testPop() {
         lateinit var navController: TestNavHostController
         composeTestRule.setContent {
-            navController = TestNavHostController(ContextAmbient.current)
+            navController = TestNavHostController(AmbientContext.current)
 
             NavHost(navController, startDestination = "first") {
                 test("first")
@@ -175,7 +175,7 @@ class NavHostTest {
         lateinit var state: MutableState<String>
         composeTestRule.setContent {
             state = remember { mutableStateOf("first") }
-            val context = ContextAmbient.current
+            val context = AmbientContext.current
             navController = remember { TestNavHostController(context) }
 
             NavHost(navController, startDestination = state.value) {

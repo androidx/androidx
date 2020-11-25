@@ -37,8 +37,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Px;
 import androidx.annotation.VisibleForTesting;
 import androidx.wear.complications.ComplicationHelperActivity;
 import androidx.wear.watchface.complications.rendering.ComplicationRenderer.OnInvalidateListener;
@@ -729,7 +731,7 @@ public final class ComplicationDrawable extends Drawable {
      * android.app.PendingIntent}) is cancelled, or the given x and y are not inside the
      * complication bounds.
      */
-    public boolean onTap(int x, int y) {
+    public boolean onTap(@Px int x, @Px int y) {
         if (mComplicationRenderer == null) {
             return false;
         }
@@ -786,7 +788,7 @@ public final class ComplicationDrawable extends Drawable {
      *
      * @param highlightDurationMillis highlight duration in milliseconds
      */
-    public void setHighlightDuration(long highlightDurationMillis) {
+    public void setHighlightDuration(@IntRange(from = 0) long highlightDurationMillis) {
         if (highlightDurationMillis < 0) {
             throw new IllegalArgumentException("Highlight duration should be non-negative.");
         }

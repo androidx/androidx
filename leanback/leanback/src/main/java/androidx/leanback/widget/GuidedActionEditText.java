@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.widget.TextViewCompat;
 
 /**
@@ -126,6 +127,7 @@ public class GuidedActionEditText extends EditText implements ImeKeyMonitor,
         }
     }
 
+    @RequiresApi(26)
     @Override
     public int getAutofillType() {
         // make it always autofillable as Guided fragment switches InputType when user clicks

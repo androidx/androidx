@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.os.Build;
+import android.util.Log;
 
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
@@ -76,5 +77,23 @@ public class CameraXConfigTest {
                 .build();
         Executor cameraExecutor = cameraXConfig.getCameraExecutor(/*valueIfMissing=*/ null);
         assertThat(cameraExecutor).isEqualTo(mockExecutor);
+    }
+
+    @Test
+    public void canGetMinimumLoggingLevel() {
+        final CameraXConfig cameraXConfig = new CameraXConfig.Builder()
+                .setMinimumLoggingLevel(Log.WARN)
+                .build();
+
+        final Integer minLoggingLevel = cameraXConfig.getMinimumLoggingLevel();
+        assertThat(minLoggingLevel).isEqualTo(Log.WARN);
+    }
+
+    @Test
+    public void canGetDefaultMinimumLoggingLevel() {
+        final CameraXConfig cameraXConfig = new CameraXConfig.Builder().build();
+
+        final Integer minLoggingLevel = cameraXConfig.getMinimumLoggingLevel();
+        assertThat(minLoggingLevel).isEqualTo(Logger.DEFAULT_MIN_LOG_LEVEL);
     }
 }

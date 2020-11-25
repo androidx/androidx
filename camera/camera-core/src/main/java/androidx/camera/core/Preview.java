@@ -526,7 +526,7 @@ public final class Preview extends UseCase {
     @Override
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     @RestrictTo(Scope.LIBRARY)
-    public void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+    public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
         sendTransformationInfoIfReady();
     }

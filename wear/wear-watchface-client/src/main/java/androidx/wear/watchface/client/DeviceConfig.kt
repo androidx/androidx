@@ -16,8 +16,6 @@
 
 package androidx.wear.watchface.client
 
-import androidx.wear.watchface.ScreenShape
-
 /** Describes the hardware configuration of the device the watch face is running on. */
 public class DeviceConfig(
     /** Whether or not the watch hardware supports low bit ambient support. */
@@ -27,10 +25,6 @@ public class DeviceConfig(
     /** Whether or not the watch hardware supports burn in protection. */
     @get:JvmName("hasBurnInProtection")
     public val hasBurnInProtection: Boolean,
-
-    /** Describes the shape of the screen of the device the watch face is running on.*/
-    @ScreenShape
-    public val screenShape: Int,
 
     /**
      * UTC reference time for screenshots of analog watch faces in milliseconds since the epoch.

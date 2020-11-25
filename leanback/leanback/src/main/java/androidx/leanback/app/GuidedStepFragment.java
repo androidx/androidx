@@ -557,7 +557,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     private static void addNonNullSharedElementTransition (FragmentTransaction ft, View subView,
                                                            String transitionName)
     {
-        if (IS_FRAMEWORK_FRAGMENT && Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             if (subView != null) {
                 ft.addSharedElement(subView, transitionName);
             }
@@ -1294,7 +1294,8 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * @param  guidedStepFragmentClass  Name of the Class of GuidedStepFragment to pop to.
      * @param flags Either 0 or {@link FragmentManager#POP_BACK_STACK_INCLUSIVE}.
      */
-    public void popBackStackToGuidedStepFragment(Class<?> guidedStepFragmentClass, int flags) {
+    public void popBackStackToGuidedStepFragment(Class<?> guidedStepFragmentClass,
+            int flags) {
         if (!GuidedStepFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
             return;
         }

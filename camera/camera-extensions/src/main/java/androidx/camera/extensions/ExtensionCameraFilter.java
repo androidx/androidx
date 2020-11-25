@@ -23,16 +23,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ExperimentalCameraFilter;
-import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.core.util.Preconditions;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A filter that filters camera based on extender implementation. If the implementation is
@@ -62,12 +62,11 @@ public final class ExtensionCameraFilter implements CameraFilter {
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     @Override
-    public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
-        LinkedHashSet<Camera> resultCameras = new LinkedHashSet<>();
-        for (Camera camera : cameras) {
-            Preconditions.checkState(camera instanceof CameraInternal,
-                    "The camera doesn't contain internal implementation.");
-            CameraInfo cameraInfo = camera.getCameraInfo();
+    public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
+        List<CameraInfo> result = new ArrayList<>();
+        for (CameraInfo cameraInfo : cameraInfos) {
+            Preconditions.checkArgument(cameraInfo instanceof CameraInfoInternal,
+                    "The camera info doesn't contain internal implementation.");
             String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
             CameraCharacteristics cameraCharacteristics =
                     Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
@@ -86,10 +85,10 @@ public final class ExtensionCameraFilter implements CameraFilter {
             }
 
             if (available) {
-                resultCameras.add(camera);
+                result.add(cameraInfo);
             }
         }
 
-        return resultCameras;
+        return result;
     }
 }

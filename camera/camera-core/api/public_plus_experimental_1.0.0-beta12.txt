@@ -24,7 +24,7 @@ package androidx.camera.core {
   }
 
   @androidx.camera.core.ExperimentalCameraFilter public interface CameraFilter {
-    method public java.util.LinkedHashSet<androidx.camera.core.Camera!> filter(java.util.LinkedHashSet<androidx.camera.core.Camera!>);
+    method public java.util.List<androidx.camera.core.CameraInfo!> filter(java.util.List<androidx.camera.core.CameraInfo!>);
   }
 
   public interface CameraInfo {
@@ -69,12 +69,14 @@ package androidx.camera.core {
   }
 
   public final class CameraXConfig {
+    method @androidx.camera.core.ExperimentalLogging public int getMinimumLoggingLevel();
   }
 
   public static final class CameraXConfig.Builder {
     method public androidx.camera.core.CameraXConfig build();
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
+    method @androidx.camera.core.ExperimentalLogging public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
     method @androidx.camera.core.ExperimentalCustomizableThreads public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
 
@@ -96,6 +98,9 @@ package androidx.camera.core {
   }
 
   @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
+  @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLogging {
   }
 
   @experimental.Experimental @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseGroup {

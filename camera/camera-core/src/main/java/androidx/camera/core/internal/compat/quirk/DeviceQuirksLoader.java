@@ -47,6 +47,10 @@ public class DeviceQuirksLoader {
             quirks.add(new IncompleteCameraListQuirk());
         }
 
+        if (ImageCaptureRotationOptionQuirk.load()) {
+            quirks.add(new ImageCaptureRotationOptionQuirk());
+        }
+
         return quirks;
     }
 }

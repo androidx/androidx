@@ -39,8 +39,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
     static final String TAG = "DetailsTransitionHelper";
     static final boolean DEBUG = false;
 
-    static class TransitionTimeOutRunnable implements Runnable {
-        WeakReference<DetailsOverviewSharedElementHelper> mHelperRef;
+    static final class TransitionTimeOutRunnable implements Runnable {
+        final WeakReference<DetailsOverviewSharedElementHelper> mHelperRef;
 
         TransitionTimeOutRunnable(DetailsOverviewSharedElementHelper helper) {
             mHelperRef = new WeakReference<DetailsOverviewSharedElementHelper>(helper);
@@ -59,7 +59,7 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         }
     }
 
-    ViewHolder mViewHolder;
+    WeakReference<ViewHolder> mViewHolder = new WeakReference<>(null);
     Activity mActivityToRunTransition;
     boolean mStartedPostpone;
     String mSharedElementName;
@@ -74,9 +74,10 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
     }
 
     private void saveImageViewScale() {
-        if (mSavedScaleType == null) {
+        ViewHolder vh = mViewHolder.get();
+        if (mSavedScaleType == null && vh != null) {
             // only save first time after initialize/restoreImageViewScale()
-            ImageView imageView = mViewHolder.mImageView;
+            ImageView imageView = vh.mImageView;
             mSavedScaleType = imageView.getScaleType();
             mSavedMatrix = mSavedScaleType == ScaleType.MATRIX ? imageView.getMatrix() : null;
             if (DEBUG) {
@@ -94,9 +95,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                 imageView.getRight(), imageView.getBottom());
     }
 
-    private void changeImageViewScale(View snapshotView) {
+    private static void changeImageViewScale(ViewHolder vh, View snapshotView) {
         ImageView snapshotImageView = (ImageView) snapshotView;
-        ImageView imageView = mViewHolder.mImageView;
+        ImageView imageView = vh.mImageView;
         if (DEBUG) {
             Log.d(TAG, "changeImageViewScale to "+snapshotImageView.getScaleType());
         }
@@ -107,12 +108,12 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         updateImageViewAfterScaleTypeChange(imageView);
     }
 
-    private void restoreImageViewScale() {
+    private void restoreImageViewScale(ViewHolder vh) {
         if (mSavedScaleType != null) {
             if (DEBUG) {
                 Log.d(TAG, "restoreImageViewScale to "+mSavedScaleType);
             }
-            ImageView imageView = mViewHolder.mImageView;
+            ImageView imageView = vh.mImageView;
             imageView.setScaleType(mSavedScaleType);
             if (mSavedScaleType == ScaleType.MATRIX) {
                 imageView.setImageMatrix(mSavedMatrix);
@@ -132,22 +133,23 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         if (sharedElements.size() < 1) {
             return;
         }
+        ViewHolder vh = mViewHolder.get();
         View overviewView = sharedElements.get(0);
-        if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
+        if (vh == null || vh.mOverviewFrame != overviewView) {
             return;
         }
         View snapshot = sharedElementSnapshots.get(0);
         if (hasImageViewScaleChange(snapshot)) {
             saveImageViewScale();
-            changeImageViewScale(snapshot);
+            changeImageViewScale(vh, snapshot);
         }
-        View imageView = mViewHolder.mImageView;
+        View imageView = vh.mImageView;
         final int width = overviewView.getWidth();
         final int height = overviewView.getHeight();
         imageView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         imageView.layout(0, 0, width, height);
-        final View rightPanel = mViewHolder.mRightPanel;
+        final View rightPanel = vh.mRightPanel;
         if (mRightPanelWidth != 0 && mRightPanelHeight != 0) {
             rightPanel.measure(MeasureSpec.makeMeasureSpec(mRightPanelWidth, MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(mRightPanelHeight, MeasureSpec.EXACTLY));
@@ -156,8 +158,8 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         } else {
             rightPanel.offsetLeftAndRight(width - rightPanel.getLeft());
         }
-        mViewHolder.mActionsRow.setVisibility(View.INVISIBLE);
-        mViewHolder.mDetailsDescriptionFrame.setVisibility(View.INVISIBLE);
+        vh.mActionsRow.setVisibility(View.INVISIBLE);
+        vh.mDetailsDescriptionFrame.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -169,19 +171,20 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         if (sharedElements.size() < 1) {
             return;
         }
+        ViewHolder vh = mViewHolder.get();
         View overviewView = sharedElements.get(0);
-        if (mViewHolder == null || mViewHolder.mOverviewFrame != overviewView) {
+        if (vh == null || vh.mOverviewFrame != overviewView) {
             return;
         }
-        restoreImageViewScale();
+        restoreImageViewScale(vh);
         // temporary let action row take focus so we defer button background animation
-        mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-        mViewHolder.mActionsRow.setVisibility(View.VISIBLE);
-        mViewHolder.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        vh.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+        vh.mActionsRow.setVisibility(View.VISIBLE);
+        vh.mActionsRow.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         // switch focusability to VISIBLE wont trigger focusableViewAvailable() on O because
         // shared element details_frame is still INVISIBLE. b/63544781
-        mViewHolder.mActionsRow.requestFocus();
-        mViewHolder.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
+        vh.mActionsRow.requestFocus();
+        vh.mDetailsDescriptionFrame.setVisibility(View.VISIBLE);
     }
 
     void setSharedElementEnterTransition(Activity activity, String sharedElementName,
@@ -213,37 +216,45 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
         if (DEBUG) {
             Log.d(TAG, "onBindToDrawable, could start transition of " + mActivityToRunTransition);
         }
-        if (mViewHolder != null) {
+        ViewHolder currentVh = mViewHolder.get();
+        if (currentVh != null) {
             if (DEBUG) {
                 Log.d(TAG, "rebind? clear transitionName on current viewHolder "
-                        + mViewHolder.mOverviewFrame);
+                        + currentVh.mOverviewFrame);
             }
-            ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, null);
+            ViewCompat.setTransitionName(currentVh.mOverviewFrame, null);
         }
         // After we got a image drawable,  we can determine size of right panel.
         // We want right panel to have fixed size so that the right panel don't change size
         // when the overview is layout as a small bounds in transition.
-        mViewHolder = vh;
-        mViewHolder.mRightPanel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        mViewHolder = new WeakReference<>(vh);
+        vh.mRightPanel.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
                     int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                mViewHolder.mRightPanel.removeOnLayoutChangeListener(this);
-                mRightPanelWidth = mViewHolder.mRightPanel.getWidth();
-                mRightPanelHeight = mViewHolder.mRightPanel.getHeight();
-                if (DEBUG) {
-                    Log.d(TAG, "onLayoutChange records size of right panel as "
-                            + mRightPanelWidth + ", "+ mRightPanelHeight);
+                v.removeOnLayoutChangeListener(this);
+                ViewHolder vh = mViewHolder.get();
+                if (vh != null) {
+                    mRightPanelWidth = vh.mRightPanel.getWidth();
+                    mRightPanelHeight = vh.mRightPanel.getHeight();
+                    if (DEBUG) {
+                        Log.d(TAG, "onLayoutChange records size of right panel as "
+                                + mRightPanelWidth + ", " + mRightPanelHeight);
+                    }
                 }
             }
         });
-        mViewHolder.mRightPanel.postOnAnimation(new Runnable() {
+        vh.mRightPanel.postOnAnimation(new Runnable() {
             @Override
             public void run() {
-                if (DEBUG) {
-                    Log.d(TAG, "setTransitionName "+mViewHolder.mOverviewFrame);
+                ViewHolder vh = mViewHolder.get();
+                if (vh == null) {
+                    return;
                 }
-                ViewCompat.setTransitionName(mViewHolder.mOverviewFrame, mSharedElementName);
+                if (DEBUG) {
+                    Log.d(TAG, "setTransitionName " + vh.mOverviewFrame);
+                }
+                ViewCompat.setTransitionName(vh.mOverviewFrame, mSharedElementName);
                 Object transition = TransitionHelper.getSharedElementEnterTransition(
                         mActivityToRunTransition.getWindow());
                 if (transition != null) {
@@ -255,8 +266,9 @@ final class DetailsOverviewSharedElementHelper extends SharedElementCallback {
                             }
                             // after transition if the action row still focused, transfer
                             // focus to its children
-                            if (mViewHolder.mActionsRow.isFocused()) {
-                                mViewHolder.mActionsRow.requestFocus();
+                            ViewHolder vh = mViewHolder.get();
+                            if (vh != null && vh.mActionsRow.isFocused()) {
+                                vh.mActionsRow.requestFocus();
                             }
                             TransitionHelper.removeTransitionListener(transition, this);
                         }

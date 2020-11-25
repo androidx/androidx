@@ -49,10 +49,10 @@ public class TimeRange internal constructor(
 }
 
 /**
- * Expresses the reference point for a time difference.
+ * Expresses a reference point or range for a time difference.
  *
- * It defines one of [endDateTimeMillis] or [startDateTimeMillis] to express the corresponding
- * time differences relative before or after the givene point in time.
+ * It defines [endDateTimeMillis] and/or [startDateTimeMillis] to express the corresponding
+ * time differences relative to before, between or after the given point(s) in time.
  */
 public class TimeReference internal constructor(
     public val endDateTimeMillis: Long,
@@ -76,5 +76,12 @@ public class TimeReference internal constructor(
         @JvmStatic
         public fun starting(dateTimeMillis: Long): TimeReference =
             TimeReference(NONE, dateTimeMillis)
+
+        /**
+         * Creates a [TimeReference] for the time difference between [startDateTimeMillis] and [endDateTimeMillis].
+         */
+        @JvmStatic
+        public fun between(startDateTimeMillis: Long, endDateTimeMillis: Long): TimeReference =
+            TimeReference(endDateTimeMillis, startDateTimeMillis)
     }
 }

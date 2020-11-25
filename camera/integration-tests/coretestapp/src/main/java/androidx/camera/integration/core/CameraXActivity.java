@@ -613,9 +613,12 @@ public class CameraXActivity extends AppCompatActivity {
             }
         });
 
-        StrictMode.VmPolicy policy =
+        StrictMode.VmPolicy vmPolicy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
-        StrictMode.setVmPolicy(policy);
+        StrictMode.setVmPolicy(vmPolicy);
+        StrictMode.ThreadPolicy threadPolicy =
+                new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build();
+        StrictMode.setThreadPolicy(threadPolicy);
 
         // Get params from adb extra string
         Bundle bundle = this.getIntent().getExtras();

@@ -19,7 +19,7 @@ package androidx.window;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
 
@@ -86,7 +86,7 @@ public final class WindowBackendTest extends WindowTestBase {
         }
 
         @Override
-        public void registerLayoutChangeCallback(@NonNull Context context,
+        public void registerLayoutChangeCallback(@NonNull Activity activity,
                 @NonNull Executor executor, @NonNull Consumer<WindowLayoutInfo> callback) {
             executor.execute(() -> callback.accept(mWindowLayoutInfo));
         }

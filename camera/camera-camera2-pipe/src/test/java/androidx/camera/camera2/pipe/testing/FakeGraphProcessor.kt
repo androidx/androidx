@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.impl.GraphProcessor
 import androidx.camera.camera2.pipe.impl.RequestProcessor
@@ -48,6 +49,22 @@ class FakeGraphProcessor : GraphProcessor {
         _requestQueue.add(requests)
     }
 
+    override suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean {
+        if (closed) {
+            return false
+        }
+        val currProcessor = processor
+        val currRepeatingRequest = repeatingRequest
+        return when {
+            currProcessor == null || currRepeatingRequest == null -> false
+            else -> currProcessor.submit(
+                currRepeatingRequest,
+                parameters,
+                requireSurfacesForAllStreams = false
+            )
+        }
+    }
+
     override fun abort() {
         _requestQueue.clear()
     }
@@ -75,6 +92,6 @@ class FakeGraphProcessor : GraphProcessor {
         }
     }
 
-    override fun retry() {
+    override fun invalidate() {
     }
 }

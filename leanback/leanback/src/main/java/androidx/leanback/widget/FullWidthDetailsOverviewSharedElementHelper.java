@@ -43,8 +43,8 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
 
     private static final long DEFAULT_TIMEOUT = 5000;
 
-    static class TransitionTimeOutRunnable implements Runnable {
-        WeakReference<FullWidthDetailsOverviewSharedElementHelper> mHelperRef;
+    static final class TransitionTimeOutRunnable implements Runnable {
+        final WeakReference<FullWidthDetailsOverviewSharedElementHelper> mHelperRef;
 
         TransitionTimeOutRunnable(FullWidthDetailsOverviewSharedElementHelper helper) {
             mHelperRef = new WeakReference<FullWidthDetailsOverviewSharedElementHelper>(helper);
@@ -63,7 +63,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         }
     }
 
-    ViewHolder mViewHolder;
+    WeakReference<ViewHolder> mViewHolder = new WeakReference<>(null);
     Activity mActivityToRunTransition;
     private boolean mStartedPostpone;
     String mSharedElementName;
@@ -121,27 +121,29 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
         if (DEBUG) {
             Log.d(TAG, "onBindLogo, could start transition of " + mActivityToRunTransition);
         }
-        mViewHolder = vh;
+        mViewHolder = new WeakReference<>(vh);
         if (!mAutoStartSharedElementTransition) {
             return;
         }
-        if (mViewHolder != null) {
+        ViewHolder currentVh = mViewHolder.get();
+        if (currentVh != null) {
             if (DEBUG) {
                 Log.d(TAG, "rebind? clear transitionName on current viewHolder "
-                        + mViewHolder.getOverviewView());
+                        + currentVh.mOverviewFrame);
             }
-            ViewCompat.setTransitionName(mViewHolder.getLogoViewHolder().view, null);
+            ViewCompat.setTransitionName(currentVh.getLogoViewHolder().view, null);
         }
         // After we got a image drawable,  we can determine size of right panel.
         // We want right panel to have fixed size so that the right panel don't change size
         // when the overview is layout as a small bounds in transition.
-        mViewHolder.getDetailsDescriptionFrame().postOnAnimation(new Runnable() {
+        vh.getDetailsDescriptionFrame().postOnAnimation(new Runnable() {
             @Override
             public void run() {
-                if (DEBUG) {
-                    Log.d(TAG, "setTransitionName "+mViewHolder.getOverviewView());
+                ViewHolder vh = mViewHolder.get();
+                if (vh == null) {
+                    return;
                 }
-                ViewCompat.setTransitionName(mViewHolder.getLogoViewHolder().view,
+                ViewCompat.setTransitionName(vh.getLogoViewHolder().view,
                         mSharedElementName);
                 Object transition = TransitionHelper.getSharedElementEnterTransition(
                         mActivityToRunTransition.getWindow());
@@ -152,10 +154,11 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
                             if (DEBUG) {
                                 Log.d(TAG, "onTransitionEnd " + mActivityToRunTransition);
                             }
+                            ViewHolder vh = mViewHolder.get();
                             // after transition if the action row still focused, transfer
                             // focus to its children
-                            if (mViewHolder.getActionsRow().isFocused()) {
-                                mViewHolder.getActionsRow().requestFocus();
+                            if (vh != null && vh.getActionsRow().isFocused()) {
+                                vh.getActionsRow().requestFocus();
                             }
                             TransitionHelper.removeTransitionListener(transition, this);
                         }
@@ -179,7 +182,7 @@ public class FullWidthDetailsOverviewSharedElementHelper extends
     }
 
     void startPostponedEnterTransitionInternal() {
-        if (!mStartedPostpone && mViewHolder != null) {
+        if (!mStartedPostpone && mViewHolder.get() != null) {
             if (DEBUG) {
                 Log.d(TAG, "startPostponedEnterTransition " + mActivityToRunTransition);
             }

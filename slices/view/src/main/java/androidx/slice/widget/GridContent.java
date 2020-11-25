@@ -31,6 +31,8 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.core.SliceHints.HINT_OVERLAY;
+import static androidx.slice.core.SliceHints.SUBTYPE_DATE_PICKER;
+import static androidx.slice.core.SliceHints.SUBTYPE_TIME_PICKER;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
 import androidx.annotation.NonNull;
@@ -55,7 +57,7 @@ public class GridContent extends SliceContent {
 
     private boolean mAllImages;
     private SliceItem mPrimaryAction;
-    private ArrayList<CellContent> mGridContent = new ArrayList<>();
+    private final ArrayList<CellContent> mGridContent = new ArrayList<>();
     private SliceItem mSeeMoreItem;
     private int mMaxCellLineCount;
     private boolean mHasImage;
@@ -181,6 +183,7 @@ public class GridContent extends SliceContent {
      * Filters non-cell items out of the list of items and finds content description.
      */
     private List<SliceItem> filterAndProcessItems(List<SliceItem> items) {
+
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
             SliceItem item = items.get(i);
@@ -231,12 +234,14 @@ public class GridContent extends SliceContent {
 
     /**
      * Extracts information required to present content in a cell.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class CellContent {
         private SliceItem mContentIntent;
-        private ArrayList<SliceItem> mCellItems = new ArrayList<>();
+        private SliceItem mPicker;
+        private final ArrayList<SliceItem> mCellItems = new ArrayList<>();
         private SliceItem mContentDescr;
         private int mTextCount;
         private boolean mHasImage;
@@ -256,9 +261,12 @@ public class GridContent extends SliceContent {
             if (!cellItem.hasHint(HINT_SHORTCUT)
                     && (FORMAT_SLICE.equals(format) || FORMAT_ACTION.equals(format))) {
                 List<SliceItem> items = cellItem.getSlice().getItems();
-                // If we've only got one item that's a slice / action use those items instead
+                // If we've only got one content intent item that's a slice / action use those
+                // items instead
                 if (items.size() == 1 && (FORMAT_ACTION.equals(items.get(0).getFormat())
-                        || FORMAT_SLICE.equals(items.get(0).getFormat()))) {
+                        || FORMAT_SLICE.equals(items.get(0).getFormat()))
+                        && !(SUBTYPE_DATE_PICKER.equals(items.get(0).getSubType())
+                                || SUBTYPE_TIME_PICKER.equals(items.get(0).getSubType()))) {
                     mContentIntent = items.get(0);
                     items = items.get(0).getSlice().getItems();
                 }
@@ -270,7 +278,10 @@ public class GridContent extends SliceContent {
                 for (int i = 0; i < items.size(); i++) {
                     final SliceItem item = items.get(i);
                     final String itemFormat = item.getFormat();
-                    if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
+                    if (mPicker == null && (SUBTYPE_DATE_PICKER.equals(item.getSubType())
+                            || SUBTYPE_TIME_PICKER.equals(item.getSubType()))) {
+                        mPicker = item;
+                    } else if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                         mContentDescr = item;
                     } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
                             || FORMAT_LONG.equals(itemFormat))) {
@@ -323,8 +334,16 @@ public class GridContent extends SliceContent {
         }
 
         /**
+         * @return the Picker to use when this cell is tapped.
+         */
+        public SliceItem getPicker() {
+            return mPicker;
+        }
+
+        /**
          * @return the slice items to display in this cell.
          */
+        @NonNull
         public ArrayList<SliceItem> getCellItems() {
             return mCellItems;
         }
@@ -346,7 +365,7 @@ public class GridContent extends SliceContent {
          * @return whether this grid has content that is valid to display.
          */
         public boolean isValid() {
-            return mCellItems.size() > 0 && mCellItems.size() <= 3;
+            return mPicker != null || (mCellItems.size() > 0 && mCellItems.size() <= 3);
         }
 
         /**

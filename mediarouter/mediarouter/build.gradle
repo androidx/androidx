@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation project(':support-media-test-lib')
+    androidTestImplementation project(':media:version-compat-tests:lib')
 }
 
 android {

@@ -34,15 +34,14 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.Layer
-import androidx.wear.watchface.style.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -50,7 +49,6 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
     class ExampleCanvasWatchFaceService : WatchFaceService() {
         override fun createWatchFace(
             surfaceHolder: SurfaceHolder,
-            watchFaceHost: WatchFaceHost,
             watchState: WatchState
         ): WatchFace {
             val userStyleRepository = UserStyleRepository(
@@ -105,7 +103,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             )
             val complicationSlots = ComplicationsManager(
                 listOf(
-                    Complication.Builder(
+                    Complication.createRoundRectComplicationBuilder(
                         /*id */ 0,
                         CanvasComplicationDrawable(
                             ComplicationDrawable(this),
@@ -118,11 +116,11 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
-                    ).setUnitSquareBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
-                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                        DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
+                        RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)
+                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
-                    Complication.Builder(
+                    Complication.createRoundRectComplicationBuilder(
                         /*id */ 1,
                         CanvasComplicationDrawable(
                             ComplicationDrawable(this),
@@ -135,9 +133,9 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.MONOCHROMATIC_IMAGE,
                             ComplicationType.SMALL_IMAGE
                         ),
-                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
-                    ).setUnitSquareBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
-                        .setDefaultProviderType(ComplicationType.SHORT_TEXT)
+                        DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
+                        RectF(0.1f, 0.5625f, 0.35f, 0.8125f)
+                    ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),
                 userStyleRepository
@@ -147,7 +145,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 surfaceHolder,
                 userStyleRepository,
                 watchState,
-                CanvasType.HARDWARE
+                CanvasType.HARDWARE,
+                /* interactiveUpdateRateMillis */ 16,
             ) {
                 init {
                     userStyleRepository.addUserStyleListener(
@@ -168,15 +167,12 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 }
             }
 
-            return WatchFace.Builder(
+            return WatchFace(
                 WatchFaceType.ANALOG,
-                /* interactiveUpdateRateMillis */ 16,
                 userStyleRepository,
                 complicationSlots,
-                renderer,
-                watchFaceHost,
-                watchState
-            ).build()
+                renderer
+            )
         }
     }
 

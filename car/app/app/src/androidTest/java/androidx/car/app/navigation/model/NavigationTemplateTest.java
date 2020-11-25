@@ -16,10 +16,13 @@
 
 package androidx.car.app.navigation.model;
 
+import static androidx.car.app.TestUtils.createDateTimeWithZone;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -28,16 +31,15 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.utils.Logger;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link NavigationTemplate}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class NavigationTemplateTest {
     private final ActionStrip mActionStrip =
@@ -83,8 +85,8 @@ public class NavigationTemplateTest {
         TravelEstimate travelEstimate =
                 TravelEstimate.create(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        Duration.ofHours(1),
-                        ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]"));
+                        TimeUnit.HOURS.toSeconds(1),
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
         NavigationTemplate template =
                 NavigationTemplate.builder()
                         .setNavigationInfo(
@@ -113,8 +115,8 @@ public class NavigationTemplateTest {
         TravelEstimate travelEstimate =
                 TravelEstimate.create(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        Duration.ofHours(1),
-                        ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]"));
+                        TimeUnit.HOURS.toSeconds(1),
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
 
         Step currentStep =
                 Step.builder("Hop on a ferry")
@@ -164,8 +166,8 @@ public class NavigationTemplateTest {
         TravelEstimate travelEstimate =
                 TravelEstimate.create(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        Duration.ofHours(1),
-                        ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]"));
+                        TimeUnit.HOURS.toSeconds(1),
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
 
         Step currentStep =
                 Step.builder("Hop on a ferry")
@@ -226,8 +228,8 @@ public class NavigationTemplateTest {
         TravelEstimate travelEstimate =
                 TravelEstimate.create(
                         Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        Duration.ofHours(1),
-                        ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]"));
+                        TimeUnit.HOURS.toSeconds(1),
+                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
 
         NavigationTemplate template =
                 NavigationTemplate.builder()
@@ -243,9 +245,10 @@ public class NavigationTemplateTest {
                                         TravelEstimate.create(
                                                 Distance.create(/* displayDistance= */ 21000,
                                                         Distance.UNIT_METERS),
-                                                Duration.ofHours(1),
-                                                ZonedDateTime.parse(
-                                                        "2020-05-14T19:57:00-07:00[US/Pacific]")))
+                                                TimeUnit.HOURS.toSeconds(1),
+                                                createDateTimeWithZone("2020-05-14T19:57:00-07:00",
+                                                        "US/Pacific")))
+
                                 .build());
     }
 
@@ -415,23 +418,15 @@ public class NavigationTemplateTest {
 
     @Test
     public void checkPermissions_hasPermissions() {
-        //TODO(rampara): Investigate failure to create ShadowPackageManager
-//        NavigationTemplate template =
-//                NavigationTemplate.builder()
-//                        .setActionStrip(mActionStrip)
-//                        .setBackgroundColor(CarColor.BLUE)
-//                        .build();
-//
-//        Context context = ApplicationProvider.getApplicationContext();
-//        PackageManager packageManager = context.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = context.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{CarAppPermission.NAVIGATION_TEMPLATES};
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(context);
+        NavigationTemplate template =
+                NavigationTemplate.builder()
+                        .setActionStrip(mActionStrip)
+                        .setBackgroundColor(CarColor.BLUE)
+                        .build();
+
+        // Expect that it does not throw
+        template.checkPermissions(
+                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
     }
 
     @Test

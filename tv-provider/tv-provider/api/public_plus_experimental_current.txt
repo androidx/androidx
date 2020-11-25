@@ -463,6 +463,7 @@ package androidx.tvprovider.media.tv {
     field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
+    field public static final int ASPECT_RATIO_3_4 = 6; // 0x6
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
     field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
@@ -666,6 +667,7 @@ package androidx.tvprovider.media.tv {
     field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
     field public static final int ASPECT_RATIO_3_2 = 1; // 0x1
+    field public static final int ASPECT_RATIO_3_4 = 6; // 0x6
     field public static final int ASPECT_RATIO_4_3 = 2; // 0x2
     field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0

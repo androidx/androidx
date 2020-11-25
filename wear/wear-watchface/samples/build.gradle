@@ -29,6 +29,7 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
     api(project(":wear:wear-watchface"))
+    implementation(project(":wear:wear-watchface-complications-rendering"))
     api(KOTLIN_STDLIB)
 }
 
@@ -43,6 +44,10 @@ androidx {
 
 android {
     defaultConfig {
-        minSdkVersion 27
+        minSdkVersion 26
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
     }
 }

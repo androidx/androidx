@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThrows;
 import android.content.Context;
 import android.text.SpannableString;
 
+import androidx.car.app.CarAppPermission;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -41,13 +42,13 @@ import androidx.car.app.utils.Logger;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link PlaceListNavigationTemplate}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PlaceListNavigationTemplateTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -491,23 +492,16 @@ public class PlaceListNavigationTemplateTest {
 
     @Test
     public void checkPermissions_hasPermissions() {
-        //TODO(rampara): Investigate failure to create ShadowPackageManager
-//        PlaceListNavigationTemplate template =
-//                PlaceListNavigationTemplate.builder()
-//                        .setItemList(
-//                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
-//                        .setTitle("title")
-//                        .build();
-//
-//        PackageManager packageManager = mContext.getPackageManager();
-//        PackageInfo pi = new PackageInfo();
-//        pi.packageName = mContext.getPackageName();
-//        pi.versionCode = 1;
-//        pi.requestedPermissions = new String[]{CarAppPermission.NAVIGATION_TEMPLATES};
-//        shadowOf(packageManager).installPackage(pi);
-//
-//        // Expect that it does not throw
-//        template.checkPermissions(mContext);
+        PlaceListNavigationTemplate template =
+                PlaceListNavigationTemplate.builder()
+                        .setItemList(
+                                TestUtils.createItemListWithDistanceSpan(6, false, mDistanceSpan))
+                        .setTitle("title")
+                        .build();
+
+        // Expect that it does not throw
+        template.checkPermissions(
+                TestUtils.getMockContextWithPermission(CarAppPermission.NAVIGATION_TEMPLATES));
     }
 
     @Test

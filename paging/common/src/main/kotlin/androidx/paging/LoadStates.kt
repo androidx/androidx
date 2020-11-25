@@ -30,12 +30,6 @@ data class LoadStates(
     /** [LoadState] corresponding to [LoadType.APPEND] loads. */
     val append: LoadState
 ) {
-    init {
-        require(!refresh.endOfPaginationReached) {
-            "Refresh state may not set endOfPaginationReached = true"
-        }
-    }
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     inline fun forEach(op: (LoadType, LoadState) -> Unit) {
         op(LoadType.REFRESH, refresh)

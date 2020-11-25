@@ -16,15 +16,19 @@
 
 package androidx.room.compiler.processing
 
-import androidx.room.compiler.processing.util.KotlinTypeNames
+import androidx.room.compiler.processing.util.CONTINUATION_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.UNIT_CLASS_NAME
+import androidx.room.compiler.processing.util.className
 import androidx.room.compiler.processing.util.getDeclaredMethod
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
+import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.WildcardTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,9 +71,9 @@ class XExecutableElementTest {
                 method.getParameter("param1").let { param ->
                     assertThat(param.type.isArray()).isTrue()
                     assertThat(param.type.asArray().componentType.typeName)
-                        .isEqualTo(it.types.string)
+                        .isEqualTo(String::class.typeName())
                 }
-                assertThat(method.returnType.typeName).isEqualTo(it.types.string)
+                assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
             }
         }
     }
@@ -165,13 +169,13 @@ class XExecutableElementTest {
             subject.getMethod("noArg").let { method ->
                 assertThat(method.parameters).hasSize(1)
                 assertThat(method.isSuspendFunction()).isTrue()
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.objectOrAny)
+                assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 assertThat(method.returnType.nullability).isEqualTo(XNullability.NULLABLE)
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            KotlinTypeNames.CONTINUATION_CLASS_NAME,
-                            WildcardTypeName.supertypeOf(KotlinTypeNames.UNIT_CLASS_NAME)
+                            CONTINUATION_CLASS_NAME,
+                            WildcardTypeName.supertypeOf(UNIT_CLASS_NAME)
                         )
                     )
                     assertThat(cont.nullability).isEqualTo(XNullability.NONNULL)
@@ -181,17 +185,17 @@ class XExecutableElementTest {
                 assertThat(method.parameters).hasSize(1)
                 assertThat(method.parameters.last().type.typeName).isEqualTo(
                     ParameterizedTypeName.get(
-                        KotlinTypeNames.CONTINUATION_CLASS_NAME,
-                        WildcardTypeName.supertypeOf(invocation.types.boxedInt)
+                        CONTINUATION_CLASS_NAME,
+                        WildcardTypeName.supertypeOf(Integer::class.java)
                     )
                 )
                 assertThat(method.isSuspendFunction()).isTrue()
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.objectOrAny)
+                assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            KotlinTypeNames.CONTINUATION_CLASS_NAME,
-                            WildcardTypeName.supertypeOf(invocation.types.boxedInt)
+                            CONTINUATION_CLASS_NAME,
+                            WildcardTypeName.supertypeOf(Integer::class.java)
                         )
                     )
                 }
@@ -199,22 +203,22 @@ class XExecutableElementTest {
             subject.getMethod("twoParams").let { method ->
                 assertThat(method.parameters).hasSize(3)
                 assertThat(method.parameters[0].type.typeName).isEqualTo(
-                    invocation.types.string
+                    String::class.typeName()
                 )
                 assertThat(method.parameters[1].type.typeName).isEqualTo(
-                    invocation.types.int
+                    TypeName.INT
                 )
                 assertThat(method.isSuspendFunction()).isTrue()
-                assertThat(method.returnType.typeName).isEqualTo(invocation.types.objectOrAny)
+                assertThat(method.returnType.typeName).isEqualTo(TypeName.OBJECT)
                 method.executableType.parameterTypes.last().let { cont ->
                     assertThat(cont.typeName).isEqualTo(
                         ParameterizedTypeName.get(
-                            KotlinTypeNames.CONTINUATION_CLASS_NAME,
+                            CONTINUATION_CLASS_NAME,
                             WildcardTypeName.supertypeOf(
                                 ParameterizedTypeName.get(
-                                    KotlinTypeNames.PAIR_CLASS_NAME,
-                                    invocation.types.string,
-                                    invocation.types.boxedInt
+                                    Pair::class.className(),
+                                    String::class.typeName(),
+                                    Integer::class.typeName()
                                 )
                             )
                         )
@@ -236,6 +240,12 @@ class XExecutableElementTest {
                     private set
                     get() = TODO()
                 private val prop4:String = ""
+                protected var prop5:String = ""
+                var prop6: String
+                    get // this cannot be protected, https://youtrack.jetbrains.com/issue/KT-3110
+                    protected set
+                protected var prop7: String
+                    private set
             }
             """.trimIndent()
         )
@@ -246,21 +256,36 @@ class XExecutableElementTest {
             }
             assertThat(methodNames).containsNoneIn(
                 listOf(
-                    "setX", "setProp3", "setZ", "setProp4", "getProp4"
+                    "setX", "setProp1", "setProp3", "setZ", "setProp4", "getProp4", "setProp7"
                 )
             )
-            listOf("getX", "getProp1", "getProp2", "getProp3").forEach {
+            listOf("getX", "getProp1", "getProp2", "getProp3", "getProp5", "getProp6").forEach {
                 klass.getMethod(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(invocation.types.string)
+                    assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
                     assertThat(method.parameters).isEmpty()
                 }
             }
             listOf("setY", "setProp2").forEach {
                 klass.getMethod(it).let { method ->
-                    assertThat(method.returnType.typeName).isEqualTo(invocation.types.voidOrUnit)
+                    assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
                     assertThat(method.parameters.first().type.typeName).isEqualTo(
-                        invocation.types.string
+                        String::class.typeName()
                     )
+                    assertThat(method.isPublic()).isTrue()
+                }
+            }
+            listOf("getProp5", "getProp7").forEach {
+                klass.getMethod(it).let { method ->
+                    assertThat(method.isProtected()).isTrue()
+                    assertThat(method.isPublic()).isFalse()
+                    assertThat(method.isPrivate()).isFalse()
+                }
+            }
+            listOf("setProp5", "setProp6").forEach {
+                klass.getMethod(it).let { method ->
+                    assertThat(method.isProtected()).isTrue()
+                    assertThat(method.isPublic()).isFalse()
+                    assertThat(method.isPrivate()).isFalse()
                 }
             }
         }
@@ -287,11 +312,11 @@ class XExecutableElementTest {
             val method = base.getMethod("foo")
             method.getParameter("t").let { param ->
                 param.asMemberOf(subject).let {
-                    assertThat(it.typeName).isEqualTo(invocation.types.string)
+                    assertThat(it.typeName).isEqualTo(String::class.typeName())
                     assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 }
                 param.asMemberOf(nullableSubject).let {
-                    assertThat(it.typeName).isEqualTo(invocation.types.string)
+                    assertThat(it.typeName).isEqualTo(String::class.typeName())
                     if (invocation.isKsp) {
                         // kapt implementation is unable to read this properly
                         assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
@@ -300,11 +325,11 @@ class XExecutableElementTest {
             }
             method.getParameter("nullableT").let { param ->
                 param.asMemberOf(subject).let {
-                    assertThat(it.typeName).isEqualTo(invocation.types.string)
+                    assertThat(it.typeName).isEqualTo(String::class.typeName())
                     assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
                 }
                 param.asMemberOf(nullableSubject).let {
-                    assertThat(it.typeName).isEqualTo(invocation.types.string)
+                    assertThat(it.typeName).isEqualTo(String::class.typeName())
                     assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
                 }
             }

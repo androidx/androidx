@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,7 +36,7 @@ import androidx.navigation.compose.samples.NavigateButton
 @Composable
 fun NavSingleTopDemo() {
     val navController = rememberNavController()
-    val query = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+    val query = savedInstanceState { "" }
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         TextField(
             value = query.value,
@@ -45,7 +44,7 @@ fun NavSingleTopDemo() {
             placeholder = { Text("Search") }
         )
         NavigateButton("Search") {
-            navController.navigate("search/" + query.value.text) {
+            navController.navigate("search/" + query.value) {
                 launchSingleTop = true
             }
         }

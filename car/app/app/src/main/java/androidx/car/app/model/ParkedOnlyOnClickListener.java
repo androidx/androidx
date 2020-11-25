@@ -19,6 +19,7 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -54,10 +55,13 @@ public final class ParkedOnlyOnClickListener implements OnClickListener {
     /**
      * Constructs a new instance of a {@link ParkedOnlyOnClickListener}.
      *
+     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * using {@link Looper#getMainLooper()}.
+     *
      * @throws NullPointerException if {@code listener} is {@code null}.
      */
     @NonNull
-    @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+    @SuppressLint("ExecutorRegistration")
     public static ParkedOnlyOnClickListener create(@NonNull OnClickListener listener) {
         return new ParkedOnlyOnClickListener(requireNonNull(listener));
     }

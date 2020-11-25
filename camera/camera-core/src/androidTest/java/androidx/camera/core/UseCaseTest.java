@@ -160,7 +160,7 @@ public class UseCaseTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
 
-        testUseCase.setViewPortCropRect(new Rect());
+        testUseCase.setViewPortCropRect(new Rect(0, 0, 640, 480));
         assertThat(testUseCase.getViewPortCropRect()).isNotNull();
 
         testUseCase.onAttach(mMockCameraInternal, null, null);

@@ -246,8 +246,8 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * <p>The {@link Camera} returned is determined by the given camera selector, plus other
      * internal requirements, possibly from use case configurations. The camera returned from
      * bindToLifecycle may differ from the camera determined solely by a camera selector. If the
-     * camera selector can't resolve a camera under the requirements, an IllegalArgumentException
-     * will be thrown.
+     * camera selector can't resolve a valid camera under the requirements, an
+     * IllegalArgumentException will be thrown.
      *
      * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
      * {@link UseCase} bound to other {@link Lifecycle} will be stopped.

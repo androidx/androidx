@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -377,17 +376,18 @@ public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<Listena
         IconCompat icon = shortcut.getIcon();
         if (icon != null) {
             switch (icon.getType()) {
-                case Icon.TYPE_RESOURCE:
+                case IconCompat.TYPE_RESOURCE:
                     resourceName = mContext.getResources().getResourceName(icon.getResId());
                     break;
-                case Icon.TYPE_BITMAP:
-                case Icon.TYPE_ADAPTIVE_BITMAP:
+                case IconCompat.TYPE_BITMAP:
+                case IconCompat.TYPE_ADAPTIVE_BITMAP:
                     // Choose a unique file name to serialize the bitmap
                     bitmapPath = new File(mBitmapsDir, UUID.randomUUID().toString())
                             .getAbsolutePath();
                     break;
-                case Icon.TYPE_DATA:
-                case Icon.TYPE_URI:
+                case IconCompat.TYPE_DATA:
+                case IconCompat.TYPE_URI:
+                case IconCompat.TYPE_URI_ADAPTIVE_BITMAP:
                 case IconCompat.TYPE_UNKNOWN:
                     break;
             }

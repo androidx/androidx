@@ -16,6 +16,10 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
+import androidx.room.compiler.processing.tryBox
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.processing.Resolver
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -26,7 +30,9 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Variance
+import com.squareup.javapoet.ArrayTypeName
 
 internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
@@ -34,26 +40,35 @@ internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotli
 internal val ERROR_TYPE_NAME = ClassName.get(ERROR_PACKAGE_NAME, "CannotResolve")
 
 /**
- * Turns a KSTypeReference into a TypeName
- *
- * We try to achieve this by first resolving it and iterating.
- * If some types cannot be resolved, we do a best effort name guess from the KSTypeReference's
- * element.
+ * Turns a KSTypeReference into a TypeName in java's type system.
  */
-internal fun KSTypeReference?.typeName(): TypeName {
+internal fun KSTypeReference?.typeName(resolver: Resolver): TypeName {
     return if (this == null) {
         ERROR_TYPE_NAME
     } else {
-        resolve().typeName()
+        resolve().typeName(resolver)
     }
 }
 
-internal fun KSDeclaration.typeName(): ClassName {
+/**
+ * Turns a KSDeclaration into a TypeName in java's type system.
+ */
+@OptIn(KspExperimental::class)
+internal fun KSDeclaration.typeName(resolver: Resolver): TypeName {
     // if there is no qualified name, it is a resolution error so just return shared instance
     // KSP may improve that later and if not, we can improve it in Room
     // TODO: https://issuetracker.google.com/issues/168639183
     val qualified = qualifiedName?.asString() ?: return ERROR_TYPE_NAME
-    // get the package name first, it might throw for invalid types, hence we use safeGetPackageName
+    val jvmSignature = resolver.mapToJvmSignature(this)
+    if (jvmSignature.isNotBlank()) {
+        return jvmSignature.typeNameFromJvmSignature()
+    }
+    if (this is KSTypeParameter) {
+        return TypeVariableName.get(name.asString())
+    }
+    // fallback to custom generation, it is very likely that this is an unresolved type
+    // get the package name first, it might throw for invalid types, hence we use
+    // safeGetPackageName
     val pkg = getNormalizedPackageName()
     // using qualified name and pkg, figure out the short names.
     val shortNames = if (pkg == "") {
@@ -64,12 +79,16 @@ internal fun KSDeclaration.typeName(): ClassName {
     return ClassName.get(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
 }
 
+/**
+ * Turns a KSTypeArgument into a TypeName in java's type system.
+ */
 internal fun KSTypeArgument.typeName(
-    param: KSTypeParameter
+    param: KSTypeParameter,
+    resolver: Resolver
 ): TypeName {
     return when (variance) {
-        Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(type.typeName())
-        Variance.COVARIANT -> WildcardTypeName.subtypeOf(type.typeName())
+        Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(type.typeName(resolver).tryBox())
+        Variance.COVARIANT -> WildcardTypeName.subtypeOf(type.typeName(resolver).tryBox())
         Variance.STAR -> {
             // for star projected types, JavaPoet uses the name from the declaration if
             // * is not given explicitly
@@ -77,27 +96,36 @@ internal fun KSTypeArgument.typeName(
                 // explicit *
                 WildcardTypeName.subtypeOf(TypeName.OBJECT)
             } else {
-                TypeVariableName.get(param.name.asString(), type.typeName())
+                TypeVariableName.get(param.name.asString(), type.typeName(resolver).tryBox())
             }
         }
-        else -> type.typeName()
+        else -> type.typeName(resolver)
     }
 }
 
-internal fun KSType.typeName(): TypeName {
+/**
+ * Turns a KSType into a TypeName in java's type system.
+ */
+internal fun KSType.typeName(resolver: Resolver): TypeName {
     return if (this.arguments.isNotEmpty()) {
         val args: Array<TypeName> = this.arguments.mapIndexed { index, typeArg ->
             typeArg.typeName(
-                this.declaration.typeParameters[index]
+                this.declaration.typeParameters[index],
+                resolver
             )
+        }.map {
+            it.tryBox()
         }.toTypedArray()
-        val className = declaration.typeName()
-        ParameterizedTypeName.get(
-            className,
-            *args
-        )
+        when (val typeName = declaration.typeName(resolver).tryBox()) {
+            is ArrayTypeName -> ArrayTypeName.of(args.single())
+            is ClassName -> ParameterizedTypeName.get(
+                typeName,
+                *args
+            )
+            else -> error("Unexpected type name for KSType: $typeName")
+        }
     } else {
-        this.declaration.typeName()
+        this.declaration.typeName(resolver)
     }
 }
 
@@ -119,3 +147,9 @@ internal fun KSTypeArgument.requireType(): KSType {
         "KSTypeArgument.type should not have been null, please file a bug. $this"
     }
 }
+
+internal fun KSTypeReference.isTypeParameterReference(): Boolean {
+    return this.resolve().declaration is KSTypeParameter
+}
+
+fun KSType.isInline() = declaration.modifiers.contains(Modifier.INLINE)

@@ -4,8 +4,8 @@ import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
 import foo.R
 
-class MainFragmentDirections private constructor() {
-  companion object {
-    fun startLogin(): NavDirections = ActionOnlyNavDirections(R.id.start_login)
+public class MainFragmentDirections private constructor() {
+  public companion object {
+    public fun startLogin(): NavDirections = ActionOnlyNavDirections(R.id.start_login)
   }
 }

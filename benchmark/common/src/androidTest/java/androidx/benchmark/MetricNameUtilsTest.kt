@@ -31,6 +31,7 @@ class MetricNameUtilsTest {
         assertEquals("camel_case", "camelCase".toSnakeCase())
         assertEquals("time_ns", "timeNs".toSnakeCase())
         assertEquals("a_ba_ba_b", "aBaBaB".toSnakeCase())
+        assertEquals("frame_time_90th_percentile_ms", "frameTime90thPercentileMs".toSnakeCase())
     }
 
     @Test
@@ -39,5 +40,9 @@ class MetricNameUtilsTest {
         assertEquals("camel_case", "camelCase".toOutputMetricName())
         assertEquals("time_nanos", "timeNs".toOutputMetricName())
         assertEquals("a_ba_ba_b", "aBaBaB".toOutputMetricName())
+        assertEquals(
+            "frame_time_90th_percentile_millis",
+            "frameTime90thPercentileMs".toOutputMetricName()
+        )
     }
 }

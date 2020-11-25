@@ -22,11 +22,41 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     api(project(":camera:camera-core"))
+    implementation("androidx.core:core:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(AUTO_VALUE_ANNOTATIONS)
+
     annotationProcessor(AUTO_VALUE)
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
+    testImplementation project(":camera:camera-testing"), {
+        exclude group: "androidx.camera", module: "camera-core"
+    }
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(":internal-testutils-truth"))
 }
 
 android {

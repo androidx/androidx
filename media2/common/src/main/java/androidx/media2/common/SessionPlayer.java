@@ -602,6 +602,8 @@ public abstract class SessionPlayer implements Closeable {
      * completed.
      * <p>
      * On success, a {@link PlayerResult} should be returned with {@code item} removed.
+     * <p>
+     * If the last item is removed, the player should be moved to {@link #PLAYER_STATE_IDLE}.
      *
      * @param index the index of the item you want to remove in the playlist
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
@@ -808,8 +810,8 @@ public abstract class SessionPlayer implements Closeable {
      * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} is
      * called.
      *
-     * @return the current media item. Can be {@code null} only when media item or playlist hasn't
-     *         been set.
+     * @return the current media item. Can be {@code null} only when the player is in
+     * {@link #PLAYER_STATE_IDLE} and a media item or playlist hasn't been set.
      * @see #setMediaItem
      * @see #setPlaylist
      */
@@ -1411,11 +1413,12 @@ public abstract class SessionPlayer implements Closeable {
          * skipping to a different item in a given playlist.
          *
          * @param player the player whose media item changed
-         * @param item the new current media item
+         * @param item the new current media item. This can be {@code null} when the state of
+         * the player becomes {@link #PLAYER_STATE_IDLE}.
          * @see #getCurrentMediaItem()
          */
         public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                @NonNull MediaItem item) {
+                @Nullable MediaItem item) {
         }
 
         /**

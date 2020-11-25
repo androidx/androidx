@@ -27,7 +27,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
-import androidx.wear.watchface.control.IWallpaperWatchFaceControlService;
+import androidx.wear.watchface.control.IWatchFaceControlService;
 import androidx.wear.watchface.data.DeviceConfig;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.SystemState;
@@ -36,12 +36,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 import java.util.List;
 
 /**
- * Parameters for {@link IWallpaperWatchFaceControlService#createInteractiveWatchFaceInstance}.
+ * Parameters for {@link IWatchFaceControlService#createPendingInteractiveWatchFace}.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@VersionedParcelize
+@VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class WallpaperInteractiveWatchFaceInstanceParams
         implements VersionedParcelable, Parcelable {
@@ -61,9 +61,9 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     @NonNull
     SystemState mSystemState;
 
-    /** The initial {UserStyleWireFormat} if known, or null otherwise. */
+    /** The initial {@link UserStyleWireFormat}. */
     @ParcelField(4)
-    @Nullable
+    @NonNull
     UserStyleWireFormat mUserStyle;
 
     /** The initial state of the complications if known, or null otherwise. */
@@ -72,13 +72,14 @@ public class WallpaperInteractiveWatchFaceInstanceParams
     List<IdAndComplicationDataWireFormat> mIdAndComplicationDataWireFormats;
 
     /** Used by VersionedParcelable. */
-    WallpaperInteractiveWatchFaceInstanceParams() {}
+    WallpaperInteractiveWatchFaceInstanceParams() {
+    }
 
     public WallpaperInteractiveWatchFaceInstanceParams(
             @NonNull String instanceId,
             @NonNull DeviceConfig deviceConfig,
             @NonNull SystemState systemState,
-            @Nullable UserStyleWireFormat userStyle,
+            @NonNull UserStyleWireFormat userStyle,
             @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats) {
         mInstanceId = instanceId;
         mDeviceConfig = deviceConfig;
@@ -102,14 +103,24 @@ public class WallpaperInteractiveWatchFaceInstanceParams
         return mSystemState;
     }
 
-    @Nullable
+    @NonNull
     public UserStyleWireFormat getUserStyle() {
         return mUserStyle;
+    }
+
+    public void setUserStyle(@NonNull UserStyleWireFormat userStyle) {
+        mUserStyle = userStyle;
     }
 
     @Nullable
     public List<IdAndComplicationDataWireFormat> getIdAndComplicationDataWireFormats() {
         return mIdAndComplicationDataWireFormats;
+    }
+
+    public void setIdAndComplicationDataWireFormats(
+            @Nullable List<IdAndComplicationDataWireFormat> idAndComplicationDataWireFormats
+    ) {
+        mIdAndComplicationDataWireFormats = idAndComplicationDataWireFormats;
     }
 
     /**
