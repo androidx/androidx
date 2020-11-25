@@ -22,6 +22,9 @@ import androidx.camera.camera2.pipe.impl.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.impl.CameraPipeComponent
 import androidx.camera.camera2.pipe.impl.CameraPipeConfigModule
 import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
+import kotlinx.atomicfu.atomic
+
+internal val cameraPipeIds = atomic(0)
 
 /**
  * [CameraPipe] is the top level scope for all interactions with a Camera2 camera.
@@ -33,6 +36,7 @@ import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
  * the [CameraGraph] interface.
  */
 class CameraPipe(config: Config) {
+    private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))
         .build()
@@ -63,4 +67,6 @@ class CameraPipe(config: Config) {
         val appContext: Context,
         val cameraThread: HandlerThread? = null
     )
+
+    override fun toString(): String = "CameraPipe-$debugId"
 }
