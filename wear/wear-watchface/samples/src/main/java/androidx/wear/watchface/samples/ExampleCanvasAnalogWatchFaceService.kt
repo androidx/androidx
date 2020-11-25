@@ -68,6 +68,16 @@ private const val SECOND_HAND_THICKNESS_FRACTION = 0.00934f
 
 private const val NUMBER_RADIUS_FRACTION = 0.45f
 
+val COLOR_STYLE_SETTING = "color_style_setting"
+val RED_STYLE = "red_style"
+val GREEN_STYLE = "green_style"
+val BLUE_STYLE = "blue_style"
+
+val DRAW_HOUR_PIPS_STYLE_SETTING = "draw_hour_pips_style_setting"
+
+val WATCH_HAND_LENGTH_STYLE_SETTING = "watch_hand_length_style_setting"
+
+val COMPLICATIONS_STYLE_SETTING = "complications_style_setting"
 val NO_COMPLICATIONS = "NO_COMPLICATIONS"
 val LEFT_COMPLICATION = "LEFT_COMPLICATION"
 val RIGHT_COMPLICATION = "RIGHT_COMPLICATION"
@@ -96,25 +106,25 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
     surfaceHolder: SurfaceHolder,
     watchState: WatchState
 ): WatchFace {
-    val watchFaceStyle = WatchFaceColorStyle.create(context, "red_style")
+    val watchFaceStyle = WatchFaceColorStyle.create(context, RED_STYLE)
     val colorStyleSetting = ListUserStyleSetting(
-        "color_style_setting",
+        COLOR_STYLE_SETTING,
         "Colors",
         "Watchface colorization",
         icon = null,
         options = listOf(
             ListUserStyleSetting.ListOption(
-                "red_style",
+                RED_STYLE,
                 "Red",
                 Icon.createWithResource(context, R.drawable.red_style)
             ),
             ListUserStyleSetting.ListOption(
-                "green_style",
+                GREEN_STYLE,
                 "Green",
                 Icon.createWithResource(context, R.drawable.green_style)
             ),
             ListUserStyleSetting.ListOption(
-                "blue_style",
+                BLUE_STYLE,
                 "Blue",
                 Icon.createWithResource(context, R.drawable.blue_style)
             )
@@ -122,7 +132,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         listOf(Layer.BASE_LAYER, Layer.COMPLICATIONS, Layer.TOP_LAYER)
     )
     val drawHourPipsStyleSetting = BooleanUserStyleSetting(
-        "draw_hour_pips_style_setting",
+        DRAW_HOUR_PIPS_STYLE_SETTING,
         "Hour Pips",
         "Whether to draw or not",
         null,
@@ -130,7 +140,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
         listOf(Layer.BASE_LAYER)
     )
     val watchHandLengthStyleSetting = DoubleRangeUserStyleSetting(
-        "watch_hand_length_style_setting",
+        WATCH_HAND_LENGTH_STYLE_SETTING,
         "Hand length",
         "Scale of watch hands",
         null,
@@ -142,7 +152,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
     // These are style overrides applied on top of the complications passed into
     // complicationsManager below.
     val complicationsStyleSetting = ComplicationsUserStyleSetting(
-        "complications_style_setting",
+        COMPLICATIONS_STYLE_SETTING,
         "Complications",
         "Number and position",
         icon = null,
