@@ -340,22 +340,21 @@ public class Complication internal constructor(
     private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateListener: InvalidateListener
 
-    private var _unitSquareBounds = unitSquareBounds
     internal var unitSquareBoundsDirty = true
 
     /**
      * The screen space unit-square bounds of the complication. This is converted to pixels during
      * rendering.
      */
-    public var unitSquareBounds: RectF
+    public var unitSquareBounds: RectF = unitSquareBounds
         @UiThread
-        get() = _unitSquareBounds
+        get
         @UiThread
         set(value) {
-            if (_unitSquareBounds == value) {
+            if (field == value) {
                 return
             }
-            _unitSquareBounds = value
+            field = value
             unitSquareBoundsDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to coalesce
@@ -363,22 +362,21 @@ public class Complication internal constructor(
             complicationsManager.scheduleUpdate()
         }
 
-    private var _enabled = true
     internal var enabledDirty = true
 
     /**
      * Whether or not the complication should be drawn and accept taps.
      */
-    public var enabled: Boolean
+    public var enabled: Boolean = true
         @JvmName("isEnabled")
         @UiThread
-        get() = _enabled
+        get
         @UiThread
         set(value) {
-            if (_enabled == value) {
+            if (field == value) {
                 return
             }
-            _enabled = value
+            field = value
             enabledDirty = true
 
             // The caller might enable/disable a number of complications. For efficiency we need
@@ -388,40 +386,37 @@ public class Complication internal constructor(
             }
         }
 
-    private var _renderer = canvasComplication
-
     /**
      * The [CanvasComplication] used to render the complication.
      */
-    public var renderer: CanvasComplication
+    public var renderer: CanvasComplication = canvasComplication
         @UiThread
-        get() = _renderer
+        get
         @UiThread
         set(value) {
-            if (_renderer == value) {
+            if (field == value) {
                 return
             }
             renderer.onDetach()
             value.idAndData = renderer.idAndData
-            _renderer = value
+            field = value
             value.onAttach(this)
         }
 
-    private var _supportedTypes = supportedTypes
     internal var supportedTypesDirty = true
 
     /**
      * The types of complications the complication supports.
      */
-    public var supportedTypes: List<ComplicationType>
+    public var supportedTypes: List<ComplicationType> = supportedTypes
         @UiThread
-        get() = _supportedTypes
+        get
         @UiThread
         set(value) {
-            if (_supportedTypes == value) {
+            if (field == value) {
                 return
             }
-            _supportedTypes = value
+            field = value
             supportedTypesDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to
@@ -431,22 +426,21 @@ public class Complication internal constructor(
             }
         }
 
-    private var _defaultProviderPolicy = defaultProviderPolicy
     internal var defaultProviderPolicyDirty = true
 
     /**
      * The [DefaultComplicationProviderPolicy] which defines the default complications providers
      * selected when the user hasn't yet made a choice. See also [.defaultProviderType].
      */
-    public var defaultProviderPolicy: DefaultComplicationProviderPolicy
+    public var defaultProviderPolicy: DefaultComplicationProviderPolicy = defaultProviderPolicy
         @UiThread
-        get() = _defaultProviderPolicy
+        get
         @UiThread
         set(value) {
-            if (_defaultProviderPolicy == value) {
+            if (field == value) {
                 return
             }
-            _defaultProviderPolicy = value
+            field = value
             defaultProviderPolicyDirty = true
 
             // The caller might modify a number of complications. For efficiency we need to
@@ -463,7 +457,7 @@ public class Complication internal constructor(
      */
     public var defaultProviderType: ComplicationType = defaultProviderType
         @UiThread
-        get() = field
+        get
         @UiThread
         set(value) {
             if (field == value) {
