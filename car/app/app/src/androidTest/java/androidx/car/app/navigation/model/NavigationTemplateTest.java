@@ -28,7 +28,6 @@ import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
-import androidx.car.app.utils.Logger;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -105,60 +104,6 @@ public class NavigationTemplateTest {
         assertThat(template.getBackgroundColor()).isEqualTo(CarColor.BLUE);
         assertThat(template.getDestinationTravelEstimate()).isEqualTo(travelEstimate);
         assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-
-        TravelEstimate travelEstimate =
-                TravelEstimate.create(
-                        Distance.create(/* displayDistance= */ 20, Distance.UNIT_METERS),
-                        TimeUnit.HOURS.toSeconds(1),
-                        createDateTimeWithZone("2020-05-14T19:57:00-07:00", "US/Pacific"));
-
-        Step currentStep =
-                Step.builder("Hop on a ferry")
-                        .addLane(
-                                Lane.builder()
-                                        .addDirection(LaneDirection.create(
-                                                LaneDirection.SHAPE_NORMAL_LEFT, false))
-                                        .build())
-                        .setLanesImage(CarIcon.ALERT)
-                        .build();
-        Distance currentDistance = Distance.create(/* displayDistance= */ 100,
-                Distance.UNIT_METERS);
-
-        NavigationTemplate reroutingTemplate =
-                NavigationTemplate.builder()
-                        .setNavigationInfo(RoutingInfo.builder().setIsLoading(true).build())
-                        .setActionStrip(mActionStrip)
-                        .build();
-
-        NavigationTemplate navigatingTemplate =
-                NavigationTemplate.builder()
-                        .setNavigationInfo(
-                                RoutingInfo.builder()
-                                        .setCurrentStep(currentStep, currentDistance)
-                                        .setJunctionImage(CarIcon.ALERT)
-                                        .setNextStep(currentStep)
-                                        .build())
-                        .setActionStrip(mActionStrip)
-                        .setDestinationTravelEstimate(travelEstimate)
-                        .setBackgroundColor(CarColor.BLUE)
-                        .build();
-
-        NavigationTemplate arrivedTemplate =
-                NavigationTemplate.builder()
-                        .setNavigationInfo(MessageInfo.builder("Arrived!").setText(
-                                "name\naddress").build())
-                        .setActionStrip(mActionStrip)
-                        .build();
-
-        assertThat(navigatingTemplate.isRefresh(reroutingTemplate, logger)).isTrue();
-        assertThat(arrivedTemplate.isRefresh(navigatingTemplate, logger)).isTrue();
-        assertThat(reroutingTemplate.isRefresh(arrivedTemplate, logger)).isTrue();
     }
 
     @Test

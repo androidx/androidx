@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.Screen;
-import androidx.car.app.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,49 +106,6 @@ public final class ListTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        ListTemplate old = (ListTemplate) oldTemplate;
-
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        if (mSingleList != null && old.mSingleList != null) {
-            return mSingleList.isRefresh(old.mSingleList, logger);
-        } else {
-            if (mSectionLists.size() != old.mSectionLists.size()) {
-                return false;
-            }
-
-            for (int i = 0; i < mSectionLists.size(); i++) {
-                SectionedItemList section = mSectionLists.get(i);
-                SectionedItemList oldSection = old.mSectionLists.get(i);
-
-                if (!section.getHeader().equals(oldSection.getHeader())
-                        || !section.getItemList().isRefresh(oldSection.getItemList(), logger)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     @NonNull

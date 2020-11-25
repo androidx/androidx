@@ -33,9 +33,7 @@ import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.host.OnItemVisibilityChangedListenerWrapper;
 import androidx.car.app.host.OnSelectedListenerWrapper;
 import androidx.car.app.host.model.OnClickListenerWrapper;
-import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
-import androidx.car.app.utils.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,30 +132,6 @@ public final class ItemList {
     @NonNull
     public List<Object> getItems() {
         return mItems;
-    }
-
-    /**
-     * Returns {@code true} if this {@link ItemList} instance is determined to be a refresh of the
-     * given list, or {@code false} otherwise.
-     *
-     * <p>A list is considered a refresh if:
-     *
-     * <ul>
-     *   <li>The other list is in a loading state, or
-     *   <li>The item size and string contents of the two lists are the same. For rows that
-     *   contain a
-     *       {@link Toggle}, the string contents can be updated if the toggle state has changed
-     *       between the previous and new rows. For grid items that contain a {@link Toggle}, string
-     *       contents and images can be updated if the toggle state has changed.
-     * </ul>
-     */
-    public boolean isRefresh(@Nullable ItemList other, @NonNull Logger logger) {
-        if (other == null) {
-            return false;
-        }
-
-        return ValidationUtils.itemsHaveSameContent(
-                other.getItems(), other.getSelectedIndex(), getItems(), getSelectedIndex(), logger);
     }
 
     @Override

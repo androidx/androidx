@@ -25,7 +25,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -100,35 +99,6 @@ public final class GridTemplate implements Template {
     @Nullable
     public CarIcon getBackgroundImage() {
         return mBackgroundImage;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        GridTemplate old = (GridTemplate) oldTemplate;
-
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        if (mSingleList != null && old.mSingleList != null) {
-            return mSingleList.isRefresh(old.mSingleList, logger);
-        }
-
-        return true;
     }
 
     @NonNull

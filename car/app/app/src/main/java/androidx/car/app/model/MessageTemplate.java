@@ -27,7 +27,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.model.constraints.CarIconConstraints;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,20 +95,6 @@ public final class MessageTemplate implements Template {
     @Nullable
     public ActionList getActionList() {
         return mActionList;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        MessageTemplate old = (MessageTemplate) oldTemplate;
-        return Objects.equals(old.getTitle(), getTitle())
-                && Objects.equals(old.getDebugMessage(), getDebugMessage())
-                && Objects.equals(old.getMessage(), getMessage());
     }
 
     @NonNull

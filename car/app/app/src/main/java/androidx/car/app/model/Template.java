@@ -19,19 +19,9 @@ package androidx.car.app.model;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.car.app.utils.Logger;
 
 /** An interface used to denote a model that can act as a root for a tree of other models. */
 public interface Template {
-
-    /**
-     * Returns {@code true} if this {@link Template} instance is determined to be a refresh compared
-     * to the input template.
-     */
-    default boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        return false;
-    }
-
     /**
      * Checks that the application has the required permissions for this template.
      *

@@ -50,8 +50,7 @@ public final class TemplateWrapper {
 
     /**
      * Whether the template wrapper is a refresh of the current template. For internal, host-side
-     * use
-     * only.
+     * use only.
      */
     private boolean mIsRefresh;
 
