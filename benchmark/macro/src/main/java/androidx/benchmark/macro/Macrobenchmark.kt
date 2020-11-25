@@ -24,15 +24,21 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import java.util.Collections
-import kotlin.math.max
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
  * or navigating home.
  */
 public class MacrobenchmarkScope(
-    private val packageName: String
+    private val packageName: String,
+    /**
+     * Controls whether launches should set [Intent.FLAG_ACTIVITY_NEW_TASK] as well as
+     * [Intent.FLAG_ACTIVITY_CLEAR_TASK].
+     *
+     * Default to true, so Activity launches go through full creation lifecycle stages, instead of
+     * just resume.
+     */
+    private val launchWithNewTask: Boolean
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
@@ -40,14 +46,9 @@ public class MacrobenchmarkScope(
 
     /**
      * Launch the package, with a customizable intent.
-     *
-     * If [block] is not specified, launches with [Intent.FLAG_ACTIVITY_NEW_TASK] as well as
-     * [Intent.FLAG_ACTIVITY_CLEAR_TASK]
      */
     fun launchPackageAndWait(
-        block: (Intent) -> Unit = {
-            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        block: (Intent) -> Unit = {}
     ) {
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
             ?: throw IllegalStateException("Unable to acquire intent for package $packageName")
@@ -57,6 +58,9 @@ public class MacrobenchmarkScope(
     }
 
     fun launchIntentAndWait(intent: Intent) {
+        if (launchWithNewTask) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
         context.startActivity(intent)
         device.wait(
             Until.hasObject(By.pkg(packageName).depth(0)),
@@ -79,7 +83,6 @@ data class MacrobenchmarkConfig(
     val packageName: String,
     val metrics: List<Metric>,
     val compilationMode: CompilationMode = CompilationMode.SpeedProfile(),
-    val killProcessEachIteration: Boolean = false,
     val iterations: Int
 )
 
@@ -91,16 +94,17 @@ data class MacrobenchmarkConfig(
 fun macrobenchmark(
     benchmarkName: String,
     config: MacrobenchmarkConfig,
-    setupBlock: MacrobenchmarkScope.() -> Unit = {},
+    launchWithNewTask: Boolean,
+    setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
-    val scope = MacrobenchmarkScope(config.packageName)
+    val scope = MacrobenchmarkScope(config.packageName, launchWithNewTask)
 
     // always kill the process at beginning of test
     scope.killProcess()
 
     config.compilationMode.compile(config.packageName) {
-        setupBlock(scope)
+        setupBlock(scope, false)
         measureBlock(scope)
     }
 
@@ -111,12 +115,10 @@ fun macrobenchmark(
         config.metrics.forEach {
             it.configure(config)
         }
+        var isFirstRun = true
         val results = List(config.iterations) { iteration ->
-            if (config.killProcessEachIteration) {
-                // TODO: remove this flag, make this part of setupBlock
-                scope.killProcess()
-            }
-            setupBlock(scope)
+            setupBlock(scope, isFirstRun)
+            isFirstRun = false
             try {
                 perfettoCollector.start()
                 config.metrics.forEach {
@@ -162,40 +164,53 @@ fun macrobenchmark(
     }
 }
 
-fun ideSummaryString(benchmarkName: String, statsList: List<Stats>): String {
-    val maxLabelLength = Collections.max(statsList.map { it.name.length })
+enum class StartupMode {
+    /**
+     * Startup from scratch - app's process is not alive, and must be started in addition to
+     * Activity creation.
+     *
+     * See
+     * [Cold startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#cold)
+     */
+    COLD,
 
-    // max string length of any printed min/median/max is the largest max value seen. used to pad.
-    val maxValueLength = statsList
-        .map { it.max }
-        .reduce { acc, maxValue -> max(acc, maxValue) }
-        .toString().length
+    /**
+     * Create and display a new Activity in a currently running app process.
+     *
+     * See
+     * [Warm startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#warm)
+     */
+    WARM,
 
-    return "$benchmarkName\n" + statsList.joinToString("\n") {
-        val displayName = it.name.padStart(maxLabelLength)
-        val displayMin = it.min.toString().padStart(maxValueLength)
-        val displayMedian = it.median.toString().padStart(maxValueLength)
-        val displayMax = it.max.toString().padStart(maxValueLength)
-        "  $displayName   min $displayMin,   median $displayMedian,   max $displayMax"
-    } + "\n"
+    /**
+     * Bring existing activity to the foreground, process and Activity still exist from previous
+     * launch.
+     *
+     * See
+     * [Hot startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#hot)
+     */
+    HOT
 }
 
-internal fun CompilationMode.compile(packageName: String, block: () -> Unit) {
-    val instrumentation = InstrumentationRegistry.getInstrumentation()
-    // Clear profile between runs.
-    clearProfile(instrumentation, packageName)
-    if (this == CompilationMode.None) {
-        return // nothing to do
-    }
-    if (this is CompilationMode.SpeedProfile) {
-        repeat(this.warmupIterations) {
-            block()
-        }
-    }
-    // TODO: merge in below method
-    compilationFilter(
-        InstrumentationRegistry.getInstrumentation(),
-        packageName,
-        compileArgument()
+fun startupMacrobenchmark(
+    benchmarkName: String,
+    config: MacrobenchmarkConfig,
+    startupMode: StartupMode,
+    performStartup: MacrobenchmarkScope.() -> Unit
+) {
+    macrobenchmark(
+        benchmarkName = benchmarkName,
+        config = config,
+        setupBlock = { firstIterAfterCompile ->
+            if (startupMode == StartupMode.COLD) {
+                killProcess()
+            } else if (firstIterAfterCompile) {
+                // warmup process by launching the activity, unmeasured
+                performStartup()
+            }
+        },
+        // only reuse existing activity if StartupMode == HOT
+        launchWithNewTask = startupMode != StartupMode.HOT,
+        measureBlock = performStartup
     )
 }

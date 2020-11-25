@@ -89,7 +89,7 @@ class AppStartupHelper {
         return List(expectedEventCount) { index ->
             val appStart = appStartOccurredList.getOrNull(index)
             AppStartupMetrics(
-                transitionType = appStart?.type.toString(),
+                transitionType = appStart?.type?.toStartupMode(),
                 windowDrawnDelayMs = appStart?.windowsDrawnDelayMillis?.toLong(),
                 transitionDelayMs = appStart?.transitionDelayMillis?.toLong(),
                 appStartupTimeMs = appStartFullyDrawnList.getOrNull(index)?.appStartupTimeMillis,
@@ -113,14 +113,20 @@ class AppStartupHelper {
             )
         }
         val result = results.first()
-        // TODO: potentially filter these further for app vs platform usage
+
+        Log.d(
+            "AppStartupHelper",
+            "saw startup of package $packageName, type ${result.transitionType}"
+        )
         return mapOf(
             // AppStartupHelper originally reports this as simply startup time, so we do the same
             "startupMs" to result.windowDrawnDelayMs,
-            "transitionDelayMs" to result.transitionDelayMs,
             // Though the proto calls this appStartupTime, we clarify this is "fully drawn" startup
             "startupFullyDrawnMs" to result.appStartupTimeMs,
-            "processStartDelayMs" to result.processStartDelayMs,
+
+            // The following metrics are useful for platform devs, but disabled for now for brevity
+            // "transitionDelayMs" to result.transitionDelayMs,
+            // "processStartDelayMs" to result.processStartDelayMs,
         )
             .filterValues { it != null } // doesn't drop nullability for values...
             .mapValues { it.value!! } // ...so we do that explicitly here
@@ -140,8 +146,17 @@ class AppStartupHelper {
         isProcStartDetailsDisabled = true
     }
 
+    private fun Int.toStartupMode(): StartupMode? {
+        return when (this) {
+            AtomsProto.AppStartOccurred.COLD -> StartupMode.COLD
+            AtomsProto.AppStartOccurred.WARM -> StartupMode.WARM
+            AtomsProto.AppStartOccurred.HOT -> StartupMode.HOT
+            else -> null
+        }
+    }
+
     data class AppStartupMetrics(
-        val transitionType: String?,
+        val transitionType: StartupMode?,
         val windowDrawnDelayMs: Long?,
         val transitionDelayMs: Long?,
         val appStartupTimeMs: Long?,
