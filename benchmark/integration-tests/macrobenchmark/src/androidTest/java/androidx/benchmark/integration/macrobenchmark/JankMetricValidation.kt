@@ -37,10 +37,8 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
 class JankMetricValidation(
-    private val compilationMode: CompilationMode,
-    private val killProcess: Boolean
+    private val compilationMode: CompilationMode
 ) {
-
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -58,7 +56,6 @@ class JankMetricValidation(
             packageName = PACKAGE_NAME,
             metrics = listOf(JankMetric()),
             compilationMode = compilationMode,
-            killProcessEachIteration = killProcess,
             iterations = 10
         )
 
@@ -85,17 +82,13 @@ class JankMetricValidation(
             "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
         private const val RESOURCE_ID = "recycler"
 
-        @Parameterized.Parameters(name = "compilation_mode={0}, kill_process={1}")
+        @Parameterized.Parameters(name = "compilation_mode={0}")
         @JvmStatic
         fun jankParameters(): List<Array<Any>> {
-            val compilationModes = listOf(
+            return listOf(
                 CompilationMode.None,
                 CompilationMode.SpeedProfile(warmupIterations = 3)
-            )
-            val processKillOptions = listOf(false, false)
-            return compilationModes.zip(processKillOptions).map {
-                arrayOf(it.first, it.second)
-            }
+            ).map { arrayOf(it) }
         }
     }
 }

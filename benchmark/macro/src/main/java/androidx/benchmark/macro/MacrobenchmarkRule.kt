@@ -28,10 +28,29 @@ class MacrobenchmarkRule : TestRule {
 
     fun measureRepeated(
         config: MacrobenchmarkConfig,
-        setupBlock: MacrobenchmarkScope.() -> Unit = {},
+        setupBlock: MacrobenchmarkScope.(Boolean) -> Unit = {},
         measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        macrobenchmark(benchmarkName, config, setupBlock, measureBlock)
+        macrobenchmark(
+            benchmarkName = benchmarkName,
+            config = config,
+            launchWithNewTask = true,
+            setupBlock = setupBlock,
+            measureBlock = measureBlock
+        )
+    }
+
+    fun measureStartupRepeated(
+        config: MacrobenchmarkConfig,
+        startupMode: StartupMode,
+        performStartup: MacrobenchmarkScope.() -> Unit
+    ) {
+        startupMacrobenchmark(
+            benchmarkName = benchmarkName,
+            config = config,
+            startupMode = startupMode,
+            performStartup = performStartup
+        )
     }
 
     override fun apply(base: Statement, description: Description) = object : Statement() {
