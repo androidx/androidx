@@ -22,19 +22,19 @@ import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.junit.Ignore
+import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(AndroidJUnit4::class)
 class MacrobenchmarkRuleTest {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    @Ignore("Not running the test in CI")
     fun basicTest() = benchmarkRule.measureRepeated(
         MacrobenchmarkConfig(
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
