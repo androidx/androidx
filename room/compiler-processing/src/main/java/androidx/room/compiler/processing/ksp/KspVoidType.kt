@@ -16,7 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XNullability
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.javapoet.TypeName
 
@@ -33,13 +33,13 @@ internal class KspVoidType(
     private val boxed: Boolean
 ) : KspType(env, ksType) {
     override val typeName: TypeName
-        get() = if (boxed) {
+        get() = if (boxed || nullability == XNullability.NULLABLE) {
             TypeName.VOID.box()
         } else {
             TypeName.VOID
         }
 
-    override fun boxed(): XType {
+    override fun boxed(): KspType {
         return if (boxed) {
             this
         } else {
@@ -49,5 +49,13 @@ internal class KspVoidType(
                 boxed = true
             )
         }
+    }
+
+    override fun copyWithNullability(nullability: XNullability): KspType {
+        return KspVoidType(
+            env = env,
+            ksType = ksType.withNullability(nullability),
+            boxed = boxed || nullability == XNullability.NULLABLE
+        )
     }
 }
