@@ -117,16 +117,22 @@ public class ActionStrip {
         /**
          * Adds an {@link Action} to the list.
          *
+         * @throws IllegalArgumentException if the background color of the action is specified.
          * @throws IllegalArgumentException if {@code action} is a standard action and an action of
          *                                  the same type has already been added.
          * @throws NullPointerException     if {@code action} is {@code null}.
          */
         @NonNull
         public Builder addAction(@NonNull Action action) {
-            int actionType = requireNonNull(action).getType();
+            Action actionObj = requireNonNull(action);
+            int actionType = actionObj.getType();
             if (actionType != Action.TYPE_CUSTOM && mAddedActionTypes.contains(actionType)) {
                 throw new IllegalArgumentException(
                         "Duplicated action types are disallowed: " + action);
+            }
+            if (!CarColor.DEFAULT.equals(actionObj.getBackgroundColor())) {
+                throw new IllegalArgumentException(
+                        "Action strip actions don't support background colors");
             }
             mAddedActionTypes.add(actionType);
             mActions.add(action);

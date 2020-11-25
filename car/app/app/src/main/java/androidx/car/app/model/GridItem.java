@@ -69,7 +69,7 @@ public class GridItem implements Item {
     /**
      * Represents a large image to be displayed in the grid item.
      *
-     * <p>If necessary, these images will be scaled down to fit within a 80 x 80 dp bounding box,
+     * <p>If necessary, these images will be scaled down to fit within a 64 x 64 dp bounding box,
      * preserving their aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
