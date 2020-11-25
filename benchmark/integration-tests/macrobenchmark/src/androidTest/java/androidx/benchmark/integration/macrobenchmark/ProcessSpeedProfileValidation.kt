@@ -22,19 +22,19 @@ import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.macrobenchmark
 import androidx.test.filters.LargeTest
-import org.junit.Ignore
+import androidx.test.filters.SdkSuppress
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
 class ProcessSpeedProfileValidation(
     private val compilationMode: CompilationMode,
     private val killProcess: Boolean
 ) {
     @Test
-    @Ignore("Not running the test in CI")
     fun start() {
         val benchmarkName = "speed_profile_process_validation"
         val config = MacrobenchmarkConfig(

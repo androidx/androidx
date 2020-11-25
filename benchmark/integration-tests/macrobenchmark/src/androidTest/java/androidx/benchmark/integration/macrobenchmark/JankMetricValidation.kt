@@ -22,18 +22,19 @@ import androidx.benchmark.macro.JankMetric
 import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
 class JankMetricValidation(
     private val compilationMode: CompilationMode,
@@ -52,7 +53,6 @@ class JankMetricValidation(
     }
 
     @Test
-    @Ignore("Not running the test in CI")
     fun start() {
         val config = MacrobenchmarkConfig(
             packageName = PACKAGE_NAME,
