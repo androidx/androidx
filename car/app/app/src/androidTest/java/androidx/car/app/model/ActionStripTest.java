@@ -36,6 +36,20 @@ public class ActionStripTest {
     }
 
     @Test
+    public void defaultBackgroundColor_doesNotThrow() {
+        Action action = Action.builder().setTitle("Test").setBackgroundColor(
+                CarColor.DEFAULT).build();
+    }
+
+    @Test
+    public void backgroundColor_throws() {
+        Action action1 = Action.builder().setTitle("Test").setBackgroundColor(
+                CarColor.BLUE).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> ActionStrip.builder().addAction(action1));
+    }
+
+    @Test
     public void addDuplicatedTypes_throws() {
         Action action1 = Action.BACK;
         Action action2 = Action.builder().setTitle("Test").setOnClickListener(() -> {
