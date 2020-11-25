@@ -75,4 +75,14 @@ internal class JavacArrayType private constructor(
             elementNullability = componentTypeNullability
         )
     }
+
+    override fun copyWithNullability(nullability: XNullability): JavacType {
+        return JavacArrayType(
+            env = env,
+            typeMirror = typeMirror,
+            nullability = nullability,
+            knownComponentNullability = knownComponentNullability,
+            kotlinType = kotlinType
+        )
+    }
 }

@@ -166,6 +166,18 @@ interface XType {
      * If this is a wildcard with an extends bound, returns that bounded typed.
      */
     fun extendsBound(): XType?
+
+    /**
+     * Creates a type with nullability [XNullability.NULLABLE] or returns this if the nullability is
+     * already [XNullability.NULLABLE].
+     */
+    fun makeNullable(): XType
+
+    /**
+     * Creates a type with nullability [XNullability.NONNULL] or returns this if the nullability is
+     * already [XNullability.NONNULL].
+     */
+    fun makeNonNullable(): XType
 }
 
 /**

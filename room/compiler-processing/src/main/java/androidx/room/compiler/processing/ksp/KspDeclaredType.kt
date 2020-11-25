@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.symbol.KSType
@@ -38,7 +39,14 @@ internal open class KspDeclaredType(
         }
     }
 
-    override fun boxed(): XType {
+    override fun boxed(): KspDeclaredType {
         return this
+    }
+
+    override fun copyWithNullability(nullability: XNullability): KspType {
+        return KspDeclaredType(
+            env = env,
+            ksType = ksType.withNullability(nullability)
+        )
     }
 }

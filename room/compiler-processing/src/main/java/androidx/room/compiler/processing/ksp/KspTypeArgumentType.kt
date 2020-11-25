@@ -16,10 +16,11 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.processing.XNullability
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.squareup.javapoet.TypeName
 
 /**
  * The typeName for type arguments requires the type parameter, hence we have a special type
@@ -37,7 +38,23 @@ internal class KspTypeArgumentType(
         typeArg.typeName(typeParam, env.resolver)
     }
 
-    override fun boxed(): XType {
+    override fun boxed(): KspTypeArgumentType {
         return this
     }
+
+    override fun copyWithNullability(nullability: XNullability): KspTypeArgumentType {
+        return KspTypeArgumentType(
+            env = env,
+            typeParam = typeParam,
+            typeArg = DelegatingTypeArg(
+                original = typeArg,
+                type = typeArg.requireType().withNullability(nullability).createTypeReference()
+            )
+        )
+    }
+
+    private class DelegatingTypeArg(
+        val original: KSTypeArgument,
+        override val type: KSTypeReference
+    ) : KSTypeArgument by original
 }
