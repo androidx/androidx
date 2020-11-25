@@ -45,20 +45,6 @@ import java.util.Objects;
  */
 public class Row implements Item {
     /**
-     * Represents flags that control some attributes of the row.
-     *
-     * @hide
-     */
-    // TODO(shiufai): investigate how to expose IntDefs if needed.
-    @RestrictTo(LIBRARY)
-    @IntDef(
-            value = {ROW_FLAG_NONE, ROW_FLAG_SHOW_DIVIDERS, ROW_FLAG_SECTION_HEADER},
-            flag = true)
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface RowFlags {
-    }
-
-    /**
      * The type of images supported within rows.
      *
      * @hide
@@ -69,26 +55,6 @@ public class Row implements Item {
     @Retention(RetentionPolicy.SOURCE)
     public @interface RowImageType {
     }
-
-    /**
-     * No flags applied to the row.
-     */
-    public static final int ROW_FLAG_NONE = (1 << 0);
-
-    /**
-     * Whether to show dividers around the row.
-     */
-    public static final int ROW_FLAG_SHOW_DIVIDERS = (1 << 1);
-
-    /**
-     * Whether the row is a section header.
-     *
-     * <p>Sections are used to group rows in the UI, for example, by showing them all within a block
-     * of the same background color.
-     *
-     * <p>A section header is a string of text above the section with a title for it.
-     */
-    public static final int ROW_FLAG_SECTION_HEADER = (1 << 2);
 
     /**
      * Represents a small image to be displayed in the row.
@@ -135,9 +101,6 @@ public class Row implements Item {
     private final OnClickListenerWrapper mOnClickListener;
     @Keep
     private final Metadata mMetadata;
-    @Keep
-    @RowFlags
-    private final int mFlags;
     @Keep
     private final boolean mIsBrowsable;
     @Keep
@@ -211,14 +174,6 @@ public class Row implements Item {
     }
 
     /**
-     * Returns the flags for the row.
-     */
-    @RowFlags
-    public int getFlags() {
-        return mFlags;
-    }
-
-    /**
      * Rows your boat.
      *
      * <p>Example usage:
@@ -259,7 +214,6 @@ public class Row implements Item {
                 mToggle,
                 mOnClickListener == null,
                 mMetadata,
-                mFlags,
                 mIsBrowsable,
                 mRowImageType);
     }
@@ -281,7 +235,6 @@ public class Row implements Item {
                 && Objects.equals(mToggle, otherRow.mToggle)
                 && Objects.equals(mOnClickListener == null, otherRow.mOnClickListener == null)
                 && Objects.equals(mMetadata, otherRow.mMetadata)
-                && mFlags == otherRow.mFlags
                 && mIsBrowsable == otherRow.mIsBrowsable
                 && mRowImageType == otherRow.mRowImageType;
     }
@@ -294,7 +247,6 @@ public class Row implements Item {
         mOnClickListener = builder.mOnClickListener;
         mMetadata = builder.mMetadata;
         mIsBrowsable = builder.mIsBrowsable;
-        mFlags = builder.mFlags;
         mRowImageType = builder.mRowImageType;
     }
 
@@ -307,7 +259,6 @@ public class Row implements Item {
         mOnClickListener = null;
         mMetadata = EMPTY_METADATA;
         mIsBrowsable = false;
-        mFlags = ROW_FLAG_NONE;
         mRowImageType = IMAGE_TYPE_SMALL;
     }
 
@@ -324,8 +275,6 @@ public class Row implements Item {
         private OnClickListenerWrapper mOnClickListener;
         private Metadata mMetadata = EMPTY_METADATA;
         private boolean mIsBrowsable;
-        @RowFlags
-        private int mFlags = ROW_FLAG_NONE;
         @RowImageType
         private int mRowImageType = IMAGE_TYPE_SMALL;
 
@@ -342,18 +291,6 @@ public class Row implements Item {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
             this.mTitle = titleText;
-            return this;
-        }
-
-        /**
-         * Sets the title of the row, or {@code null} to not show a title.
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder setTitle(@Nullable CarText title) {
-            this.mTitle = title;
             return this;
         }
 
@@ -434,19 +371,6 @@ public class Row implements Item {
         @NonNull
         public Builder clearText() {
             mTexts.clear();
-            return this;
-        }
-
-        /**
-         * Adds a line text of the row below the title.
-         *
-         * @throws NullPointerException if {@code text} is {@code null}.
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @NonNull
-        public Builder addText(@NonNull CarText text) {
-            this.mTexts.add(requireNonNull(text));
             return this;
         }
 
@@ -542,15 +466,6 @@ public class Row implements Item {
         @NonNull
         public Builder setMetadata(@NonNull Metadata metadata) {
             this.mMetadata = metadata;
-            return this;
-        }
-
-        /**
-         * Sets flags for the row.
-         */
-        @NonNull
-        public Builder setFlags(@RowFlags int flags) {
-            this.mFlags = flags;
             return this;
         }
 
