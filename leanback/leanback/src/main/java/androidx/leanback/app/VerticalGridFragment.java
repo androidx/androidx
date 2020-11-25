@@ -222,7 +222,9 @@ public class VerticalGridFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mGridViewHolder.getGridView().swapAdapter(null, true);
         mGridViewHolder = null;
+        mSceneAfterEntranceTransition = null;
     }
 
     /**
