@@ -24,8 +24,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -87,21 +89,37 @@ public class SwitchCompatTest {
         AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
         switchButton.onInitializeAccessibilityNodeInfo(info);
         assertEquals("android.widget.Switch", info.getClassName());
-        assertEquals(mActivity.getResources().getString(R.string.sample_text1), info.getText());
-        assertEquals(
-                mActivity.getResources().getString(androidx.appcompat.R.string.abc_capital_off),
-                ViewCompat.getStateDescription(switchButton)
-        );
+        final String capitalOff =
+                mActivity.getResources().getString(androidx.appcompat.R.string.abc_capital_off);
+        final String text = mActivity.getResources().getString(R.string.sample_text1);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            assertEquals(text + " " + capitalOff, info.getText());
+            assertNull(ViewCompat.getStateDescription(switchButton));
+        } else {
+            assertEquals(text, info.getText());
+            assertEquals(capitalOff, ViewCompat.getStateDescription(switchButton));
+        }
+        info.recycle();
     }
 
     @Test
     public void testAccessibility_textOnOff() {
         final SwitchCompat switchButton = mContainer.findViewById(R.id.switch_textOnOff);
+        final CharSequence textOn = "testStateOn";
+        final CharSequence textOff = "testStateOff";
         AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
         switchButton.onInitializeAccessibilityNodeInfo(info);
         assertEquals("android.widget.Switch", info.getClassName());
-        assertEquals(mActivity.getResources().getString(R.string.sample_text1), info.getText());
-        assertEquals("testStateOff", ViewCompat.getStateDescription(switchButton));
+        final String text = mActivity.getResources().getString(R.string.sample_text1);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            assertEquals(text + " " + textOff, info.getText());
+            assertNull(ViewCompat.getStateDescription(switchButton));
+        } else {
+            assertEquals(text, info.getText());
+            assertEquals(textOff, ViewCompat.getStateDescription(switchButton));
+        }
+        info.recycle();
+
         final CharSequence newTextOff = "new text off";
         final CharSequence newTextOn = "new text on";
         mActivity.runOnUiThread(
@@ -109,12 +127,41 @@ public class SwitchCompatTest {
                     @Override
                     public void run() {
                         switchButton.toggle();
-                        assertEquals("testStateOn", ViewCompat.getStateDescription(switchButton));
-                        switchButton.setTextOff(newTextOff);
+                        AccessibilityNodeInfo info = AccessibilityNodeInfo.obtain();
+                        switchButton.onInitializeAccessibilityNodeInfo(info);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                            assertEquals(text + " " + textOn, info.getText());
+                            assertNull(ViewCompat.getStateDescription(switchButton));
+                        } else {
+                            assertEquals(text, info.getText());
+                            assertEquals(textOn, ViewCompat.getStateDescription(switchButton));
+                        }
+                        info.recycle();
+
                         switchButton.setTextOn(newTextOn);
-                        assertEquals(newTextOn, ViewCompat.getStateDescription(switchButton));
+                        switchButton.setTextOff(newTextOff);
+                        info = AccessibilityNodeInfo.obtain();
+                        switchButton.onInitializeAccessibilityNodeInfo(info);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                            assertEquals(text + " " + newTextOn, info.getText());
+                            assertNull(ViewCompat.getStateDescription(switchButton));
+                        } else {
+                            assertEquals(text, info.getText());
+                            assertEquals(newTextOn, ViewCompat.getStateDescription(switchButton));
+                        }
+                        info.recycle();
+
                         switchButton.toggle();
-                        assertEquals(newTextOff, ViewCompat.getStateDescription(switchButton));
+                        info = AccessibilityNodeInfo.obtain();
+                        switchButton.onInitializeAccessibilityNodeInfo(info);
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                            assertEquals(text + " " + newTextOff, info.getText());
+                            assertNull(ViewCompat.getStateDescription(switchButton));
+                        } else {
+                            assertEquals(text, info.getText());
+                            assertEquals(newTextOff, ViewCompat.getStateDescription(switchButton));
+                        }
+                        info.recycle();
                     }
                 }
         );
