@@ -34,6 +34,7 @@ import androidx.car.app.ISurfaceListener;
 import androidx.car.app.SurfaceContainer;
 import androidx.car.app.SurfaceListener;
 import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
 
@@ -199,5 +200,24 @@ public final class RemoteUtils {
             }
             return null;
         }, callName + " onFailure");
+    }
+
+    /**
+     * Provides a {@link IOnDoneCallback} that forwards success and failure callbacks to a
+     * {@link OnDoneCallback}.
+     */
+    @NonNull
+    public static IOnDoneCallback createOnDoneCallbackStub(@NonNull OnDoneCallback callback) {
+        return new IOnDoneCallback.Stub() {
+            @Override
+            public void onSuccess(Bundleable response) {
+                callback.onSuccess(response);
+            }
+
+            @Override
+            public void onFailure(Bundleable failureResponse) {
+                callback.onFailure(failureResponse);
+            }
+        };
     }
 }

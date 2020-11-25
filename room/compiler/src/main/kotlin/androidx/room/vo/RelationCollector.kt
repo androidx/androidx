@@ -284,7 +284,8 @@ data class RelationCollector(
                         sqlName = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
                         type = keySet,
                         queryParamAdapter = context.typeAdapterStore.findQueryParameterAdapter(
-                            keySet
+                            typeMirror = keySet,
+                            isMultipleParameter = true
                         )
                     )
                 }

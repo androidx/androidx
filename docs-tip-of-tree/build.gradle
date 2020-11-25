@@ -17,9 +17,9 @@ dependencies {
     docs(project(":appsearch:appsearch"))
     docs(project(":appsearch:appsearch-local-storage"))
     docs(project(":collection:collection"))
-    docs(project(":arch:core-common"))
-    docs(project(":arch:core-runtime"))
-    docs(project(":arch:core-testing"))
+    docs(project(":arch:core:core-common"))
+    docs(project(":arch:core:core-runtime"))
+    docs(project(":arch:core:core-testing"))
     docs(project(":asynclayoutinflater:asynclayoutinflater"))
     docs(project(":autofill:autofill"))
     docs(project(":benchmark:benchmark-benchmark"))
@@ -45,8 +45,6 @@ dependencies {
     docs(project(":compose:foundation:foundation"))
     docs(project(":compose:foundation:foundation-layout"))
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
-    docs(project(":compose:foundation:foundation-text"))
-    samples(project(":compose:foundation:foundation-text:foundation-text-samples"))
     samples(project(":compose:foundation:foundation:foundation-samples"))
     docs(project(":compose:material:material"))
     docs(project(":compose:material:material-icons-core"))
@@ -67,9 +65,12 @@ dependencies {
     docs(project(":compose:ui:ui-geometry"))
     docs(project(":compose:ui:ui-graphics"))
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+    docs(project(":compose:ui:ui-test"))
     docs(project(":compose:ui:ui-test-font"))
+    docs(project(":compose:ui:ui-test-junit4"))
     docs(project(":compose:ui:ui-text"))
     samples(project(":compose:ui:ui-text:ui-text-samples"))
+    docs(project(":compose:ui:ui-tooling"))
     docs(project(":compose:ui:ui-unit"))
     samples(project(":compose:ui:ui-unit:ui-unit-samples"))
     docs(project(":compose:ui:ui-util"))
@@ -94,6 +95,7 @@ dependencies {
     docs(project(":datastore:datastore-preferences-core"))
     docs(project(":datastore:datastore-preferences-core:datastore-preferences-proto"))
     docs(project(":datastore:datastore-proto"))
+    docs(project(":datastore:datastore-rxjava2"))
     docs(project(":documentfile:documentfile"))
     docs(project(":drawerlayout:drawerlayout"))
     docs(project(":dynamicanimation:dynamicanimation"))
@@ -217,8 +219,6 @@ dependencies {
     docs(project(":transition:transition"))
     docs(project(":transition:transition-ktx"))
     docs(project(":tvprovider:tvprovider"))
-    docs(project(":ui:ui-test"))
-    docs(project(":ui:ui-tooling"))
     docs(project(":vectordrawable:vectordrawable"))
     docs(project(":vectordrawable:vectordrawable-animated"))
     docs(project(":vectordrawable:vectordrawable-seekable"))
@@ -246,4 +246,11 @@ dependencies {
     docs(project(":work:work-rxjava2"))
     docs(project(":work:work-rxjava3"))
     docs(project(":work:work-testing"))
+}
+
+afterEvaluate {
+    // b/172817047 : exploratory workaround to avoid running two dokkaKotlinDocs tasks at once
+    tasks["dokkaKotlinDocs"].configure { task ->
+        task.mustRunAfter(":docs-public:dokkaKotlinDocs")
+    }
 }

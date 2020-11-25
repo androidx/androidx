@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
 import androidx.mediarouter.media.MediaRouteSelector;
@@ -57,6 +59,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @NonNull
     public MediaRouteSelector getRouteSelector() {
         ensureRouteSelector();
         return mSelector;
@@ -96,7 +99,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public void setRouteSelector(MediaRouteSelector selector) {
+    public void setRouteSelector(@NonNull MediaRouteSelector selector) {
         if (selector == null) {
             throw new IllegalArgumentException("selector must not be null");
         }
@@ -125,7 +128,9 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(Context context) {
+    @NonNull
+    public MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(
+            @NonNull Context context) {
         return new MediaRouteDynamicControllerDialog(context);
     }
 
@@ -135,13 +140,15 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Subclasses may override this method to customize the dialog.
      * </p>
      */
+    @NonNull
     public MediaRouteControllerDialog onCreateControllerDialog(
-            Context context, Bundle savedInstanceState) {
+            @NonNull Context context, @Nullable Bundle savedInstanceState) {
         return new MediaRouteControllerDialog(context);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @NonNull
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (mUseDynamicGroup) {
             mDialog = onCreateDynamicControllerDialog(getContext());
             ((MediaRouteDynamicControllerDialog) mDialog).setRouteSelector(mSelector);
@@ -160,7 +167,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
             if (mUseDynamicGroup) {

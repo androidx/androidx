@@ -252,6 +252,11 @@ final class BackStackRecord extends FragmentTransaction implements
             throw new IllegalArgumentException("Cannot set maximum Lifecycle to " + state
                     + " after the Fragment has been created");
         }
+        if (state == Lifecycle.State.DESTROYED) {
+            throw new IllegalArgumentException("Cannot set maximum Lifecycle to " + state + ". Use "
+                    + "remove() to remove the fragment from the FragmentManager and trigger its "
+                    + "destruction.");
+        }
         return super.setMaxLifecycle(fragment, state);
     }
 

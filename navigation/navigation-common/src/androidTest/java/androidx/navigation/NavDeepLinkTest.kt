@@ -308,9 +308,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -344,9 +344,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
@@ -387,9 +387,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the id")
             .that(matchArgs?.getInt("id"))
             .isEqualTo(id)
-        assertWithMessage("Args should contain optional")
-            .that(matchArgs?.getString("optional"))
-            .isEqualTo(optional)
+        assertWithMessage("Args should not contain optional")
+            .that(matchArgs?.containsKey("optional"))
+            .isFalse()
     }
 
     @Test
@@ -416,8 +416,8 @@ class NavDeepLinkTest {
             .that(matchArgs?.getInt("id"))
             .isEqualTo(id)
         assertWithMessage("Args should contain optional")
-            .that(matchArgs?.getString("optional"))
-            .isEqualTo(optional)
+            .that(matchArgs?.containsKey("optional"))
+            .isFalse()
     }
 
     @Test
@@ -512,9 +512,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -585,9 +585,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -638,9 +638,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -685,12 +685,12 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the first name")
-            .that(matchArgs?.getString("first"))
-            .isEqualTo(first)
-        assertWithMessage("Args should contain the last name")
-            .that(matchArgs?.getString("last"))
-            .isEqualTo(last)
+        assertWithMessage("Args should not contain the first name")
+            .that(matchArgs?.containsKey("first"))
+            .isFalse()
+        assertWithMessage("Args should not contain the last name")
+            .that(matchArgs?.containsKey("last"))
+            .isFalse()
     }
 
     @Test
@@ -713,9 +713,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the first name")
             .that(matchArgs?.getString("first"))
             .isEqualTo(first)
-        assertWithMessage("Args should contain the last name")
-            .that(matchArgs?.getString("last"))
-            .isEqualTo(last)
+        assertWithMessage("Args should not contain the last name")
+            .that(matchArgs?.containsKey("last"))
+            .isFalse()
     }
 
     @Test
@@ -775,9 +775,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -811,9 +811,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the id")
-            .that(matchArgs?.getInt("id"))
-            .isEqualTo(id)
+        assertWithMessage("Args should not contain the id")
+            .that(matchArgs?.containsKey("id"))
+            .isFalse()
     }
 
     @Test
@@ -889,9 +889,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the path")
-            .that(matchArgs?.getString("path"))
-            .isEqualTo(path)
+        assertWithMessage("Args should not contain the path")
+            .that(matchArgs?.containsKey("path"))
+            .isFalse()
     }
 
     @Test
@@ -925,9 +925,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the path")
-            .that(matchArgs?.getString("path"))
-            .isEqualTo(path)
+        assertWithMessage("Args should not contain the path")
+            .that(matchArgs?.containsKey("path"))
+            .isFalse()
     }
 
     @Test

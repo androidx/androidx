@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.style
 
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

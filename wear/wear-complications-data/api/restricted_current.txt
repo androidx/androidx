@@ -100,7 +100,7 @@ package android.support.wearable.complications {
     field public static final android.os.Parcelable.Creator<android.support.wearable.complications.ComplicationProviderInfo!> CREATOR;
   }
 
-  public final class ComplicationText implements android.os.Parcelable {
+  public final class ComplicationText implements android.os.Parcelable android.support.wearable.complications.TimeDependentText {
     method public int describeContents();
     method public long getNextChangeTime(long);
     method public CharSequence getTextAt(android.content.res.Resources, long);
@@ -146,6 +146,12 @@ package android.support.wearable.complications {
   @IntDef({android.support.wearable.complications.ComplicationText.FORMAT_STYLE_DEFAULT, android.support.wearable.complications.ComplicationText.FORMAT_STYLE_UPPER_CASE, android.support.wearable.complications.ComplicationText.FORMAT_STYLE_LOWER_CASE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ComplicationText.TimeFormatStyle {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface TimeDependentText extends android.os.Parcelable {
+    method public long getNextChangeTime(long);
+    method public CharSequence getTextAt(android.content.res.Resources, long);
+    method public boolean returnsSameText(long, long);
+  }
+
 }
 
 package androidx.wear.complications {
@@ -161,11 +167,11 @@ package androidx.wear.complications {
   }
 
   public final class DefaultComplicationProviderPolicy {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, int systemProviderFallback);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public DefaultComplicationProviderPolicy(java.util.List<android.content.ComponentName> providers, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     ctor public DefaultComplicationProviderPolicy();
-    ctor public DefaultComplicationProviderPolicy(int systemProvider);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, int systemProviderFallback);
-    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(@androidx.wear.complications.SystemProviders.ProviderId int systemProvider);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName provider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
+    ctor public DefaultComplicationProviderPolicy(android.content.ComponentName primaryProvider, android.content.ComponentName secondaryProvider, @androidx.wear.complications.SystemProviders.ProviderId int systemProviderFallback);
     method public android.content.ComponentName? getPrimaryProvider();
     method public android.content.ComponentName? getSecondaryProvider();
     method public int getSystemProviderFallback();
@@ -228,37 +234,6 @@ package androidx.wear.complications {
 
 package androidx.wear.complications.data {
 
-  public final class BackgroundImage {
-    method public android.graphics.drawable.Icon getImage();
-    property public final android.graphics.drawable.Icon image;
-  }
-
-  public static final class BackgroundImage.Builder {
-    ctor public BackgroundImage.Builder(android.graphics.drawable.Icon image);
-    method public androidx.wear.complications.data.BackgroundImage build();
-  }
-
-  public final class BackgroundImageComplicationData extends androidx.wear.complications.data.ComplicationData {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
-    method public androidx.wear.complications.data.ComplicationText? getContentDescription();
-    method public androidx.wear.complications.data.BackgroundImage getImage();
-    property public final androidx.wear.complications.data.ComplicationText? contentDescription;
-    property public final androidx.wear.complications.data.BackgroundImage image;
-    field public static final androidx.wear.complications.data.BackgroundImageComplicationData.Companion Companion;
-    field public static final androidx.wear.complications.data.ComplicationType TYPE;
-  }
-
-  public static final class BackgroundImageComplicationData.Builder {
-    ctor public BackgroundImageComplicationData.Builder(androidx.wear.complications.data.BackgroundImage icon);
-    method public androidx.wear.complications.data.BackgroundImageComplicationData build();
-    method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
-    method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
-    method public androidx.wear.complications.data.BackgroundImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
-  }
-
-  public static final class BackgroundImageComplicationData.Companion {
-  }
-
   public abstract sealed class ComplicationData {
     method public final android.app.PendingIntent? getTapAction();
     method public final androidx.wear.complications.data.ComplicationType getType();
@@ -289,20 +264,19 @@ package androidx.wear.complications.data {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final java.util.List<androidx.wear.complications.data.ComplicationType> fromWireTypeList(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final androidx.wear.complications.data.ComplicationType![] fromWireTypes(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType> types);
-    enum_constant public static final androidx.wear.complications.data.ComplicationType BACKGROUND_IMAGE;
     enum_constant public static final androidx.wear.complications.data.ComplicationType EMPTY;
     enum_constant public static final androidx.wear.complications.data.ComplicationType LONG_TEXT;
     enum_constant public static final androidx.wear.complications.data.ComplicationType MONOCHROMATIC_IMAGE;
     enum_constant public static final androidx.wear.complications.data.ComplicationType NOT_CONFIGURED;
     enum_constant public static final androidx.wear.complications.data.ComplicationType NO_DATA;
     enum_constant public static final androidx.wear.complications.data.ComplicationType NO_PERMISSION;
+    enum_constant public static final androidx.wear.complications.data.ComplicationType PHOTO_IMAGE;
     enum_constant public static final androidx.wear.complications.data.ComplicationType RANGED_VALUE;
     enum_constant public static final androidx.wear.complications.data.ComplicationType SHORT_TEXT;
     enum_constant public static final androidx.wear.complications.data.ComplicationType SMALL_IMAGE;
-    field public static final androidx.wear.complications.data.ComplicationType.Companion Companion;
   }
 
-  public static final class ComplicationType.Companion {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class ComplicationType.Companion {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.util.List<androidx.wear.complications.data.ComplicationType> fromWireTypeList(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.wear.complications.data.ComplicationType![] fromWireTypes(int[] types);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int[] toWireTypes(java.util.Collection<? extends androidx.wear.complications.data.ComplicationType> types);
@@ -315,11 +289,7 @@ package androidx.wear.complications.data {
   public final class EmptyComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public EmptyComplicationData();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
-    field public static final androidx.wear.complications.data.EmptyComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
-  }
-
-  public static final class EmptyComplicationData.Companion {
   }
 
   public final class IdAndComplicationData {
@@ -333,29 +303,28 @@ package androidx.wear.complications.data {
 
   public final class LongTextComplicationData extends androidx.wear.complications.data.ComplicationData {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
+    method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.complications.data.MonochromaticImage? getMonochromaticImage();
     method public androidx.wear.complications.data.SmallImage? getSmallImage();
     method public androidx.wear.complications.data.ComplicationText getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
+    property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage? monochromaticImage;
     property public final androidx.wear.complications.data.SmallImage? smallImage;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    field public static final androidx.wear.complications.data.LongTextComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class LongTextComplicationData.Builder {
     ctor public LongTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
     method public androidx.wear.complications.data.LongTextComplicationData build();
+    method public androidx.wear.complications.data.LongTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setMonochromaticImage(androidx.wear.complications.data.MonochromaticImage? icon);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setSmallImage(androidx.wear.complications.data.SmallImage? smallImage);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
     method public androidx.wear.complications.data.LongTextComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
-  }
-
-  public static final class LongTextComplicationData.Companion {
   }
 
   public final class MonochromaticImage {
@@ -377,7 +346,6 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.MonochromaticImage getImage();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage image;
-    field public static final androidx.wear.complications.data.MonochromaticImageComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -389,17 +357,10 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.MonochromaticImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
 
-  public static final class MonochromaticImageComplicationData.Companion {
-  }
-
   public final class NoDataComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public NoDataComplicationData();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
-    field public static final androidx.wear.complications.data.NoDataComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
-  }
-
-  public static final class NoDataComplicationData.Companion {
   }
 
   public final class NoPermissionComplicationData extends androidx.wear.complications.data.ComplicationData {
@@ -410,7 +371,6 @@ package androidx.wear.complications.data {
     property public final androidx.wear.complications.data.MonochromaticImage? image;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    field public static final androidx.wear.complications.data.NoPermissionComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -418,45 +378,66 @@ package androidx.wear.complications.data {
     ctor public NoPermissionComplicationData.Builder();
     method public androidx.wear.complications.data.NoPermissionComplicationData build();
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
-    method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
     method public androidx.wear.complications.data.NoPermissionComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
-  }
-
-  public static final class NoPermissionComplicationData.Companion {
   }
 
   public final class NotConfiguredComplicationData extends androidx.wear.complications.data.ComplicationData {
     ctor public NotConfiguredComplicationData();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
-    field public static final androidx.wear.complications.data.NotConfiguredComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
-  public static final class NotConfiguredComplicationData.Companion {
+  public final class PhotoImage {
+    method public android.graphics.drawable.Icon getImage();
+    property public final android.graphics.drawable.Icon image;
+  }
+
+  public static final class PhotoImage.Builder {
+    ctor public PhotoImage.Builder(android.graphics.drawable.Icon image);
+    method public androidx.wear.complications.data.PhotoImage build();
+  }
+
+  public final class PhotoImageComplicationData extends androidx.wear.complications.data.ComplicationData {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
+    method public androidx.wear.complications.data.ComplicationText? getContentDescription();
+    method public androidx.wear.complications.data.PhotoImage getImage();
+    property public final androidx.wear.complications.data.ComplicationText? contentDescription;
+    property public final androidx.wear.complications.data.PhotoImage image;
+    field public static final androidx.wear.complications.data.ComplicationType TYPE;
+  }
+
+  public static final class PhotoImageComplicationData.Builder {
+    ctor public PhotoImageComplicationData.Builder(androidx.wear.complications.data.PhotoImage icon);
+    method public androidx.wear.complications.data.PhotoImageComplicationData build();
+    method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
+    method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
+    method public androidx.wear.complications.data.PhotoImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
 
   public final class RangedValueComplicationData extends androidx.wear.complications.data.ComplicationData {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
+    method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.complications.data.MonochromaticImage? getImage();
     method public float getMax();
     method public float getMin();
     method public androidx.wear.complications.data.ComplicationText? getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
     method public float getValue();
+    property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage? image;
     property public final float max;
     property public final float min;
     property public final androidx.wear.complications.data.ComplicationText? text;
     property public final androidx.wear.complications.data.ComplicationText? title;
     property public final float value;
-    field public static final androidx.wear.complications.data.RangedValueComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class RangedValueComplicationData.Builder {
     ctor public RangedValueComplicationData.Builder(float value, float min, float max);
     method public androidx.wear.complications.data.RangedValueComplicationData build();
+    method public androidx.wear.complications.data.RangedValueComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.complications.data.ComplicationText? text);
@@ -464,31 +445,27 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.RangedValueComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
   }
 
-  public static final class RangedValueComplicationData.Companion {
-  }
-
   public final class ShortTextComplicationData extends androidx.wear.complications.data.ComplicationData {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public android.support.wearable.complications.ComplicationData asWireComplicationData();
+    method public androidx.wear.complications.data.ComplicationText? getContentDescription();
     method public androidx.wear.complications.data.MonochromaticImage? getImage();
     method public androidx.wear.complications.data.ComplicationText getText();
     method public androidx.wear.complications.data.ComplicationText? getTitle();
+    property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.MonochromaticImage? image;
     property public final androidx.wear.complications.data.ComplicationText text;
     property public final androidx.wear.complications.data.ComplicationText? title;
-    field public static final androidx.wear.complications.data.ShortTextComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
   public static final class ShortTextComplicationData.Builder {
     ctor public ShortTextComplicationData.Builder(androidx.wear.complications.data.ComplicationText text);
     method public androidx.wear.complications.data.ShortTextComplicationData build();
+    method public androidx.wear.complications.data.ShortTextComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setImage(androidx.wear.complications.data.MonochromaticImage? image);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setTitle(androidx.wear.complications.data.ComplicationText? title);
     method public androidx.wear.complications.data.ShortTextComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
-  }
-
-  public static final class ShortTextComplicationData.Companion {
   }
 
   public final class SmallImage {
@@ -512,7 +489,6 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.SmallImage getImage();
     property public final androidx.wear.complications.data.ComplicationText? contentDescription;
     property public final androidx.wear.complications.data.SmallImage image;
-    field public static final androidx.wear.complications.data.SmallImageComplicationData.Companion Companion;
     field public static final androidx.wear.complications.data.ComplicationType TYPE;
   }
 
@@ -522,9 +498,6 @@ package androidx.wear.complications.data {
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setContentDescription(androidx.wear.complications.data.ComplicationText? contentDescription);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.complications.data.SmallImageComplicationData.Builder setValidTimeRange(androidx.wear.complications.data.TimeRange? validTimeRange);
-  }
-
-  public static final class SmallImageComplicationData.Companion {
   }
 
   public enum SmallImageType {
@@ -591,6 +564,7 @@ package androidx.wear.complications.data {
   }
 
   public final class TimeReference {
+    method public static androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
     method public static androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
     method public long getEndDateTimeMillis();
     method public long getStartDateTimeMillis();
@@ -603,6 +577,7 @@ package androidx.wear.complications.data {
   }
 
   public static final class TimeReference.Companion {
+    method public androidx.wear.complications.data.TimeReference between(long startDateTimeMillis, long endDateTimeMillis);
     method public androidx.wear.complications.data.TimeReference ending(long dateTimeMillis);
     method public androidx.wear.complications.data.TimeReference starting(long dateTimeMillis);
   }

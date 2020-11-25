@@ -20,6 +20,8 @@ import COMMON
 import androidx.paging.DataSource
 import androidx.paging.PagingSource
 import androidx.room.Entity
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.LifecyclesTypeNames
@@ -30,8 +32,6 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -44,6 +44,7 @@ import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertM
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
 import androidx.room.solver.types.CompositeAdapter
+import androidx.room.solver.types.EnumColumnTypeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -99,6 +100,30 @@ class TypeAdapterStoreTest {
                 composite.columnTypeAdapter.out.typeName,
                 `is`(TypeName.INT.box())
             )
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun testJavaLangEnumCompilesWithoutError() {
+        simpleRun(
+            JavaFileObjects.forSourceString(
+                "foo.bar.Fruit",
+                """ package foo.bar;
+                import androidx.room.*;
+                enum Fruit {
+                    APPLE,
+                    BANANA,
+                    STRAWBERRY}
+                """.trimMargin()
+            )
+        ) { invocation ->
+            val store = TypeAdapterStore.create(Context(invocation.processingEnv))
+            val enum = invocation
+                .processingEnv
+                .requireType("foo.bar.Fruit")
+            val adapter = store.findColumnTypeAdapter(enum, null)
+            assertThat(adapter, notNullValue())
+            assertThat(adapter, instanceOf(EnumColumnTypeAdapter::class.java))
         }.compilesWithoutError()
     }
 
@@ -272,6 +297,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx2Room() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -287,6 +313,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx3Room() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -306,6 +333,7 @@ class TypeAdapterStoreTest {
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
             COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                 invocation ->
                 val publisher = invocation.processingEnv
@@ -327,6 +355,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_FLOWABLE, COMMON.RX2_ROOM, RxJava2TypeNames.FLOWABLE),
             Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                 invocation ->
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -346,6 +375,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_OBSERVABLE, COMMON.RX2_ROOM, RxJava2TypeNames.OBSERVABLE),
             Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(rxTypeSrc, rxRoomSrc)) {
                 invocation ->
                 val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -366,6 +396,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -386,6 +417,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
             Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -405,6 +437,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
             Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
+            @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
             simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -420,6 +453,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindInsertListenableFuture() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
             invocation ->
             val future = invocation.processingEnv
@@ -435,6 +469,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.RX2_SINGLE)) {
             invocation ->
             val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
@@ -450,6 +485,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.RX2_MAYBE)) {
             invocation ->
             val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
@@ -465,6 +501,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv
@@ -481,6 +518,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateListenableFuture() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
             invocation ->
             val future = invocation.processingEnv
@@ -496,6 +534,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindLiveData() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
             invocation ->
             val liveData = invocation.processingEnv
@@ -580,6 +619,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findDataSourceFactory() {
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(jfos = arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
             val pagedListProvider = invocation.processingEnv

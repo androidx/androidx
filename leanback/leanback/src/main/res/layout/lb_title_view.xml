@@ -14,7 +14,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android" >
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/title_badge"
@@ -39,6 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:transitionGroup="true"
+        tools:ignore="UnusedAttribute"
         android:layout_gravity="center_vertical|start"
         android:visibility="invisible" />
 

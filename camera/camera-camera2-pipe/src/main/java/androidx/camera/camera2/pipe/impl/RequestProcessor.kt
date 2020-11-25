@@ -24,6 +24,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.util.ArrayMap
 import android.view.Surface
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -33,7 +34,6 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
-import androidx.camera.camera2.pipe.SequenceNumber
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import androidx.camera.camera2.pipe.wrapper.ObjectUnavailableException
@@ -147,13 +147,21 @@ interface RequestProcessor {
 class StandardRequestProcessorFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>
+    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>,
+    private val graphState3A: GraphState3A
 ) : RequestProcessor.Factory {
     override fun create(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): RequestProcessor =
-        StandardRequestProcessor(session, threads, graphConfig, surfaceMap, graphListeners)
+        StandardRequestProcessor(
+            session,
+            threads,
+            graphConfig,
+            surfaceMap,
+            graphListeners,
+            graphState3A
+        )
 }
 
 internal val requestProcessorDebugIds = atomic(0)
@@ -169,9 +177,11 @@ class StandardRequestProcessor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
     private val surfaceMap: Map<StreamId, Surface>,
-    private val graphListeners: List<Request.Listener>
+    private val graphListeners: List<Request.Listener>,
+    private val graphState3A: GraphState3A
 ) : RequestProcessor {
 
+    @GuardedBy("inFlightRequests")
     private val inFlightRequests = mutableListOf<CaptureSequence>()
     private val debugId = requestProcessorDebugIds.incrementAndGet()
     private val closed = atomic(false)
@@ -216,7 +226,12 @@ class StandardRequestProcessor(
     }
 
     override fun abortCaptures() {
-        for (sequence in inFlightRequests) {
+        val requestsToAbort = synchronized(inFlightRequests) {
+            val copy = inFlightRequests.toList()
+            inFlightRequests.clear()
+            copy
+        }
+        for (sequence in requestsToAbort) {
             sequence.invokeOnAborted()
         }
         session.abortCaptures()
@@ -313,6 +328,17 @@ class StandardRequestProcessor(
             // Apply the parameters to the requestBuilder
             requestBuilder.writeParameters(request.requestParameters)
 
+            // Apply the 3A parameters first. This gives the users of camerapipe the ability to
+            // still override the 3A parameters for complicated use cases.
+            //
+            // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
+            // from internal 3A state machine at last and provide a flag in the Request object to
+            // specify when the clients want to explicitly override some of the 3A parameters
+            // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
+            // freely and when that happens intercept those parameters from the request and keep the
+            // internal 3A state machine in sync.
+            graphState3A.writeTo(requestBuilder)
+
             // Write extra parameters to the request. These parameters will overwite parameters
             // defined in the Request (if they overlap)
             requestBuilder.writeParameters(extras)
@@ -332,6 +358,7 @@ class StandardRequestProcessor(
                 emptyMap(),
                 streamToSurfaceMap,
                 requestTemplate,
+                isRepeating,
                 request,
                 requestTag
             )
@@ -348,14 +375,15 @@ class StandardRequestProcessor(
             },
             captureRequests,
             surfaceToStreamMap,
-            streamToSurfaceMap,
             inFlightRequests,
             session.device.cameraId
         )
 
         // Non-repeating requests must always be aware of abort calls.
         if (!isRepeating) {
-            inFlightRequests.add(captureSequence)
+            synchronized(inFlightRequests) {
+                inFlightRequests.add(captureSequence)
+            }
         }
 
         var captured = false
@@ -373,8 +401,8 @@ class StandardRequestProcessor(
         } finally {
             // If ANY unhandled exception occurs, don't throw, but make sure we remove it from the
             // list of in-flight requests.
-            if (!captured) {
-                inFlightRequests.remove(captureSequence)
+            if (!captured && !isRepeating) {
+                captureSequence.invokeOnAborted()
             }
         }
     }
@@ -414,7 +442,7 @@ class StandardRequestProcessor(
                     session.captureBurst(captureRequests, captureSequence, threads.camera2Handler)
                 }
             }
-            captureSequence.setSequenceId(SequenceNumber(sequenceNumber))
+            captureSequence.sequenceNumber = sequenceNumber
         }
 
         // Invoke callbacks without holding a lock.
@@ -435,6 +463,7 @@ internal class RequestInfo(
     private val extraRequestParameters: Map<Metadata.Key<*>, Any?>,
     override val streams: Map<StreamId, Surface>,
     override val template: RequestTemplate,
+    override val repeating: Boolean,
     override val request: Request,
     override val requestNumber: RequestNumber
 ) : RequestMetadata {
@@ -446,18 +475,6 @@ internal class RequestInfo(
     override fun <T> get(key: Metadata.Key<T>): T? = extraRequestParameters[key] as T?
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
-
-    @Volatile
-    private var _sequenceNumber: SequenceNumber? = null
-    override var sequenceNumber: SequenceNumber
-        get() {
-            // This is nullable because we must create the RequestInfo object before calling submit,
-            // but the sequence number is not available until *after* the submit call has finished.
-            return checkNotNull(_sequenceNumber) { "SequenceNumber should never be null!" }
-        }
-        set(value) {
-            _sequenceNumber = value
-        }
 
     override fun unwrap(): CaptureRequest = captureRequest
 }
@@ -472,21 +489,35 @@ internal class CaptureSequence(
     private val requests: Map<RequestNumber, RequestInfo>,
     private val captureRequests: List<CaptureRequest>,
     private val surfaceMap: Map<Surface, StreamId>,
-    private val streamMap: Map<StreamId, Surface>,
     private val inFlightRequests: MutableList<CaptureSequence>,
     private val camera: CameraId
 ) : CameraCaptureSession.CaptureCallback() {
     private val debugId = requestSequenceDebugIds.incrementAndGet()
 
     @Volatile
-    private var hasSequenceId = false
-
-    fun setSequenceId(value: SequenceNumber) {
-        for (request in requests.values) {
-            request.sequenceNumber = value
+    private var _sequenceNumber: Int? = null
+    var sequenceNumber: Int
+        get() {
+            if (_sequenceNumber == null) {
+                // If the sequence id has not been submitted, it means the call to capture or
+                // setRepeating has not yet returned. The callback methods should never be synchronously
+                // invoked, so the only case this should happen is if a second thread attempted to
+                // invoke one of the callbacks before the initial call completed. By locking against the
+                // captureSequence object here and in the capture call, we can block the callback thread
+                // until the sequenceId is available.
+                synchronized(this) {
+                    return checkNotNull(_sequenceNumber) {
+                        "SequenceNumber has not been set for $this!"
+                    }
+                }
+            }
+            return checkNotNull(_sequenceNumber) {
+                "SequenceNumber has not been set for $this!"
+            }
         }
-        hasSequenceId = true
-    }
+        set(value) {
+            _sequenceNumber = value
+        }
 
     override fun onCaptureStarted(
         captureSession: CameraCaptureSession,
@@ -539,7 +570,9 @@ internal class CaptureSequence(
         captureResult: TotalCaptureResult
     ) {
         // Remove this request from the set of requests that are currently tracked.
-        inFlightRequests.remove(this)
+        synchronized(inFlightRequests) {
+            inFlightRequests.remove(this)
+        }
 
         val requestNumber = readRequestNumber(captureRequest)
         val frameNumber = FrameNumber(captureResult.frameNumber)
@@ -569,7 +602,9 @@ internal class CaptureSequence(
         captureFailure: CaptureFailure
     ) {
         // Remove this request from the set of requests that are currently tracked.
-        inFlightRequests.remove(this)
+        synchronized(inFlightRequests) {
+            inFlightRequests.remove(this)
+        }
 
         val requestNumber = readRequestNumber(captureRequest)
         val frameNumber = FrameNumber(captureFailure.frameNumber)
@@ -614,7 +649,7 @@ internal class CaptureSequence(
 
     /**
      * Custom implementation that informs all listeners that the request had not completed when
-     * abort was called. If this is invoked,
+     * abort was called.
      */
     fun invokeOnAborted() {
         invokeOnRequests { request, _, listener ->
@@ -623,13 +658,8 @@ internal class CaptureSequence(
     }
 
     fun invokeOnRequestSequenceCreated() {
-        invokeOnRequests { request, index, listener ->
-            listener.onRequestSequenceCreated(
-                request.request,
-                request.requestNumber,
-                captureRequests[index],
-                streamMap
-            )
+        invokeOnRequests { request, _, listener ->
+            listener.onRequestSequenceCreated(request)
         }
     }
 
@@ -644,7 +674,9 @@ internal class CaptureSequence(
         captureSequenceId: Int,
         captureFrameNumber: Long
     ) {
-        // Remove this request from the set of requests that are currently tracked.
+        check(sequenceNumber == captureSequenceId) {
+            "Complete was invoked on $sequenceNumber, but the sequence was not fully submitted!"
+        }
         synchronized(inFlightRequests) {
             inFlightRequests.remove(this)
         }
@@ -656,9 +688,13 @@ internal class CaptureSequence(
     }
 
     override fun onCaptureSequenceAborted(
-        session: CameraCaptureSession,
-        sequenceId: Int
+        captureSession: CameraCaptureSession,
+        captureSequenceId: Int
     ) {
+        check(sequenceNumber == captureSequenceId) {
+            "Abort was invoked on $sequenceNumber, but the sequence was not fully submitted!"
+        }
+
         // Remove this request from the set of requests that are currently tracked.
         synchronized(inFlightRequests) {
             inFlightRequests.remove(this)
@@ -673,17 +709,6 @@ internal class CaptureSequence(
         checkNotNull(request.tag as RequestNumber)
 
     private fun readRequest(requestNumber: RequestNumber): RequestInfo {
-        if (!hasSequenceId) {
-            // If the sequence id has not been submitted, it means the call to capture or
-            // setRepeating has not yet returned. The callback methods should never be synchronously
-            // invoked, so the only case this should happen is if a second thread attempted to
-            // invoke one of the callbacks before the initial call completed. By locking against the
-            // captureSequence object here and in the capture call, we can block the callback thread
-            // until the sequenceId is available.
-            synchronized(this) {
-                check(hasSequenceId) { "The sequenceId has not been set!" }
-            }
-        }
         return checkNotNull(requests[requestNumber]) {
             "Unable to find the request for $requestNumber!"
         }

@@ -27,10 +27,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -147,65 +145,6 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun listUpdateFlow() = testScope.runBlockingTest {
-        val differ = SimpleDiffer(dummyDifferCallback)
-        val pageEventFlow = flowOf<PageEvent<Int>>(
-            Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
-            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, -1, -1, 0),
-            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
-        )
-
-        val pagingData = PagingData(pageEventFlow, dummyReceiver)
-
-        // Start collection for ListUpdates before collecting from differ to prevent conflation
-        // from affecting the expected events.
-        val listUpdates = mutableListOf<Boolean>()
-        val listUpdateJob = launch {
-            @Suppress("DEPRECATION")
-            differ.dataRefreshFlow.collect { listUpdates.add(it) }
-        }
-
-        val job = launch {
-            differ.collectFrom(pagingData)
-        }
-
-        advanceUntilIdle()
-        assertThat(listUpdates).isEqualTo(listOf(true, false))
-
-        listUpdateJob.cancel()
-        job.cancel()
-    }
-
-    @Test
-    fun listUpdateCallback() = testScope.runBlockingTest {
-        val differ = SimpleDiffer(dummyDifferCallback)
-        val pageEventFlow = flowOf<PageEvent<Int>>(
-            Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
-            Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, -1, -1, 0),
-            Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
-        )
-
-        val pagingData = PagingData(pageEventFlow, dummyReceiver)
-
-        // Start listening for ListUpdates before collecting from differ to prevent conflation
-        // from affecting the expected events.
-        val listUpdates = mutableListOf<Boolean>()
-        @Suppress("DEPRECATION")
-        differ.addDataRefreshListener { listUpdates.add(it) }
-
-        val job = launch {
-            differ.collectFrom(pagingData)
-        }
-
-        advanceUntilIdle()
-        assertThat(listUpdates).isEqualTo(listOf(true, false))
-
-        job.cancel()
-    }
-
-    @Test
     fun fetch_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
@@ -246,14 +185,20 @@ class PagingDataDifferTest {
         assertNull(differ[0])
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 0,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+                ViewportHint.Access(
                     pageOffset = -1,
                     indexInPage = -2,
                     presentedItemsBefore = -2,
                     presentedItemsAfter = 4,
                     originalPageOffsetFirst = -1,
                     originalPageOffsetLast = 1
-                )
+                ),
             )
         )
 
@@ -269,7 +214,7 @@ class PagingDataDifferTest {
         )
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = -2,
                     indexInPage = -2,
                     presentedItemsBefore = -2,
@@ -299,7 +244,7 @@ class PagingDataDifferTest {
         assertNull(differ[5])
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 1,
                     indexInPage = 2,
                     presentedItemsBefore = 5,
@@ -325,7 +270,7 @@ class PagingDataDifferTest {
         )
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 2,
                     indexInPage = 1,
                     presentedItemsBefore = 5,
@@ -396,14 +341,20 @@ class PagingDataDifferTest {
         assertNull(differ[0])
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 0,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                ),
+                ViewportHint.Access(
                     pageOffset = -1,
                     indexInPage = -2,
                     presentedItemsBefore = -2,
                     presentedItemsAfter = 4,
                     originalPageOffsetFirst = -1,
                     originalPageOffsetLast = 1
-                )
+                ),
             )
         )
 
@@ -419,7 +370,7 @@ class PagingDataDifferTest {
         )
         assertThat(receiver.hints).isEqualTo(
             listOf(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = -2,
                     indexInPage = -2,
                     presentedItemsBefore = -2,
@@ -497,7 +448,41 @@ class PagingDataDifferTest {
         assertNull(differ.peek(0))
 
         // Check that peek does not trigger page fetch.
-        assertThat(receiver.hints).isEqualTo(listOf<ViewportHint>())
+        assertThat(receiver.hints).isEqualTo(
+            listOf<ViewportHint>(
+                ViewportHint.Initial(
+                    presentedItemsBefore = 1,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+        )
+
+        job.cancel()
+    }
+
+    @Test
+    fun initialHint_emptyRefresh() = testScope.runBlockingTest {
+        val differ = SimpleDiffer(dummyDifferCallback)
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val uiReceiver = UiReceiverFake()
+        val job = launch {
+            differ.collectFrom(PagingData(pageEventCh.consumeAsFlow(), uiReceiver))
+        }
+
+        pageEventCh.offer(
+            Refresh(
+                pages = listOf(TransformablePage(emptyList())),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+
+        assertThat(uiReceiver.hints).isEqualTo(
+            listOf(ViewportHint.Initial(0, 0, 0, 0))
+        )
 
         job.cancel()
     }

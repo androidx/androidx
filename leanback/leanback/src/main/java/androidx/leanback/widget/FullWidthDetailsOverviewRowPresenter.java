@@ -214,6 +214,13 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
 
         }
 
+        void unbindActions() {
+            mActionBridgeAdapter.setAdapter(null);
+            mActionsRow.setAdapter(null);
+            mNumItems = 0;
+
+        }
+
         void onBind() {
             DetailsOverviewRow row = (DetailsOverviewRow) getRow();
             bindActions(row.getActionsAdapter());
@@ -221,6 +228,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         }
 
         void onUnbind() {
+            unbindActions();
             DetailsOverviewRow row = (DetailsOverviewRow) getRow();
             row.removeListener(mRowListener);
             sHandler.removeCallbacks(mUpdateDrawableCallback);

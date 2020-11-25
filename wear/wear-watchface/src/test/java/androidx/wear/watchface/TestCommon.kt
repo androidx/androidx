@@ -44,7 +44,7 @@ internal class TestWatchFaceService(
     private val userStyleRepository: UserStyleRepository,
     private val watchState: MutableWatchState,
     private val handler: Handler,
-    private val interactiveFrameRateMs: Long
+    private val tapListener: WatchFace.TapListener?
 ) : WatchFaceService() {
     var complicationSingleTapped: Int? = null
     var complicationDoubleTapped: Int? = null
@@ -62,7 +62,7 @@ internal class TestWatchFaceService(
         )
 
         complicationsManager.addTapListener(
-            object : ComplicationsManager.TapListener {
+            object : ComplicationsManager.TapCallback {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
                 }
@@ -89,28 +89,19 @@ internal class TestWatchFaceService(
         attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
-    lateinit var watchFace: WatchFace
-
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        watchFaceHost: WatchFaceHost,
         watchState: WatchState
-    ): WatchFace {
-        watchFace = WatchFace.Builder(
-            watchFaceType,
-            interactiveFrameRateMs,
-            userStyleRepository,
-            complicationsManager,
-            renderer,
-            watchFaceHost,
-            watchState
-        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
-            override fun getSystemTimeMillis(): Long {
-                return mockSystemTimeMillis
-            }
-        }).build()
-        return watchFace
-    }
+    ) = WatchFace(
+        watchFaceType,
+        userStyleRepository,
+        complicationsManager,
+        renderer
+    ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+        override fun getSystemTimeMillis(): Long {
+            return mockSystemTimeMillis
+        }
+    }).setTapListener(tapListener)
 
     override fun getHandler() = handler
 
@@ -176,9 +167,15 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     userStyleRepository: UserStyleRepository,
-    watchState: WatchState
-) :
-    CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
+    watchState: WatchState,
+    interactiveFrameRateMs: Long
+) : CanvasRenderer(
+    surfaceHolder,
+    userStyleRepository,
+    watchState,
+    CanvasType.HARDWARE,
+    interactiveFrameRateMs
+) {
     var lastOnDrawCalendar: Calendar? = null
     var lastRenderParamaters = RenderParameters.DEFAULT_INTERACTIVE
 

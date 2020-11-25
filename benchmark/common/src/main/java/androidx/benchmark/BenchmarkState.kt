@@ -74,7 +74,7 @@ public class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) construc
      */
     @JvmField // Used by [BenchmarkState.keepRunningInline()]
     @PublishedApi
-    internal var iterationsRemaining = -1
+    internal var iterationsRemaining: Int = -1
 
     /**
      * Number of iterations in a repeat.

@@ -18,7 +18,9 @@ package androidx.camera.core;
 
 import android.app.Application;
 import android.os.Handler;
+import android.util.Log;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -95,6 +97,10 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.schedulerHandler",
                     Handler.class);
+    static final Option<Integer> OPTION_MIN_LOGGING_LEVEL =
+            Option.create(
+                    "camerax.core.appConfig.minimumLoggingLevel",
+                    int.class);
 
     // *********************************************************************************************
 
@@ -162,6 +168,14 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     @Nullable
     public Handler getSchedulerHandler(@Nullable Handler valueIfMissing) {
         return mConfig.retrieveOption(OPTION_SCHEDULER_HANDLER, valueIfMissing);
+    }
+
+    /**
+     * Returns the minimum logging level.
+     */
+    @ExperimentalLogging
+    public int getMinimumLoggingLevel() {
+        return mConfig.retrieveOption(OPTION_MIN_LOGGING_LEVEL, Logger.DEFAULT_MIN_LOG_LEVEL);
     }
 
     /** @hide */
@@ -291,6 +305,27 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         @NonNull
         public Builder setSchedulerHandler(@NonNull Handler handler) {
             getMutableConfig().insertOption(OPTION_SCHEDULER_HANDLER, handler);
+            return this;
+        }
+
+        /**
+         * Sets the minimum logging level to be used for CameraX logs.
+         * <p>
+         * The logging level should be one of the following: {@link Log#DEBUG}, {@link Log#INFO},
+         * {@link Log#WARN} or {@link Log#ERROR}.
+         * <p>
+         * When not specified, the default minimum logging level used inside CameraX is
+         * {@link Log#DEBUG}.
+         *
+         * @param logLevel The minimum logging level, which should be {@link Log#DEBUG},
+         *                 {@link Log#INFO}, {@link Log#WARN} or {@link Log#ERROR}.
+         * @return This {@link Builder} instance.
+         */
+        @ExperimentalLogging
+        @NonNull
+        public Builder setMinimumLoggingLevel(
+                @IntRange(from = Log.DEBUG, to = Log.ERROR) int logLevel) {
+            getMutableConfig().insertOption(OPTION_MIN_LOGGING_LEVEL, logLevel);
             return this;
         }
 

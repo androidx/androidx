@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Authenticator types:"
+            android:text="@string/authenticator_types_label"
             android:textColor="?android:textColorPrimary" />
 
         <LinearLayout
@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="BIOMETRIC_STRONG"
+                android:text="@string/biometric_strong_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
@@ -59,7 +59,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="BIOMETRIC_WEAK"
+                android:text="@string/biometric_weak_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
@@ -74,14 +74,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DEVICE_CREDENTIAL"
+                android:text="@string/device_credential_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Other options:"
+            android:text="@string/other_options_label"
             android:textColor="?android:textColorPrimary" />
 
         <LinearLayout
@@ -95,7 +95,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel on configuration change"
+                android:text="@string/cancel_config_change_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
@@ -111,7 +111,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Require confirmation"
+                android:text="@string/require_confirmation_label"
                 android:textColor="?android:textColorPrimary" />
         </LinearLayout>
 
@@ -134,19 +134,19 @@
             android:id="@+id/button_can_authenticate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Can authenticate" />
+            android:text="@string/can_authenticate_button_label" />
 
         <Button
             android:id="@+id/button_authenticate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Authenticate" />
+            android:text="@string/authenticate_button_label" />
 
         <Button
             android:id="@+id/button_clear_log"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clear log" />
+            android:text="@string/clear_log_label" />
 
         <TextView
             android:id="@+id/text_view_log"

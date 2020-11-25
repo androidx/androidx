@@ -62,7 +62,7 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
     @Test
     @Override
     public void testTranslate_validFeature() {
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
         Rect bounds = new Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0);
         ExtensionDisplayFeature foldFeature = new ExtensionDisplayFeature(bounds,
                 ExtensionDisplayFeature.TYPE_FOLD);
@@ -78,7 +78,7 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
 
         ExtensionAdapter adapter = new ExtensionAdapter();
 
-        WindowLayoutInfo actual = adapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = adapter.translate(mockActivity, windowLayoutInfo);
 
         assertEquals(expected, actual);
     }
@@ -93,9 +93,9 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
         ExtensionAdapter adapter = new ExtensionAdapter();
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = adapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = adapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue("Remove empty bounds feature", actual.getDisplayFeatures().isEmpty());
     }
@@ -115,9 +115,10 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
         ExtensionAdapter extensionCallbackAdapter = new ExtensionAdapter();
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = extensionCallbackAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = extensionCallbackAdapter.translate(mockActivity,
+                windowLayoutInfo);
 
         assertTrue("Remove non empty area fold feature", actual.getDisplayFeatures().isEmpty());
     }
@@ -141,9 +142,10 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = extensionCallbackAdapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = extensionCallbackAdapter.translate(mockActivity,
+                windowLayoutInfo);
 
         assertTrue("Remove hinge feature not spanning full dimension",
                 actual.getDisplayFeatures().isEmpty());
@@ -166,9 +168,9 @@ public class ExtensionAdapterTest implements TranslatorTestInterface {
         ExtensionWindowLayoutInfo windowLayoutInfo =
                 new ExtensionWindowLayoutInfo(extensionDisplayFeatures);
 
-        Activity mockContext = mock(Activity.class);
+        Activity mockActivity = mock(Activity.class);
 
-        WindowLayoutInfo actual = adapter.translate(mockContext, windowLayoutInfo);
+        WindowLayoutInfo actual = adapter.translate(mockActivity, windowLayoutInfo);
 
         assertTrue("Remove fold feature not spanning full dimension",
                 actual.getDisplayFeatures().isEmpty());

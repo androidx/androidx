@@ -17,8 +17,14 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import androidx.versionedparcelable.ParcelUtils
+import android.os.Parcel
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ComplicationsUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
@@ -50,10 +56,17 @@ class StyleParcelableTest {
             listOf(Layer.BASE_LAYER)
         )
 
-        val parcelable = ParcelUtils.toParcelable(styleSetting.toWireFormat())
+        val parcel = Parcel.obtain()
+        styleSetting.toWireFormat().writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
 
         val unparceled =
-            UserStyleSetting.createFromWireFormat(ParcelUtils.fromParcelable(parcelable))
+            UserStyleSetting.createFromWireFormat(
+                UserStyleSettingWireFormat.CREATOR.createFromParcel(parcel)
+            )
+        parcel.recycle()
+
         assert(unparceled is ListUserStyleSetting)
 
         assertThat(unparceled.id).isEqualTo("id")
@@ -130,28 +143,32 @@ class StyleParcelableTest {
             listOf(Layer.BASE_LAYER)
         )
 
-        val parceled = ParcelUtils.toParcelable(
-            UserStyleSchemaWireFormat(
-                listOf(
-                    styleSetting1.toWireFormat(),
-                    styleSetting2.toWireFormat(),
-                    styleSetting3.toWireFormat()
-                )
+        val srcSchema = UserStyleSchema(
+            listOf(
+                styleSetting1,
+                styleSetting2,
+                styleSetting3
             )
         )
 
-        val unparceled: UserStyleSchemaWireFormat = ParcelUtils.fromParcelable(parceled)
-        val schema = unparceled.mSchema.map { UserStyleSetting.createFromWireFormat(it) }
+        val parcel = Parcel.obtain()
+        srcSchema.toWireFormat().writeToParcel(parcel, 0)
 
-        assert(schema[0] is ListUserStyleSetting)
-        assertThat(schema[0].id).isEqualTo("id1")
-        assertThat(schema[0].displayName).isEqualTo("displayName1")
-        assertThat(schema[0].description).isEqualTo("description1")
-        assertThat(schema[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
-        assertThat(schema[0].affectsLayers.size).isEqualTo(1)
-        assertThat(schema[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        parcel.setDataPosition(0)
+
+        val schema =
+            UserStyleSchema(UserStyleSchemaWireFormat.CREATOR.createFromParcel(parcel))
+        parcel.recycle()
+
+        assert(schema.userStyleSettings[0] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[0].id).isEqualTo("id1")
+        assertThat(schema.userStyleSettings[0].displayName).isEqualTo("displayName1")
+        assertThat(schema.userStyleSettings[0].description).isEqualTo("description1")
+        assertThat(schema.userStyleSettings[0].icon!!.uri.toString()).isEqualTo("settingIcon1")
+        assertThat(schema.userStyleSettings[0].affectsLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[0].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
         val optionArray1 =
-            schema[0].options.filterIsInstance<ListUserStyleSetting.ListOption>()
+            schema.userStyleSettings[0].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
         assertThat(optionArray1.size).isEqualTo(2)
         assertThat(optionArray1[0].id).isEqualTo("1")
@@ -161,15 +178,15 @@ class StyleParcelableTest {
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
 
-        assert(schema[1] is ListUserStyleSetting)
-        assertThat(schema[1].id).isEqualTo("id2")
-        assertThat(schema[1].displayName).isEqualTo("displayName2")
-        assertThat(schema[1].description).isEqualTo("description2")
-        assertThat(schema[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
-        assertThat(schema[1].affectsLayers.size).isEqualTo(1)
-        assertThat(schema[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
+        assert(schema.userStyleSettings[1] is ListUserStyleSetting)
+        assertThat(schema.userStyleSettings[1].id).isEqualTo("id2")
+        assertThat(schema.userStyleSettings[1].displayName).isEqualTo("displayName2")
+        assertThat(schema.userStyleSettings[1].description).isEqualTo("description2")
+        assertThat(schema.userStyleSettings[1].icon!!.uri.toString()).isEqualTo("settingIcon2")
+        assertThat(schema.userStyleSettings[1].affectsLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[1].affectsLayers.first()).isEqualTo(Layer.TOP_LAYER)
         val optionArray2 =
-            schema[1].options.filterIsInstance<ListUserStyleSetting.ListOption>()
+            schema.userStyleSettings[1].options.filterIsInstance<ListUserStyleSetting.ListOption>()
                 .toTypedArray()
         assertThat(optionArray2.size).isEqualTo(2)
         assertThat(optionArray2[0].id).isEqualTo("3")
@@ -179,13 +196,13 @@ class StyleParcelableTest {
         assertThat(optionArray2[1].displayName).isEqualTo("four")
         assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
 
-        assert(schema[2] is BooleanUserStyleSetting)
-        assertThat(schema[2].id).isEqualTo("id3")
-        assertThat(schema[2].displayName).isEqualTo("displayName3")
-        assertThat(schema[2].description).isEqualTo("description3")
-        assertThat(schema[2].icon).isEqualTo(null)
-        assertThat(schema[2].affectsLayers.size).isEqualTo(1)
-        assertThat(schema[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
+        assert(schema.userStyleSettings[2] is BooleanUserStyleSetting)
+        assertThat(schema.userStyleSettings[2].id).isEqualTo("id3")
+        assertThat(schema.userStyleSettings[2].displayName).isEqualTo("displayName3")
+        assertThat(schema.userStyleSettings[2].description).isEqualTo("description3")
+        assertThat(schema.userStyleSettings[2].icon).isEqualTo(null)
+        assertThat(schema.userStyleSettings[2].affectsLayers.size).isEqualTo(1)
+        assertThat(schema.userStyleSettings[2].affectsLayers.first()).isEqualTo(Layer.BASE_LAYER)
     }
 
     @Test
@@ -215,10 +232,16 @@ class StyleParcelableTest {
                 styleSetting2 as UserStyleSetting to option3 as UserStyleSetting.Option
             )
         )
-        val parceled = ParcelUtils.toParcelable(userStyle.toWireFormat())
+
+        val parcel = Parcel.obtain()
+        userStyle.toWireFormat().writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
 
         val unparcelled =
-            UserStyle(ParcelUtils.fromParcelable(parceled) as UserStyleWireFormat, schema)
+            UserStyle(UserStyleWireFormat.CREATOR.createFromParcel(parcel), schema)
+        parcel.recycle()
+
         assertThat(unparcelled.selectedOptions.size).isEqualTo(2)
         assertThat(unparcelled.selectedOptions[styleSetting1]!!.id).isEqualTo(option2.id)
         assertThat(unparcelled.selectedOptions[styleSetting2]!!.id).isEqualTo(option3.id)
@@ -323,5 +346,103 @@ class StyleParcelableTest {
             listOf(Layer.BASE_LAYER)
         )
         assertThat(longRangeUserStyleSettingDefaultMax.getDefaultValue()).isEqualTo(10)
+    }
+
+    @Test
+    fun parcelAndUnparcelComplicationsUserStyleSetting() {
+        val leftComplicationID = 101
+        val rightComplicationID = 102
+        val src = ComplicationsUserStyleSetting(
+            "complications_style_setting",
+            "Complications",
+            "Number and position",
+            icon = null,
+            complicationConfig = listOf(
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "LEFT_AND_RIGHT_COMPLICATIONS",
+                    "Both",
+                    null,
+                    listOf()
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "NO_COMPLICATIONS",
+                    "None",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            leftComplicationID,
+                            enabled = false
+                        ),
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            rightComplicationID,
+                            enabled = false
+                        )
+                    )
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "LEFT_COMPLICATION",
+                    "Left",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            rightComplicationID,
+                            enabled = false
+                        )
+                    )
+                ),
+                ComplicationsUserStyleSetting.ComplicationsOption(
+                    "RIGHT_COMPLICATION",
+                    "Right",
+                    null,
+                    listOf(
+                        ComplicationsUserStyleSetting.ComplicationOverlay(
+                            leftComplicationID,
+                            enabled = false
+                        )
+                    )
+                )
+            ),
+            listOf(Layer.COMPLICATIONS)
+        )
+
+        val parcel = Parcel.obtain()
+        src.toWireFormat().writeToParcel(parcel, 0)
+
+        parcel.setDataPosition(0)
+
+        val unparceled =
+            UserStyleSetting.createFromWireFormat(
+                UserStyleSettingWireFormat.CREATOR.createFromParcel(parcel)
+            )
+        parcel.recycle()
+
+        assert(unparceled is ComplicationsUserStyleSetting)
+        assertThat(unparceled.id).isEqualTo("complications_style_setting")
+
+        val options = unparceled.options.filterIsInstance<
+            ComplicationsUserStyleSetting.ComplicationsOption>()
+        assertThat(options.size).isEqualTo(4)
+        assertThat(options[0].id).isEqualTo("LEFT_AND_RIGHT_COMPLICATIONS")
+        assertThat(options[0].complicationOverlays.size).isEqualTo(0)
+
+        assertThat(options[1].id).isEqualTo("NO_COMPLICATIONS")
+        assertThat(options[1].complicationOverlays.size).isEqualTo(2)
+        val options1Overlays = ArrayList(options[1].complicationOverlays)
+        assertThat(options1Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertFalse(options1Overlays[0].enabled!!)
+        assertThat(options1Overlays[1].complicationId).isEqualTo(rightComplicationID)
+        assertFalse(options1Overlays[1].enabled!!)
+
+        assertThat(options[2].id).isEqualTo("LEFT_COMPLICATION")
+        assertThat(options[2].complicationOverlays.size).isEqualTo(1)
+        val options2Overlays = ArrayList(options[2].complicationOverlays)
+        assertThat(options2Overlays[0].complicationId).isEqualTo(rightComplicationID)
+        assertFalse(options2Overlays[0].enabled!!)
+
+        assertThat(options[3].id).isEqualTo("RIGHT_COMPLICATION")
+        assertThat(options[3].complicationOverlays.size).isEqualTo(1)
+        val options3Overlays = ArrayList(options[3].complicationOverlays)
+        assertThat(options3Overlays[0].complicationId).isEqualTo(leftComplicationID)
+        assertFalse(options3Overlays[0].enabled!!)
     }
 }

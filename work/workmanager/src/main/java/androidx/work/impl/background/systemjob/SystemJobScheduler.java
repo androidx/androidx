@@ -321,6 +321,7 @@ public class SystemJobScheduler implements Scheduler {
                     // observing scheduling limits this bit needs to be reset.
                     workSpecDao.markWorkSpecScheduled(workSpecId, SCHEDULE_NOT_REQUESTED_YET);
                 }
+                workDatabase.setTransactionSuccessful();
             } finally {
                 workDatabase.endTransaction();
             }

@@ -29,7 +29,7 @@ import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The API [WatchFace] uses to communicate with the system.
+ * The API [WatchFaceImpl] uses to communicate with the system.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -58,18 +58,19 @@ public interface WatchFaceHostApi {
      * Sets ContentDescriptionLabels for text-to-speech screen readers to make your
      * complications, buttons, and any other text on your watchface accessible.
      *
-     * <p>Each label is a region of the screen in absolute coordinates, along with
+     * Each label is a region of the screen in absolute coordinates, along with
      * time-dependent text. The regions must not overlap.
      *
-     * <p>You must set all labels at the same time; previous labels will be cleared. An empty
+     * You must set all labels at the same time; previous labels will be cleared. An empty
      * array clears all labels.
      *
-     * <p>In addition to labeling your complications, please include a label that will read the
+     * In addition to labeling your complications, please include a label that will read the
      * current time. You can use [android.support.wearable.watchface.accessibility
-     * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper ComplicationText.
+     * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper
+     * [android.support.wearable.complications.ComplicationText].
      *
-     * <p>This is a fairly expensive operation so use it sparingly (e.g. do not call it in
-     * onDraw()).
+     * This is a fairly expensive operation so use it sparingly (e.g. do not call it in
+     * `onDraw()`).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
@@ -78,13 +79,13 @@ public interface WatchFaceHostApi {
      * Sets the complications which are active in the watchface. Complication data will be
      * received for these ids.
      *
-     * <p>Any ids not in the provided {@code ids} will be considered inactive.
+     * Any ids not in the provided [watchFaceComplicationIds] will be considered inactive.
      *
-     * <p>If providers and complication data types have been configured, the data received will
+     * If providers and complication data types have been configured, the data received will
      * match the type chosen by the user. If no provider has been configured, data of type
      * [ComplicationData.TYPE_NOT_CONFIGURED] will be received.
      *
-     * <p>Ids here are chosen by the watch face to represent each complication and can be any
+     * Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
      */
     public fun setActiveComplications(watchFaceComplicationIds: IntArray)
@@ -95,18 +96,18 @@ public interface WatchFaceHostApi {
      * first doesn't exist then the next one is tried and so on. If none of them exist then the
      * specified system provider is set as the default instead.
      *
-     * <p>This will do nothing if the providers are not installed, or if the specified type is
+     * This will do nothing if the providers are not installed, or if the specified type is
      * not supported by the providers, or if the user has already selected a provider for the
      * complication.
      *
-     * <p>Note that if the watch face has not yet been granted the RECEIVE_COMPLICATION_DATA
+     * Note that if the watch face has not yet been granted the `RECEIVE_COMPLICATION_DATA`
      * permission, it will not be able to receive data from the provider unless the provider is
      * from the same app package as the watch face, or the provider lists the watch face as a
      * safe watch face. For system providers that may be used before your watch face has the
      * permission, use [.setDefaultSystemComplicationProvider] with a safe provider
      * instead.
      *
-     * <p>A provider not satisfying the above conditions may still be set as a default using
+     * A provider not satisfying the above conditions may still be set as a default using
      * this method, but the watch face will receive placeholder data of type
      * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
@@ -128,11 +129,4 @@ public interface WatchFaceHostApi {
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate()
-}
-
-/**
- * An opaque holder for the internal API [WatchFace] for it's host service.
- */
-public class WatchFaceHost {
-    internal var api: WatchFaceHostApi? = null
 }

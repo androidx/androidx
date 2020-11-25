@@ -23,6 +23,8 @@ import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -46,7 +48,9 @@ import androidx.test.rule.GrantPermissionRule
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -70,6 +74,9 @@ class CameraControllerFragmentTest {
         // and B.
         private val RGB_SHIFTS = ImmutableList.of(/*R*/16, /*G*/ 8, /*B*/0)
         private const val COLOR_MASK = 0xFF
+
+        // The minimum luminance for comparing pictures. Arbitrarily chosen.
+        private const val MIN_LUMINANCE = 50F
     }
 
     @get:Rule
@@ -85,19 +92,42 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private lateinit var fragment: CameraControllerFragment
+    private lateinit var fragmentScenario: FragmentScenario<CameraControllerFragment>
 
     @Before
     fun setup() {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        fragmentScenario = createFragmentScenario()
+        fragment = fragmentScenario.getFragment()
+    }
+
+    @After
+    fun tearDown() {
+        if (::fragmentScenario.isInitialized) {
+            fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
+            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        }
+    }
+
+    @Test
+    fun controllerHasCameraResult_sameAsUtilResult() {
+        fragment.assertPreviewIsStreaming()
+        instrumentation.runOnMainSync {
+            assertThat(fragment.cameraController.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA))
+                .isEqualTo(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+            assertThat(fragment.cameraController.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA))
+                .isEqualTo(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+        }
     }
 
     @Test
     fun fragmentLaunch_cameraInitializationCompletes() {
         val semaphore = Semaphore(0)
         Futures.addCallback(
-            createFragmentScenario().getFragment().cameraController.initializationFuture,
+            fragment.cameraController.initializationFuture,
             object : FutureCallback<Void> {
                 override fun onSuccess(result: Void?) {
                     semaphore.release()
@@ -112,12 +142,11 @@ class CameraControllerFragmentTest {
 
     @Test
     fun fragmentLaunch_receiveAnalysisFrames() {
-        createFragmentScenario().getFragment().assertAnalysisStreaming(true)
+        fragment.assertAnalysisStreaming(true)
     }
 
     @Test
     fun imageAnalysisDisabled_isNotStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         onView(withId(R.id.analysis_enabled)).perform(click())
@@ -127,7 +156,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun imageAnalysisDisabledAndEnabled_isStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         onView(withId(R.id.analysis_enabled)).perform(click())
@@ -138,7 +166,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun analyzerCleared_isNotStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertAnalysisStreaming(true)
 
         instrumentation.runOnMainSync {
@@ -150,8 +177,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun canSetAnalysisImageDepth() {
-        // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         var currentDepth = 0
 
         // Act.
@@ -170,9 +195,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun canSetAnalysisBackpressureStrategy() {
-        // Arrange.
-        val fragment = createFragmentScenario().getFragment()
-
         // Act.
         instrumentation.runOnMainSync {
             fragment.cameraController.imageAnalysisBackpressureStrategy =
@@ -196,7 +218,6 @@ class CameraControllerFragmentTest {
         )
 
         // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
         // Scaled down images to 10x10 bitmap to normalize and reduce computation.
         val width = 10
@@ -235,6 +256,16 @@ class CameraControllerFragmentTest {
             Bitmap.createBitmap(captureBitmap, 0, 0, width, height, transformCapture, true)
 
         // Assert.
+        val captureLuminance = getLuminance(captureBitmap)
+        val previewLuminance = getLuminance(previewBitmap)
+        // Skip test if any of the picture is too dark. The phone is likely to be in a low light
+        // environment (e.g. in a unlit test box). In that case the noise is too high to be
+        // useful. The test will be skipped.
+        assumeTrue(
+            "Test skipped. Device most likely in low light environment.",
+            captureLuminance > MIN_LUMINANCE && previewLuminance > MIN_LUMINANCE
+        )
+
         val captureMoment = getRgbMoments(captureBitmap)
         val previewMoment = getRgbMoments(previewBitmap)
         // For a 10x10 image, we allow an 1px error. The 2 bitmaps are different due to
@@ -254,7 +285,6 @@ class CameraControllerFragmentTest {
 
     @Test
     fun fragmentLaunched_canTakePicture() {
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
         fragment.assertCanTakePicture()
     }
@@ -263,8 +293,6 @@ class CameraControllerFragmentTest {
     fun captureDisabled_cannotTakePicture() {
         // Arrange.
         thrown.expectMessage("ImageCapture disabled")
-        val fragment = createFragmentScenario().getFragment()
-        fragment.assertPreviewIsStreaming()
 
         // Act.
         onView(withId(R.id.capture_enabled)).perform(click())
@@ -276,7 +304,6 @@ class CameraControllerFragmentTest {
     @Test
     fun captureDisabledAndEnabled_canTakePicture() {
         // Arrange.
-        val fragment = createFragmentScenario().getFragment()
         fragment.assertPreviewIsStreaming()
 
         // Act.
@@ -290,14 +317,12 @@ class CameraControllerFragmentTest {
 
     @Test
     fun previewViewRemoved_previewIsIdle() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.remove_or_add)).perform(click())
         fragment.assertPreviewIsIdle()
     }
 
     @Test
     fun previewViewRemovedAndAdded_previewIsStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.remove_or_add)).perform(click())
         onView(withId(R.id.remove_or_add)).perform(click())
         fragment.assertPreviewIsStreaming()
@@ -305,17 +330,32 @@ class CameraControllerFragmentTest {
 
     @Test
     fun cameraToggled_previewIsStreaming() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.camera_toggle)).perform(click())
         fragment.assertPreviewIsStreaming()
     }
 
     @Test
     fun cameraToggled_canTakePicture() {
-        val fragment = createFragmentScenario().getFragment()
         onView(withId(R.id.camera_toggle)).perform(click())
         fragment.assertPreviewIsStreaming()
         fragment.assertCanTakePicture()
+    }
+
+    /**
+     * Calculates the 1st order moment (center of mass) of the R, G and B of the bitmap.
+     */
+    private fun getLuminance(bitmap: Bitmap): Float {
+        var totals = 0F
+        for (colorShift in RGB_SHIFTS) {
+            for (x in 0 until bitmap.width) {
+                for (y in 0 until bitmap.height) {
+                    val color = bitmap.getPixel(x, y)
+                    val colorComponent = color shr colorShift and COLOR_MASK
+                    totals += colorComponent
+                }
+            }
+        }
+        return totals / bitmap.width / bitmap.height / RGB_SHIFTS.size
     }
 
     /**
@@ -334,8 +374,14 @@ class CameraControllerFragmentTest {
                     totals[i] += colorComponent.toFloat()
                 }
             }
-            rgbMoments[i].x /= totals[i]
-            rgbMoments[i].y /= totals[i]
+            if (totals[i] == 0F) {
+                // Check for divide by 0 error.
+                rgbMoments[i].x = 0F
+                rgbMoments[i].y = 0F
+            } else {
+                rgbMoments[i].x /= totals[i]
+                rgbMoments[i].y /= totals[i]
+            }
         }
         return rgbMoments
     }
@@ -419,10 +465,7 @@ class CameraControllerFragmentTest {
         return FragmentScenario.launchInContainer(
             CameraControllerFragment::class.java, null, R.style.AppTheme,
             null
-        ).also {
-            it.moveToState(Lifecycle.State.CREATED)
-            it.moveToState(Lifecycle.State.RESUMED)
-        }
+        )
     }
 
     private fun FragmentScenario<CameraControllerFragment>.getFragment(): CameraControllerFragment {

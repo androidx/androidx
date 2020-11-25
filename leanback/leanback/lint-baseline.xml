@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -10,6 +10,17 @@
             file="src/main/java/androidx/leanback/widget/FocusHighlightHelper.java"
             line="39"
             column="14"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        for (ResolveInfo info : pm.queryBroadcastReceivers(intent, 0)) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/system/Settings.java"
+            line="169"
+            column="36"/>
     </issue>
 
     <issue
@@ -30,7 +41,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="142"
+            line="144"
             column="58"/>
     </issue>
 
@@ -404,7 +415,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="157"
+            line="159"
             column="38"/>
     </issue>
 
@@ -904,6 +915,577 @@
     </issue>
 
     <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `PLAYBACK_SPEED_FAST_L4`, `PLAYBACK_SPEED_INVALID`, `PLAYBACK_SPEED_NORMAL`, `PLAYBACK_SPEED_PAUSED`"
+        errorLine1="        switch (mPlaybackSpeed) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="407"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `PLAYBACK_SPEED_FAST_L0`, `PLAYBACK_SPEED_FAST_L1`, `PLAYBACK_SPEED_FAST_L2`, `PLAYBACK_SPEED_FAST_L3`, `PLAYBACK_SPEED_FAST_L4`, `PLAYBACK_SPEED_INVALID`, `PLAYBACK_SPEED_NORMAL`, `PLAYBACK_SPEED_PAUSED`"
+        errorLine1="        switch (mPlaybackSpeed) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
+            line="423"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="Deprecated"
+        message="`android:editable` is deprecated: Use an `&lt;EditText>` to make it editable"
+        errorLine1="                    android:editable=&quot;true&quot;"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_search_bar.xml"
+            line="62"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rAU/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rCA/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rGB/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;MediaPlayer error code %1$d extra %2$d&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rIN/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot; msgid=&quot;3228326776757666747&quot;>&quot;‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‎‏‎‏‏‎‎‏‏‎‎‏‏‎‏‎‏‎‏‎‎‏‎‎‎‎‏‏‎‎‏‎‏‎‏‏‎‏‏‏‎‎‎‎‏‎‏‏‏‎‎‎‎‏‏‏‎‏‏‏‎‏‏‎MediaPlayer error code %1$d extra %2$d‎‏‎‎‏‎&quot;&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-en-rXC/strings.xml"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;extra&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;lb_media_player_error&quot;>MediaPlayer error code %1$d extra %2$d&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="DrawAllocation"
+        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)"
+        errorLine1="                    mSortedAvailableViews.add(new ArrayList&lt;>());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/NonOverlappingLinearLayout.java"
+            line="73"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="                layoutAnimator = ValueAnimator.ofFloat(0f, 1f);"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/AbstractMediaItemPresenter.java"
+            line="643"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="            AnimatorSet logoAnimator = new AnimatorSet();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/OnboardingFragment.java"
+            line="615"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="Recycle"
+        message="This animation should be started with `#start()`"
+        errorLine1="            AnimatorSet logoAnimator = new AnimatorSet();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/app/OnboardingSupportFragment.java"
+            line="610"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    private final Handler mHandler = new Handler() {"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/androidx/leanback/app/PlaybackFragment.java"
+            line="304"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (anonymous android.os.Handler)"
+        errorLine1="    private final Handler mHandler = new Handler() {"
+        errorLine2="                                     ^">
+        <location
+            file="src/main/java/androidx/leanback/app/PlaybackSupportFragment.java"
+            line="300"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?android:attr/listDivider` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;?android:attr/listDivider&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_divider.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/guidedStepBackground` with a theme that also paints a background (inferred theme is `@android:style/Theme.Holo`)"
+        errorLine1="    android:background=&quot;?attr/guidedStepBackground&quot; />"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_background.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="33"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="43"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is useless"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_error_fragment.xml"
+            line="29"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `FrameLayout` parent is possibly useless; transfer the `background` attribute to the other view"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
+            line="32"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is useless; transfer the `background` attribute to the other view"
+        errorLine1="    &lt;LinearLayout"
+        errorLine2="     ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview.xml"
+            line="43"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_guidedstep_fragment.xml"
+            line="34"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UselessParent"
+        message="This `FrameLayout` layout or its `LinearLayout` parent is possibly useless"
+        errorLine1="    &lt;FrameLayout"
+        errorLine2="     ~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls.xml"
+            line="23"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-hdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-hdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-mdpi"/>
+    </issue>
+
+    <issue
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: lb_card_shadow_focused.9.png, lb_card_shadow_normal.9.png, lb_ic_cc.png, lb_ic_fast_forward.png, lb_ic_fast_rewind.png... (24 more)">
+        <location
+            file="src/main/res/drawable-xxhdpi"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `GuidedActionEditText` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    public boolean onTouchEvent(@NonNull MotionEvent event) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
+            line="162"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_primary.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_primary.xml"
+            line="30"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_secondary.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_control_button_secondary.xml"
+            line="30"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_details_overview.xml"
+            line="50"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_error_fragment.xml"
+            line="35"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_fullwidth_details_overview_logo.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view.xml"
+            line="21"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view_themed_badge_left.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_image_card_view_themed_badge_right.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_media_item_number_view_flipper.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_onboarding_fragment.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_onboarding_fragment.xml"
+            line="77"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_controls_row.xml"
+            line="40"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="31"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_now_playing_bars.xml"
+            line="40"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls_row.xml"
+            line="44"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_row_media_item.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_row_media_item_action.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_search_bar.xml"
+            line="42"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_title_view.xml"
+            line="20"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="SetTextI18n"
+        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
+        errorLine1="                vh.mButton.setText(line1 + &quot;\n&quot; + line2);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ActionPresenterSelector.java"
+            line="131"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="RelativeOverlap"
+        message="`@id/current_time` can overlap `@id/secondary_controls_dock` if @id/current_time grows due to localized text expansion"
+        errorLine1="            &lt;TextView"
+        errorLine2="             ~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_playback_transport_controls_row.xml"
+            line="105"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingEnd` you should probably also define `paddingStart` for right-to-left symmetry"
+        errorLine1="            android:paddingEnd=&quot;50dp&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/lb_browse_fragment.xml"
+            line="50"
+            column="13"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getHasMediaRowSeparator` such that `hasMediaRowSeparator` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public boolean hasMediaRowSeparator() {"
@@ -984,7 +1566,7 @@
         errorLine2="                   ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="434"
+            line="436"
             column="20"/>
     </issue>
 
@@ -1006,7 +1588,7 @@
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="74"/>
     </issue>
 
@@ -1941,7 +2523,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="148"
+            line="149"
             column="25"/>
     </issue>
 
@@ -1952,7 +2534,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="152"
+            line="153"
             column="25"/>
     </issue>
 
@@ -1963,7 +2545,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="152"
+            line="153"
             column="42"/>
     </issue>
 
@@ -1974,7 +2556,7 @@
         errorLine2="                        ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="156"
+            line="158"
             column="25"/>
     </issue>
 
@@ -1985,7 +2567,7 @@
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="156"
+            line="158"
             column="42"/>
     </issue>
 
@@ -1996,7 +2578,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="598"
+            line="600"
             column="15"/>
     </issue>
 
@@ -2007,7 +2589,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="819"
+            line="821"
             column="12"/>
     </issue>
 
@@ -2018,7 +2600,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="819"
+            line="821"
             column="46"/>
     </issue>
 
@@ -2029,7 +2611,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="824"
+            line="826"
             column="15"/>
     </issue>
 
@@ -2040,7 +2622,7 @@
         errorLine2="              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="830"
+            line="832"
             column="15"/>
     </issue>
 
@@ -2051,7 +2633,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="830"
+            line="832"
             column="49"/>
     </issue>
 
@@ -2062,7 +2644,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="839"
+            line="841"
             column="41"/>
     </issue>
 
@@ -2073,7 +2655,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="864"
+            line="867"
             column="29"/>
     </issue>
 
@@ -2084,7 +2666,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="864"
+            line="867"
             column="40"/>
     </issue>
 
@@ -2095,7 +2677,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="884"
+            line="887"
             column="29"/>
     </issue>
 
@@ -2106,7 +2688,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseCardView.java"
-            line="894"
+            line="897"
             column="29"/>
     </issue>
 
@@ -2205,7 +2787,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="663"
+            line="664"
             column="43"/>
     </issue>
 
@@ -2216,7 +2798,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="676"
+            line="677"
             column="44"/>
     </issue>
 
@@ -2227,7 +2809,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="708"
+            line="709"
             column="54"/>
     </issue>
 
@@ -2238,7 +2820,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="720"
+            line="721"
             column="54"/>
     </issue>
 
@@ -2249,7 +2831,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="729"
+            line="730"
             column="57"/>
     </issue>
 
@@ -2260,7 +2842,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="794"
+            line="795"
             column="69"/>
     </issue>
 
@@ -2271,7 +2853,7 @@
         errorLine2="                                                              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="820"
+            line="821"
             column="63"/>
     </issue>
 
@@ -2282,7 +2864,7 @@
         errorLine2="                                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="899"
+            line="900"
             column="63"/>
     </issue>
 
@@ -2293,7 +2875,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="915"
+            line="916"
             column="40"/>
     </issue>
 
@@ -2304,7 +2886,7 @@
         errorLine2="                                                  ~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="915"
+            line="916"
             column="51"/>
     </issue>
 
@@ -2315,7 +2897,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="929"
+            line="930"
             column="12"/>
     </issue>
 
@@ -2326,7 +2908,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="943"
+            line="944"
             column="69"/>
     </issue>
 
@@ -2337,7 +2919,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1039"
+            line="1040"
             column="45"/>
     </issue>
 
@@ -2348,7 +2930,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1047"
+            line="1048"
             column="46"/>
     </issue>
 
@@ -2359,7 +2941,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1055"
+            line="1056"
             column="43"/>
     </issue>
 
@@ -2370,7 +2952,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1063"
+            line="1064"
             column="43"/>
     </issue>
 
@@ -2381,7 +2963,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1071"
+            line="1072"
             column="12"/>
     </issue>
 
@@ -2392,7 +2974,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1076"
+            line="1077"
             column="37"/>
     </issue>
 
@@ -2403,7 +2985,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1087"
+            line="1088"
             column="39"/>
     </issue>
 
@@ -2414,7 +2996,7 @@
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1097"
+            line="1098"
             column="51"/>
     </issue>
 
@@ -2425,7 +3007,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/BaseGridView.java"
-            line="1347"
+            line="1348"
             column="28"/>
     </issue>
 
@@ -5131,7 +5713,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="68"
+            line="69"
             column="23"/>
     </issue>
 
@@ -5142,7 +5724,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="68"
+            line="69"
             column="40"/>
     </issue>
 
@@ -5153,7 +5735,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="72"
+            line="74"
             column="23"/>
     </issue>
 
@@ -5164,7 +5746,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="72"
+            line="74"
             column="40"/>
     </issue>
 
@@ -5175,7 +5757,7 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="227"
+            line="229"
             column="37"/>
     </issue>
 
@@ -5186,7 +5768,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="285"
+            line="287"
             column="12"/>
     </issue>
 
@@ -8860,7 +9442,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="143"
+            line="144"
             column="32"/>
     </issue>
 
@@ -8871,7 +9453,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="143"
+            line="144"
             column="60"/>
     </issue>
 
@@ -8882,7 +9464,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="13"/>
     </issue>
 
@@ -8893,7 +9475,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="144"
+            line="145"
             column="42"/>
     </issue>
 
@@ -8904,7 +9486,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="166"
+            line="169"
             column="33"/>
     </issue>
 
@@ -8915,7 +9497,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="175"
+            line="178"
             column="34"/>
     </issue>
 
@@ -8926,7 +9508,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="242"
+            line="245"
             column="12"/>
     </issue>
 
@@ -8937,7 +9519,7 @@
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="251"
+            line="254"
             column="24"/>
     </issue>
 
@@ -8948,7 +9530,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="258"
+            line="261"
             column="12"/>
     </issue>
 
@@ -8959,7 +9541,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="266"
+            line="269"
             column="34"/>
     </issue>
 
@@ -8970,7 +9552,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="274"
+            line="277"
             column="34"/>
     </issue>
 
@@ -8981,7 +9563,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="283"
+            line="286"
             column="12"/>
     </issue>
 
@@ -8992,7 +9574,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="303"
+            line="302"
             column="12"/>
     </issue>
 
@@ -9003,7 +9585,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="303"
+            line="302"
             column="42"/>
     </issue>
 
@@ -9014,7 +9596,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="334"
+            line="333"
             column="34"/>
     </issue>
 
@@ -9025,7 +9607,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="401"
+            line="400"
             column="12"/>
     </issue>
 
@@ -9036,7 +9618,7 @@
         errorLine2="                                                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="401"
+            line="400"
             column="67"/>
     </issue>
 
@@ -9047,7 +9629,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="418"
+            line="416"
             column="38"/>
     </issue>
 
@@ -9058,7 +9640,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
-            line="451"
+            line="449"
             column="38"/>
     </issue>
 
@@ -9234,7 +9816,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="76"
+            line="77"
             column="33"/>
     </issue>
 
@@ -9245,7 +9827,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="80"
+            line="81"
             column="33"/>
     </issue>
 
@@ -9256,7 +9838,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="80"
+            line="81"
             column="46"/>
     </issue>
 
@@ -9267,7 +9849,7 @@
         errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="84"
+            line="85"
             column="33"/>
     </issue>
 
@@ -9278,7 +9860,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="84"
+            line="85"
             column="46"/>
     </issue>
 
@@ -9289,7 +9871,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="92"
+            line="93"
             column="35"/>
     </issue>
 
@@ -9300,7 +9882,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="97"
+            line="98"
             column="45"/>
     </issue>
 
@@ -9311,7 +9893,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="109"
+            line="110"
             column="51"/>
     </issue>
 
@@ -9322,7 +9904,7 @@
         errorLine2="                                                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="115"
+            line="116"
             column="67"/>
     </issue>
 
@@ -9333,7 +9915,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="137"
+            line="139"
             column="39"/>
     </issue>
 
@@ -9344,7 +9926,7 @@
         errorLine2="                         ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="142"
+            line="144"
             column="26"/>
     </issue>
 
@@ -9355,7 +9937,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/GuidedActionEditText.java"
-            line="154"
+            line="156"
             column="54"/>
     </issue>
 
@@ -11445,7 +12027,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="68"
+            line="69"
             column="31"/>
     </issue>
 
@@ -11456,7 +12038,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="72"
+            line="73"
             column="31"/>
     </issue>
 
@@ -11467,7 +12049,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="72"
+            line="73"
             column="48"/>
     </issue>
 
@@ -11478,7 +12060,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="76"
+            line="77"
             column="31"/>
     </issue>
 
@@ -11489,7 +12071,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="76"
+            line="77"
             column="48"/>
     </issue>
 
@@ -11500,7 +12082,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="82"
+            line="84"
             column="35"/>
     </issue>
 
@@ -11511,7 +12093,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="82"
+            line="84"
             column="52"/>
     </issue>
 
@@ -11522,7 +12104,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/HorizontalGridView.java"
-            line="313"
+            line="315"
             column="22"/>
     </issue>
 
@@ -11588,7 +12170,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="153"
+            line="154"
             column="26"/>
     </issue>
 
@@ -11599,7 +12181,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="160"
+            line="161"
             column="26"/>
     </issue>
 
@@ -11610,7 +12192,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="160"
+            line="161"
             column="43"/>
     </issue>
 
@@ -11621,7 +12203,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="287"
+            line="289"
             column="26"/>
     </issue>
 
@@ -11632,7 +12214,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="294"
+            line="296"
             column="26"/>
     </issue>
 
@@ -11643,7 +12225,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="294"
+            line="296"
             column="43"/>
     </issue>
 
@@ -11654,7 +12236,7 @@
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="301"
+            line="303"
             column="18"/>
     </issue>
 
@@ -11665,7 +12247,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="317"
+            line="319"
             column="39"/>
     </issue>
 
@@ -11676,7 +12258,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="326"
+            line="328"
             column="30"/>
     </issue>
 
@@ -11687,7 +12269,7 @@
         errorLine2="                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="333"
+            line="335"
             column="30"/>
     </issue>
 
@@ -11698,7 +12280,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="367"
+            line="369"
             column="12"/>
     </issue>
 
@@ -11709,7 +12291,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="378"
+            line="380"
             column="12"/>
     </issue>
 
@@ -11720,7 +12302,7 @@
         errorLine2="                                      ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="388"
+            line="390"
             column="39"/>
     </issue>
 
@@ -11731,7 +12313,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="406"
+            line="408"
             column="30"/>
     </issue>
 
@@ -11742,7 +12324,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="416"
+            line="418"
             column="12"/>
     </issue>
 
@@ -11753,7 +12335,7 @@
         errorLine2="                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="427"
+            line="429"
             column="32"/>
     </issue>
 
@@ -11764,7 +12346,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="437"
+            line="439"
             column="12"/>
     </issue>
 
@@ -11775,7 +12357,7 @@
         errorLine2="                              ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="448"
+            line="450"
             column="31"/>
     </issue>
 
@@ -11786,7 +12368,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/ImageCardView.java"
-            line="463"
+            line="465"
             column="12"/>
     </issue>
 
@@ -15130,7 +15712,7 @@
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="73"
+            line="74"
             column="29"/>
     </issue>
 
@@ -15141,7 +15723,7 @@
         errorLine2="                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="102"
+            line="103"
             column="18"/>
     </issue>
 
@@ -15152,7 +15734,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="111"
+            line="112"
             column="36"/>
     </issue>
 
@@ -15163,7 +15745,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="120"
+            line="121"
             column="18"/>
     </issue>
 
@@ -15174,7 +15756,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="136"
+            line="137"
             column="37"/>
     </issue>
 
@@ -15185,7 +15767,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="186"
+            line="187"
             column="19"/>
     </issue>
 
@@ -15196,7 +15778,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="186"
+            line="187"
             column="36"/>
     </issue>
 
@@ -15207,7 +15789,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="193"
+            line="195"
             column="19"/>
     </issue>
 
@@ -15218,7 +15800,7 @@
         errorLine2="                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="193"
+            line="195"
             column="36"/>
     </issue>
 
@@ -15229,7 +15811,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="228"
+            line="230"
             column="12"/>
     </issue>
 
@@ -15240,7 +15822,7 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="254"
+            line="256"
             column="28"/>
     </issue>
 
@@ -15251,7 +15833,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="329"
+            line="331"
             column="46"/>
     </issue>
 
@@ -15262,7 +15844,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="376"
+            line="378"
             column="43"/>
     </issue>
 
@@ -15273,7 +15855,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="388"
+            line="390"
             column="46"/>
     </issue>
 
@@ -15284,7 +15866,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="541"
+            line="543"
             column="37"/>
     </issue>
 
@@ -15295,7 +15877,7 @@
         errorLine2="                                                                 ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="560"
+            line="562"
             column="66"/>
     </issue>
 
@@ -15306,7 +15888,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="696"
+            line="698"
             column="35"/>
     </issue>
 
@@ -15317,7 +15899,7 @@
         errorLine2="                                              ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/Picker.java"
-            line="696"
+            line="698"
             column="47"/>
     </issue>
 
@@ -15383,7 +15965,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="40"
+            line="41"
             column="22"/>
     </issue>
 
@@ -15394,7 +15976,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="40"
+            line="41"
             column="39"/>
     </issue>
 
@@ -15405,7 +15987,7 @@
         errorLine2="                     ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="44"
+            line="46"
             column="22"/>
     </issue>
 
@@ -15416,7 +15998,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="44"
+            line="46"
             column="39"/>
     </issue>
 
@@ -15427,7 +16009,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="87"
+            line="89"
             column="37"/>
     </issue>
 
@@ -15438,7 +16020,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/PinPicker.java"
-            line="104"
+            line="106"
             column="12"/>
     </issue>
 
@@ -20586,7 +21168,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="155"
+            line="156"
             column="26"/>
     </issue>
 
@@ -20597,7 +21179,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="159"
+            line="160"
             column="26"/>
     </issue>
 
@@ -20608,7 +21190,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="159"
+            line="160"
             column="43"/>
     </issue>
 
@@ -20619,7 +21201,7 @@
         errorLine2="                         ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="163"
+            line="165"
             column="26"/>
     </issue>
 
@@ -20630,7 +21212,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="163"
+            line="165"
             column="43"/>
     </issue>
 
@@ -20641,7 +21223,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="228"
+            line="230"
             column="25"/>
     </issue>
 
@@ -20652,7 +21234,7 @@
         errorLine2="                                                                    ~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="248"
+            line="250"
             column="69"/>
     </issue>
 
@@ -20663,7 +21245,7 @@
         errorLine2="                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="264"
+            line="266"
             column="28"/>
     </issue>
 
@@ -20674,7 +21256,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="273"
+            line="275"
             column="12"/>
     </issue>
 
@@ -20685,7 +21267,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="281"
+            line="283"
             column="41"/>
     </issue>
 
@@ -20696,7 +21278,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="317"
+            line="319"
             column="30"/>
     </issue>
 
@@ -20707,7 +21289,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/SearchOrbView.java"
-            line="331"
+            line="333"
             column="12"/>
     </issue>
 
@@ -22027,7 +22609,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="89"
+            line="90"
             column="23"/>
     </issue>
 
@@ -22038,7 +22620,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="89"
+            line="90"
             column="40"/>
     </issue>
 
@@ -22049,7 +22631,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="103"
+            line="105"
             column="23"/>
     </issue>
 
@@ -22060,7 +22642,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
-            line="103"
+            line="105"
             column="40"/>
     </issue>
 
@@ -23875,7 +24457,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="44"
+            line="45"
             column="29"/>
     </issue>
 
@@ -23886,7 +24468,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="48"
+            line="49"
             column="29"/>
     </issue>
 
@@ -23897,7 +24479,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="48"
+            line="49"
             column="46"/>
     </issue>
 
@@ -23908,7 +24490,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="52"
+            line="53"
             column="29"/>
     </issue>
 
@@ -23919,7 +24501,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="52"
+            line="53"
             column="46"/>
     </issue>
 
@@ -23930,7 +24512,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="58"
+            line="60"
             column="35"/>
     </issue>
 
@@ -23941,7 +24523,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/leanback/widget/VerticalGridView.java"
-            line="58"
+            line="60"
             column="52"/>
     </issue>
 

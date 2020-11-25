@@ -34,7 +34,6 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.SequenceNumber
 import androidx.camera.camera2.pipe.StreamId
 
 /**
@@ -96,9 +95,9 @@ class FakeRequestMetadata(
     extraRequestParameters: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
     override val streams: Map<StreamId, Surface> = mapOf(),
+    override val repeating: Boolean = false,
     override val request: Request = Request(listOf()),
-    override val requestNumber: RequestNumber = RequestNumber(4321),
-    override val sequenceNumber: SequenceNumber = SequenceNumber(1234)
+    override val requestNumber: RequestNumber = RequestNumber(4321)
 ) : FakeMetadata(request.extraRequestParameters.plus(extraRequestParameters)), RequestMetadata {
 
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?

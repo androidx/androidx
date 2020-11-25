@@ -59,13 +59,6 @@ import org.junit.runner.RunWith;
 public class SwipeDismissFrameLayoutTest {
 
     private static final long MAX_WAIT_TIME = 4000; //ms
-    /**
-     * Gap from the edge of the screen to allow for navigation gestures and room to start a swipe.
-     * This needs to be at larger than the offset that is being applied by
-     * {@link FrameLocationAvoidingEdges.Constants#OFFSET_FROM_EDGE}
-     */
-    private static final float SWIPE_MARGIN_PX =
-            FrameLocationAvoidingEdges.Constants.OFFSET_FROM_EDGE + 10.0f;
 
     private final SwipeDismissFrameLayout.Callback mDismissCallback = new DismissCallback();
 
@@ -73,9 +66,9 @@ public class SwipeDismissFrameLayoutTest {
     public final WakeLockRule wakeLock = new WakeLockRule();
 
     @Rule
-    public final ActivityTestRule<SwipeDismissFrameLayoutTestActivity> activityRule =
+    public final ActivityTestRule<DismissibleFrameLayoutTestActivity> activityRule =
             new ActivityTestRule<>(
-                    SwipeDismissFrameLayoutTestActivity.class,
+                    DismissibleFrameLayoutTestActivity.class,
                     true, /** initial touch mode */
                     false /** launchActivity */
             );
@@ -92,6 +85,7 @@ public class SwipeDismissFrameLayoutTest {
         Activity activity = activityRule.getActivity();
         SwipeDismissFrameLayout testLayout =
                 (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
+        testLayout.setSwipeable(true);
         // WHEN we check that the layout is horizontally scrollable from left to right.
         // THEN the layout is found to be horizontally swipeable from left to right.
         assertTrue(testLayout.canScrollHorizontally(-20));
@@ -150,7 +144,7 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    public void testSwipeDismissEnabledByDefault() {
+    public void testSwipeDismissDisabledByDefault() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
         Activity activity = activityRule.getActivity();
@@ -158,13 +152,16 @@ public class SwipeDismissFrameLayoutTest {
                 (SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root);
         // WHEN we check that the layout is dismissible
         // THEN the layout is find to be dismissible
-        assertTrue(testLayout.isSwipeable());
+        assertFalse(testLayout.isSwipeable());
     }
 
     @Test
     public void testSwipeDismissesViewIfEnabled() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
+        Activity activity = activityRule.getActivity();
+        ((SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root))
+                .setSwipeable(true);
         // WHEN we perform a swipe to dismiss
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRight());
         // AND hidden
@@ -224,48 +221,18 @@ public class SwipeDismissFrameLayoutTest {
     public void testEdgeSwipeDoesDismissViewIfScrollable() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSwipeDismissWithHorizontalRecyclerView();
+        Activity activity = activityRule.getActivity();
+        ((SwipeDismissFrameLayout) activity.findViewById(R.id.swipe_dismiss_root))
+                .setSwipeable(true);
         // WHEN we perform a swipe to dismiss from the left edge of the screen.
         onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
         // THEN the layout is hidden
         assertHidden(R.id.swipe_dismiss_root);
     }
-
-    @Test
-    public void testSwipeDoesNotDismissViewIfStartsInWrongPosition() {
-        // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
-        // inner circle.
-        setUpSwipeableRegion();
-        // WHEN we perform a swipe to dismiss from the left edge of the screen.
-        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromLeftCenterAvoidingEdge());
-        // THEN the layout is not not hidden
-        assertNotHidden(R.id.swipe_dismiss_root);
-    }
-
-    @Test
-    public void testSwipeDoesDismissViewIfStartsInRightPosition() {
-        // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
-        // inner circle.
-        setUpSwipeableRegion();
-        // WHEN we perform a swipe to dismiss from the center of the screen.
-        onView(withId(R.id.swipe_dismiss_root)).perform(swipeRightFromCenter());
-        // THEN the layout is hidden
-        assertHidden(R.id.swipe_dismiss_root);
-    }
-
-    /**
-     @Test public void testSwipeInPreferenceFragmentAndNavDrawer() {
-     // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an inner
-     // circle.
-     setUpPreferenceFragmentAndNavDrawer();
-     // WHEN we perform a swipe to dismiss from the center of the screen to the bottom.
-     onView(withId(R.id.drawer_layout)).perform(swipeBottomFromCenter());
-     // THEN the navigation drawer is shown.
-     assertPeeking(R.id.top_drawer);
-     }*/
 
     @Test
     @FlakyTest
-    public void testArcSwipeDoesNotTriggerDismiss() throws Throwable {
+    public void testArcSwipeDoesNotTriggerDismiss() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with vertically scrollable content
         setUpSwipeDismissWithVerticalRecyclerView();
         int center = mLayoutHeight / 2;
@@ -303,7 +270,7 @@ public class SwipeDismissFrameLayoutTest {
         Intent launchIntent = new Intent();
         launchIntent.putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.swipe_dismiss_layout_testcase_2);
-        launchIntent.putExtra(SwipeDismissFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, true);
+        launchIntent.putExtra(DismissibleFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, true);
         activityRule.launchActivity(launchIntent);
         setDismissCallback();
     }
@@ -317,81 +284,11 @@ public class SwipeDismissFrameLayoutTest {
         Intent launchIntent = new Intent();
         launchIntent.putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
                 R.layout.swipe_dismiss_layout_testcase_2);
-        launchIntent.putExtra(SwipeDismissFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, false);
+        launchIntent.putExtra(DismissibleFrameLayoutTestActivity.EXTRA_LAYOUT_HORIZONTAL, false);
         activityRule.launchActivity(launchIntent);
         setDismissCallback();
     }
 
-    /**
-     * Sets up a {@link SwipeDismissFrameLayout} in which only a certain region is allowed to react
-     * to swipe-dismiss gestures.
-     */
-    private void setUpSwipeableRegion() {
-        activityRule.launchActivity(
-                new Intent()
-                        .putExtra(
-                                LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
-                                R.layout.swipe_dismiss_layout_testcase_1));
-        setCallback(
-                new DismissCallback() {
-                    @Override
-                    public boolean onPreSwipeStart(SwipeDismissFrameLayout layout, float x,
-                            float y) {
-                        float normalizedX = (x - mXPositionOnScreen) - (mLayoutWidth / 2);
-                        float normalizedY = (y - mYPositionOnScreen) - (mLayoutHeight / 2);
-                        float squareX = normalizedX * normalizedX;
-                        float squareY = normalizedY * normalizedY;
-
-                        // We want the circle to take up a decent chunk of the screen, but need to
-                        // keep it away from the screen edges in order to allow swipe gestures to be
-                        // started outside of the circle and inside of any grab handles that the
-                        // frame may have.
-                        return Math.sqrt(squareX + squareY) < ((mLayoutWidth / 2)
-                                - SWIPE_MARGIN_PX);
-                    }
-                });
-    }
-
-    /**
-     * Sets up a more involved test case where the layout consists of a
-     * {@code WearableNavigationDrawer} and a
-     * {@code androidx.wear.internal.view.SwipeDismissPreferenceFragment}
-     */
-  /*
-  private void setUpPreferenceFragmentAndNavDrawer() {
-    activityRule.launchActivity(
-      new Intent()
-          .putExtra(
-              LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
-              R.layout.swipe_dismiss_layout_testcase_3));
-    Activity activity = activityRule.getActivity();
-    InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-      WearableNavigationDrawer wearableNavigationDrawer =
-              (WearableNavigationDrawer) activity.findViewById(R.id.top_drawer);
-      wearableNavigationDrawer.setAdapter(
-              new WearableNavigationDrawer.WearableNavigationDrawerAdapter() {
-                @Override
-                public String getItemText(int pos) {
-                  return "test";
-                }
-
-                @Override
-                public Drawable getItemDrawable(int pos) {
-                  return null;
-                }
-
-                @Override
-                public void onItemSelected(int pos) {
-                  return;
-                }
-
-                @Override
-                public int getCount() {
-                  return 3;
-                }
-              });
-    });
-  }*/
     private void setDismissCallback() {
         setCallback(mDismissCallback);
     }
@@ -407,15 +304,6 @@ public class SwipeDismissFrameLayoutTest {
         mLayoutHeight = testLayout.getHeight();
         testLayout.addCallback(callback);
     }
-
-    /**
-     * private static void assertPeeking(@IdRes int layoutId) {
-     * onView(withId(layoutId))
-     * .perform(
-     * waitForMatchingView(
-     * allOf(withId(layoutId), isOpened(true)), MAX_WAIT_TIME));
-     * }
-     */
 
     private static void assertHidden(@IdRes int layoutId) {
         onView(withId(layoutId))
@@ -448,17 +336,6 @@ public class SwipeDismissFrameLayoutTest {
                 Swipe.SLOW, GeneralLocation.CENTER, GeneralLocation.CENTER_RIGHT, Press.FINGER);
     }
 
-
-    /**
-     * Be careful if you are using this method. If the device you are testing on
-     * has "Gesture navigation" enabled then swiping from the edge of the screen may be
-     * interpreted as a navigation gesture.
-     */
-    private static ViewAction swipeRightFromLeftEdge() {
-        return new GeneralSwipeAction(
-                Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.CENTER_RIGHT,
-                Press.FINGER);
-    }
 
     private static ViewAction swipeRightFromLeftCenterAvoidingEdge() {
         return new GeneralSwipeAction(

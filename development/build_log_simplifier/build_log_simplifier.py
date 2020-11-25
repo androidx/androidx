@@ -13,9 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse, collections, pathlib, os, re, sys
+import argparse, collections, os, re, sys
 
-dir_of_this_script = str(pathlib.Path(__file__).parent.absolute())
+dir_of_this_script = os.path.dirname(os.path.realpath(__file__))
 
 parser = argparse.ArgumentParser(
     description="""USAGE:
@@ -189,12 +189,12 @@ def remove_known_uninteresting_lines(lines):
 # Returns the path of the config file holding exemptions for deterministic/consistent output.
 # These exemptions can be garbage collected via the `--gc` argument
 def get_deterministic_exemptions_path():
-    return os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
+    return os.path.join(dir_of_this_script, "messages.ignore")
 
 # Returns the path of the config file holding exemptions for nondetermistic/flaky output.
 # These exemptions will not be garbage collected via the `--gc` argument
 def get_flake_exemptions_path():
-    return os.path.join(dir_of_this_script, "build_log_simplifier/message-flakes.ignore")
+    return os.path.join(dir_of_this_script, "message-flakes.ignore")
 
 # Returns a regexes_matcher that matches what is described by our config file
 # Ignores comments and ordering in our config file
@@ -561,10 +561,15 @@ def main():
     elif validate:
         if len(interesting_lines) != 0:
             print("")
-            print("build_log_simplifier.py: Error: Found new messages!")
+            print("=" * 80)
+            print("build_log_simplifier.py: Error: Found " + str(len(interesting_lines)) + " lines of new warning output:")
             print("")
             print("".join(interesting_lines))
-            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new messages found in " + ",".join(log_paths) + ".")
+            print("=" * 80)
+            print("Error: build_log_simplifier.py found " + str(len(interesting_lines)) + " new lines of output")
+            print("")
+            print("  Log     : " + ",".join(log_paths))
+            print("  Baseline: " + get_deterministic_exemptions_path())
             new_exemptions_path = log_paths[0] + ".ignore"
             # filter out any inconsistently observed messages so we don't try to exempt them twice
             all_lines = remove_by_regexes(all_lines, flake_exemption_regexes, validate)
@@ -575,11 +580,10 @@ def main():
             print("Please fix or suppress these new messages in the tool that generates them.")
             print("If you cannot, then you can exempt them by doing:")
             print("")
-            print("  1. cp " + new_exemptions_path + " " + get_deterministic_exemptions_path() + " # or, if this script is running on the build server, you may download this file from there")
-            print("  2. modify the new lines to be more generalized (they are regular expressions) if it is more important to preemptively exempt similar messages than to be notified of new, similar messages")
+            print("  cp " + new_exemptions_path + " " + get_deterministic_exemptions_path())
             print("")
-            print("Note that if you exempt these messages by updating the exemption file, this will suppress these messages in the output of CI builds but not in Android Studio.")
-            print("Additionally, adding more exemptions to this exemption file will cause the build to run more slowly than fixing or suppressing the message where it is generated.")
+            print("For more information, see https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/development/build_log_simplifier/VALIDATION_FAILURE.md")
+            print("=" * 80)
             exit(1)
     else:
         print("".join(interesting_lines))

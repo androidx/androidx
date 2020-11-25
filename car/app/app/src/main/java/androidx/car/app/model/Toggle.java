@@ -16,18 +16,20 @@
 
 package androidx.car.app.model;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
+import android.os.RemoteException;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnCheckedChangeListener;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.WrappedRuntimeException;
+import androidx.car.app.host.OnCheckedChangeListenerWrapper;
+import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.utils.RemoteUtils;
 
 /** Represents a toggle that can have either a checked or unchecked state. */
@@ -40,17 +42,20 @@ public class Toggle {
 
     @Keep
     @Nullable
-    private final IOnCheckedChangeListener mOnCheckedChangeListener;
+    private final OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
     @Keep
     private final boolean mIsChecked;
 
     /**
-     * Constructs a new builder of {@link Toggle}.
+     * Constructs a new builder of {@link Toggle} with the given {@link OnCheckedChangeListener}.
+     *
+     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * using {@link Looper#getMainLooper()}.z
      *
      * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
      */
     @NonNull
-    @SuppressLint("ExecutorRegistration") // this listener is for transport to the host only.
+    @SuppressLint("ExecutorRegistration")
     public static Builder builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
         return new Builder(requireNonNull(onCheckedChangeListener));
     }
@@ -63,15 +68,11 @@ public class Toggle {
     }
 
     /**
-     * Returns the {@link OnCheckedChangeListener} that is called when the checked state of the
-     * {@link Toggle}is changed.
-     *
-     * @hide
+     * Returns the {@link OnCheckedChangeListenerWrapper} that is called when the checked state of
+     * the {@link Toggle} is changed.
      */
-    // TODO(shiufai): re-surface this API with a wrapper around the AIDL class.
-    @RestrictTo(LIBRARY)
     @NonNull
-    public IOnCheckedChangeListener getOnCheckedChangeListener() {
+    public OnCheckedChangeListenerWrapper getOnCheckedChangeListener() {
         return requireNonNull(mOnCheckedChangeListener);
     }
 
@@ -113,7 +114,7 @@ public class Toggle {
 
     /** A builder of {@link Toggle}. */
     public static final class Builder {
-        private IOnCheckedChangeListener mOnCheckedChangeListener;
+        private OnCheckedChangeListenerWrapper mOnCheckedChangeListener;
         private boolean mIsChecked;
 
         /**
@@ -129,24 +130,25 @@ public class Toggle {
 
         /**
          * Sets the {@link OnCheckedChangeListener} to call when the checked state of the
-         * {@link Toggle}
-         * is changed.
+         * {@link Toggle} is changed.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
          *
          * @throws NullPointerException if {@code onCheckedChangeListener} is {@code null}.
          */
         @NonNull
-        // TODO(shiufai): remove MissingGetterMatchingBuilder once listener is properly exposed.
-        @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        public Builder setCheckedChangeListener(
+        @SuppressLint({"ExecutorRegistration"})
+        public Builder setOnCheckedChangeListener(
                 @NonNull OnCheckedChangeListener onCheckedChangeListener) {
             this.mOnCheckedChangeListener =
-                    new OnCheckedChangeListenerStub(requireNonNull(onCheckedChangeListener));
+                    createOnCheckedChangeListener(onCheckedChangeListener);
             return this;
         }
 
-        private Builder(OnCheckedChangeListener onCheckedChangeListener) {
-            this.mOnCheckedChangeListener = new OnCheckedChangeListenerStub(
-                    onCheckedChangeListener);
+        private Builder(@NonNull OnCheckedChangeListener onCheckedChangeListener) {
+            this.mOnCheckedChangeListener =
+                    createOnCheckedChangeListener(onCheckedChangeListener);
         }
 
         /** Constructs the {@link Toggle} defined by this builder. */
@@ -154,6 +156,24 @@ public class Toggle {
         public Toggle build() {
             return new Toggle(this);
         }
+    }
+
+    private static OnCheckedChangeListenerWrapper createOnCheckedChangeListener(
+            @NonNull OnCheckedChangeListener listener) {
+        return new OnCheckedChangeListenerWrapper() {
+            private final IOnCheckedChangeListener mOnCheckedChangeListener =
+                    new OnCheckedChangeListenerStub(listener);
+
+            @Override
+            public void onCheckedChange(boolean isChecked, @NonNull OnDoneCallback callback) {
+                try {
+                    mOnCheckedChangeListener.onCheckedChange(isChecked,
+                            RemoteUtils.createOnDoneCallbackStub(callback));
+                } catch (RemoteException e) {
+                    throw new WrappedRuntimeException(e);
+                }
+            }
+        };
     }
 
     @Keep // We need to keep these stub for Bundler serialization logic.

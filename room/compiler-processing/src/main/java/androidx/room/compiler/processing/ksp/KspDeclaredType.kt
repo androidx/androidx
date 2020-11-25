@@ -18,20 +18,27 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XType
-import com.squareup.javapoet.TypeName
+import androidx.room.compiler.processing.tryBox
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.javapoet.TypeName
 
 internal open class KspDeclaredType(
     env: KspProcessingEnv,
     ksType: KSType
 ) : KspType(env, ksType), XDeclaredType {
     override val typeName: TypeName by lazy {
-        ksType.typeName()
+        // always box these as for primitives, typeName might return the primitive type but this
+        // is declared type.
+        ksType.typeName(env.resolver).tryBox()
     }
 
     override val typeArguments: List<XType> by lazy {
         ksType.arguments.mapIndexed { index, arg ->
             env.wrap(ksType.declaration.typeParameters[index], arg)
         }
+    }
+
+    override fun boxed(): XType {
+        return this
     }
 }

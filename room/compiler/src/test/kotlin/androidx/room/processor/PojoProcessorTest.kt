@@ -1818,6 +1818,7 @@ class PojoProcessorTest {
                 $code
                 $FOOTER
                 """
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         return singleRunFullClass(
             code = pojoCode,
             jfos = jfos,

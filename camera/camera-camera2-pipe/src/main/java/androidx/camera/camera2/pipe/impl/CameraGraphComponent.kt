@@ -97,12 +97,18 @@ abstract class CameraGraphModules {
         @Provides
         @ForCameraGraph
         fun provideRequestListeners(
-            graphConfig: CameraGraph.Config
+            graphConfig: CameraGraph.Config,
+            listener3A: Listener3A
         ): java.util.ArrayList<Request.Listener> {
             // TODO: Dagger doesn't appear to like standard kotlin lists. Replace this with a standard
             //   Kotlin list interfaces when dagger compiles with them.
-            // TODO: Add internal listeners before adding external global listeners.
-            return java.util.ArrayList(graphConfig.listeners)
+            val listeners = java.util.ArrayList<Request.Listener>()
+            listeners.add(listener3A)
+            // Listeners in CameraGraph.Config can de defined outside of the CameraPipe library,
+            // and since we iterate thought the listeners in order and invoke them, it appears
+            // beneficial to add the internal listeners first and then the graph config listeners.
+            listeners.addAll(graphConfig.listeners)
+            return listeners
         }
     }
 }

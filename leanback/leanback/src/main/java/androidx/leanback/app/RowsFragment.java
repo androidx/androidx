@@ -307,6 +307,8 @@ public class RowsFragment extends BaseRowFragment implements
     @Override
     public void onDestroyView() {
         mViewsCreated = false;
+        mSelectedViewHolder = null;
+        mRecycledViewPool = null;
         super.onDestroyView();
     }
 

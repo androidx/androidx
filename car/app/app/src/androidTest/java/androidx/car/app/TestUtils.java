@@ -20,8 +20,16 @@ import static androidx.car.app.model.CarIcon.BACK;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.SpannableString;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.model.Action;
@@ -162,5 +170,14 @@ public class TestUtils {
                 .isEqualTo(dateTimeWithZone.getZoneOffsetSeconds());
         assertThat(dateTimeWithZone.getTimeSinceEpochMillis())
                 .isEqualTo(dateTimeWithZone.getTimeSinceEpochMillis());
+    }
+
+    public static Context getMockContextWithPermission(@NonNull String permission) {
+        Context mockContext = mock(Context.class);
+        PackageManager packageManager = mock(PackageManager.class);
+        when(mockContext.getPackageManager()).thenReturn(packageManager);
+        when(packageManager.checkPermission(eq(permission), any())).thenReturn(
+                PackageManager.PERMISSION_GRANTED);
+        return mockContext;
     }
 }

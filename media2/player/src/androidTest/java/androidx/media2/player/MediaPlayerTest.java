@@ -1596,6 +1596,37 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
+    public void setPlaylistAndRemoveAll_playerShouldMoveIdleState() throws Exception {
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createMediaItem(R.raw.number1));
+
+        final TestUtils.Monitor onPlayerStateChangedCalled = new TestUtils.Monitor();
+        final AtomicInteger playerState = new AtomicInteger();
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onPlayerStateChanged(@NonNull SessionPlayer player, int state) {
+                playerState.set(state);
+                onPlayerStateChangedCalled.signal();
+            }
+        };
+
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        assertNotNull(mPlayer.setPlaylist(playlist, null));
+        assertNotNull(mPlayer.prepare());
+        do {
+            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
+        } while (playerState.get() != MediaPlayer.PLAYER_STATE_PAUSED);
+
+        mPlayer.removePlaylistItem(0);
+        do {
+            assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
+        } while (playerState.get() != MediaPlayer.PLAYER_STATE_IDLE);
+    }
+
+    @Test
+    @MediumTest
     public void skipToPlaylistItems() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);

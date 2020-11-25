@@ -24,6 +24,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 
 /**
@@ -59,7 +61,7 @@ public class RemotePlaybackClient {
      *
      * @param route The media route.
      */
-    public RemotePlaybackClient(Context context, MediaRouter.RouteInfo route) {
+    public RemotePlaybackClient(@NonNull Context context, @NonNull MediaRouter.RouteInfo route) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -189,6 +191,7 @@ public class RemotePlaybackClient {
      *
      * @return The current session id, or null if none.
      */
+    @Nullable
     public String getSessionId() {
         return mSessionId;
     }
@@ -203,7 +206,7 @@ public class RemotePlaybackClient {
      *
      * @param sessionId The new session id, or null if none.
      */
-    public void setSessionId(String sessionId) {
+    public void setSessionId(@Nullable String sessionId) {
         if (!ObjectsCompat.equals(mSessionId, sessionId)) {
             if (DEBUG) {
                 Log.d(TAG, "Session id is now: " + sessionId);
@@ -238,7 +241,7 @@ public class RemotePlaybackClient {
      *
      * @param callback The callback to set.  May be null to remove the previous callback.
      */
-    public void setStatusCallback(StatusCallback callback) {
+    public void setStatusCallback(@Nullable StatusCallback callback) {
         mStatusCallback = callback;
     }
 
@@ -251,7 +254,7 @@ public class RemotePlaybackClient {
      *
      * @param listener The callback to set.  May be null to remove the previous callback.
      */
-    public void setOnMessageReceivedListener(OnMessageReceivedListener listener) {
+    public void setOnMessageReceivedListener(@Nullable OnMessageReceivedListener listener) {
         mOnMessageReceivedListener = listener;
     }
 
@@ -283,8 +286,8 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_PLAY
      * @see #isRemotePlaybackSupported
      */
-    public void play(Uri contentUri, String mimeType, Bundle metadata,
-            long positionMillis, Bundle extras, ItemActionCallback callback) {
+    public void play(@NonNull Uri contentUri, @Nullable String mimeType, @Nullable Bundle metadata,
+            long positionMillis, @Nullable Bundle extras, @Nullable ItemActionCallback callback) {
         playOrEnqueue(contentUri, mimeType, metadata, positionMillis,
                 extras, callback, MediaControlIntent.ACTION_PLAY);
     }
@@ -318,8 +321,9 @@ public class RemotePlaybackClient {
      * @see #isRemotePlaybackSupported
      * @see #isQueuingSupported
      */
-    public void enqueue(Uri contentUri, String mimeType, Bundle metadata,
-            long positionMillis, Bundle extras, ItemActionCallback callback) {
+    public void enqueue(@NonNull Uri contentUri, @Nullable String mimeType,
+            @Nullable Bundle metadata, long positionMillis, @Nullable Bundle extras,
+            @Nullable ItemActionCallback callback) {
         playOrEnqueue(contentUri, mimeType, metadata, positionMillis,
                 extras, callback, MediaControlIntent.ACTION_ENQUEUE);
     }
@@ -373,8 +377,8 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_SEEK
      * @see #isRemotePlaybackSupported
      */
-    public void seek(String itemId, long positionMillis, Bundle extras,
-            ItemActionCallback callback) {
+    public void seek(@NonNull String itemId, long positionMillis, @Nullable Bundle extras,
+            @Nullable ItemActionCallback callback) {
         if (itemId == null) {
             throw new IllegalArgumentException("itemId must not be null");
         }
@@ -405,7 +409,8 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_GET_STATUS
      * @see #isRemotePlaybackSupported
      */
-    public void getStatus(String itemId, Bundle extras, ItemActionCallback callback) {
+    public void getStatus(@NonNull String itemId, @Nullable Bundle extras,
+            @Nullable ItemActionCallback callback) {
         if (itemId == null) {
             throw new IllegalArgumentException("itemId must not be null");
         }
@@ -437,7 +442,8 @@ public class RemotePlaybackClient {
      * @see #isRemotePlaybackSupported
      * @see #isQueuingSupported
      */
-    public void remove(String itemId, Bundle extras, ItemActionCallback callback) {
+    public void remove(@NonNull String itemId, @Nullable Bundle extras,
+            @Nullable ItemActionCallback callback) {
         if (itemId == null) {
             throw new IllegalArgumentException("itemId must not be null");
         }
@@ -468,7 +474,7 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_PAUSE
      * @see #isRemotePlaybackSupported
      */
-    public void pause(Bundle extras, SessionActionCallback callback) {
+    public void pause(@Nullable Bundle extras, @Nullable SessionActionCallback callback) {
         throwIfNoCurrentSession();
 
         Intent intent = new Intent(MediaControlIntent.ACTION_PAUSE);
@@ -495,7 +501,7 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_RESUME
      * @see #isRemotePlaybackSupported
      */
-    public void resume(Bundle extras, SessionActionCallback callback) {
+    public void resume(@Nullable Bundle extras, @Nullable SessionActionCallback callback) {
         throwIfNoCurrentSession();
 
         Intent intent = new Intent(MediaControlIntent.ACTION_RESUME);
@@ -522,7 +528,7 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_STOP
      * @see #isRemotePlaybackSupported
      */
-    public void stop(Bundle extras, SessionActionCallback callback) {
+    public void stop(@Nullable Bundle extras, @Nullable SessionActionCallback callback) {
         throwIfNoCurrentSession();
 
         Intent intent = new Intent(MediaControlIntent.ACTION_STOP);
@@ -551,7 +557,7 @@ public class RemotePlaybackClient {
      * @see #isRemotePlaybackSupported
      * @see #isSessionManagementSupported
      */
-    public void startSession(Bundle extras, SessionActionCallback callback) {
+    public void startSession(@Nullable Bundle extras, @Nullable SessionActionCallback callback) {
         throwIfSessionManagementNotSupported();
 
         Intent intent = new Intent(MediaControlIntent.ACTION_START_SESSION);
@@ -581,7 +587,7 @@ public class RemotePlaybackClient {
      * @see MediaControlIntent#ACTION_SEND_MESSAGE
      * @see #isMessagingSupported
      */
-    public void sendMessage(Bundle message, SessionActionCallback callback) {
+    public void sendMessage(@Nullable Bundle message, @Nullable SessionActionCallback callback) {
         throwIfNoCurrentSession();
         throwIfMessageNotSupported();
 
@@ -610,7 +616,8 @@ public class RemotePlaybackClient {
      * @see #isRemotePlaybackSupported
      * @see #isSessionManagementSupported
      */
-    public void getSessionStatus(Bundle extras, SessionActionCallback callback) {
+    public void getSessionStatus(@Nullable Bundle extras,
+            @Nullable SessionActionCallback callback) {
         throwIfSessionManagementNotSupported();
         throwIfNoCurrentSession();
 
@@ -641,7 +648,7 @@ public class RemotePlaybackClient {
      * @see #isRemotePlaybackSupported
      * @see #isSessionManagementSupported
      */
-    public void endSession(Bundle extras, SessionActionCallback callback) {
+    public void endSession(@Nullable Bundle extras, @Nullable SessionActionCallback callback) {
         throwIfSessionManagementNotSupported();
         throwIfNoCurrentSession();
 
@@ -956,9 +963,9 @@ public class RemotePlaybackClient {
          * @param itemId The item id.
          * @param itemStatus The item status.
          */
-        public void onItemStatusChanged(Bundle data,
-                String sessionId, MediaSessionStatus sessionStatus,
-                String itemId, MediaItemStatus itemStatus) {
+        public void onItemStatusChanged(@Nullable Bundle data,
+                @NonNull String sessionId, @Nullable MediaSessionStatus sessionStatus,
+                @NonNull String itemId, @NonNull MediaItemStatus itemStatus) {
         }
 
         /**
@@ -968,8 +975,8 @@ public class RemotePlaybackClient {
          * @param sessionId The session id.
          * @param sessionStatus The session status, or null if unknown.
          */
-        public void onSessionStatusChanged(Bundle data,
-                String sessionId, MediaSessionStatus sessionStatus) {
+        public void onSessionStatusChanged(@Nullable Bundle data,
+                @NonNull String sessionId, @Nullable MediaSessionStatus sessionStatus) {
         }
 
         /**
@@ -977,7 +984,7 @@ public class RemotePlaybackClient {
          *
          * @param sessionId The new session id.
          */
-        public void onSessionChanged(String sessionId) {
+        public void onSessionChanged(@Nullable String sessionId) {
         }
     }
 
@@ -993,7 +1000,7 @@ public class RemotePlaybackClient {
          * @param code The error code, or {@link MediaControlIntent#ERROR_UNKNOWN} if unknown.
          * @param data The error data bundle, or null if none.
          */
-        public void onError(String error, int code, Bundle data) {
+        public void onError(@Nullable String error, int code, @Nullable Bundle data) {
         }
     }
 
@@ -1010,8 +1017,9 @@ public class RemotePlaybackClient {
          * @param itemId The item id.
          * @param itemStatus The item status.
          */
-        public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
-                String itemId, MediaItemStatus itemStatus) {
+        public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                @Nullable MediaSessionStatus sessionStatus,
+                @NonNull String itemId, @NonNull MediaItemStatus itemStatus) {
         }
     }
 
@@ -1026,7 +1034,8 @@ public class RemotePlaybackClient {
          * @param sessionId The session id.
          * @param sessionStatus The session status, or null if unknown.
          */
-        public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus) {
+        public void onResult(@NonNull Bundle data, @NonNull String sessionId,
+                @Nullable MediaSessionStatus sessionStatus) {
         }
     }
 
@@ -1040,6 +1049,6 @@ public class RemotePlaybackClient {
          * @param sessionId The session id.
          * @param message A bundle message denoting {@link MediaControlIntent#EXTRA_MESSAGE}.
          */
-        void onMessageReceived(String sessionId, Bundle message);
+        void onMessageReceived(@NonNull String sessionId, @Nullable Bundle message);
     }
 }

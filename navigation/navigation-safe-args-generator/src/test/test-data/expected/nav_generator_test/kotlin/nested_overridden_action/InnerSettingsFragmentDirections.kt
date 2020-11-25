@@ -5,11 +5,11 @@ import foo.InnerSettingsDirections
 import kotlin.Int
 import kotlin.String
 
-class InnerSettingsFragmentDirections private constructor() {
-  companion object {
-    fun exit(exitReason: Int): NavDirections = InnerSettingsDirections.exit(exitReason)
+public class InnerSettingsFragmentDirections private constructor() {
+  public companion object {
+    public fun exit(exitReason: Int): NavDirections = InnerSettingsDirections.exit(exitReason)
 
-    fun main(enterReason: String = "DEFAULT"): NavDirections =
+    public fun main(enterReason: String = "DEFAULT"): NavDirections =
         InnerSettingsDirections.main(enterReason)
   }
 }

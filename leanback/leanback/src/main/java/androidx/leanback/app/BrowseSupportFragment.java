@@ -1216,6 +1216,11 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         mMainFragmentAdapter = null;
         mMainFragment = null;
         mHeadersSupportFragment = null;
+        mBrowseFrame = null;
+        mScaleFrameLayout = null;
+        mSceneAfterEntranceTransition = null;
+        mSceneWithHeaders = null;
+        mSceneWithoutHeaders = null;
         super.onDestroyView();
     }
 
@@ -1447,6 +1452,10 @@ public class BrowseSupportFragment extends BaseSupportFragment {
         MarginLayoutParams lp;
         View containerList;
         containerList = mHeadersSupportFragment.getView();
+        if (containerList == null) {
+            // Headers fragment has destroyed view.
+            return;
+        }
         lp = (MarginLayoutParams) containerList.getLayoutParams();
         lp.setMarginStart(onScreen ? 0 : -mContainerListMarginStart);
         containerList.setLayoutParams(lp);

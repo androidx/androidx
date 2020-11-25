@@ -40,4 +40,8 @@
     <style name="Widget.AppCompat.ProgressBar.Inline" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:layout_marginTop">5dp</item>
     </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">#1E88E5</item>
+    </style>
 </resources>

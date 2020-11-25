@@ -19,6 +19,7 @@ package androidx.car.app;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -43,16 +44,20 @@ public class AppManager {
      * Sets the {@link SurfaceListener} to get changes and updates to the surface on which the
      * app can draw custom content, or {@code null} to reset the listener.
      *
+     *
+     *
      * <p>This call requires the {@code androidx.car.app.ACCESS_SURFACE}
      * permission to be declared.
      *
      * <p>The {@link Surface} can be used to draw custom content such as a navigation app's map.
      *
+     * <p>Note that the listener relates to UI events and will be executed on the main thread
+     * using {@link Looper#getMainLooper()}.
+     *
      * @throws SecurityException if the app does not have the required permissions to access the
      *                           surface.
      * @throws HostException     if the remote call fails.
      */
-    // TODO(rampara): Add Executor parameter.
     @SuppressLint("ExecutorRegistration")
     public void setSurfaceListener(@Nullable SurfaceListener surfaceListener) {
         mHostDispatcher.dispatch(

@@ -16,6 +16,7 @@
 
 package androidx.leanback.widget.picker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -41,6 +42,7 @@ public class PinPicker extends Picker {
         this(context, attrs, R.attr.pinPickerStyle);
     }
 
+    @SuppressLint("CustomViewStyleable")
     public PinPicker(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(

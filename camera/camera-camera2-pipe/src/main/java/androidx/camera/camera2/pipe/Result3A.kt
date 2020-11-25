@@ -19,12 +19,13 @@ package androidx.camera.camera2.pipe
 /**
  * Enum to know the status of 3A operation in case the method returns before the desired
  * operation is complete. The reason could be that the operation was talking a lot longer and an
- * enforced frame or time limit was reached.
+ * enforced frame or time limit was reached, submitting the desired request to camera failed etc.
  */
 enum class Status3A {
     OK,
     FRAME_LIMIT_REACHED,
-    TIME_LIMIT_REACHED
+    TIME_LIMIT_REACHED,
+    SUBMIT_FAILED
 }
 
 /**

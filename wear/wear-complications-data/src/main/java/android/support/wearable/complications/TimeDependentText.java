@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TimeDependentText extends  Parcelable {
     /**
      * Returns the text that should be displayed for the given timestamp.

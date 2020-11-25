@@ -16,14 +16,11 @@
 
 package androidx.wear.complications;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -36,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.annotation.VisibleForTesting;
 import androidx.wear.complications.data.ComplicationData;
 import androidx.wear.complications.data.ComplicationType;
 
@@ -130,10 +126,6 @@ public abstract class ComplicationProviderService extends Service {
     @SuppressWarnings("ActionValue")
     public static final String ACTION_COMPLICATION_UPDATE_REQUEST =
             "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST";
-
-    private static final String RETAIL_PACKAGE = "com.google.android.apps.wearable.settings";
-    private static final String RETAIL_CLASS =
-            "com.google.android.clockwork.settings.RetailStatusService";
 
     /**
      * Metadata key used to declare supported complication types.
@@ -271,37 +263,6 @@ public abstract class ComplicationProviderService extends Service {
     private IComplicationProviderWrapper mWrapper;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting
-    public interface RetailModeProvider {
-        /**
-         * Returns true if the device is currently running in retail mode (e.g. the watch is being
-         * demonstrated in a store, or the watch face is being configured by the system UI).
-         */
-        boolean inRetailMode();
-    }
-
-    private RetailModeProvider mRetailModeProvider = new RetailModeProvider() {
-        /**
-         * Returns true if the device is currently running in retail mode (e.g. the watch is being
-         * demonstrated in a store, or the watch face is being configured by the system UI).
-         */
-        @Override
-        public boolean inRetailMode() {
-            ComponentName component = new ComponentName(RETAIL_PACKAGE, RETAIL_CLASS);
-            return (getPackageManager().getComponentEnabledSetting(component)
-                    == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
-        }
-    };
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting
-    public void setRetailModeProvider(@NonNull RetailModeProvider retailModeProvider) {
-        mRetailModeProvider = retailModeProvider;
-    }
-
     @SuppressLint("SyntheticAccessor")
     @Override
     @Nullable
@@ -397,34 +358,28 @@ public abstract class ComplicationProviderService extends Service {
             final ComplicationType complicationType = ComplicationType.fromWireType(type);
             final IComplicationManager iComplicationManager =
                     IComplicationManager.Stub.asInterface(manager);
-            if (mRetailModeProvider.inRetailMode()) {
-                try {
-                    iComplicationManager.updateComplicationData(
-                            complicationId,
-                            getPreviewData(complicationType).asWireComplicationData());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                mMainThreadHandler.post(
-                        () -> onComplicationUpdate(complicationId, complicationType,
-                                complicationData -> {
-                                    // This can be run on an arbitrary thread, but that's OK.
-                                    ComplicationType dataType =
-                                            complicationData != null ? complicationData.getType() :
-                                                    ComplicationType.NO_DATA;
-                                    if (dataType == ComplicationType.NOT_CONFIGURED
-                                            || dataType == ComplicationType.EMPTY) {
-                                        throw new IllegalArgumentException(
-                                                "Cannot send data of TYPE_NOT_CONFIGURED or "
-                                                        + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
-                                    }
+            mMainThreadHandler.post(
+                    () -> onComplicationUpdate(complicationId, complicationType,
+                            complicationData -> {
+                                // This can be run on an arbitrary thread, but that's OK.
+                                ComplicationType dataType =
+                                        complicationData != null ? complicationData.getType() :
+                                                ComplicationType.NO_DATA;
+                                if (dataType == ComplicationType.NOT_CONFIGURED
+                                        || dataType == ComplicationType.EMPTY) {
+                                    throw new IllegalArgumentException(
+                                            "Cannot send data of TYPE_NOT_CONFIGURED or "
+                                                    + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
+                                }
 
-                                    iComplicationManager.updateComplicationData(
-                                            complicationId,
-                                            complicationData.asWireComplicationData());
-                                }));
-            }
+                                // When no update is needed, the complicationData is going to be
+                                // null.
+                                iComplicationManager.updateComplicationData(
+                                        complicationId,
+                                        (complicationData != null)
+                                                ? complicationData.asWireComplicationData()
+                                                : null);
+                            }));
         }
 
         @Override

@@ -20,6 +20,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
                 mMode = Mode.PREVIEW_VIEW;
             }
         }
+        // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
+        StrictMode.ThreadPolicy threadPolicy =
+                new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build();
+        StrictMode.setThreadPolicy(threadPolicy);
         if (null == savedInstanceState) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (allPermissionsGranted()) {

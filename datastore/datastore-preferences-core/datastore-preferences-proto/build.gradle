@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-
-import org.anarres.gradle.plugin.jarjar.JarjarTask
-
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.Publish
-
-
-buildscript {
-    dependencies {
-        classpath 'org.anarres.jarjar:jarjar-gradle:1.0.1'
-    }
-}
-
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("com.google.protobuf")
 }
-
-apply plugin: 'org.anarres.jarjar'
-
 
 dependencies {
     implementation(PROTOBUF_LITE)
@@ -62,19 +48,9 @@ protobuf {
     }
 }
 
-// The proto-lite dependency includes .proto files, which are not used by datastore. When apps
-// depend on datastore as well as proto-lite directly, these files conflict since jarjar only
-// renames the java classes. Remove them here since they are unused.
-tasks.register("protoLiteWithoutProtoFiles", Copy) {
-    from(zipTree(configurations.detachedConfiguration(dependencies.create
-            (PROTOBUF_LITE)).getSingleFile())) {
-                exclude("**/*.proto")
-    }
-
-    destinationDir new File(project.buildDir, "protoLiteWithoutProtoFiles")
-}
-
-def preferencesProtoJarJarTask = tasks.register("jarjar", JarjarTask){
+// Create export artifact for for JarJaring
+def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
+    archiveBaseName.set("export")
     dependsOn(protobuf.generateProtoTasks.all())
     from(files(protobuf.generatedFilesBaseDir))
     dependsOn(compileKotlin)
@@ -83,18 +59,17 @@ def preferencesProtoJarJarTask = tasks.register("jarjar", JarjarTask){
     dependsOn(compileJava)
     from(files(compileJava.destinationDirectory))
 
-    dependsOn(protoLiteWithoutProtoFiles)
-    from(files(protoLiteWithoutProtoFiles.destinationDir))
-    classRename 'com.google.protobuf.**', 'androidx.datastore.preferences.protobuf.@1'
+    // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
+    // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
+    // renames the java classes. Remove them here since they are unused.
+    from(zipTree(configurations.detachedConfiguration(
+            dependencies.create(PROTOBUF_LITE)).getSingleFile())) {
+        exclude("**/*.proto")
+    }
 }
 
-def jarjarConf = configurations.register("jarjarpreferences")
-
-artifacts.add("${jarjarConf.name}", preferencesProtoJarJarTask.get().destinationPath) {
-    name "datastore-preferences-proto-jarjar"
-    type 'jar'
-    builtBy preferencesProtoJarJarTask
-}
+def jarjarConf = configurations.register("export")
+artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
 
 androidx {
     name = "Android Preferences DataStore Proto"

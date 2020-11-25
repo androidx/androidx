@@ -100,29 +100,30 @@ package androidx.wear.ongoingactivity {
     method public androidx.wear.ongoingactivity.OngoingActivity.Builder setTouchIntent(android.app.PendingIntent);
   }
 
-  public class OngoingActivityData {
+  @androidx.versionedparcelable.VersionedParcelize public class OngoingActivityData implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.wear.ongoingactivity.OngoingActivityData? create(android.app.Notification);
     method public android.graphics.drawable.Icon? getAnimatedIcon();
     method public androidx.core.content.LocusIdCompat? getLocusId();
     method public int getOngoingActivityId();
-    method public android.graphics.drawable.Icon? getStaticIcon();
+    method public android.graphics.drawable.Icon getStaticIcon();
     method public androidx.wear.ongoingactivity.OngoingActivityStatus? getStatus();
-    method public android.app.PendingIntent? getTouchIntent();
+    method public android.app.PendingIntent getTouchIntent();
+    method public static boolean hasOngoingActivity(android.app.Notification);
   }
 
-  public abstract class OngoingActivityStatus {
+  @androidx.versionedparcelable.VersionedParcelize public abstract class OngoingActivityStatus implements androidx.versionedparcelable.VersionedParcelable {
     ctor public OngoingActivityStatus();
     method public abstract long getNextChangeTimeMillis(long);
     method public abstract CharSequence getText(android.content.Context, long);
   }
 
-  public class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+  @androidx.versionedparcelable.VersionedParcelize public class TextOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
     ctor public TextOngoingActivityStatus(String);
     method public long getNextChangeTimeMillis(long);
     method public CharSequence getText(android.content.Context, long);
   }
 
-  public class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
+  @androidx.versionedparcelable.VersionedParcelize public class TimerOngoingActivityStatus extends androidx.wear.ongoingactivity.OngoingActivityStatus {
     ctor public TimerOngoingActivityStatus(long, boolean, long, long);
     ctor public TimerOngoingActivityStatus(long, boolean, long);
     ctor public TimerOngoingActivityStatus(long, boolean);
@@ -239,6 +240,29 @@ package androidx.wear.widget {
     method public void onLayoutFinished(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
   }
 
+  @UiThread public class DismissibleFrameLayout extends android.widget.FrameLayout {
+    ctor public DismissibleFrameLayout(android.content.Context);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int);
+    ctor public DismissibleFrameLayout(android.content.Context, android.util.AttributeSet?, int, int);
+    method protected void executeDismissCanceledCallbacks();
+    method protected void executeDismissStartedCallbacks();
+    method protected void executeDismissedCallbacks();
+    method public boolean isBackButtonDismissible();
+    method public boolean isSwipeDismissible();
+    method @UiThread public void registerCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+    method public void setBackButtonDismissible(boolean);
+    method public void setSwipeDismissible(boolean);
+    method @UiThread public void unregisterCallback(androidx.wear.widget.DismissibleFrameLayout.Callback);
+  }
+
+  @UiThread public abstract static class DismissibleFrameLayout.Callback {
+    ctor public DismissibleFrameLayout.Callback();
+    method public void onDismissCanceled(androidx.wear.widget.DismissibleFrameLayout);
+    method public void onDismissStarted(androidx.wear.widget.DismissibleFrameLayout);
+    method public void onDismissed(androidx.wear.widget.DismissibleFrameLayout);
+  }
+
   public class RoundedDrawable extends android.graphics.drawable.Drawable {
     ctor public RoundedDrawable();
     method public void draw(android.graphics.Canvas);
@@ -255,7 +279,7 @@ package androidx.wear.widget {
     method public void setRadius(int);
   }
 
-  @UiThread public class SwipeDismissFrameLayout extends android.widget.FrameLayout {
+  @UiThread public class SwipeDismissFrameLayout extends androidx.wear.widget.DismissibleFrameLayout {
     ctor public SwipeDismissFrameLayout(android.content.Context!);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
@@ -297,6 +321,7 @@ package androidx.wear.widget {
     method public float getSweepAngleDegrees();
     method public int getThicknessPx();
     method public boolean handleLayoutRotate(float);
+    method public boolean insideClickArea(float, float);
   }
 
   public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
@@ -325,14 +350,16 @@ package androidx.wear.widget {
     method public String? getFontFeatureSettings();
     method public String? getFontVariationSettings();
     method public float getLetterSpacing();
+    method public float getMaxSweepDegrees();
+    method public float getMinSweepDegrees();
     method public float getSweepAngleDegrees();
-    method public float getSweepDegrees();
-    method public String getText();
+    method public String? getText();
     method @ColorInt public int getTextColor();
     method public float getTextSize();
     method public int getThicknessPx();
     method public android.graphics.Typeface? getTypeface();
     method public boolean handleLayoutRotate(float);
+    method public boolean insideClickArea(float, float);
     method public void setAnchorAngleDegrees(float);
     method public void setAnchorType(int);
     method public void setClockwise(boolean);
@@ -340,8 +367,9 @@ package androidx.wear.widget {
     method public void setFontFeatureSettings(String?);
     method public void setFontVariationSettings(String?);
     method public void setLetterSpacing(float);
-    method public void setSweepDegrees(float);
-    method public void setText(String);
+    method public void setMaxSweepDegrees(float);
+    method public void setMinSweepDegrees(float);
+    method public void setText(String?);
     method public void setTextColor(@ColorInt int);
     method public void setTextSize(float);
     method public void setTypeface(android.graphics.Typeface?);

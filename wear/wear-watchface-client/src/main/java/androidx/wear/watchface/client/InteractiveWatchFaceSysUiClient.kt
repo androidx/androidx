@@ -17,10 +17,12 @@
 package androidx.wear.watchface.client
 
 import android.app.PendingIntent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.IBinder
 import android.support.wearable.complications.TimeDependentText
-import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
+import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
@@ -31,11 +33,25 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.style.UserStyle
+import java.util.Objects
 
-/** Controls a stateful remote interactive watch face. */
-public class InteractiveWatchFaceSysUiClient internal constructor(
-    private val iInteractiveWatchFaceSysUI: IInteractiveWatchFaceSysUI
-) : AutoCloseable {
+/**
+ * The type of tap event passed to the watch face.
+ * @hide
+ */
+@IntDef(
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH,
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_TOUCH_CANCEL,
+    InteractiveWatchFaceSysUiClient.TAP_TYPE_TAP
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public annotation class TapType
+
+/**
+ * Controls a stateful remote interactive watch face with an interface tailored for SysUI the
+ * WearOS 3.0 launcher app. Typically this will be used for the current active watch face.
+ */
+public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
 
     public companion object {
         /** Indicates a "down" touch event on the watch face. */
@@ -55,42 +71,57 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
          */
         public const val TAP_TYPE_TAP: Int = IInteractiveWatchFaceSysUI.TAP_TYPE_TAP
 
-        /**
-         * The type of tap event passed to the watch face.
-         * @hide
-         */
-        @IntDef(TAP_TYPE_TOUCH, TAP_TYPE_TOUCH_CANCEL, TAP_TYPE_TAP)
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public annotation class TapType
+        /** Constructs a [InteractiveWatchFaceSysUiClient] from an [IBinder]. */
+        @JvmStatic
+        public fun createFromBinder(binder: IBinder): InteractiveWatchFaceSysUiClient =
+            InteractiveWatchFaceSysUiClientImpl(binder)
     }
 
     /**
      * Sends a tap event to the watch face for processing.
      */
-    public fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) {
-        iInteractiveWatchFaceSysUI.sendTouchEvent(xPosition, yPosition, tapType)
-    }
+    public fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int)
 
     /** Describes regions of the watch face for use by a screen reader. */
     public class ContentDescriptionLabel(
         /** Text associated with the region, to be read by the screen reader. */
-        public val text: TimeDependentText,
+        private val text: TimeDependentText,
 
         /** Area of the feature on screen. */
         public val bounds: Rect,
 
         /** [PendingIntent] to be used if the screen reader's user triggers a tap action. */
         public val tapAction: PendingIntent?
-    )
+    ) {
+        /**
+         * Returns the text that should be displayed for the given timestamp.
+         *
+         * @param resources [Resources] from the current [android.content.Context]
+         * @param dateTimeMillis milliseconds since epoch, e.g. from [System.currentTimeMillis]
+         */
+        public fun getTextAt(resources: Resources, dateTimeMillis: Long): CharSequence =
+            text.getTextAt(resources, dateTimeMillis)
+
+        override fun equals(other: Any?): Boolean =
+            other is ContentDescriptionLabel &&
+                text == other.text &&
+                bounds == other.bounds &&
+                tapAction == other.tapAction
+
+        override fun hashCode(): Int {
+            return Objects.hash(
+                text,
+                bounds,
+                tapAction
+            )
+        }
+    }
 
     /**
      * Returns the [ContentDescriptionLabel]s describing the watch face, for the use by screen
      * readers.
      */
     public val contentDescriptionLabels: List<ContentDescriptionLabel>
-        get() = iInteractiveWatchFaceSysUI.contentDescriptionLabels.map {
-            ContentDescriptionLabel(it.text, it.bounds, it.tapAction)
-        }
 
     /**
      * Requests for a WebP compressed shared memory backed [Bitmap] containing a screenshot of
@@ -112,27 +143,73 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
         calendarTimeMillis: Long,
         userStyle: UserStyle?,
         idAndComplicationData: Map<Int, ComplicationData>?
-    ): Bitmap = iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
-        WatchfaceScreenshotParams(
-            renderParameters.toWireFormat(),
-            compressionQuality,
-            calendarTimeMillis,
-            userStyle?.toWireFormat(),
-            idAndComplicationData?.map {
-                IdAndComplicationDataWireFormat(
-                    it.key,
-                    it.value.asWireComplicationData()
-                )
-            }
-        )
-    ).ashmemCompressedImageBundleToBitmap()
+    ): Bitmap
 
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
-        get() = iInteractiveWatchFaceSysUI.previewReferenceTimeMillis
 
     /** Updates the watch faces [SystemState]. */
-    public fun setSystemState(systemState: SystemState) {
+    public fun setSystemState(systemState: SystemState)
+
+    /** Returns the ID of this watch face instance. */
+    public val instanceId: String
+
+    /** Triggers watch face rendering into the surface when in ambient mode. */
+    public fun performAmbientTick()
+
+    /** Returns the associated [IBinder]. Allows this interface to be passed over AIDL. */
+    public fun asBinder(): IBinder
+}
+
+internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
+    private val iInteractiveWatchFaceSysUI: IInteractiveWatchFaceSysUI
+) : InteractiveWatchFaceSysUiClient {
+
+    constructor(binder: IBinder) : this(IInteractiveWatchFaceSysUI.Stub.asInterface(binder))
+
+    override fun sendTouchEvent(xPosition: Int, yPosition: Int, @TapType tapType: Int) {
+        iInteractiveWatchFaceSysUI.sendTouchEvent(xPosition, yPosition, tapType)
+    }
+
+    override val contentDescriptionLabels:
+        List<InteractiveWatchFaceSysUiClient.ContentDescriptionLabel>
+            get() = iInteractiveWatchFaceSysUI.contentDescriptionLabels.map {
+                InteractiveWatchFaceSysUiClient.ContentDescriptionLabel(
+                    it.text,
+                    it.bounds,
+                    it.tapAction
+                )
+            }
+
+    override fun takeWatchFaceScreenshot(
+        renderParameters: RenderParameters,
+        @IntRange(from = 0, to = 100)
+        compressionQuality: Int,
+        calendarTimeMillis: Long,
+        userStyle: UserStyle?,
+        idAndComplicationData: Map<Int, ComplicationData>?
+    ): Bitmap =
+        SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
+            iInteractiveWatchFaceSysUI.takeWatchFaceScreenshot(
+                WatchfaceScreenshotParams(
+                    renderParameters.toWireFormat(),
+                    compressionQuality,
+                    calendarTimeMillis,
+                    userStyle?.toWireFormat(),
+                    idAndComplicationData?.map {
+                        IdAndComplicationDataWireFormat(
+                            it.key,
+                            it.value.asWireComplicationData()
+                        )
+                    }
+                )
+            )
+        )
+
+    override val previewReferenceTimeMillis: Long
+        get() = iInteractiveWatchFaceSysUI.previewReferenceTimeMillis
+
+    override fun setSystemState(systemState: SystemState) {
         iInteractiveWatchFaceSysUI.setSystemState(
             SystemState(
                 systemState.inAmbientMode,
@@ -141,20 +218,16 @@ public class InteractiveWatchFaceSysUiClient internal constructor(
         )
     }
 
-    /** Returns the ID of this watch face instance. */
-    public val instanceId: String
+    override val instanceId: String
         get() = iInteractiveWatchFaceSysUI.instanceId
 
-    /** Triggers watch face rendering into the surface when in ambient mode. */
-    public fun performAmbientTick() {
+    override fun performAmbientTick() {
         iInteractiveWatchFaceSysUI.ambientTickUpdate()
     }
 
-    /**
-     * Releases the watch face instance.  It is an error to issue any further commands on this
-     * interface.
-     */
     override fun close() {
         iInteractiveWatchFaceSysUI.release()
     }
+
+    override fun asBinder(): IBinder = iInteractiveWatchFaceSysUI.asBinder()
 }

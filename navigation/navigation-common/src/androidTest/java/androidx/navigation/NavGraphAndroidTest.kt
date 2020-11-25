@@ -146,6 +146,42 @@ class NavGraphAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchPathAndQuery() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination()
+
+        val codeArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        graph.addArgument("code", codeArgument)
+        graph.addDeepLink("www.example.com/users?code={code}")
+
+        val idArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        graph.addArgument("id", idArgument)
+        graph.addDeepLink("www.example.com/users?id={id}")
+
+        val match = graph.matchDeepLink(
+            Uri.parse("https://www.example.com/users?id=1234")
+        )
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+
+        assertWithMessage("Deep link should pick the argument with given values")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
+        assertWithMessage("Deep link should extract id argument correctly")
+            .that(match?.matchingArgs?.getString("id"))
+            .isEqualTo("1234")
+    }
+
+    @Test
     fun matchDeepLinkBestMatchChildren() {
         val navigatorProvider = NavigatorProvider().apply {
             addNavigator(NavGraphNavigator(this))

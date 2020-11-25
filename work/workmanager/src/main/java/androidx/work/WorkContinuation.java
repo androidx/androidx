@@ -146,6 +146,7 @@ public abstract class WorkContinuation {
     /**
      * @hide
      */
+    @SuppressWarnings("HiddenAbstractMethod")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected abstract @NonNull WorkContinuation combineInternal(
             @NonNull List<WorkContinuation> continuations);

@@ -18,6 +18,7 @@ package androidx.leanback.widget;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -160,6 +161,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         this(context, attrs, R.attr.searchOrbViewStyle);
     }
 
+    @SuppressLint("CustomViewStyleable")
     public SearchOrbView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 

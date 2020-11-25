@@ -139,7 +139,7 @@ public class ImageSaverTest {
                 }
 
                 @Override
-                public void onError(SaveError saveError, String message,
+                public void onError(@NonNull SaveError saveError, @NonNull String message,
                         @Nullable Throwable cause) {
                     Logger.d(TAG, message, cause);
                     mMockCallback.onError(saveError, message, cause);
@@ -226,6 +226,7 @@ public class ImageSaverTest {
                 image,
                 outputFileOptions,
                 /*orientation=*/ 0,
+                mBackgroundExecutor,
                 mBackgroundExecutor,
                 mSyncCallback);
     }

@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticContinuationParameterElement
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -39,8 +40,15 @@ internal sealed class KspMethodElement(
 ),
     XMethodElement {
 
+    @OptIn(KspExperimental::class)
     override val name: String by lazy {
-        declaration.simpleName.asString()
+        try {
+            env.resolver.getJvmName(declaration)
+        } catch (ignored: ClassCastException) {
+            // TODO remove this catch once that issue is fixed.
+            // workaround for https://github.com/google/ksp/issues/164
+            declaration.simpleName.asString()
+        }
     }
 
     override val executableType: XMethodType by lazy {
@@ -52,7 +60,8 @@ internal sealed class KspMethodElement(
     }
 
     override fun isJavaDefault(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) || declaration.isJvmDefault()
+        return declaration.modifiers.contains(Modifier.JAVA_DEFAULT) ||
+            declaration.hasJvmDefaultAnnotation()
     }
 
     override fun asMemberOf(other: XDeclaredType): XMethodType {
@@ -65,7 +74,6 @@ internal sealed class KspMethodElement(
     }
 
     override fun hasKotlinDefaultImpl(): Boolean {
-        // see https://github.com/google/ksp/issues/32
         val parentDeclaration = declaration.parentDeclaration
         // if parent declaration is an interface and we are not marked as an abstract method,
         // we should have a default implementation
@@ -114,7 +122,10 @@ internal sealed class KspMethodElement(
         override fun isSuspendFunction() = true
 
         override val returnType: XType by lazy {
-            env.wrap(env.resolver.builtIns.anyType.makeNullable())
+            env.wrap(
+                ksType = env.resolver.builtIns.anyType.makeNullable(),
+                allowPrimitives = false
+            )
         }
 
         override val parameters: List<XExecutableParameterElement>

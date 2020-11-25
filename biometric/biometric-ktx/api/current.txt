@@ -1,0 +1,30 @@
+// Signature format: 4.0
+package androidx.biometric.auth {
+
+  public final class Class2BiometricAuthExtensionsKt {
+    method public static androidx.biometric.auth.AuthPrompt startClass2BiometricAuthentication(androidx.fragment.app.FragmentActivity, CharSequence title, CharSequence negativeButtonText, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method public static androidx.biometric.auth.AuthPrompt startClass2BiometricAuthentication(androidx.fragment.app.Fragment, CharSequence title, CharSequence negativeButtonText, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+  }
+
+  public final class Class2BiometricOrCredentialAuthExtensionsKt {
+    method public static androidx.biometric.auth.AuthPrompt startClass2BiometricOrCredentialAuthentication(androidx.fragment.app.FragmentActivity, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method public static androidx.biometric.auth.AuthPrompt startClass2BiometricOrCredentialAuthentication(androidx.fragment.app.Fragment, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+  }
+
+  public final class Class3BiometricAuthExtensionsKt {
+    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, CharSequence negativeButtonText, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, CharSequence negativeButtonText, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+  }
+
+  public final class Class3BiometricOrCredentialAuthExtensionsKt {
+    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method public static androidx.biometric.auth.AuthPrompt startClass3BiometricOrCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? subtitle, optional CharSequence? description, optional boolean confirmationRequired, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+  }
+
+  public final class CredentialAuthExtensionsKt {
+    method public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+    method public static androidx.biometric.auth.AuthPrompt startCredentialAuthentication(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.CryptoObject? crypto, CharSequence title, optional CharSequence? description, optional java.util.concurrent.Executor? executor, androidx.biometric.auth.AuthPromptCallback callback);
+  }
+
+}
+

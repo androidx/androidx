@@ -209,39 +209,100 @@ public class Complication internal constructor(
     defaultProviderPolicy: DefaultComplicationProviderPolicy,
     defaultProviderType: ComplicationType
 ) {
-    /** @hide */
-    private companion object {
+    public companion object {
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
+
+        /**
+         * Constructs a [Builder] for a complication with bounds type
+         * [ComplicationBoundsType.ROUND_RECT]. This is the most common type of complication.
+         * These can be single tapped by the user to either trigger the associated intent or
+         * double tapped to open the provider selector.
+         */
+        @JvmStatic
+        public fun createRoundRectComplicationBuilder(
+            /** The watch face's ID for this complication. */
+            id: Int,
+
+            /**
+             * The renderer for this Complication. Renderers may not be sharable between complications.
+             */
+            renderer: CanvasComplication,
+
+            /**
+             * The types of complication supported by this Complication. Passed into
+             * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
+             * configuration.
+             */
+            supportedTypes: List<ComplicationType>,
+
+            /** The [DefaultComplicationProviderPolicy] to use. */
+            defaultProviderPolicy: DefaultComplicationProviderPolicy,
+
+            /**
+             * The fractional bounds for the complication which are clamped to the unit square
+             * [0..1], and subsequently converted to screen space coordinates. NB 0 and 1 are
+             * included in the unit square.
+             */
+            unitSquareBounds: RectF
+        ): Builder = Builder(
+            id,
+            renderer,
+            supportedTypes,
+            defaultProviderPolicy,
+            ComplicationBoundsType.ROUND_RECT,
+            RectF().apply {
+                setIntersect(
+                    unitSquareBounds,
+                    unitSquare
+                )
+            }
+        )
+
+        /**
+         * Constructs a [Builder] for a complication with bound type
+         * [ComplicationBoundsType.BACKGROUND] whose bounds cover the entire screen. A background
+         * complication is for watch faces that wish to have a full screen user selectable
+         * backdrop. This sort of complication isn't clickable and at most one may be present in
+         * the list of complications.
+         */
+        @JvmStatic
+        public fun createBackgroundComplicationBuilder(
+            /** The watch face's ID for this complication. */
+            id: Int,
+
+            /**
+             * The renderer for this Complication. Renderers may not be sharable between complications.
+             */
+            renderer: CanvasComplication,
+
+            /**
+             * The types of complication supported by this Complication. Passed into
+             * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
+             * configuration.
+             */
+            supportedTypes: List<ComplicationType>,
+
+            /** The [DefaultComplicationProviderPolicy] to use. */
+            defaultProviderPolicy: DefaultComplicationProviderPolicy
+        ): Builder = Builder(
+            id,
+            renderer,
+            supportedTypes,
+            defaultProviderPolicy,
+            ComplicationBoundsType.BACKGROUND,
+            RectF(0f, 0f, 1f, 1f)
+        )
     }
 
-    /**
-     * Builder for constructing [Complication]s. Note before [Builder.build] the complication's
-     * bounds & type must be specified by calling one of: [Builder.setUnitSquareBounds] or
-     * [Builder.setAsBackgroundComplication].
-     */
-    public class Builder(
-        /** The watch face's ID for this complication. */
+    /** Builder for constructing [Complication]s. */
+    public class Builder internal constructor(
         private val id: Int,
-
-        /**
-         * The renderer for this Complication. Renderers may not be sharable between complications.
-         */
         private val renderer: CanvasComplication,
-
-        /**
-         * The types of complication supported by this Complication. Passed into
-         * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-         * configuration.
-         */
         private val supportedTypes: List<ComplicationType>,
-
-        /** The [DefaultComplicationProviderPolicy] to use. */
-        private val defaultProviderPolicy: DefaultComplicationProviderPolicy
+        private val defaultProviderPolicy: DefaultComplicationProviderPolicy,
+        @ComplicationBoundsType private val boundsType: Int,
+        private val unitSquareBounds: RectF
     ) {
-        @ComplicationBoundsType
-        private var boundsType: Int? = null
-        private lateinit var unitSquareBounds: RectF
-
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
 
         /**
@@ -254,44 +315,10 @@ public class Complication internal constructor(
             return this
         }
 
-        /**
-         * Sets the fractional bounds for the complication and marks it as having type
-         * [ComplicationBoundsType.ROUND_RECT]. The bounds are  clamped to the unit square [0..1],
-         * and subsequently converted to screen space coordinates. NB 0 and 1 are included in the
-         * unit square.
-         */
-        public fun setUnitSquareBounds(unitSquareBounds: RectF): Builder {
-            boundsType = ComplicationBoundsType.ROUND_RECT
-
-            this.unitSquareBounds = RectF().apply {
-                setIntersect(
-                    unitSquareBounds,
-                    unitSquare
-                )
-            }
-            return this
-        }
-
-        /**
-         * Marks the complication as having type [ComplicationBoundsType.BACKGROUND] and sets
-         * the fractional bounds to cover the entire screen. A background complication is for
-         * watch faces that wish to have a full screen user selectable backdrop. This sort of
-         * complication isn't clickable and at most one may be present in the list of complications.
-         */
-        public fun setAsBackgroundComplication(): Builder {
-            boundsType = ComplicationBoundsType.BACKGROUND
-            this.unitSquareBounds = RectF(0f, 0f, 1f, 1f)
-            return this
-        }
-
-        /**
-         * Constructs the [Complication].  Note we require the complication's bounds & type to have
-         * been be specified by calling one of: [Builder.setUnitSquareBounds] or
-         * [Builder.setAsBackgroundComplication].
-         */
+        /** Constructs the [Complication]. */
         public fun build(): Complication = Complication(
             id,
-            boundsType!!,
+            boundsType,
             unitSquareBounds,
             renderer,
             supportedTypes,
@@ -304,14 +331,14 @@ public class Complication internal constructor(
         canvasComplication.onAttach(this)
     }
 
-    internal interface InvalidateCallback {
+    internal interface InvalidateListener {
         /** Requests redraw. */
         @UiThread
         fun onInvalidate()
     }
 
     private lateinit var complicationsManager: ComplicationsManager
-    private lateinit var invalidateCallback: InvalidateCallback
+    private lateinit var invalidateListener: InvalidateListener
 
     private var _unitSquareBounds = unitSquareBounds
     internal var unitSquareBoundsDirty = true
@@ -455,6 +482,29 @@ public class Complication internal constructor(
     internal var dataDirty = true
 
     /**
+     * The [androidx.wear.complications.data.ComplicationData] associated with the [Complication].
+     */
+    public val complicationData:
+        ObservableWatchData<androidx.wear.complications.data.ComplicationData> =
+            MutableObservableWatchData()
+
+    /**
+     * Whether or not the complication should be considered active and should be rendered at the
+     * specified time.
+     */
+    public fun isActiveAt(dateTimeMillis: Long): Boolean {
+        if (!complicationData.hasValue()) {
+            return false
+        }
+        return when (complicationData.value.type) {
+            ComplicationType.NO_DATA -> false
+            ComplicationType.NO_PERMISSION -> false
+            ComplicationType.EMPTY -> false
+            else -> complicationData.value.isActiveAt(dateTimeMillis)
+        }
+    }
+
+    /**
      * Watch faces should use this method to render a complication. Note the system may call this.
      *
      * @param canvas The [Canvas] to render into
@@ -486,15 +536,15 @@ public class Complication internal constructor(
      * loading a [Drawable].
      */
     public fun invalidate() {
-        invalidateCallback.onInvalidate()
+        invalidateListener.onInvalidate()
     }
 
     internal fun init(
         complicationsManager: ComplicationsManager,
-        invalidateCallback: InvalidateCallback
+        invalidateListener: InvalidateListener
     ) {
         this.complicationsManager = complicationsManager
-        this.invalidateCallback = invalidateCallback
+        this.invalidateListener = invalidateListener
     }
 
     internal fun scheduleUpdateComplications() {

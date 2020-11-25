@@ -227,7 +227,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
+     * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter
@@ -244,7 +244,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
 
     /**
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
+     * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter
@@ -277,62 +277,5 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
             footer.loadState = loadStates.append
         }
         return ConcatAdapter(header, this, footer)
-    }
-
-    /**
-     * A [Flow] of [Boolean] that is emitted when new [PagingData] generations are submitted and
-     * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
-     * `false` otherwise.
-     */
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message = "dataRefreshFlow is now redundant with the information passed from " +
-            "loadStateFlow and getItemCount(), and will be removed in a future alpha version",
-        replaceWith = ReplaceWith(
-            """loadStateFlow.map { it.source.refresh }
-                .filter { it is LoadState.NotLoading }
-                .distinctUntilChanged()""",
-            "androidx.paging.LoadState",
-            "kotlinx.coroutines.flow.distinctUntilChanged",
-            "kotlinx.coroutines.flow.filter",
-            "kotlinx.coroutines.flow.map",
-        )
-    )
-    @ExperimentalPagingApi
-    val dataRefreshFlow: Flow<Boolean> = differ.dataRefreshFlow
-
-    /**
-     * Add a listener to observe new [PagingData] generations.
-     *
-     * @param listener called whenever a new [PagingData] is submitted and displayed. `true` is
-     * passed to the [listener] if the new [PagingData] is empty, `false` otherwise.
-     *
-     * @see removeDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and getItemCount(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        @Suppress("DEPRECATION")
-        differ.addDataRefreshListener(listener)
-    }
-
-    /**
-     * Remove a previously registered listener for new [PagingData] generations.
-     *
-     * @param listener Previously registered listener.
-     *
-     * @see addDataRefreshListener
-     */
-    @Deprecated(
-        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
-            "and getItemCount(), and will be removed in a future alpha version"
-    )
-    @ExperimentalPagingApi
-    fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
-        @Suppress("DEPRECATION")
-        differ.removeDataRefreshListener(listener)
     }
 }

@@ -134,6 +134,11 @@ interface XType {
     fun isType(): Boolean
 
     /**
+     * Returns true if this represented by an [Enum].
+     */
+    fun isEnum(): Boolean
+
+    /**
      * Returns `true` if this is the same raw type as [other]
      */
     fun isTypeOf(other: KClass<*>): Boolean

@@ -60,6 +60,7 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(
             jfos = arrayOf(parentCode, childCode)
         ) {
@@ -137,6 +138,7 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(
             jfos = arrayOf(parentCode, childCode)
         ) {
@@ -190,6 +192,7 @@ class ElementExtTest {
             }
             """.trimIndent()
         )
+        @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         simpleRun(
             jfos = arrayOf(testCode)
         ) {

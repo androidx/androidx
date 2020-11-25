@@ -11,18 +11,18 @@ import kotlin.String
 import kotlin.Suppress
 
 private data class Next(
-  val main: String,
-  val mainInt: Int,
-  val optional: String = "bla",
-  val optionalInt: Int = 239,
-  val optionalParcelable: ActivityInfo? = null,
-  val parcelable: ActivityInfo,
-  val innerData: ActivityInfo.WindowLayout
+  public val main: String,
+  public val mainInt: Int,
+  public val optional: String = "bla",
+  public val optionalInt: Int = 239,
+  public val optionalParcelable: ActivityInfo? = null,
+  public val parcelable: ActivityInfo,
+  public val innerData: ActivityInfo.WindowLayout
 ) : NavDirections {
-  override fun getActionId(): Int = R.id.next
+  public override fun getActionId(): Int = R.id.next
 
   @Suppress("CAST_NEVER_SUCCEEDS")
-  override fun getArguments(): Bundle {
+  public override fun getArguments(): Bundle {
     val result = Bundle()
     result.putString("main", this.main)
     result.putInt("mainInt", this.mainInt)

@@ -16,7 +16,10 @@
 
 package androidx.wear.complications.data
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.drawable.Icon
+import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.ParcelableSubject
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -56,12 +59,14 @@ public class AsWireComplicationDataTest {
     public fun shortTextComplicationData() {
         val data = ShortTextComplicationData.Builder("text".complicationText)
             .setTitle("title".complicationText)
+            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
                     .setShortText(WireComplicationText.plainText("text"))
                     .setShortTitle(WireComplicationText.plainText("title"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
     }
@@ -70,12 +75,14 @@ public class AsWireComplicationDataTest {
     public fun longTextComplicationData() {
         val data = LongTextComplicationData.Builder("text".complicationText)
             .setTitle("title".complicationText)
+            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
                     .setLongText(WireComplicationText.plainText("text"))
                     .setLongTitle(WireComplicationText.plainText("title"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
     }
@@ -84,6 +91,7 @@ public class AsWireComplicationDataTest {
     public fun rangedValueComplicationData() {
         val data = RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
             .setTitle("battery".complicationText)
+            .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
@@ -92,6 +100,7 @@ public class AsWireComplicationDataTest {
                     .setRangedMinValue(0f)
                     .setRangedMaxValue(100f)
                     .setShortTitle(WireComplicationText.plainText("battery"))
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
     }
@@ -100,11 +109,13 @@ public class AsWireComplicationDataTest {
     public fun monochromaticImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = MonochromaticImage.Builder(icon).build()
-        val data = MonochromaticImageComplicationData.Builder(image).build()
+        val data = MonochromaticImageComplicationData.Builder(image)
+            .setContentDescription("content description".complicationText).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                     .setIcon(icon)
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
     }
@@ -113,12 +124,14 @@ public class AsWireComplicationDataTest {
     public fun smallImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
         val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
-        val data = SmallImageComplicationData.Builder(image).build()
+        val data = SmallImageComplicationData.Builder(image)
+            .setContentDescription("content description".complicationText).build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
             .hasSameSerializationAs(
                 WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                     .setSmallImage(icon)
                     .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                    .setContentDescription(WireComplicationText.plainText("content description"))
                     .build()
             )
     }
@@ -126,8 +139,8 @@ public class AsWireComplicationDataTest {
     @Test
     public fun backgroundImageComplicationData() {
         val icon = Icon.createWithContentUri("someuri")
-        val image = BackgroundImage.Builder(icon).build()
-        val data = BackgroundImageComplicationData.Builder(image)
+        val image = PhotoImage.Builder(icon).build()
+        val data = PhotoImageComplicationData.Builder(image)
             .setContentDescription("content description".complicationText)
             .build()
         ParcelableSubject.assertThat(data.asWireComplicationData())
@@ -185,6 +198,7 @@ public class FromWireComplicationDataTest {
             WireComplicationDataBuilder(WireComplicationData.TYPE_SHORT_TEXT)
                 .setShortText(WireComplicationText.plainText("text"))
                 .setShortTitle(WireComplicationText.plainText("title"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
             ComplicationType.SHORT_TEXT
         )
@@ -196,6 +210,7 @@ public class FromWireComplicationDataTest {
             WireComplicationDataBuilder(WireComplicationData.TYPE_LONG_TEXT)
                 .setLongText(WireComplicationText.plainText("text"))
                 .setLongTitle(WireComplicationText.plainText("title"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
             ComplicationType.LONG_TEXT
         )
@@ -209,6 +224,7 @@ public class FromWireComplicationDataTest {
                 .setRangedMinValue(0f)
                 .setRangedMaxValue(100f)
                 .setShortTitle(WireComplicationText.plainText("battery"))
+                .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
             ComplicationType.RANGED_VALUE
         )
@@ -220,6 +236,7 @@ public class FromWireComplicationDataTest {
         assertRoundtrip(
             WireComplicationDataBuilder(WireComplicationData.TYPE_ICON)
                 .setIcon(icon)
+                .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
             ComplicationType.MONOCHROMATIC_IMAGE
         )
@@ -232,6 +249,7 @@ public class FromWireComplicationDataTest {
             WireComplicationDataBuilder(WireComplicationData.TYPE_SMALL_IMAGE)
                 .setSmallImage(icon)
                 .setSmallImageStyle(WireComplicationData.IMAGE_STYLE_PHOTO)
+                .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
             ComplicationType.SMALL_IMAGE
         )
@@ -245,7 +263,7 @@ public class FromWireComplicationDataTest {
                 .setLargeImage(icon)
                 .setContentDescription(WireComplicationText.plainText("content description"))
                 .build(),
-            ComplicationType.BACKGROUND_IMAGE
+            ComplicationType.PHOTO_IMAGE
         )
     }
 
@@ -263,6 +281,67 @@ public class FromWireComplicationDataTest {
         val data = wireData.asApiComplicationData()
         assertThat(data.type).isEqualTo(type)
         ParcelableSubject.assertThat(data.asWireComplicationData()).hasSameSerializationAs(wireData)
+    }
+}
+
+@RunWith(SharedRobolectricTestRunner::class)
+public class TapActionTest {
+    private val mPendingIntent = PendingIntent.getBroadcast(
+        ApplicationProvider.getApplicationContext(),
+        0,
+        Intent(),
+        0
+    )
+
+    @Test
+    public fun shortTextComplicationData() {
+        assertThat(
+            ShortTextComplicationData.Builder("text".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun longTextComplicationData() {
+        assertThat(
+            LongTextComplicationData.Builder("text".complicationText)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun rangedValueComplicationData() {
+        assertThat(
+            RangedValueComplicationData.Builder(value = 95f, min = 0f, max = 100f)
+                .setTapAction(mPendingIntent)
+                .build().asWireComplicationData().tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun monochromaticImageComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = MonochromaticImage.Builder(icon).build()
+        assertThat(
+            MonochromaticImageComplicationData.Builder(image)
+                .setTapAction(mPendingIntent)
+                .build()
+                .asWireComplicationData()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
+    }
+
+    @Test
+    public fun smallImageComplicationData() {
+        val icon = Icon.createWithContentUri("someuri")
+        val image = SmallImage.Builder(icon, SmallImageType.PHOTO).build()
+        assertThat(
+            SmallImageComplicationData.Builder(image).setTapAction(mPendingIntent).build()
+                .asWireComplicationData()
+                .tapAction
+        ).isEqualTo(mPendingIntent)
     }
 }
 

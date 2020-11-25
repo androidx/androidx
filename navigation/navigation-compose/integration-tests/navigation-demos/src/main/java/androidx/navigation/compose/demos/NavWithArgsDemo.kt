@@ -28,7 +28,6 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -55,7 +54,7 @@ fun ProfileWithArgs(navController: NavController) {
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
         Text(text = stringResource(Screen.Profile.resourceId))
         Divider(color = Color.Black)
-        val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+        val state = savedInstanceState { "" }
         Box {
             TextField(
                 value = state.value,
@@ -65,7 +64,7 @@ fun ProfileWithArgs(navController: NavController) {
         }
         Divider(color = Color.Black)
         NavigateButton("Dashboard with userId") {
-            navController.navigate(Screen.Dashboard.route + "?userId=" + state.value.text)
+            navController.navigate(Screen.Dashboard.route + "?userId=" + state.value)
         }
     }
 }

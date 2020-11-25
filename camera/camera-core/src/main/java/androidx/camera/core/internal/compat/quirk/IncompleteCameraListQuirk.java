@@ -23,6 +23,7 @@ import androidx.camera.core.impl.Quirk;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A quirk where querying the device for cameras will intermittently report an incomplete camera id
@@ -43,6 +44,6 @@ public class IncompleteCameraListQuirk implements Quirk {
                     "a2corelte", "j6lte"));
 
     static boolean load() {
-        return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase());
+        return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.toLowerCase(Locale.getDefault()));
     }
 }

@@ -1,5 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                return String.format(&quot;%02d:%02d:%02d&quot;,"
+        errorLine2="                       ^">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4143"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_EXIF_OFFSET`"
+        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5889"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_EXIF_LENGTH`"
+        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5891"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_HAS_IMAGE`"
+        errorLine1="                    MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5893"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_WIDTH`"
+        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_WIDTH);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5906"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_HEIGHT`"
+        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_HEIGHT);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5908"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_IMAGE_ROTATION`"
+        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_IMAGE_ROTATION);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5910"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 17 (current min is 14): `android.media.MediaMetadataRetriever#METADATA_KEY_VIDEO_ROTATION`"
+        errorLine1="                        MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5917"
+            column="25"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"

@@ -23,7 +23,7 @@ import androidx.annotation.UiThread
  *
  * @param <T> The type of data hold by this instance
  */
-public open class ObservableWatchData<T : Any> protected constructor(internal var _value: T?) {
+public open class ObservableWatchData<T : Any> internal constructor(internal var _value: T?) {
 
     private var iterating = false
     private val observers = ArrayList<Observer<T>>()
@@ -32,7 +32,9 @@ public open class ObservableWatchData<T : Any> protected constructor(internal va
     /** Whether or not this ObservableWatchData contains a value. */
     public fun hasValue(): Boolean = _value != null
 
-    /** Returns the value contained within this ObservableWatchData or default if there isn't one. */
+    /**
+     * Returns the value contained within this ObservableWatchData or default if there isn't one.
+     */
     public fun getValueOr(default: T): T = if (_value != null) {
         _value!!
     } else {
@@ -66,8 +68,8 @@ public open class ObservableWatchData<T : Any> protected constructor(internal va
 
     /**
      * Adds the given observer to the observers list. The events are dispatched on the ui thread.
-     * If there's any data held within the ObservableWatchData it will be immediately delivered to the
-     * observer.
+     * If there's any data held within the ObservableWatchData it will be immediately delivered to
+     * the observer.
      */
     @UiThread
     public fun addObserver(observer: Observer<T>) {
@@ -94,11 +96,10 @@ public open class ObservableWatchData<T : Any> protected constructor(internal va
 }
 
 /**
- * [ObservableWatchData] which publicly exposes [setValue(T)] method
+ * [ObservableWatchData] which publicly exposes [setValue(T)] method.
  *
  * @param <T> The type of data hold by this instance
  */
-@SuppressWarnings("WeakerAccess")
 public class MutableObservableWatchData<T : Any>(initialValue: T?) :
     ObservableWatchData<T>(initialValue) {
     public constructor() : this(null)

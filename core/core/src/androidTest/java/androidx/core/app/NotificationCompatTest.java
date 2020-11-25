@@ -42,13 +42,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.widget.RemoteViews;
 
@@ -1341,6 +1344,112 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(Color.BLUE, n.ledARGB);
         assertEquals(100, n.ledOnMS);
         assertEquals(100, n.ledOffMS);
+    }
+
+    @SdkSuppress(minSdkVersion = 16)
+    @Test
+    public void testBigPictureStyle_withNullBigLargeIcon() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(null)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        // Extras are not populated before KITKAT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Bundle extras = NotificationCompat.getExtras(n);
+            assertNotNull(extras);
+            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testBigPictureStyle_isRecovered() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(new NotificationCompat.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Notification.Builder builder = Notification.Builder.recoverBuilder(mContext, n);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            Notification.Style style = builder.getStyle();
+            assertNotNull(style);
+            assertSame(Notification.BigPictureStyle.class, style.getClass());
+        }
+        builder.getExtras().remove(Notification.EXTRA_LARGE_ICON_BIG);
+        Icon icon = builder.build().extras.getParcelable(Notification.EXTRA_LARGE_ICON_BIG);
+        assertNotNull(icon);
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testBigPictureStyle_recoverStyleWithBitmap() {
+        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg_low_pressed);
+        Notification n = new Notification.Builder(mContext)
+                .setSmallIcon(1)
+                .setStyle(new Notification.BigPictureStyle()
+                        .bigPicture(bitmap)
+                        .bigLargeIcon(bitmap)
+                        .setBigContentTitle("Big Content Title")
+                        .setSummaryText("Summary Text"))
+                .build();
+        Parcelable firstBuiltIcon = n.extras.getParcelable(Notification.EXTRA_LARGE_ICON_BIG);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertSame(Icon.class, firstBuiltIcon.getClass());
+            assertEquals(Icon.TYPE_BITMAP, ((Icon) firstBuiltIcon).getType());
+        } else {
+            assertSame(Bitmap.class, firstBuiltIcon.getClass());
+        }
+
+        Style style = Style.extractStyleFromNotification(n);
+        assertNotNull(style);
+        assertSame(NotificationCompat.BigPictureStyle.class, style.getClass());
+        n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(style)
+                .build();
+        Parcelable rebuiltIcon = n.extras.getParcelable(Notification.EXTRA_LARGE_ICON_BIG);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            assertSame(Icon.class, rebuiltIcon.getClass());
+            assertEquals(Icon.TYPE_BITMAP, ((Icon) rebuiltIcon).getType());
+        } else {
+            assertSame(Bitmap.class, rebuiltIcon.getClass());
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBigPictureStyle_recoverStyleWithResIcon() {
+        Notification n = new Notification.Builder(mContext)
+                .setSmallIcon(1)
+                .setStyle(new Notification.BigPictureStyle()
+                        .bigLargeIcon(Icon.createWithResource(mContext,
+                                R.drawable.notification_template_icon_bg)))
+                .build();
+        Icon firstBuiltIcon = n.extras.getParcelable(Notification.EXTRA_LARGE_ICON_BIG);
+        assertEquals(Icon.TYPE_RESOURCE, firstBuiltIcon.getType());
+
+        Style style = Style.extractStyleFromNotification(n);
+        assertNotNull(style);
+        assertSame(NotificationCompat.BigPictureStyle.class, style.getClass());
+        n = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(1)
+                .setStyle(style)
+                .build();
+        Icon rebuiltIcon = n.extras.getParcelable(Notification.EXTRA_LARGE_ICON_BIG);
+        assertEquals(Icon.TYPE_RESOURCE, rebuiltIcon.getType());
     }
 
     @SdkSuppress(minSdkVersion = 16)

@@ -41,7 +41,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 abstract class MigrationDbKotlin : RoomDatabase() {
 
     internal abstract fun dao(): MigrationDao
-
+    @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
     @Entity(indices = arrayOf(Index(value = ["name"], unique = true)))
     data class Entity1(@PrimaryKey var id: Int = 0, var name: String?) {
 

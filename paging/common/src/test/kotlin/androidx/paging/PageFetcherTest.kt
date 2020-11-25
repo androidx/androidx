@@ -280,7 +280,7 @@ class PageFetcherTest {
         assertTrue { remoteMediatorMock.loadEvents.isEmpty() }
 
         fetcherState.pagingDataList[0].receiver.accessHint(
-            ViewportHint(
+            ViewportHint.Access(
                 pageOffset = 0,
                 indexInPage = 1,
                 presentedItemsBefore = 0,
@@ -325,7 +325,7 @@ class PageFetcherTest {
 
             // Jump due to sufficiently large presentedItemsBefore
             fetcherState.pagingDataList[0].receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
                     indexInPage = 0,
@@ -348,7 +348,7 @@ class PageFetcherTest {
 
             // Jump due to sufficiently large presentedItemsAfter
             fetcherState.pagingDataList[1].receiver.accessHint(
-                ViewportHint(
+                ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
                     indexInPage = 0,
@@ -431,6 +431,128 @@ class PageFetcherTest {
 
         assertEquals(1, invalidatesFromAdapter)
         job.cancel()
+    }
+
+    @Test
+    fun invalidateBeforeAccessPreservesPagingState() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 3,
+            )
+            val pagingSources = mutableListOf<TestPagingSource>()
+            val pageFetcher = PageFetcher(
+                pagingSourceFactory = {
+                    TestPagingSource(loadDelay = 1000).also {
+                        pagingSources.add(it)
+                    }
+                },
+                initialKey = 50,
+                config = config,
+            )
+
+            lateinit var pagingData: PagingData<Int>
+            val job = launch() {
+                pageFetcher.flow.collectLatest {
+                    pagingData = it
+                    it.flow.collect { }
+                }
+            }
+
+            advanceUntilIdle()
+
+            // Trigger access to allow PagingState to get populated for next generation.
+            pagingData.receiver.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 1,
+                    presentedItemsBefore = 1,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+            advanceUntilIdle()
+
+            // Invalidate first generation, instantiating second generation.
+            pagingSources[0].invalidate()
+
+            // Invalidate second generation before it has a chance to complete initial load.
+            advanceTimeBy(500)
+            pagingSources[1].invalidate()
+
+            // Wait for all non-canceled loads to complete.
+            advanceUntilIdle()
+
+            // Verify 3 generations were instantiated.
+            assertThat(pagingSources.size).isEqualTo(3)
+
+            // First generation should use initialKey.
+            assertThat(pagingSources[0].getRefreshKeyCalls).isEmpty()
+
+            // Second generation should receive getRefreshKey call with state from first generation.
+            assertThat(pagingSources[1].getRefreshKeyCalls).isEqualTo(
+                listOf(
+                    PagingState(
+                        pages = pagingSources[0].loadedPages,
+                        anchorPosition = 51,
+                        config = config,
+                        leadingPlaceholderCount = 50,
+                    )
+                )
+            )
+
+            // Verify second generation was invalidated before any pages loaded.
+            assertThat(pagingSources[1].loadedPages).isEmpty()
+
+            // Third generation should receive getRefreshKey call with state from first generation.
+            assertThat(pagingSources[0].loadedPages.size).isEqualTo(1)
+            assertThat(pagingSources[2].getRefreshKeyCalls).isEqualTo(
+                listOf(
+                    PagingState(
+                        pages = pagingSources[0].loadedPages,
+                        anchorPosition = 51,
+                        config = config,
+                        leadingPlaceholderCount = 50,
+                    )
+                )
+            )
+
+            advanceUntilIdle()
+            // Trigger APPEND in third generation.
+            pagingData.receiver.accessHint(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 2,
+                    presentedItemsBefore = 2,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+            advanceUntilIdle()
+
+            // Invalidate third generation, instantiating fourth generation with new PagingState.
+            pagingSources[2].invalidate()
+            advanceUntilIdle()
+
+            // Fourth generation should receive getRefreshKey call with state from third generation.
+            assertThat(pagingSources[2].loadedPages.size).isEqualTo(2)
+            assertThat(pagingSources[3].getRefreshKeyCalls).isEqualTo(
+                listOf(
+                    PagingState(
+                        pages = pagingSources[2].loadedPages,
+                        anchorPosition = 53,
+                        config = config,
+                        leadingPlaceholderCount = 51,
+                    )
+                )
+            )
+
+            job.cancel()
+        }
     }
 }
 

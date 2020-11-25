@@ -9,7 +9,7 @@ package androidx.navigation.compose {
   }
 
   @androidx.navigation.NavDestination.ClassType(Composable::class) public static final class ComposeNavigator.Destination extends androidx.navigation.NavDestination {
-    ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, internal kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    ctor public ComposeNavigator.Destination(androidx.navigation.compose.ComposeNavigator navigator, kotlin.jvm.functions.Function1<? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
   public final class NamedNavArgument {

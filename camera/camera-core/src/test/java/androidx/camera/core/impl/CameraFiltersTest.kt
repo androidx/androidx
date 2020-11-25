@@ -16,9 +16,8 @@
 
 package androidx.camera.core.impl
 
-import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -33,34 +32,26 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 class CameraFiltersTest {
-    private val mCameras: LinkedHashSet<Camera> = linkedSetOf()
+    private val mCameraInfos: ArrayList<CameraInfo> = arrayListOf()
 
     @Before
     fun setUp() {
-        val fakeCamera0 = FakeCamera(
-            "0",
-            null,
-            FakeCameraInfoInternal("0", 0, CameraSelector.LENS_FACING_BACK)
-        )
-        mCameras.add(fakeCamera0)
+        val fakeCameraInfo0 = FakeCameraInfoInternal("0", 0, CameraSelector.LENS_FACING_BACK)
+        mCameraInfos.add(fakeCameraInfo0)
 
-        val fakeCamera1 = FakeCamera(
-            "1",
-            null,
-            FakeCameraInfoInternal("1", 180, CameraSelector.LENS_FACING_FRONT)
-        )
-        mCameras.add(fakeCamera1)
+        val fakeCameraInfo1 = FakeCameraInfoInternal("1", 180, CameraSelector.LENS_FACING_FRONT)
+        mCameraInfos.add(fakeCameraInfo1)
     }
 
     @Test
     fun filterAny() {
-        val resultCameras = CameraFilters.ANY.filter(mCameras)
-        assertThat(resultCameras).isEqualTo(mCameras)
+        val resultCameras = CameraFilters.ANY.filter(mCameraInfos)
+        assertThat(resultCameras).isEqualTo(mCameraInfos)
     }
 
     @Test
     fun filterNone() {
-        val resultCameras = CameraFilters.NONE.filter(mCameras)
+        val resultCameras = CameraFilters.NONE.filter(mCameraInfos)
         assertThat(resultCameras).isEmpty()
     }
 }

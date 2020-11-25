@@ -31,7 +31,7 @@ internal class KspFieldElement(
     val containing: KspTypeElement
 ) : KspElement(env, declaration),
     XFieldElement,
-    XHasModifiers by KspHasModifiers(declaration),
+    XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, FIELD) {
 
     override val equalityItems: Array<out Any?> by lazy {
@@ -46,8 +46,11 @@ internal class KspFieldElement(
         declaration.simpleName.asString()
     }
 
-    override val type: XType by lazy {
-        env.wrap(declaration.typeAsMemberOf(env.resolver, containing.type.ksType))
+    override val type: KspType by lazy {
+        env.wrap(
+            originatingReference = declaration.type,
+            ksType = declaration.typeAsMemberOf(env.resolver, containing.type.ksType)
+        )
     }
 
     override fun asMemberOf(other: XDeclaredType): XType {
@@ -56,7 +59,10 @@ internal class KspFieldElement(
         }
         check(other is KspType)
         val asMember = declaration.typeAsMemberOf(env.resolver, other.ksType)
-        return env.wrap(asMember)
+        return env.wrap(
+            originatingReference = declaration.type,
+            ksType = asMember
+        )
     }
 
     fun copyTo(newContaining: KspTypeElement) = KspFieldElement(

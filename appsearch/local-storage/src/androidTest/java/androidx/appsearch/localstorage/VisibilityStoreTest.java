@@ -36,41 +36,25 @@ public class VisibilityStoreTest {
     @Before
     public void setUp() throws Exception {
         mAppSearchImpl = AppSearchImpl.create(mTemporaryFolder.newFolder());
-        mVisibilityStore = mAppSearchImpl.getVisibilityStore();
+        mVisibilityStore = mAppSearchImpl.getVisibilityStoreLocked();
     }
 
     @Test
     public void testSetVisibility() throws Exception {
         mVisibilityStore.setVisibility(
-                "database", /*platformHiddenSchemas=*/ Set.of("schema1", "schema2"));
-        assertThat(mVisibilityStore.getPlatformHiddenSchemas("database"))
+                "database", /*schemasNotPlatformSurfaceable=*/ Set.of("schema1", "schema2"));
+        assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database"))
                 .containsExactly("schema1", "schema2");
 
         // New .setVisibility() call completely overrides previous visibility settings. So
         // "schema1" isn't preserved.
         mVisibilityStore.setVisibility(
-                "database", /*platformHiddenSchemas=*/ Set.of("schema1", "schema3"));
-        assertThat(mVisibilityStore.getPlatformHiddenSchemas("database"))
+                "database", /*schemasNotPlatformSurfaceable=*/ Set.of("schema1", "schema3"));
+        assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database"))
                 .containsExactly("schema1", "schema3");
 
         mVisibilityStore.setVisibility(
-                "database", /*platformHiddenSchemas=*/ Collections.emptySet());
-        assertThat(mVisibilityStore.getPlatformHiddenSchemas("database")).isEmpty();
+                "database", /*schemasNotPlatformSurfaceable=*/ Collections.emptySet());
+        assertThat(mVisibilityStore.getSchemasNotPlatformSurfaceable("database")).isEmpty();
     }
-
-    @Test
-    public void testRemoveSchemas() throws Exception {
-        mVisibilityStore.setVisibility(
-                "database", /*platformHiddenSchemas=*/ Set.of("schema1", "schema2"));
-
-        // Removed just schema1
-        mVisibilityStore.updateSchemas("database", /*schemasToRemove=*/ Set.of("schema1"));
-        assertThat(mVisibilityStore.getPlatformHiddenSchemas("database"))
-                .containsExactly("schema2");
-
-        // Removed everything now
-        mVisibilityStore.updateSchemas("database", /*schemasToRemove=*/ Set.of("schema2"));
-        assertThat(mVisibilityStore.getPlatformHiddenSchemas("database")).isEmpty();
-    }
-
 }

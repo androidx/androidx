@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.internal.utils.ImageUtil;
+import androidx.core.util.Preconditions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,6 +67,10 @@ public class ViewPorts {
             @ViewPort.ScaleType int scaleType,
             @ViewPort.LayoutDirection int layoutDirection,
             @NonNull Map<UseCase, Size> useCaseSizes) {
+        Preconditions.checkArgument(
+                fullSensorRect.width() > 0 && fullSensorRect.height() > 0,
+                "Cannot compute viewport crop rects zero sized sensor rect.");
+
         // The key to calculate the crop rect is that all the crop rect should match to the same
         // region on camera sensor. This method first calculates the shared camera region, and then
         // maps it use cases to find out their crop rects.

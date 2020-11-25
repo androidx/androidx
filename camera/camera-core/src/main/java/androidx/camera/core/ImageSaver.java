@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.content.ContentValues;
-import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -25,8 +24,10 @@ import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.internal.utils.ImageUtil.CodecFailedException;
+import androidx.core.util.Preconditions;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileLock;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -56,53 +58,69 @@ final class ImageSaver implements Runnable {
     @NonNull
     private final ImageCapture.OutputFileOptions mOutputFileOptions;
     // The executor to call back on
-    private final Executor mExecutor;
+    private final Executor mUserCallbackExecutor;
     // The callback to call on completion
-    final OnImageSavedCallback mCallback;
+    private final OnImageSavedCallback mCallback;
+    private final Executor mSequentialIoExecutor;
 
     ImageSaver(
             ImageProxy image,
             @NonNull ImageCapture.OutputFileOptions outputFileOptions,
             int orientation,
-            Executor executor,
+            Executor userCallbackExecutor,
+            Executor sequentialIoExecutor,
             OnImageSavedCallback callback) {
         mImage = image;
         mOutputFileOptions = outputFileOptions;
         mOrientation = orientation;
         mCallback = callback;
-        mExecutor = executor;
+        mUserCallbackExecutor = userCallbackExecutor;
+        mSequentialIoExecutor = sequentialIoExecutor;
     }
 
     @Override
     public void run() {
-        // Finally, we save the file to disk
+        // Save the image to a temp file first. This is necessary because ExifInterface only
+        // supports saving to File.
+        File tempFile = saveImageToTempFile();
+        if (tempFile != null) {
+            // Post copying on a sequential executor. If the user provided saving destination maps
+            // to a specific file on disk, accessing the file from multiple threads is not safe.
+            mSequentialIoExecutor.execute(() -> copyTempFileToDestination(tempFile));
+        }
+    }
+
+    /**
+     * Saves the {@link #mImage} to a temp file.
+     *
+     * <p> It also crops the image and update Exif if necessary. Returns null if saving failed.
+     */
+    @Nullable
+    private File saveImageToTempFile() {
+        File tempFile;
+        try {
+            tempFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+        } catch (IOException e) {
+            postError(SaveError.FILE_IO_FAILED, "Failed to create temp file", e);
+            return null;
+        }
+
         SaveError saveError = null;
         String errorMessage = null;
         Exception exception = null;
-
-        File file;
-        Uri outputUri = null;
-        try {
-            // Create a temp file if the save location is not a file. This is necessary because
-            // ExifInterface only supports saving to File.
-            file = isSaveToFile() ? mOutputFileOptions.getFile() :
-                    File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
-        } catch (IOException e) {
-            postError(SaveError.FILE_IO_FAILED, "Failed to create temp file", e);
-            return;
-        }
-
         try (ImageProxy imageToClose = mImage;
-             FileOutputStream output = new FileOutputStream(file)) {
+             FileOutputStream output = new FileOutputStream(tempFile)) {
             byte[] bytes = ImageUtil.imageToJpegByteArray(mImage);
             output.write(bytes);
 
-            Exif exif = Exif.createFromFile(file);
+            Exif exif = Exif.createFromFile(tempFile);
             exif.attachTimestamp();
 
             // Use exif for orientation (contains rotation only) from the original image if JPEG,
-            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392
-            if (mImage.getFormat() == ImageFormat.JPEG) {
+            // because imageToJpegByteArray removes EXIF in certain conditions. See b/124280392.
+            // Retrieve the orientation value from the embedded EXIF data in the captured image
+            // only if it is available.
+            if (new ExifRotationAvailability().shouldUseExifOrientation(mImage)) {
                 ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
                 // Rewind to make sure it is at the beginning of the buffer
                 buffer.rewind();
@@ -129,31 +147,9 @@ final class ImageSaver implements Runnable {
             }
 
             exif.save();
-
-            if (isSaveToMediaStore()) {
-                ContentValues values = mOutputFileOptions.getContentValues() != null
-                        ? new ContentValues(mOutputFileOptions.getContentValues())
-                        : new ContentValues();
-                setContentValuePending(values, PENDING);
-                outputUri = mOutputFileOptions.getContentResolver().insert(
-                        mOutputFileOptions.getSaveCollection(),
-                        values);
-                if (outputUri == null) {
-                    saveError = SaveError.FILE_IO_FAILED;
-                    errorMessage = "Failed to insert URI.";
-                } else {
-                    if (!copyTempFileToUri(file, outputUri)) {
-                        saveError = SaveError.FILE_IO_FAILED;
-                        errorMessage = "Failed to save to URI.";
-                    }
-                    setUriNotPending(outputUri);
-                }
-            } else if (isSaveToOutputStream()) {
-                copyTempFileToOutputStream(file, mOutputFileOptions.getOutputStream());
-            }
         } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
-            errorMessage = "Failed to write or close the file";
+            errorMessage = "Failed to write temp file";
             exception = e;
         } catch (CodecFailedException e) {
             switch (e.getFailureType()) {
@@ -172,13 +168,64 @@ final class ImageSaver implements Runnable {
                     break;
             }
             exception = e;
-        } finally {
-            if (!isSaveToFile()) {
-                // Cleanup temp file if created.
-                file.delete();
-            }
         }
+        if (saveError != null) {
+            postError(saveError, errorMessage, exception);
+            tempFile.delete();
+            return null;
+        }
+        return tempFile;
+    }
 
+    /**
+     * Copy the temp file to user specified destination.
+     *
+     * <p> The temp file will be deleted afterwards.
+     */
+    void copyTempFileToDestination(@NonNull File tempFile) {
+        Preconditions.checkNotNull(tempFile);
+        SaveError saveError = null;
+        String errorMessage = null;
+        Exception exception = null;
+        Uri outputUri = null;
+        try {
+            if (isSaveToMediaStore()) {
+                ContentValues values = mOutputFileOptions.getContentValues() != null
+                        ? new ContentValues(mOutputFileOptions.getContentValues())
+                        : new ContentValues();
+                setContentValuePending(values, PENDING);
+                outputUri = mOutputFileOptions.getContentResolver().insert(
+                        mOutputFileOptions.getSaveCollection(),
+                        values);
+                if (outputUri == null) {
+                    saveError = SaveError.FILE_IO_FAILED;
+                    errorMessage = "Failed to insert URI.";
+                } else {
+                    if (!copyTempFileToUri(tempFile, outputUri)) {
+                        saveError = SaveError.FILE_IO_FAILED;
+                        errorMessage = "Failed to save to URI.";
+                    }
+                    setUriNotPending(outputUri);
+                }
+            } else if (isSaveToOutputStream()) {
+                copyTempFileToOutputStream(tempFile, mOutputFileOptions.getOutputStream());
+            } else if (isSaveToFile()) {
+                try (FileOutputStream fileOutputStream = new FileOutputStream(
+                        mOutputFileOptions.getFile())) {
+                    // Lock the file as a precaution. If concurrent access happens, it will
+                    // provide a meaningful error.
+                    FileLock fileLock = fileOutputStream.getChannel().lock();
+                    copyTempFileToOutputStream(tempFile, fileOutputStream);
+                    fileLock.release();
+                }
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            saveError = SaveError.FILE_IO_FAILED;
+            errorMessage = "Failed to write destination file.";
+            exception = e;
+        } finally {
+            tempFile.delete();
+        }
         if (saveError != null) {
             postError(saveError, errorMessage, exception);
         } else {
@@ -248,7 +295,7 @@ final class ImageSaver implements Runnable {
 
     private void postSuccess(@Nullable Uri outputUri) {
         try {
-            mExecutor.execute(
+            mUserCallbackExecutor.execute(
                     () -> mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri)));
         } catch (RejectedExecutionException e) {
             Logger.e(TAG,
@@ -260,7 +307,7 @@ final class ImageSaver implements Runnable {
     private void postError(SaveError saveError, final String message,
             @Nullable final Throwable cause) {
         try {
-            mExecutor.execute(() -> mCallback.onError(saveError, message, cause));
+            mUserCallbackExecutor.execute(() -> mCallback.onError(saveError, message, cause));
         } catch (RejectedExecutionException e) {
             Logger.e(TAG, "Application executor rejected executing OnImageSavedCallback.onError "
                     + "callback. Skipping.");
@@ -282,6 +329,7 @@ final class ImageSaver implements Runnable {
 
         void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults);
 
-        void onError(SaveError saveError, String message, @Nullable Throwable cause);
+        void onError(@NonNull SaveError saveError, @NonNull String message,
+                @Nullable Throwable cause);
     }
 }

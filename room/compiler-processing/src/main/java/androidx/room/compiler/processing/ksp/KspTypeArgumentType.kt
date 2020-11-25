@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
@@ -33,6 +34,10 @@ internal class KspTypeArgumentType(
     ksType = typeArg.requireType()
 ) {
     override val typeName: TypeName by lazy {
-        typeArg.typeName(typeParam)
+        typeArg.typeName(typeParam, env.resolver)
+    }
+
+    override fun boxed(): XType {
+        return this
     }
 }

@@ -1,5 +1,1177 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
+        errorLine1="            if (file.toLowerCase().endsWith(&quot;.xml&quot;)) {"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/res/ResourcesCompat.java"
+            line="445"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="DiscouragedPrivateApi"
+        message="Reflective access to getScaledScrollFactor, which is not part of the public SDK and therefore likely to change in future Android releases"
+        errorLine1="                        ViewConfiguration.class.getDeclaredMethod(&quot;getScaledScrollFactor&quot;);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewConfigurationCompat.java"
+            line="42"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="DiscouragedPrivateApi"
+        message="Reflective access to getViewRootImpl, which is not part of the public SDK and therefore likely to change in future Android releases"
+        errorLine1="                sGetViewRootImplMethod = View.class.getDeclaredMethod(&quot;getViewRootImpl&quot;);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
+            line="1151"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;notification_background&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout (present in layout-v16, layout-v21)"
+        errorLine1="    android:id=&quot;@+id/notification_background&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="19"
+            column="5"/>
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;icon&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout-v21 (present in layout, layout-v16)"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="26"
+            column="16"/>
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="22"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;time&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout (present in layout-v16, layout-v21)"
+        errorLine1="                &lt;ViewStub android:id=&quot;@+id/time&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="58"
+            column="27"/>
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="51"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;chronometer&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout (present in layout-v16, layout-v21)"
+        errorLine1="                &lt;ViewStub android:id=&quot;@+id/chronometer&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="64"
+            column="27"/>
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="57"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;right_icon&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout-v21 (present in layout, layout-v16)"
+        errorLine1="            &lt;ImageView android:id=&quot;@+id/right_icon&quot;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="65"
+            column="24"/>
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="82"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;action_divider&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout (present in layout-v16, layout-v21)"
+        errorLine1="            android:id=&quot;@+id/action_divider&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="98"
+            column="13"/>
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="76"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;actions&quot; in layout &quot;notification_template_custom_big&quot; is missing from the following layout configurations: layout (present in layout-v16, layout-v21)"
+        errorLine1="            android:id=&quot;@+id/actions&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="104"
+            column="13"/>
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="80"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InconsistentLayout"
+        message="The id &quot;right_icon&quot; in layout &quot;notification_template_icon_group&quot; is missing from the following layout configurations: layout (present in layout-v21)"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/right_icon&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_icon_group.xml"
+            line="33"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionShowOnScreen`"
+        errorLine1="                        android.R.id.accessibilityActionShowOnScreen, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="408"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionScrollToPosition`"
+        errorLine1="                        : null, android.R.id.accessibilityActionScrollToPosition, null, null,"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="425"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionScrollUp`"
+        errorLine1="                        android.R.id.accessibilityActionScrollUp, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="434"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionScrollLeft`"
+        errorLine1="                        android.R.id.accessibilityActionScrollLeft, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="441"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionScrollDown`"
+        errorLine1="                        android.R.id.accessibilityActionScrollDown, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="449"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionScrollRight`"
+        errorLine1="                        android.R.id.accessibilityActionScrollRight, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="457"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.R.id#accessibilityActionPageUp`"
+        errorLine1="                        android.R.id.accessibilityActionPageUp, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="466"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.R.id#accessibilityActionPageDown`"
+        errorLine1="                        android.R.id.accessibilityActionPageDown, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="475"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.R.id#accessibilityActionPageLeft`"
+        errorLine1="                        android.R.id.accessibilityActionPageLeft, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="484"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 29 (current min is 14): `android.R.id#accessibilityActionPageRight`"
+        errorLine1="                        android.R.id.accessibilityActionPageRight, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="493"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.R.id#accessibilityActionContextClick`"
+        errorLine1="                        android.R.id.accessibilityActionContextClick, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="501"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.R.id#accessibilityActionSetProgress`"
+        errorLine1="                        android.R.id.accessibilityActionSetProgress, null, null,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="516"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.R.id#accessibilityActionMoveWindow`"
+        errorLine1="                        android.R.id.accessibilityActionMoveWindow, null, null,"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="529"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.R.id#accessibilityActionShowTooltip`"
+        errorLine1="                        android.R.id.accessibilityActionShowTooltip, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="538"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.R.id#accessibilityActionHideTooltip`"
+        errorLine1="                        android.R.id.accessibilityActionHideTooltip, null, null, null);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="547"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.app.AppOpsManager#MODE_ALLOWED`"
+        errorLine1="    public static final int MODE_ALLOWED = AppOpsManager.MODE_ALLOWED;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="36"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.app.AppOpsManager#MODE_IGNORED`"
+        errorLine1="    public static final int MODE_IGNORED = AppOpsManager.MODE_IGNORED;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="43"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.app.AppOpsManager#MODE_ERRORED`"
+        errorLine1="    public static final int MODE_ERRORED = AppOpsManager.MODE_ERRORED;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="50"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.AppOpsManager#MODE_DEFAULT`"
+        errorLine1="    public static final int MODE_DEFAULT = AppOpsManager.MODE_DEFAULT;"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/AppOpsManagerCompat.java"
+            line="58"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.Manifest.permission#USE_FINGERPRINT`"
+        errorLine1="    @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
+            line="64"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.Manifest.permission#USE_FINGERPRINT`"
+        errorLine1="    @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
+            line="79"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.Manifest.permission#USE_FINGERPRINT`"
+        errorLine1="    @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/hardware/fingerprint/FingerprintManagerCompat.java"
+            line="103"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#TTC_INDEX`"
+        errorLine1="        public static final String TTC_INDEX = android.provider.FontsContract.Columns.TTC_INDEX;"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="96"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#VARIATION_SETTINGS`"
+        errorLine1="                android.provider.FontsContract.Columns.VARIATION_SETTINGS;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="103"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#WEIGHT`"
+        errorLine1="        public static final String WEIGHT = android.provider.FontsContract.Columns.WEIGHT;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="110"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#ITALIC`"
+        errorLine1="        public static final String ITALIC = android.provider.FontsContract.Columns.ITALIC;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="116"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#RESULT_CODE`"
+        errorLine1="        public static final String RESULT_CODE = android.provider.FontsContract.Columns.RESULT_CODE;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="125"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#RESULT_CODE_OK`"
+        errorLine1="                android.provider.FontsContract.Columns.RESULT_CODE_OK;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="133"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#RESULT_CODE_FONT_NOT_FOUND`"
+        errorLine1="                android.provider.FontsContract.Columns.RESULT_CODE_FONT_NOT_FOUND;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="138"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#RESULT_CODE_FONT_UNAVAILABLE`"
+        errorLine1="                android.provider.FontsContract.Columns.RESULT_CODE_FONT_UNAVAILABLE;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="145"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.provider.FontsContract.Columns#RESULT_CODE_MALFORMED_QUERY`"
+        errorLine1="                android.provider.FontsContract.Columns.RESULT_CODE_MALFORMED_QUERY;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="151"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.graphics.drawable.Icon#TYPE_BITMAP`"
+        errorLine1="    public static final int TYPE_BITMAP   = Icon.TYPE_BITMAP;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="94"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.graphics.drawable.Icon#TYPE_RESOURCE`"
+        errorLine1="    public static final int TYPE_RESOURCE = Icon.TYPE_RESOURCE;"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="98"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.graphics.drawable.Icon#TYPE_DATA`"
+        errorLine1="    public static final int TYPE_DATA     = Icon.TYPE_DATA;"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="102"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.graphics.drawable.Icon#TYPE_URI`"
+        errorLine1="    public static final int TYPE_URI      = Icon.TYPE_URI;"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="106"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.graphics.drawable.Icon#TYPE_ADAPTIVE_BITMAP`"
+        errorLine1="    public static final int TYPE_ADAPTIVE_BITMAP = Icon.TYPE_ADAPTIVE_BITMAP;"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="110"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.content.pm.PackageManager#MATCH_UNINSTALLED_PACKAGES`"
+        errorLine1="                        resPackage, PackageManager.MATCH_UNINSTALLED_PACKAGES);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="742"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.view.View#SCROLL_AXIS_NONE`"
+        errorLine1="            mNestedScrollAxesNonTouch = ViewGroup.SCROLL_AXIS_NONE;"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/NestedScrollingParentHelper.java"
+            line="115"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.view.View#SCROLL_AXIS_NONE`"
+        errorLine1="            mNestedScrollAxesTouch = ViewGroup.SCROLL_AXIS_NONE;"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/NestedScrollingParentHelper.java"
+            line="117"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.media.AudioManager#STREAM_ACCESSIBILITY`"
+        errorLine1="            AudioManager.STREAM_DTMF, AudioManager.STREAM_ACCESSIBILITY})"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="597"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#VISIBILITY_PUBLIC`"
+        errorLine1="    public static final int VISIBILITY_PUBLIC = Notification.VISIBILITY_PUBLIC;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="611"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#VISIBILITY_PRIVATE`"
+        errorLine1="    public static final int VISIBILITY_PRIVATE = Notification.VISIBILITY_PRIVATE;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="619"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#VISIBILITY_SECRET`"
+        errorLine1="    public static final int VISIBILITY_SECRET = Notification.VISIBILITY_SECRET;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="626"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_CALL`"
+        errorLine1="    public static final String CATEGORY_CALL = Notification.CATEGORY_CALL;"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="631"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.app.Notification#CATEGORY_NAVIGATION`"
+        errorLine1="    public static final String CATEGORY_NAVIGATION = Notification.CATEGORY_NAVIGATION;"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="636"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_MESSAGE`"
+        errorLine1="    public static final String CATEGORY_MESSAGE = Notification.CATEGORY_MESSAGE;"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="641"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_EMAIL`"
+        errorLine1="    public static final String CATEGORY_EMAIL = Notification.CATEGORY_EMAIL;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="646"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_EVENT`"
+        errorLine1="    public static final String CATEGORY_EVENT = Notification.CATEGORY_EVENT;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="651"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_PROMO`"
+        errorLine1="    public static final String CATEGORY_PROMO = Notification.CATEGORY_PROMO;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="656"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_ALARM`"
+        errorLine1="    public static final String CATEGORY_ALARM = Notification.CATEGORY_ALARM;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="661"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_PROGRESS`"
+        errorLine1="    public static final String CATEGORY_PROGRESS = Notification.CATEGORY_PROGRESS;"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="666"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_SOCIAL`"
+        errorLine1="    public static final String CATEGORY_SOCIAL = Notification.CATEGORY_SOCIAL;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="671"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_ERROR`"
+        errorLine1="    public static final String CATEGORY_ERROR = Notification.CATEGORY_ERROR;"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="676"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_TRANSPORT`"
+        errorLine1="    public static final String CATEGORY_TRANSPORT = Notification.CATEGORY_TRANSPORT;"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="681"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_SYSTEM`"
+        errorLine1="    public static final String CATEGORY_SYSTEM = Notification.CATEGORY_SYSTEM;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="686"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_SERVICE`"
+        errorLine1="    public static final String CATEGORY_SERVICE = Notification.CATEGORY_SERVICE;"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="691"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.app.Notification#CATEGORY_REMINDER`"
+        errorLine1="    public static final String CATEGORY_REMINDER = Notification.CATEGORY_REMINDER;"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="696"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_RECOMMENDATION`"
+        errorLine1="            Notification.CATEGORY_RECOMMENDATION;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="704"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.app.Notification#CATEGORY_STATUS`"
+        errorLine1="    public static final String CATEGORY_STATUS = Notification.CATEGORY_STATUS;"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="709"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#BADGE_ICON_NONE`"
+        errorLine1="    public static final int BADGE_ICON_NONE = Notification.BADGE_ICON_NONE;"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="734"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#BADGE_ICON_SMALL`"
+        errorLine1="    public static final int BADGE_ICON_SMALL = Notification.BADGE_ICON_SMALL;"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="740"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#BADGE_ICON_LARGE`"
+        errorLine1="    public static final int BADGE_ICON_LARGE = Notification.BADGE_ICON_LARGE;"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="746"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#GROUP_ALERT_ALL`"
+        errorLine1="    public static final int GROUP_ALERT_ALL = Notification.GROUP_ALERT_ALL;"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="759"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#GROUP_ALERT_SUMMARY`"
+        errorLine1="    public static final int GROUP_ALERT_SUMMARY = Notification.GROUP_ALERT_SUMMARY;"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="772"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.app.Notification#GROUP_ALERT_CHILDREN`"
+        errorLine1="    public static final int GROUP_ALERT_CHILDREN = Notification.GROUP_ALERT_CHILDREN;"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="784"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_PRIVILEGED`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_PRIVILEGED,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="51"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_SYSTEM`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_SYSTEM,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="52"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_DEVELOPMENT`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_DEVELOPMENT,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 21 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_APPOP`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_APPOP,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="54"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_PRE23`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_PRE23,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_INSTALLER`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_INSTALLER,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_VERIFIER`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_VERIFIER,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_PREINSTALLED`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_PREINSTALLED,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 24 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_SETUP`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_SETUP,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 27 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_INSTANT`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_INSTANT,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_FLAG_RUNTIME_ONLY`"
+        errorLine1="            PermissionInfo.PROTECTION_FLAG_RUNTIME_ONLY,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_MASK_BASE`"
+        errorLine1="            return permissionInfo.protectionLevel &amp; PermissionInfo.PROTECTION_MASK_BASE;"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="77"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 16 (current min is 14): `android.content.pm.PermissionInfo#PROTECTION_MASK_BASE`"
+        errorLine1="            return permissionInfo.protectionLevel &amp; ~PermissionInfo.PROTECTION_MASK_BASE;"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/PermissionInfoCompat.java"
+            line="91"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 25): `android.content.pm.ShortcutInfo#DISABLED_REASON_NOT_DISABLED`"
+        errorLine1="                        ? ShortcutInfo.DISABLED_REASON_NOT_DISABLED"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
+            line="560"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 25): `android.content.pm.ShortcutInfo#DISABLED_REASON_UNKNOWN`"
+        errorLine1="                        : ShortcutInfo.DISABLED_REASON_UNKNOWN;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
+            line="561"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.widget.TextView#AUTO_SIZE_TEXT_TYPE_NONE`"
+        errorLine1="    public static final int AUTO_SIZE_TEXT_TYPE_NONE = TextView.AUTO_SIZE_TEXT_TYPE_NONE;"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="84"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 26 (current min is 14): `android.widget.TextView#AUTO_SIZE_TEXT_TYPE_UNIFORM`"
+        errorLine1="    public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="90"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 18): `android.view.View#TEXT_DIRECTION_FIRST_STRONG_LTR`"
+        errorLine1="            return TEXT_DIRECTION_FIRST_STRONG_LTR;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="976"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 23 (current min is 18): `android.view.View#TEXT_DIRECTION_FIRST_STRONG_RTL`"
+        errorLine1="            return TEXT_DIRECTION_FIRST_STRONG_RTL;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="978"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 14): `android.view.accessibility.AccessibilityEvent#CONTENT_CHANGE_TYPE_PANE_TITLE`"
+        errorLine1="                CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, 28) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="4087"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 19 (current min is 14): `android.view.accessibility.AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED`"
+        errorLine1="                    AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED, frameworkMinimumSdk);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="4197"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.view.accessibility.AccessibilityEvent#CONTENT_CHANGE_TYPE_PANE_APPEARED`"
+        errorLine1="                        ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="4367"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="InlinedApi"
+        message="Field requires API level 28 (current min is 19): `android.view.accessibility.AccessibilityEvent#CONTENT_CHANGE_TYPE_PANE_DISAPPEARED`"
+        errorLine1="                        : AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="4368"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="                            Class.forName(&quot;com.android.internal.view.menu.MenuBuilder&quot;);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="584"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi21Impl.java"
+            line="78"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="            fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi24Impl.java"
+            line="69"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="PrivateApi"
+        message="Accessing internal APIs via reflection is not supported and may not work on all devices or in the future"
+        errorLine1="        return Class.forName(FONT_FAMILY_CLASS);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"
+            line="316"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `appComponentFactory` is only used in API level 28 and higher (current min is 14)"
+        errorLine1="        android:appComponentFactory=&quot;androidx.core.app.CoreComponentFactory&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="18"
+            column="9"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -483,6 +1655,61 @@
             file="src/main/java/androidx/core/view/WindowCompat.java"
             line="159"
             column="26"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="            List&lt;ResolveInfo> resolveInfos = mContext.getPackageManager().queryIntentServices("
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"
+            line="802"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="        for (ResolveInfo info : context.getPackageManager().queryBroadcastReceivers("
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"
+            line="144"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="            target = nextIntent.resolveActivity(mSourceContext.getPackageManager());"
+        errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
+            line="141"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="                target = parent.resolveActivity(mSourceContext.getPackageManager());"
+        errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/TaskStackBuilder.java"
+            line="172"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="QueryPermissionsNeeded"
+        message="Consider adding a `&lt;queries>` declaration to your manifest when calling this \&#xA;method; see https://g.co/dev/packagevisibility for details"
+        errorLine1="                    packageManager.queryIntentActivities(createProcessTextIntent(), 0);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/TextViewCompat.java"
+            line="636"
+            column="36"/>
     </issue>
 
     <issue
@@ -11989,6 +13216,728 @@
             file="src/main/java/androidx/core/graphics/drawable/WrappedDrawableApi14.java"
             line="204"
             column="26"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 1 instead"
+        errorLine1="    public static final int CONTENT_CHANGE_TYPE_TEXT = 0x00000002;"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
+            line="160"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 2 instead"
+        errorLine1="    public static final int CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION = 0x00000004;"
+        errorLine2="                                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
+            line="166"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 6 instead"
+        errorLine1="    public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 0x00000040;"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
+            line="197"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 1 instead"
+        errorLine1="    public static final int SCROLL_INDICATOR_BOTTOM = 0x2;"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="427"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 2 instead"
+        errorLine1="    public static final int SCROLL_INDICATOR_LEFT = 0x4;"
+        errorLine2="                                                    ~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="436"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 3 instead"
+        errorLine1="    public static final int SCROLL_INDICATOR_RIGHT = 0x8;"
+        errorLine2="                                                     ~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="445"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 4 instead"
+        errorLine1="    public static final int SCROLL_INDICATOR_START = 0x10;"
+        errorLine2="                                                     ~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="454"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 5 instead"
+        errorLine1="    public static final int SCROLL_INDICATOR_END = 0x20;"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="463"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `FontFamilyResult.STATUS_OK`"
+        errorLine1="                    switch (result.getStatusCode()) {"
+        errorLine2="                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/FontsContractCompat.java"
+            line="561"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `TYPE_ADAPTIVE_BITMAP`, `TYPE_BITMAP`, `TYPE_DATA`, `TYPE_UNKNOWN`"
+        errorLine1="        switch (getType(icon)) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1034"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `TYPE_ADAPTIVE_BITMAP`, `TYPE_BITMAP`, `TYPE_DATA`, `TYPE_UNKNOWN`"
+        errorLine1="        switch (getType(icon)) {"
+        errorLine2="        ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/IconCompat.java"
+            line="1062"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `Protocol.PlatformApi`, `Protocol.Unknown`"
+        errorLine1="            switch (protocol) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/inputmethod/InputConnectionCompat.java"
+            line="150"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `Type.CAPTION_BAR`, `Type.WINDOW_DECOR`"
+        errorLine1="            switch (type) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
+            line="944"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="SwitchIntDef"
+        message="Switch statement on an `int` with known associated constant missing case `Type.MANDATORY_SYSTEM_GESTURES`, `Type.SYSTEM_GESTURES`, `Type.TAPPABLE_ELEMENT`, `Type.WINDOW_DECOR`"
+        errorLine1="            switch (type) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/WindowInsetsCompat.java"
+            line="1033"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="PxUsage"
+        message="Avoid using &quot;`px`&quot; as units; use &quot;`dp`&quot; instead"
+        errorLine1="        android:layout_width=&quot;100px&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dialog.xml"
+            line="8"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="This `AsyncTask` class should be static or leaks might occur (androidx.core.app.JobIntentService.CommandProcessor)"
+        errorLine1="    final class CommandProcessor extends android.os.AsyncTask&lt;Void, Void, Void> {"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/JobIntentService.java"
+            line="382"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="StaticFieldLeak"
+        message="Do not place Android context classes in static fields (static reference to `SideChannelManager` which has field `mContext` pointing to `Context`); this is a memory leak"
+        errorLine1="    private static SideChannelManager sSideChannelManager;"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationManagerCompat.java"
+            line="114"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (androidx.core.view.GestureDetectorCompat.GestureDetectorCompatImplBase.GestureHandler)"
+        errorLine1="        private class GestureHandler extends Handler {"
+        errorLine2="                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
+            line="102"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="MergeRootFrame"
+        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
+        errorLine1="&lt;FrameLayout"
+        errorLine2="^">
+        <location
+            file="src/main/res/layout-v21/notification_template_icon_group.xml"
+            line="18"
+            column="1"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="32"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="DisableBaselineAlignment"
+        message="Set `android:baselineAligned=&quot;false&quot;` on this element for better performance"
+        errorLine1="        &lt;LinearLayout"
+        errorLine2="         ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="32"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="        android:layout_width=&quot;match_parent&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="34"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="                android:layout_width=&quot;match_parent&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="40"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="InefficientWeight"
+        message="Use a `layout_width` of `0dp` instead of `match_parent` for better performance"
+        errorLine1="                android:layout_width=&quot;match_parent&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="43"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RedundantNamespace"
+        message="This namespace declaration is redundant"
+        errorLine1="        &lt;inset xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable-v21/notification_action_background.xml"
+            line="21"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="IconDipSize"
+        message="The image `notify_panel_notification_icon_bg.png` varies significantly in its density-independent (dip) size across the various density versions: drawable-hdpi/notify_panel_notification_icon_bg.png: 9x9 dp (14x14 px), drawable-mdpi/notify_panel_notification_icon_bg.png: 15x15 dp (15x15 px), drawable-xhdpi/notify_panel_notification_icon_bg.png: 15x15 dp (30x30 px)">
+        <location
+            file="src/main/res/drawable-hdpi/notify_panel_notification_icon_bg.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/notify_panel_notification_icon_bg.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/notify_panel_notification_icon_bg.png"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="`onTouch` should call `View#performClick` when a click is detected"
+        errorLine1="        public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/DragStartHelper.java"
+            line="190"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="ClickableViewAccessibility"
+        message="Custom view `NestedScrollView` overrides `onTouchEvent` but not `performClick`"
+        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/NestedScrollView.java"
+            line="827"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action.xml"
+            line="25"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action_tombstone.xml"
+            line="28"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action_tombstone.xml"
+            line="29"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="22"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="26"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="            &lt;ImageView android:id=&quot;@+id/right_icon&quot;"
+        errorLine2="             ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="65"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_custom_big.xml"
+            line="73"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="                    &lt;ImageView android:id=&quot;@+id/right_icon&quot;"
+        errorLine2="                     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="82"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="        &lt;ImageView"
+        errorLine2="         ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v16/notification_template_custom_big.xml"
+            line="95"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="&lt;ImageView"
+        errorLine2=" ~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_icon_group.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_icon_group.xml"
+            line="24"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="ContentDescription"
+        message="Missing `contentDescription` attribute on image"
+        errorLine1="    &lt;ImageView android:id=&quot;@+id/right_icon&quot;"
+        errorLine2="     ~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_template_icon_group.xml"
+            line="33"
+            column="6"/>
+    </issue>
+
+    <issue
+        id="HardcodedText"
+        message="Hardcoded string &quot; Ok &quot;, should use `@string` resource"
+        errorLine1="        android:text=&quot; Ok &quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dialog.xml"
+            line="12"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="    android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="    android:paddingStart=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="    android:paddingStart=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action.xml"
+            line="39"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action.xml"
+            line="40"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="    android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action_tombstone.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="    android:paddingStart=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action_tombstone.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="    android:paddingStart=&quot;4dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action_tombstone.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout-v21/notification_action_tombstone.xml"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action_tombstone.xml"
+            line="44"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;4dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_action_tombstone.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry"
+        errorLine1="    android:paddingRight=&quot;12dp&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingEnd` you should probably also define `paddingStart` for right-to-left symmetry"
+        errorLine1="    android:paddingEnd=&quot;12dp&quot;>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;12dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="36"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry"
+        errorLine1="        android:paddingStart=&quot;12dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="37"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry"
+        errorLine1="        android:paddingLeft=&quot;12dp&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="    public static final int START = RELATIVE_LAYOUT_DIRECTION | Gravity.LEFT;"
+        errorLine2="                                                                        ~~~~">
+        <location
+            file="src/main/java/androidx/core/view/GravityCompat.java"
+            line="35"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="    public static final int END = RELATIVE_LAYOUT_DIRECTION | Gravity.RIGHT;"
+        errorLine2="                                                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/GravityCompat.java"
+            line="38"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
+        errorLine1="            if (hgrav == Gravity.RIGHT) {"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/core/widget/PopupWindowCompat.java"
+            line="74"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginEnd=&quot;5dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:layout_marginRight=&quot;5dp&quot;"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/custom_dialog.xml"
+            line="10"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:paddingStart=&quot;12dp&quot;` to better support right-to-left layouts"
+        errorLine1="        android:paddingLeft=&quot;12dp&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="45"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider adding `android:layout_marginStart=&quot;8dp&quot;` to better support right-to-left layouts"
+        errorLine1="                android:layout_marginLeft=&quot;8dp&quot;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/notification_template_custom_big.xml"
+            line="69"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="RtlEnabled"
+        message="The project references RTL attributes, but does not explicitly enable or disable RTL support with `android:supportsRtl` in the manifest">
+        <location
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue

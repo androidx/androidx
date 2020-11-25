@@ -21,14 +21,19 @@ import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.isProtected
 import com.google.devtools.ksp.isPublic
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyAccessor
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Origin
 
 /**
  * Implementation of [XHasModifiers] for ksp declarations.
  */
-class KspHasModifiers(
-    private val declaration: KSDeclaration
+sealed class KspHasModifiers(
+    protected val declaration: KSDeclaration
 ) : XHasModifiers {
     override fun isPublic(): Boolean {
         return declaration.isPublic()
@@ -47,7 +52,8 @@ class KspHasModifiers(
     }
 
     override fun isStatic(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_STATIC) || declaration.isJvmStatic()
+        return declaration.modifiers.contains(Modifier.JAVA_STATIC) ||
+            declaration.hasJvmStaticAnnotation()
     }
 
     override fun isTransient(): Boolean {
@@ -56,5 +62,94 @@ class KspHasModifiers(
 
     override fun isFinal(): Boolean {
         return !declaration.isOpen()
+    }
+
+    private class Declaration(declaration: KSDeclaration) : KspHasModifiers(declaration)
+
+    private class PropertyField(
+        declaration: KSPropertyDeclaration
+    ) : KspHasModifiers(declaration) {
+        private val acceptDeclarationModifiers by lazy {
+            // Deciding whether we should read modifiers from a KSPropertyDeclaration is not very
+            // straightforward. (jvmField == true -> read modifiers from declaration)
+            // When origin is java, always read.
+            // When origin is kotlin, read if it has @JvmField annotation
+            // When origin is .class, it depends whether the property was originally a kotlin code
+            // or java code.
+            // Unfortunately, we don't have a way of checking it as KotlinMetadata annotation is not
+            // visible via KSP. We approximate it by checking if it is delegated or not.
+            when (declaration.origin) {
+                Origin.JAVA -> true
+                Origin.KOTLIN -> declaration.hasJvmFieldAnnotation()
+                // TODO find a better way to check if class is derived from kotlin source or not.
+                Origin.CLASS -> declaration.hasJvmFieldAnnotation() || !declaration.isDelegated()
+                else -> false
+            }
+        }
+
+        override fun isPublic(): Boolean {
+            return acceptDeclarationModifiers && super.isPublic()
+        }
+
+        override fun isProtected(): Boolean {
+            return acceptDeclarationModifiers && super.isProtected()
+        }
+
+        override fun isPrivate(): Boolean {
+            return if (acceptDeclarationModifiers) {
+                super.isPrivate()
+            } else {
+                // it is always private unless it is a jvm field
+                true
+            }
+        }
+    }
+
+    /**
+     * Handles accessor visibility when there is an accessor declared in code.
+     * We cannot simply merge modifiers of the property and the accessor as the visibility rules
+     * of the declaration is more complicated than just looking at modifiers.
+     */
+    private class PropertyFieldAccessor(
+        private val accessor: KSPropertyAccessor
+    ) : KspHasModifiers(accessor.receiver) {
+        override fun isPublic(): Boolean {
+            return accessor.modifiers.contains(Modifier.PUBLIC) ||
+                (!isPrivate() && !isProtected() && super.isPublic())
+        }
+
+        override fun isProtected(): Boolean {
+            return accessor.modifiers.contains(Modifier.PROTECTED) ||
+                (!isPrivate() && super.isProtected())
+        }
+
+        override fun isPrivate(): Boolean {
+            return accessor.modifiers.contains(Modifier.PRIVATE) ||
+                super.isPrivate()
+        }
+    }
+
+    companion object {
+        fun createForSyntheticAccessor(
+            property: KSPropertyDeclaration,
+            accessor: KSPropertyAccessor?
+        ): XHasModifiers {
+            if (accessor != null) {
+                return PropertyFieldAccessor(accessor)
+            }
+            return Declaration(property)
+        }
+
+        fun create(owner: KSPropertyDeclaration): XHasModifiers {
+            return PropertyField(owner)
+        }
+
+        fun create(owner: KSFunctionDeclaration): XHasModifiers {
+            return Declaration(owner)
+        }
+
+        fun create(owner: KSClassDeclaration): XHasModifiers {
+            return Declaration(owner)
+        }
     }
 }

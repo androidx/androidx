@@ -17,7 +17,9 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.webkit.ProxyConfig;
+import androidx.webkit.ProxyConfig.ProxyRule;
 import androidx.webkit.ProxyController;
 
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
@@ -36,17 +38,11 @@ public class ProxyControllerImpl extends ProxyController {
             @NonNull Runnable listener) {
         WebViewFeatureInternal feature = WebViewFeatureInternal.PROXY_OVERRIDE;
         if (feature.isSupportedByWebView()) {
-            List<ProxyConfig.ProxyRule> proxyRulesList = proxyConfig.getProxyRules();
-
             // A 2D String array representation is required by reflection
-            String[][] proxyRulesArray = new String[proxyRulesList.size()][2];
-            for (int i = 0; i < proxyRulesList.size(); i++) {
-                proxyRulesArray[i][0] = proxyRulesList.get(0).getSchemeFilter();
-                proxyRulesArray[i][1] = proxyRulesList.get(0).getUrl();
-            }
-
-            getBoundaryInterface().setProxyOverride(proxyRulesArray,
-                    proxyConfig.getBypassRules().toArray(new String[0]), listener, executor);
+            String[][] proxyRuleArray = proxyRulesToStringArray(proxyConfig.getProxyRules());
+            String[] bypassRuleArray = proxyConfig.getBypassRules().toArray(new String[0]);
+            getBoundaryInterface().setProxyOverride(
+                    proxyRuleArray, bypassRuleArray, listener, executor);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -60,6 +56,20 @@ public class ProxyControllerImpl extends ProxyController {
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
+    }
+
+    /**
+     * Converts a ProxyRule List into a String array.
+     */
+    @NonNull
+    @VisibleForTesting
+    public static String[][] proxyRulesToStringArray(@NonNull List<ProxyRule> proxyRuleList) {
+        String[][] proxyRuleArray = new String[proxyRuleList.size()][2];
+        for (int i = 0; i < proxyRuleList.size(); i++) {
+            proxyRuleArray[i][0] = proxyRuleList.get(i).getSchemeFilter();
+            proxyRuleArray[i][1] = proxyRuleList.get(i).getUrl();
+        }
+        return proxyRuleArray;
     }
 
     private ProxyControllerBoundaryInterface getBoundaryInterface() {

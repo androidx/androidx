@@ -16,6 +16,7 @@
 
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -153,6 +154,7 @@ public class BaseCardView extends FrameLayout {
         this(context, attrs, R.attr.baseCardViewStyle);
     }
 
+    @SuppressLint("CustomViewStyleable")
     public BaseCardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
@@ -861,6 +863,7 @@ public class BaseCardView extends FrameLayout {
         /**
          * {@inheritDoc}
          */
+        @SuppressLint("CustomViewStyleable")
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
             TypedArray a = c.obtainStyledAttributes(attrs, R.styleable.lbBaseCardView_Layout);

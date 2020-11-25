@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
+import androidx.annotation.IntRange
 import androidx.annotation.Px
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
@@ -30,11 +31,23 @@ public abstract class Renderer(
     public val surfaceHolder: SurfaceHolder,
 
     /** The associated [UserStyleRepository]. */
-    internal val userStyleRepository: UserStyleRepository,
+    private val userStyleRepository: UserStyleRepository,
 
     /** The associated [WatchState]. */
-    internal val watchState: WatchState
+    internal val watchState: WatchState,
+
+    /**
+     * The interval in milliseconds between frames in interactive [DrawMode]s. To render at 60hz
+     * set to 16. Note when battery is low, the frame rate will be clamped to 10fps. Watch faces are
+     * recommended to use lower frame rates if possible for better battery life. Variable frame
+     * rates can also help preserve battery life, e.g. if a watch face has a short animation once
+     * per second it can adjust the frame rate inorder to sleep when not animating.
+     */
+    @IntRange(from = 0, to = 10000)
+    public var interactiveDrawModeUpdateDelayMillis: Long,
 ) {
+    internal lateinit var watchFaceHostApi: WatchFaceHostApi
+
     init {
         surfaceHolder.addCallback(
             object : SurfaceHolder.Callback {
@@ -58,7 +71,12 @@ public abstract class Renderer(
         )
     }
 
-    /** The bounds of the [SurfaceHolder] this Renderer renders into. */
+    /**
+     * The bounds of the [SurfaceHolder] this Renderer renders into. Depending on the shape of the
+     * device's screen not all of these pixels may be visible to the user (see
+     * [WatchState.screenShape]).  Note also that API level 27+ devices draw indicators in the top
+     * and bottom 24dp of the screen, avoid rendering anything important there.
+     */
     public var screenBounds: Rect = surfaceHolder.surfaceFrame
         private set
 
@@ -97,6 +115,7 @@ public abstract class Renderer(
      * @param calendar The Calendar to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
+    @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun renderInternal(calendar: Calendar)
 
@@ -108,6 +127,7 @@ public abstract class Renderer(
      * @param renderParameters The [RenderParameters] to use when rendering the watch face
      * @return A [Bitmap] containing a screenshot of the watch face
      */
+    @Suppress("HiddenAbstractMethod")
     @UiThread
     internal abstract fun takeScreenshot(
         calendar: Calendar,
@@ -155,4 +175,18 @@ public abstract class Renderer(
     @UiThread
     public open fun shouldAnimate(): Boolean =
         watchState.isVisible.value && !watchState.isAmbient.value
+
+    /** Schedules a call to [renderInternal] to draw the next frame. */
+    @UiThread
+    public fun invalidate() {
+        watchFaceHostApi.invalidate()
+    }
+
+    /**
+     * Posts a message to schedule a call to [renderInternal] to draw the next frame. Unlike
+     * [invalidate], this method is thread-safe and may be called on any thread.
+     */
+    public fun postInvalidate() {
+        watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }
+    }
 }

@@ -73,10 +73,11 @@ public class IdAndComplicationData(
  * leave the slot empty.
  */
 public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -90,10 +91,11 @@ public class NoDataComplicationData : ComplicationData(TYPE, null, TimeRange.ALW
  * this type.
  */
 public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -109,10 +111,11 @@ public class EmptyComplicationData : ComplicationData(TYPE, null, TimeRange.ALWA
  */
 public class NotConfiguredComplicationData :
     ComplicationData(TYPE, null, TimeRange.ALWAYS) {
-    /* @hide */
+    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     override fun asWireComplicationData(): WireComplicationData = asPlainWireComplicationData(type)
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -132,6 +135,7 @@ public class ShortTextComplicationData internal constructor(
     public val text: ComplicationText,
     public val title: ComplicationText?,
     public val image: MonochromaticImage?,
+    public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?
 ) : ComplicationData(TYPE, tapAction, validTimeRange) {
@@ -145,6 +149,7 @@ public class ShortTextComplicationData internal constructor(
         private var validTimeRange: TimeRange? = null
         private var title: ComplicationText? = null
         private var image: MonochromaticImage? = null
+        private var contentDescription: ComplicationText? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -166,9 +171,21 @@ public class ShortTextComplicationData internal constructor(
             this.image = image
         }
 
+        /** Sets optional content description associated with the complication data. */
+        public fun setContentDescription(contentDescription: ComplicationText?): Builder = apply {
+            this.contentDescription = contentDescription
+        }
+
         /** Builds the [ShortTextComplicationData]. */
         public fun build(): ShortTextComplicationData =
-            ShortTextComplicationData(text, title, image, tapAction, validTimeRange)
+            ShortTextComplicationData(
+                text,
+                title,
+                image,
+                contentDescription,
+                tapAction,
+                validTimeRange
+            )
     }
 
     /** @hide */
@@ -177,9 +194,12 @@ public class ShortTextComplicationData internal constructor(
         WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
             setShortText(text.asWireComplicationText())
             setShortTitle(title?.asWireComplicationText())
+            setContentDescription(contentDescription?.asWireComplicationText())
             image?.addToWireComplicationData(this)
+            setTapAction(tapAction)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -202,6 +222,7 @@ public class LongTextComplicationData internal constructor(
     public val title: ComplicationText?,
     public val monochromaticImage: MonochromaticImage?,
     public val smallImage: SmallImage?,
+    public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?
 ) : ComplicationData(TYPE, tapAction, validTimeRange) {
@@ -216,6 +237,7 @@ public class LongTextComplicationData internal constructor(
         private var title: ComplicationText? = null
         private var monochromaticImage: MonochromaticImage? = null
         private var smallImage: SmallImage? = null
+        private var contentDescription: ComplicationText? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -242,6 +264,11 @@ public class LongTextComplicationData internal constructor(
             this.smallImage = smallImage
         }
 
+        /** Sets optional content description associated with the complication data. */
+        public fun setContentDescription(contentDescription: ComplicationText?): Builder = apply {
+            this.contentDescription = contentDescription
+        }
+
         /** Builds the [LongTextComplicationData]. */
         public fun build(): LongTextComplicationData =
             LongTextComplicationData(
@@ -249,6 +276,7 @@ public class LongTextComplicationData internal constructor(
                 title,
                 monochromaticImage,
                 smallImage,
+                contentDescription,
                 tapAction,
                 validTimeRange
             )
@@ -262,8 +290,11 @@ public class LongTextComplicationData internal constructor(
             setLongTitle(title?.asWireComplicationText())
             monochromaticImage?.addToWireComplicationData(this)
             smallImage?.addToWireComplicationData(this)
+            setTapAction(tapAction)
+            setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -288,6 +319,7 @@ public class RangedValueComplicationData internal constructor(
     public val image: MonochromaticImage?,
     public val title: ComplicationText?,
     public val text: ComplicationText?,
+    public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?
 ) : ComplicationData(TYPE, tapAction, validTimeRange) {
@@ -306,6 +338,7 @@ public class RangedValueComplicationData internal constructor(
         private var image: MonochromaticImage? = null
         private var title: ComplicationText? = null
         private var text: ComplicationText? = null
+        private var contentDescription: ComplicationText? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
@@ -332,10 +365,15 @@ public class RangedValueComplicationData internal constructor(
             this.text = text
         }
 
+        /** Sets optional content description associated with the complication data. */
+        public fun setContentDescription(contentDescription: ComplicationText?): Builder = apply {
+            this.contentDescription = contentDescription
+        }
+
         /** Builds the [RangedValueComplicationData]. */
         public fun build(): RangedValueComplicationData =
             RangedValueComplicationData(
-                value, min, max, image, title, text, tapAction, validTimeRange
+                value, min, max, image, title, text, contentDescription, tapAction, validTimeRange
             )
     }
 
@@ -349,8 +387,11 @@ public class RangedValueComplicationData internal constructor(
             image?.addToWireComplicationData(this)
             setShortText(text?.asWireComplicationText())
             setShortTitle(title?.asWireComplicationText())
+            setTapAction(tapAction)
+            setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -409,8 +450,10 @@ public class MonochromaticImageComplicationData internal constructor(
         WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
             image.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
+            setTapAction(tapAction)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -469,8 +512,10 @@ public class SmallImageComplicationData internal constructor(
         WireComplicationDataBuilder(TYPE.asWireComplicationType()).apply {
             image.addToWireComplicationData(this)
             setContentDescription(contentDescription?.asWireComplicationText())
+            setTapAction(tapAction)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -479,7 +524,7 @@ public class SmallImageComplicationData internal constructor(
 }
 
 /**
- * Type used for complications which consist only of a [BackgroundImage].
+ * Type used for complications which consist only of a [PhotoImage].
  *
  * The image is expected to always be displayed. The image may be shown as the background, any
  * other part of the watch face or within a complication. The image is large enough to be cover
@@ -490,28 +535,30 @@ public class SmallImageComplicationData internal constructor(
  * empty content description. If no content description is provided, a generic content
  * description will be used instead.
  */
-public class BackgroundImageComplicationData internal constructor(
-    public val image: BackgroundImage,
+public class PhotoImageComplicationData internal constructor(
+    public val image: PhotoImage,
     public val contentDescription: ComplicationText?,
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?
 ) : ComplicationData(TYPE, tapAction, validTimeRange) {
     /**
-     * Builder for [BackgroundImageComplicationData].
+     * Builder for [PhotoImageComplicationData].
      *
      * You must at a minimum set the [icon] field.
      */
-    public class Builder(private val icon: BackgroundImage) {
+    public class Builder(private val icon: PhotoImage) {
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
         private var contentDescription: ComplicationText? = null
 
         /** Sets optional pending intent to be invoked when the complication is tapped. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
         public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
             this.tapAction = tapAction
         }
 
         /** Sets optional time range during which the complication has to be shown. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
         public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
             this.validTimeRange = validTimeRange
         }
@@ -521,9 +568,9 @@ public class BackgroundImageComplicationData internal constructor(
             this.contentDescription = contentDescription
         }
 
-        /** Builds the [BackgroundImageComplicationData]. */
-        public fun build(): BackgroundImageComplicationData =
-            BackgroundImageComplicationData(icon, contentDescription, tapAction, validTimeRange)
+        /** Builds the [PhotoImageComplicationData]. */
+        public fun build(): PhotoImageComplicationData =
+            PhotoImageComplicationData(icon, contentDescription, tapAction, validTimeRange)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -533,10 +580,11 @@ public class BackgroundImageComplicationData internal constructor(
             setContentDescription(contentDescription?.asWireComplicationText())
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
-        public val TYPE: ComplicationType = ComplicationType.BACKGROUND_IMAGE
+        public val TYPE: ComplicationType = ComplicationType.PHOTO_IMAGE
     }
 }
 
@@ -554,8 +602,7 @@ public class NoPermissionComplicationData internal constructor(
     public val text: ComplicationText?,
     public val title: ComplicationText?,
     public val image: MonochromaticImage?,
-    tapAction: PendingIntent?
-) : ComplicationData(TYPE, tapAction, TimeRange.ALWAYS) {
+) : ComplicationData(TYPE, null, TimeRange.ALWAYS) {
     /**
      * Builder for [NoPermissionComplicationData].
      *
@@ -566,11 +613,6 @@ public class NoPermissionComplicationData internal constructor(
         private var text: ComplicationText? = null
         private var title: ComplicationText? = null
         private var image: MonochromaticImage? = null
-
-        /** Sets optional pending intent to be invoked when the complication is tapped. */
-        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
-            this.tapAction = tapAction
-        }
 
         /** Sets optional text associated with the complication data. */
         public fun setText(text: ComplicationText?): Builder = apply {
@@ -589,7 +631,7 @@ public class NoPermissionComplicationData internal constructor(
 
         /** Builds the [NoPermissionComplicationData]. */
         public fun build(): NoPermissionComplicationData =
-            NoPermissionComplicationData(text, title, image, tapAction)
+            NoPermissionComplicationData(text, title, image)
     }
 
     /** @hide */
@@ -601,6 +643,7 @@ public class NoPermissionComplicationData internal constructor(
             image?.addToWireComplicationData(this)
         }.build()
 
+    /** @hide */
     public companion object {
         /** The [ComplicationType] corresponding to objects of this type. */
         @JvmField
@@ -624,6 +667,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setValidTimeRange(parseTimeRange())
                 setTitle(shortTitle?.asApiComplicationText())
                 setImage(parseIcon())
+                setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
         LongTextComplicationData.TYPE.asWireComplicationType() ->
@@ -633,6 +677,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setTitle(longTitle?.asApiComplicationText())
                 setMonochromaticImage(parseIcon())
                 setSmallImage(parseSmallImage())
+                setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
         RangedValueComplicationData.TYPE.asWireComplicationType() ->
@@ -645,6 +690,7 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setImage(parseIcon())
                 setTitle(shortTitle?.asApiComplicationText())
                 setText(shortText?.asApiComplicationText())
+                setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
         MonochromaticImageComplicationData.TYPE.asWireComplicationType() ->
@@ -661,16 +707,14 @@ public fun WireComplicationData.asApiComplicationData(): ComplicationData =
                 setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
-        BackgroundImageComplicationData.TYPE.asWireComplicationType() ->
-            BackgroundImageComplicationData.Builder(parseLargeImage()!!).apply {
-                setTapAction(tapAction)
+        PhotoImageComplicationData.TYPE.asWireComplicationType() ->
+            PhotoImageComplicationData.Builder(parseLargeImage()!!).apply {
                 setValidTimeRange(parseTimeRange())
                 setContentDescription(contentDescription?.asApiComplicationText())
             }.build()
 
         NoPermissionComplicationData.TYPE.asWireComplicationType() ->
             NoPermissionComplicationData.Builder().apply {
-                setTapAction(tapAction)
                 setImage(parseIcon())
                 setTitle(shortTitle?.asApiComplicationText())
                 setText(shortText?.asApiComplicationText())
@@ -706,7 +750,7 @@ private fun WireComplicationData.parseSmallImage() =
     }
 
 private fun WireComplicationData.parseLargeImage() =
-    largeImage?.let { BackgroundImage.Builder(it).build() }
+    largeImage?.let { PhotoImage.Builder(it).build() }
 
 /** Some of the types, do not have any fields. This method provides a shorthard for that case. */
 internal fun asPlainWireComplicationData(type: ComplicationType) =

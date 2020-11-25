@@ -49,6 +49,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.systemjob.SystemJobService;
+import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -62,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String CONSTRAINT_TRACKING_TAG = "ConstraintTrackingWorker";
     private static final String UNIQUE_WORK_NAME = "importantUniqueWork";
     private static final String REPLACE_COMPLETED_WORK = "replaceCompletedWork";
     private static final int NUM_WORKERS = 150;
@@ -362,6 +364,37 @@ public class MainActivity extends AppCompatActivity {
                 WorkManager.getInstance(MainActivity.this).enqueue(request);
             }
         });
+
+        findViewById(R.id.run_constraint_tracking_worker).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Data inputData = new Data.Builder()
+                                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME,
+                                        ForegroundWorker.class.getName())
+                                .build();
+
+                        OneTimeWorkRequest request =
+                                new OneTimeWorkRequest.Builder(ConstraintTrackingWorker.class)
+                                        .setConstraints(new Constraints.Builder()
+                                                .setRequiredNetworkType(NetworkType.CONNECTED)
+                                                .build())
+                                        .setInputData(inputData)
+                                        .addTag(CONSTRAINT_TRACKING_TAG)
+                                        .build();
+
+                        WorkManager.getInstance(MainActivity.this).enqueue(request);
+                    }
+                });
+
+        findViewById(R.id.cancel_constraint_tracking_worker).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        WorkManager.getInstance(MainActivity.this)
+                                .cancelAllWorkByTag(CONSTRAINT_TRACKING_TAG);
+                    }
+                });
 
         findViewById(R.id.run_foreground_worker).setOnClickListener(new View.OnClickListener() {
             @Override

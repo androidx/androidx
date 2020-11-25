@@ -23,22 +23,21 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.os.Build.VERSION_CODES;
-
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.Config;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /** Tests for {@link TravelEstimate}. */
 @SmallTest
@@ -48,17 +47,19 @@ public class TravelEstimateTest {
             createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
     private final Distance mRemainingDistance =
             Distance.create(/* displayDistance= */ 100, Distance.UNIT_METERS);
-    private final Duration mRemainingTime = Duration.ofHours(10);
+    private final long mRemainingTime = TimeUnit.HOURS.toMillis(10);
 
     @Test
-    @Config(minSdk = VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = 26)
     public void create_duration() {
         ZonedDateTime arrivalTime = ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]");
+        Duration remainingTime = Duration.ofHours(10);
+
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance, mRemainingTime, arrivalTime);
+                TravelEstimate.create(mRemainingDistance, remainingTime, arrivalTime);
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(mRemainingDistance);
-        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(mRemainingTime.getSeconds());
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());
         assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());
     }
 
@@ -67,12 +68,15 @@ public class TravelEstimateTest {
         DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
-        Duration remainingTime = Duration.ofHours(10);
+        long remainingTime = TimeUnit.HOURS.toMillis(10);
         TravelEstimate travelEstimate =
-                TravelEstimate.create(remainingDistance, remainingTime.getSeconds(), arrivalTime);
+                TravelEstimate.create(remainingDistance,
+                        TimeUnit.MILLISECONDS.toSeconds(remainingTime),
+                        arrivalTime);
 
         assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
-        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(
+                TimeUnit.MILLISECONDS.toSeconds(remainingTime));
         assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
         assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
     }
@@ -82,7 +86,7 @@ public class TravelEstimateTest {
         DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
-        Duration remainingTime = Duration.ofHours(10);
+        long remainingTime = TimeUnit.HOURS.toMillis(10);
 
         List<CarColor> allowedColors = new ArrayList<>();
         allowedColors.add(CarColor.DEFAULT);
@@ -95,14 +99,15 @@ public class TravelEstimateTest {
 
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
-                    TravelEstimate.builder(remainingDistance, remainingTime.getSeconds(),
+                    TravelEstimate.builder(remainingDistance,
+                            TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                             arrivalTime)
                             .setRemainingTimeColor(carColor)
                             .build();
 
             assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
             assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(
-                    remainingTime.getSeconds());
+                    TimeUnit.MILLISECONDS.toSeconds(remainingTime));
             assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
             assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(carColor);
         }
@@ -113,7 +118,7 @@ public class TravelEstimateTest {
         DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
-        Duration remainingTime = Duration.ofHours(10);
+        long remainingTime = TimeUnit.HOURS.toMillis(10);
 
         List<CarColor> allowedColors = new ArrayList<>();
         allowedColors.add(CarColor.DEFAULT);
@@ -126,14 +131,15 @@ public class TravelEstimateTest {
 
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
-                    TravelEstimate.builder(remainingDistance, remainingTime.getSeconds(),
+                    TravelEstimate.builder(remainingDistance,
+                            TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                             arrivalTime)
                             .setRemainingDistanceColor(carColor)
                             .build();
 
             assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
             assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(
-                    remainingTime.getSeconds());
+                    TimeUnit.MILLISECONDS.toSeconds(remainingTime));
             assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
             assertThat(travelEstimate.getRemainingDistanceColor()).isEqualTo(carColor);
         }
@@ -144,11 +150,12 @@ public class TravelEstimateTest {
         DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
         Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
                 Distance.UNIT_METERS);
-        Duration remainingTime = Duration.ofHours(10);
+        long remainingTime = TimeUnit.HOURS.toMillis(10);
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        TravelEstimate.builder(remainingDistance, remainingTime.getSeconds(),
+                        TravelEstimate.builder(remainingDistance,
+                                TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                                 arrivalTime)
                                 .setRemainingTimeColor(CarColor.createCustom(1, 2)));
     }
@@ -156,65 +163,72 @@ public class TravelEstimateTest {
     @Test
     public void equals() {
         TravelEstimate travelEstimate = TravelEstimate.create(mRemainingDistance,
-                mRemainingTime.getSeconds(), mArrivalTime);
+                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime), mArrivalTime);
 
         assertThat(travelEstimate)
                 .isEqualTo(
-                        TravelEstimate.create(mRemainingDistance, mRemainingTime.getSeconds(),
+                        TravelEstimate.create(mRemainingDistance,
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                                 mArrivalTime));
     }
 
     @Test
     public void notEquals_differentRemainingDistance() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance, mRemainingTime.getSeconds(),
+                TravelEstimate.create(mRemainingDistance,
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                         mArrivalTime);
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
                         TravelEstimate.create(
                                 Distance.create(/* displayDistance= */ 200, Distance.UNIT_METERS),
-                                mRemainingTime.getSeconds(),
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                                 mArrivalTime));
     }
 
     @Test
     public void notEquals_differentRemainingTime() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance, mRemainingTime.getSeconds(),
+                TravelEstimate.create(mRemainingDistance,
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                         mArrivalTime);
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.create(mRemainingDistance, mRemainingTime.getSeconds() + 1,
+                        TravelEstimate.create(mRemainingDistance,
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime) + 1,
                                 mArrivalTime));
     }
 
     @Test
     public void notEquals_differentArrivalTime() {
         TravelEstimate travelEstimate =
-                TravelEstimate.create(mRemainingDistance, mRemainingTime.getSeconds(),
+                TravelEstimate.create(mRemainingDistance,
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                         mArrivalTime);
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
                         TravelEstimate.create(
                                 mRemainingDistance,
-                                mRemainingTime.getSeconds(),
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                                 createDateTimeWithZone("2020-04-14T15:57:01", "US/Pacific")));
     }
 
     @Test
     public void notEquals_differentRemainingTimeColor() {
         TravelEstimate travelEstimate =
-                TravelEstimate.builder(mRemainingDistance, mRemainingTime.getSeconds(),
+                TravelEstimate.builder(mRemainingDistance,
+                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                         mArrivalTime)
                         .setRemainingTimeColor(CarColor.YELLOW)
                         .build();
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
-                        TravelEstimate.builder(mRemainingDistance, mRemainingTime.getSeconds(),
+                        TravelEstimate.builder(mRemainingDistance,
+                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                                 mArrivalTime)
                                 .setRemainingTimeColor(CarColor.GREEN)
                                 .build());

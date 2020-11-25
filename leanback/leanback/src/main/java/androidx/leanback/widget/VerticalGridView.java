@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -55,6 +56,7 @@ public class VerticalGridView extends BaseGridView {
         initAttributes(context, attrs);
     }
 
+    @SuppressLint("CustomViewStyleable")
     protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbVerticalGridView);

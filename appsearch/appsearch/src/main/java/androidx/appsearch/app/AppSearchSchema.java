@@ -40,6 +40,8 @@ import java.util.Set;
  * <p>For example, an e-mail message or a music recording could be a schema type.
  *
  * <p>The schema consists of type information, properties, and config (like tokenization type).
+ *
+ * @see AppSearchSession#setSchema
  */
 public final class AppSearchSchema {
     private static final String SCHEMA_TYPE_FIELD = "schemaType";
@@ -71,7 +73,7 @@ public final class AppSearchSchema {
 
     /** Returns the name of this schema type, e.g. Email. */
     @NonNull
-    public String getSchemaTypeName() {
+    public String getSchemaType() {
         return mBundle.getString(SCHEMA_TYPE_FIELD, "");
     }
 
@@ -180,9 +182,9 @@ public final class AppSearchSchema {
         public static final int DATA_TYPE_BYTES = 5;
 
         /**
-         * Indicates that the property itself is an Document, making it part a hierarchical
-         * Document schema. Any property using this DataType MUST have a valid
-         * {@code schemaType}.
+         * Indicates that the property is itself a {@link GenericDocument}, making it part of a
+         * hierarchical schema. Any property using this DataType MUST have a valid
+         * {@link PropertyConfig#getSchemaType}.
          */
         public static final int DATA_TYPE_DOCUMENT = 6;
 
@@ -226,8 +228,8 @@ public final class AppSearchSchema {
          *
          * <p>Useful if the data type is not made up of terms (e.g.
          * {@link PropertyConfig#DATA_TYPE_DOCUMENT} or {@link PropertyConfig#DATA_TYPE_BYTES}
-         * type). All the properties inside the nested property won't be indexed regardless of the
-         * value of {@code indexingType} for the nested properties.
+         * type). None of the properties inside the nested property will be indexed regardless of
+         * the value of {@code indexingType} for the nested properties.
          */
         public static final int INDEXING_TYPE_NONE = 0;
 

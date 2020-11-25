@@ -4,8 +4,8 @@ import a.b.secondreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyrea
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
 
-class LongPackageFragmentDirections private constructor() {
-  companion object {
-    fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
+public class LongPackageFragmentDirections private constructor() {
+  public companion object {
+    public fun next(): NavDirections = ActionOnlyNavDirections(R.id.next)
   }
 }

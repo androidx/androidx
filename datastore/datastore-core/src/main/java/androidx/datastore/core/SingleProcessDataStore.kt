@@ -300,11 +300,16 @@ internal class SingleProcessDataStore<T>(
             }
 
             if (!scratchFile.renameTo(file)) {
-                throw IOException("$scratchFile could not be renamed to $file")
+                throw IOException(
+                    "Unable to rename $scratchFile." +
+                        "This likely means that there are multiple instances of DataStore " +
+                        "for this file. Ensure that you are only creating a single instance of " +
+                        "datastore for this file."
+                )
             }
         } catch (ex: IOException) {
             if (scratchFile.exists()) {
-                scratchFile.delete()
+                scratchFile.delete() // Swallow failure to delete
             }
             throw ex
         }
@@ -321,9 +326,8 @@ internal class SingleProcessDataStore<T>(
         }
     }
 
-    // Wrapper on FileOutputStream to prevent users from closing it in their serializer.
-    private class UncloseableOutputStream(internal val fileOutputStream: FileOutputStream) :
-        OutputStream() {
+    // Wrapper on FileOutputStream to prevent closing the underlying OutputStream.
+    private class UncloseableOutputStream(val fileOutputStream: FileOutputStream) : OutputStream() {
 
         override fun write(b: Int) {
             fileOutputStream.write(b)
@@ -338,7 +342,8 @@ internal class SingleProcessDataStore<T>(
         }
 
         override fun close() {
-            throw IllegalStateException("Do not close the OutputStream provided by DataStore")
+            // We will not close the underlying FileOutputStream until after we're done syncing
+            // the fd. This is useful for things like b/173037611.
         }
 
         override fun flush() {

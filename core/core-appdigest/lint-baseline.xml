@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha15" client="gradle" variant="debug" version="4.2.0-alpha15">
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 1 instead"
+        errorLine1="    public static final int TYPE_WHOLE_MD5 = 0x00000002;"
+        errorLine2="                                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="65"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 2 instead"
+        errorLine1="    public static final int TYPE_WHOLE_SHA1 = 0x00000004;"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="76"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 3 instead"
+        errorLine1="    public static final int TYPE_WHOLE_SHA256 = 0x00000008;"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="86"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 4 instead"
+        errorLine1="    public static final int TYPE_WHOLE_SHA512 = 0x00000010;"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="96"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 5 instead"
+        errorLine1="    public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256 = 0x00000020;"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="105"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="ShiftFlags"
+        message="Consider declaring this constant using 1 &lt;&lt; 6 instead"
+        errorLine1="    public static final int TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512 = 0x00000040;"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/Checksum.java"
+            line="114"
+            column="66"/>
+    </issue>
+
+</issues>

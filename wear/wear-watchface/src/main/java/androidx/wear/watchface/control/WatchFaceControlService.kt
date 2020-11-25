@@ -23,9 +23,11 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.runOnHandler
 
 /**
@@ -34,6 +36,7 @@ import androidx.wear.watchface.runOnHandler
  *  @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(27)
 public class WatchFaceControlService : Service() {
     private val watchFaceInstanceServiceStub =
         IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper()))
@@ -57,6 +60,7 @@ public class WatchFaceControlService : Service() {
     }
 }
 
+@RequiresApi(27)
 private class IWatchFaceInstanceServiceStub(
     private val context: Context,
     private val uiThreadHandler: Handler
@@ -65,7 +69,7 @@ private class IWatchFaceInstanceServiceStub(
 
     override fun getInteractiveWatchFaceInstanceSysUI(instanceId: String) =
         uiThreadHandler.runOnHandler {
-            InteractiveInstanceManager.getAndRetainInstance(instanceId)?.sysUiApi
+            InteractiveInstanceManager.getAndRetainInstance(instanceId)?.createSysUiApi()
         }
 
     override fun createHeadlessWatchFaceInstance(
@@ -90,4 +94,15 @@ private class IWatchFaceInstanceServiceStub(
         watchFaceService.setContext(context)
         return watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
     }
+
+    override fun getOrCreateInteractiveWatchFaceWCS(
+        params: WallpaperInteractiveWatchFaceInstanceParams,
+        callback: IPendingInteractiveWatchFaceWCS
+    ) = InteractiveInstanceManager
+        .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+            InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                params,
+                callback
+            )
+        )
 }

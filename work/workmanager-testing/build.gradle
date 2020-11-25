@@ -28,13 +28,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-}
-
 dependencies {
     api(project(':work:work-runtime-ktx'))
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.1.0")
