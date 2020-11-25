@@ -1852,4 +1852,17 @@ class WatchFaceServiceTest {
         assertThat(leftComplication.isActiveAt(2000000)).isTrue()
         assertThat(leftComplication.isActiveAt(2000001)).isFalse()
     }
+
+    @Test
+    fun invalidateRendererBeforeFullInit() {
+        renderer = TestRenderer(
+            surfaceHolder,
+            UserStyleRepository(UserStyleSchema(emptyList())),
+            watchState.asWatchState(),
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        // This should not throw an exception.
+        renderer.invalidate()
+    }
 }
