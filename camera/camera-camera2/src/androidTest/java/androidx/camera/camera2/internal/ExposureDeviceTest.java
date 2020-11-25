@@ -35,6 +35,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -137,6 +138,8 @@ public class ExposureDeviceTest {
                 + "first AE converge.", android.os.Build.MODEL.contains("Cuttlefish"));
         assumeFalse("Pixel uses google_3a v1 or v2 it might fail to set EV before "
                 + "first AE converge.", android.os.Build.MODEL.contains("Pixel"));
+        assumeFalse("Disable Nexus 5 in postsubmit for b/173743705",
+                android.os.Build.MODEL.contains("Nexus 5") && !Log.isLoggable("MH", Log.DEBUG));
 
         assumeTrue(CameraUtil.deviceHasCamera());
         assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING));
