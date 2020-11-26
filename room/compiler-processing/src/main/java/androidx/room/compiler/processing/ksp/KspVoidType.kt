@@ -30,7 +30,7 @@ import com.squareup.javapoet.TypeName
 internal class KspVoidType(
     env: KspProcessingEnv,
     ksType: KSType,
-    private val boxed: Boolean
+    val boxed: Boolean
 ) : KspType(env, ksType) {
     override val typeName: TypeName
         get() = if (boxed || nullability == XNullability.NULLABLE) {

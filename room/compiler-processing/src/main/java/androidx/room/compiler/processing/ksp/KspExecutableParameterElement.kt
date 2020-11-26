@@ -20,7 +20,6 @@ import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
-import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.METHOD_PARAMETER
 import com.google.devtools.ksp.symbol.KSValueParameter
 
@@ -38,7 +37,7 @@ internal class KspExecutableParameterElement(
     override val name: String
         get() = parameter.name?.asString() ?: "_no_param_name"
 
-    override val type: XType by lazy {
+    override val type: KspType by lazy {
         parameter.typeAsMemberOf(
             resolver = env.resolver,
             functionDeclaration = method.declaration,
@@ -51,7 +50,7 @@ internal class KspExecutableParameterElement(
         }
     }
 
-    override fun asMemberOf(other: XDeclaredType): XType {
+    override fun asMemberOf(other: XDeclaredType): KspType {
         if (method.containing.type.isSameType(other)) {
             return type
         }

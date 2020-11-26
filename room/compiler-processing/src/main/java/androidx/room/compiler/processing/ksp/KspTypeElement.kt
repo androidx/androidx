@@ -106,8 +106,14 @@ internal class KspTypeElement(
     }
 
     private val _declaredPropertyFields by lazy {
-        declaration
-            .getDeclaredProperties()
+        val declaredProperties = declaration.getDeclaredProperties()
+        val companionProperties = declaration
+            .findCompanionObject()
+            ?.getDeclaredProperties()
+            ?.filter {
+                it.isStatic()
+            }.orEmpty()
+        (declaredProperties + companionProperties)
             .map {
                 KspFieldElement(
                     env = env,
@@ -221,7 +227,15 @@ internal class KspTypeElement(
     }
 
     private val _declaredMethods by lazy {
-        val myMethods = declaration.getDeclaredFunctions().asSequence()
+        val instanceMethods = declaration.getDeclaredFunctions().asSequence()
+        val companionMethods = declaration.findCompanionObject()
+            ?.getDeclaredFunctions()
+            ?.asSequence()
+            ?.filter {
+                it.isStatic()
+            }
+            ?: emptySequence()
+        val declaredMethods = (instanceMethods + companionMethods)
             .filterNot {
                 // filter out constructors
                 it.simpleName.asString() == name
@@ -238,15 +252,7 @@ internal class KspTypeElement(
                     declaration = it
                 )
             }.toList()
-        val companionMethods = declaration.findCompanionObject()
-            ?.let {
-                env.wrapClassDeclaration(it)
-            }?.getDeclaredMethods()
-            ?.filter {
-                it.isStatic()
-            } ?: emptyList()
-
-        myMethods + syntheticGetterSetterMethods + companionMethods
+        declaredMethods + syntheticGetterSetterMethods
     }
 
     override fun getDeclaredMethods(): List<XMethodElement> {

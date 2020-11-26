@@ -42,13 +42,7 @@ internal sealed class KspMethodElement(
 
     @OptIn(KspExperimental::class)
     override val name: String by lazy {
-        try {
-            env.resolver.getJvmName(declaration)
-        } catch (ignored: ClassCastException) {
-            // TODO remove this catch once that issue is fixed.
-            // workaround for https://github.com/google/ksp/issues/164
-            declaration.simpleName.asString()
-        }
+        env.resolver.safeGetJvmName(declaration)
     }
 
     override val executableType: XMethodType by lazy {
@@ -104,9 +98,11 @@ internal sealed class KspMethodElement(
     ) {
         override val returnType: XType by lazy {
             env.wrap(
-                checkNotNull(declaration.returnType) {
-                    "return type on a method declaration cannot be null"
-                }
+                ksType = declaration.returnTypeAsMemberOf(
+                    resolver = env.resolver,
+                    ksType = containing.type.ksType
+                ),
+                originatingReference = checkNotNull(declaration.returnType)
             )
         }
         override fun isSuspendFunction() = false

@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
@@ -35,7 +36,7 @@ import org.junit.runners.JUnit4
 class XElementTest {
     @Test
     fun modifiers() {
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(
                 Source.java(
                     "foo.bar.Baz",
@@ -145,7 +146,7 @@ class XElementTest {
                 }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(genericBase, boundedChild)
         ) {
             fun validateElement(element: XTypeElement, tTypeName: TypeName, rTypeName: TypeName) {
@@ -172,7 +173,12 @@ class XElementTest {
             }
             validateElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = TypeVariableName.get("T"),
+                tTypeName = if (it.isKsp) {
+                    // when inheritance resolution happens, KSP resolves them to object
+                    TypeName.OBJECT
+                } else {
+                    TypeVariableName.get("T")
+                },
                 rTypeName = TypeVariableName.get("R")
             )
             validateElement(
@@ -204,7 +210,7 @@ class XElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -251,7 +257,7 @@ class XElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("java.lang.Object")
@@ -274,7 +280,7 @@ class XElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             sources = listOf(subject)
         ) {
             val inner = ClassName.get("foo.bar", "Baz.Inner")
@@ -311,7 +317,7 @@ class XElementTest {
             }
             """.trimIndent()
         )
-        runProcessorTest(
+        runProcessorTestIncludingKsp(
             listOf(source)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
