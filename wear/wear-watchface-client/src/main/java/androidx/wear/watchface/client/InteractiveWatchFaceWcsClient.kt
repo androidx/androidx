@@ -27,6 +27,7 @@ import androidx.wear.watchface.control.data.WatchfaceScreenshotParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
  * Controls a stateful remote interactive watch face with an interface tailored for WCS the
@@ -78,6 +79,13 @@ public interface InteractiveWatchFaceWcsClient : AutoCloseable {
      * Sets the watch face's current [UserStyle]. Note this may alter [complicationState].
      */
     public fun setUserStyle(userStyle: UserStyle)
+
+    /**
+     * Sets the watch face's current UserStyle represented as a Map<String, String>.  This can be
+     * helpful to avoid having to construct a [UserStyle] which requires the [UserStyleSchema]
+     * which is an additional IPC. Note this may alter [complicationState].
+     */
+    public fun setUserStyle(userStyle: Map<String, String>)
 
     /** Returns the ID of this watch face instance. */
     public val instanceId: String
@@ -139,6 +147,10 @@ internal class InteractiveWatchFaceWcsClientImpl internal constructor(
 
     override fun setUserStyle(userStyle: UserStyle) {
         iInteractiveWatchFaceWcs.setCurrentUserStyle(userStyle.toWireFormat())
+    }
+
+    override fun setUserStyle(userStyle: Map<String, String>) {
+        iInteractiveWatchFaceWcs.setCurrentUserStyle(UserStyleWireFormat(userStyle))
     }
 
     override val instanceId: String
