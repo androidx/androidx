@@ -363,7 +363,7 @@ internal class WatchFaceImpl(
     private val componentName =
         ComponentName(
             watchFaceHostApi.getContext().packageName,
-            watchFaceHostApi.getContext().javaClass.typeName
+            watchFaceHostApi.getContext().javaClass.name
         )
 
     internal fun getWatchFaceStyle() = WatchFaceStyle(
@@ -419,7 +419,7 @@ internal class WatchFaceImpl(
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
-                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.typeName}.txt"
+                "watchface_prefs_${watchFaceHostApi.getContext().javaClass.name}.txt"
 
             userStyleRepository.userStyle = UserStyle(
                 readPrefs(watchFaceHostApi.getContext(), preferencesFile),
