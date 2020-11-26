@@ -16,12 +16,43 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
-
 /**
  * Collection of pagination [LoadState]s for both a [PagingSource], and [RemoteMediator].
  */
-data class CombinedLoadStates(
+class CombinedLoadStates(
+    /**
+     * Convenience for combined behavior of [REFRESH][LoadType.REFRESH] [LoadState], which
+     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
+     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
+     * remote load was applied.
+     *
+     * For use cases that require reacting to [LoadState] of [source] and [mediator]
+     * specifically, e.g., showing cached data when network loads via [mediator] fail,
+     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     */
+    val refresh: LoadState,
+    /**
+     * Convenience for combined behavior of [PREPEND][LoadType.REFRESH] [LoadState], which
+     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
+     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
+     * remote load was applied.
+     *
+     * For use cases that require reacting to [LoadState] of [source] and [mediator]
+     * specifically, e.g., showing cached data when network loads via [mediator] fail,
+     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     */
+    val prepend: LoadState,
+    /**
+     * Convenience for combined behavior of [APPEND][LoadType.REFRESH] [LoadState], which
+     * generally defers to [mediator] if it exists, but if previously was [LoadState.Loading],
+     * awaits for both [source] and [mediator] to become [LoadState.NotLoading] to ensure the
+     * remote load was applied.
+     *
+     * For use cases that require reacting to [LoadState] of [source] and [mediator]
+     * specifically, e.g., showing cached data when network loads via [mediator] fail,
+     * [LoadStates] exposed via [source] and [mediator] should be used directly.
+     */
+    val append: LoadState,
     /**
      * [LoadStates] corresponding to loads from a [PagingSource].
      */
@@ -31,40 +62,39 @@ data class CombinedLoadStates(
      * [LoadStates] corresponding to loads from a [RemoteMediator], or `null` if [RemoteMediator]
      * not present.
      */
-    val mediator: LoadStates? = null
+    val mediator: LoadStates? = null,
 ) {
-    /**
-     * Convenience for accessing [REFRESH][LoadType.REFRESH] [LoadState], which always defers to
-     * [LoadState] of [mediator] if it exists, otherwise equivalent to [LoadState] of [source].
-     *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
-     */
-    val refresh: LoadState = (mediator ?: source).refresh
 
-    /**
-     * Convenience for accessing [PREPEND][LoadType.PREPEND] [LoadState], which always defers to
-     * [LoadState] of [mediator] if it exists, otherwise equivalent to [LoadState] of [source].
-     *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
-     */
-    val prepend: LoadState = (mediator ?: source).prepend
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    /**
-     * Convenience for accessing [APPEND][LoadType.APPEND] [LoadState], which always defers to
-     * [LoadState] of [mediator] if it exists, otherwise equivalent to [LoadState] of [source].
-     *
-     * For use cases that require reacting to [LoadState] of [source] and [mediator]
-     * specifically, e.g., showing cached data when network loads via [mediator] fail,
-     * [LoadStates] exposed via [source] and [mediator] should be used directly.
-     */
-    val append: LoadState = (mediator ?: source).append
+        other as CombinedLoadStates
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    inline fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
+        if (refresh != other.refresh) return false
+        if (prepend != other.prepend) return false
+        if (append != other.append) return false
+        if (source != other.source) return false
+        if (mediator != other.mediator) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = refresh.hashCode()
+        result = 31 * result + prepend.hashCode()
+        result = 31 * result + append.hashCode()
+        result = 31 * result + source.hashCode()
+        result = 31 * result + (mediator?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "CombinedLoadStates(refresh=$refresh, prepend=$prepend, append=$append, " +
+            "source=$source, mediator=$mediator)"
+    }
+
+    internal fun forEach(op: (LoadType, Boolean, LoadState) -> Unit) {
         source.forEach { type, state ->
             op(type, false, state)
         }
@@ -75,11 +105,10 @@ data class CombinedLoadStates(
 
     internal companion object {
         val IDLE_SOURCE = CombinedLoadStates(
+            refresh = LoadState.NotLoading.Incomplete,
+            prepend = LoadState.NotLoading.Incomplete,
+            append = LoadState.NotLoading.Incomplete,
             source = LoadStates.IDLE
-        )
-        val IDLE_MEDIATOR = CombinedLoadStates(
-            source = LoadStates.IDLE,
-            mediator = LoadStates.IDLE
         )
     }
 }

@@ -9,11 +9,7 @@ package androidx.paging {
   }
 
   public final class CombinedLoadStates {
-    ctor public CombinedLoadStates(androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
-    method public androidx.paging.LoadStates component1();
-    method public androidx.paging.LoadStates? component2();
-    method public androidx.paging.CombinedLoadStates copy(androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public inline void forEach(kotlin.jvm.functions.Function3<? super androidx.paging.LoadType,? super java.lang.Boolean,? super androidx.paging.LoadState,kotlin.Unit> op);
+    ctor public CombinedLoadStates(androidx.paging.LoadState refresh, androidx.paging.LoadState prepend, androidx.paging.LoadState append, androidx.paging.LoadStates source, androidx.paging.LoadStates? mediator);
     method public androidx.paging.LoadState getAppend();
     method public androidx.paging.LoadStates? getMediator();
     method public androidx.paging.LoadState getPrepend();

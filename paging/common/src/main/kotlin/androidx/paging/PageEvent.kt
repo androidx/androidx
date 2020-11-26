@@ -150,11 +150,14 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
                 combinedLoadStates = CombinedLoadStates(
+                    refresh = LoadState.NotLoading.Incomplete,
+                    prepend = LoadState.NotLoading.Complete,
+                    append = LoadState.NotLoading.Complete,
                     source = LoadStates(
                         refresh = LoadState.NotLoading.Incomplete,
                         prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete
-                    )
+                        append = LoadState.NotLoading.Complete,
+                    ),
                 )
             )
         }

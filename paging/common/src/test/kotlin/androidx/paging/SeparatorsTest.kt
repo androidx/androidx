@@ -1063,6 +1063,8 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 1,
                     combinedLoadStates = remoteLoadStatesOf(
+                        refresh = NotLoading.Complete,
+                        prepend = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
@@ -1080,6 +1082,9 @@ class SeparatorsTest {
                     ),
                     placeholdersAfter = 1,
                     combinedLoadStates = remoteLoadStatesOf(
+                        refresh = NotLoading.Complete,
+                        prepend = NotLoading.Complete,
+                        append = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
                         refreshRemote = NotLoading.Complete,
@@ -1129,6 +1134,7 @@ class SeparatorsTest {
                     ),
                     placeholdersBefore = 1,
                     combinedLoadStates = remoteLoadStatesOf(
+                        prepend = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
                         prependRemote = NotLoading.Complete,
@@ -1176,6 +1182,7 @@ class SeparatorsTest {
                     ),
                     placeholdersAfter = 1,
                     combinedLoadStates = remoteLoadStatesOf(
+                        append = NotLoading.Complete,
                         appendLocal = NotLoading.Complete,
                         prependLocal = NotLoading.Complete,
                         appendRemote = NotLoading.Complete,
