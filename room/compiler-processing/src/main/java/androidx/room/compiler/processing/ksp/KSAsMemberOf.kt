@@ -21,14 +21,14 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
-import com.google.devtools.ksp.symbol.Modifier
 
 /**
  * Returns the type of a property as if it is member of the given [ksType].
  */
 internal fun KSPropertyDeclaration.typeAsMemberOf(resolver: Resolver, ksType: KSType): KSType {
-    // see: https://github.com/google/ksp/issues/166
-    if (this.hasJvmStaticAnnotation() || modifiers.contains(Modifier.JAVA_STATIC)) {
+    if (isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
         return type.resolve()
     }
     return resolver.asMemberOf(
@@ -42,6 +42,11 @@ internal fun KSValueParameter.typeAsMemberOf(
     functionDeclaration: KSFunctionDeclaration,
     ksType: KSType
 ): KSType {
+    if (functionDeclaration.isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
+        return type.resolve()
+    }
     val asMember = resolver.asMemberOf(
         function = functionDeclaration,
         containing = ksType
@@ -56,12 +61,15 @@ internal fun KSFunctionDeclaration.returnTypeAsMemberOf(
     resolver: Resolver,
     ksType: KSType
 ): KSType {
-    // see: https://github.com/google/ksp/issues/166
-    if (this.hasJvmStaticAnnotation() || modifiers.contains(Modifier.JAVA_STATIC)) {
-        return returnType?.resolve() ?: error("cannot find return type for $this")
+    val returnType = if (isStatic()) {
+        // calling as member with a static would throw as it might be a member of the companion
+        // object
+        returnType?.resolve()
+    } else {
+        resolver.asMemberOf(
+            function = this,
+            containing = ksType
+        ).returnType
     }
-    return resolver.asMemberOf(
-        function = this,
-        containing = ksType
-    ).returnType ?: returnType?.resolve() ?: error("cannot find return type for $this")
+    return returnType ?: error("cannot find return type for $this")
 }

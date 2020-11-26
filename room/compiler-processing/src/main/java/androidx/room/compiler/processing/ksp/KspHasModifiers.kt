@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XHasModifiers
+import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.isOpen
 import com.google.devtools.ksp.isPrivate
 import com.google.devtools.ksp.isProtected
@@ -28,6 +29,7 @@ import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Origin
+import com.google.devtools.ksp.symbol.Visibility
 
 /**
  * Implementation of [XHasModifiers] for ksp declarations.
@@ -36,7 +38,9 @@ sealed class KspHasModifiers(
     protected val declaration: KSDeclaration
 ) : XHasModifiers {
     override fun isPublic(): Boolean {
-        return declaration.isPublic()
+        // internals are public from java but KSP's declaration.isPublic excludes them.
+        return declaration.getVisibility() == Visibility.INTERNAL ||
+            declaration.getVisibility() == Visibility.PUBLIC
     }
 
     override fun isProtected(): Boolean {
@@ -52,8 +56,7 @@ sealed class KspHasModifiers(
     }
 
     override fun isStatic(): Boolean {
-        return declaration.modifiers.contains(Modifier.JAVA_STATIC) ||
-            declaration.hasJvmStaticAnnotation()
+        return declaration.isStatic()
     }
 
     override fun isTransient(): Boolean {

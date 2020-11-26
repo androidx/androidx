@@ -18,10 +18,14 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
+import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyAccessor
+import com.google.devtools.ksp.symbol.Origin
 
 internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
     getKSNameFromString(qName)
@@ -66,5 +70,40 @@ internal fun Resolver.overrides(
     val superClass = ksOverridee.closestClassDeclaration() ?: return false
     return subClass.getAllSuperTypes().any {
         it.declaration.closestClassDeclaration() == superClass
+    }
+}
+
+@OptIn(KspExperimental::class)
+internal fun Resolver.safeGetJvmName(
+    declaration: KSFunctionDeclaration
+): String {
+    if (declaration.origin == Origin.JAVA) {
+        // https://github.com/google/ksp/issues/170
+        return declaration.simpleName.asString()
+    }
+    return try {
+        getJvmName(declaration)
+    } catch (ignored: ClassCastException) {
+        // TODO remove this catch once that issue is fixed.
+        // workaround for https://github.com/google/ksp/issues/164
+        return declaration.simpleName.asString()
+    }
+}
+
+@OptIn(KspExperimental::class)
+internal fun Resolver.safeGetJvmName(
+    accessor: KSPropertyAccessor,
+    fallback: () -> String
+): String {
+    if (accessor.origin == Origin.JAVA) {
+        // https://github.com/google/ksp/issues/170
+        return fallback()
+    }
+    return try {
+        getJvmName(accessor)
+    } catch (ignored: ClassCastException) {
+        // TODO remove this catch once that issue is fixed.
+        // workaround for https://github.com/google/ksp/issues/164
+        return fallback()
     }
 }

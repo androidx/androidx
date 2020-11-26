@@ -19,7 +19,7 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runKaptTest
-import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.compiler.processing.util.runProcessorTestIncludingKsp
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.MethodSpec
@@ -101,8 +101,33 @@ class MethodSpecHelperTest {
                     return 3;
                 }
 
+                open fun boxedLongArrayReturn(): Array<Long> {
+                    TODO();
+                }
+
+                open fun boxedIntArrayReturn(): Array<Int> {
+                    TODO();
+                }
+
+                protected open fun listArg(r:List<String>) {
+                }
+
+                open suspend fun suspendUnitFun() {
+                }
+
+                protected open suspend fun suspendBasic(p0:Int):String {
+                    TODO()
+                }
+
+                protected open suspend fun suspendVarArg(p0:Int, vararg p1:String):Long {
+                    TODO()
+                }
+
                 protected open fun <R> typeArgs(r:R): R {
                     return r;
+                }
+
+                internal open fun internalFun() {
                 }
 
                 @Throws(Exception::class)
@@ -114,12 +139,138 @@ class MethodSpecHelperTest {
         overridesCheck(source)
     }
 
+    @Test
+    fun variance() {
+        // check our override impl matches javapoet
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface MyInterface<T> {
+                suspend fun suspendReturnList(arg1:Int, arg2:String):List<T>
+            }
+            interface I1<in T>
+            interface I2<out T>
+            interface I3<T>
+            enum class Lang {
+               ES,
+               EN;
+            }
+            class Box<out T>(val value: T)
+
+            interface Base
+            class Derived : Base
+
+            interface Baz : MyInterface<String> {
+                fun boxDerived(value: Derived): Box<Derived> = Box(value)
+                fun unboxBase(box: Box<Base>): Base = box.value
+                fun unboxString(box: Box<String>): String = box.value
+                fun findByLanguages(langs: Set<Lang>): List<String>
+                fun f1(args : I1<String>): I1<String>
+                fun f2(args : I2<String>): I2<String>
+                fun f3(args : I3<String>): I3<String>
+                suspend fun s1(args : I1<String>): I1<String>
+                suspend fun s2(args : I2<String>): I2<String>
+                suspend fun s3(args : I3<String>): I3<String>
+                suspend fun s4(args : I1<String>): String
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun inheritedVariance() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface MyInterface<T> {
+                fun receiveList(argsInParent : List<T>):Unit
+                suspend fun suspendReturnList(arg1:Int, arg2:String):List<T>
+            }
+            data class Book(val id:Int)
+            interface Baz : MyInterface<Book> {
+                fun myList(args: List<Book>):Unit
+                override fun receiveList(argsInParent : List<Book>):Unit
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun inheritedVariance_finalType() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            interface MyInterface<T> {
+                fun receiveList(argsInParent : List<T>):Unit
+                suspend fun suspendReturnList(arg1:Int, arg2:String):List<T>
+            }
+            interface Baz : MyInterface<String> {
+                fun myList(args: List<String>):Unit
+                override fun receiveList(argsInParent : List<String>):Unit
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun inheritedVariance_enumType() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar;
+            enum class EnumType {
+                FOO,
+                BAR;
+            }
+            interface MyInterface<T> {
+                fun receiveList(argsInParent : List<T>):Unit
+                suspend fun suspendReturnList(arg1:Int, arg2:String):List<T>
+            }
+            interface Baz : MyInterface<EnumType> {
+                fun myList(args: List<EnumType>):Unit
+                override fun receiveList(argsInParent : List<EnumType>):Unit
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
+    @Test
+    fun primitiveOverrides() {
+        val source = Source.kotlin(
+            "Foo.kt",
+            """
+            package foo.bar
+            data class LongFoo(val id: Long, val description: String)
+            /* Interface with generics only */
+            interface MyInterface<Key, Value> {
+                fun getItem(id: Key): Value?
+                //fun delete(id: Key)
+                //fun getFirstItemId(): Key
+            }
+            /* Interface with non-generics and generics */
+            interface Baz : MyInterface<Long, LongFoo> {
+                override fun getItem(id: Long): LongFoo?
+                //override fun delete(id: Long)
+                //fun insert(item: LongFoo)
+                //override fun getFirstItemId(): Long
+            }
+            """.trimIndent()
+        )
+        overridesCheck(source)
+    }
+
     private fun overridesCheck(source: Source) {
         // first build golden image with Java processor so we can use JavaPoet's API
         val golden = buildMethodsViaJavaPoet(source)
-        runKspTest(
-            sources = listOf(source),
-            succeed = true
+        runProcessorTestIncludingKsp(
+            sources = listOf(source)
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getDeclaredMethods().filter {
