@@ -44,7 +44,7 @@ import java.util.Set;
  * @see AppSearchSession#query
  */
 public class GenericDocument {
-    private static final String TAG = "GenericDocument";
+    private static final String TAG = "AppSearchGenericDocumen";
 
     /** The default empty namespace.*/
     public static final String DEFAULT_NAMESPACE = "";
