@@ -16,9 +16,13 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.Set;
 
 /**
  * Represents a connection to an AppSearch storage system where {@link GenericDocument}s can be
@@ -86,6 +90,16 @@ public interface AppSearchSession {
     //  exposed.
     @NonNull
     ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request);
+
+    /**
+     * Retrieves the schema most recently successfully provided to {@link #setSchema}.
+     *
+     * @return The pending result of performing this operation.
+     */
+    // This call hits disk; async API prevents us from treating these calls as properties.
+    @SuppressLint("KotlinPropertyAccess")
+    @NonNull
+    ListenableFuture<AppSearchResult<Set<AppSearchSchema>>> getSchema();
 
     /**
      * Indexes documents into AppSearch.

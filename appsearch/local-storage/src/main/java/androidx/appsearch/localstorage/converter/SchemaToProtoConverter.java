@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage.converter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
@@ -23,6 +25,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.PropertyConfigProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
+import com.google.android.icing.proto.SchemaTypeConfigProtoOrBuilder;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 
@@ -34,6 +37,8 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SchemaToProtoConverter {
+    private static final String TAG = "AppSearchSchemaToProtoC";
+
     private SchemaToProtoConverter() {}
 
     /**
@@ -41,23 +46,23 @@ public final class SchemaToProtoConverter {
      * {@link SchemaTypeConfigProto}.
      */
     @NonNull
-    public static SchemaTypeConfigProto convert(@NonNull AppSearchSchema schema) {
+    public static SchemaTypeConfigProto toSchemaTypeConfigProto(@NonNull AppSearchSchema schema) {
         Preconditions.checkNotNull(schema);
         SchemaTypeConfigProto.Builder protoBuilder =
                 SchemaTypeConfigProto.newBuilder().setSchemaType(schema.getSchemaType());
         List<AppSearchSchema.PropertyConfig> properties = schema.getProperties();
         for (int i = 0; i < properties.size(); i++) {
-            PropertyConfigProto propertyProto = convertProperty(properties.get(i));
+            PropertyConfigProto propertyProto = toPropertyConfigProto(properties.get(i));
             protoBuilder.addProperties(propertyProto);
         }
         return protoBuilder.build();
     }
 
     @NonNull
-    private static PropertyConfigProto convertProperty(
+    private static PropertyConfigProto toPropertyConfigProto(
             @NonNull AppSearchSchema.PropertyConfig property) {
         Preconditions.checkNotNull(property);
-        PropertyConfigProto.Builder propertyConfigProto = PropertyConfigProto.newBuilder()
+        PropertyConfigProto.Builder builder = PropertyConfigProto.newBuilder()
                 .setPropertyName(property.getName());
         StringIndexingConfig.Builder indexingConfig = StringIndexingConfig.newBuilder();
 
@@ -68,12 +73,12 @@ public final class SchemaToProtoConverter {
         if (dataTypeProto == null) {
             throw new IllegalArgumentException("Invalid dataType: " + dataType);
         }
-        propertyConfigProto.setDataType(dataTypeProto);
+        builder.setDataType(dataTypeProto);
 
         // Set schemaType
         String schemaType = property.getSchemaType();
         if (schemaType != null) {
-            propertyConfigProto.setSchemaType(schemaType);
+            builder.setSchemaType(schemaType);
         }
 
         // Set cardinality
@@ -83,7 +88,7 @@ public final class SchemaToProtoConverter {
         if (cardinalityProto == null) {
             throw new IllegalArgumentException("Invalid cardinality: " + dataType);
         }
-        propertyConfigProto.setCardinality(cardinalityProto);
+        builder.setCardinality(cardinalityProto);
 
         // Set indexingType
         @AppSearchSchema.PropertyConfig.IndexingType int indexingType = property.getIndexingType();
@@ -114,7 +119,63 @@ public final class SchemaToProtoConverter {
         indexingConfig.setTokenizerType(tokenizerTypeProto);
 
         // Build!
-        propertyConfigProto.setStringIndexingConfig(indexingConfig);
-        return propertyConfigProto.build();
+        builder.setStringIndexingConfig(indexingConfig);
+        return builder.build();
+    }
+
+    /**
+     * Converts a {@link SchemaTypeConfigProto} into an
+     * {@link androidx.appsearch.app.AppSearchSchema}.
+     */
+    @NonNull
+    public static AppSearchSchema toAppSearchSchema(@NonNull SchemaTypeConfigProtoOrBuilder proto) {
+        Preconditions.checkNotNull(proto);
+        AppSearchSchema.Builder builder = new AppSearchSchema.Builder(proto.getSchemaType());
+        List<PropertyConfigProto> properties = proto.getPropertiesList();
+        for (int i = 0; i < properties.size(); i++) {
+            AppSearchSchema.PropertyConfig propertyConfig = toPropertyConfig(properties.get(i));
+            builder.addProperty(propertyConfig);
+        }
+        return builder.build();
+    }
+
+    @NonNull
+    private static AppSearchSchema.PropertyConfig toPropertyConfig(
+            @NonNull PropertyConfigProto proto) {
+        Preconditions.checkNotNull(proto);
+        AppSearchSchema.PropertyConfig.Builder builder =
+                new AppSearchSchema.PropertyConfig.Builder(proto.getPropertyName())
+                        .setDataType(proto.getDataType().getNumber())
+                        .setCardinality(proto.getCardinality().getNumber())
+                        .setTokenizerType(
+                                proto.getStringIndexingConfig().getTokenizerType().getNumber());
+
+        // Set schema
+        if (!proto.getSchemaType().isEmpty()) {
+            builder.setSchemaType(proto.getSchemaType());
+        }
+
+        // Set indexingType
+        @AppSearchSchema.PropertyConfig.IndexingType int indexingType;
+        TermMatchType.Code termMatchTypeProto = proto.getStringIndexingConfig().getTermMatchType();
+        switch (termMatchTypeProto) {
+            case UNKNOWN:
+                indexingType = AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
+                break;
+            case EXACT_ONLY:
+                indexingType = AppSearchSchema.PropertyConfig.INDEXING_TYPE_EXACT_TERMS;
+                break;
+            case PREFIX:
+                indexingType = AppSearchSchema.PropertyConfig.INDEXING_TYPE_PREFIXES;
+                break;
+            default:
+                // Avoid crashing in the 'read' path; we should try to interpret the document to the
+                // extent possible.
+                Log.w(TAG, "Invalid indexingType: " + termMatchTypeProto.getNumber());
+                indexingType = AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE;
+        }
+        builder.setIndexingType(indexingType);
+
+        return builder.build();
     }
 }

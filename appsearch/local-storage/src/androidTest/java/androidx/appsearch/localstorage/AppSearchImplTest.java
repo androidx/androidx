@@ -69,7 +69,8 @@ public class AppSearchImplTest {
                                 .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
                                 .build())
                         .build();
-        mVisibilitySchemaProto = SchemaToProtoConverter.convert(visibilityAppSearchSchema);
+        mVisibilitySchemaProto =
+                SchemaToProtoConverter.toSchemaTypeConfigProto(visibilityAppSearchSchema);
     }
 
     /**
