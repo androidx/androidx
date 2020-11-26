@@ -70,6 +70,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test {@link ExifInterface}.
  */
+// TODO: Add NEF test file from CTS after reducing file size in order to test uncompressed thumbnail
+// image.
 @RunWith(AndroidJUnit4.class)
 public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
@@ -628,22 +630,32 @@ public class ExifInterfaceTest {
         }
     }
 
+    /**
+     * JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT contains the following tags:
+     *   TAG_DATETIME, TAG_DATETIME_ORIGINAL, TAG_DATETIME_DIGITIZED = "2016:01:29 18:32:27"
+     *   TAG_OFFSET_TIME, TAG_OFFSET_TIME_ORIGINAL, TAG_OFFSET_TIME_DIGITIZED = "100000"
+     *   TAG_DATETIME, TAG_DATETIME_ORIGINAL, TAG_DATETIME_DIGITIZED = "+09:00"
+     */
     @Test
     @SmallTest
     public void testGetSetDateTime() throws IOException {
-        final long expectedDatetimeValue = 1454059947000L;
-        final long expectedDatetimeOffsetLongValue = 32400000L; /* +09:00 converted to msec */
+        final long expectedGetDatetimeValue =
+                1454027547000L /* TAG_DATETIME value ("2016:01:29 18:32:27") converted to msec */
+                + 100L /* TAG_SUBSEC_TIME value ("100000") converted to msec */
+                + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
+        // GPS datetime does not support subsec precision
+        final long expectedGetGpsDatetimeValue =
+                1454027547000L /* TAG_DATETIME value ("2016:01:29 18:32:27") converted to msec */
+                + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDatetimeOffsetStringValue = "+09:00";
-        final String dateTimeValue = "2017:02:02 22:22:22";
-        final String dateTimeOriginalValue = "2017:01:01 11:11:11";
 
         File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(expectedDatetimeValue, (long) exif.getDateTime());
-        assertEquals(expectedDatetimeValue, (long) exif.getDateTimeOriginal());
-        assertEquals(expectedDatetimeValue, (long) exif.getDateTimeDigitized());
-        assertEquals(expectedDatetimeValue, (long) exif.getGpsDateTime());
-        // getDateTime() = TAG_DATETIME + TAG_OFFSET_TIME
+        // Test getting datetime values
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeOriginal());
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeDigitized());
+        assertEquals(expectedGetGpsDatetimeValue, (long) exif.getGpsDateTime());
         assertEquals(expectedDatetimeOffsetStringValue,
                 exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
         assertEquals(expectedDatetimeOffsetStringValue,
@@ -651,24 +663,9 @@ public class ExifInterfaceTest {
         assertEquals(expectedDatetimeOffsetStringValue,
                 exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED));
 
-        exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeValue);
-        exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
-        exif.saveAttributes();
-
-        // Check that the DATETIME value is not overwritten by DATETIME_ORIGINAL's value.
-        exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(dateTimeValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
-
-        // Now remove the DATETIME value.
-        exif.setAttribute(ExifInterface.TAG_DATETIME, null);
-        exif.saveAttributes();
-
-        // When the DATETIME has no value, then it should be set to DATETIME_ORIGINAL's value.
-        exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
-
-        long currentTimeStamp = System.currentTimeMillis();
+        // Test setting datetime values
+        final long currentTimeStamp = System.currentTimeMillis();
+        final long expectedDatetimeOffsetLongValue = 32400000L;
         exif.setDateTime(currentTimeStamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
@@ -685,30 +682,90 @@ public class ExifInterfaceTest {
      * Setting a datetime tag value with the secondary format with
      * {@link ExifInterface#setAttribute(String, String)} should automatically convert it to the
      * primary format.
+     *
+     * JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT contains the following tags:
+     *   TAG_DATETIME, TAG_DATETIME_ORIGINAL, TAG_DATETIME_DIGITIZED = "2016:01:29 18:32:27"
+     *   TAG_OFFSET_TIME, TAG_OFFSET_TIME_ORIGINAL, TAG_OFFSET_TIME_DIGITIZED = "100000"
+     *   TAG_DATETIME, TAG_DATETIME_ORIGINAL, TAG_DATETIME_DIGITIZED = "+09:00"
      */
     @Test
     @SmallTest
     public void testGetSetDateTimeForSecondaryFormat() throws Exception {
-        final long dateTimePrimaryFormatLongValue = 1604075491000L;
-        final String dateTimePrimaryFormatStringValue = "2020-10-30 16:31:31";
+        // Test getting datetime values
+        final long expectedGetDatetimeValue =
+                1454027547000L /* TAG_DATETIME value ("2016:01:29 18:32:27") converted to msec */
+                + 100L /* TAG_SUBSEC_TIME value ("100000") converted to msec */
+                + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
+        final String expectedDateTimeStringValue = "2016-01-29 18:32:27";
+
         File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
-
-        // Check that secondary format value is read correctly.
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertEquals(dateTimePrimaryFormatStringValue,
+        assertEquals(expectedDateTimeStringValue,
                 exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(dateTimePrimaryFormatLongValue, (long) exif.getDateTime());
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
 
-        final long dateTimeSecondaryFormatLongValue = 1577836800000L;
-        final String dateTimeSecondaryFormatStringValue = "2020-01-01 00:00:00";
-        final String modifiedDateTimeSecondaryFormatStringValue = "2020:01:01 00:00:00";
+        // Test setting datetime value: check that secondary format value is modified correctly
+        // when it is saved.
+        final long newDateTimeLongValue =
+                1577772000000L /* TAG_DATETIME value ("2020-01-01 00:00:00") converted to msec */
+                + 100L /* TAG_SUBSEC_TIME value ("100000") converted to msec */
+                + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
+        final String newDateTimeStringValue = "2020-01-01 00:00:00";
+        final String modifiedNewDateTimeStringValue = "2020:01:01 00:00:00";
 
-        // Check that secondary format value is written correctly.
-        exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeSecondaryFormatStringValue);
+        exif.setAttribute(ExifInterface.TAG_DATETIME, newDateTimeStringValue);
         exif.saveAttributes();
-        assertEquals(modifiedDateTimeSecondaryFormatStringValue,
-                exif.getAttribute(ExifInterface.TAG_DATETIME));
-        assertEquals(dateTimeSecondaryFormatLongValue, (long) exif.getDateTime());
+        assertEquals(modifiedNewDateTimeStringValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(newDateTimeLongValue, (long) exif.getDateTime());
+    }
+
+    @Test
+    @LargeTest
+    public void testAddDefaultValuesForCompatibility() throws Exception {
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+
+        // 1. Check that the TAG_DATETIME value is not overwritten by TAG_DATETIME_ORIGINAL's value
+        // when TAG_DATETIME value exists.
+        final String dateTimeValue = "2017:02:02 22:22:22";
+        final String dateTimeOriginalValue = "2017:01:01 11:11:11";
+        exif.setAttribute(ExifInterface.TAG_DATETIME, dateTimeValue);
+        exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(dateTimeValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
+
+        // 2. Check that when TAG_DATETIME has no value, it is set to TAG_DATETIME_ORIGINAL's value.
+        exif.setAttribute(ExifInterface.TAG_DATETIME, null);
+        exif.saveAttributes();
+        exif = new ExifInterface(imageFile.getAbsolutePath());
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+    }
+
+    // TODO: Add tests for other variations (e.g. single/double digit number strings)
+    @Test
+    @LargeTest
+    public void testParsingSubsec() throws IOException {
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000000");
+        exif.saveAttributes();
+        long currentDateTimeValue = exif.getDateTime();
+
+        // Check that TAG_SUBSEC_TIME values starting with zero are supported.
+        // Note: getDateTime() supports only up to 1/1000th of a second.
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 1ms */ "001000");
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
+
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 10ms */ "010000");
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+
+        exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 100ms */ "100000");
+        exif.saveAttributes();
+        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
     }
 
     @Test
