@@ -98,6 +98,26 @@ class XExecutableElementTest {
     }
 
     @Test
+    fun isVarArgs_kotlin() {
+        val subject = Source.kotlin(
+            "Subject.kt",
+            """
+            interface Subject {
+                fun method(vararg inputs: String)
+                suspend fun suspendMethod(vararg inputs: String);
+            }
+            """.trimIndent()
+        )
+        runProcessorTestIncludingKsp(
+            sources = listOf(subject)
+        ) {
+            val element = it.processingEnv.requireTypeElement("Subject")
+            assertThat(element.getMethod("method").isVarArgs()).isTrue()
+            assertThat(element.getMethod("suspendMethod").isVarArgs()).isFalse()
+        }
+    }
+
+    @Test
     fun kotlinDefaultImpl() {
         val subject = Source.kotlin(
             "Baz.kt",
