@@ -14,44 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.compose.integration.macrobenchmark
+package androidx.benchmark.integration.macrobenchmark
 
 import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.benchmark.macro.StartupMode
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 29)
-@RunWith(Parameterized::class) // Parameterized to work around timeouts (b/174175784)
-class StartupDemosMacrobenchmark(
-    @Suppress("unused") private val ignored: Boolean
-) {
-
+@RunWith(Parameterized::class)
+class SmallListStartupBenchmark(private val startupMode: StartupMode) {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun compiledColdStartup() = benchmarkRule.measureStartup(
+    fun startup() = benchmarkRule.measureStartup(
         profileCompiled = true,
-        startupMode = StartupMode.COLD
-    )
-
-    @Test
-    fun uncompiledColdStartup() = benchmarkRule.measureStartup(
-        profileCompiled = false,
-        startupMode = StartupMode.COLD
-    )
+        startupMode = startupMode
+    ) {
+        action = "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
+        putExtra("ITEM_COUNT", 5)
+    }
 
     companion object {
+        @Parameterized.Parameters(name = "mode={0}")
         @JvmStatic
-        @Parameterized.Parameters
-        fun startupDemosParameters(): List<Array<Any>> {
-            return listOf(arrayOf(false))
+        fun parameters(): List<Array<Any>> {
+            return listOf(StartupMode.COLD, StartupMode.WARM)
+                .map { arrayOf(it) }
         }
     }
 }
