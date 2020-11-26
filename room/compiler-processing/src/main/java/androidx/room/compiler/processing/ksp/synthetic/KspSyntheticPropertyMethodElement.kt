@@ -35,6 +35,7 @@ import androidx.room.compiler.processing.ksp.KspHasModifiers
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspTypeElement
 import androidx.room.compiler.processing.ksp.overrides
+import androidx.room.compiler.processing.ksp.safeGetJvmName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import java.util.Locale
@@ -121,15 +122,11 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.getter?.let {
-                return@lazy env.resolver.getJvmName(it)
+                return@lazy env.resolver.safeGetJvmName(it) {
+                    computeGetterName(field.name)
+                }
             }
-            // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
-            val propName = field.name
-            if (propName.startsWith("is")) {
-                propName
-            } else {
-                "get${propName.capitalize(Locale.US)}"
-            }
+            computeGetterName(field.name)
         }
 
         override val returnType: XType by lazy {
@@ -149,6 +146,17 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 env = env,
                 field = field.copyTo(newContainer)
             )
+        }
+
+        companion object {
+            private fun computeGetterName(propName: String): String {
+                // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
+                return if (propName.startsWith("is")) {
+                    propName
+                } else {
+                    "get${propName.capitalize(Locale.US)}"
+                }
+            }
         }
     }
 
@@ -176,15 +184,11 @@ internal sealed class KspSyntheticPropertyMethodElement(
         @OptIn(KspExperimental::class)
         override val name: String by lazy {
             field.declaration.setter?.let {
-                return@lazy env.resolver.getJvmName(it)
+                return@lazy env.resolver.safeGetJvmName(it) {
+                    computeSetterName(field.name)
+                }
             }
-            // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
-            val propName = field.name
-            if (propName.startsWith("is")) {
-                "set${propName.substring(2)}"
-            } else {
-                "set${propName.capitalize(Locale.US)}"
-            }
+            computeSetterName(field.name)
         }
 
         override val returnType: XType by lazy {
@@ -236,6 +240,17 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
             override fun kindName(): String {
                 return "method parameter"
+            }
+        }
+
+        companion object {
+            private fun computeSetterName(propName: String): String {
+                // see https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html#properties
+                return if (propName.startsWith("is")) {
+                    "set${propName.substring(2)}"
+                } else {
+                    "set${propName.capitalize(Locale.US)}"
+                }
             }
         }
     }

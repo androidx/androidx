@@ -440,6 +440,9 @@ class KspTypeElementTest {
         )
         runKspTest(sources = listOf(src), succeed = true) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
+            assertThat(subject.getAllFieldNames()).containsExactly(
+                "mutableStatic", "immutableStatic"
+            )
             assertThat(subject.getDeclaredMethods().names()).containsExactly(
                 "getMutableStatic", "setMutableStatic", "getImmutableStatic"
             )
