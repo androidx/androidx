@@ -42,11 +42,14 @@ class PerfettoCaptureWrapper {
         return true
     }
 
-    fun stop(traceName: String): Boolean {
+    fun stop(benchmarkName: String, iteration: Int): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val iterString = iteration.toString().padStart(3, '0')
+            val traceName = "${benchmarkName}_iter$iterString.trace"
+
             val destination = destinationPath(traceName).absolutePath
             capture?.stop(destination)
-            reportAdditionalFileToCopy("perfetto_trace", destination)
+            reportAdditionalFileToCopy("perfetto_trace_$iterString", destination)
         }
         return true
     }
