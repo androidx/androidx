@@ -34,7 +34,6 @@ import androidx.annotation.RequiresApi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Watches for media route provider services to be installed.
@@ -163,8 +162,12 @@ final class RegisteredMediaRouteProviderWatcher {
     @NonNull
     List<ServiceInfo> getMediaRoute2ProviderServices() {
         Intent intent = new Intent(MediaRoute2ProviderService.SERVICE_INTERFACE);
-        return mPackageManager.queryIntentServices(intent, 0).stream()
-                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());
+
+        List<ServiceInfo> serviceInfoList = new ArrayList<>();
+        for (ResolveInfo resolveInfo : mPackageManager.queryIntentServices(intent, 0)) {
+            serviceInfoList.add(resolveInfo.serviceInfo);
+        }
+        return serviceInfoList;
     }
 
     private int findProvider(String packageName, String className) {
