@@ -129,8 +129,7 @@ fun macrobenchmark(
                 config.metrics.forEach {
                     it.stop()
                 }
-                val iterString = iteration.toString().padStart(3, '0')
-                perfettoCollector.stop("${benchmarkName}_iter$iterString.trace")
+                perfettoCollector.stop(benchmarkName, iteration)
             }
 
             config.metrics
