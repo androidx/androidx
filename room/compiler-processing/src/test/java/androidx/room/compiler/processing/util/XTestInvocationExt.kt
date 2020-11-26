@@ -20,9 +20,13 @@ import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.Resolver
 import javax.lang.model.util.Elements
+import javax.lang.model.util.Types
 
 val XTestInvocation.kspResolver: Resolver
     get() = (processingEnv as KspProcessingEnv).resolver
 
 val XTestInvocation.javaElementUtils: Elements
     get() = (processingEnv as JavacProcessingEnv).elementUtils
+
+val XTestInvocation.javaTypeUtils: Types
+    get() = (processingEnv as JavacProcessingEnv).typeUtils
