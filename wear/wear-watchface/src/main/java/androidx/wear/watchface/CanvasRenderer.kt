@@ -42,6 +42,9 @@ public annotation class CanvasType {
         /**
          * A hardware canvas will be requested. This is usually faster than software rendering,
          * however it can sometimes increase battery usage by rendering at a higher frame rate.
+         *
+         * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
+         * to a software canvas.
          */
         public const val HARDWARE: Int = 1
     }
@@ -75,12 +78,13 @@ public abstract class CanvasRenderer(
     interactiveDrawModeUpdateDelayMillis: Long
 ) : Renderer(surfaceHolder, userStyleRepository, watchState, interactiveDrawModeUpdateDelayMillis) {
 
+    @SuppressWarnings("UnsafeNewApiCall") // We check if the SDK is new enough.
     internal override fun renderInternal(
         calendar: Calendar
     ) {
         val canvas = (
-            if (canvasType == CanvasType.HARDWARE) {
-                surfaceHolder.lockHardwareCanvas()
+            if (canvasType == CanvasType.HARDWARE && android.os.Build.VERSION.SDK_INT >= 26) {
+                surfaceHolder.lockHardwareCanvas() // Requires API level 26.
             } else {
                 surfaceHolder.lockCanvas()
             }
