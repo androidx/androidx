@@ -179,7 +179,9 @@ public abstract class Renderer(
     /** Schedules a call to [renderInternal] to draw the next frame. */
     @UiThread
     public fun invalidate() {
-        watchFaceHostApi.invalidate()
+        if (this::watchFaceHostApi.isInitialized) {
+            watchFaceHostApi.invalidate()
+        }
     }
 
     /**
@@ -187,6 +189,8 @@ public abstract class Renderer(
      * [invalidate], this method is thread-safe and may be called on any thread.
      */
     public fun postInvalidate() {
-        watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }
+        if (this::watchFaceHostApi.isInitialized) {
+            watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }
+        }
     }
 }

@@ -44,10 +44,10 @@ androidx {
 
 android {
     defaultConfig {
-        minSdkVersion 26
+        minSdkVersion 25
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 }
