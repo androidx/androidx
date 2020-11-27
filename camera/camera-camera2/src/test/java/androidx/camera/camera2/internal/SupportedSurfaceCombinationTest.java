@@ -2172,8 +2172,7 @@ public final class SupportedSurfaceCombinationTest {
 
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfoImpl(cameraId,
-                        mCameraManagerCompat.getCameraCharacteristicsCompat(cameraId),
-                        mock(Camera2CameraControlImpl.class))));
+                        mCameraManagerCompat.getCameraCharacteristicsCompat(cameraId))));
 
         initCameraX();
     }
@@ -2181,7 +2180,7 @@ public final class SupportedSurfaceCombinationTest {
     private void initCameraX() {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
-                .setCameraFactoryProvider((ignored0, ignored1) -> mCameraFactory)
+                .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> mCameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
         CameraX cameraX;

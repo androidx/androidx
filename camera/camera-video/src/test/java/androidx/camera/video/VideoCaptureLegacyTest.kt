@@ -19,6 +19,7 @@ package androidx.camera.video
 import android.content.Context
 import android.os.Build
 import android.os.Looper
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraFactory
@@ -54,7 +55,7 @@ class VideoCaptureLegacyTest {
         val camera = FakeCamera()
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
+            CameraFactory.Provider { _: Context?, _: CameraThreadConfig?, _: CameraSelector? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
                     camera
