@@ -199,7 +199,6 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
  *
  * Multiple watch faces can be defined in the same package, requiring multiple <service> tags.
  */
-@RequiresApi(26)
 public abstract class WatchFaceService : WallpaperService() {
 
     /** @hide */

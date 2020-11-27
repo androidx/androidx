@@ -39,7 +39,7 @@ import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(
     context.packageName,
-    context.javaClass.typeName
+    context.javaClass.name
 )
 
 /**
