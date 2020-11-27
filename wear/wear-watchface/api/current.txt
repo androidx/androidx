@@ -15,7 +15,7 @@ package androidx.wear.watchface {
 
   public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
     ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState);
-    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
+    method public void drawOutline(android.graphics.Canvas canvas, android.graphics.Rect bounds, android.icu.util.Calendar calendar);
     method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
     method public androidx.wear.complications.data.IdAndComplicationData? getIdAndData();
     method @UiThread public boolean isHighlighted();
@@ -147,8 +147,8 @@ package androidx.wear.watchface {
   public class ObservableWatchData<T> {
     method @UiThread public final void addObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread public T getValue();
-    method public final T getValueOr(T p);
-    method public final boolean hasValue();
+    method @UiThread public final T getValueOr(T p);
+    method @UiThread public final boolean hasValue();
     method @UiThread public final void removeObserver(androidx.wear.watchface.Observer<T> observer);
     method @UiThread protected void setValue(T v);
     property @UiThread public T value;
@@ -244,11 +244,10 @@ package androidx.wear.watchface {
   }
 
   public final class WatchState {
-    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, int screenShape, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
+    ctor public WatchState(androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isBatteryLowAndNotCharging, androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible, boolean hasLowBitAmbient, boolean hasBurnInProtection, long analogPreviewReferenceTimeMillis, long digitalPreviewReferenceTimeMillis);
     method public long getAnalogPreviewReferenceTimeMillis();
     method public long getDigitalPreviewReferenceTimeMillis();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Integer> getInterruptionFilter();
-    method public int getScreenShape();
     method public boolean hasBurnInProtection();
     method public boolean hasLowBitAmbient();
     method public androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient();
@@ -260,7 +259,6 @@ package androidx.wear.watchface {
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Integer> interruptionFilter;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isAmbient;
     property public final androidx.wear.watchface.ObservableWatchData<java.lang.Boolean> isVisible;
-    property public final int screenShape;
   }
 
 }

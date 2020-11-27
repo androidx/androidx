@@ -43,14 +43,13 @@ private fun getComponentName(context: Context) = ComponentName(
 )
 
 /**
- * The [Complication]s associated with the [WatchFace]. Dynamic creation of
- * complications isn't supported, however complications can be enabled and disabled, perhaps as
- * part of a user style see [androidx.wear.watchface.style.UserStyleSetting].
+ * The [Complication]s associated with the [WatchFace]. Dynamic creation of complications isn't
+ * supported, however complications can be enabled and disabled, perhaps as part of a
+ * user style see [androidx.wear.watchface.style.UserStyleSetting] and
+ * [ComplicationsUserStyleSetting].
  */
 public class ComplicationsManager(
-    /**
-     * The complications associated with the watch face, may be empty.
-     */
+    /** The complications associated with the watch face, may be empty. */
     complicationCollection: Collection<Complication>,
 
     /**
@@ -59,6 +58,10 @@ public class ComplicationsManager(
      */
     private val userStyleRepository: UserStyleRepository
 ) {
+    /**
+     * Interface used to report user taps on the complication. See [addTapListener] and
+     * [removeTapListener].
+     */
     public interface TapCallback {
         /**
          * Called when the user single taps on a complication.
@@ -81,12 +84,11 @@ public class ComplicationsManager(
     private lateinit var renderer: Renderer
     private lateinit var pendingUpdate: CancellableUniqueTask
 
-    // A map of IDs to complications.
+    /** A map of complication IDs to complications. */
     public val complications: Map<Int, Complication> =
         complicationCollection.associateBy(Complication::id)
 
     private class InitialComplicationConfig(
-        val id: Int,
         val unitSquareBounds: RectF,
         val enabled: Boolean,
         val supportedTypes: List<ComplicationType>,
@@ -102,7 +104,6 @@ public class ComplicationsManager(
             { it.id },
             {
                 InitialComplicationConfig(
-                    it.id,
                     it.unitSquareBounds,
                     it.enabled,
                     it.supportedTypes,
@@ -188,7 +189,7 @@ public class ComplicationsManager(
         }
     }
 
-    /** Returns the [Complication] corresponding to id or null. */
+    /** Returns the [Complication] corresponding to [id], if there is one, or `null`. */
     public operator fun get(id: Int): Complication? = complications[id]
 
     internal fun scheduleUpdate() {
@@ -299,8 +300,8 @@ public class ComplicationsManager(
     }
 
     /**
-     * Brings attention to the complication by briefly highlighting it to provide visual
-     * feedback when the user has tapped on it.
+     * Brings attention to the complication by briefly highlighting it to provide visual feedback
+     * when the user has tapped on it.
      *
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
@@ -324,7 +325,7 @@ public class ComplicationsManager(
     }
 
     /**
-     * Returns the id of the complication at coordinates x, y or {@code null} if there isn't one.
+     * Returns the id of the complication at coordinates x, y or `null` if there isn't one.
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
@@ -337,9 +338,9 @@ public class ComplicationsManager(
         }?.value
 
     /**
-     * Returns the background complication if there is one or {@code null} otherwise.
+     * Returns the background complication if there is one or `null` otherwise.
      *
-     * @return The background complication if there is one or {@code null} otherwise
+     * @return The background complication if there is one or `null` otherwise
      */
     public fun getBackgroundComplication(): Complication? =
         complications.entries.firstOrNull {
@@ -410,8 +411,7 @@ public class ComplicationsManager(
     }
 
     /**
-     * Adds a [TapCallback] which is called whenever the user interacts with a
-     * complication.
+     * Adds a [TapCallback] which is called whenever the user interacts with a complication.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")

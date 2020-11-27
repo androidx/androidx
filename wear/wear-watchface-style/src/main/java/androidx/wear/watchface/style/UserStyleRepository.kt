@@ -88,8 +88,9 @@ public class UserStyleSchema(
 }
 
 /**
- * In memory storage for user style choices which allows listeners to be registered to observe
- * style changes.
+ * An in memory storage for user style choices represented as [UserStyle], listeners can be
+ * registered to observe style changes. The UserStyleRepository is initialized with a
+ * [UserStyleSchema].
  */
 public class UserStyleRepository(
     /**
@@ -98,16 +99,19 @@ public class UserStyleRepository(
      */
     public val schema: UserStyleSchema
 ) {
-    /** A listener for observing user style changes. */
+    /** A listener for observing [UserStyle] changes. */
     public interface UserStyleListener {
-        /** Called whenever the user style changes. */
+        /** Called whenever the [UserStyle] changes. */
         @UiThread
         public fun onUserStyleChanged(userStyle: UserStyle)
     }
 
     private val styleListeners = HashSet<UserStyleListener>()
 
-    /** The current user controlled style for rendering etc... */
+    /**
+     * The current [UserStyle]. Assigning to this property triggers immediate [UserStyleListener]
+     * callbacks if if any options have changed.
+     */
     public var userStyle: UserStyle = UserStyle(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (setting in schema.userStyleSettings) {

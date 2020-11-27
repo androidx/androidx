@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
+import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.complications.data.IdAndComplicationData
@@ -31,25 +32,28 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
 
-/** Common interface for rendering complications onto a [Canvas]. */
+/** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
     /**
-     * Called when the CanvasComplication attaches to a [Complication].
+     * Called when the CanvasComplication attaches to a [Complication]. This will get called during
+     * [Complication] initialization and if [Complication.renderer] is assigned with this
+     * CanvasComplication.
      */
     @UiThread
     public fun onAttach(complication: Complication)
 
     /**
-     * Called when the CanvasComplication detaches from a [Complication].
+     * Called when the CanvasComplication detaches from a [Complication]. This will get called if
+     * [Complication.renderer] is assigned to a different CanvasComplication.
      */
     @UiThread
     public fun onDetach()
 
     /**
-     * Draws the complication into the canvas with the specified bounds. This will usually be
-     * called by user watch face drawing code, but the system may also call it for complication
-     * selection UI rendering. The width and height will be the same as that computed by
-     * computeBounds but the translation and canvas size may differ.
+     * Draws the complication defined by [idAndData] into the canvas with the specified bounds. This
+     * will usually be called by user watch face drawing code, but the system may also call it
+     * for complication selection UI rendering. The width and height will be the same as that
+     * computed by computeBounds but the translation and canvas size may differ.
      *
      * @param canvas The [Canvas] to render into
      * @param bounds A [Rect] describing the bounds of the complication
@@ -65,8 +69,8 @@ public interface CanvasComplication {
     )
 
     /**
-     * Whether the complication should be drawn highlighted. This is to provide visual
-     * feedback when the user taps on a complication.
+     * Whether the complication should be drawn highlighted. This is to provide visual feedback when
+     * the user taps on a complication.
      */
     @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
     @get:JvmName("isHighlighted")
@@ -78,13 +82,17 @@ public interface CanvasComplication {
 }
 
 /**
- * A complication rendered with [ComplicationDrawable] which renders complications in a
- * material design style. This renderer can't be shared by multiple complications.
+ * A complication rendered with [ComplicationDrawable] which renders complications in a material
+ * design style. This renderer can't be shared by multiple complications.
  */
 public open class CanvasComplicationDrawable(
     /** The [ComplicationDrawable] to render with. */
     drawable: ComplicationDrawable,
 
+    /**
+     * The watch's [WatchState] which contains details pertaining to (low-bit) ambient mode and
+     * burn in protection needed to render correctly.
+     */
     private val watchState: WatchState
 ) : CanvasComplication {
 
@@ -153,15 +161,15 @@ public open class CanvasComplicationDrawable(
                 if (renderParameters.highlightedComplicationId == null ||
                     renderParameters.highlightedComplicationId == idAndData?.complicationId
                 ) {
-                    drawHighlight(canvas, bounds, calendar)
+                    drawOutline(canvas, bounds, calendar)
                 }
             }
             LayerMode.HIDE -> return
         }
     }
 
-    /** Used (indirectly) by the editor, draws a highlight around the complication. */
-    public open fun drawHighlight(
+    /** Used (indirectly) by the editor, draws a dashed line around the complication. */
+    public open fun drawOutline(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar
@@ -170,8 +178,8 @@ public open class CanvasComplicationDrawable(
     }
 
     /**
-     * Whether or not the complication should be drawn highlighted. Used to provide visual
-     * feedback when the complication is tapped.
+     * Whether or not the complication should be drawn highlighted. Used to provide visual feedback
+     * when the complication is tapped.
      */
     override var isHighlighted: Boolean
         @Suppress("INAPPLICABLE_JVM_NAME") // https://stackoverflow.com/questions/47504279
@@ -185,9 +193,7 @@ public open class CanvasComplicationDrawable(
             drawable.isHighlighted = value
         }
 
-    /**
-     * The [IdAndComplicationData] to use when rendering the complication.
-     */
+    /** The [IdAndComplicationData] to use when rendering the complication. */
     override var idAndData: IdAndComplicationData? = null
         @UiThread
         set(value) {
@@ -220,27 +226,34 @@ public class Complication internal constructor(
          */
         @JvmStatic
         public fun createRoundRectComplicationBuilder(
-            /** The watch face's ID for this complication. */
+            /**
+             * The watch face's ID for this complication. Can be any integer but should be unique
+             * within the watch face.
+             */
             id: Int,
 
             /**
-             * The renderer for this Complication. Renderers may not be sharable between complications.
+             * The [CanvasComplication] to use for rendering. Note renderers should not be shared
+             * between complications.
              */
             renderer: CanvasComplication,
 
             /**
              * The types of complication supported by this Complication. Passed into
              * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-             * configuration.
+             * configuration. This list should be non-empty.
              */
             supportedTypes: List<ComplicationType>,
 
-            /** The [DefaultComplicationProviderPolicy] to use. */
+            /**
+             * The [DefaultComplicationProviderPolicy] used to select the initial complication
+             * provider.
+             */
             defaultProviderPolicy: DefaultComplicationProviderPolicy,
 
             /**
-             * The fractional bounds for the complication which are clamped to the unit square
-             * [0..1], and subsequently converted to screen space coordinates. NB 0 and 1 are
+             * The initial fractional bounds for the complication which are clamped to the unit
+             * square [0..1], and subsequently converted to screen space coordinates. NB 0 and 1 are
              * included in the unit square.
              */
             unitSquareBounds: RectF
@@ -267,22 +280,29 @@ public class Complication internal constructor(
          */
         @JvmStatic
         public fun createBackgroundComplicationBuilder(
-            /** The watch face's ID for this complication. */
+            /**
+             * The watch face's ID for this complication. Can be any integer but should be unique
+             * within the watch face.
+             */
             id: Int,
 
             /**
-             * The renderer for this Complication. Renderers may not be sharable between complications.
+             * The [CanvasComplication] to use for rendering. Note renderers should not be shared
+             * between complications.
              */
             renderer: CanvasComplication,
 
             /**
              * The types of complication supported by this Complication. Passed into
              * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
-             * configuration.
+             * configuration. This list should be non-empty.
              */
             supportedTypes: List<ComplicationType>,
 
-            /** The [DefaultComplicationProviderPolicy] to use. */
+            /**
+             * The [DefaultComplicationProviderPolicy] used to select the initial complication
+             * provider.
+             */
             defaultProviderPolicy: DefaultComplicationProviderPolicy
         ): Builder = Builder(
             id,
@@ -306,7 +326,9 @@ public class Complication internal constructor(
         private var defaultProviderType = ComplicationType.NOT_CONFIGURED
 
         /**
-         * Sets the default complication provider data type.
+         * Sets the initial [ComplicationType] to use with the initial complication provider.
+         * Note care should be taken to ensure [defaultProviderType] is compatible with the
+         * [DefaultComplicationProviderPolicy].
          */
         public fun setDefaultProviderType(
             defaultProviderType: ComplicationType
@@ -345,12 +367,16 @@ public class Complication internal constructor(
     /**
      * The screen space unit-square bounds of the complication. This is converted to pixels during
      * rendering.
+     *
+     * Note it's not allowed to change the bounds of a background complication because
+     * they are assumed to always cover the entire screen.
      */
     public var unitSquareBounds: RectF = unitSquareBounds
         @UiThread
         get
         @UiThread
         set(value) {
+            require(boundsType != ComplicationBoundsType.BACKGROUND)
             if (field == value) {
                 return
             }
@@ -364,9 +390,7 @@ public class Complication internal constructor(
 
     internal var enabledDirty = true
 
-    /**
-     * Whether or not the complication should be drawn and accept taps.
-     */
+    /** Whether or not the complication should be drawn and accept taps. */
     public var enabled: Boolean = true
         @JvmName("isEnabled")
         @UiThread
@@ -386,9 +410,7 @@ public class Complication internal constructor(
             }
         }
 
-    /**
-     * The [CanvasComplication] used to render the complication.
-     */
+    /** The [CanvasComplication] used to render the complication. */
     public var renderer: CanvasComplication = canvasComplication
         @UiThread
         get
@@ -405,9 +427,7 @@ public class Complication internal constructor(
 
     internal var supportedTypesDirty = true
 
-    /**
-     * The types of complications the complication supports.
-     */
+    /** The types of complications the complication supports. Must be non-empty. */
     public var supportedTypes: List<ComplicationType> = supportedTypes
         @UiThread
         get
@@ -416,6 +436,7 @@ public class Complication internal constructor(
             if (field == value) {
                 return
             }
+            require(value.isNotEmpty())
             field = value
             supportedTypesDirty = true
 
@@ -430,7 +451,7 @@ public class Complication internal constructor(
 
     /**
      * The [DefaultComplicationProviderPolicy] which defines the default complications providers
-     * selected when the user hasn't yet made a choice. See also [.defaultProviderType].
+     * selected when the user hasn't yet made a choice. See also [defaultProviderType].
      */
     public var defaultProviderPolicy: DefaultComplicationProviderPolicy = defaultProviderPolicy
         @UiThread
@@ -453,7 +474,7 @@ public class Complication internal constructor(
     internal var defaultProviderTypeDirty = true
 
     /**
-     * The default [ComplicationData.ComplicationType] to use alongside [.defaultProviderPolicy].
+     * The default [ComplicationData.ComplicationType] to use alongside [defaultProviderPolicy].
      */
     public var defaultProviderType: ComplicationType = defaultProviderType
         @UiThread

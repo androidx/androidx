@@ -30,7 +30,13 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleSchema
 
-/** Controls a stateless remote headless watch face. */
+/**
+ * Controls a stateless remote headless watch face.  This is mostly intended for use by watch face
+ * editor UIs which need to generate screenshots for various styling configurations without
+ * affecting the current watchface.
+ *
+ * Note clients should call [close] when finished.
+ */
 public interface HeadlessWatchFaceClient : AutoCloseable {
     /** The UTC reference preview time for this watch face in milliseconds since the epoch. */
     public val previewReferenceTimeMillis: Long
