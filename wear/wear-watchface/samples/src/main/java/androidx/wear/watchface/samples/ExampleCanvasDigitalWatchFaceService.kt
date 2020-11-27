@@ -467,26 +467,26 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState
     ): WatchFace {
-        val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
+        val watchFaceStyle = WatchFaceColorStyle.create(this, RED_STYLE)
         val colorStyleSetting = UserStyleSetting.ListUserStyleSetting(
-            "color_style_setting",
-            "Colors",
-            "Watchface colorization",
+            COLOR_STYLE_SETTING,
+            getString(R.string.colors_style_setting),
+            getString(R.string.colors_style_setting_description),
             icon = null,
             options = listOf(
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "red_style",
-                    "Red",
+                    RED_STYLE,
+                    getString(R.string.colors_style_red),
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "green_style",
-                    "Green",
+                    GREEN_STYLE,
+                    getString(R.string.colors_style_green),
                     Icon.createWithResource(this, R.drawable.green_style)
                 ),
                 UserStyleSetting.ListUserStyleSetting.ListOption(
-                    "blue_style",
-                    "Blue",
+                    BLUE_STYLE,
+                    getString(R.string.colors_style_blue),
                     Icon.createWithResource(this, R.drawable.blue_style)
                 )
             ),
