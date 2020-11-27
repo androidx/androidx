@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.view.View;
 
 import androidx.annotation.IdRes;
@@ -103,7 +104,13 @@ public class WearableRecyclerViewTest {
                         (WearableRecyclerView) mActivityRule.getActivity().findViewById(R.id.wrv);
                 View child = wrv.getChildAt(0);
                 assertNotNull("child", child);
-                assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                Activity activity = mActivityRule.getActivity();
+                Configuration configuration = activity.getResources().getConfiguration();
+                if (configuration.isScreenRound()) {
+                    assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                } else {
+                    assertEquals(0, child.getTop());
+                }
             }
         });
 
@@ -154,7 +161,13 @@ public class WearableRecyclerViewTest {
                 // Verify the first child
                 View child = wrv.getChildAt(0);
                 assertNotNull("child", child);
-                assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                Activity activity = mActivityRule.getActivity();
+                Configuration configuration = activity.getResources().getConfiguration();
+                if (configuration.isScreenRound()) {
+                    assertEquals((wrv.getHeight() - child.getHeight()) / 2, child.getTop());
+                } else {
+                    assertEquals(0, child.getTop());
+                }
             }
         });
     }
