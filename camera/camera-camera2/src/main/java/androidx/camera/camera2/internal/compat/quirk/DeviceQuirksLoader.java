@@ -57,6 +57,9 @@ public class DeviceQuirksLoader {
         if (PreviewPixelHDRnetQuirk.load()) {
             quirks.add(new PreviewPixelHDRnetQuirk());
         }
+        if (StillCaptureFlashStopRepeatingQuirk.load()) {
+            quirks.add(new StillCaptureFlashStopRepeatingQuirk());
+        }
 
         return quirks;
     }
