@@ -25,6 +25,7 @@ import android.support.wearable.complications.TimeDependentText
 import android.support.wearable.watchface.SharedMemoryImage
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.data.ComplicationData
 import androidx.wear.watchface.RenderParameters
@@ -136,6 +137,7 @@ public interface InteractiveWatchFaceSysUiClient : AutoCloseable {
      * @return A WebP compressed shared memory backed [Bitmap] containing a screenshot of the watch
      *     face with the given settings.
      */
+    @RequiresApi(27)
     public fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
@@ -181,6 +183,7 @@ internal class InteractiveWatchFaceSysUiClientImpl internal constructor(
                 )
             }
 
+    @RequiresApi(27)
     override fun takeWatchFaceScreenshot(
         renderParameters: RenderParameters,
         @IntRange(from = 0, to = 100)
