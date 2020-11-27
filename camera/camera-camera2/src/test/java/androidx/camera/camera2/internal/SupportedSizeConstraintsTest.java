@@ -195,8 +195,7 @@ public class SupportedSizeConstraintsTest {
         cameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
                 () -> new FakeCamera(BACK_CAMERA_ID, null,
                         new Camera2CameraInfoImpl(BACK_CAMERA_ID,
-                                getCameraCharacteristicsCompat(BACK_CAMERA_ID),
-                                mock(Camera2CameraControlImpl.class))));
+                                getCameraCharacteristicsCompat(BACK_CAMERA_ID))));
 
         initCameraX(cameraFactory);
     }
@@ -204,7 +203,7 @@ public class SupportedSizeConstraintsTest {
     private void initCameraX(final FakeCameraFactory cameraFactory) {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
-                .setCameraFactoryProvider((ignored0, ignored1) -> cameraFactory)
+                .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
                 .build();
         CameraX.initialize(mContext, cameraXConfig);
     }

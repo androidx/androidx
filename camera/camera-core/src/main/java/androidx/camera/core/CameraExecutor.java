@@ -74,12 +74,7 @@ class CameraExecutor implements Executor {
             executor = mThreadPoolExecutor;
         }
 
-        int cameraNumber = 0;
-        try {
-            cameraNumber = cameraFactory.getAvailableCameraIds().size();
-        } catch (CameraUnavailableException e) {
-            e.printStackTrace();
-        }
+        int cameraNumber = cameraFactory.getAvailableCameraIds().size();
         // According to the document of ThreadPoolExecutor, "If there are more than corePoolSize
         // but less than maximumPoolSize threads running, a new thread will be created only if
         // the queue is full."

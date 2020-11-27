@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Camera device manager to provide the guaranteed supported stream capabilities related info for
@@ -60,13 +60,15 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2DeviceSurfaceManager(@NonNull Context context,
-            @Nullable Object cameraManager) throws CameraUnavailableException {
-        this(context, CamcorderProfile::hasProfile, cameraManager);
+            @Nullable Object cameraManager, @NonNull Set<String> availableCameraIds)
+            throws CameraUnavailableException {
+        this(context, CamcorderProfile::hasProfile, cameraManager, availableCameraIds);
     }
 
     Camera2DeviceSurfaceManager(@NonNull Context context,
             @NonNull CamcorderProfileHelper camcorderProfileHelper,
-            @Nullable Object cameraManager)
+            @Nullable Object cameraManager,
+            @NonNull Set<String> availableCameraIds)
             throws CameraUnavailableException {
         Preconditions.checkNotNull(camcorderProfileHelper);
         mCamcorderProfileHelper = camcorderProfileHelper;
@@ -77,25 +79,22 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
         } else {
             cameraManagerCompat = CameraManagerCompat.from(context);
         }
-        init(context, cameraManagerCompat);
+        init(context, cameraManagerCompat, availableCameraIds);
     }
 
     /**
      * Prepare necessary resources for the surface manager.
      */
-    private void init(@NonNull Context context, @NonNull CameraManagerCompat cameraManager)
+    private void init(@NonNull Context context, @NonNull CameraManagerCompat cameraManager,
+            @NonNull Set<String> availableCameraIds)
             throws CameraUnavailableException {
         Preconditions.checkNotNull(context);
 
-        try {
-            for (String cameraId : cameraManager.getCameraIdList()) {
-                mCameraSupportedSurfaceCombinationMap.put(
-                        cameraId,
-                        new SupportedSurfaceCombination(
-                                context, cameraId, cameraManager, mCamcorderProfileHelper));
-            }
-        } catch (CameraAccessExceptionCompat e) {
-            throw CameraUnavailableExceptionHelper.createFrom(e);
+        for (String cameraId : availableCameraIds) {
+            mCameraSupportedSurfaceCombinationMap.put(
+                    cameraId,
+                    new SupportedSurfaceCombination(
+                            context, cameraId, cameraManager, mCamcorderProfileHelper));
         }
     }
 

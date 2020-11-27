@@ -30,7 +30,6 @@ import androidx.camera.core.ImageCapture.ImageCaptureRequest
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor
 import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCaptor
 import androidx.camera.core.impl.CameraFactory
-import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
@@ -71,7 +70,6 @@ import java.util.Collections
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.jvm.Throws
 
 private const val MAX_IMAGES = 3
 
@@ -104,7 +102,7 @@ public class ImageCaptureTest {
         val camera = FakeCamera()
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
+            CameraFactory.Provider { _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
                     camera
