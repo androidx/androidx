@@ -34,11 +34,15 @@ internal val MAXIMUM_PREVIEW_SIZE = Size(1920, 1080)
  * This class provides Context-specific utility methods for querying and computing supported
  * outputs.
  */
-class CameraSurfaceAdapter(context: Context, cameraComponent: Any?) :
-    CameraDeviceSurfaceManager {
+class CameraSurfaceAdapter(
+    context: Context,
+    cameraComponent: Any?,
+    availableCameraIds: Set<String>
+) : CameraDeviceSurfaceManager {
     private val component = cameraComponent as CameraAppComponent
 
     init {
+        debug { "AvailableCameraIds = $availableCameraIds" }
         debug { "Created StreamConfigurationMap from $context" }
     }
 

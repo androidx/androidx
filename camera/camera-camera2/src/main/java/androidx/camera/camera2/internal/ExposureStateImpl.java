@@ -75,6 +75,8 @@ class ExposureStateImpl implements ExposureState {
     public boolean isExposureCompensationSupported() {
         Range<Integer> compensationRange =
                 mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE);
-        return compensationRange.getLower() != 0 && compensationRange.getUpper() != 0;
+        return compensationRange != null
+                && compensationRange.getLower() != 0
+                && compensationRange.getUpper() != 0;
     }
 }

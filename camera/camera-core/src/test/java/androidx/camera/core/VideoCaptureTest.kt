@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Looper
 import androidx.camera.core.impl.CameraFactory
-import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -52,7 +51,7 @@ class VideoCaptureTest {
         val camera = FakeCamera()
 
         val cameraFactoryProvider =
-            CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
+            CameraFactory.Provider { _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
                     camera

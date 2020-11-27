@@ -47,9 +47,10 @@ public final class Camera2Config {
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                (context, cameraManager) -> {
+                (context, cameraManager, availableCameraIds) -> {
                     try {
-                        return new Camera2DeviceSurfaceManager(context, cameraManager);
+                        return new Camera2DeviceSurfaceManager(context, cameraManager,
+                                availableCameraIds);
                     } catch (CameraUnavailableException e) {
                         throw new InitializationException(e);
                     }

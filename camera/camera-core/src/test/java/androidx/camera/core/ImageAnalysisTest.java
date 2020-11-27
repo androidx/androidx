@@ -104,7 +104,7 @@ public class ImageAnalysisTest {
 
         CameraInternal camera = new FakeCamera();
 
-        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
+        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertDefaultBackCamera(camera.getCameraInfoInternal().getCameraId(),
                     () -> camera);

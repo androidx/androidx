@@ -93,6 +93,11 @@ public class ExposureControl {
         mExecutor = executor;
     }
 
+    static ExposureState getDefaultExposureState(
+            CameraCharacteristicsCompat cameraCharacteristics) {
+        return new ExposureStateImpl(cameraCharacteristics, DEFAULT_EXPOSURE_COMPENSATION);
+    }
+
     /**
      * Set current active state. Set active if it is ready to accept operations.
      *

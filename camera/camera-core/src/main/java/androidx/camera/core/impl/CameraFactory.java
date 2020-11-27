@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
 
@@ -39,11 +40,14 @@ public interface CameraFactory {
          *
          * @param context the android context
          * @param threadConfig the thread config to run the camera operations
+         * @param availableCamerasSelector a CameraSelector used to specify which cameras will be
+         *                                 loaded and available to CameraX.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory.
          */
         @NonNull CameraFactory newInstance(@NonNull Context context,
-                @NonNull CameraThreadConfig threadConfig) throws InitializationException;
+                @NonNull CameraThreadConfig threadConfig,
+                @Nullable CameraSelector availableCamerasSelector) throws InitializationException;
     }
 
     /**
@@ -63,11 +67,9 @@ public interface CameraFactory {
      * Gets the ids of all available cameras.
      *
      * @return the list of available cameras
-     * @throws CameraUnavailableException if unable to access cameras, perhaps due
-     *                                    to insufficient permissions.
      */
     @NonNull
-    Set<String> getAvailableCameraIds() throws CameraUnavailableException;
+    Set<String> getAvailableCameraIds();
 
     /**
      * Gets the camera manager instance that is used to access the camera API.

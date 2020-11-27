@@ -563,7 +563,7 @@ public final class CameraX {
                         mSchedulerHandler);
 
                 mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
-                        cameraThreadConfig);
+                        cameraThreadConfig, null);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
                 if (surfaceManagerProvider == null) {
@@ -572,7 +572,8 @@ public final class CameraX {
                                     + "CameraDeviceSurfaceManager."));
                 }
                 mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext,
-                        mCameraFactory.getCameraManager());
+                        mCameraFactory.getCameraManager(),
+                        mCameraFactory.getAvailableCameraIds());
 
                 UseCaseConfigFactory.Provider configFactoryProvider =
                         mCameraXConfig.getUseCaseConfigFactoryProvider(null);
