@@ -51,14 +51,15 @@ import java.security.InvalidParameterException;
  * <h4>Accessing Location</h4>
  *
  * When the app is running in the car display, the system will not consider it as being in the
- * foreground, and hence it will considered in the background for the purpose of retrieving location
- * as described <a
+ * foreground, and hence it will be considered in the background for the purpose of retrieving
+ * location as described <a
  * href="https://developer.android.com/about/versions/10/privacy/changes#app-access-device
  * -location">here</a>.
  *
  * <p>To reliably get location for your car app, we recommended that you use a <a
  * href="https://developer.android.com/guide/components/services?#Types-of-services">foreground
- * service</a>.
+ * service</a>. Also note that accessing location may become unreliable when the phone is in the
+ * battery saver mode.
  */
 // This lint warning is triggered because this has a finish() API. Suppress because we are not
 // actually cleaning any held resources in that method.
