@@ -32,13 +32,12 @@ import androidx.test.uiautomator.Until
 public class MacrobenchmarkScope(
     private val packageName: String,
     /**
-     * Controls whether launches should set [Intent.FLAG_ACTIVITY_NEW_TASK] as well as
-     * [Intent.FLAG_ACTIVITY_CLEAR_TASK].
+     * Controls whether launches will automatically set [Intent.FLAG_ACTIVITY_CLEAR_TASK].
      *
      * Default to true, so Activity launches go through full creation lifecycle stages, instead of
      * just resume.
      */
-    private val launchWithNewTask: Boolean
+    private val launchWithClearTask: Boolean
 ) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
@@ -58,8 +57,10 @@ public class MacrobenchmarkScope(
     }
 
     fun launchIntentAndWait(intent: Intent) {
-        if (launchWithNewTask) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        // Must launch with new task, as we're not launching from an existing task
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (launchWithClearTask) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
         context.startActivity(intent)
         device.wait(
@@ -94,11 +95,11 @@ data class MacrobenchmarkConfig(
 fun macrobenchmark(
     benchmarkName: String,
     config: MacrobenchmarkConfig,
-    launchWithNewTask: Boolean,
+    launchWithClearTask: Boolean,
     setupBlock: MacrobenchmarkScope.(Boolean) -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
 ) = withPermissiveSeLinuxPolicy {
-    val scope = MacrobenchmarkScope(config.packageName, launchWithNewTask)
+    val scope = MacrobenchmarkScope(config.packageName, launchWithClearTask)
 
     // always kill the process at beginning of test
     scope.killProcess()
@@ -209,7 +210,7 @@ fun startupMacrobenchmark(
             }
         },
         // only reuse existing activity if StartupMode == HOT
-        launchWithNewTask = startupMode != StartupMode.HOT,
+        launchWithClearTask = startupMode != StartupMode.HOT,
         measureBlock = performStartup
     )
 }

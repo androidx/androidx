@@ -34,7 +34,7 @@ class MacrobenchmarkRule : TestRule {
         macrobenchmark(
             benchmarkName = benchmarkName,
             config = config,
-            launchWithNewTask = true,
+            launchWithClearTask = true,
             setupBlock = setupBlock,
             measureBlock = measureBlock
         )
