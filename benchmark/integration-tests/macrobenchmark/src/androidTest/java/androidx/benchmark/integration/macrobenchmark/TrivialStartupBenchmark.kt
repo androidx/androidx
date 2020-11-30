@@ -16,11 +16,8 @@
 
 package androidx.benchmark.integration.macrobenchmark
 
-import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.MacrobenchmarkConfig
 import androidx.benchmark.macro.MacrobenchmarkRule
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
@@ -34,17 +31,11 @@ class TrivialStartupBenchmark(private val startupMode: StartupMode) {
     val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureStartupRepeated(
-        MacrobenchmarkConfig(
-            packageName = "androidx.benchmark.integration.macrobenchmark.target",
-            listOf(StartupTimingMetric()),
-            CompilationMode.Speed,
-            iterations = 3
-        ),
-        startupMode
+    fun startup() = benchmarkRule.measureStartup(
+        profileCompiled = true,
+        startupMode = startupMode
     ) {
-        pressHome()
-        launchPackageAndWait()
+        action = "androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY"
     }
 
     companion object {

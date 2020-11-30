@@ -24,9 +24,11 @@ import androidx.recyclerview.widget.RecyclerView
 class RecyclerViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        title = "RecyclerView Sample"
         setContentView(R.layout.activity_recycler_view)
         val recycler = findViewById<RecyclerView>(R.id.recycler)
-        val adapter = EntryAdapter(entries(1000))
+        val itemCount = intent.getIntExtra(EXTRA_ITEM_COUNT, 1000)
+        val adapter = EntryAdapter(entries(itemCount))
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
     }
@@ -35,5 +37,9 @@ class RecyclerViewActivity : AppCompatActivity() {
         return IntRange(0, size).map {
             Entry("Item $it")
         }
+    }
+
+    companion object {
+        const val EXTRA_ITEM_COUNT = "ITEM_COUNT"
     }
 }
