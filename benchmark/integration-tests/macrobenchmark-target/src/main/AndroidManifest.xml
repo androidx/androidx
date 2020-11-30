@@ -26,11 +26,15 @@
         under the new package visibility changes for Android 11.
          -->
         <activity
-            android:name=".MainActivity"
+            android:name=".TrivialStartupActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -42,6 +46,5 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
     </application>
 </manifest>

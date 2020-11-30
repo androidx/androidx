@@ -64,7 +64,6 @@ class JankMetricValidation(
             setupBlock = {
                 val intent = Intent()
                 intent.action = ACTION
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 launchIntentAndWait(intent)
             }
         ) {
