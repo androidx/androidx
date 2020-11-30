@@ -7,14 +7,12 @@ package androidx.datastore.rxjava2 {
   }
 
   public final class RxDataStoreBuilder<T> {
-    ctor public RxDataStoreBuilder();
+    ctor public RxDataStoreBuilder(java.util.concurrent.Callable<java.io.File> produceFile, androidx.datastore.core.Serializer<T> serializer);
+    ctor public RxDataStoreBuilder(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer);
     method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
     method public androidx.datastore.core.DataStore<T> build();
     method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T> corruptionHandler);
-    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setFileName(android.content.Context context, String fileName);
-    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setFileProducer(java.util.concurrent.Callable<java.io.File> produceFile);
     method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setIoScheduler(io.reactivex.Scheduler ioScheduler);
-    method public androidx.datastore.rxjava2.RxDataStoreBuilder<T> setSerializer(androidx.datastore.core.Serializer<T> serializer);
   }
 
 }
