@@ -35,8 +35,7 @@ import java.util.Map;
  * finished.
  * <p>
  * In other words, this means that a ViewModel will not be destroyed if its owner is destroyed for a
- * configuration change (e.g. rotation). The new instance of the owner will just re-connected to the
- * existing ViewModel.
+ * configuration change (e.g. rotation). The new owner instance just re-connects to the existing model.
  * <p>
  * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
  * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
