@@ -3840,7 +3840,7 @@ public class NotificationCompat {
              * Get the text to be used for this message, or the fallback text if a type and content
              * Uri have been set
              */
-            @NonNull
+            @Nullable
             public CharSequence getText() {
                 return mText;
             }
