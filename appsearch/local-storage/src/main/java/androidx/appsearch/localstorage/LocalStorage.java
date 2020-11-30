@@ -23,6 +23,7 @@ import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSession;
@@ -45,8 +46,13 @@ import java.util.concurrent.Executors;
  * delete, etc..).
  */
 public class LocalStorage {
-    /** The default empty database name.*/
-    private static final String DEFAULT_DATABASE_NAME = "";
+    /**
+     * The default empty database name.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    public static final String DEFAULT_DATABASE_NAME = "";
 
     private static volatile ListenableFuture<AppSearchResult<LocalStorage>> sInstance;
 
