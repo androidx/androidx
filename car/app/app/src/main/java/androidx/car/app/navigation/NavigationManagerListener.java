@@ -16,6 +16,7 @@
 
 package androidx.car.app.navigation;
 
+import androidx.car.app.CarContext;
 import androidx.car.app.navigation.model.Trip;
 
 /**
@@ -38,8 +39,7 @@ public interface NavigationManagerListener {
      * Notifies the app that, from this point onwards, when the user chooses to navigate to a
      * destination, the app should start simulating a drive towards that destination.
      *
-     * <p>This mode should remain active until {@link
-     * androidx.car.app.CarAppService#onCarAppFinished} is called.
+     * <p>This mode should remain active until {@link CarContext#finishCarApp()} is called.
      *
      * <p>This functionality is used to allow verifying the app's navigation capabilities without
      * being in an actual car.
