@@ -32,10 +32,12 @@ import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.security.InvalidParameterException
 
 /**
- * Watch faces often have user configurable styles. The definition of what is a style is left up
- * to the watch face but it typically incorporates a variety of settings such as: color,
- * visual theme for watch hands, font, tick shape, complications, audio elements, etc...
- * A UserStyleSetting represents one of these dimensions.
+ * Watch faces often have user configurable styles, the definition of what is a style is left up to
+ * the watch face but it typically incorporates a variety of settings such as: color, visual theme
+ * for watch hands, font, tick shape, complications, audio elements, etc...
+ *
+ * A UserStyleSetting represents one of these dimensions. See also [UserStyleSchema] which defines
+ * the list of UserStyleSettings provided by the watch face.
  */
 public sealed class UserStyleSetting(
     /** Identifier for the element, must be unique. */
