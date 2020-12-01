@@ -274,8 +274,6 @@ package androidx.car.app.model {
     field public static final int TYPE_CUSTOM = 1; // 0x1
     field public static final int TYPE_ERROR = 6; // 0x6
     field public static final int TYPE_UNKNOWN = 0; // 0x0
-    field public static final int TYPE_WILLIAM_ALERT = 7; // 0x7
-    field public static final androidx.car.app.model.CarIcon WILLIAM_ALERT;
   }
 
   public static final class CarIcon.Builder {
