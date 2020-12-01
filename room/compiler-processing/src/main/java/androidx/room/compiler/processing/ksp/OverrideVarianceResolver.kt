@@ -142,7 +142,11 @@ internal class OverrideVarianceResolver(
             // get it from overridee
             return env.resolver.getTypeArgument(
                 typeRef = myTypeRef.inheritVariance(overridee.type),
-                variance = overridee.variance
+                variance = if (overridee.variance == Variance.STAR) {
+                    Variance.COVARIANT
+                } else {
+                    overridee.variance
+                }
             )
         }
         // Now we need to guess from this type. If the type is final, it does not inherit unless
