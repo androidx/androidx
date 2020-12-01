@@ -17,11 +17,11 @@
 package androidx.car.app.navigation.model;
 
 import static androidx.car.app.navigation.model.Maneuver.TYPE_DESTINATION_LEFT;
-import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER;
 import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW;
 import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE;
 import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW;
 import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE;
+import static androidx.car.app.navigation.model.Maneuver.TYPE_ROUNDABOUT_ENTER_CW;
 import static androidx.car.app.navigation.model.Maneuver.TYPE_STRAIGHT;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -175,7 +175,7 @@ public class ManeuverTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        Maneuver.builder(TYPE_ROUNDABOUT_ENTER)
+                        Maneuver.builder(TYPE_ROUNDABOUT_ENTER_CW)
                                 .setRoundaboutExitNumber(1)
                                 .setRoundaboutExitAngle(1)
                                 .setIcon(CarIcon.APP_ICON)
