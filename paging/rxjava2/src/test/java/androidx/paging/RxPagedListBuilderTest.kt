@@ -68,8 +68,11 @@ class RxPagedListBuilderTest {
             }
 
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
-                @Suppress("DEPRECATION")
-                assertEquals(2, params.pageSize)
+                if (params is LoadParams.Refresh) {
+                    assertEquals(6, params.loadSize)
+                } else {
+                    assertEquals(2, params.loadSize)
+                }
 
                 throwable?.let { error ->
                     throwable = null
