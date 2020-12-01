@@ -169,7 +169,7 @@ open class TestRenderer(
     userStyleRepository: UserStyleRepository,
     watchState: WatchState,
     interactiveFrameRateMs: Long
-) : CanvasRenderer(
+) : Renderer.CanvasRenderer(
     surfaceHolder,
     userStyleRepository,
     watchState,

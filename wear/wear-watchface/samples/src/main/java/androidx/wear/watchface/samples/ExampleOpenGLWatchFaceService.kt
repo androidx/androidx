@@ -33,9 +33,9 @@ import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.GlesRenderer
 import androidx.wear.watchface.GlesTextureComplication
 import androidx.wear.watchface.LayerMode
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -155,7 +155,7 @@ class ExampleOpenGLRenderer(
     watchState: WatchState,
     private val colorStyleSetting: ListUserStyleSetting,
     private val complication: Complication
-) : GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
+) : Renderer.GlesRenderer(surfaceHolder, userStyleRepository, watchState, FRAME_PERIOD_MS) {
 
     /** Projection transformation matrix. Converts from 3D to 2D.  */
     private val projectionMatrix = FloatArray(16)
