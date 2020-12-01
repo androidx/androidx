@@ -40,7 +40,7 @@ import androidx.lifecycle.LifecycleRegistry;
  * A Screen has a {@link Lifecycle} and provides the mechanism for the app to send {@link Template}s
  * to display when the Screen is visible. Screen instances can also be pushed and popped to and from
  * a Screen stack, which ensures they adhere to the template flow restrictions (see {@link
- * #getTemplate} for more details on template flow).
+ * #onGetTemplate} for more details on template flow).
  *
  * <p>The Screen class can be used to manage individual units of business logic within a car app. A
  * Screen is closely tied to the {@link CarAppService} it is a part of, and cannot be used without
@@ -84,7 +84,7 @@ public abstract class Screen implements LifecycleOwner {
     /**
      * Whether to set the ID of the last template in the next template to be returned.
      *
-     * @see #getTemplate
+     * @see #onGetTemplate
      */
     private boolean mUseLastTemplateId;
 
@@ -94,15 +94,15 @@ public abstract class Screen implements LifecycleOwner {
 
     /**
      * Requests the current template to be invalidated, which eventually triggers a call to {@link
-     * #getTemplate} to get the new template to display.
+     * #onGetTemplate} to get the new template to display.
      *
      * <p>If the current {@link State} of this screen is not at least {@link State#STARTED}, then a
      * call to this method will have no effect.
      *
      * <p>After the call to invalidate is made, subsequent calls have no effect until the new
-     * template is returned by {@link #getTemplate}.
+     * template is returned by {@link #onGetTemplate}.
      *
-     * <p>To avoid race conditions with calls to {@link #getTemplate} you should call this method
+     * <p>To avoid race conditions with calls to {@link #onGetTemplate} you should call this method
      * with the main thread.
      *
      * @throws HostException if the remote call fails.
@@ -184,7 +184,7 @@ public abstract class Screen implements LifecycleOwner {
      *   <dt>{@link Event#ON_CREATE}
      *   <dd>The screen is in the process of being pushed to the screen stack, it is valid, but
      *       contents from it are not yet visible in the car screen. You should get a callback to
-     *       {@link #getTemplate} at a point after this call.
+     *       {@link #onGetTemplate} at a point after this call.
      *   <dt>{@link Event#ON_START}
      *   <dd>The template returned from this screen is visible in the car screen.
      *   <dt>{@link Event#ON_RESUME}
@@ -304,7 +304,7 @@ public abstract class Screen implements LifecycleOwner {
      * <p>See {@code androidx.car.app.notification.CarAppExtender} for details on notifications.
      */
     @NonNull
-    public abstract Template getTemplate();
+    public abstract Template onGetTemplate();
 
     /** Sets a {@link OnScreenResultCallback} for this {@link Screen}. */
     void setOnResultCallback(OnScreenResultCallback onScreenResultCallback) {
@@ -330,7 +330,7 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
-     * Calls {@link #getTemplate} to get the next {@link Template} for the screen and returns it
+     * Calls {@link #onGetTemplate} to get the next {@link Template} for the screen and returns it
      * wrapped in a {@link TemplateWrapper}.
      *
      * <p>The {@link TemplateWrapper} attaches a unique ID to the wrapped template, which is used
@@ -345,7 +345,7 @@ public abstract class Screen implements LifecycleOwner {
      */
     @NonNull
     TemplateWrapper getTemplateWrapper() {
-        Template template = getTemplate();
+        Template template = onGetTemplate();
 
         TemplateWrapper wrapper;
         if (mUseLastTemplateId) {
@@ -368,15 +368,15 @@ public abstract class Screen implements LifecycleOwner {
      * Returns the information for the template that was last returned by this screen.
      *
      * <p>If no templates have been returned from this screen yet, this will call
-     * {@link #getTemplate} to retrieve the {@link Template} and generate an info for it. This is
-     * used in the case where multiple screens are added before a {@link #getTemplate} method is
+     * {@link #onGetTemplate} to retrieve the {@link Template} and generate an info for it. This is
+     * used in the case where multiple screens are added before a {@link #onGetTemplate} method is
      * dispatched to the top screen, allowing to notify the host of the current stack of template
      * ids known to the client.
      */
     @NonNull
     TemplateInfo getLastTemplateInfo() {
         if (mTemplateWrapper == null) {
-            mTemplateWrapper = TemplateWrapper.wrap(getTemplate());
+            mTemplateWrapper = TemplateWrapper.wrap(onGetTemplate());
         }
         return new TemplateInfo(mTemplateWrapper.getTemplate(), mTemplateWrapper.getId());
     }
@@ -387,8 +387,8 @@ public abstract class Screen implements LifecycleOwner {
     }
 
     /**
-     * Denotes whether the next {@link Template} retrieved via {@link #getTemplate} should reuse the
-     * ID of the last {@link Template}.
+     * Denotes whether the next {@link Template} retrieved via {@link #onGetTemplate} should reuse
+     * the ID of the last {@link Template}.
      *
      * <p>When this is set to {@code true}, the host will considered the next template sent to be a
      * back operation, and will attempt to find the previous template that shares the same ID and
