@@ -68,7 +68,7 @@ public final class ScreenTest {
                         new Screen(mCarContext) {
                             @Override
                             @NonNull
-                            public Template getTemplate() {
+                            public Template onGetTemplate() {
                                 return new Template() {
                                 };
                             }
@@ -77,7 +77,7 @@ public final class ScreenTest {
         mScreen = new Screen(mCarContext) {
             @Override
             @NonNull
-            public Template getTemplate() {
+            public Template onGetTemplate() {
                 return PlaceListMapTemplate.builder().setItemList(
                         ItemList.builder().build()).build();
             }

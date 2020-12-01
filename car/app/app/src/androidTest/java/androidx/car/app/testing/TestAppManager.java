@@ -36,8 +36,8 @@ import java.util.List;
  *
  * <ul>
  *   <li>All {@link SurfaceListener}s set via calling {@link AppManager#setSurfaceListener}.
- *   <li>The {@link Template}s returned from {@link Screen#getTemplate} due to invalidate calls via
- *       {@link AppManager#invalidate}.
+ *   <li>The {@link Template}s returned from {@link Screen#onGetTemplate} due to invalidate calls
+ *       via {@link AppManager#invalidate}.
  *   <li>All toasts shown via calling {@link AppManager#showToast}.
  * </ul>
  */
@@ -79,8 +79,9 @@ public class TestAppManager extends AppManager {
     }
 
     /**
-     * Retrieves all the {@link Template}s returned from {@link Screen#getTemplate} due to a call to
-     * {@link AppManager#invalidate}, and the respective {@link Screen} instance that returned it.
+     * Retrieves all the {@link Template}s returned from {@link Screen#onGetTemplate} due to a call
+     * to {@link AppManager#invalidate}, and the respective {@link Screen} instance that returned
+     * it.
      *
      * <p>The results are stored in order of calls.
      *

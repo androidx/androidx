@@ -100,7 +100,7 @@ public final class AppManagerTest {
                 .push(new Screen(mTestCarContext) {
                     @NonNull
                     @Override
-                    public Template getTemplate() {
+                    public Template onGetTemplate() {
                         return new Template() {
                         };
                     }

@@ -39,7 +39,7 @@ import java.util.Objects;
  * <h4>Template Restrictions</h4>
  *
  * In regards to template refreshes, as described in
- * {@link androidx.car.app.Screen#getTemplate()}, this template is
+ * {@link androidx.car.app.Screen#onGetTemplate()}, this template is
  * considered a refresh of a previous one if the title and messages have not changed.
  */
 public final class MessageTemplate implements Template {

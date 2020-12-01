@@ -38,7 +38,7 @@ import java.util.List;
  *
  * <ul>
  *   <li>Moving a {@link Screen} through its different {@link State}s.
- *   <li>Retrieving all {@link Template}s returned from {@link Screen#getTemplate}. The values can
+ *   <li>Retrieving all {@link Template}s returned from {@link Screen#onGetTemplate}. The values can
  *       be reset with {@link #reset}.
  * </ul>
  */
@@ -58,7 +58,7 @@ public class ScreenController {
     }
 
     /**
-     * Retrieves all the {@link Template}s returned from {@link Screen#getTemplate} for the {@link
+     * Retrieves all the {@link Template}s returned from {@link Screen#onGetTemplate} for the {@link
      * Screen} being controlled.
      *
      * <p>The templates are stored in order of calls.
