@@ -31,6 +31,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -167,17 +168,20 @@ final class QueryInterceptorDatabase implements SupportSQLiteDatabase {
     @NonNull
     @Override
     public Cursor query(@NonNull String query, @NonNull Object[] bindArgs) {
+        List<Object> inputArguments = new ArrayList<>();
+        inputArguments.addAll(Arrays.asList(bindArgs));
         mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(query,
-                Arrays.asList(bindArgs)));
+                inputArguments));
         return mDelegate.query(query, bindArgs);
     }
 
     @NonNull
     @Override
     public Cursor query(@NonNull SupportSQLiteQuery query) {
-        // TODO: (b/174478034)
+        QueryInterceptorProgram queryInterceptorProgram = new QueryInterceptorProgram();
+        query.bindTo(queryInterceptorProgram);
         mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(query.getSql(),
-                Collections.emptyList()));
+                queryInterceptorProgram.getBindArgs()));
         return mDelegate.query(query);
     }
 
@@ -185,9 +189,10 @@ final class QueryInterceptorDatabase implements SupportSQLiteDatabase {
     @Override
     public Cursor query(@NonNull SupportSQLiteQuery query,
             @NonNull CancellationSignal cancellationSignal) {
-        // TODO: (b/174478034)
+        QueryInterceptorProgram queryInterceptorProgram = new QueryInterceptorProgram();
+        query.bindTo(queryInterceptorProgram);
         mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(query.getSql(),
-                Collections.emptyList()));
+                queryInterceptorProgram.getBindArgs()));
         return mDelegate.query(query);
     }
 
@@ -213,14 +218,16 @@ final class QueryInterceptorDatabase implements SupportSQLiteDatabase {
 
     @Override
     public void execSQL(@NonNull String sql) throws SQLException {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(sql, Collections.emptyList()));
+        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(sql, new ArrayList<>(0)));
         mDelegate.execSQL(sql);
     }
 
     @Override
     public void execSQL(@NonNull String sql, @NonNull Object[] bindArgs) throws SQLException {
-        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(sql, Arrays.asList(bindArgs)));
-        mDelegate.execSQL(sql, bindArgs);
+        List<Object> inputArguments = new ArrayList<>();
+        inputArguments.addAll(Arrays.asList(bindArgs));
+        mQueryCallbackExecutor.execute(() -> mQueryCallback.onQuery(sql, inputArguments));
+        mDelegate.execSQL(sql, inputArguments.toArray());
     }
 
     @Override

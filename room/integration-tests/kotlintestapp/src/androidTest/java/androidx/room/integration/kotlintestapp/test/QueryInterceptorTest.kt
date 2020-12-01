@@ -26,6 +26,7 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
+import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -104,7 +105,7 @@ class QueryInterceptorTest {
         assertQueryLogged(
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)",
-            emptyList()
+            listOf("Insert", "Inserted a placeholder query")
         )
         assertTransactionQueries()
     }
@@ -112,8 +113,10 @@ class QueryInterceptorTest {
     @Test
     fun testDelete() {
         mDatabase.queryInterceptorDao().delete("Insert")
-
-        assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
+        assertQueryLogged(
+            "DELETE FROM queryInterceptorTestDatabase WHERE id=?",
+            listOf("Insert")
+        )
         assertTransactionQueries()
     }
 
@@ -130,7 +133,7 @@ class QueryInterceptorTest {
             "UPDATE OR ABORT `queryInterceptorTestDatabase` SET `id` " +
                 "= ?,`description` = ? " +
                 "WHERE `id` = ?",
-            emptyList()
+            listOf("Insert", "Updated the placeholder query", "Insert")
         )
         assertTransactionQueries()
     }
@@ -147,17 +150,47 @@ class QueryInterceptorTest {
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
     }
 
+    @Test
+    fun testLoggingSupportSQLiteQuery() {
+        mDatabase.openHelper.writableDatabase.query(
+            SimpleSQLiteQuery(
+                "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                    "VALUES (?,?)",
+                arrayOf<Any>("3", "Description")
+            )
+        )
+        assertQueryLogged(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            listOf("3", "Description")
+        )
+    }
+
+    @Test
+    fun testNullBindArgument() {
+        mDatabase.openHelper.writableDatabase.query(
+            SimpleSQLiteQuery(
+                "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                    "VALUES (?,?)",
+                arrayOf("ID", null)
+            )
+        )
+        assertQueryLogged(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`," +
+                "`description`) VALUES (?,?)",
+            listOf("ID", null)
+        )
+    }
+
     private fun assertQueryLogged(
         query: String,
-        expectedArgs: List<Any>
+        expectedArgs: List<String?>
     ) {
         val filteredQueries = queryAndArgs.filter {
             it.first == query
         }
         assertThat(filteredQueries).hasSize(1)
-
-        for (index in expectedArgs.indices)
-            assertThat(expectedArgs).containsExactly(filteredQueries[0].second[index])
+        assertThat(expectedArgs).containsExactlyElementsIn(filteredQueries[0].second)
     }
 
     private fun assertTransactionQueries() {

@@ -115,10 +115,13 @@ final class QueryInterceptorStatement implements SupportSQLiteStatement {
         mDelegate.close();
     }
 
-    private void saveArgsToCache(int index, Object value) {
-        // Add null entries to the list until we have the desired # of indices
-        for (int i = mBindArgsCache.size(); i <= index; i++) {
-            mBindArgsCache.add(null);
+    private void saveArgsToCache(int bindIndex, Object value) {
+        int index = bindIndex - 1;
+        if (index >= mBindArgsCache.size()) {
+            // Add null entries to the list until we have the desired # of indices
+            for (int i = mBindArgsCache.size(); i <= index; i++) {
+                mBindArgsCache.add(null);
+            }
         }
         mBindArgsCache.set(index, value);
     }
