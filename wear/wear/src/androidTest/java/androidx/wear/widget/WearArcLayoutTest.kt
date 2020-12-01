@@ -31,6 +31,7 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.view.children
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -49,6 +50,9 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.test.R
 import androidx.wear.widget.util.AsyncViewActions.waitForMatchingView
+import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_CENTER
+import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_OUTER
+import androidx.wear.widget.WearArcLayout.LayoutParams.VALIGN_INNER
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.any
 import org.hamcrest.Matcher
@@ -220,6 +224,100 @@ class WearArcLayoutTest {
                     clockwise = false
                 }
             )
+        )
+    }
+
+    // Extension functions to make the margin test more readable.
+    fun WearArcLayout.addSeparator() {
+        addView(
+            WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                text = " "
+                minSweepDegrees = 10f
+                setBackgroundColor(Color.rgb(100, 100, 100))
+                clockwise = true
+                textSize = 40f
+            }
+        )
+    }
+
+    fun WearArcLayout.addText(
+        text0: String,
+        color: Int,
+        marginLeft: Int = 0,
+        marginTop: Int = 0,
+        marginRight: Int = 0,
+        marginBottom: Int = 0,
+        vAlign: Int = VALIGN_CENTER
+    ) {
+        addView(
+            WearCurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                text = text0
+                setBackgroundColor(color)
+                clockwise = true
+                textSize = 14f
+                layoutParams = WearArcLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                ).apply {
+                    setMargins(marginLeft, marginTop, marginRight, marginBottom)
+                    verticalAlignment = vAlign
+                }
+            }
+        )
+    }
+
+    private fun createArcWithMargin() =
+        WearArcLayout(ApplicationProvider.getApplicationContext()).apply {
+            anchorType = WearArcLayout.ANCHOR_CENTER
+            addSeparator()
+            addText("RI", Color.RED, marginTop = 16, vAlign = VALIGN_INNER)
+            addText("GI", Color.GREEN, marginTop = 8, marginBottom = 8, vAlign = VALIGN_INNER)
+            addText("BI", Color.BLUE, marginBottom = 16, vAlign = VALIGN_INNER)
+            addSeparator()
+            addText("Red", Color.RED, marginTop = 16)
+            addText("Green", Color.GREEN, marginTop = 8, marginBottom = 8)
+            addText("Blue", Color.BLUE, marginBottom = 16)
+            addSeparator()
+            addText("RO", Color.RED, marginTop = 16, vAlign = VALIGN_OUTER)
+            addText("GO", Color.GREEN, marginTop = 8, marginBottom = 8, vAlign = VALIGN_OUTER)
+            addText("BO", Color.BLUE, marginBottom = 16, vAlign = VALIGN_OUTER)
+            addSeparator()
+            addText("L", Color.WHITE, marginRight = 20)
+            addSeparator()
+            addText("C", Color.WHITE, marginRight = 10, marginLeft = 10)
+            addSeparator()
+            addText("R", Color.WHITE, marginLeft = 20)
+            addSeparator()
+        }
+
+    private fun createTwoArcsWithMargin() = listOf(
+        // First arc goes on top
+        createArcWithMargin(),
+
+        // Second arc in the bottom, and we change al children to go counterclockwise.
+        createArcWithMargin().apply {
+            anchorAngleDegrees = 180f
+            children.forEach {
+                (it as? WearCurvedTextView) ?.clockwise = false
+            }
+        }
+    )
+
+    @Test
+    fun testMargins() {
+        doOneTest(
+            "margin_test",
+            createTwoArcsWithMargin()
+        )
+    }
+
+    @Test
+    fun testMarginsCcw() {
+        doOneTest(
+            "margin_ccw_test",
+            createTwoArcsWithMargin().map {
+                it.apply { clockwise = false }
+            }
         )
     }
 

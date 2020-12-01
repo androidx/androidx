@@ -111,7 +111,7 @@ public class WearArcLayout extends ViewGroup {
      *
      * <p>Note that the {@code rotate} parameter is ignored when drawing "Fullscreen" elements.
      */
-    public static class LayoutParams extends ViewGroup.LayoutParams {
+    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
 
         /** Vertical alignment of elements within the arc. */
         /** @hide */
@@ -256,6 +256,8 @@ public class WearArcLayout extends ViewGroup {
     // Temporary variables using during a draw cycle.
     private float mCurrentCumulativeAngle = 0;
     private int mAnglesIndex = 0;
+    @SuppressWarnings("SyntheticAccessor")
+    private final ChildArcAngles mChildArcAngles = new ChildArcAngles();
 
     public WearArcLayout(@NonNull Context context) {
         this(context, null);
@@ -349,18 +351,22 @@ public class WearArcLayout extends ViewGroup {
 
             // ArcLayoutWidget is a special case. Because of how it draws, fit it to the size
             // of the whole widget.
+            int childMeasuredHeight;
             if (child instanceof ArcLayoutWidget) {
-                ArcLayoutWidget widget = (ArcLayoutWidget) child;
-                maxChildHeightPx = max(maxChildHeightPx, widget.getThicknessPx());
+                childMeasuredHeight = ((ArcLayoutWidget) child).getThicknessPx();
             } else {
                 measureChild(
                         child,
                         getChildMeasureSpec(childMeasureSpec, 0, child.getLayoutParams().width),
                         getChildMeasureSpec(childMeasureSpec, 0, child.getLayoutParams().height)
                 );
-                maxChildHeightPx = max(maxChildHeightPx, child.getMeasuredHeight());
+                childMeasuredHeight = child.getMeasuredHeight();
                 childState = combineMeasuredStates(childState, child.getMeasuredState());
+
             }
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            maxChildHeightPx = max(maxChildHeightPx, childMeasuredHeight
+                    + childLayoutParams.topMargin +  childLayoutParams.bottomMargin);
         }
 
         mThicknessPx = maxChildHeightPx;
@@ -374,23 +380,14 @@ public class WearArcLayout extends ViewGroup {
             }
 
             if (child instanceof ArcLayoutWidget) {
-                ArcLayoutWidget curvedContainerChild = (ArcLayoutWidget) child;
                 LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
 
-                int childThicknessPx = curvedContainerChild.getThicknessPx();
-                int thicknessDiffPx = mThicknessPx - childThicknessPx;
-
-                float insetPx = 0;
-
-                if (childLayoutParams.getVerticalAlignment() == LayoutParams.VALIGN_CENTER) {
-                    insetPx = thicknessDiffPx / 2f;
-                } else if (childLayoutParams.getVerticalAlignment() == LayoutParams.VALIGN_INNER) {
-                    insetPx = thicknessDiffPx;
-                }
+                float insetPx = getChildTopInset(child);
 
                 int innerChildMeasureSpec =
                         MeasureSpec.makeMeasureSpec(
                                 maxChildDimension * 2 - round(insetPx * 2), MeasureSpec.EXACTLY);
+
                 measureChild(
                         child,
                         getChildMeasureSpec(innerChildMeasureSpec, 0, childLayoutParams.width),
@@ -435,7 +432,7 @@ public class WearArcLayout extends ViewGroup {
                 // vertical position.
                 int leftPx =
                         round((getMeasuredWidth() / 2f) - (child.getMeasuredWidth() / 2f));
-                int topPx = getChildTopInset(child);
+                int topPx = round(getChildTopInset(child));
 
                 child.layout(
                         leftPx,
@@ -542,12 +539,13 @@ public class WearArcLayout extends ViewGroup {
         // Rotate the canvas to make the children render in the right place.
         canvas.save();
 
-        float arcAngle = calculateArcAngle(child);
-        float preRotation = arcAngle / 2f;
+        calculateArcAngle(child, mChildArcAngles);
+        float preRotation = mChildArcAngles.leftMarginAsAngle
+                + mChildArcAngles.actualChildAngle / 2f;
         float multiplier = mClockwise ? 1f : -1f;
 
         // Store the center angle of each child to handle touch events.
-        float middleAngle = multiplier * (mCurrentCumulativeAngle + arcAngle / 2);
+        float middleAngle = multiplier * (mCurrentCumulativeAngle + preRotation);
         mAngles[mAnglesIndex++] = middleAngle;
         if (child == mTouchedView) {
             // We keep this updated, in case the view has changed angle.
@@ -583,7 +581,7 @@ public class WearArcLayout extends ViewGroup {
 
             // Do the actual rotation. Note that the strange rotation center is because the child
             // view is x-centered but at the top of this container.
-            int childInset = getChildTopInset(child);
+            float childInset = getChildTopInset(child);
             canvas.rotate(
                     angleToRotate,
                     getMeasuredWidth() / 2f,
@@ -591,7 +589,7 @@ public class WearArcLayout extends ViewGroup {
             );
         }
 
-        mCurrentCumulativeAngle += arcAngle;
+        mCurrentCumulativeAngle += mChildArcAngles.getTotalAngle();
 
         boolean wasInvalidateIssued = super.drawChild(canvas, child, drawingTime);
 
@@ -609,7 +607,8 @@ public class WearArcLayout extends ViewGroup {
         float totalArcAngle = 0;
 
         for (int i = 0; i < getChildCount(); i++) {
-            totalArcAngle += calculateArcAngle(getChildAt(i));
+            calculateArcAngle(getChildAt(i), mChildArcAngles);
+            totalArcAngle += mChildArcAngles.getTotalAngle();
         }
 
         if (mAnchorType == ANCHOR_CENTER) {
@@ -621,31 +620,55 @@ public class WearArcLayout extends ViewGroup {
         return 0;
     }
 
-    private float calculateArcAngle(@NonNull View view) {
+    private static float widthToAngleDegrees(float widthPx, float radiusPx) {
+        return (float) Math.toDegrees(2 * asin(widthPx / radiusPx / 2f));
+    }
+
+    private void calculateArcAngle(@NonNull View view, @NonNull ChildArcAngles childAngles) {
         if (view.getVisibility() == GONE) {
-            return 0f;
+            childAngles.leftMarginAsAngle = 0;
+            childAngles.rightMarginAsAngle = 0;
+            childAngles.actualChildAngle = 0;
+            return;
         }
 
+        float radiusPx = (getMeasuredWidth() / 2f) - mThicknessPx;
+
+        LayoutParams childLayoutParams = (LayoutParams) view.getLayoutParams();
+
+        childAngles.leftMarginAsAngle =
+                widthToAngleDegrees(childLayoutParams.leftMargin, radiusPx);
+        childAngles.rightMarginAsAngle =
+                widthToAngleDegrees(childLayoutParams.rightMargin, radiusPx);
+
         if (view instanceof ArcLayoutWidget) {
-            return ((ArcLayoutWidget) view).getSweepAngleDegrees();
+            childAngles.actualChildAngle = ((ArcLayoutWidget) view).getSweepAngleDegrees();
         } else {
-            float radiusPx = (getMeasuredWidth() / 2f) - mThicknessPx;
-            return (float) Math.toDegrees(2 * asin(view.getMeasuredWidth() / radiusPx / 2f));
+            childAngles.actualChildAngle =
+                    widthToAngleDegrees(view.getMeasuredWidth(), radiusPx);
         }
     }
 
-    private int getChildTopInset(@NonNull View child) {
+    private float getChildTopInset(@NonNull View child) {
         LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
 
-        int thicknessDiffPx = mThicknessPx - child.getMeasuredHeight();
+        int childHeight = child instanceof ArcLayoutWidget
+                ? ((ArcLayoutWidget) child).getThicknessPx()
+                : child.getMeasuredHeight();
+
+        int thicknessDiffPx =
+                mThicknessPx - childLayoutParams.topMargin - childLayoutParams.bottomMargin
+                        - childHeight;
+
+        int margin = mClockwise ? childLayoutParams.topMargin : childLayoutParams.bottomMargin;
 
         switch (childLayoutParams.getVerticalAlignment()) {
             case LayoutParams.VALIGN_OUTER:
-                return 0;
+                return margin;
             case LayoutParams.VALIGN_CENTER:
-                return round(thicknessDiffPx / 2f);
+                return margin + thicknessDiffPx / 2f;
             case LayoutParams.VALIGN_INNER:
-                return thicknessDiffPx;
+                return margin + thicknessDiffPx;
             default:
                 // Nortmally unreachable...
                 return 0;
@@ -712,5 +735,15 @@ public class WearArcLayout extends ViewGroup {
     public void setClockwise(boolean clockwise) {
         mClockwise = clockwise;
         invalidate();
+    }
+
+    private static class ChildArcAngles {
+        public float leftMarginAsAngle;
+        public float rightMarginAsAngle;
+        public float actualChildAngle;
+
+        public float getTotalAngle() {
+            return leftMarginAsAngle + rightMarginAsAngle + actualChildAngle;
+        }
     }
 }
