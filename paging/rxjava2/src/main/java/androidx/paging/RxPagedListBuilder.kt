@@ -302,7 +302,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 
         check(pagingSourceFactory != null) {
-            "LivePagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
+            "RxPagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
         }
 
         return Observable

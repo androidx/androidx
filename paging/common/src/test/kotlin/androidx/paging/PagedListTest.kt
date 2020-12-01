@@ -121,7 +121,6 @@ class PagedListTest {
                 key = null,
                 loadSize = 10,
                 placeholdersEnabled = false,
-                pageSize = 10
             )
         ) as PagingSource.LoadResult.Page
 
