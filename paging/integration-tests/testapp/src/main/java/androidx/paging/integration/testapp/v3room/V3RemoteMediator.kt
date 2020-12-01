@@ -44,15 +44,13 @@ internal class V3RemoteMediator(
             LoadType.REFRESH -> PagingSource.LoadParams.Refresh(
                 key = 0,
                 loadSize = 10,
-                placeholdersEnabled = false,
-                pageSize = 10
+                placeholdersEnabled = false
             )
             LoadType.PREPEND -> throw IllegalStateException()
             LoadType.APPEND -> PagingSource.LoadParams.Append(
                 key = state.pages.lastOrNull()?.nextKey ?: 0,
                 loadSize = 10,
-                placeholdersEnabled = false,
-                pageSize = 10
+                placeholdersEnabled = false
             )
         }
 
