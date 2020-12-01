@@ -60,22 +60,7 @@ public class RowTest {
     }
 
     @Test
-    public void title_carText() {
-        CarText title = CarText.create("foo");
-        Row row = Row.builder().setTitle(title).build();
-        assertThat(title).isEqualTo(row.getTitle());
-    }
-
-    @Test
     public void text_charSequence() {
-        CarText text1 = CarText.create("foo");
-        CarText text2 = CarText.create("bar");
-        Row row = Row.builder().setTitle("Title").addText(text1).addText(text2).build();
-        assertThat(row.getTexts()).containsExactly(text1, text2);
-    }
-
-    @Test
-    public void text_carText() {
         String text1 = "foo";
         String text2 = "bar";
         Row row = Row.builder().setTitle("Title").addText(text1).addText(text2).build();
@@ -95,14 +80,6 @@ public class RowTest {
         }).build();
         Row row = Row.builder().setTitle("Title").setToggle(toggle1).build();
         assertThat(toggle1).isEqualTo(row.getToggle());
-    }
-
-    @Test
-    public void setSectionHeader() {
-        Row row =
-                Row.builder().setFlags(Row.ROW_FLAG_SECTION_HEADER).setTitle(
-                        "section header").build();
-        assertThat(row.getFlags() & Row.ROW_FLAG_SECTION_HEADER).isNotEqualTo(0);
     }
 
     @Test
@@ -187,7 +164,6 @@ public class RowTest {
                         .setOnClickListener(() -> {
                         })
                         .setBrowsable(false)
-                        .setFlags(1)
                         .setMetadata(Metadata.EMPTY_METADATA)
                         .addText(title)
                         .build();
@@ -199,7 +175,6 @@ public class RowTest {
                         .setOnClickListener(() -> {
                         })
                         .setBrowsable(false)
-                        .setFlags(1)
                         .setMetadata(Metadata.EMPTY_METADATA)
                         .addText(title)
                         .build())
@@ -244,13 +219,6 @@ public class RowTest {
                         })
                         .build())
                 .isNotEqualTo(row);
-    }
-
-    @Test
-    public void notEquals_differentFlags() {
-        Row row = Row.builder().setTitle("Title").setFlags(1).build();
-
-        assertThat(Row.builder().setTitle("Title").setFlags(2).build()).isNotEqualTo(row);
     }
 
     @Test
