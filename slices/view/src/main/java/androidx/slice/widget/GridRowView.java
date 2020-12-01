@@ -67,6 +67,7 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceHints;
 import androidx.slice.core.SliceQuery;
@@ -469,6 +470,8 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     private boolean addImageItem(SliceItem item, SliceItem overlayItem, int color,
             ViewGroup container, boolean isSingle) {
         final String format = item.getFormat();
+        final boolean hasRoundedImage =
+                mSliceStyle != null && mSliceStyle.getApplyCornerRadiusToLargeImages();
         if (!FORMAT_IMAGE.equals(format) || item.getIcon() == null) {
             return false;
         }
@@ -477,13 +480,18 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
             return false;
         }
         ImageView iv = new ImageView(getContext());
-        iv.setImageDrawable(d);
+        if (hasRoundedImage) {
+            CornerDrawable cd = new CornerDrawable(d, mSliceStyle.getImageCornerRadius());
+            iv.setImageDrawable(cd);
+        } else {
+            iv.setImageDrawable(d);
+        }
         LinearLayout.LayoutParams lp;
         if (item.hasHint(SliceHints.HINT_RAW)) {
             iv.setScaleType(ScaleType.CENTER_INSIDE);
             lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         } else if (item.hasHint(HINT_LARGE)) {
-            iv.setScaleType(ScaleType.CENTER_CROP);
+            iv.setScaleType(hasRoundedImage ? ScaleType.FIT_XY : ScaleType.CENTER_CROP);
             int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
             lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
         } else {

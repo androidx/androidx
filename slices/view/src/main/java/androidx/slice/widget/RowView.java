@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
+import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 import static android.app.slice.Slice.HINT_SHORTCUT;
@@ -86,6 +87,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.view.ViewCompat;
+import androidx.slice.CornerDrawable;
 import androidx.slice.SliceItem;
 import androidx.slice.SliceStructure;
 import androidx.slice.core.SliceAction;
@@ -952,7 +954,14 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             final float density = getResources().getDisplayMetrics().density;
             ImageView iv = new ImageView(getContext());
             Drawable d = icon.loadDrawable(getContext());
-            iv.setImageDrawable(d);
+            final boolean hasRoundedImage =
+                    mSliceStyle != null && mSliceStyle.getApplyCornerRadiusToLargeImages();
+            if (hasRoundedImage && sliceItem.hasHint(HINT_LARGE)) {
+                CornerDrawable cd = new CornerDrawable(d, mSliceStyle.getImageCornerRadius());
+                iv.setImageDrawable(cd);
+            } else {
+                iv.setImageDrawable(d);
+            }
             if (isIcon && color != -1) {
                 iv.setColorFilter(color);
             }
