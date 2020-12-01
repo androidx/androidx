@@ -28,11 +28,11 @@ import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.CanvasComplicationDrawable
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -141,7 +141,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 userStyleRepository
             )
 
-            val renderer = object : CanvasRenderer(
+            val renderer = object : Renderer.CanvasRenderer(
                 surfaceHolder,
                 userStyleRepository,
                 watchState,
