@@ -9,6 +9,7 @@ impl/build.sh --no-daemon buildTestApks \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.changedProjects \
     -Pandroidx.coverageEnabled=true \
+    -Pandroidx.validateNoUnrecognizedMessages \
     -Pandroidx.allWarningsAsErrors --offline "$@"
 
 echo "Completing $0 at $(date)"
