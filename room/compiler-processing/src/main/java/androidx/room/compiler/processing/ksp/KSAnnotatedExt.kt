@@ -18,14 +18,17 @@ package androidx.room.compiler.processing.ksp
 
 import com.google.devtools.ksp.symbol.KSAnnotated
 
-internal fun KSAnnotated.hasJvmStaticAnnotation() = annotations.any {
-    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmStatic"
+private fun KSAnnotated.hasAnnotationWithQName(qName: String) = annotations.any {
+    try {
+        it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
+    } catch (illegal: IllegalStateException) {
+        // see: https://github.com/google/ksp/issues/173
+        false
+    }
 }
 
-internal fun KSAnnotated.hasJvmFieldAnnotation() = annotations.any {
-    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmField"
-}
+internal fun KSAnnotated.hasJvmStaticAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmStatic")
 
-internal fun KSAnnotated.hasJvmDefaultAnnotation() = annotations.any {
-    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmDefault"
-}
+internal fun KSAnnotated.hasJvmFieldAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmField")
+
+internal fun KSAnnotated.hasJvmDefaultAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmDefault")
