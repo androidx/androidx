@@ -33,7 +33,7 @@ import java.util.Set;
 public interface AppSearchSession {
 
     /**
-     * Sets the schema being used by documents provided to the {@link #putDocuments} method.
+     * Sets the schema that will be used by documents provided to the {@link #putDocuments} method.
      *
      * <p>The schema provided here is compared to the stored copy of the schema previously supplied
      * to {@link #setSchema}, if any, to determine how to treat existing documents. The following
