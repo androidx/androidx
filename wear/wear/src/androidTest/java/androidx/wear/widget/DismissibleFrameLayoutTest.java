@@ -23,6 +23,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
 
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.view.KeyEvent;
@@ -65,6 +67,10 @@ public class DismissibleFrameLayoutTest {
             sendBackKey();
             // AND hidden
             assertHidden(R.id.dismissible_root);
+            // Back button up event is consumed, and not pass to the activity
+            scenario.onActivity(activity -> {
+                assertFalse(activity.mConsumeBackButtonUp);
+            });
         }
     }
 
@@ -78,8 +84,12 @@ public class DismissibleFrameLayoutTest {
             assertNotHidden(R.id.dismissible_root);
             // WHEN back button pressed
             sendBackKey();
-            // AND the layout is still nor hidden
+            // AND the layout is still not hidden
             assertNotHidden(R.id.dismissible_root);
+            // Back button up event is not consumed, and continue to pass to the activity
+            scenario.onActivity(activity -> {
+                assertTrue(activity.mConsumeBackButtonUp);
+            });
         }
     }
 
@@ -113,6 +123,56 @@ public class DismissibleFrameLayoutTest {
         }
     }
 
+    @Test
+    public void testDisableThenEnableBackDismiss() {
+        // GIVEN a freshly setup DismissibleFrameLayout
+        try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
+                     ActivityScenario.launch(createDismissibleLayoutIntent())) {
+            final DismissibleFrameLayout[] testLayout = new DismissibleFrameLayout[1];
+            final DismissibleFrameLayoutTestActivity[] testActivity =
+                    new DismissibleFrameLayoutTestActivity[1];
+            scenario.onActivity(activity -> {
+                testActivity[0] = activity;
+                testLayout[0] =
+                        (DismissibleFrameLayout) activity.findViewById(R.id.dismissible_root);
+                testLayout[0].registerCallback(mDismissCallback);
+                // Disable back button dismiss
+                testLayout[0].setBackButtonDismissible(false);
+            });
+
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // The layout is not focused
+            assertFalse(testActivity[0].getCurrentFocus() == testLayout[0]);
+            // WHEN back button pressed
+            testActivity[0].mConsumeBackButtonUp = false;
+            sendBackKey();
+            // AND the layout is still not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // Back button up event is not consumed, and continue to pass to the activity
+            assertTrue(testActivity[0].mConsumeBackButtonUp);
+
+            // Enable backButton dismiss, we have to run this on the main thread
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+                @Override
+                public void run() {
+                    testLayout[0].setBackButtonDismissible(true);
+                }
+            });
+            // CHECK the layout is not hidden
+            assertNotHidden(R.id.dismissible_root);
+            // The layout is focused
+            assertTrue(testActivity[0].getCurrentFocus() == testLayout[0]);
+            // WHEN back button pressed
+            testActivity[0].mConsumeBackButtonUp = false;
+            sendBackKey();
+            // AND the layout is hidden
+            assertHidden(R.id.dismissible_root);
+            // Back button up event is consumed without passing up to the activity
+            assertFalse(testActivity[0].mConsumeBackButtonUp);
+        }
+    }
+
 
     @Test
     public void testBackDismissWithRecyclerView() {
@@ -126,6 +186,10 @@ public class DismissibleFrameLayoutTest {
             sendBackKey();
             // AND hidden
             assertHidden(R.id.dismissible_root);
+            // Back button up event is consumed, and not pass to the activity
+            scenario.onActivity(activity -> {
+                assertFalse(activity.mConsumeBackButtonUp);
+            });
         }
     }
 
