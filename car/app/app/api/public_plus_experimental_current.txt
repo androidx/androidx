@@ -442,7 +442,7 @@ package androidx.car.app.model {
 
   public final class MessageTemplate implements androidx.car.app.model.Template {
     method public static androidx.car.app.model.MessageTemplate.Builder builder(CharSequence);
-    method public androidx.car.app.model.ActionList? getActionList();
+    method public androidx.car.app.model.ActionList? getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
     method public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
@@ -485,7 +485,7 @@ package androidx.car.app.model {
 
   public final class Pane {
     method public static androidx.car.app.model.Pane.Builder builder();
-    method public androidx.car.app.model.ActionList? getActionList();
+    method public androidx.car.app.model.ActionList? getActions();
     method public java.util.List<java.lang.Object!> getRows();
     method public boolean isLoading();
   }
@@ -942,9 +942,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate build();
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setIsLoading(boolean);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList?);
     method @VisibleForTesting public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemListForTesting(androidx.car.app.model.ItemList?);
+    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence?);
   }
 
@@ -963,9 +963,9 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate build();
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip?);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action?);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setIsLoading(boolean);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList?);
     method @VisibleForTesting public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemListForTesting(androidx.car.app.model.ItemList?);
+    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
     method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence?);
   }
@@ -982,8 +982,8 @@ package androidx.car.app.navigation.model {
   public static final class RoutingInfo.Builder {
     method public androidx.car.app.navigation.model.RoutingInfo build();
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setCurrentStep(androidx.car.app.navigation.model.Step, androidx.car.app.model.Distance);
-    method public androidx.car.app.navigation.model.RoutingInfo.Builder setIsLoading(boolean);
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setJunctionImage(androidx.car.app.model.CarIcon?);
+    method public androidx.car.app.navigation.model.RoutingInfo.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.RoutingInfo.Builder setNextStep(androidx.car.app.navigation.model.Step?);
   }
 
@@ -1050,7 +1050,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.Trip.Builder clearStepTravelEstimates();
     method public androidx.car.app.navigation.model.Trip.Builder clearSteps();
     method public androidx.car.app.navigation.model.Trip.Builder setCurrentRoad(CharSequence?);
-    method public androidx.car.app.navigation.model.Trip.Builder setIsLoading(boolean);
+    method public androidx.car.app.navigation.model.Trip.Builder setLoading(boolean);
   }
 
 }
@@ -1067,8 +1067,8 @@ package androidx.car.app.notification {
     method public CharSequence? getContentTitle();
     method public android.app.PendingIntent? getDeleteIntent();
     method public int getImportance();
-    method public android.graphics.Bitmap? getLargeIconBitmap();
-    method public int getSmallIconResId();
+    method public android.graphics.Bitmap? getLargeIcon();
+    method @DrawableRes public int getSmallIcon();
     method public boolean isExtended();
     method public static boolean isExtended(android.app.Notification);
   }

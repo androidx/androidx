@@ -82,7 +82,7 @@ public class MessageTemplateTest {
         assertThat(template.getTitle().getText()).isEqualTo("header");
         assertThat(template.getIcon()).isNull();
         assertThat(template.getHeaderAction()).isNull();
-        assertThat(template.getActionList()).isNull();
+        assertThat(template.getActions()).isNull();
         assertThat(template.getDebugMessage()).isNull();
     }
 
@@ -121,7 +121,7 @@ public class MessageTemplateTest {
                 Log.getStackTraceString(exception));
         assertThat(template.getIcon()).isEqualTo(icon);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
-        assertThat(template.getActionList().getList()).containsExactly(action);
+        assertThat(template.getActions().getList()).containsExactly(action);
     }
 
     @Test

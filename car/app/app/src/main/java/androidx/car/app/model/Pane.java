@@ -18,8 +18,6 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +50,7 @@ public final class Pane {
      * Returns the list of {@link Action}s displayed alongside the {@link Row}s in this pane.
      */
     @Nullable
-    public ActionList getActionList() {
+    public ActionList getActions() {
         return mActionList;
     }
 
@@ -157,8 +155,6 @@ public final class Pane {
          * @throws NullPointerException if {@code actions} is {@code null}.
          */
         @NonNull
-        // TODO(shiufai): consider rename to match getter's name (e.g. setActionList or getActions).
-        @SuppressLint("MissingGetterMatchingBuilder")
         public Builder setActions(@NonNull List<Action> actions) {
             mActionList = ActionList.create(requireNonNull(actions));
             return this;

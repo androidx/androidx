@@ -278,7 +278,8 @@ public class CarAppExtender implements NotificationCompat.Extender {
      *
      * @see Builder#setSmallIcon(int)
      */
-    public int getSmallIconResId() {
+    @DrawableRes
+    public int getSmallIcon() {
         return mSmallIconResId;
     }
 
@@ -288,7 +289,7 @@ public class CarAppExtender implements NotificationCompat.Extender {
      * @see Builder#setLargeIcon(Bitmap)
      */
     @Nullable
-    public Bitmap getLargeIconBitmap() {
+    public Bitmap getLargeIcon() {
         return mLargeIconBitmap;
     }
 
@@ -391,8 +392,6 @@ public class CarAppExtender implements NotificationCompat.Extender {
          * <p>This method is equivalent to {@link NotificationCompat.Builder#setSmallIcon(int)} for
          * the car screen.
          */
-        // TODO(rampara): Revisit small icon getter API
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setSmallIcon(int iconResId) {
             this.mSmallIconResId = iconResId;
@@ -412,8 +411,6 @@ public class CarAppExtender implements NotificationCompat.Extender {
          * <p>The large icon will be shown in the notification badge. If the large icon is not
          * set in the {@link CarAppExtender} or the notification, the small icon will show instead.
          */
-        // TODO(rampara): Revisit small icon getter API
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
         public Builder setLargeIcon(@Nullable Bitmap bitmap) {
             this.mLargeIconBitmap = bitmap;
