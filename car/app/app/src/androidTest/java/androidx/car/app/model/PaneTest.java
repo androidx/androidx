@@ -62,13 +62,6 @@ public class PaneTest {
     }
 
     @Test
-    public void clearRows() {
-        Row row = createRow(1);
-        Pane pane = Pane.builder().addRow(row).addRow(row).clearRows().addRow(row).build();
-        assertThat(pane.getRows()).hasSize(1);
-    }
-
-    @Test
     public void addRow_multiple() {
         Row row1 = createRow(1);
         Row row2 = createRow(2);
