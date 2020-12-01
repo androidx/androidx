@@ -121,22 +121,19 @@ private class PendingComplicationData(val complicationId: Int, val data: Complic
 /**
  * WatchFaceService and [WatchFace] are a pair of classes intended to handle much of
  * the boilerplate needed to implement a watch face without being too opinionated. The suggested
- * structure of an WatchFaceService based watch face is:
+ * structure of a WatchFaceService based watch face is:
  *
  * @sample androidx.wear.watchface.samples.kDocCreateExampleWatchFaceService
  *
- * Base classes for complications and styles are provided along with a default UI for configuring
- * them. Complications are optional, however if required, WatchFaceService assumes all
- * complications can be enumerated up front and passed as a collection into [ComplicationsManager]'s
- * constructor which is passed to [WatchFace]'s constructor. Some watch faces support different
- * configurations (number & position) of complications and this can be achieved by rendering a
- * subset and only marking the ones you need as enabled (see
- * [UserStyleSetting.ComplicationsUserStyleSetting]).
+ * Sub classes of WatchFaceService are expected to implement [createWatchFace] which is the
+ * factory for making [WatchFace]s. All [Complication]s are assumed to be enumerated up upfront and
+ * passed as a collection into [ComplicationsManager]'s constructor which is in turn passed to
+ * [WatchFace]'s constructor. Complications can be enabled and disabled as needed although it's
+ * recommended to use [UserStyleSetting.ComplicationsUserStyleSetting] for this.
  *
- * Many watch faces support styles, typically controlling the color and visual look of watch face
- * elements such as numeric fonts, watch hands and ticks. WatchFaceService doesn't take an
- * an opinion on what comprises a style beyond it should be representable as a map of categories to
- * options.
+ * Watch face styling (color and visual look of watch face elements such as numeric fonts, watch
+ * hands and ticks, etc...) is directly supported via [UserStyleSetting] and
+ * [UserStyleRepository].
  *
  * To aid debugging watch face animations, WatchFaceService allows you to speed up or slow down
  * time, and to loop between two instants.  This is controlled by MOCK_TIME_INTENT intents

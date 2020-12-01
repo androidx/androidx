@@ -25,7 +25,10 @@ import android.opengl.GLES20
 import android.opengl.GLUtils
 import androidx.annotation.Px
 
-/** Helper for rendering a complication to a GLES20 texture. */
+/**
+ * Helper for rendering a [CanvasComplication] to a GLES20 texture. To use call [renderToTexture]
+ * and then [bind] before drawing.
+ */
 public class GlesTextureComplication(
     /** The [CanvasComplication] to render to texture. */
     public val canvasComplication: CanvasComplication,
@@ -50,7 +53,7 @@ public class GlesTextureComplication(
     private val canvas = Canvas(bitmap)
     private val bounds = Rect(0, 0, textureWidth, textureHeight)
 
-    /** Renders the complication to an OpenGL texture. */
+    /** Renders [canvasComplication] to an OpenGL texture. */
     public fun renderToTexture(calendar: Calendar, renderParameters: RenderParameters) {
         canvas.drawColor(Color.BLACK)
         canvasComplication.render(canvas, bounds, calendar, renderParameters)

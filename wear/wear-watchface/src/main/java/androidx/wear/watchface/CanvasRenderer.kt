@@ -27,7 +27,11 @@ import androidx.annotation.IntRange
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
-/** @hide */
+/**
+ * Describes the type of [Canvas] a [CanvasRenderer] should request from a [SurfaceHolder].
+ *
+ * @hide
+ */
 @IntDef(
     value = [
         CanvasType.SOFTWARE,
@@ -51,20 +55,19 @@ public annotation class CanvasType {
 }
 
 /**
- * Watch faces that require [Canvas] rendering should extend their [Renderer] from this
- * class.
+ * Watch faces that require [Canvas] rendering should extend their [Renderer] from this class.
  */
 public abstract class CanvasRenderer(
-    /** The [SurfaceHolder] that [render] will draw into. */
+    /** The [SurfaceHolder] from which a [Canvas] to will be obtained and passed into [render]. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated [UserStyleRepository]. */
+    /** The watch face's associated [UserStyleRepository]. */
     userStyleRepository: UserStyleRepository,
 
-    /** The associated [WatchState]. */
+    /** The watch face's associated [WatchState]. */
     watchState: WatchState,
 
-    /** The type of canvas to use. */
+    /** The type of canvas to request. */
     @CanvasType private val canvasType: Int,
 
     /**
@@ -119,8 +122,8 @@ public abstract class CanvasRenderer(
 
     /**
      * Sub-classes should override this to implement their rendering logic which should respect
-     * the current [DrawMode]. For correct functioning watch faces must use the supplied
-     * [Calendar] and avoid using any other ways of getting the time.
+     * the current [DrawMode]. For correct functioning the CanvasRenderer must use the supplied
+     * [Calendar] in favor of any other ways of getting the time.
      *
      * @param canvas The [Canvas] to render into. Don't assume this is always the canvas from
      *     the [SurfaceHolder] backing the display
