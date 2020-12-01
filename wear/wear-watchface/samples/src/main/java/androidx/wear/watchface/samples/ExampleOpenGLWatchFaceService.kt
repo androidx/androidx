@@ -27,6 +27,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -122,7 +123,7 @@ fun createExampleOpenGLWatchFaceBuilder(
                     ComplicationType.SMALL_IMAGE
                 ),
                 DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-                RectF(0.2f, 0.7f, 0.4f, 0.9f)
+                ComplicationBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
             ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                 .build()
         ),
