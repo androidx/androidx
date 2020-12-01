@@ -28,6 +28,7 @@ package androidx.car.app {
     method public final void onDestroy();
     method public void onNewIntent(android.content.Intent);
     method public final boolean onUnbind(android.content.Intent);
+    field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
   }
 
   public class CarAppVersion {
