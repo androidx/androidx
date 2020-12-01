@@ -30,9 +30,9 @@ import kotlin.math.sin
 public class ComplicationOutlineRenderer {
     public companion object {
         // Dashed lines are used for complication selection.
-        internal val DASH_WIDTH = 10.0f
-        internal var DASH_GAP = 2.0f
-        internal var DASH_LENGTH = 5.0f
+        internal const val DASH_WIDTH = 10.0f
+        internal const val DASH_GAP = 2.0f
+        internal const val DASH_LENGTH = 5.0f
 
         internal val dashPaint = Paint().apply {
             strokeWidth = DASH_WIDTH

@@ -105,8 +105,8 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
 }
 
 /**
- * A WatchFace is constructed by a user's [WatchFaceService] and brings together rendering,
- * styling, complications and state observers.
+ * The return value of [WatchFaceService.createWatchFace] which brings together rendering, styling,
+ * complications and state observers.
  */
 public class WatchFace(
     /**
@@ -115,13 +115,13 @@ public class WatchFace(
      */
     @WatchFaceType internal var watchFaceType: Int,
 
-    /** The {@UserStyleRepository} for this WatchFaceImpl. */
+    /** The [UserStyleRepository] for this WatchFace. */
     internal val userStyleRepository: UserStyleRepository,
 
-    /** The [ComplicationsManager] for this WatchFaceImpl. */
+    /** The [ComplicationsManager] for this WatchFace. */
     internal var complicationsManager: ComplicationsManager,
 
-    /** The [Renderer] for this WatchFaceImpl. */
+    /** The [Renderer] for this WatchFace. */
     internal val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
@@ -210,7 +210,7 @@ public class WatchFace(
         }
     }
 
-    /** The preview time in milliseconds since the epoch, or null if not set. */
+    /** The UTC preview time in milliseconds since the epoch, or null if not set. */
     @get:SuppressWarnings("AutoBoxing")
     @IntRange(from = 0)
     public var overridePreviewReferenceTimeMillis: Long? = null

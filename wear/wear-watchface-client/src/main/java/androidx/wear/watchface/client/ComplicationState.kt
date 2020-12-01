@@ -31,7 +31,7 @@ public class ComplicationState(
     /** The type of the complication's bounds. */
     @ComplicationBoundsType public val boundsType: Int,
 
-    /** The [ComplicationType]s supported for this complication. */
+    /** The [ComplicationType]s supported by this complication. */
     public val supportedTypes: List<ComplicationType>,
 
     /** The [DefaultComplicationProviderPolicy] for this complication. */
