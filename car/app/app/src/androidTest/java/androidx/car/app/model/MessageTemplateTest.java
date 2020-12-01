@@ -26,10 +26,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.car.app.test.R;
-import androidx.car.app.utils.Logger;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -125,57 +122,6 @@ public class MessageTemplateTest {
         assertThat(template.getIcon()).isEqualTo(icon);
         assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
         assertThat(template.getActionList().getList()).containsExactly(action);
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-        MessageTemplate template = MessageTemplate.builder(mMessage).setTitle(mTitle).build();
-
-        assertThat(template.isRefresh(template, logger)).isTrue();
-
-        // Allowed mutable fields: icon, action strip and actions.
-        Action action = Action.builder().setOnClickListener(() -> {
-        }).setTitle("foo").build();
-        assertThat(
-                template.isRefresh(
-                        MessageTemplate.builder(mMessage)
-                                .setTitle(mTitle)
-                                .setIcon(
-                                        CarIcon.of(
-                                                IconCompat.createWithResource(
-                                                        ApplicationProvider.getApplicationContext(),
-                                                        R.drawable.ic_test_1)))
-                                .setHeaderAction(Action.BACK)
-                                .setActions(ImmutableList.of(action))
-                                .build(),
-                        logger))
-                .isTrue();
-
-        // Text changes are disallowed.
-        assertThat(
-                template.isRefresh(MessageTemplate.builder("Message2").setTitle(mTitle).build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        MessageTemplate.builder(mMessage).setTitle(mTitle).setDebugMessage(
-                                "Debug").build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        MessageTemplate.builder(mMessage)
-                                .setTitle(mTitle)
-                                .setDebugCause(new IllegalArgumentException("Exception"))
-                                .build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        MessageTemplate.builder(mMessage).setTitle("Header2").build(), logger))
-                .isFalse();
     }
 
     @Test

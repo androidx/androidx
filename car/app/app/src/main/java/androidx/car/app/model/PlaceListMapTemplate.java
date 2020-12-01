@@ -21,8 +21,6 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
-import static java.util.Objects.requireNonNull;
-
 import android.Manifest.permission;
 import android.content.Context;
 
@@ -31,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarAppPermission;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -114,29 +111,6 @@ public final class PlaceListMapTemplate implements Template {
     @Nullable
     public Place getAnchor() {
         return mAnchor;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        requireNonNull(oldTemplate);
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        PlaceListMapTemplate old = (PlaceListMapTemplate) oldTemplate;
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        return requireNonNull(mItemList).isRefresh(old.getItemList(), logger);
     }
 
     @Override
