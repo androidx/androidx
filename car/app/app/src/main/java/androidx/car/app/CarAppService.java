@@ -218,7 +218,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
      *
      * <p>This method is invoked when this car app is first opened by the user.
      *
-     * <p>Once the method returns, {@link Screen#getTemplate} will be called on the {@link Screen}
+     * <p>Once the method returns, {@link Screen#onGetTemplate} will be called on the {@link Screen}
      * returned, and the app will be displayed on the car screen.
      *
      * <p>To pre-seed a back stack, you can push {@link Screen}s onto the stack, via {@link
@@ -241,7 +241,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
     /**
      * Notifies that the car app has received a new {@link Intent}.
      *
-     * <p>Once the method returns, {@link Screen#getTemplate} will be called on the {@link Screen}
+     * <p>Once the method returns, {@link Screen#onGetTemplate} will be called on the {@link Screen}
      * that is on top of the {@link Screen} stack managed by the {@link ScreenManager}, and the app
      * will be displayed on the car screen.
      *

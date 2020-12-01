@@ -972,8 +972,8 @@ public final class ScreenManagerTest {
                         .setTitle("Title2")
                         .setItemList(ItemList.builder().build())
                         .build();
-        when(mMockScreen1.getTemplate()).thenReturn(template);
-        when(mMockScreen2.getTemplate()).thenReturn(template2);
+        when(mMockScreen1.onGetTemplate()).thenReturn(template);
+        when(mMockScreen2.onGetTemplate()).thenReturn(template2);
 
         mScreenManager.push(mScreen1);
         mScreenManager.push(mScreen2);
@@ -1152,9 +1152,9 @@ public final class ScreenManagerTest {
                         .setTitle("Title")
                         .setItemList(ItemList.builder().build())
                         .build();
-        when(mMockScreen1.getTemplate()).thenReturn(template);
-        when(mMockScreen2.getTemplate()).thenReturn(template);
-        when(mMockScreen3.getTemplate()).thenReturn(template);
+        when(mMockScreen1.onGetTemplate()).thenReturn(template);
+        when(mMockScreen2.onGetTemplate()).thenReturn(template);
+        when(mMockScreen3.onGetTemplate()).thenReturn(template);
 
         mScreenManager.push(mScreen1);
         TemplateWrapper wrapper1 = mScreenManager.getTopTemplate();
@@ -1167,8 +1167,8 @@ public final class ScreenManagerTest {
         mScreenManager.push(mScreen3);
         mScreenManager.pop();
 
-        when(mMockScreen1.getTemplate()).thenReturn(template2);
-        when(mMockScreen2.getTemplate()).thenReturn(template2);
+        when(mMockScreen1.onGetTemplate()).thenReturn(template2);
+        when(mMockScreen2.onGetTemplate()).thenReturn(template2);
 
         // Popping should reuse the last template's id of screen2.
         wrapper2 = mScreenManager.getTopTemplate();
