@@ -327,7 +327,7 @@ package androidx.wear.widget {
     method public boolean insideClickArea(float, float);
   }
 
-  public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.LayoutParams {
+  public static class WearArcLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public WearArcLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
     ctor public WearArcLayout.LayoutParams(int, int);
     ctor public WearArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
