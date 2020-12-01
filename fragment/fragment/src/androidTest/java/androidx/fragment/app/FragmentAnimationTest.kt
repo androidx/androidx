@@ -755,6 +755,50 @@ class FragmentAnimationTest {
         }
     }
 
+    @Test
+    fun removingFragmentAnimationChange() {
+        waitForAnimationReady()
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment1 = AnimationFragment()
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(R.id.fragmentContainer, fragment1, "fragment1")
+            .addToBackStack("fragment1")
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimationFragment()
+
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .replace(R.id.fragmentContainer, fragment2, "fragment2")
+            .addToBackStack("fragment2")
+            .commit()
+
+        activityRule.waitForExecution()
+
+        activityRule.runOnUiThread {
+            fm.popBackStack("fragment1", 0)
+
+            val fragment3 = AnimationFragment()
+
+            fm.beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+                .replace(R.id.fragmentContainer, fragment3, "fragment3")
+                .addToBackStack("fragment3")
+                .commit()
+        }
+
+        activityRule.waitForExecution()
+
+        activityRule.runOnUiThread {
+            assertThat(fragment2.loadedAnimation).isEqualTo(EXIT)
+        }
+    }
+
     private fun assertEnterPopExit(fragment: AnimationFragment) {
         assertFragmentAnimation(fragment, 1, true, ENTER)
 
@@ -842,6 +886,7 @@ class FragmentAnimationTest {
         var animation: Animation? = null
         var enter: Boolean = false
         var resourceId: Int = 0
+        var loadedAnimation = 0
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0 ||
@@ -849,6 +894,7 @@ class FragmentAnimationTest {
             ) {
                 return null
             }
+            loadedAnimation = nextAnim
             numAnimators++
             animation = TranslateAnimation(-10f, 0f, 0f, 0f)
             (animation as TranslateAnimation).duration = 1
