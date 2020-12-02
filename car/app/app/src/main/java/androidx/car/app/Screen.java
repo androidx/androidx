@@ -291,7 +291,7 @@ public abstract class Screen implements LifecycleOwner {
      * Certain {@link Template} classes have special semantics that signify the end of a task. For
      * example, the {@link androidx.car.app.navigation.model.NavigationTemplate} is a template
      * that is expected to stay on the screen and be refreshed with new turn-by-turn instructions
-     * for the user’s consumption. Upon reaching one of these templates, the host will reset the
+     * for the user's consumption. Upon reaching one of these templates, the host will reset the
      * template quota, treating that template as if it is the first step of a new task, thus
      * allowing the app to begin a new task. See the documentation of individual {@link Template}
      * classes to see which ones trigger a reset on the host.
