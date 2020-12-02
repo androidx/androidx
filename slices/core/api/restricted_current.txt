@@ -5,6 +5,10 @@ package androidx.slice {
     method public long currentTimeMillis();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CornerDrawable extends android.graphics.drawable.InsetDrawable {
+    ctor public CornerDrawable(android.graphics.drawable.Drawable?, float);
+  }
+
   @RequiresApi(19) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, isCustom=true) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.slice.Slice? bindSlice(android.content.Context!, android.net.Uri, java.util.Set<androidx.slice.SliceSpec!>!);
     method public java.util.List<java.lang.String!>! getHints();
