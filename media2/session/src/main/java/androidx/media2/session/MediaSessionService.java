@@ -222,7 +222,7 @@ public abstract class MediaSessionService extends Service {
      * notification UI.
      * <p>
      * This would be called on {@link MediaSession}'s callback executor when player state is
-     * changed.
+     * changed, or when the current media item of the session is changed.
      * <p>
      * With the notification returned here, the service becomes foreground service when the playback
      * is started. Apps targeting API {@link android.os.Build.VERSION_CODES#P} or later must request

@@ -787,6 +787,12 @@ public class MediaSession implements Closeable {
             }
         }
 
+        final void onCurrentMediaItemChanged(MediaSession session) {
+            if (mForegroundServiceEventCallback != null) {
+                mForegroundServiceEventCallback.onNotificationUpdateNeeded(session);
+            }
+        }
+
         final void onSessionClosed(MediaSession session) {
             if (mForegroundServiceEventCallback != null) {
                 mForegroundServiceEventCallback.onSessionClosed(session);
@@ -799,6 +805,7 @@ public class MediaSession implements Closeable {
 
         abstract static class ForegroundServiceEventCallback {
             public void onPlayerStateChanged(MediaSession session, @PlayerState int state) {}
+            public void onNotificationUpdateNeeded(MediaSession session) {}
             public void onSessionClosed(MediaSession session) {}
         }
     }
