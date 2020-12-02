@@ -233,8 +233,8 @@ public final class PlaceListNavigationTemplate implements Template {
          *
          * This template allows up to 6 {@link Row}s in the {@link ItemList}. The host will
          * ignore any items over that limit. The list itself cannot be selectable as set via {@link
-         * ItemList.Builder#setSelectable}. Each {@link Row} can add up to 2 lines of texts via
-         * {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         * ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to 2 lines of texts
+         * via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
          *
          * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
          *

@@ -48,7 +48,7 @@ import java.util.Objects;
  * A template that supports showing a list of routes alongside a custom drawn map.
  *
  * <p>The list must have its {@link
- * androidx.car.app.model.ItemList.OnSelectedListener} set, and the template
+ * ItemList.OnSelectedListener} set, and the template
  * must have its navigate action set (see {@link Builder#setNavigateAction}). These are used in
  * conjunction to inform the app that:
  *
