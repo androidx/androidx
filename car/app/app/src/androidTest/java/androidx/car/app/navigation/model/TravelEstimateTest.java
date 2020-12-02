@@ -51,6 +51,21 @@ public class TravelEstimateTest {
     private final long mRemainingTime = TimeUnit.HOURS.toMillis(10);
 
     @Test
+    public void build_default_to_unknown_time() {
+        DateTimeWithZone arrivalTime = createDateTimeWithZone("2020-04-14T15:57:00", "US/Pacific");
+        Distance remainingDistance = Distance.create(/* displayDistance= */ 100,
+                Distance.UNIT_METERS);
+        long remainingTime = TimeUnit.HOURS.toMillis(10);
+        TravelEstimate travelEstimate =
+                TravelEstimate.builder(remainingDistance, arrivalTime).build();
+
+        assertThat(travelEstimate.getRemainingDistance()).isEqualTo(remainingDistance);
+        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(REMAINING_TIME_UNKNOWN);
+        assertThat(travelEstimate.getArrivalTimeAtDestination()).isEqualTo(arrivalTime);
+        assertThat(travelEstimate.getRemainingTimeColor()).isEqualTo(CarColor.DEFAULT);
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 26)
     public void create_duration() {
         ZonedDateTime arrivalTime = ZonedDateTime.parse("2020-05-14T19:57:00-07:00[US/Pacific]");
@@ -118,7 +133,8 @@ public class TravelEstimateTest {
                 Distance.UNIT_METERS);
         assertThrows(
                 IllegalArgumentException.class,
-                () -> TravelEstimate.builder(remainingDistance, -2, arrivalTime));
+                () -> TravelEstimate.builder(remainingDistance,
+                        arrivalTime).setRemainingTimeSeconds(-2));
     }
 
     @Test
@@ -140,8 +156,8 @@ public class TravelEstimateTest {
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
                     TravelEstimate.builder(remainingDistance,
-                            TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                             arrivalTime)
+                            .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(remainingTime))
                             .setRemainingTimeColor(carColor)
                             .build();
 
@@ -172,8 +188,8 @@ public class TravelEstimateTest {
         for (CarColor carColor : allowedColors) {
             TravelEstimate travelEstimate =
                     TravelEstimate.builder(remainingDistance,
-                            TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                             arrivalTime)
+                            .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(remainingTime))
                             .setRemainingDistanceColor(carColor)
                             .build();
 
@@ -195,8 +211,9 @@ public class TravelEstimateTest {
                 IllegalArgumentException.class,
                 () ->
                         TravelEstimate.builder(remainingDistance,
-                                TimeUnit.MILLISECONDS.toSeconds(remainingTime),
                                 arrivalTime)
+                                .setRemainingTimeSeconds(
+                                        TimeUnit.MILLISECONDS.toSeconds(remainingTime))
                                 .setRemainingTimeColor(CarColor.createCustom(1, 2)));
     }
 
@@ -260,16 +277,17 @@ public class TravelEstimateTest {
     public void notEquals_differentRemainingTimeColor() {
         TravelEstimate travelEstimate =
                 TravelEstimate.builder(mRemainingDistance,
-                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                         mArrivalTime)
+                        .setRemainingTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(mRemainingTime))
                         .setRemainingTimeColor(CarColor.YELLOW)
                         .build();
 
         assertThat(travelEstimate)
                 .isNotEqualTo(
                         TravelEstimate.builder(mRemainingDistance,
-                                TimeUnit.MILLISECONDS.toSeconds(mRemainingTime),
                                 mArrivalTime)
+                                .setRemainingTimeSeconds(
+                                        TimeUnit.MILLISECONDS.toSeconds(mRemainingTime))
                                 .setRemainingTimeColor(CarColor.GREEN)
                                 .build());
     }
