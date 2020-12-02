@@ -390,7 +390,7 @@ package androidx.car.app.model {
     method public static androidx.car.app.model.ItemList.Builder builder();
     method public java.util.List<java.lang.Object!> getItems();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
-    method public androidx.car.app.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangeListener();
+    method public androidx.car.app.OnItemVisibilityChangedListenerWrapper? getOnItemsVisibilityChangedListener();
     method public androidx.car.app.OnSelectedListenerWrapper? getOnSelectedListener();
     method public int getSelectedIndex();
   }
@@ -401,8 +401,8 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ItemList build();
     method public androidx.car.app.model.ItemList.Builder clearItems();
     method public androidx.car.app.model.ItemList.Builder setNoItemsMessage(CharSequence?);
-    method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangeListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
-    method public androidx.car.app.model.ItemList.Builder setSelectable(androidx.car.app.model.ItemList.OnSelectedListener?);
+    method public androidx.car.app.model.ItemList.Builder setOnItemsVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
+    method public androidx.car.app.model.ItemList.Builder setOnSelectedListener(androidx.car.app.model.ItemList.OnSelectedListener?);
     method public androidx.car.app.model.ItemList.Builder setSelectedIndex(int);
   }
 

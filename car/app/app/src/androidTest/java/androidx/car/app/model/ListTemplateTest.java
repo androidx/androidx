@@ -90,7 +90,7 @@ public class ListTemplateTest {
         ItemList list =
                 ItemList.builder()
                         .addItem(Row.builder().setTitle("Title").build())
-                        .setOnItemsVisibilityChangeListener((start, end) -> {
+                        .setOnItemsVisibilityChangedListener((start, end) -> {
                         })
                         .build();
         assertThrows(
