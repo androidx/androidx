@@ -564,7 +564,6 @@ public class Complication internal constructor(
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
     internal fun computeBounds(screen: Rect): Rect {
-        System.err.println("<<< defaultProviderType " + defaultProviderType)
         // Try the current type if there is one, otherwise fall back to the bounds for the default
         // provider type.
         val unitSquareBounds =
