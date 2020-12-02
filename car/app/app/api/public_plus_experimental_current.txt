@@ -1021,6 +1021,7 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.model.CarColor getRemainingDistanceColor();
     method public androidx.car.app.model.CarColor getRemainingTimeColor();
     method public long getRemainingTimeSeconds();
+    field public static final long REMAINING_TIME_UNKNOWN = -1L; // 0xffffffffffffffffL
   }
 
   public static final class TravelEstimate.Builder {

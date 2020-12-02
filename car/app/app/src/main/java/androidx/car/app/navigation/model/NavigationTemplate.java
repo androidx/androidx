@@ -208,10 +208,19 @@ public class NavigationTemplate implements Template {
         /**
          * Sets the {@link TravelEstimate} to the final destination, or {@code null} to not show any
          * travel estimate information.
+         *
+         * @throws IllegalArgumentException if the {@link TravelEstimate}'s remaining time is
+         *                                  less than zero.
          */
         @NonNull
         public Builder setDestinationTravelEstimate(
                 @Nullable TravelEstimate destinationTravelEstimate) {
+            if (destinationTravelEstimate != null
+                    && destinationTravelEstimate.getRemainingTimeSeconds() < 0) {
+                throw new IllegalArgumentException(
+                        "The destination travel estimate's remaining time must be greater or "
+                                + "equal to zero");
+            }
             this.mDestinationTravelEstimate = destinationTravelEstimate;
             return this;
         }
