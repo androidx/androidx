@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.host;
+package androidx.car.app;
 
 import androidx.annotation.NonNull;
 

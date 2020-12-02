@@ -26,7 +26,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.host.OnDoneCallback;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.test.R;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;

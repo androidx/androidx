@@ -29,11 +29,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.ISearchListener;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.Screen;
 import androidx.car.app.SearchListener;
+import androidx.car.app.SearchListenerWrapper;
 import androidx.car.app.WrappedRuntimeException;
-import androidx.car.app.host.OnDoneCallback;
-import androidx.car.app.host.SearchListenerWrapper;
 import androidx.car.app.utils.RemoteUtils;
 
 import java.util.Collections;
