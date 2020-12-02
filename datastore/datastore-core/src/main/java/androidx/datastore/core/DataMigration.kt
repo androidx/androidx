@@ -35,6 +35,9 @@ public interface DataMigration<T> {
      *
      * Note that this will always be called before each call to [migrate].
      *
+     * Note that accessing any data from DataStore directly from inside this function will result
+     * in deadlock, since DataStore doesn't return data until all migrations complete.
+     *
      * @param currentData the current data (which might already populated from previous runs of this
      * or other migrations)
      */
@@ -49,6 +52,9 @@ public interface DataMigration<T> {
      *
      * Note that this will always be called before a call to [cleanUp].
      *
+     * Note that accessing any data from DataStore directly from inside this function will result
+     * in deadlock, since DataStore doesn't return data until all migrations complete.
+     *
      * @param currentData the current data (it might be populated from other migrations or from
      * manual changes before this migration was added to the app)
      * @return The migrated data.
@@ -61,6 +67,10 @@ public interface DataMigration<T> {
      * back to the DataStore call that triggered the migration and future calls to DataStore will
      * result in DataMigrations being attempted again. This method may be run multiple times when
      * any failure is encountered.
+     *
+     * This is useful for cleaning up files or data outside of DataStore and accessing any
+     * data from DataStore directly from inside this function will result in deadlock, since
+     * DataStore doesn't return data until all migrations complete.
      */
     public suspend fun cleanUp()
 }
