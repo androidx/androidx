@@ -156,6 +156,13 @@ package android.support.wearable.complications {
 
 package androidx.wear.complications {
 
+  public final class ComplicationBounds {
+    ctor public ComplicationBounds(java.util.Map<androidx.wear.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
+    ctor public ComplicationBounds(android.graphics.RectF bounds);
+    method public java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
+    property public final java.util.Map<androidx.wear.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
+  }
+
   public final class ComplicationHelperActivity extends android.app.Activity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback {
     ctor public ComplicationHelperActivity();
     method public static android.content.Intent createPermissionRequestHelperIntent(android.content.Context, android.content.ComponentName);
