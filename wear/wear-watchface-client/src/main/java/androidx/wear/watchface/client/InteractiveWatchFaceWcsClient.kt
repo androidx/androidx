@@ -32,7 +32,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
  * Controls a stateful remote interactive watch face with an interface tailored for WCS the
- * WearOS 3.0 system server responsible for watch face management. Typically this will be used for
+ * WearOS system server responsible for watch face management. Typically this will be used for
  * the current active watch face.
  *
  * Note clients should call [close] when finished.
