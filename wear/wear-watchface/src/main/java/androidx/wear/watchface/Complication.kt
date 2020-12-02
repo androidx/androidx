@@ -31,6 +31,7 @@ import androidx.wear.complications.data.IdAndComplicationData
 import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.Layer
+import androidx.wear.watchface.style.UserStyleSetting
 
 /** Interface for rendering complications onto a [Canvas]. */
 public interface CanvasComplication {
@@ -204,7 +205,8 @@ public open class CanvasComplicationDrawable(
 
 /**
  * Represents a individual complication on the screen. The number of complications is fixed
- * (see [ComplicationsManager]) but complications can be enabled or disabled as needed.
+ * (see [ComplicationsManager]) but complications can be enabled or disabled via
+ * [UserStyleSetting.ComplicationsUserStyleSetting].
  */
 public class Complication internal constructor(
     internal val id: Int,
@@ -396,7 +398,7 @@ public class Complication internal constructor(
         @UiThread
         get
         @UiThread
-        set(value) {
+        internal set(value) {
             if (field == value) {
                 return
             }
@@ -432,7 +434,7 @@ public class Complication internal constructor(
         @UiThread
         get
         @UiThread
-        set(value) {
+        internal set(value) {
             if (field == value) {
                 return
             }
@@ -457,7 +459,7 @@ public class Complication internal constructor(
         @UiThread
         get
         @UiThread
-        set(value) {
+        internal set(value) {
             if (field == value) {
                 return
             }
@@ -480,7 +482,7 @@ public class Complication internal constructor(
         @UiThread
         get
         @UiThread
-        set(value) {
+        internal set(value) {
             if (field == value) {
                 return
             }
