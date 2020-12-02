@@ -335,6 +335,7 @@ public abstract class CarAppService extends Service implements LifecycleOwner {
 
         for (String arg : args) {
             if (AUTO_DRIVE.equals(arg)) {
+                Log.d(TAG, "Executing onAutoDriveEnabled");
                 runOnMain(mCarContext.getCarService(NavigationManager.class)::onAutoDriveEnabled);
             }
         }
