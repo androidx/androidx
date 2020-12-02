@@ -26,8 +26,8 @@ import android.content.Context;
 import android.text.SpannableString;
 
 import androidx.car.app.CarAppPermission;
+import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
-import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;

@@ -29,8 +29,6 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.host.model.OnClickListenerWrapper;
-import androidx.car.app.host.model.OnClickListenerWrapperImpl;
 import androidx.car.app.model.constraints.CarIconConstraints;
 
 import java.lang.annotation.Retention;
