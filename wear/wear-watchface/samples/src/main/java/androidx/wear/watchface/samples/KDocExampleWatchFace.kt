@@ -24,6 +24,7 @@ import android.graphics.RectF
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.Sampled
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -117,7 +118,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-                        RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)
+                        ComplicationBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build(),
                     Complication.createRoundRectComplicationBuilder(
@@ -134,7 +135,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationType.SMALL_IMAGE
                         ),
                         DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
-                        RectF(0.1f, 0.5625f, 0.35f, 0.8125f)
+                        ComplicationBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
                     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
                         .build()
                 ),

@@ -24,6 +24,7 @@ import android.graphics.RectF
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -135,7 +136,7 @@ class WatchFaceConfigUiTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET),
-            RectF(0.2f, 0.4f, 0.4f, 0.6f)
+            ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 
@@ -156,7 +157,7 @@ class WatchFaceConfigUiTest {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-            RectF(0.6f, 0.4f, 0.8f, 0.6f)
+            ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
 

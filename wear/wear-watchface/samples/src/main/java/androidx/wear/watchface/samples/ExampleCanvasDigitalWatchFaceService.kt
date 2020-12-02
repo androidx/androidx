@@ -39,6 +39,7 @@ import android.view.SurfaceHolder
 import android.view.animation.AnimationUtils
 import android.view.animation.PathInterpolator
 import androidx.annotation.ColorInt
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -505,9 +506,11 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.WATCH_BATTERY),
-            createBoundsRect(
-                LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                createBoundsRect(
+                    LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                )
             )
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
@@ -521,43 +524,64 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 ComplicationType.SMALL_IMAGE
             ),
             DefaultComplicationProviderPolicy(SystemProviders.DATE),
-            createBoundsRect(
-                RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                createBoundsRect(
+                    RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                )
             )
         ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
             .build()
+
+        val upperAndLowerComplicationTypes = listOf(
+            ComplicationType.LONG_TEXT,
+            ComplicationType.RANGED_VALUE,
+            ComplicationType.SHORT_TEXT,
+            ComplicationType.MONOCHROMATIC_IMAGE,
+            ComplicationType.SMALL_IMAGE
+        )
+        // The upper and lower complications change shape depending on the complication's type.
         val upperComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.UPPER.ordinal,
             watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(
-                ComplicationType.LONG_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
+            upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.WORLD_CLOCK),
-            createBoundsRect(
-                UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        createBoundsRect(
+                            UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                        )
+                    } else {
+                        createBoundsRect(
+                            UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        )
+                    }
+                }
             )
         ).setDefaultProviderType(ComplicationType.LONG_TEXT)
             .build()
         val lowerComplication = Complication.createRoundRectComplicationBuilder(
             ComplicationID.LOWER.ordinal,
             watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
-            listOf(
-                ComplicationType.LONG_TEXT,
-                ComplicationType.RANGED_VALUE,
-                ComplicationType.SHORT_TEXT,
-                ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
-            ),
+            upperAndLowerComplicationTypes,
             DefaultComplicationProviderPolicy(SystemProviders.NEXT_EVENT),
-            createBoundsRect(
-                LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+            ComplicationBounds(
+                ComplicationType.values().associateWith {
+                    if (it == ComplicationType.LONG_TEXT) {
+                        createBoundsRect(
+                            LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
+                            ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                        )
+                    } else {
+                        createBoundsRect(
+                            LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
+                            CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        )
+                    }
+                }
             )
         ).setDefaultProviderType(ComplicationType.LONG_TEXT)
             .build()
@@ -586,36 +610,12 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
             colorStyleSetting,
             complicationsManager
         )
-
-        // Make the upper and lower complications change shape depending on the complication's type.
         upperComplication.complicationData.addObserver {
-            if (it.type == ComplicationType.LONG_TEXT) {
-                upperComplication.unitSquareBounds = createBoundsRect(
-                    UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                    ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                )
-            } else {
-                upperComplication.unitSquareBounds = createBoundsRect(
-                    UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
-            }
             // Force bounds recalculation, because this can affect the size of the central time
             // display.
             renderer.oldBounds.set(0, 0, 0, 0)
         }
         lowerComplication.complicationData.addObserver {
-            if (it.type == ComplicationType.LONG_TEXT) {
-                lowerComplication.unitSquareBounds = createBoundsRect(
-                    LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                    ROUND_RECT_COMPLICATION_SIZE_FRACTION
-                )
-            } else {
-                lowerComplication.unitSquareBounds = createBoundsRect(
-                    LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                    CIRCLE_COMPLICATION_DIAMETER_FRACTION
-                )
-            }
             // Force bounds recalculation, because this can affect the size of the central time
             // display.
             renderer.oldBounds.set(0, 0, 0, 0)

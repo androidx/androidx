@@ -26,6 +26,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
+import androidx.wear.complications.ComplicationBounds
 import androidx.wear.complications.DefaultComplicationProviderPolicy
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.data.ComplicationType
@@ -226,7 +227,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.SMALL_IMAGE
         ),
         DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK),
-        RectF(0.2f, 0.4f, 0.4f, 0.6f)
+        ComplicationBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
     val rightComplication = Complication.createRoundRectComplicationBuilder(
@@ -240,7 +241,7 @@ fun createExampleCanvasAnalogWatchFaceBuilder(
             ComplicationType.SMALL_IMAGE
         ),
         DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT),
-        RectF(0.6f, 0.4f, 0.8f, 0.6f)
+        ComplicationBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
     ).setDefaultProviderType(ComplicationType.SHORT_TEXT)
         .build()
     val complicationsManager = ComplicationsManager(
