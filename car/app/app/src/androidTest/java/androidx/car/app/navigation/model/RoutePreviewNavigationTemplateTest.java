@@ -37,7 +37,6 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.test.R;
-import androidx.car.app.utils.Logger;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -300,131 +299,6 @@ public class RoutePreviewNavigationTemplateTest {
                 }).addItem(rowWithTime).build())
                 .setNavigateAction(navigateAction)
                 .build();
-    }
-
-    @Test
-    public void validate_isRefresh() {
-        Logger logger = message -> {
-        };
-        SpannableString title = new SpannableString("Title");
-        title.setSpan(DISTANCE, 0, 1, 0);
-        Row.Builder row = Row.builder().setTitle(title);
-        Action navigateAction = Action.builder().setTitle("Navigate").setOnClickListener(() -> {
-        }).build();
-        RoutePreviewNavigationTemplate template = RoutePreviewNavigationTemplate.builder()
-                .setTitle("Title")
-                .setItemList(ItemList.builder().addItem(row.build()).setSelectable(
-                        index -> {
-                        }).build())
-                .setNavigateAction(navigateAction)
-                .build();
-
-        assertThat(template.isRefresh(template, logger)).isTrue();
-
-        // Going from loading state to new content is allowed.
-        assertThat(template.isRefresh(
-                RoutePreviewNavigationTemplate.builder()
-                        .setTitle("Title")
-                        .setIsLoading(true)
-                        .build(),
-                logger))
-                .isTrue();
-
-        // Other allowed mutable states.
-        SpannableString stringWithSpan = new SpannableString("Title");
-        stringWithSpan.setSpan(DISTANCE, 1, /* end= */ 2, /* flags= */ 0);
-        assertThat(template.isRefresh(
-                RoutePreviewNavigationTemplate.builder()
-                        .setTitle("Title")
-                        .setItemList(ItemList.builder()
-                                .addItem(row.setImage(
-                                        CarIcon.of(IconCompat.createWithResource(
-                                                ApplicationProvider.getApplicationContext(),
-                                                R.drawable.ic_test_1)))
-                                        .setTitle(stringWithSpan)
-                                        .build())
-                                .setSelectable(index -> {
-                                })
-                                .build())
-                        .setHeaderAction(Action.BACK)
-                        .setNavigateAction(Action.builder().setTitle(
-                                "Navigate2").setOnClickListener(() -> {
-                                }
-                        ).build())
-                        .setActionStrip(ActionStrip.builder().addAction(Action.APP_ICON).build())
-                        .build(),
-                logger))
-                .isTrue();
-
-        // Title updates are disallowed.
-        assertThat(template.isRefresh(
-                RoutePreviewNavigationTemplate.builder()
-                        .setItemList(ItemList.builder().addItem(row.build()).setSelectable(
-                                index -> {
-                                }).build())
-                        .setTitle("Title2")
-                        .setNavigateAction(navigateAction)
-                        .build(),
-                logger))
-                .isFalse();
-
-        // Text updates are disallowed.
-        SpannableString title2 = new SpannableString("Title2");
-        title2.setSpan(DISTANCE, 0, 1, 0);
-        assertThat(
-                template.isRefresh(
-                        RoutePreviewNavigationTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(
-                                        ItemList.builder()
-                                                .addItem(row.setTitle(title2).build())
-                                                .setSelectable(index -> {
-                                                })
-                                                .build())
-                                .setNavigateAction(navigateAction)
-                                .build(),
-                        logger))
-                .isFalse();
-        assertThat(
-                template.isRefresh(
-                        RoutePreviewNavigationTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(
-                                        ItemList.builder()
-                                                .addItem(row.addText("Text").build())
-                                                .setSelectable(index -> {
-                                                })
-                                                .build())
-                                .setNavigateAction(navigateAction)
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Additional rows are disallowed.
-        assertThat(
-                template.isRefresh(
-                        RoutePreviewNavigationTemplate.builder()
-                                .setTitle("Title")
-                                .setItemList(
-                                        ItemList.builder()
-                                                .addItem(row.build())
-                                                .addItem(row.build())
-                                                .setSelectable(index -> {
-                                                })
-                                                .build())
-                                .setNavigateAction(navigateAction)
-                                .build(),
-                        logger))
-                .isFalse();
-
-        // Going from content to loading state is disallowed.
-        assertThat(
-                RoutePreviewNavigationTemplate.builder()
-                        .setTitle("Title")
-                        .setIsLoading(true)
-                        .build()
-                        .isRefresh(template, logger))
-                .isFalse();
     }
 
     @Test

@@ -23,8 +23,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.car.app.utils.Logger;
-import androidx.car.app.utils.ValidationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,29 +69,6 @@ public final class Pane {
      */
     public boolean isLoading() {
         return mIsLoading;
-    }
-
-    /**
-     * Returns {@code true} if this {@link Pane} instance is determined to be a refresh of the given
-     * pane, or {@code false} otherwise.
-     *
-     * <p>A pane is considered a refresh if:
-     *
-     * <ul>
-     *   <li>The other pane is in a loading state, or
-     *   <li>The row size and string contents of the two panes are the same.
-     * </ul>
-     */
-    public boolean isRefresh(@Nullable Pane other, @NonNull Logger logger) {
-        if (other == null) {
-            return false;
-        } else if (other.isLoading()) {
-            return true;
-        } else if (isLoading()) {
-            return false;
-        }
-
-        return ValidationUtils.itemsHaveSameContent(other.getRows(), getRows(), logger);
     }
 
     @Override

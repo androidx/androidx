@@ -34,7 +34,6 @@ import androidx.car.app.SearchListener;
 import androidx.car.app.WrappedRuntimeException;
 import androidx.car.app.host.OnDoneCallback;
 import androidx.car.app.host.SearchListenerWrapper;
-import androidx.car.app.utils.Logger;
 import androidx.car.app.utils.RemoteUtils;
 
 import java.util.Collections;
@@ -149,13 +148,6 @@ public final class SearchTemplate implements Template {
      */
     public boolean isShowKeyboardByDefault() {
         return mShowKeyboardByDefault;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        // Always allow updating on search templates. Search results needs to be updated on the fly
-        // as user searches.
-        return oldTemplate.getClass() == this.getClass();
     }
 
     @NonNull

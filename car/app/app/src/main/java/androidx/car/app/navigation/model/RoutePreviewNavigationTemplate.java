@@ -40,7 +40,6 @@ import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
-import androidx.car.app.utils.Logger;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -132,28 +131,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
-    }
-
-    @Override
-    public boolean isRefresh(@NonNull Template oldTemplate, @NonNull Logger logger) {
-        if (oldTemplate.getClass() != this.getClass()) {
-            return false;
-        }
-
-        RoutePreviewNavigationTemplate old = (RoutePreviewNavigationTemplate) oldTemplate;
-        if (!Objects.equals(old.getTitle(), getTitle())) {
-            return false;
-        }
-
-        if (old.mIsLoading) {
-            // Transition from a previous loading state is allowed.
-            return true;
-        } else if (mIsLoading) {
-            // Transition to a loading state is disallowed.
-            return false;
-        }
-
-        return requireNonNull(mItemList).isRefresh(old.getItemList(), logger);
     }
 
     @Override
