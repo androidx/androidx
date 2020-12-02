@@ -494,13 +494,6 @@ public class CarAppExtender implements NotificationCompat.Extender {
             return this;
         }
 
-        /** Clears any actions that may have been added with {@link #addAction} up to this point. */
-        @NonNull
-        public Builder clearActions() {
-            this.mActions.clear();
-            return this;
-        }
-
         /**
          * Sets the importance of the notification in the car screen.
          *

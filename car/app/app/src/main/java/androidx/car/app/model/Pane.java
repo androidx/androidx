@@ -149,13 +149,6 @@ public final class Pane {
             return this;
         }
 
-        /** Clears any rows that may have been added with {@link #addRow(Row)} up to this point. */
-        @NonNull
-        public Builder clearRows() {
-            mRows.clear();
-            return this;
-        }
-
         /**
          * Sets multiple {@link Action}s to display alongside the rows in the pane.
          *

@@ -363,16 +363,6 @@ public class Row implements Item {
         }
 
         /**
-         * Clears any rows that may have been added with {@link #addText(CharSequence)} up to this
-         * point.
-         */
-        @NonNull
-        public Builder clearText() {
-            mTexts.clear();
-            return this;
-        }
-
-        /**
          * Sets an image to show in the row with the default size {@link #IMAGE_TYPE_SMALL}, or
          * {@code null} to not display an image in the row.
          *

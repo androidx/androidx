@@ -93,25 +93,6 @@ public class ItemListTest {
     }
 
     @Test
-    public void clearRows() {
-        Row row1 = Row.builder().setTitle("Row1").build();
-        Row row2 = Row.builder().setTitle("Row2").build();
-        ItemList list = builder().addItem(row1).addItem(row2).clearItems().build();
-
-        assertThat(list.getItems()).isEmpty();
-    }
-
-    @Test
-    public void clearGridItems() {
-        GridItem gridItem1 = GridItem.builder().setImage(BACK).build();
-        GridItem gridItem2 = GridItem.builder().setImage(BACK).build();
-        ItemList list = builder().addItem(gridItem1).addItem(
-                gridItem2).clearItems().build();
-
-        assertThat(list.getItems()).isEmpty();
-    }
-
-    @Test
     public void setSelectedable_emptyList_throws() {
         assertThrows(
                 IllegalStateException.class,
